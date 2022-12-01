@@ -78,9 +78,8 @@ export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme }>`
   row-gap: 5px;
   top: 0;
   left: 0;
-  transition: transform 50ms ease-in-out;
   transform: translate(calc(var(--translateX, 0) * 1px), calc(var(--translateY, 0px) * 1px));
-  opacity: var(--translateX);
+  opacity: var(--translateX, 0);
   pointer-events: none;
 
   .value {

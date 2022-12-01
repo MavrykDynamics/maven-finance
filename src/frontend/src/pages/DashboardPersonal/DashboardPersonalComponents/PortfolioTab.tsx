@@ -9,7 +9,7 @@ import { ACTION_PRIMARY, ACTION_SIMPLE } from 'app/App.components/Button/Button.
 
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { TradingViewChart } from 'app/App.components/Chart/Chart.view'
+import { Chart } from 'app/App.components/Chart/Chart.view'
 import { SlidingTabButtons, TabItem } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
 
@@ -76,7 +76,7 @@ const PortfolioTab = ({ xtzAmount, tzBTCAmount, sMVKAmount, notsMVKAmount }: Por
             <CommaNumber beginningText="$" value={lastSeria * exchangeRate} />
           </div>
         </div>
-        <TradingViewChart
+        <Chart
           data={CHART_TEST_DATA}
           colors={{
             lineColor: '#77A4F2',

@@ -6,7 +6,7 @@ import { State } from 'reducers'
 import { ChartCard, ChartSlidingTabButtons } from './DoormanChart.style'
 
 // components
-import { TradingViewChart } from '../../../app/App.components/Chart/Chart.view'
+import { Chart } from '../../../app/App.components/Chart/Chart.view'
 import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { formatNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { cyanColor } from 'styles'
@@ -63,7 +63,7 @@ export function DoormanChart({ className }: Props) {
     <ChartCard className={className}>
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
-      <TradingViewChart
+      <Chart
         data={shownData}
         colors={{
           lineColor: cyanColor,
