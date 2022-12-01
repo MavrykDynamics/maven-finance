@@ -15,7 +15,7 @@ import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
-import { BreakGlassCouncilPending } from './BreakGlassCouncilPending/BreakGlassCouncilPending.controller'
+import { CouncilPending } from '../Council/CouncilPending/CouncilPending.controller'
 import { MyCouncilActions } from '../Council/MyCouncilActions.view'
 
 // helpers
@@ -233,7 +233,7 @@ export function BreakGlassCouncil() {
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingSignature.length} key={sliderKey}>
                   {breakGlassActionPendingSignature.map((item, index) => (
-                    <BreakGlassCouncilPending
+                    <CouncilPending
                       {...item}
                       key={item.id}
                       numCouncilMembers={breakGlassCouncilMember.length}

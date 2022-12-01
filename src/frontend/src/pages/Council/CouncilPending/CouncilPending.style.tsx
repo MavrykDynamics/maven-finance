@@ -1,15 +1,11 @@
 import styled from 'styled-components/macro'
 import { Card, skyColor, headerColor, containerColor, cyanColor } from 'styles'
 
-// types
-import { MavrykTheme } from 'styles/interfaces'
-
-export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
+export const CouncilPendingStyled = styled(Card)`
   position: relative;
   margin: 0;
   height: 200px;
   padding: 25px;
-  padding-bottom: 28px;
   min-width: 237px;
 
   .number {
@@ -24,24 +20,22 @@ export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.cardBorderColor};
   }
 
-  // 2/3
   &.addVestee,
-  &.addCouncilMember,
   &.updateVestee,
-  &.requestMint {
-    min-width: 532px;
+  &.requestMint,
+  &.addCouncilMember {
+    min-width: 590px;
     .parameters {
       display: grid;
-      grid-template-columns: 130px 144px 150px;
+      grid-template-columns: 130px 180px 150px;
       align-items: center;
     }
 
     .sign-btn {
-      margin-left: -32px;
+      margin-left: -37px;
     }
   }
 
-  // 3/3
   &.requestTokens,
   &.transfer {
     min-width: 750px;
@@ -51,12 +45,42 @@ export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
       align-items: center;
     }
   }
-  // 3/3
-  &.changeCouncilMember {
-    min-width: 750px;
+
+  &.setSingleContractAdmin,
+  &.updateCouncilMember,
+  &.changeCouncilMember,
+  &.addCouncilMember {
+    h3 {
+      max-width: 100%;
+    }
+  }
+
+  &.setSingleContractAdmin {
+    min-width: 380px;
+
     .parameters {
       display: grid;
-      grid-template-columns: 180px 180px 100px 186px;
+      grid-template-columns: 125px 185px;
+      align-items: center;
+    }
+  }
+
+  &.updateCouncilMember {
+    min-width: 532px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 118px 144px 185px;
+      align-items: center;
+    }
+  }
+
+  &.changeCouncilMember {
+    min-width: 725px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 125px 160px 155px 185px;
       align-items: center;
     }
   }
@@ -90,18 +114,32 @@ export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
     }
   }
 
-  .parameters-btn {
-    color: ${headerColor};
-    font-weight: 700;
+  .parameters-link{
+    display: block;
+
+    color: ${cyanColor};
+    font-weight: 500;
     font-size: 14px;
-    line-height: 14px;
+    line-height: 24px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-decoration: underline;
   }
 
   .parameters {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 20px;
     gap: 16px;
+
+    &:first-of-type {
+      padding-bottom: 20px;
+    }
+
+    .parameters-name {
+      text-transform: capitalize;
+    }
 
     .parameters-value,
     .parameters-value p {
@@ -110,8 +148,8 @@ export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
       font-weight: 600;
       font-size: 16px;
       line-height: 16px;
-      /* white-space: nowrap; */
-      /* overflow: hidden; */
+      white-space: nowrap;
+      overflow: hidden;
       word-break: break-all;
       width: 100%;
       max-width: 100%;
@@ -133,6 +171,10 @@ export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
       flex-direction: column;
       align-items: center;
     }
+
+    .without-margin {
+      margin: 0;
+    }
   }
 
   .parameters-img {
@@ -146,6 +188,13 @@ export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
       object-fit: cover;
       border-radius: 50%;
     }
+  }
+
+  .no-wrap {
+    max-width: 125px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 `
 
