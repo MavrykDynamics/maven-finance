@@ -193,7 +193,7 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.textColor};
   }
   img {
-    margin: 23px auto;
+    margin-bottom: 10px;
     margin-top: auto;
   }
 
@@ -204,6 +204,7 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
     line-height: 22px;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 130px;
   }
 
   div {
