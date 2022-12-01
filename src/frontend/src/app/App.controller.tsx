@@ -37,7 +37,7 @@ export const coinGeckoClient = new CoinGecko()
 
 const AppContainer = () => {
   const dispatch = useDispatch()
-  const { loading } = useSelector((state: State) => state)
+  const { isLoading } = useSelector((state: State) => state.loading)
   const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
   const showSidebarOpened = useMedia('(min-width: 1400px)')
 
@@ -82,7 +82,7 @@ const AppContainer = () => {
     dispatch(toggleSidebarCollapsing(showSidebarOpened))
   }, [showSidebarOpened])
 
-  useLockBodyScroll(Boolean(loading))
+  useLockBodyScroll(isLoading)
 
   const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
 
