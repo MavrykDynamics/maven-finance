@@ -186,16 +186,16 @@ export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstak
           </StakeUnstakeInputColumn>
         </StakeUnstakeInputGrid>
         <StakeUnstakeButtonGrid className={`${userHasRewards ? 'compound' : ''}`}>
-          {userHasRewards ? (
-            <Button text="Compound" className="fill" kind={ACTION_PRIMARY} icon="compound" onClick={handleCompound} />
-          ) : null}
+          <Button text="Stake" kind={ACTION_PRIMARY} icon="in" onClick={() => handleStakeUnstakeClick('STAKE')} />
           <Button
             text="Unstake"
             icon="out"
             kind={ACTION_SECONDARY}
             onClick={() => handleStakeUnstakeClick('UNSTAKE')}
           />
-          <Button text="Stake" kind={ACTION_PRIMARY} icon="in" onClick={() => handleStakeUnstakeClick('STAKE')} />
+          {userHasRewards ? (
+            <Button text="Compound" className="fill" kind={ACTION_PRIMARY} icon="compound" onClick={handleCompound} />
+          ) : null}
         </StakeUnstakeButtonGrid>
         {userHasRewards ? (
           <p className="compound-info">

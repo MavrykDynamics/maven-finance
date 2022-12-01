@@ -50,7 +50,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           <div>
             <h4>MVK Token Address</h4>
             <var className="click-address">
-              <TzAddress tzAddress={mvkTokenAddress?.address} hasIcon={false} />
+              <TzAddress tzAddress={mvkTokenAddress?.address} hasIcon={true} />
             </var>
           </div>
         ) : null}
@@ -59,7 +59,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           <div>
             <h4>Doorman Address</h4>
             <var className="click-address">
-              <TzAddress tzAddress={doormanAddress?.address} hasIcon={false} />
+              <TzAddress tzAddress={doormanAddress?.address} hasIcon={true} />
             </var>
           </div>
         ) : null}
