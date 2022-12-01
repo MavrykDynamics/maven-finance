@@ -29,21 +29,7 @@ const tabsList: TabItem[] = [
 ]
 
 export function DoormanChart({ className }: Props) {
-  const { mvkMintHistoryData: mvkMintHistoryDataBase, smvkHistoryData } = useSelector((state: State) => state.doorman)
-
-  const getDefaultMvkMintHistoryData = useMemo(() => {
-    var date = new Date()
-    date.setDate(date.getDate() - 7)
-
-    return [
-      {
-        time: String(date),
-        value: 0,
-      },
-    ]
-  }, [])
-
-  const mvkMintHistoryData = mvkMintHistoryDataBase.length ? mvkMintHistoryDataBase : getDefaultMvkMintHistoryData
+  const { mvkMintHistoryData, smvkHistoryData } = useSelector((state: State) => state.doorman)
 
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isStakingHistory = activeTab === tabsList[1].text

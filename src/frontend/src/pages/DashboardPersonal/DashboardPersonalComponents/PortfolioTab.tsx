@@ -78,12 +78,6 @@ const PortfolioTab = ({ xtzAmount, tzBTCAmount, sMVKAmount, notsMVKAmount }: Por
         </div>
         <Chart
           data={CHART_TEST_DATA}
-          colors={{
-            lineColor: '#77A4F2',
-            areaTopColor: '#77A4F2',
-            areaBottomColor: 'rgba(119, 164, 242, 0)',
-            textColor: '#CDCDCD',
-          }}
           settings={{
             height: 260,
           }}

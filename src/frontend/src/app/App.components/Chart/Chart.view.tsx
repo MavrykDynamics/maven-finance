@@ -11,10 +11,17 @@ import { parseDate } from '../../../utils/time'
 import Icon from '../Icon/Icon.view'
 
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
+import { headerColor, lightTextColor, skyColor } from 'styles'
 
 type TradingViewChartProps = {
-  data: { time: string | number; value: number }[]
-  colors: { lineColor: string; areaTopColor: string; areaBottomColor: string; textColor: string }
+  data: { time: UTCTimestamp; value: number }[]
+  colors?: {
+    lineColor?: string
+    areaTopColor?: string
+    areaBottomColor?: string
+    textColor?: string
+    borderColor?: string
+  }
   settings: {
     height: number
     tickDateFormatter?: (date: number) => string
@@ -70,7 +77,13 @@ export const Chart = ({
 
 export const TradingViewChart = ({
   data,
-  colors: { lineColor, areaTopColor, areaBottomColor, textColor },
+  colors: {
+    lineColor = skyColor,
+    areaTopColor = skyColor,
+    areaBottomColor = 'transparent',
+    textColor = lightTextColor,
+    borderColor = headerColor,
+  } = {},
   settings: { height, dateTooltipFormatter, valueTooltipFormatter, tickPriceFormatter, tickDateFormatter },
   className,
 }: TradingViewChartProps) => {
@@ -113,12 +126,12 @@ export const TradingViewChart = ({
     // Setting the border color for the vertical axis
     chart.priceScale().applyOptions({
       //TODO: add price formatter
-      borderColor: '#8D86EB',
+      borderColor,
     })
 
     // Setting the border color for the horizontal axis
     chart.timeScale().applyOptions({
-      borderColor: '#8D86EB',
+      borderColor,
       visible: true,
       tickMarkFormatter: (time: UTCTimestamp | BusinessDay) => {
         return tickDateFormatter?.(Number(time)) ?? parseDate({ time: Number(time), timeFormat: 'HH:mm' }) ?? ''
@@ -126,8 +139,6 @@ export const TradingViewChart = ({
     })
 
     const series = chart.addAreaSeries({ lineColor, topColor: areaTopColor, bottomColor: areaBottomColor })
-
-    // @ts-ignore
     series.setData(data)
     series.applyOptions({
       lastValueVisible: false,
