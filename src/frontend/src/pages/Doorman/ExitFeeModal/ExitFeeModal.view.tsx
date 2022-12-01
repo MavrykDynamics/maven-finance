@@ -159,16 +159,6 @@ export const ExitFeeModalView = ({
 
                 <ExitFeeModalButtons>
                   <Button
-                    text="Cancel"
-                    kind={ACTION_SECONDARY}
-                    icon="error"
-                    loading={loading}
-                    onClick={() => {
-                      dispatch(setExitFeeAmount(inputAmountValue))
-                      cancelCallback()
-                    }}
-                  />
-                  <Button
                     text="Proceed"
                     icon="success"
                     disabled={!stakeUnstakeValueOK.amount}
@@ -177,6 +167,17 @@ export const ExitFeeModalView = ({
                     onClick={() => {
                       dispatch(setExitFeeAmount(inputAmountValue))
                       unstakeCallback(inputAmountValue)
+                    }}
+                  />
+
+                  <Button
+                    text="Cancel"
+                    kind={ACTION_SECONDARY}
+                    icon="error"
+                    loading={loading}
+                    onClick={() => {
+                      dispatch(setExitFeeAmount(inputAmountValue))
+                      cancelCallback()
                     }}
                   />
                 </ExitFeeModalButtons>
