@@ -322,14 +322,14 @@ p {
 
     &:hover {
       svg {
-        fill: ${cyanColor};
+        opacity: 0.8;
       }
     }
 
     svg {
       width: 16px;
       height: 16px;
-      fill: ${headerColor};
+      fill: ${({ theme }) => theme.textColor};
     }
   }
 
