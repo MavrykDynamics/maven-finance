@@ -87,8 +87,6 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
           )
         : DEFAULT_USER
 
-      console.log('userData', userData)
-
       dispatch({
         type: CONNECT,
         wallet,
