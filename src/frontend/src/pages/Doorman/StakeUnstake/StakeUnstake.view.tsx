@@ -38,13 +38,15 @@ type StakeUnstakeViewProps = {
 export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstakeViewProps) => {
   const dispatch = useDispatch()
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
-    myDoormanRewardsData: { myAvailableDoormanRewards = 0 } = {},
-    mySatelliteRewardsData: { myAvailableSatelliteRewards = 0 } = {},
-    myMvkTokenBalance = 0,
-    mySMvkTokenBalance = 0,
-  } = useSelector((state: State) => state.user)
+    accountPkh,
+    user: {
+      myDoormanRewardsData: { myAvailableDoormanRewards },
+      mySatelliteRewardsData: { myAvailableSatelliteRewards },
+      myMvkTokenBalance,
+      mySMvkTokenBalance,
+    },
+  } = useSelector((state: State) => state.wallet)
   const { amount, showing } = useSelector((state: State) => state.exitFeeModal)
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })

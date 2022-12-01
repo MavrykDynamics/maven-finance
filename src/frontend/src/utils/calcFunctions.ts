@@ -1,4 +1,4 @@
-import { UserState } from 'reducers/user'
+import { UserState } from 'reducers/wallet'
 import { FIXED_POINT_ACCURACY, PRECISION_NUMBER, SECONDS_PER_BLOCK } from './constants'
 import { UserDoormanRewardsData, UserFarmRewardsData, UserSatelliteRewardsData } from './TypesAndInterfaces/User'
 
@@ -42,7 +42,7 @@ export function calcWithoutMu(amount: string | number): number {
 }
 
 // TODO: remove mutations in these 3 fns
-export function calcUsersDoormanRewards(userInfo: UserState): UserDoormanRewardsData | undefined {
+export function calcUsersDoormanRewards(userInfo: Partial<UserState>): UserDoormanRewardsData | undefined {
   const { mySMvkTokenBalance = 0, myDoormanRewardsData } = userInfo
   if (!myDoormanRewardsData) return undefined
   const currentFeesPerShare =
@@ -56,7 +56,7 @@ export function calcUsersDoormanRewards(userInfo: UserState): UserDoormanRewards
 }
 
 export function calcUsersFarmRewards(
-  userInfo: UserState,
+  userInfo: Partial<UserState>,
   currentBlockLevel: number,
 ): Record<string, UserFarmRewardsData> | undefined {
   const { myFarmRewardsData } = userInfo
@@ -91,7 +91,7 @@ export function calcUsersFarmRewards(
   return newFarmRewardsData
 }
 
-export function calcUsersSatelliteRewards(userInfo: UserState): UserSatelliteRewardsData | undefined {
+export function calcUsersSatelliteRewards(userInfo: Partial<UserState>): UserSatelliteRewardsData | undefined {
   const { mySMvkTokenBalance = 0, mySatelliteRewardsData } = userInfo
   if (!mySatelliteRewardsData) return undefined
   const satelliteRewardRatio =

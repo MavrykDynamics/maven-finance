@@ -14,11 +14,12 @@ import UserDetailsView from './UsersDetails.view'
 import { sortByCategory } from 'utils/sortByCategory'
 import { usersData } from '../users.const'
 
-
 const UserDetails = () => {
   const dispatch = useDispatch()
-  const isLoading = useSelector((state: State) => Boolean(state.loading))
-  const { oraclesStorage: { feedCategories } } = useSelector((state: State) => state.oracles)
+  const isLoading = useSelector((state: State) => state.loading.isLoading)
+  const {
+    oraclesStorage: { feedCategories },
+  } = useSelector((state: State) => state.oracles)
   let { userId } = useParams<{ userId: string }>()
 
   let [selectedUser, setSelectedUser] = useState<null | UserType>(null)
@@ -43,7 +44,13 @@ const UserDetails = () => {
   }, [dispatch, userId])
 
   return (
-    <UserDetailsView user={selectedUser} isLoading={isLoading} feeds={sortedFeeds} handleSelect={handleSelect} categories={feedCategories} />
+    <UserDetailsView
+      user={selectedUser}
+      isLoading={isLoading}
+      feeds={sortedFeeds}
+      handleSelect={handleSelect}
+      categories={feedCategories}
+    />
   )
 }
 

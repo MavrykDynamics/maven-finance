@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
 
 import { State } from '../reducers'
-import { onStart } from './App.actions'
 import { AppRoutes } from './App.components/AppRoutes/AppRoutes.controller'
 import { connect, setWallet } from './App.components/ConnectWallet/ConnectWallet.actions'
 import { Menu } from './App.components/Menu/Menu.controller'
@@ -14,13 +13,21 @@ import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller
 import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
 import { AppStyled } from './App.style'
-import { getGovernanceStorage } from '../../src/pages/Governance/Governance.actions'
 import { PopupChangeNode } from './App.components/SettingsPopup/SettingsPopup.controller'
 import { toggleRPCNodePopup } from './App.components/SettingsPopup/SettingsPopup.actions'
 import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 import { useLockBodyScroll, useMedia } from 'react-use'
 import CoinGecko from 'coingecko-api'
 import Loader from './App.components/Loader/Loader.view'
+import { toggleDataLoader } from './App.components/Loader/Loader.action'
+import { getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
+import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
+import { getContractAddressesStorage } from 'reducers/actions/contractAddresses.actions'
+import {
+  getDipDupTokensStorage,
+  getWhitelistTokensStorage,
+  getTokensPrices,
+} from 'reducers/actions/dipDupActions.actions'
 
 // export const { store, persistor } = configureStore({})
 export const { store } = configureStore({})
@@ -35,20 +42,36 @@ const AppContainer = () => {
   const showSidebarOpened = useMedia('(min-width: 1400px)')
 
   useEffect(() => {
-    dispatch(onStart())
-    dispatch(getGovernanceStorage())
-    // For using Temple wallet
-    // return TempleWallet.onAvailabilityChange((available) => {
-    //   if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
-    // })
+    dispatch(toggleSidebarCollapsing(showSidebarOpened))
+  }, [showSidebarOpened])
 
-    // For using Beacon wallet
-    if (
-      localStorage.getItem('beacon:active-account') &&
-      localStorage.getItem('beacon:active-account') !== 'undefined'
-    ) {
-      dispatch(connect())
-    }
+  useEffect(() => {
+    ;(async () => {
+      // Fetching initial data for DAPP
+      await dispatch(toggleDataLoader(true))
+      await dispatch(getDelegationStorage())
+      // For using Temple wallet
+      // return TempleWallet.onAvailabilityChange((available) => {
+      //   if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
+      // })
+
+      // For using Beacon wallet
+      if (
+        localStorage.getItem('beacon:active-account') &&
+        localStorage.getItem('beacon:active-account') !== 'undefined'
+      ) {
+        await dispatch(connect())
+      }
+
+      await dispatch(toggleDataLoader(false))
+
+      // common data across the DAPP
+      await dispatch(getContractAddressesStorage())
+      await dispatch(getDipDupTokensStorage())
+      await dispatch(getWhitelistTokensStorage())
+      await dispatch(getTokensPrices())
+      await dispatch(getMvkTokenStorage())
+    })()
 
     return () => {
       dispatch(setWallet())

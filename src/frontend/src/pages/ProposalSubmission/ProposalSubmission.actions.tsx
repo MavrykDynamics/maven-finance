@@ -17,12 +17,12 @@ export const submitProposal =
   (form: SubmitProposalForm, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -54,12 +54,12 @@ export const submitProposal =
 export const dropProposal = (proposalId: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -90,12 +90,12 @@ export const dropProposal = (proposalId: number) => async (dispatch: AppDispatch
 export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -133,12 +133,12 @@ export const updateProposalData =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }

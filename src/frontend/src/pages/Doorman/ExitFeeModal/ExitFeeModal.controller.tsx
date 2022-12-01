@@ -8,7 +8,7 @@ import { ExitFeeModalView } from './ExitFeeModal.view'
 
 export const ExitFeeModal = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
+  const loading = useSelector((state: State) => state.loading.isLoading)
   const { showing, amount } = useSelector((state: State) => state.exitFeeModal)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)

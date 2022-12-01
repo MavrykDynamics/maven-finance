@@ -18,19 +18,21 @@ const DashboardPersonal = () => {
   const { tabId } = useParams<{ tabId: string }>()
 
   const {
-    myDoormanRewardsData,
-    myFarmRewardsData,
-    mySatelliteRewardsData,
-    myMvkTokenBalance = 0,
-    mySMvkTokenBalance = 0,
-    myXTZTokenBalance = 0,
-    mytzBTCTokenBalance = 0,
-    isSatellite = false,
-  } = useSelector((state: State) => state.user)
-  const {
     tokensPrices: { tezos },
   } = useSelector((state: State) => state.tokens)
   const { exchangeRate: mvkRate } = useSelector((state: State) => state.mvkToken)
+  const {
+    user: {
+      myDoormanRewardsData,
+      myFarmRewardsData,
+      mySatelliteRewardsData,
+      myMvkTokenBalance,
+      mySMvkTokenBalance,
+      myXTZTokenBalance,
+      mytzBTCTokenBalance,
+      isSatellite,
+    },
+  } = useSelector((state: State) => state.wallet)
 
   const claimRewards = useCallback(() => {
     console.log('claim rewards in DashboardPersonal')

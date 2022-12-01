@@ -12,10 +12,12 @@ import { BecomeSatelliteView } from './BecomeSatellite.view'
 
 export const BecomeSatellite = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
-  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const loading = useSelector((state: State) => state.loading.isLoading)
+  const {
+    accountPkh,
+    user: { mySMvkTokenBalance },
+  } = useSelector((state: State) => state.wallet)
   const { satelliteLedger, config } = useSelector((state: State) => state.delegation.delegationStorage)
-  const { mySMvkTokenBalance = 0 } = useSelector((state: State) => state.user)
 
   const usersSatelliteProfile = satelliteLedger.find((satellite: SatelliteRecord) => satellite.address === accountPkh)
   const isSutelliteRegistered = Boolean(usersSatelliteProfile?.currentlyRegistered)

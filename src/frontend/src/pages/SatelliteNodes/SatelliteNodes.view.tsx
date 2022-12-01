@@ -17,7 +17,6 @@ import { Page, PageContent } from 'styles'
 import { EmptyContainer } from 'app/App.style'
 import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
 
-
 type OracleSatellitesViewProps = {
   handleSelect: (item: { text: string; value: string }) => void
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -40,8 +39,14 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList, delegateCallback, undelegateCallback }: OracleSatellitesViewProps) => {
-  const loading = useSelector((state: State) => Boolean(state.loading))
+const OracleSatellitesView = ({
+  handleSelect,
+  handleSearch,
+  satellitesList,
+  delegateCallback,
+  undelegateCallback,
+}: OracleSatellitesViewProps) => {
+  const loading = useSelector((state: State) => state.loading.isLoading)
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -80,7 +85,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList, dele
               <h4>Order by:</h4>
               <DropDown
                 clickOnDropDown={handleClickDropdown}
-                placeholder='Choose option'
+                placeholder="Choose option"
                 isOpen={ddIsOpen}
                 setIsOpen={setDdIsOpen}
                 itemSelected={chosenDdItem?.text}

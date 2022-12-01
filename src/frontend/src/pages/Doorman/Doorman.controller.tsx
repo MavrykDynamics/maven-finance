@@ -11,7 +11,7 @@ import { DoormanInfoStyled } from './Doorman.style'
 import { DoormanChart } from './DoormanChart/DoormanChart.controller'
 
 // actions
-import { getDoormanStorage, getMvkTokenStorage, getUserData, stake } from './Doorman.actions'
+import { getDoormanStorage, getMvkTokenStorage, stake } from './Doorman.actions'
 import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
@@ -20,17 +20,13 @@ import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 export const Doorman = () => {
   const dispatch = useDispatch()
 
-  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { totalStakedMvk } = useSelector((state: State) => state.doorman)
 
   useEffect(() => {
-    if (accountPkh) {
-      dispatch(getUserData(accountPkh))
-    }
     dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
-  }, [dispatch, accountPkh])
+  }, [dispatch])
 
   const stakeCallback = (amount: number) => {
     dispatch(stake(amount))

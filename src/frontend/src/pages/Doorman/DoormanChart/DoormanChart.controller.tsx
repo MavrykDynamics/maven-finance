@@ -58,7 +58,6 @@ export function DoormanChart({ className }: Props) {
       `${formatNumber(true, value)}${label}`
 
   const shownData = isStakingHistory ? smvkHistoryData : mvkMintHistoryData
-  console.log('shownData', shownData)
 
   return (
     <ChartCard className={className}>

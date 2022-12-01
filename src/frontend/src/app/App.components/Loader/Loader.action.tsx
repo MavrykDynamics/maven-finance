@@ -8,3 +8,11 @@ export const toggleLoader = (loader?: typeof ROCKET_LOADER | typeof WERT_IO_LOAD
     newLoader: loader ?? null,
   })
 }
+
+export const TOGGLE_DATA_LOADER = 'TOGGLE_DATA_LOADER'
+export const toggleDataLoader = (isLoadingData: boolean) => (dispatch: AppDispatch) => {
+  dispatch({
+    type: TOGGLE_DATA_LOADER,
+    dataLoadingState: isLoadingData,
+  })
+}
