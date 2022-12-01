@@ -1,3 +1,5 @@
+import { UTCTimestamp } from 'lightweight-charts'
+
 export const lendingData = [
   {
     assetImg: '',
@@ -158,4 +160,4 @@ export const CHART_TEST_DATA = [
   { time: new Date(Date.now() - 1000 * 60 * 5).getTime(), value: 22.67 },
   { time: new Date(Date.now() - 1000 * 60 * 3).getTime(), value: 22.67 },
   { time: new Date(Date.now() - 1000 * 60 * 1).getTime(), value: 22.67 },
-]
+] as Array<{ time: UTCTimestamp; value: number }>
