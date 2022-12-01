@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 // components
-// import Chart from '../../../app/App.components/Chart/Chart.view'
+import { Chart } from '../../../app/App.components/Chart/Chart.view'
 import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 // styles
@@ -10,7 +10,6 @@ import { ChartCard, ChartSlidingTabButtons } from './DataFeedsChart.style'
 // types
 import { DataFeedsHistory, DataFeedsVolatility } from '../../Satellites/helpers/Satellites.types'
 import { formatNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { TradingViewChart } from 'app/App.components/Chart/Chart.view'
 import { cyanColor } from 'styles'
 
 type Props = {
@@ -50,7 +49,7 @@ export function DataFeedsChart({ className, dataFeedsHistory, dataFeedsVolatilit
     <ChartCard className={className}>
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
-      <TradingViewChart
+      <Chart
         data={shownData}
         colors={{
           lineColor: cyanColor,
