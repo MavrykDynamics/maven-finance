@@ -77,7 +77,7 @@ export const InputLabel = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
   right: 16px;
   top: 18px;
-  color: ${({ theme }) => theme.headerColor};
+  color: ${({ theme }) => theme.textColor};
   font-size: 18px;
   font-weight: 600;
 

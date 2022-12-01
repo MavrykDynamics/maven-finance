@@ -125,7 +125,7 @@ export const ExitFeeModalView = ({
                   errorMessage={stakeUnstakeValueError}
                 />
                 <DoormanList>
-                  <div>
+                  <div className='info-section'>
                     <h4>
                       MVK Loyalty Index
                       <a

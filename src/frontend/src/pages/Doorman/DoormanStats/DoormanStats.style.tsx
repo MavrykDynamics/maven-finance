@@ -1,13 +1,13 @@
 import styled from 'styled-components/macro'
-import { Card, CardHeader, cyanColor } from 'styles'
+import { Card, CardHeader } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const DoormanStatsStyled = styled(Card)`
   display: flex;
   flex-direction: column;
-  padding: 30px 49px;
-  margin-top: 20px;
+  padding: 30px 23px;
+  margin-top: 78px;
   position: relative;
 
   &::after {
@@ -19,7 +19,7 @@ export const DoormanStatsStyled = styled(Card)`
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: ${({ theme }) => theme.cardBorderColor};
+    background-color: ${({ theme }) => theme.textColor};
     margin-left: auto;
     margin-right: auto;
     margin-top: 16px;
@@ -62,8 +62,10 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
 
     h4 {
       width: 47%;
-      color: ${({ theme }) => theme.headerColor};
+      color: ${({ theme }) => theme.textColor};
+      font-weight: 500;
       font-size: 14px;
+      line-height: 24px;
       display: flex;
       align-items: center;
       font-weight: 600;
@@ -76,12 +78,12 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
           transition: 0.4s all;
           width: 14px;
           height: 14px;
-          fill: ${({ theme }) => theme.headerColor};
+          fill: ${({ theme }) => theme.textColor};
         }
 
         &:hover {
           svg {
-            fill: ${cyanColor};
+            opacity: 0.8;
           }
         }
       }
@@ -94,29 +96,26 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
       text-overflow: ellipsis;
       font-style: normal;
       font-weight: 600;
-      font-size: 12px;
-      line-height: 12px;
+      font-size: 16px;
+      line-height: 22px;
       text-align: right;
-      color: ${({ theme }) => theme.valueColor};
+      color: ${({ theme }) => theme.dataColor};
 
       p {
         margin: 0;
-        font-size: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 22px;
         text-align: right;
         width: 100%;
         font-weight: 600;
+        white-space: nowrap;
       }
     }
 
     .click-address {
       > div {
         justify-content: flex-end;
-      }
-
-      svg {
-        stroke: ${({ theme }) => theme.valueColor};
-        width: 16px;
-        margin-left: 8px;
       }
     }
   }
