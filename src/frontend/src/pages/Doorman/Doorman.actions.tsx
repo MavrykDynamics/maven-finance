@@ -44,8 +44,9 @@ import {
   normalizeMvkMintHistoryData,
 } from './Doorman.converter'
 import { Farm } from 'utils/generated/graphqlTypes'
-import { UserState } from 'reducers/user'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
+import { DEFAULT_USER, UserState } from 'reducers/wallet'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 export const GET_SMVK_HISTORY_DATA = 'GET_SMVK_HISTORY_DATA'
 export const GET_MVK_MINT_HISTORY_DATA = 'GET_MVK_MINT_HISTORY_DATA'
@@ -107,7 +108,7 @@ export const getMvkTokenStorage = () => async (dispatch: AppDispatch) => {
 export const stake = (amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
@@ -117,7 +118,7 @@ export const stake = (amount: number) => async (dispatch: AppDispatch, getState:
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -165,7 +166,7 @@ export const stake = (amount: number) => async (dispatch: AppDispatch, getState:
     dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
     dispatch(toggleLoader())
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) dispatch(updateUserData(state.wallet.accountPkh))
     dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
   } catch (error) {
@@ -180,7 +181,7 @@ export const stake = (amount: number) => async (dispatch: AppDispatch, getState:
 export const unstake = (amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
@@ -190,7 +191,7 @@ export const unstake = (amount: number) => async (dispatch: AppDispatch, getStat
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -210,7 +211,7 @@ export const unstake = (amount: number) => async (dispatch: AppDispatch, getStat
     dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
     dispatch(toggleLoader())
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) dispatch(updateUserData(state.wallet.accountPkh))
     dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
   } catch (error) {
@@ -225,12 +226,12 @@ export const unstake = (amount: number) => async (dispatch: AppDispatch, getStat
 export const rewardsCompound = (address: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -247,7 +248,7 @@ export const rewardsCompound = (address: string) => async (dispatch: AppDispatch
     dispatch(showToaster(SUCCESS, 'Compounding done', 'All good :)'))
     dispatch(toggleLoader())
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) dispatch(updateUserData(state.wallet.accountPkh))
     dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
   } catch (error) {
@@ -285,13 +286,11 @@ export const getDoormanStorage = () => async (dispatch: AppDispatch) => {
   }
 }
 
-export const GET_USER_DATA = 'GET_USER_DATA'
-export const CLEAN_USER_DATA = 'CLEAN_USER_DATA'
-export const GET_USER_DATA_ERROR = 'GET_USER_DATA'
-export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
-  const currentBlockLevel = state.preferences.headData?.level ?? 0
-
+export const fetchUserData = async (
+  accountPkh: string,
+  activeSatellites: Array<SatelliteRecord>,
+  currentBlockLevel?: number,
+) => {
   try {
     const userInfoFromIndexer = await fetchFromIndexer(
       USER_INFO_QUERY,
@@ -308,6 +307,15 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
     const xtzBalance = await (
       await fetch(`https://api.${process.env.REACT_APP_API_NETWORK}.tzkt.io/v1/accounts/${accountPkh}/balance`)
     ).json()
+
+    const [tzBTCTokenInfo] = await (
+      await fetch(
+        `https://api.${process.env.REACT_APP_API_NETWORK}.tzkt.io/v1/tokens/balances?account.eq=${accountPkh}&token.contract.in=KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn`,
+      )
+    ).json()
+
+    const mytzBTCTokenBalance =
+      parseFloat(tzBTCTokenInfo?.balance ?? 0) / 10 ** parseFloat(tzBTCTokenInfo?.token?.metadata?.decimals ?? 0)
 
     const userDoormanRewardsData: UserDoormanRewardsData = {
       generalAccumulatedFeesPerShare: userRewardsData.doorman[0]?.accumulated_fees_per_share ?? 0,
@@ -349,17 +357,19 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
     const userInfoData = userInfoFromIndexer?.mavryk_user[0]
 
     const userIsDelegatedToSatellite = userInfoData?.delegations.length > 0
-    const userInfo: UserState = {
-      myAddress: userInfoData?.address,
+    const userInfo: Partial<UserState> = {
       myMvkTokenBalance: calcWithoutPrecision(userInfoData?.mvk_balance),
       mySMvkTokenBalance: calcWithoutPrecision(userInfoData?.smvk_balance),
       myXTZTokenBalance: calcWithoutMu(Number(xtzBalance)),
+      mytzBTCTokenBalance,
       participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
-      satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite ? userInfoData?.delegations[0].satellite?.user_id : '',
+      satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite
+        ? userInfoData?.delegations[0].satellite?.user?.address
+        : '',
       isSatellite: Boolean(
-        state.delegation.delegationStorage.activeSatellites.find(
+        activeSatellites.find(
           ({ address: satelliteAddress, status, currentlyRegistered }) =>
-            (satelliteAddress === userInfoData?.address || satelliteAddress === state.wallet?.accountPkh) &&
+            (satelliteAddress === userInfoData?.address || satelliteAddress === accountPkh) &&
             status === 0 &&
             currentlyRegistered,
         ),
@@ -371,25 +381,43 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
 
     userInfo.myDoormanRewardsData = calcUsersDoormanRewards(userInfo)
     userInfo.mySatelliteRewardsData = calcUsersSatelliteRewards(userInfo)
-    userInfo.myFarmRewardsData = calcUsersFarmRewards(userInfo, currentBlockLevel)
+    userInfo.myFarmRewardsData = calcUsersFarmRewards(userInfo, currentBlockLevel ?? 0)
 
     // TODO: ask Sam about it
     // const estimatedRewardsForNextCompound =
     //   userInfo.myDoormanRewardsData.myAvailableDoormanRewards +
     //   userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards
 
+    return userInfo
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      throw error
+    }
+    return DEFAULT_USER
+  }
+}
+
+export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
+export const updateUserData = (accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
+  const {
+    preferences: { headData: { level = 0 } = {} },
+    delegation: {
+      delegationStorage: { activeSatellites },
+    },
+  } = getState()
+
+  try {
+    const userData = fetchUserData(accountPkh, activeSatellites, level)
+
     dispatch({
-      type: GET_USER_DATA,
-      userData: userInfo,
+      type: UPDATE_USER_DATA,
+      userData,
     })
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: GET_USER_DATA_ERROR,
-      error,
-    })
   }
 }

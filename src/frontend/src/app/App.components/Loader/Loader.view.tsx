@@ -34,7 +34,7 @@ export const SpinnerLoader = () => (
 )
 
 export const Loader = () => {
-  const { loading: loaderType } = useSelector((state: State) => state)
+  const { viewLoading: loaderType } = useSelector((state: State) => state.loading)
 
   switch (loaderType) {
     case ROCKET_LOADER:

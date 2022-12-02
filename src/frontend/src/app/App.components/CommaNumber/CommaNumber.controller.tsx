@@ -38,7 +38,7 @@ export const CommaNumber = ({
   let titleForNumber = undefined
 
   // it's exponential number if e-7 it will scientific notation, every that are < -7 normal notation
-  if (value.toString().includes('e') && useAccurateParsing) {
+  if (value?.toString().includes('e') && useAccurateParsing) {
     const [number, tenGrade] = value.toString().split('e')
     const [integer = '', decimals = ''] = number.split('.')
     // extra low number
@@ -82,9 +82,9 @@ export const CommaNumber = ({
           {beginningText || endingText ? (
             <div className={className} title={titleForNumber}>
               <p>
-                {beginningText ? beginningText + ' ' : ''}
+                {beginningText ? <span className="prefix">{beginningText + ' '}</span> : ''}
                 {numberWithCommas}
-                {endingText ? ' ' + endingText : ''}
+                {endingText ? <span className="suffix">{' ' + endingText}</span> : ''}
               </p>
             </div>
           ) : (

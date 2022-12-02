@@ -4,7 +4,8 @@ import { TezosToolkit } from '@taquito/taquito'
 import { AppDispatch, GetState } from 'app/App.controller'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
-import { getUserData } from 'pages/Doorman/Doorman.actions'
+import { fetchUserData } from 'pages/Doorman/Doorman.actions'
+import { DEFAULT_USER } from 'reducers/wallet'
 
 // TODO: check ts-ignores, here NetworkType is not compatible with  NetworkType | undefined
 
@@ -22,7 +23,7 @@ export const WalletOptions = {
 }
 
 export const SET_WALLET = 'SET_WALLET'
-export const setWallet = (wallet?: BeaconWallet) => (dispatch: AppDispatch) => {
+export const setWallet = () => (dispatch: AppDispatch) => {
   try {
     // @ts-ignore
     const wallet = new BeaconWallet(WalletOptions)
@@ -53,7 +54,9 @@ export const changeWallet = () => async (dispatch: AppDispatch) => {
 export const CONNECT = 'CONNECT'
 export const connect = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state = getState()
+
   try {
+    // getting userWallet data
     const rpcNetwork = state.preferences.REACT_APP_RPC_PROVIDER
     // @ts-ignore
     const wallet = new BeaconWallet(WalletOptions)
@@ -73,14 +76,24 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
       await Tezos.setRpcProvider(rpcNetwork)
       await Tezos.setWalletProvider(wallet)
 
+      const accountPkh = account?.address
+
+      // getting userData
+      const userData = accountPkh
+        ? await fetchUserData(
+            accountPkh,
+            state.delegation.delegationStorage.activeSatellites,
+            state.preferences.headData?.level,
+          )
+        : DEFAULT_USER
+
       dispatch({
         type: CONNECT,
         wallet,
         tezos: Tezos,
-        ready: Boolean(wallet),
-        accountPkh: account?.address,
+        userData,
+        accountPkh,
       })
-      if (account?.address) dispatch(getUserData(account?.address))
     }
   } catch (e) {
     console.error(`Failed to connect wallet:`, e)

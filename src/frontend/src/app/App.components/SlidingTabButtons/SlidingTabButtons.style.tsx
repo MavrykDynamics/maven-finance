@@ -50,7 +50,7 @@ export const SlidingTabButtonsStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const ButtonStyled = styled.button<{ buttonActive: boolean; disabled: boolean; theme: MavrykTheme }>`
+export const ButtonStyled = styled.button<{ disabled: boolean; theme: MavrykTheme }>`
   border: none;
   cursor: pointer;
   height: 36px;
@@ -58,12 +58,13 @@ export const ButtonStyled = styled.button<{ buttonActive: boolean; disabled: boo
   padding: 0 22px;
   border-radius: ${BUTTON_RADIUS};
   user-select: none;
-  color: ${({ buttonActive, theme }) => (buttonActive ? theme.containerColor : theme.headerColor)};
-  background: ${({ buttonActive }) => (
-    buttonActive
-    ? 'linear-gradient(90deg, #86D4C9 0.31%, #8D86EB 99.97%)'
-    : 'transparent'
-  )};
+  color: ${({ theme }) => theme.headerColor};
+  background: transparent;
+
+  &.selected {
+    color: ${({ theme }) => theme.containerColor};
+    background: linear-gradient(90deg, #86d4c9 0.31%, #8d86eb 99.97%);
+  }
 
   &.loading {
     pointer-events: none;

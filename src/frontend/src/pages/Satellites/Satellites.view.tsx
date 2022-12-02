@@ -27,7 +27,7 @@ type OraclesViewProps = {
   delegateCallback: (address: string) => void
   oracleSatellitesData: {
     userStakedBalance: number
-    satelliteUserIsDelegatedTo: string
+    satelliteUserIsDelegatedTo?: string
     items: SatelliteRecord[]
     delegateCallback: (address: string) => void
     undelegateCallback: (address: string) => void
@@ -47,11 +47,7 @@ const EmptyContainer = ({ showSatellite, showFeeds }: EmptyContainerType) => {
   const satelliteMessage = 'No Satellites found'
   const generalMessage = 'No Satellites & Data Feeds found'
 
-  const showMessage = !showSatellite && !showFeeds
-    ? generalMessage
-    : !showSatellite 
-      ? satelliteMessage
-      : feedsMessage
+  const showMessage = !showSatellite && !showFeeds ? generalMessage : !showSatellite ? satelliteMessage : feedsMessage
 
   return (
     <EmptyList>
@@ -96,49 +92,49 @@ const SatellitesView = ({
               tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
             />
           </InfoBlockWrapper>
-            {isShowSatellites ? (
-              <div className="oracle-list-wrapper">
-                <Link to="/satellite-nodes">
-                  <div className="see-all-link">
-                    See all Satellites
-                    <Icon id="arrow-left-stroke" />
-                  </div>
-                </Link>
-                <SatelliteList
-                  listTitle={'Top Satellites'}
-                  loading={isLoading}
-                  items={satellites}
-                  listType={'satellites'}
-                  name={SATELITES_TOP_LIST_NAME}
-                  additionaldata={oracleSatellitesData}
-                  pagination={false}
-                />
-              </div>
-            ) : null}
+          {isShowSatellites ? (
+            <div className="oracle-list-wrapper">
+              <Link to="/satellite-nodes">
+                <div className="see-all-link">
+                  See all Satellites
+                  <Icon id="arrow-left-stroke" />
+                </div>
+              </Link>
+              <SatelliteList
+                listTitle={'Top Satellites'}
+                loading={isLoading}
+                items={satellites}
+                listType={'satellites'}
+                name={SATELITES_TOP_LIST_NAME}
+                additionaldata={oracleSatellitesData}
+                pagination={false}
+              />
+            </div>
+          ) : null}
 
-            {isShowFeeds ? (
-              <div className="oracle-list-wrapper">
-                <Link to="/data-feeds">
-                  <div className="see-all-link">
-                    See all Data Feeds
-                    <Icon id="arrow-left-stroke" />
-                  </div>
-                </Link>
-                <SatelliteListStyled
-                  listTitle={'Popular Feeds'}
-                  loading={isLoading}
-                  items={feeds}
-                  listType={'feeds'}
-                  name={FEEDS_TOP_LIST_NAME}
-                  onClickHandler={delegateCallback}
-                  pagination={false}
-                />
-              </div>
-            ) : null}
+          {isShowFeeds ? (
+            <div className="oracle-list-wrapper">
+              <Link to="/data-feeds">
+                <div className="see-all-link">
+                  See all Data Feeds
+                  <Icon id="arrow-left-stroke" />
+                </div>
+              </Link>
+              <SatelliteListStyled
+                listTitle={'Popular Feeds'}
+                loading={isLoading}
+                items={feeds}
+                listType={'feeds'}
+                name={FEEDS_TOP_LIST_NAME}
+                onClickHandler={delegateCallback}
+                pagination={false}
+              />
+            </div>
+          ) : null}
 
-            {(!isShowSatellites || !isShowFeeds) && (
-              <EmptyContainer showSatellite={isShowSatellites} showFeeds={isShowFeeds} />
-            )}
+          {(!isShowSatellites || !isShowFeeds) && (
+            <EmptyContainer showSatellite={isShowSatellites} showFeeds={isShowFeeds} />
+          )}
         </div>
         <SatellitesSideBar />
       </PageContent>

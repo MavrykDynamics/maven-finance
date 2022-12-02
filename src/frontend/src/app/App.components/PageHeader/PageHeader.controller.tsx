@@ -3,9 +3,10 @@ import { PAGE_HEADER_DATA } from './PageHeaderData'
 
 type PageHeaderProps = {
   page: string
+  avatar?: string
 }
 
-export const PageHeader = ({ page }: PageHeaderProps) => {
+export const PageHeader = ({ page, avatar }: PageHeaderProps) => {
   const pageHeaderContent = PAGE_HEADER_DATA.get(page)
   if (!pageHeaderContent) return null
   const { title, subText, foregroundImageSrc, backgroundImageSrc } = pageHeaderContent
@@ -16,6 +17,7 @@ export const PageHeader = ({ page }: PageHeaderProps) => {
       subText={subText}
       foregroundImageSrc={foregroundImageSrc}
       backgroundImageSrc={backgroundImageSrc}
+      avatar={avatar}
     />
   )
 }

@@ -41,7 +41,10 @@ export const ExitFeeModalView = ({
   amount,
 }: ExitFeeModalViewProps) => {
   const dispatch = useDispatch()
-  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const {
+    accountPkh,
+    user: { myMvkTokenBalance, mySMvkTokenBalance },
+  } = useSelector((state: State) => state.wallet)
 
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
@@ -49,7 +52,6 @@ export const ExitFeeModalView = ({
   const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
-  const { myMvkTokenBalance, mySMvkTokenBalance } = useSelector((state: State) => state.user)
   const inputAmountValue = +inputAmount.amount
 
   const checkInputIsOk = (value: number) => {

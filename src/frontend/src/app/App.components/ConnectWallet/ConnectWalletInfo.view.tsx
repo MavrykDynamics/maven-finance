@@ -13,11 +13,10 @@ import { ConnectWallet } from './ConnectWallet.controller'
 import { ConnectWalletInfoStyled, ConnectWalletClose, ButtonBar } from './ConnectWallet.style'
 
 export default function ConnectWalletInfo() {
-  const { ready } = useSelector((state: State) => state.wallet)
-
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const [isClose, setIsClose] = useState(false)
 
-  if (ready || isClose) {
+  if (accountPkh || isClose) {
     return null
   }
 
@@ -29,7 +28,7 @@ export default function ConnectWalletInfo() {
       </p>
 
       <ButtonBar>
-        <ConnectWallet className='connect-wallet'/>
+        <ConnectWallet className="connect-wallet" />
 
         <ConnectWalletClose onClick={() => setIsClose(true)}>
           <Icon className="close-connect-wallet" id="error" />

@@ -1,24 +1,11 @@
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-import { hideProgressBar, updateProgressBar } from './ProgressBar.actions'
-import { ProgressBarView } from './ProgressBar.view'
+import { ProgressBarStatus } from './ProgressBar.constants'
+import { ProgressBarStyled } from './ProgressBar.style'
 
 export const ProgressBar = () => {
-  const status = useSelector((state: State) => state.progressBar?.status)
-  const loading = useSelector((state: State) => state.loading)
-  const dispatch = useDispatch()
-  const { pathname } = useLocation()
+  const { isLoading } = useSelector((state: State) => state.loading)
 
-  useEffect(() => {
-    dispatch(updateProgressBar())
-  }, [loading])
-
-  useEffect(() => {
-    dispatch(hideProgressBar())
-  }, [pathname])
-
-  return <ProgressBarView status={status} />
+  return <ProgressBarStyled status={isLoading ? ProgressBarStatus.MOVING : ProgressBarStatus.NO_DISPLAY} />
 }
