@@ -1,7 +1,8 @@
 import styled from 'styled-components/macro'
 import { headerColor, darkColor, royalPurpleColor } from 'styles'
+import { MavrykTheme } from 'styles/interfaces'
 
-export const ToggleStyle = styled.div`
+export const ToggleStyle = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   align-items: center;
 
@@ -12,10 +13,10 @@ export const ToggleStyle = styled.div`
 
   .sufix {
     margin-left: 14px;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 14px;
-    line-height: 14px;
-    color: ${headerColor};
+    line-height: 21px;
+    color: ${({ theme }) => theme.textColor};
   }
 
   .react-toggle-track {

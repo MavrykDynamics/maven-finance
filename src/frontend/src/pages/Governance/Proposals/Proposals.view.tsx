@@ -16,6 +16,7 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 // style
 import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
 import { calculateSlicePositions, LIST_NAMES_MAPPER } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { GovRightContainerTitleArea } from '../Governance.style'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -49,7 +50,9 @@ export const ProposalsView = ({
 
   return (
     <ProposalListContainer>
-      <h1>{listTitle}</h1>
+      <GovRightContainerTitleArea>
+        <h1>{listTitle}</h1>
+      </GovRightContainerTitleArea>
       {paginatedItemsList.length &&
         paginatedItemsList.map((proposal, index) => {
           const statusInfo = getProposalStatusInfo(

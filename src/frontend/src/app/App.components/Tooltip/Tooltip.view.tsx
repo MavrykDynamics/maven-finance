@@ -1,6 +1,7 @@
 import { Tooltip } from '@mui/material'
 import styled from 'styled-components'
 import { cyanColor, darkColor } from 'styles'
+import { MavrykTheme } from 'styles/interfaces'
 import Icon from '../Icon/Icon.view'
 
 export const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props.className }} {...props} />)`
@@ -11,8 +12,8 @@ export const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props
   }
 `
 
-export const TooltipStyled = styled.div<{ defaultStrokeColor?: string }>`
-  margin-left: 5px;
+export const TooltipStyled = styled.div<{ defaultStrokeColor?: string; theme: MavrykTheme }>`
+  margin-left: 4px;
   cursor: pointer;
   position: relative;
   display: inline;
@@ -22,7 +23,7 @@ export const TooltipStyled = styled.div<{ defaultStrokeColor?: string }>`
   svg {
     width: 16px;
     height: 16px;
-    fill: ${({ defaultStrokeColor }) => defaultStrokeColor || '#8d86eb'};
+    fill: ${({ theme }) => theme.dataColor}
   }
 
   .text {

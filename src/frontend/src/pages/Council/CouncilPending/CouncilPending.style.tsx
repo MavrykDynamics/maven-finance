@@ -1,31 +1,41 @@
 import styled from 'styled-components/macro'
-import { Card, downColor, upColor, skyColor, headerColor, royalPurpleColor, containerColor, cyanColor } from 'styles'
+import { Card, skyColor, headerColor, containerColor, cyanColor } from 'styles'
 
 export const CouncilPendingStyled = styled(Card)`
+  position: relative;
   margin: 0;
-  width: 100%;
+  height: 200px;
   padding: 25px;
-  padding-bottom: 28px;
   min-width: 237px;
 
-  // 2/3
+  .number {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+
+    color: ${({ theme }) => theme.cardBorderColor};
+  }
+
   &.addVestee,
-  &.addCouncilMember,
   &.updateVestee,
-  &.requestMint {
-    min-width: 532px;
+  &.requestMint,
+  &.addCouncilMember {
+    min-width: 590px;
     .parameters {
       display: grid;
-      grid-template-columns: 130px 144px 150px;
+      grid-template-columns: 130px 180px 150px;
       align-items: center;
     }
 
     .sign-btn {
-      margin-left: -32px;
+      margin-left: -37px;
     }
   }
 
-  // 3/3
   &.requestTokens,
   &.transfer {
     min-width: 750px;
@@ -35,12 +45,42 @@ export const CouncilPendingStyled = styled(Card)`
       align-items: center;
     }
   }
-  // 3/3
-  &.changeCouncilMember {
-    min-width: 750px;
+
+  &.setSingleContractAdmin,
+  &.updateCouncilMember,
+  &.changeCouncilMember,
+  &.addCouncilMember {
+    h3 {
+      max-width: 100%;
+    }
+  }
+
+  &.setSingleContractAdmin {
+    min-width: 380px;
+
     .parameters {
       display: grid;
-      grid-template-columns: 180px 180px 100px 186px;
+      grid-template-columns: 125px 185px;
+      align-items: center;
+    }
+  }
+
+  &.updateCouncilMember {
+    min-width: 532px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 118px 144px 185px;
+      align-items: center;
+    }
+  }
+
+  &.changeCouncilMember {
+    min-width: 725px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 125px 160px 155px 185px;
       align-items: center;
     }
   }
@@ -74,18 +114,32 @@ export const CouncilPendingStyled = styled(Card)`
     }
   }
 
-  .parameters-btn {
-    color: ${headerColor};
-    font-weight: 700;
+  .parameters-link{
+    display: block;
+
+    color: ${cyanColor};
+    font-weight: 500;
     font-size: 14px;
-    line-height: 14px;
+    line-height: 24px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-decoration: underline;
   }
 
   .parameters {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 20px;
     gap: 16px;
+
+    &:first-of-type {
+      padding-bottom: 20px;
+    }
+
+    .parameters-name {
+      text-transform: capitalize;
+    }
 
     .parameters-value,
     .parameters-value p {
@@ -94,8 +148,8 @@ export const CouncilPendingStyled = styled(Card)`
       font-weight: 600;
       font-size: 16px;
       line-height: 16px;
-      /* white-space: nowrap; */
-      /* overflow: hidden; */
+      white-space: nowrap;
+      overflow: hidden;
       word-break: break-all;
       width: 100%;
       max-width: 100%;
@@ -117,6 +171,10 @@ export const CouncilPendingStyled = styled(Card)`
       flex-direction: column;
       align-items: center;
     }
+
+    .without-margin {
+      margin: 0;
+    }
   }
 
   .parameters-img {
@@ -131,6 +189,13 @@ export const CouncilPendingStyled = styled(Card)`
       border-radius: 50%;
     }
   }
+
+  .no-wrap {
+    max-width: 125px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 `
 
 export const CouncilPendingReviewStyled = styled(Card)`
@@ -142,21 +207,9 @@ export const CouncilPendingReviewStyled = styled(Card)`
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 
-  .review-text {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    p {
-      text-align: center;
-      font-weight: 600;
-      font-size: 16px;
-      line-height: 16px;
-      color: ${skyColor};
-      margin-top: 0;
-      margin-bottom: 14px;
-    }
+  .review-btn:first-of-type {
+    margin-bottom: 20px;
   }
 `

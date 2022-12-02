@@ -48,10 +48,10 @@ export const StakeUnstakeActionCard = styled(Card)<{ theme: MavrykTheme }>`
     margin: 0;
     display: flex;
     align-items: center;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 18px;
-    color: ${({ theme }) => theme.headerColor};
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 24px;
+    color: ${({ theme }) => theme.textColor};
     bottom: -16px;
 
     a {
@@ -66,7 +66,8 @@ export const StakeUnstakeInputColumn = styled.div`
   input {
     padding-right: 90px;
     height: 50px;
-    font-size: 18px;
+    font-weight: 600;
+    font-size: 22px;
 
     & ~ div {
       top: 18px;
@@ -91,19 +92,19 @@ export const StakeUnstakeInputGrid = styled.div`
 `
 
 export const StakeUnstakeMin = styled.div`
-  color: ${({ theme }) => theme.headerSkyColor};
-  font-size: 12px;
+  color: ${({ theme }) => theme.textColor};
   font-weight: 600;
+  font-size: 14px;
   float: left;
   display: inline-block;
   margin-left: 10px;
 `
 
 export const StakeUnstakeMax = styled.button<{ theme: MavrykTheme }>`
-  color: ${({ theme }) => theme.headerSkyColor};
+  color: ${({ theme }) => theme.dataColor};
   font: inherit;
-  font-size: 12px;
   font-weight: 600;
+  font-size: 14px;
   float: right;
   display: inline-block;
   margin-right: 10px;
@@ -144,7 +145,7 @@ export const StakeUnstakeInputLabel = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const StakeUnstakeRate = styled.div`
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   align-self: flex-end;
   display: flex;
@@ -189,19 +190,21 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
   h3 {
     font-size: 14px;
     font-weight: 600;
-    color: ${({ theme }) => theme.headerColor};
+    color: ${({ theme }) => theme.textColor};
   }
   img {
-    margin: 23px auto;
+    margin-bottom: 10px;
     margin-top: auto;
   }
 
   p {
-    color: ${({ theme }) => theme.stakedColor};
-    font-size: 17px;
-    max-width: 150px;
+    color: ${({ theme }) => theme.dataColor};
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 22px;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 130px;
   }
 
   div {
@@ -216,11 +219,8 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
       display: block;
       width: 42px;
       height: 3px;
-      background-color: ${({ theme }) => theme.cardBorderColor};
-      margin-bottom: 15px;
-      margin-left: auto;
-      margin-right: auto;
-      margin-top: -2px;
+      background-color: ${({ theme }) => theme.textColor};
+      margin: 20px auto 10px;
       border-radius: 2px;
     }
   }

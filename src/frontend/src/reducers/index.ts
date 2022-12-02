@@ -5,7 +5,6 @@ import { doorman, DoormanState } from './doorman'
 import { exitFeeModal, ExitFeeModalState } from './exitFeeModal'
 import { loading, LoadingState } from './loading'
 import { mvkToken, MvkTokenState } from './mvkToken'
-import { progressBar, ProgressBarState } from './progressBar'
 import { toaster, ToasterState } from './toaster'
 import { wallet, WalletState } from './wallet'
 import { governance, GovernanceState } from './governance'
@@ -17,14 +16,12 @@ import { vesting, VestingState } from './vesting'
 import { farm, FarmState } from './farm'
 import { preferences, PreferencesState } from './preferences'
 import { modal, ModalState } from './modal'
-import { user, UserState } from './user'
 import { contractAddresses, ContractAddressesState } from './contractAddresses'
 import { oracles, OraclesState } from './oracles'
 import { tokens, TokensType } from './tokens'
 
 export const reducers = combineReducers({
   loading,
-  progressBar,
   toaster,
   exitFeeModal,
   mvkToken,
@@ -40,7 +37,6 @@ export const reducers = combineReducers({
   farm,
   preferences,
   modal,
-  user,
   contractAddresses,
   oracles,
   tokens,
@@ -48,7 +44,6 @@ export const reducers = combineReducers({
 
 export interface State {
   loading: LoadingState
-  progressBar: ProgressBarState
   toaster: ToasterState
   exitFeeModal: ExitFeeModalState
   mvkToken: MvkTokenState
@@ -64,7 +59,6 @@ export interface State {
   farm: FarmState
   preferences: PreferencesState
   modal: ModalState
-  user: UserState
   contractAddresses: ContractAddressesState
   oracles: OraclesState
   tokens: TokensType

@@ -15,13 +15,13 @@ import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
-import { BreakGlassCouncilPanding } from './BreakGlassCouncilPanding/BreakGlassCouncilPanding.controller'
-import { BreakGlassCouncilMyActions } from './BreakGlassCouncilMyActions.view'
+import { CouncilPending } from '../Council/CouncilPending/CouncilPending.controller'
+import { MyCouncilActions } from '../Council/MyCouncilActions.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 import {
-  BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME,
+  BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME,
   BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME,
   calculateSlicePositions,
@@ -31,6 +31,7 @@ import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants
 import { getSeparateSnakeCase } from 'utils/parse'
 import { memberIsFirstOfList } from 'pages/Council/Council.helpers'
 import { scrollUpPage } from 'utils/scrollUpPage'
+import { councilTabsList } from 'pages/Council/Council.controller'
 
 // styles
 import {
@@ -53,26 +54,11 @@ import {
   dropBreakGlass,
 } from './BreakGlassCouncil.actions'
 
-// types
-import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
-
 const queryParameters = {
   pathname: '/break-glass-council',
   review: '/review',
+  pendingReview: '/pending-review',
 }
-
-const tabsList: TabItem[] = [
-  {
-    text: 'My Ongoing Actions',
-    id: 1,
-    active: true,
-  },
-  {
-    text: 'My Past Actions',
-    id: 2,
-    active: false,
-  },
-]
 
 export function BreakGlassCouncil() {
   const dispatch = useDispatch()
@@ -83,11 +69,13 @@ export function BreakGlassCouncil() {
   const {
     breakGlassStorage,
     breakGlassCouncilMember,
-    breakGlassActionPendingMySignature,
+    breakGlassActionPendingAllSignature,
     breakGlassActionPendingSignature,
+    breakGlassActionPendingMySignature,
     pastBreakGlassCouncilAction,
     myPastBreakGlassCouncilAction,
     glassBroken,
+    isPendingPropagateBreakGlass,
   } = useSelector((state: State) => state.breakGlass)
   const itemsForDropDown = useMemo(
     () =>
@@ -106,14 +94,15 @@ export function BreakGlassCouncil() {
 
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
-  const [activeActionTab, setActiveActionTab] = useState(tabsList[0].text)
+  const [activeActionTab, setActiveActionTab] = useState(councilTabsList[0].text)
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
-  const { review: isReviewPage } = useParams<{ review: string }>()
+  const { review } = useParams<{ review: string }>()
+  const isReviewPage = review === 'review'
 
   const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
   const displayPendingSignature = Boolean(
-    !isReviewPage && isUserInBreakCouncilMember && breakGlassActionPendingSignature?.length,
+    !review && isUserInBreakCouncilMember && breakGlassActionPendingSignature?.length,
   )
 
   const councilMemberMaxLength = {
@@ -121,8 +110,9 @@ export function BreakGlassCouncil() {
     councilMemberWebsiteMaxLength: breakGlassStorage?.config?.councilMemberWebsiteMaxLength,
   }
 
-  const handleClickReview = () => {
-    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+  const handleClickReview = (review: string) => {
+    history.replace(`${queryParameters.pathname}${review}`)
+    setActiveActionTab((councilTabsList[0].text))
     scrollUpPage()
   }
 
@@ -146,12 +136,17 @@ export function BreakGlassCouncil() {
 
   const currentPage = getPageNumber(
     search,
-    isReviewPage 
-      ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME 
-      : tabsList[0].text === activeActionTab
+    review 
+      ? BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME 
+      : councilTabsList[0].text === activeActionTab
         ? BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME
         : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
+
+  const paginatedBreakGlassActionPendingAllSignature = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME)
+    return breakGlassActionPendingAllSignature?.slice(from, to)
+  }, [currentPage, breakGlassActionPendingAllSignature])
 
   const paginatedBreakGlassActionPendingMySignature = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME)
@@ -164,7 +159,7 @@ export function BreakGlassCouncil() {
   }, [currentPage, myPastBreakGlassCouncilAction])
 
   const paginatedPastBreakGlassCouncilActions = useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME)
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME)
     return pastBreakGlassCouncilAction?.slice(from, to)
   }, [currentPage, pastBreakGlassCouncilAction])
 
@@ -172,20 +167,21 @@ export function BreakGlassCouncil() {
     dispatch(propagateBreakGlass())
   }
 
-  const handleDropAction = (id: number) => {
-    console.log(id);
-    
+  const handleDropAction = (id: number) => {    
     dispatch(dropBreakGlass(id))
   }
 
   useEffect(() => {
-    dispatch(getMyPastBreakGlassCouncilAction())
     dispatch(getPastBreakGlassCouncilAction())
     dispatch(getBreakGlassCouncilMember())
   }, [dispatch])
 
   useEffect(() => {
-    if (accountPkh) dispatch(getBreakGlassActionPendingSignature())
+    if (accountPkh) {
+      dispatch(getMyPastBreakGlassCouncilAction())
+      dispatch(getBreakGlassActionPendingSignature())
+    }
+    
     setSliderKey(sliderKey + 1)
   }, [dispatch, accountPkh])
 
@@ -206,14 +202,14 @@ export function BreakGlassCouncil() {
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      {isReviewPage && isUserInBreakCouncilMember && (
+      {review && isUserInBreakCouncilMember && (
         <GoBack onClick={handleClickGoBack}>
           <Icon id="arrow-left-stroke" />
           Back to Member Dashboard
         </GoBack>
       )}
 
-      {isUserInBreakCouncilMember && !isReviewPage && (
+      {isUserInBreakCouncilMember && !review && (
         <PropagateBreakGlassCouncilCard>
           <h1>Propagate Break Glass</h1>
 
@@ -223,7 +219,7 @@ export function BreakGlassCouncil() {
             kind={ACTION_PRIMARY}
             icon={'plus'}
             onClick={handleClickPropagateBreakGlass}
-            disabled={glassBroken}
+            disabled={glassBroken || isPendingPropagateBreakGlass}
           />
         </PropagateBreakGlassCouncilCard>
       )}
@@ -236,12 +232,13 @@ export function BreakGlassCouncil() {
             <article className="pending">
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingSignature.length} key={sliderKey}>
-                  {breakGlassActionPendingSignature.map((item) => (
-                    <BreakGlassCouncilPanding
+                  {breakGlassActionPendingSignature.map((item, index) => (
+                    <CouncilPending
                       {...item}
                       key={item.id}
                       numCouncilMembers={breakGlassCouncilMember.length}
                       councilPendingActionsLength={breakGlassActionPendingSignature.length}
+                      index={index}
                     />
                   ))}
                 </Carousel>
@@ -249,28 +246,24 @@ export function BreakGlassCouncil() {
             </article>
           )}
 
-          {isReviewPage ? (
+          {review ? (
             <>
-              {Boolean(pastBreakGlassCouncilAction.length) && (
-                <>
-                  <h1>Past Break Glass Council Actions</h1>
-                  {paginatedPastBreakGlassCouncilActions.map((item) => (
-                    <CouncilPastActionView
-                      execution_datetime={String(item.executionDatetime)}
-                      key={item.id}
-                      action_type={item.actionType}
-                      signers_count={item.signersCount}
-                      num_council_members={breakGlassCouncilMember.length}
-                      council_id={item.breakGlassId}
-                    />
-                  ))}
+              <h1>{isReviewPage ? 'Past Break Glass Council Actions' : 'Pending Signature Council Actions'}</h1>
+              {(isReviewPage ? paginatedPastBreakGlassCouncilActions : paginatedBreakGlassActionPendingAllSignature).map((item) => (
+                <CouncilPastActionView
+                  executionDatetime={String(item.executionDatetime)}
+                  key={item.id}
+                  actionType={item.actionType}
+                  signersCount={item.signersCount}
+                  numCouncilMembers={breakGlassCouncilMember.length}
+                  councilId={item.breakGlassId}
+                />
+              ))}
 
-                  <Pagination
-                    itemsCount={pastBreakGlassCouncilAction.length}
-                    listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME}
-                  />
-                </>
-              )}
+              <Pagination
+                itemsCount={isReviewPage ? pastBreakGlassCouncilAction.length : breakGlassActionPendingAllSignature.length}
+                listName={BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME}
+              />
             </>
           ) : (
             <>
@@ -294,28 +287,28 @@ export function BreakGlassCouncil() {
                 <BreakGlassCouncilForm councilMemberMaxLength={councilMemberMaxLength} action={chosenDdItem?.value} />
               </AvaliableActions>
 
-              <BreakGlassCouncilMyActions
-                myPastBreakGlassCouncilAction={paginatedMyPastCouncilActions}
-                breakGlassCouncilMemberLength={breakGlassCouncilMember.length}
-                myPastBreakGlassCouncilActionLength={myPastBreakGlassCouncilAction.length}
-                breakGlassActionPendingMySignature={paginatedBreakGlassActionPendingMySignature}
-                breakGlassActionPendingMySignatureLength={breakGlassActionPendingMySignature.length}
+              <MyCouncilActions
+                myPastCouncilAction={paginatedMyPastCouncilActions}
+                myPastCouncilActionLength={myPastBreakGlassCouncilAction.length}
+                actionPendingSignature={paginatedBreakGlassActionPendingMySignature}
+                actionPendingSignatureLength={breakGlassActionPendingMySignature.length}
                 numCouncilMembers={breakGlassCouncilMember.length}
                 activeActionTab={activeActionTab}
                 setActiveActionTab={setActiveActionTab}
-                tabsList={tabsList}
+                tabsList={councilTabsList}
                 handleDropAction={handleDropAction}
+                listNameMyPastActions={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME}
+                listNameMyOngoingActions={BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME}
               />
             </>
           )}
         </div>
 
         <div className="right-block">
-          {!isReviewPage && (
+          {!review && (
             <ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature}>
-              <h2>Review Past Council Actions</h2>
-
-              <Button text="Review" kind={ACTION_SECONDARY} onClick={handleClickReview} />
+              <Button text="Review Past Actions" kind={ACTION_SECONDARY} onClick={() => handleClickReview(queryParameters.review)} />
+              <Button text="Review Pending Actions" kind={ACTION_SECONDARY} onClick={() => handleClickReview(queryParameters.pendingReview)} />
             </ReviewPastCouncilActionsCard>
           )}
 

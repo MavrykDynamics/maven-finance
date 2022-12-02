@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 
 // components
 import { Button } from 'app/App.components/SettingsPopup/SettingsPopup.style'
@@ -8,21 +8,24 @@ import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 import { parseDate } from 'utils/time'
 import { getSeparateCamelCase } from '../../utils/parse'
+import { scrollToFullView } from 'utils/scrollToFullView'
 
 // styles
-import { BreakGlassCouncilMyOngoingActionCardStyled } from './BreakGlassCouncil.style'
+import { CouncilOngoingActionStyled } from './Council.style' 
 
 // types
-import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { BreakGlassActions } from "utils/TypesAndInterfaces/BreakGlass";
+import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
-type Props = BreakGlassAction[0] & {
+type Props = (BreakGlassActions[0] | CouncilActions[0]) & {
   numCouncilMembers: number
   handleDropAction: (arg: number) => void
 }
 
-export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
+export function CouncilOngoingAction(props: Props) {
   const { executionDatetime, actionType, signersCount, numCouncilMembers, id, parameters, handleDropAction } = props
   const [isOpen, setIsOpen] = useState(false)
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const handleClickCard = () => {
     setIsOpen(!isOpen)
@@ -70,12 +73,12 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         <div className='row'>
           {isChangeCouncilMember && <div className='column'>
             <div className='column-name'>Council Member to change</div>
-            <TzAddress className='column-value' tzAddress={oldAddress} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={oldAddress} hasIcon={true} />
           </div>}
 
           {isAddCouncilMember && <div className='column'>
             <div className='column-name'>Council Member Address</div>
-            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={address} hasIcon={true} />
           </div>}
   
           <div className='column'>
@@ -96,7 +99,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         <div className='row'>
           {isChangeCouncilMember ? <div className='column'>
             <div className='column-name'>New Council Member Address</div>
-            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={address} hasIcon={true} />
           </div> : <div className='column-value'></div>}
   
           {image ? <div className='column'>
@@ -126,7 +129,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         <div className='row two-columns'>
           <div className='column'>
             <div className='column-name'>Council Member to remove</div>
-            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={address} hasIcon={true} />
           </div>
   
           <div className='column'>
@@ -143,8 +146,16 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
     )
   }
 
+  // if the dropdown is not fully visible in the window,
+  // move the scroll to fix it
+  useEffect(() => {
+    if (isOpen) {
+      scrollToFullView(ref.current)
+    }
+  }, [isOpen])
+
   return (
-    <BreakGlassCouncilMyOngoingActionCardStyled>
+    <CouncilOngoingActionStyled>
       <div className='top' onClick={handleClickCard}>
         <div className='row top-row'>
           <div className='column'>
@@ -164,9 +175,9 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         </div>
       </div>
 
-      {isOpen && <div className='bottom'>
+      {isOpen && <div ref={ref} className='bottom'>
         {bottomSection}
       </div>}
-    </BreakGlassCouncilMyOngoingActionCardStyled>
+    </CouncilOngoingActionStyled>
   )
 }

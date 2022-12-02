@@ -15,7 +15,7 @@ export const adminChangeGovernancePeriod =
 
     const { governance } = state
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
@@ -85,7 +85,7 @@ export const adminChangeGovernancePeriod =
 export const trackFarm = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 // components
-import Chart from '../../../app/App.components/Chart/Chart.view'
+import { Chart } from '../../../app/App.components/Chart/Chart.view'
 import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 // styles
@@ -10,6 +10,7 @@ import { ChartCard, ChartSlidingTabButtons } from './DataFeedsChart.style'
 // types
 import { DataFeedsHistory, DataFeedsVolatility } from '../../Satellites/helpers/Satellites.types'
 import { formatNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { cyanColor } from 'styles'
 
 type Props = {
   dataFeedsHistory: DataFeedsHistory
@@ -49,13 +50,16 @@ export function DataFeedsChart({ className, dataFeedsHistory, dataFeedsVolatilit
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
       <Chart
-        list={shownData}
-        style={{
-          width: '100%',
+        data={shownData}
+        colors={{
+          lineColor: cyanColor,
+          areaTopColor: cyanColor,
+          areaBottomColor: 'rgba(119, 164, 242, 0)',
+          textColor: '#CDCDCD',
+        }}
+        settings={{
           height: 300,
         }}
-        tickFormater={tickFormater}
-        tooltipValueFormatter={tickFormater}
       />
     </ChartCard>
   )

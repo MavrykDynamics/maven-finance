@@ -28,9 +28,11 @@ export const VotingArea = ({
   className,
   buttonsToShow,
 }: VotingType) => {
-  const { forBtn, againsBtn, passBtn } = buttonsToShow ?? {}
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { isSatellite } = useSelector((state: State) => state.user)
+  const { forBtn, againsBtn, passBtn } = buttonsToShow ?? { forBtn: {}, againsBtn: {}, passBtn: {} }
+  const {
+    accountPkh,
+    user: { isSatellite },
+  } = useSelector((state: State) => state.wallet)
 
   const votingButtons = accountPkh ? (
     isSatellite && handleVote ? (
@@ -86,8 +88,10 @@ export const VotingProposalsArea = ({
   votingPhaseHandler,
   className,
 }: VotingProposalsType) => {
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { isSatellite } = useSelector((state: State) => state.user)
+  const {
+    accountPkh,
+    user: { isSatellite },
+  } = useSelector((state: State) => state.wallet)
 
   if (isPastProposals || isTimeLock) {
     return <VotingBar voteStatistics={voteStatistics} />
