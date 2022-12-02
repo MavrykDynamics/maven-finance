@@ -14,18 +14,20 @@ import { getSatelliteMetrics } from 'pages/Satellites/Satellites.helpers'
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
+  const loading = useSelector((state: State) => state.loading.isLoading)
   const { currentSatellite } = useSelector((state: State) => state.delegation)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const {
     governanceStorage: { financialRequestLedger, proposalLedger },
     pastProposals,
   } = useSelector((state: State) => state.governance)
-  const { mySatelliteRewardsData, mySMvkTokenBalance = 0 } = useSelector((state: State) => state.user)
   const {
     emergencyGovernanceStorage: { emergencyGovernanceLedger },
   } = useSelector((state: State) => state.emergencyGovernance)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const {
+    accountPkh,
+    user: { mySatelliteRewardsData, mySMvkTokenBalance },
+  } = useSelector((state: State) => state.wallet)
 
   let { satelliteId } = useParams<{ satelliteId: string }>()
 

@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { State } from 'reducers'
-import themeColors from 'styles/colors'
-import { AreaChart, Area, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts'
+import { useEffect, useRef, useState } from 'react'
+import { createChart, ColorType, BusinessDay, UTCTimestamp } from 'lightweight-charts'
 
 // styles
-import { ChartTooltip, Plug } from './Chart.style'
+import { ChartStyled, Plug, TradingViewTooltipStyled } from './Chart.style'
 
 // helpers
 import { parseDate } from '../../../utils/time'
@@ -13,110 +10,61 @@ import { parseDate } from '../../../utils/time'
 // components
 import Icon from '../Icon/Icon.view'
 
-type ChartStyle = {
-  color?: string
-  width?: number | string
-  height?: number | string
-  fontSize?: number
-  tickMargin?: number
-  paddingTop?: number
-  paddingBottom?: number
-  paddingRight?: number
-  paddingLeft?: number
-}
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
+import { headerColor, lightTextColor, skyColor } from 'styles'
 
-type ChartItem = {
-  xAxis: string
-  yAxis: number
-}
-
-type Props = {
-  list: ChartItem[]
-  style?: ChartStyle
-  tickFormater?: (value: any, index: number) => string
-  tooltipValueFormatter?: (value: number) => string
-  numberOfItemsToDisplay?: number
+type TradingViewChartProps = {
+  data: { time: UTCTimestamp; value: number }[]
+  colors?: {
+    lineColor?: string
+    areaTopColor?: string
+    areaBottomColor?: string
+    textColor?: string
+    borderColor?: string
+  }
+  settings: {
+    height: number
+    tickDateFormatter?: (date: number) => string
+    tickPriceFormatter?: (value: number) => string
+    dateTooltipFormatter?: (date: number) => string
+    valueTooltipFormatter?: (date: number) => string
+  }
   className?: string
 }
 
-type ChartData = {
-  uv: number
-  pv: string
-  time: string
-}[]
-
-type TooltipContent = Pick<{ label?: string }, 'label'>
-
-const initialChartStyle: ChartStyle = {
-  color: '#8D86EB',
-  width: 655,
-  height: 345,
-  fontSize: 12,
-  tickMargin: 11,
-  paddingTop: 17,
-  paddingBottom: 0,
-  paddingRight: 0,
-  paddingLeft: 22,
+type TooltipPropsType = {
+  mvkAmount?: number
+  date?: string | number
 }
 
-const renderTooltipContent = (
-  o: TooltipContent,
-  data: ChartData,
-  tooltipValueFormatter?: (value: number) => string,
-) => {
-  const { label } = o
-  const { uv: value = 0, pv: date = '' } = data.find((item) => item.time === label) ?? {}
+const TradingViewTooltip = ({ mvkAmount, date }: TooltipPropsType) => {
+  if (!mvkAmount || !date) {
+    return null
+  }
 
   return (
-    <ChartTooltip>
-      {tooltipValueFormatter ? tooltipValueFormatter(value) : value}
-      <div>{date}</div>
-    </ChartTooltip>
+    <TradingViewTooltipStyled>
+      <div className="value">
+        <CommaNumber endingText="MVK" value={mvkAmount} />
+      </div>
+      <div className="date">{date}</div>
+    </TradingViewTooltipStyled>
   )
 }
 
-const timeFormat = 'HH:mm'
-const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
-
-const dateFormat = 'MMM DD, HH:mm Z'
-const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
-
-export default function Chart({ list, style, tickFormater, tooltipValueFormatter, numberOfItemsToDisplay = 15, className }: Props) {
-  const { themeSelected } = useSelector((state: State) => state.preferences)
-  const [chartStyle, setChartStyle] = useState(initialChartStyle)
-
-  // this is necessary to ensure that a large number of figures are not cut
-  const maxValue = list.length ? list.reduce((acc, curr) => (acc.yAxis > curr.yAxis ? acc : curr)).yAxis : 0
-  const maxValueLength = String(maxValue).length
-  const marginRight = maxValueLength > 5 ? maxValueLength * 4.5 : 5
-
-  const data = list?.length
-    ? list.map(({ yAxis, xAxis }) => {
-        return {
-          uv: yAxis,
-          pv: getParsedDate(xAxis),
-          time: getTime(xAxis),
-        }
-      })
-    : []
-
-  useEffect(() => {
-    if (style) {
-      const updatedStyle = {
-        ...initialChartStyle,
-        ...style,
-      }
-
-      setChartStyle(updatedStyle)
-    }
-  }, [style])
-
-  if (list.length < numberOfItemsToDisplay) {
+export const Chart = ({
+  data,
+  colors,
+  settings,
+  numberOfItemsToDisplay = 15,
+  className,
+}: TradingViewChartProps & { numberOfItemsToDisplay?: number }) => {
+  if (data.length < numberOfItemsToDisplay) {
     return (
       <Plug>
         <div>
-          <Icon id="stars" className='icon-stars' />
-          <Icon id="cow" className='icon-cow' />
+          <Icon id="stars" className="icon-stars" />
+          <Icon id="cow" className="icon-cow" />
         </div>
 
         <p>There is not enough data to display the graph</p>
@@ -124,44 +72,124 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
     )
   }
 
+  return <TradingViewChart data={data} settings={settings} colors={colors} className={className} />
+}
+
+export const TradingViewChart = ({
+  data,
+  colors: {
+    lineColor = skyColor,
+    areaTopColor = skyColor,
+    areaBottomColor = 'transparent',
+    textColor = lightTextColor,
+    borderColor = headerColor,
+  } = {},
+  settings: { height, dateTooltipFormatter, valueTooltipFormatter, tickPriceFormatter, tickDateFormatter },
+  className,
+}: TradingViewChartProps) => {
+  const chartContainerRef = useRef<HTMLDivElement | null>(null)
+  const mainChartWrapperRef = useRef<HTMLDivElement | null>(null)
+  const [tooltipValue, setTooltipValue] = useState<TooltipPropsType>({
+    mvkAmount: data.at(-1)?.value,
+    date: data.at(-1)?.time,
+  })
+
+  useEffect(() => {
+    const handleResize = () => {
+      chart.applyOptions({ width: chartContainerRef?.current?.clientWidth ?? 0 })
+    }
+
+    const chart = createChart(chartContainerRef?.current ?? '', {
+      layout: {
+        background: { type: ColorType.Solid, color: 'transparent' },
+        textColor,
+        fontSize: 12,
+      },
+      grid: {
+        vertLines: {
+          visible: false,
+        },
+        horzLines: {
+          visible: false,
+        },
+      },
+      width: chartContainerRef?.current?.clientWidth ?? 0,
+      height,
+      localization: {
+        locale: 'en-US',
+        timeFormatter: (time: BusinessDay | UTCTimestamp) => {
+          return tickDateFormatter?.(Number(time)) ?? parseDate({ time: Number(time), timeFormat: 'HH:mm' }) ?? ''
+        },
+      },
+    })
+
+    // Setting the border color for the vertical axis
+    chart.priceScale().applyOptions({
+      //TODO: add price formatter
+      borderColor,
+    })
+
+    // Setting the border color for the horizontal axis
+    chart.timeScale().applyOptions({
+      borderColor,
+      visible: true,
+      tickMarkFormatter: (time: UTCTimestamp | BusinessDay) => {
+        return tickDateFormatter?.(Number(time)) ?? parseDate({ time: Number(time), timeFormat: 'HH:mm' }) ?? ''
+      },
+    })
+
+    const series = chart.addAreaSeries({ lineColor, topColor: areaTopColor, bottomColor: areaBottomColor })
+    series.setData(data)
+    series.applyOptions({
+      lastValueVisible: false,
+      priceLineVisible: false,
+    })
+
+    chart.subscribeCrosshairMove((param) => {
+      if (
+        !chartContainerRef?.current ||
+        param.point === undefined ||
+        !param.time ||
+        param.point.x < 0 ||
+        param.point.x > chartContainerRef?.current?.clientWidth ||
+        param.point.y < 0 ||
+        param.point.y > chartContainerRef?.current?.clientHeight
+      ) {
+        // hide tooltip
+        if (mainChartWrapperRef.current) {
+          mainChartWrapperRef.current.style.setProperty('--translateX', '0')
+          mainChartWrapperRef.current.style.setProperty('--translateY', '0')
+        }
+      } else {
+        // set tooltip values
+        setTooltipValue({
+          ...tooltipValue,
+          date:
+            dateTooltipFormatter?.(Number(param.time)) ??
+            parseDate({ time: Number(param.time), timeFormat: 'MMM DD, HH:mm Z' }) ??
+            '',
+          mvkAmount: Number(param.seriesPrices.get(series)),
+        })
+        if (mainChartWrapperRef.current) {
+          mainChartWrapperRef.current.style.setProperty('--translateX', `${param.point.x + 15}`)
+          mainChartWrapperRef.current.style.setProperty('--translateY', `${param.point.y - 20}`)
+        }
+      }
+    })
+
+    window.addEventListener('resize', handleResize)
+    chart.timeScale().fitContent()
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      chart.remove()
+    }
+  }, [])
+
   return (
-    <ResponsiveContainer width={chartStyle.width} height={chartStyle.height}>
-      <AreaChart className={className} data={data} margin={{ right: marginRight }}>
-        <defs>
-          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="10%" stopColor={themeColors[themeSelected].chartLinerGradientPrimary} stopOpacity={1} />
-            <stop offset="100%" stopColor={themeColors[themeSelected].chartLinerGradientSecondary} stopOpacity={1} />
-          </linearGradient>
-        </defs>
-
-        <XAxis
-          tickLine={false}
-          tick={{ fill: chartStyle.color }}
-          stroke={chartStyle.color}
-          padding={{ left: chartStyle.paddingLeft }}
-          tickMargin={chartStyle.tickMargin}
-          fontSize={chartStyle.fontSize}
-          dataKey="time"
-          allowDuplicatedCategory={false}
-        />
-
-        <YAxis
-          tickLine={false}
-          tick={{ fill: chartStyle.color }}
-          stroke={chartStyle.color}
-          padding={{ top: chartStyle.paddingTop }}
-          tickMargin={chartStyle.tickMargin}
-          fontSize={chartStyle.fontSize}
-          orientation="right"
-          tickFormatter={tickFormater}
-        />
-
-        <Tooltip
-          cursor={{ stroke: themeColors[themeSelected].cardBorderColor, strokeWidth: 3 }}
-          content={(o) => renderTooltipContent(o, data, tooltipValueFormatter)}
-        />
-        <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
-      </AreaChart>
-    </ResponsiveContainer>
+    <ChartStyled className={className} ref={mainChartWrapperRef}>
+      <div ref={chartContainerRef} />
+      <TradingViewTooltip mvkAmount={tooltipValue?.mvkAmount} date={tooltipValue?.date} />
+    </ChartStyled>
   )
 }

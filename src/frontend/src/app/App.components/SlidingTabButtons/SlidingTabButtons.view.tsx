@@ -32,7 +32,7 @@ type TabButtonProps = {
 }
 const TabButton = ({ text, buttonActiveStatus, onClick, disabled = false }: TabButtonProps) => {
   return (
-    <ButtonStyled buttonActive={buttonActiveStatus} disabled={disabled} onClick={onClick}>
+    <ButtonStyled disabled={disabled} onClick={onClick} className={buttonActiveStatus ? 'selected' : ''}>
       <ButtonText>
         <div>{text}</div>
       </ButtonText>

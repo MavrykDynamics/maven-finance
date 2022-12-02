@@ -44,8 +44,10 @@ type FinancialRequestsViewProps = {
 export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialRequestsViewProps) => {
   const dispatch = useDispatch()
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { isSatellite: isUserSatellite } = useSelector((state: State) => state.user)
+  const {
+    accountPkh,
+    user: { isSatellite: isUserSatellite },
+  } = useSelector((state: State) => state.wallet)
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
 
@@ -123,7 +125,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
 
         <VotingArea
           voteStatistics={votingStats}
-          isVotingActive={rightItemStatus === ProposalStatus.ONGOING && isUserSatellite}
+          isVotingActive={rightItemStatus === ProposalStatus.ONGOING && Boolean(isUserSatellite)}
           handleVote={handleVotingRoundVote}
           buttonsToShow={{ forBtn: { text: 'Approve' }, againsBtn: { text: 'Disapprove' } }}
           className={'fr-voting'}

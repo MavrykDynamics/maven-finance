@@ -16,7 +16,7 @@ import {
 type DoormanHeaderViewProps = {}
 
 export const DoormanHeaderView = ({}: DoormanHeaderViewProps) => {
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => state.loading.isLoading)
 
   return (
     <DoormanHeaderStyled>

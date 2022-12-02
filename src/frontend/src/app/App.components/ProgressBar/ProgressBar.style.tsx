@@ -6,28 +6,42 @@ export const ProgressBarStyled = styled.div<{ status: ProgressBarStatus; theme: 
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 0px;
   z-index: 20;
   height: 2px;
   background-color: ${({ theme }) => theme.primaryColor};
   will-change: transform;
-
-  transform: translate3d(-100vw, 0, 0);
+  transition: opacity 500ms ease-in-out;
   opacity: 0;
 
   ${(props) =>
     props.status === ProgressBarStatus.MOVING &&
     css`
-      transition: transform 10s cubic-bezier(0, 1, 0.75, 1), opacity 0.3s ease-in-out;
-      transform: translate3d(-20vw, 0, 0);
+      animation: progres 4s infinite linear;
       opacity: 1;
     `};
 
   ${(props) =>
-    props.status === ProgressBarStatus.DONE &&
+    props.status === ProgressBarStatus.NO_DISPLAY &&
     css`
-      transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      transform: translate3d(0vw, 0, 0);
       opacity: 0;
     `};
+
+  @keyframes progres {
+    0% {
+      width: 0%;
+    }
+    25% {
+      width: 50%;
+    }
+    50% {
+      width: 75%;
+    }
+    75% {
+      width: 85%;
+    }
+    100% {
+      width: 100%;
+    }
+  } ;
 `
