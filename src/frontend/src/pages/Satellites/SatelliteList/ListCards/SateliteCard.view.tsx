@@ -112,7 +112,7 @@ export const SatelliteListItem = ({
 
   const participation = (satelliteMetrics.proposalParticipation + satelliteMetrics.votingPartisipation) / 2
 
-  const buttonToShow = satelliteUserIsDelegatedTo ? (
+  const buttonToShow = userIsDelegatedToThisSatellite ? (
     <>
       <Button
         text="Undelegate"
