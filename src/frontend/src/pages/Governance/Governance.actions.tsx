@@ -77,12 +77,12 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: AppDis
   const state: State = getState()
 
   try {
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -113,12 +113,12 @@ export const votingRinancialRequestVote =
     const state: State = getState()
 
     try {
-      if (!state.wallet.ready) {
+      if (!state.wallet.accountPkh) {
         dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
         return
       }
 
-      if (state.loading) {
+      if (state.loading.isLoading) {
         dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
         return
       }
@@ -147,12 +147,12 @@ export const votingRoundVote = (vote: string) => async (dispatch: AppDispatch, g
   const state: State = getState()
 
   try {
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -182,12 +182,12 @@ export const startProposalRound = () => async (dispatch: AppDispatch, getState: 
   const state: State = getState()
 
   try {
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -217,12 +217,12 @@ export const startVotingRound = () => async (dispatch: AppDispatch, getState: Ge
   const state: State = getState()
 
   try {
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -272,12 +272,12 @@ export const getTimestampByLevel = async (level: number): Promise<string> => {
 export const startNextRound = (executePastProposal: boolean) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   try {
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }

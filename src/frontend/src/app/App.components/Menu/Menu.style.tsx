@@ -13,6 +13,7 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   top: 0;
   bottom: 0;
   overflow: auto;
+  overscroll-behavior-y: contain;
   scrollbar-width: none;
 
   &::-webkit-scrollbar {

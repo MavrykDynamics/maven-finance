@@ -110,7 +110,7 @@ export const CardHeader = styled.h2<{ theme: MavrykTheme }>`
   font-weight: 700;
   font-size: 14px;
   line-height: 21px;
-  color: ${({ theme }) => theme.headerColor};
+  color: ${({ theme }) => theme.textColor};
 `
 
 export const PageContent = styled.section`

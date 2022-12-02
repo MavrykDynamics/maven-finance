@@ -27,7 +27,7 @@ import {
 export type BreakGlassCouncilMember = ReturnType<typeof normalizeBreakGlassCouncilMember>
 export type BreakGlassCouncilMemberGraphQL = Omit<Break_Glass_Council_Member, '__typename'>
 
-export type BreakGlassAction = ReturnType<typeof normalizeBreakGlassAction>
+export type BreakGlassActions = ReturnType<typeof normalizeBreakGlassAction>
 export type BreakGlassActionGraphQL = Omit<Break_Glass_Action, '__typename'>
 
 export type BreakGlassStorage = ReturnType<typeof normalizeBreakGlass>

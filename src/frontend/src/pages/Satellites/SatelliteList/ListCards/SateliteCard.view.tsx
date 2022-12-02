@@ -65,8 +65,10 @@ export const SatelliteListItem = ({
   const freesMVKSpace = Math.max(sMvkBalance * satellite.delegationRatio - totalDelegatedMVK, 0)
 
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
-  const { isSatellite } = useSelector((state: State) => state.user)
-  const { ready } = useSelector((state: State) => state.wallet)
+  const {
+    accountPkh,
+    user: { isSatellite },
+  } = useSelector((state: State) => state.wallet)
   const {
     governanceStorage: { financialRequestLedger, proposalLedger },
     pastProposals,
@@ -110,14 +112,14 @@ export const SatelliteListItem = ({
 
   const participation = (satelliteMetrics.proposalParticipation + satelliteMetrics.votingPartisipation) / 2
 
-  const buttonToShow = satelliteUserIsDelegatedTo ? (
+  const buttonToShow = userIsDelegatedToThisSatellite ? (
     <>
       <Button
         text="Undelegate"
         icon="man-close"
         kind={ACTION_SECONDARY}
         onClick={() => undelegateCallback(satellite.address)}
-        disabled={!ready}
+        disabled={!accountPkh}
       />
       {isDetailsPage && claimRewardsCallback && userHasSatelliteRewards ? (
         <Button
@@ -125,7 +127,7 @@ export const SatelliteListItem = ({
           icon="rewards"
           kind={ACTION_PRIMARY}
           onClick={() => claimRewardsCallback()}
-          disabled={!ready}
+          disabled={!accountPkh}
           strokeWidth={0.3}
         />
       ) : null}
@@ -136,7 +138,7 @@ export const SatelliteListItem = ({
       icon="man-check"
       kind={ACTION_PRIMARY}
       onClick={() => delegateCallback(satellite.address)}
-      disabled={!ready}
+      disabled={!accountPkh}
     />
   )
 

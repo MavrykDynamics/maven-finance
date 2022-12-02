@@ -26,13 +26,13 @@ body {
   }
 }
 
-h1 {
+h1, h2 {
   font-weight: bold;
   display: inline-block;
   margin: 30px auto;
   color: ${({ theme }) => theme.textColor};
   font-weight: 700;
-  font-size: 25px;
+  font-size: 22px;
 
   @media (max-width: 700px) {   
     font-size: 30px;
@@ -322,14 +322,14 @@ p {
 
     &:hover {
       svg {
-        fill: ${cyanColor};
+        opacity: 0.8;
       }
     }
 
     svg {
       width: 16px;
       height: 16px;
-      fill: ${headerColor};
+      fill: ${({ theme }) => theme.textColor};
     }
   }
 

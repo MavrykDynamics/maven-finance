@@ -1,6 +1,6 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
+import { getDoormanStorage, getMvkTokenStorage, updateUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
 import {
   DELEGATION_STORAGE_QUERY,
@@ -50,31 +50,31 @@ export const getDelegationStorage = () => async (dispatch: AppDispatch) => {
 export const delegate = (satelliteAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
 
-  if (state.user.myMvkTokenBalance === 0 && state.user.mySMvkTokenBalance === 0) {
+  if (state.wallet.user?.myMvkTokenBalance === 0 && state.wallet.user?.mySMvkTokenBalance === 0) {
     dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please buy MVK and stake it'))
     return
   }
 
-  if (state.user.mySMvkTokenBalance === 0) {
+  if (state.wallet.user?.mySMvkTokenBalance === 0) {
     dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please stake your MVK'))
     return
   }
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    console.log(contract, 'contract');
+    console.log(contract, 'contract')
     const transaction = await contract?.methods.delegateToSatellite(state.wallet.accountPkh, satelliteAddress).send()
-    console.log(transaction, 'transaction');
+    console.log(transaction, 'transaction')
     dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Delegating...', 'Please wait 30s'))
 
@@ -83,7 +83,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
     dispatch(showToaster(SUCCESS, 'Delegation done', 'All good :)'))
     dispatch(toggleLoader())
 
-    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) await dispatch(updateUserData(state.wallet.accountPkh))
     await dispatch(getMvkTokenStorage())
     await dispatch(getDelegationStorage())
     await dispatch(getDoormanStorage())
@@ -99,12 +99,12 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
 export const undelegate = (delegateAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -121,7 +121,7 @@ export const undelegate = (delegateAddress: string) => async (dispatch: AppDispa
     dispatch(showToaster(SUCCESS, 'Undelegating done', 'All good :)'))
     dispatch(toggleLoader())
 
-    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) await dispatch(updateUserData(state.wallet.accountPkh))
     await dispatch(getMvkTokenStorage())
     await dispatch(getDelegationStorage())
     await dispatch(getDoormanStorage())
@@ -155,12 +155,12 @@ export const REGISTER_FEED_ERROR = 'REGISTER_FEED_ERROR'
 export const registerFeedAction = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot register feed', ''))
     return
   }

@@ -41,7 +41,10 @@ export const ExitFeeModalView = ({
   amount,
 }: ExitFeeModalViewProps) => {
   const dispatch = useDispatch()
-  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const {
+    accountPkh,
+    user: { myMvkTokenBalance, mySMvkTokenBalance },
+  } = useSelector((state: State) => state.wallet)
 
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
@@ -49,7 +52,6 @@ export const ExitFeeModalView = ({
   const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
-  const { myMvkTokenBalance, mySMvkTokenBalance } = useSelector((state: State) => state.user)
   const inputAmountValue = +inputAmount.amount
 
   const checkInputIsOk = (value: number) => {
@@ -125,7 +127,7 @@ export const ExitFeeModalView = ({
                   errorMessage={stakeUnstakeValueError}
                 />
                 <DoormanList>
-                  <div>
+                  <div className='info-section'>
                     <h4>
                       MVK Loyalty Index
                       <a
@@ -159,16 +161,6 @@ export const ExitFeeModalView = ({
 
                 <ExitFeeModalButtons>
                   <Button
-                    text="Cancel"
-                    kind={ACTION_SECONDARY}
-                    icon="error"
-                    loading={loading}
-                    onClick={() => {
-                      dispatch(setExitFeeAmount(inputAmountValue))
-                      cancelCallback()
-                    }}
-                  />
-                  <Button
                     text="Proceed"
                     icon="success"
                     disabled={!stakeUnstakeValueOK.amount}
@@ -177,6 +169,17 @@ export const ExitFeeModalView = ({
                     onClick={() => {
                       dispatch(setExitFeeAmount(inputAmountValue))
                       unstakeCallback(inputAmountValue)
+                    }}
+                  />
+
+                  <Button
+                    text="Cancel"
+                    kind={ACTION_SECONDARY}
+                    icon="error"
+                    loading={loading}
+                    onClick={() => {
+                      dispatch(setExitFeeAmount(inputAmountValue))
+                      cancelCallback()
                     }}
                   />
                 </ExitFeeModalButtons>

@@ -129,7 +129,7 @@ const HarvestBlock = ({
   userReward,
   harvestRewards,
 }: {
-  userReward: UserFarmRewardsData
+  userReward?: UserFarmRewardsData
   harvestRewards: () => void
 }) => (
   <FarmHarvestStyled className="farm-harvest">
@@ -164,7 +164,7 @@ const FarmingBlock = ({
       {!accountPhk ? (
         <div className="start-farming">
           <h3>Start Farming</h3>
-          <ConnectWallet />
+          <ConnectWallet className={accountPhk ? 'isConnected' : ''} />
         </div>
       ) : (
         <FarmStakeStyled className="farm-stake">
@@ -187,7 +187,7 @@ type FarmCardViewProps = {
   apyValue: number
   accountPkh?: string
   isOpenedCard: boolean
-  userReward: UserFarmRewardsData
+  userReward?: UserFarmRewardsData
   closeCalculatorModal: () => void
   triggerWithdrawModal: () => void
   triggerDepositModal: () => void
@@ -331,8 +331,10 @@ type FarmCardProps = {
 
 export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, expandCallback }: FarmCardProps) => {
   const dispatch = useDispatch()
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { myFarmRewardsData } = useSelector((state: State) => state.user)
+  const {
+    accountPkh,
+    user: { myFarmRewardsData },
+  } = useSelector((state: State) => state.wallet)
 
   const [visibleModal, setVisibleModal] = useState(false)
 

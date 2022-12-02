@@ -1,0 +1,163 @@
+import { UTCTimestamp } from 'lightweight-charts'
+
+export const lendingData = [
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 1,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 2,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 3,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 4,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 5,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 6,
+  },
+]
+
+export const borrowingData = [
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 1,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 2,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 3,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 4,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 5,
+  },
+  {
+    assetImg: '',
+    supplied: 1000,
+    apy: 10,
+    earned: 500,
+    mvkBonus: 4500,
+    id: 6,
+  },
+]
+
+export const historyData = [
+  {
+    action: 'stake',
+    amount: 333,
+    exitFee: 0.84,
+    totalAmount: 322232,
+    id: 1,
+  },
+  {
+    action: 'stake',
+    amount: 333,
+    id: 2,
+  },
+  {
+    action: 'stake',
+    amount: 333,
+    totalAmount: 322232,
+    id: 3,
+  },
+  {
+    action: 'stake',
+    amount: 333,
+    exitFee: 0.84,
+    id: 4,
+  },
+  {
+    action: 'stake',
+    id: 5,
+    amount: 333,
+    user: {
+      avatar: '',
+      address: 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',
+      name: 'Jeff Stone',
+    },
+  },
+]
+
+export const CHART_TEST_DATA = [
+  { time: new Date(Date.now() - 1000 * 60 * 30).getTime(), value: 32.51 },
+  { time: new Date(Date.now() - 1000 * 60 * 29).getTime(), value: 31.11 },
+  { time: new Date(Date.now() - 1000 * 60 * 28).getTime(), value: 27.02 },
+  { time: new Date(Date.now() - 1000 * 60 * 27).getTime(), value: 27.32 },
+  { time: new Date(Date.now() - 1000 * 60 * 25).getTime(), value: 25.17 },
+  { time: new Date(Date.now() - 1000 * 60 * 24).getTime(), value: 28.89 },
+  { time: new Date(Date.now() - 1000 * 60 * 23).getTime(), value: 25.46 },
+  { time: new Date(Date.now() - 1000 * 60 * 22).getTime(), value: 23.92 },
+  { time: new Date(Date.now() - 1000 * 60 * 20).getTime(), value: 22.68 },
+  { time: new Date(Date.now() - 1000 * 60 * 18).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 17).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 16).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 15).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 13).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 12).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 10).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 8).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 5).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 3).getTime(), value: 22.67 },
+  { time: new Date(Date.now() - 1000 * 60 * 1).getTime(), value: 22.67 },
+] as Array<{ time: UTCTimestamp; value: number }>

@@ -38,22 +38,25 @@ type StakeUnstakeViewProps = {
 export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstakeViewProps) => {
   const dispatch = useDispatch()
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { myDoormanRewardsData, mySatelliteRewardsData, myMvkTokenBalance, mySMvkTokenBalance } = useSelector(
-    (state: State) => state.user,
-  )
+  const {
+    accountPkh,
+    user: {
+      myDoormanRewardsData: { myAvailableDoormanRewards },
+      mySatelliteRewardsData: { myAvailableSatelliteRewards },
+      myMvkTokenBalance,
+      mySMvkTokenBalance,
+    },
+  } = useSelector((state: State) => state.wallet)
   const { amount, showing } = useSelector((state: State) => state.exitFeeModal)
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
 
   const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
-  const earnedValue =
-    mySatelliteRewardsData.myAvailableSatelliteRewards + myDoormanRewardsData.myAvailableDoormanRewards
+  const earnedValue = myAvailableSatelliteRewards + myAvailableDoormanRewards
 
   const inputAmountValue = +inputAmount.amount
-  const userHasRewards =
-    myDoormanRewardsData.myAvailableDoormanRewards + mySatelliteRewardsData.myAvailableSatelliteRewards > 2
+  const userHasRewards = myAvailableDoormanRewards + myAvailableSatelliteRewards > 2
   const isSuccess = stakeUnstakeInputStatus.amount === 'success'
 
   const onUseMaxClick = (actionType: string) => {
@@ -162,8 +165,8 @@ export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstak
               <StakeUnstakeMin>Min 1 MVK</StakeUnstakeMin>
               {accountPkh && (
                 <>
-                  <StakeUnstakeMax onClick={() => onUseMaxClick('UNSTAKE')}>Max Unstake</StakeUnstakeMax>
                   <StakeUnstakeMax onClick={() => onUseMaxClick('STAKE')}>Max Stake</StakeUnstakeMax>
+                  <StakeUnstakeMax onClick={() => onUseMaxClick('UNSTAKE')}>Max Unstake</StakeUnstakeMax>
                 </>
               )}
             </StakeUnstakeInputLabels>
@@ -186,16 +189,16 @@ export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstak
           </StakeUnstakeInputColumn>
         </StakeUnstakeInputGrid>
         <StakeUnstakeButtonGrid className={`${userHasRewards ? 'compound' : ''}`}>
-          {userHasRewards ? (
-            <Button text="Compound" className="fill" kind={ACTION_PRIMARY} icon="compound" onClick={handleCompound} />
-          ) : null}
+          <Button text="Stake" kind={ACTION_PRIMARY} icon="in" onClick={() => handleStakeUnstakeClick('STAKE')} />
           <Button
             text="Unstake"
             icon="out"
             kind={ACTION_SECONDARY}
             onClick={() => handleStakeUnstakeClick('UNSTAKE')}
           />
-          <Button text="Stake" kind={ACTION_PRIMARY} icon="in" onClick={() => handleStakeUnstakeClick('STAKE')} />
+          {userHasRewards ? (
+            <Button text="Compound" className="fill" kind={ACTION_PRIMARY} icon="compound" onClick={handleCompound} />
+          ) : null}
         </StakeUnstakeButtonGrid>
         {userHasRewards ? (
           <p className="compound-info">

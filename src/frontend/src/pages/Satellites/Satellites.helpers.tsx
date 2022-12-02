@@ -11,6 +11,7 @@ import { EmergergencyGovernanceItem } from 'utils/TypesAndInterfaces/EmergencyGo
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
 import { Aggregator, Aggregator_Oracle } from 'utils/generated/graphqlTypes'
+import { UTCTimestamp } from 'lightweight-charts'
 
 export function normalizeSatelliteRecord(
   satelliteRecord: SatelliteRecordGraphQl,
@@ -205,9 +206,9 @@ export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
   return aggregator_history_data?.length
     ? aggregator_history_data.map((item) => {
         return {
-          xAxis: item.timestamp,
+          time: new Date(item.timestamp).getTime() as UTCTimestamp,
           // TODO: ask Sam if the decimal is right we use?
-          yAxis: symbolsAfterDecimalPoint(item.data / 10 ** item.aggregator.decimals),
+          value: symbolsAfterDecimalPoint(item.data / 10 ** item.aggregator.decimals),
         }
       })
     : []
@@ -219,8 +220,8 @@ export function normalizeDataFeedsVolatility(storage: DataFeedsHistoryProps): Da
   return aggregator_history_data?.length >= 2
     ? aggregator_history_data.map(({ data, aggregator: { decimals }, timestamp }, idx, arr) => {
         return {
-          xAxis: timestamp,
-          yAxis: percentageDifference(
+          time: new Date(timestamp).getTime() as UTCTimestamp,
+          value: percentageDifference(
             symbolsAfterDecimalPoint(data / 10 ** decimals),
             symbolsAfterDecimalPoint(arr[idx - 1]?.data / 10 ** decimals),
           ),

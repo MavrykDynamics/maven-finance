@@ -28,6 +28,8 @@ export const warningColor = '#FF7A00'
 export const selectedColor = '#aea3ff3d'
 export const backdropColor = '#08062880'
 export const silverColor = '#C0DBFF'
+export const lightTextColor = '#D0CFD9'
+export const ffff = 'rgba(119, 164, 242, 0)'
 
 export const dark = {
   backgroundColor: darkColor,

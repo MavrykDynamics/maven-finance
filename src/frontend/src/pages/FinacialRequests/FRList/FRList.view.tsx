@@ -30,7 +30,7 @@ function FRList({ listTitle, items, handleItemSelect, selectedItem, name }: FRLi
         const financialRequestTitle = `${item.request_type} ${item.request_purpose}`
         return (
           <FRSListItem
-            key={selectedItem?.id + financialRequestTitle}
+            key={idx + financialRequestTitle}
             onClickHandler={() => handleItemSelect(item)}
             id={idx + 1}
             title={financialRequestTitle}

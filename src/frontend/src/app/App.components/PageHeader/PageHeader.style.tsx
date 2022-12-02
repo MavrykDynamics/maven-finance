@@ -46,20 +46,36 @@ export const PageHeaderTextArea = styled.div`
   overflow: visible;
   padding-top: 10px;
 
-  > h1 {
+  h1 {
     color: ${whiteColor};
     font-size: 25px;
     margin: 0;
+    position: relative;
 
     &::after {
       background-color: #ff8486;
     }
   }
 
+  .img-wrapper {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    right: -50px;
+    top: -5px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
   > p {
     color: ${whiteColor};
-    font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 12px;
     margin: 0;
     white-space: nowrap;
   }
@@ -85,6 +101,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'emergency governance':
       case 'proposal submission':
         return '10px'
+      case 'break glass council':
       default:
         return '0'
     }
@@ -98,6 +115,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'staking':
         return 'fit-content'
       case 'vaults':
+      case 'break glass council':
       default:
         return 'fit-content'
     }
@@ -120,6 +138,8 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '192px'
       case 'data-feeds':
         return '190px'
+      case 'break glass council':
+        return '150px'
       default:
         return '172px'
     }
@@ -135,6 +155,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '7px'
       case 'emergency governance':
         return '-2px'
+      case 'break glass council':
       default:
         return '0'
     }

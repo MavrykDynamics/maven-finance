@@ -3,7 +3,9 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import { State } from 'reducers'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import type { AppDispatch, GetState } from '../../app/App.controller'
-import type { CouncilActionRecordhQL } from '../../utils/TypesAndInterfaces/Council'
+
+// helpers
+import { parseDate } from 'utils/time'
 
 import {
   COUNCIL_PAST_ACTIONS_QUERY,
@@ -16,9 +18,13 @@ import {
   COUNCIL_STORAGE_QUERY_NAME,
   COUNCIL_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries/getCouncilStorage'
-import { noralizeCouncilStorage } from './Council.helpers'
+import { noralizeCouncilStorage, normalizeCouncilActions } from './Council.helpers'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 import { ROCKET_LOADER } from 'utils/constants'
+
+const time = String(new Date())
+const timeFormat = 'YYYY-MM-DD'
+const timestamptz = parseDate({ time, timeFormat }) || undefined
 
 export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
 export const getCouncilStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -37,13 +43,17 @@ export const getCouncilStorage = () => async (dispatch: AppDispatch, getState: G
     })
   } catch (error) {
     if (error instanceof Error) {
+      console.log('error', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
   }
 }
 
 export const GET_COUNCIL_PAST_ACTIONS_STORAGE = 'GET_COUNCIL_PAST_ACTIONS_STORAGE'
-export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) => {
+export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+  const { accountPkh } = state.wallet
+
   try {
     const storage = await fetchFromIndexerWithPromise(
       COUNCIL_PAST_ACTIONS_QUERY,
@@ -51,12 +61,17 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) 
       COUNCIL_PAST_ACTIONS_VARIABLE,
     )
 
+    const councilPastActions = normalizeCouncilActions(storage)
+    const councilMyPastActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
+
     dispatch({
       type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
-      councilPastActions: storage.council_action,
+      councilPastActions,
+      councilMyPastActions,
     })
   } catch (error) {
     if (error instanceof Error) {
+      console.log('error', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
   }
@@ -65,31 +80,28 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) 
 export const GET_COUNCIL_PENDING_ACTIONS_STORAGE = 'GET_COUNCIL_PENDING_ACTIONS_STORAGE'
 export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
-
-  const accountPkh = state.wallet.accountPkh
+  const { accountPkh } = state.wallet
 
   try {
     const storage = await fetchFromIndexerWithPromise(
       COUNCIL_PENDING_ACTIONS_QUERY,
       COUNCIL_PENDING_ACTIONS_NAME,
-      COUNCIL_PENDING_ACTIONS_VARIABLE,
+      COUNCIL_PENDING_ACTIONS_VARIABLE({ _gte: timestamptz }),
     )
 
-    const councilActionRecord: CouncilActionRecordhQL[] = storage?.council_action?.length ? storage?.council_action : []
-    const councilPendingActions = councilActionRecord.filter((item) => {
-      const timeNow = Date.now()
-      const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
-      const isEndedVotingTime = expirationDatetime > timeNow
-      const isNoSameAccountPkh = accountPkh !== item.initiator_id
-      return isEndedVotingTime && isNoSameAccountPkh
-    })
+    const councilAllPendingActions = normalizeCouncilActions(storage)
+    const councilPendingActions = normalizeCouncilActions(storage, { filterWithoutAddress: accountPkh })
+    const councilMyPendingActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
+      councilAllPendingActions,
       councilPendingActions,
+      councilMyPendingActions,
     })
   } catch (error) {
     if (error instanceof Error) {
+      console.log('error', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
   }
@@ -99,12 +111,12 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
 export const sign = (actionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -135,12 +147,12 @@ export const addVestee =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -173,12 +185,12 @@ export const addCouncilMember =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -212,12 +224,12 @@ export const updateVestee =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -249,12 +261,12 @@ export const updateVestee =
 export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -292,12 +304,12 @@ export const changeCouncilMember =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -336,12 +348,12 @@ export const changeCouncilMember =
 export const removeCouncilMember = (memberAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -374,12 +386,12 @@ export const updateCouncilMemberInfo =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -421,12 +433,12 @@ export const transferTokens =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -469,12 +481,12 @@ export const requestTokens =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -517,12 +529,12 @@ export const requestTokenMint =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -553,12 +565,12 @@ export const requestTokenMint =
 export const dropFinancialRequest = (financialReqID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -589,12 +601,12 @@ export const dropFinancialRequest = (financialReqID: number) => async (dispatch:
 export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -625,12 +637,12 @@ export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: A
 export const setBakerRequest = (bakerHash: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -662,12 +674,12 @@ export const setContractBakerRequest =
   (targetContractAddress: string, keyHash: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -701,12 +713,12 @@ export const DROP_ERROR = 'DROP_ERROR'
 export const dropRequest = (actionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
