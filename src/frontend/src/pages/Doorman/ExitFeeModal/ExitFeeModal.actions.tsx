@@ -7,7 +7,7 @@ export const SHOW_EXIT_FEE_MODAL = 'SHOW_EXIT_FEE_MODAL'
 export const showExitFeeModal = (amount: number) => (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }

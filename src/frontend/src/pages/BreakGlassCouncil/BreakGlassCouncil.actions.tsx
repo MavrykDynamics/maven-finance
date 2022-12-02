@@ -76,7 +76,9 @@ export const getBreakGlassActionPendingSignature = () => async (dispatch: AppDis
     const breakGlassActionPendingAllSignature = normalizeBreakGlassAction(storage)
     const breakGlassActionPendingSignature = normalizeBreakGlassAction(storage, { filterWithoutAddress: accountPkh })
     const breakGlassActionPendingMySignature = normalizeBreakGlassAction(storage, { filterByAddress: accountPkh })
-    const isPendingPropagateBreakGlass = Boolean(breakGlassActionPendingAllSignature.find((item) => item.actionType === 'propagateBreakGlass'))
+    const isPendingPropagateBreakGlass = Boolean(
+      breakGlassActionPendingAllSignature.find((item) => item.actionType === 'propagateBreakGlass'),
+    )
 
     await dispatch({
       type: GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE,
@@ -145,12 +147,12 @@ export const getBreakGlassCouncilMember = () => async (dispatch: AppDispatch, ge
 export const setAllContractsAdmin = (newAdminAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -178,12 +180,12 @@ export const setSingleContractAdmin =
   (newAdminAddress: string, targetContract: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -210,12 +212,12 @@ export const setSingleContractAdmin =
 export const signAction = (breakGlassActionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -244,12 +246,12 @@ export const addCouncilMember =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -280,12 +282,12 @@ export const updateCouncilMember =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -322,12 +324,12 @@ export const changeCouncilMember =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -362,12 +364,12 @@ export const changeCouncilMember =
 export const removeCouncilMember = (memberAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -394,12 +396,12 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: A
 export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -408,7 +410,7 @@ export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState:
     dispatch(toggleLoader('rocket'))
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
     const transaction = await contract?.methods.propagateBreakGlass().send()
-     dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
+    dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
     await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
@@ -426,12 +428,12 @@ export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState:
 export const dropBreakGlass = (breakGlassActionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -453,4 +455,3 @@ export const dropBreakGlass = (breakGlassActionID: number) => async (dispatch: A
     dispatch(toggleLoader())
   }
 }
-

@@ -20,8 +20,10 @@ const Satellites = () => {
     delegationStorage: { activeSatellites = [] },
   } = useSelector((state: State) => state.delegation)
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
-  const loading = useSelector((state: State) => Boolean(state.loading))
-  const { mySMvkTokenBalance = 0, satelliteMvkIsDelegatedTo } = useSelector((state: State) => state.user)
+  const loading = useSelector((state: State) => state.loading.isLoading)
+  const {
+    user: { mySMvkTokenBalance, satelliteMvkIsDelegatedTo },
+  } = useSelector((state: State) => state.wallet)
   const dispatch = useDispatch()
 
   const { accountPkh } = useSelector((state: State) => state.wallet)

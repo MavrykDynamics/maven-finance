@@ -13,12 +13,12 @@ export const registerAsSatellite =
   (form: RegisterAsSatelliteForm) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -65,12 +65,12 @@ export const updateSatelliteRecord =
   (form: RegisterAsSatelliteForm) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -115,12 +115,12 @@ export const UNREGISTER_AS_SATELLITE_ERROR = 'UNREGISTER_AS_SATELLITE_ERROR'
 export const unregisterAsSatellite = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }

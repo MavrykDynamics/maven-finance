@@ -15,6 +15,7 @@ type PageHeaderViewProps = {
   subText: string
   backgroundImageSrc?: string
   foregroundImageSrc?: string
+  avatar?: string
 }
 
 export const PageHeaderView = ({
@@ -23,12 +24,20 @@ export const PageHeaderView = ({
   subText,
   foregroundImageSrc,
   backgroundImageSrc,
+  avatar,
 }: PageHeaderViewProps) => {
   return (
     <>
       <PageHeaderStyled backgroundImageSrc={backgroundImageSrc || ''}>
         <PageHeaderTextArea>
-          <h1>{title}</h1>
+          <h1>
+            {title}
+            {avatar && (
+              <div className="img-wrapper">
+                <img src={avatar} />
+              </div>
+            )}
+          </h1>
           <p>{subText}</p>
         </PageHeaderTextArea>
         <PageHeaderForegroundImageContainer>

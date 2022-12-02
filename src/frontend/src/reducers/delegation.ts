@@ -59,27 +59,30 @@ const defaultDelegationStorage: DelegationStorage = {
   totalDelegatedMVK: 0,
   activeSatellites: [],
 }
+
+export const DEFAULT_SATELLITE = {
+  status: SatelliteStatus.SUSPENDED,
+  delegationRatio: 0,
+  address: '',
+  description: '',
+  website: '',
+  participation: 0,
+  image: '',
+  mvkBalance: 0,
+  name: '',
+  sMvkBalance: 0,
+  delegatorCount: 0,
+  satelliteFee: 0,
+  totalDelegatedAmount: 0,
+  oracleRecords: [],
+  isSatelliteReady: false,
+  currentlyRegistered: false,
+}
+
 const delegationDefaultState: DelegationState = {
   delegationStorage: defaultDelegationStorage,
   amount: 0,
-  currentSatellite: {
-    status: SatelliteStatus.SUSPENDED,
-    delegationRatio: 0,
-    address: '',
-    description: '',
-    website: '',
-    participation: 0,
-    image: '',
-    mvkBalance: 0,
-    name: '',
-    sMvkBalance: 0,
-    delegatorCount: 0,
-    satelliteFee: 0,
-    totalDelegatedAmount: 0,
-    oracleRecords: [],
-    isSatelliteReady: false,
-    currentlyRegistered: false,
-  },
+  currentSatellite: DEFAULT_SATELLITE,
   participationMetrics: {
     pollParticipation: 0,
     proposalParticipation: 0,

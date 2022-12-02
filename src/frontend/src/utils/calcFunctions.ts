@@ -1,4 +1,4 @@
-import { UserState } from 'reducers/user'
+import { UserState } from 'reducers/wallet'
 import { FIXED_POINT_ACCURACY, PRECISION_NUMBER, SECONDS_PER_BLOCK } from './constants'
 import { UserDoormanRewardsData, UserFarmRewardsData, UserSatelliteRewardsData } from './TypesAndInterfaces/User'
 
@@ -41,8 +41,10 @@ export function calcWithoutMu(amount: string | number): number {
   return numberMu > 0 ? numberMu / 1000000 : 0
 }
 
-export function calcUsersDoormanRewards(userInfo: UserState): UserDoormanRewardsData {
-  const { mySMvkTokenBalance, myDoormanRewardsData } = userInfo
+// TODO: remove mutations in these 3 fns
+export function calcUsersDoormanRewards(userInfo: Partial<UserState>): UserDoormanRewardsData | undefined {
+  const { mySMvkTokenBalance = 0, myDoormanRewardsData } = userInfo
+  if (!myDoormanRewardsData) return undefined
   const currentFeesPerShare =
     myDoormanRewardsData.generalAccumulatedFeesPerShare - myDoormanRewardsData.myParticipationFeesPerShare
   const usersAvailableDoormanRewards =
@@ -54,10 +56,11 @@ export function calcUsersDoormanRewards(userInfo: UserState): UserDoormanRewards
 }
 
 export function calcUsersFarmRewards(
-  userInfo: UserState,
+  userInfo: Partial<UserState>,
   currentBlockLevel: number,
-): Record<string, UserFarmRewardsData> {
+): Record<string, UserFarmRewardsData> | undefined {
   const { myFarmRewardsData } = userInfo
+  if (!myFarmRewardsData) return undefined
   const newFarmRewardsData: Record<string, UserFarmRewardsData> = {}
   const farmsKeys = Object.keys(myFarmRewardsData)
 
@@ -88,8 +91,9 @@ export function calcUsersFarmRewards(
   return newFarmRewardsData
 }
 
-export function calcUsersSatelliteRewards(userInfo: UserState): UserSatelliteRewardsData {
-  const { mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
+export function calcUsersSatelliteRewards(userInfo: Partial<UserState>): UserSatelliteRewardsData | undefined {
+  const { mySMvkTokenBalance = 0, mySatelliteRewardsData } = userInfo
+  if (!mySatelliteRewardsData) return undefined
   const satelliteRewardRatio =
     mySatelliteRewardsData.satelliteAccumulatedRewardPerShare - mySatelliteRewardsData.participationRewardsPerShare
   const usersAvailableSatelliteRewards =

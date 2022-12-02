@@ -43,7 +43,7 @@ export type SatelliteListItemProps = {
   claimRewardsCallback?: () => void
   undelegateCallback: (address: string) => void
   userStakedBalance: number
-  satelliteUserIsDelegatedTo: string
+  satelliteUserIsDelegatedTo?: string
   isDetailsPage?: boolean
   userHasSatelliteRewards?: boolean
   className?: string
