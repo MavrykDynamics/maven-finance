@@ -3,6 +3,7 @@ export type RequiresProperties = {
   isNotSatellite?: boolean
   isVestee?: boolean
   isUnregisteredSatellite?: boolean
+  isAuth?: boolean
 }
 
 export interface SubNavigationRoute {
@@ -10,7 +11,6 @@ export interface SubNavigationRoute {
   subTitle: string
   subPath: string
   routeSubPath: string | string[]
-  protectedRoute: boolean
   requires?: RequiresProperties
   disabled?: boolean
 }
@@ -21,7 +21,6 @@ export interface MainNavigationRoute {
   routePath: string | string[]
   icon: string
   subPages?: SubNavigationRoute[]
-  protectedRoute: boolean
   disabled?: boolean
   requires?: RequiresProperties
 }

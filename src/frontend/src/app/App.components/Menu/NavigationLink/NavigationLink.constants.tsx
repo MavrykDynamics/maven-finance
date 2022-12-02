@@ -12,7 +12,11 @@ export const isSubLinkShown = (
   satelliteLedger: SatelliteRecord[],
   accountPkh?: string,
 ): boolean => {
-  const { isSatellite, isVestee, isNotSatellite, isUnregisteredSatellite } = subNavLink.requires || {}
+  const { isSatellite, isVestee, isNotSatellite, isUnregisteredSatellite, isAuth } = subNavLink.requires || {}
+
+  if (isAuth && !accountPkh) {
+    return false
+  }
 
   if (isNotSatellite && !accountPkh) {
     return true
@@ -27,7 +31,7 @@ export const isSubLinkShown = (
     })
 
     const isUnregistartion = isSatellite ? isSatellite.currentlyRegistered === false : false
-    
+
     return isUnregistartion
   }
 

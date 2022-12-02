@@ -1,47 +1,26 @@
-import * as React from 'react'
-import { Redirect, Route, RouteProps, useLocation } from 'react-router'
-import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+import { Redirect, Route, RouteProps } from 'react-router'
 
 export type ProtectedRouteProps = {
-  authenticationPath: string
   redirectPath: string
-  arrayToFilterThrough: SatelliteRecord[] | undefined
-  accountPkh: string | undefined
+  isAuthorized: boolean
+  hasAccess: boolean
+  canCheck: boolean
 } & RouteProps
 
 export default function ProtectedRoute({
-  authenticationPath,
+  canCheck,
   redirectPath,
-  accountPkh,
-  arrayToFilterThrough,
+  hasAccess,
+  isAuthorized,
   ...routeProps
 }: ProtectedRouteProps) {
-  const currentLocation = useLocation()
-  const isAuthorized = isAllowedToRoute(accountPkh, redirectPath, arrayToFilterThrough)
+  if (!canCheck) {
+    return null
+  }
 
-  if (isAuthorized && redirectPath === currentLocation.pathname) {
+  if (hasAccess) {
     return <Route {...routeProps} />
-  } else {
-    return <Redirect to={{ pathname: isAuthorized ? redirectPath : authenticationPath }} />
-  }
-}
-
-const isAllowedToRoute = (
-  accountPkh: string | undefined,
-  path: string,
-  arrayToFilterThrough: SatelliteRecord[] | undefined,
-) => {
-  let isAllowed
-  switch (path) {
-    case '/submit-proposal':
-      const accountPkhIsSatellite = arrayToFilterThrough?.filter(
-        (satellite: SatelliteRecord) => satellite.address === accountPkh,
-      )[0]
-      isAllowed = accountPkhIsSatellite
-      break
-    default:
-      isAllowed = false
   }
 
-  return isAllowed
+  return <Redirect to={{ pathname: redirectPath }} />
 }

@@ -8,8 +8,7 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 
 export const Loans = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { wallet, tezos, accountPkh } = useSelector((state: State) => state.wallet)
 
   return (
     <Page>

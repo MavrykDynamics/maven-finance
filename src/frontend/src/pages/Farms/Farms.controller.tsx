@@ -42,7 +42,7 @@ const EmptyContainer = () => (
 export const Farms = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const { ready } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { farmStorage } = useSelector((state: State) => state.farm)
 
   const [farmsList, setFarmsList] = useState(farmStorage)
@@ -229,7 +229,7 @@ export const Farms = () => {
       <PageHeader page={'farms'} />
       <FarmsStyled>
         <FarmTopBar
-          ready={ready}
+          ready={Boolean(accountPkh)}
           searchValue={searchValue}
           onSearch={handleOnSearch}
           onSort={handleOnSort}

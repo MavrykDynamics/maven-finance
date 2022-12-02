@@ -7,7 +7,7 @@ import { Page } from 'styles'
 
 export const Vaults = () => {
   const dispatch = useDispatch()
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { wallet, tezos, accountPkh } = useSelector((state: State) => state.wallet)
 
   return (
     <Page>

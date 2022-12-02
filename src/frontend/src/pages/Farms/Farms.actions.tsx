@@ -14,7 +14,7 @@ import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.c
 import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from './Farms.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
-import { getDoormanStorage, getMvkTokenStorage, getUserData } from '../Doorman/Doorman.actions'
+import { getDoormanStorage, getMvkTokenStorage, updateUserData } from '../Doorman/Doorman.actions'
 import { hideModal } from '../../app/App.components/Modal/Modal.actions'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 
@@ -90,12 +90,12 @@ export const getFarmStorage = () => async (dispatch: AppDispatch, getState: GetS
 export const harvest = (farmAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -112,7 +112,9 @@ export const harvest = (farmAddress: string) => async (dispatch: AppDispatch, ge
     await dispatch(showToaster(SUCCESS, 'Harvesting done', 'All good :)'))
     await dispatch(toggleLoader())
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) {
+      dispatch(updateUserData(state.wallet.accountPkh))
+    }
     await dispatch(getFarmStorage())
     await dispatch(getMvkTokenStorage())
     await dispatch(getDoormanStorage())
@@ -128,7 +130,7 @@ export const harvest = (farmAddress: string) => async (dispatch: AppDispatch, ge
 export const deposit = (farmAddress: string, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
@@ -136,7 +138,7 @@ export const deposit = (farmAddress: string, amount: number) => async (dispatch:
     dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
     return
   }
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -153,7 +155,7 @@ export const deposit = (farmAddress: string, amount: number) => async (dispatch:
     await dispatch(showToaster(SUCCESS, 'Depositing done', 'All good :)'))
     await dispatch(toggleLoader())
 
-    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) await dispatch(updateUserData(state.wallet.accountPkh))
     await dispatch(getFarmStorage())
     await dispatch(getMvkTokenStorage())
     await dispatch(getDoormanStorage())
@@ -169,7 +171,7 @@ export const deposit = (farmAddress: string, amount: number) => async (dispatch:
 export const withdraw = (farmAddress: string, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
@@ -177,7 +179,7 @@ export const withdraw = (farmAddress: string, amount: number) => async (dispatch
     dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
     return
   }
-  if (state.loading) {
+  if (state.loading.isLoading) {
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
@@ -195,7 +197,7 @@ export const withdraw = (farmAddress: string, amount: number) => async (dispatch
     await dispatch(toggleLoader())
     await dispatch(hideModal())
 
-    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) await dispatch(updateUserData(state.wallet.accountPkh))
     await dispatch(getFarmStorage())
     await dispatch(getMvkTokenStorage())
     await dispatch(getDoormanStorage())

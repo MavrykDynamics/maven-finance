@@ -6,7 +6,7 @@ export const SHOW_MODAL = 'SHOW_MODAL'
 export const showModal = (kind: string) => (dispatch: AppDispatch, getState: GetState) => {
   const state = getState()
 
-  if (!state.wallet.ready) {
+  if (!state.wallet.accountPkh) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }

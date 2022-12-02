@@ -46,13 +46,28 @@ export const PageHeaderTextArea = styled.div`
   overflow: visible;
   padding-top: 10px;
 
-  > h1 {
+  h1 {
     color: ${whiteColor};
     font-size: 25px;
     margin: 0;
+    position: relative;
 
     &::after {
       background-color: #ff8486;
+    }
+  }
+
+  .img-wrapper {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    right: -50px;
+    top: -5px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   }
 
