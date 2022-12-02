@@ -11,7 +11,7 @@ export const DropDownStyled = styled.div<{ theme: MavrykTheme }>`
   font-weight: 500;
   font-size: 14px;
   line-height: 24px;
-  color: ${({ theme }) => theme.colorText}
+  color: ${({ theme }) => theme.colorText};
 `
 
 export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
