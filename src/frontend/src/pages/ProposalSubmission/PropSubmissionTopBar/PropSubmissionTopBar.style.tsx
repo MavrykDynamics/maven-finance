@@ -37,7 +37,7 @@ export const PropSubTopBarTimeContainer = styled.div<{ theme: MavrykTheme }>`
   }
 `
 export const PropSubTopBarTabsText = styled.div<{ theme: MavrykTheme }>`
-  color: ${headerColor};
+  color: ${({ theme }) => theme.textColor};
   font-weight: 600;
   font-size: 18px;
   line-height: 18px;
@@ -49,7 +49,7 @@ export const CurrentPhaseContainer = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
 `
 export const PropSubTopBarPhaseText = styled.div<{ isCorrectPhase?: boolean; theme: MavrykTheme }>`
-  color: ${headerColor};
+  color: ${({ theme }) => theme.textColor};
   font-weight: 600;
   font-size: 18px;
   line-height: 18px;

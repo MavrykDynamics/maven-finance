@@ -21,7 +21,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   appearance: none;
   display: block;
   position: relative;
-  padding: 22px 16px 13px 20px;
+  padding: 22px 30px 13px 20px;
   border-radius: 10px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
