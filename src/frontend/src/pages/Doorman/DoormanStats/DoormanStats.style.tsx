@@ -29,10 +29,14 @@ export const DoormanStatsStyled = styled(Card)`
 
 export const DoormanStatsHeader = styled(CardHeader)<{ theme: MavrykTheme }>`
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 
   font-weight: 600;
   font-size: 18px;
+
+  &::after {
+    height: 0;
+  }
 `
 
 export const DoormanStatsGrid = styled.div<{ theme: MavrykTheme }>`
