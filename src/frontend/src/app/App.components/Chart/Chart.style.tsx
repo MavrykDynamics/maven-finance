@@ -28,7 +28,6 @@ export const Plug = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 60px;
 
     .icon-cow {
       position: absolute;
@@ -50,7 +49,7 @@ export const Plug = styled.div`
     line-height: 22px;
 
     text-align: center;
-    color: ${({ theme }) => theme.headerColor};
+    color: ${({ theme }) => theme.textColor};
   }
 `
 

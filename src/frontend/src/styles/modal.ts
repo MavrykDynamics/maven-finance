@@ -48,10 +48,10 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   }
 
   h1 {
-    font-weight: 700;
+    font-weight: 600;
     font-size: 22px;
     line-height: 22px;
-    color: ${({ theme }) => theme.headerColor};
+    color: ${({ theme }) => theme.textColor};
     margin: 0;
     margin-bottom: 20px;
   }

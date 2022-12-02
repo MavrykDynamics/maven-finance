@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // styles
-import { ChartCard, ChartSlidingTabButtons } from './DoormanChart.style'
+import { Wrapper } from './DoormanChart.style'
+import { TabSwitcher } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 
 // components
 import { Chart } from '../../../app/App.components/Chart/Chart.view'
@@ -46,8 +47,8 @@ export function DoormanChart({ className }: Props) {
   const shownData = isStakingHistory ? smvkHistoryData : mvkMintHistoryData
 
   return (
-    <ChartCard className={className}>
-      {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
+    <Wrapper>
+       {tabsList?.length ? <TabSwitcher className='switcher' tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
       <Chart
         data={shownData}
@@ -62,6 +63,6 @@ export function DoormanChart({ className }: Props) {
         }}
         numberOfItemsToDisplay={10}
       />
-    </ChartCard>
+    </Wrapper>
   )
 }

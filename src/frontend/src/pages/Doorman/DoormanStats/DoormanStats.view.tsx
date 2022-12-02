@@ -42,7 +42,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
             </a>
           </h4>
           <var>
-            <CommaNumber value={exchangeRate} loading={loading} endingText={'USD'} />
+            <CommaNumber value={exchangeRate} loading={loading} beginningText={'$'} />
           </var>
         </div>
 
@@ -50,7 +50,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           <div>
             <h4>MVK Token Address</h4>
             <var className="click-address">
-              <TzAddress tzAddress={mvkTokenAddress?.address} hasIcon={false} />
+              <TzAddress type='blue' tzAddress={mvkTokenAddress?.address} hasIcon={true} />
             </var>
           </div>
         ) : null}
@@ -59,7 +59,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           <div>
             <h4>Doorman Address</h4>
             <var className="click-address">
-              <TzAddress tzAddress={doormanAddress?.address} hasIcon={false} />
+              <TzAddress type='blue' tzAddress={doormanAddress?.address} hasIcon={true} />
             </var>
           </div>
         ) : null}
