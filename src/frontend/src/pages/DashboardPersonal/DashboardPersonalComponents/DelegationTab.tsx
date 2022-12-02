@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 
@@ -16,55 +18,91 @@ import {
 } from './DashboardPersonalComponents.style'
 
 import { borrowingData, historyData, lendingData } from '../tabs.const'
-const userIsDelegated = true
+import { getSatelliteMetrics } from 'pages/Satellites/Satellites.helpers'
+
 const DelegationTab = () => {
+  const { satelliteMvkIsDelegatedTo } = useSelector((state: State) => state.wallet.user)
+  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+  const satelliteInfo = satelliteLedger.find(({ address }) => satelliteMvkIsDelegatedTo === address)
+
+  const {
+    governanceStorage: { financialRequestLedger, proposalLedger },
+    pastProposals,
+  } = useSelector((state: State) => state.governance)
+  const {
+    emergencyGovernanceStorage: { emergencyGovernanceLedger },
+  } = useSelector((state: State) => state.emergencyGovernance)
+  const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
+
+  const satelliteMetrics = satelliteInfo
+    ? getSatelliteMetrics(
+        pastProposals,
+        proposalLedger,
+        emergencyGovernanceLedger,
+        satelliteInfo,
+        feeds,
+        financialRequestLedger,
+      )
+    : null
+
   return (
     <DashboardPersonalTabStyled>
       <DelegationStatusBlock>
         <GovRightContainerTitleArea>
           <h2>Delegation Status</h2>
         </GovRightContainerTitleArea>
-        {userIsDelegated ? (
+        {satelliteMvkIsDelegatedTo && satelliteInfo && satelliteMetrics ? (
           <>
             <div className="delegated-to">Delegated To</div>
             <div className="grid">
               <div className="grid-item info">
-                <Icon id="noImage" />
+                {satelliteInfo.image ? (
+                  <div className="satellite-avatar">
+                    <img src={satelliteInfo.image} alt="satellite logo" />
+                  </div>
+                ) : (
+                  <Icon id="noImage" />
+                )}
                 <div className="text">
-                  <div className="name">Free MVK Space</div>
+                  <div className="name">{satelliteInfo.name}</div>
                   <div className="value">
-                    <TzAddress tzAddress={'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'} />
+                    <TzAddress tzAddress={satelliteInfo.address} />
                   </div>
                 </div>
               </div>
               <div className="grid-item space">
                 <div className="name">Free MVK Space</div>
                 <div className="value">
-                  <CommaNumber value={100.231} />
+                  <CommaNumber
+                    value={Math.max(
+                      satelliteInfo.sMvkBalance * satelliteInfo.delegationRatio - satelliteInfo.totalDelegatedAmount,
+                      0,
+                    )}
+                  />
                 </div>
               </div>
               <div className="grid-item participation">
                 <div className="name">Gov. Participation</div>
                 <div className="value">
-                  <CommaNumber value={100.231} endingText="%" />
+                  <CommaNumber value={satelliteMetrics.proposalParticipation} endingText="%" />
                 </div>
               </div>
               <div className="grid-item delegated">
                 <div className="name">Delegated MVK</div>
                 <div className="value">
-                  <CommaNumber value={100.231} />
+                  <CommaNumber value={satelliteInfo.totalDelegatedAmount + satelliteInfo.sMvkBalance} />
                 </div>
               </div>
               <div className="grid-item fee">
                 <div className="name">Fee</div>
                 <div className="value">
-                  <CommaNumber value={7} endingText="%" />
+                  <CommaNumber value={satelliteInfo.satelliteFee} endingText="%" />
                 </div>
               </div>
               <div className="grid-item oraclePart">
                 <div className="name">Oracle Participation</div>
                 <div className="value">
-                  <CommaNumber value={13} endingText="%" />
+                  <CommaNumber value={satelliteMetrics.oracleEfficiency} endingText="%" />
                 </div>
               </div>
             </div>

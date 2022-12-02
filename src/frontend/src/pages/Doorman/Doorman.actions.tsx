@@ -363,7 +363,9 @@ export const fetchUserData = async (
       myXTZTokenBalance: calcWithoutMu(Number(xtzBalance)),
       mytzBTCTokenBalance,
       participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
-      satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite ? userInfoData?.delegations[0].satellite?.user_id : '',
+      satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite
+        ? userInfoData?.delegations[0].satellite?.user?.address
+        : '',
       isSatellite: Boolean(
         activeSatellites.find(
           ({ address: satelliteAddress, status, currentlyRegistered }) =>

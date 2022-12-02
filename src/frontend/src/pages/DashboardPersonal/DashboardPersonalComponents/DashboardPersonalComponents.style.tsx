@@ -369,11 +369,19 @@ export const SatelliteStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme
           }
         }
 
-        > svg {
+        > svg,
+        .satellite-avatar {
           height: 40px;
           width: 40px;
           fill: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
           margin-right: 10px;
+
+          img {
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
         }
       }
 
@@ -438,6 +446,8 @@ export const SatelliteStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme
 export const DelegationStatusBlock = styled(SatelliteStatusBlock)<{ theme: MavrykTheme }>`
   .grid {
     grid-template-rows: repeat(2, 50px);
+    column-gap: 15px;
+    row-gap: 20px;
   }
 
   .delegated-to {
