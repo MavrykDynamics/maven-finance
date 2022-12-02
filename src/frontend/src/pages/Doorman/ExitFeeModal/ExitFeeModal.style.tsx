@@ -3,12 +3,14 @@ import styled from 'styled-components/macro'
 import { skyColor } from '../../../styles/colors'
 import { MavrykTheme } from '../../../styles/interfaces'
 
-export const ExitFeeModalContent = styled.div`
+export const ExitFeeModalContent = styled.div<{ theme: MavrykTheme }>`
   padding: 0 41px 20px 33px;
 
   label {
-    color: ${skyColor};
-    font-size: 12px;
+    color: ${({ theme }) => theme.textColor};
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
     display: block;
     margin-bottom: 6px;
     margin-left: 6px;
@@ -17,7 +19,9 @@ export const ExitFeeModalContent = styled.div`
   input {
     margin-bottom: 0;
     height: 50px;
-    font-size: 18px;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 22px;
 
     & ~ div {
       top: 18px;
@@ -29,10 +33,10 @@ export const ExitFeeModalContent = styled.div`
     height: auto;
 
     h4 {
-      color: ${skyColor};
+      color: ${({ theme }) => theme.textColor};
 
       a svg {
-        fill: ${skyColor};
+        opacity: 0.8;
       }
     }
   }
