@@ -259,7 +259,9 @@ export const ProposalSubmission = () => {
   return (
     <Page>
       <PageHeader page={'proposal submission'} />
-      <MultyProposals switchItems={usersProposalsToSwitch} switchProposal={changeActiveProposal} />
+      {usersProposalsToSwitch.length > 1 ? (
+        <MultyProposals switchItems={usersProposalsToSwitch} switchProposal={changeActiveProposal} />
+      ) : null}
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
 
       <ProposalSubmissionForm>
