@@ -25,9 +25,10 @@ import {
 } from './ProposalSubmition.helpers'
 import { dropProposal, lockProposal, submitProposal, updateProposalData } from './ProposalSubmission.actions'
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
-import { isValidLength } from 'utils/validatorFunctions'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { getEmergencyGovernanceStorage } from 'pages/EmergencyGovernance/EmergencyGovernance.actions'
+import { getGovernanceStorage, getCurrentRoundProposals } from 'pages/Governance/Governance.actions'
 
 export const ProposalSubmission = () => {
   const dispatch = useDispatch()
@@ -45,6 +46,12 @@ export const ProposalSubmission = () => {
 
   const [activeTab, setActiveTab] = useState(1)
   const [selectedUserProposalId, setSeletedUserProposalId] = useState(-1)
+
+  useEffect(() => {
+    dispatch(getEmergencyGovernanceStorage())
+    dispatch(getGovernanceStorage())
+    dispatch(getCurrentRoundProposals())
+  }, [])
 
   // proposals that user has submitted, reduced to object mapper and arr of keys for this object
   const [proposalKeys, mappedProposals, mappedValidation] = useMemo(() => {
