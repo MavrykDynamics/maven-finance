@@ -40,10 +40,10 @@ export const Governance = () => {
   )
 
   useEffect(() => {
-    dispatch(getCurrentRoundProposals())
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getDelegationStorage())
     dispatch(getGovernanceStorage())
+    dispatch(getCurrentRoundProposals())
   }, [])
 
   const isVotingRound = governancePhase === 'VOTING'
