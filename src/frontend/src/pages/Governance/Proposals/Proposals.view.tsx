@@ -14,7 +14,13 @@ import { ProposalRecordType, ProposalStatus } from '../../../utils/TypesAndInter
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // style
-import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem, VoterListItem } from './Proposals.style'
+import {
+  ProposalItemLeftSide,
+  ProposalListContainer,
+  ProposalListItem,
+  VoterListItem,
+  ProposalStatusFlag,
+} from './Proposals.style'
 import {
   calculateSlicePositions,
   GOVERNANCE_VOTERS_LIST_NAME,
@@ -128,9 +134,8 @@ export const ProposalsView = ({
             <h1>Satellite Voting History</h1>
           </GovRightContainerTitleArea>
           {votersList.map(({ vote, address, name, avatar }) => {
-            const status =
-              vote === 1 ? ProposalStatus.EXECUTED : vote === -1 ? ProposalStatus.DEFEATED : ProposalStatus.ONGOING
-            const statusText = vote === 1 ? 'Yes' : vote === -1 ? 'No' : 'Pass'
+            const status = vote === 1 ? ProposalStatus.EXECUTED : vote === -1 ? ProposalStatus.DEFEATED : undefined
+            const statusText = vote === 1 ? 'YES' : vote === -1 ? 'NO' : 'PASS'
             return (
               <VoterListItem>
                 <div className="left">
@@ -142,8 +147,7 @@ export const ProposalsView = ({
                     <TzAddress tzAddress={address} />
                   </div>
                 </div>
-                .state
-                <StatusFlag text={statusText} status={status} />
+                <ProposalStatusFlag status={status}>{statusText}</ProposalStatusFlag>
               </VoterListItem>
             )
           })}
