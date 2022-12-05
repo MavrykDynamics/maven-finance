@@ -754,8 +754,8 @@ kube-prometheus-stack:
       auth.github:
         enabled: true
         allow_sign_up: true
-        client_id: ${GITHUB_CLIENT_ID}
-        client_secret: ${GITHUB_CLIENT_SECRET}
+        client_id:
+        client_secret:
         scopes: user:email,read:org
         auth_url: https://github.com/login/oauth/authorize
         token_url: https://github.com/login/oauth/access_token
@@ -764,11 +764,11 @@ kube-prometheus-stack:
         allowed_organizations: mavrykfinance
 
     envValueFrom:
-      GITHUB_CLIENT_ID:
+      GF_AUTH_GITHUB_CLIENT_ID:
         secretKeyRef:
           name: prod-kube-prometheus-stack-grafana
           key: GITHUB_CLIENT_ID
-      GITHUB_CLIENT_SECRET:
+      GF_AUTH_GITHUB_CLIENT_SECRET:
         secretKeyRef:
           name: prod-kube-prometheus-stack-grafana
           key: GITHUB_CLIENT_SECRET
