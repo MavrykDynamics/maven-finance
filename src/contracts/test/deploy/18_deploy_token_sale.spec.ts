@@ -20,7 +20,7 @@ import treasuryAddress from '../../deployments/treasuryAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { TokenSale } from '../helpers/tokenSaleHelper'
+import { TokenSale } from '../contractHelpers/tokenSaleTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

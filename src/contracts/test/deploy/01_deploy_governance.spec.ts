@@ -18,7 +18,7 @@ import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Governance, setGovernanceLambdas } from '../helpers/governanceHelper'
+import { Governance, setGovernanceLambdas } from '../contractHelpers/governanceTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

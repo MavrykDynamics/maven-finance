@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { BreakGlass, setBreakGlassLambdas } from '../helpers/breakGlassHelper'
+import { BreakGlass, setBreakGlassLambdas } from '../contractHelpers/breakGlassTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

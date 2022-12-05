@@ -494,11 +494,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+
 (* main entrypoint *)
 function main (const action : action; const s : mavrykFa2TokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint
+    checkNoAmount(Unit); // // entrypoints should not receive any tez amount  
 
 } with(
     
