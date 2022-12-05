@@ -243,7 +243,7 @@ export const normalizeProposal = (item: GovernanceProposalGraphQL, dipDupTokens?
       return {
         ...paymentData,
         // we're getting amount * by 10 in decimals grage, need to parse it to initial user input
-        token_amount: Number(paymentData.token_amount) / Math.pow(10, Number(decimals)),
+        token_amount: Number(paymentData.token_amount) / Math.pow(10, Number(decimals)) ?? 0,
       }
     }),
     governanceId: item.governance_id,

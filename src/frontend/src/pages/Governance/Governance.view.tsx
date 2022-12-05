@@ -511,7 +511,7 @@ export const GovernanceView = ({
                             <TzAddress tzAddress={item.to__id || ''} hasIcon={false} isBold={true} />
                           </td>
                           <td>{item.title}</td>
-                          <td>{item.token_amount ?? 0}</td>
+                          <td>{item.token_amount}</td>
                           <td>{paymentType}</td>
                         </tr>
                       )
