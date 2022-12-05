@@ -6,6 +6,10 @@ import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 export const ProposalListContainer = styled.div`
   margin-bottom: 38px;
+
+  .voters-list {
+    margin-top: 30px;
+  }
 `
 
 export const ProposalListItem = styled(CardHover)<{ selected: boolean; theme: MavrykTheme }>`
@@ -37,6 +41,88 @@ export const ProposalListItem = styled(CardHover)<{ selected: boolean; theme: Ma
     color: ${skyColor};
     margin-right: 30px;
   }
+`
+
+export const VoterListItem = styled(CardHover)<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.containerColor};
+  border: 1px solid ${royalPurpleColor};
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px auto;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 14px 24px;
+
+  .left {
+    display: flex;
+    column-gap: 10px;
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+    }
+    .info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      row-gap: 5px;
+
+      span {
+        color: ${({ theme }) => theme.textColor};
+      }
+
+      div {
+        font-size: 16px;
+        color: ${({ theme }) => theme.dataColor};
+        align-items: flex-start;
+
+        svg {
+          stroke: ${({ theme }) => theme.dataColor};
+          stroke-width: 0.5px;
+          width: 22px;
+          height: 22px;
+        }
+      }
+    }
+  }
+`
+
+export const VoteStatusFlag = styled.div<{ status: ProposalStatus; theme: MavrykTheme }>`
+  padding: 9px 25px;
+  border-radius: 10px;
+  border: 1px solid;
+  border-color: ${({ status }) => {
+    switch (status) {
+      case ProposalStatus.EXECUTED:
+        return ({ theme }) => theme.upColor
+      case ProposalStatus.DEFEATED:
+        return ({ theme }) => theme.downColor
+      case ProposalStatus.ONGOING:
+        return ({ theme }) => theme.primaryColor
+      default:
+        return ({ theme }) => theme.infoColor
+    }
+  }};
+  color: ${({ status }) => {
+    switch (status) {
+      case ProposalStatus.EXECUTED:
+        return ({ theme }) => theme.upColor
+      case ProposalStatus.DEFEATED:
+        return ({ theme }) => theme.downColor
+      case ProposalStatus.ONGOING:
+        return ({ theme }) => theme.primaryColor
+      default:
+        return ({ theme }) => theme.infoColor
+    }
+  }};
 `
 
 export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
