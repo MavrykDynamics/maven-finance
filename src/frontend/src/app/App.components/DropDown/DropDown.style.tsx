@@ -11,7 +11,7 @@ export const DropDownStyled = styled.div<{ theme: MavrykTheme }>`
   font-weight: 500;
   font-size: 14px;
   line-height: 24px;
-  color: ${({ theme }) => theme.colorText}
+  color: ${({ theme }) => theme.colorText};
 `
 
 export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
@@ -23,7 +23,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
   height: 40px;
   padding-left: 16px;
-  border-width: 1px;
+  border-width: 1.5px;
   border-style: solid;
   border-color: ${({ theme }) => theme.cardBorderColor};
   color: ${({ theme }) => theme.textColor};
@@ -35,7 +35,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
 
   span {
     width: 50px;
-    border-left: 1px solid ${({ theme }) => theme.headerColor};
+    border-left: 2px solid ${({ theme }) => theme.headerColor};
     display: flex;
     height: 100%;
     justify-content: center;
@@ -45,7 +45,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
     > svg {
       height: 15px;
       width: 20px;
-      stroke: ${({ theme }) => theme.headerColor};
+      stroke: ${({ theme }) => theme.textColor};
       stroke-width: 3px;
       fill: none;
       transition: 0.15s ease-in-out;
@@ -93,7 +93,7 @@ export const DropDownListItem = styled.li`
   text-transform: capitalize;
 
   svg {
-    stroke: ${({ theme }) => theme.headerColor};
+    stroke: ${({ theme }) => theme.textColor};
     width: 10px;
     height: 10px;
   }

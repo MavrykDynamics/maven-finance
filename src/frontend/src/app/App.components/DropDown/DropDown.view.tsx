@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { useClickAway } from 'react-use';
+import { useClickAway } from 'react-use'
 
 // styles
 import { DropDownStyled, DropDownMenu, DropDownListContainer, DropDownList, DropDownListItem } from './DropDown.style'
@@ -18,9 +18,19 @@ type DropDownViewProps = {
   setIsOpen: (arg: boolean) => void
   itemSelected: string | undefined
   items: readonly string[]
+  className?: string
 }
 
-export const DropDownView = ({ placeholder, isOpen, onClick, setIsOpen, clickItem, itemSelected, items }: DropDownViewProps) => {
+export const DropDownView = ({
+  placeholder,
+  isOpen,
+  onClick,
+  setIsOpen,
+  clickItem,
+  itemSelected,
+  items,
+  className,
+}: DropDownViewProps) => {
   const ref = useRef<HTMLDivElement | null>(null)
   const refDropdownWrapper = useRef<HTMLDivElement | null>(null)
   useClickAway(refDropdownWrapper, () => setIsOpen(false))
@@ -33,7 +43,7 @@ export const DropDownView = ({ placeholder, isOpen, onClick, setIsOpen, clickIte
     }
   }, [isOpen])
   return (
-    <DropDownStyled ref={refDropdownWrapper} className="drop-down">
+    <DropDownStyled ref={refDropdownWrapper} className={`drop-down ${className}`}>
       <DropDownMenu onClick={onClick}>
         {itemSelected ?? placeholder}
         <span>

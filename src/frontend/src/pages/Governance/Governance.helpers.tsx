@@ -290,6 +290,7 @@ export const normalizeGovernanceStorage = (
     currentRoundEndLevel: currentGovernance?.current_round_end_level ?? 0,
     currentRoundProposals: new MichelsonMap<string, ProposalRecordType>(),
     currentRoundStartLevel: currentGovernance?.current_round_start_level ?? 0,
+    cycle: currentGovernance?.cycle_id ?? 0,
     financialRequestLedger,
     nextProposalId: currentGovernance?.next_proposal_id ?? 0,
     proposalLedger,
