@@ -135,17 +135,17 @@ argo-cd:
       accounts.gitbot: apiKey,login
 
       # Dex configuration
-      # dex.config: |
-      #   connectors:
-      #     # GitHub example
-      #     - type: github
-      #       id: github
-      #       name: GitHub
-      #       config:
-      #         clientID: aabbccddeeff00112233
-      #         clientSecret: $dex.github.clientSecret # Alternatively $<some_K8S_secret>:dex.github.clientSecret
-      #         orgs:
-      #         - name: your-github-org
+      dex.config: |
+        connectors:
+          # GitHub example
+          - type: github
+            id: github
+            name: GitHub
+            config:
+              clientID: 78bd16921cb6f00fc6d7
+              clientSecret: $prod-github:dex.github.clientSecret # Alternatively $<some_K8S_secret>:dex.github.clientSecret
+              orgs:
+              - name: your-github-org
 
       # OIDC configuration as an alternative to dex (optional).
       # oidc.config: |
