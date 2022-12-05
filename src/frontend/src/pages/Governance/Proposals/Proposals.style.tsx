@@ -6,6 +6,7 @@ import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 export const ProposalListContainer = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 38px;
+  position: relative;
 
   .voters-list {
     margin-top: 30px;
@@ -13,6 +14,13 @@ export const ProposalListContainer = styled.div<{ theme: MavrykTheme }>`
 
   .proposal-history-checkbox {
     margin: 15px 0 15px 0;
+  }
+
+  .cycle-dropdown {
+    max-width: 260px;
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 `
 

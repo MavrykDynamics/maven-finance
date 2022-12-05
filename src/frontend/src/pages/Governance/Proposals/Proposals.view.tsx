@@ -26,9 +26,10 @@ import {
   GOVERNANCE_VOTERS_LIST_NAME,
   LIST_NAMES_MAPPER,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { GovRightContainerTitleArea } from '../Governance.style'
+import { EmptyContainer, GovRightContainerTitleArea } from '../Governance.style'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import Checkbox from 'app/App.components/Checkbox/Checkbox.view'
+import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -48,28 +49,44 @@ export const ProposalsView = ({
   showVotersList,
   isHistoryPage,
 }: ProposalsViewProps) => {
-  const { governancePhase, governanceStorage } = useSelector((state: State) => state.governance)
+  const {
+    governancePhase,
+    governanceStorage: { cycle, timelockProposalId, cycleHighestVotedProposalId, cycleCounter },
+  } = useSelector((state: State) => state.governance)
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+
+  const dropDownOptions = useMemo(() => Array.from({ length: cycle - 1 }, (_, idx) => String(idx + 1)), [cycle])
 
   const isProposalPhase = governancePhase === 'PROPOSAL'
 
-  const [showAllProposals, setShowAllProposals] = useState(true)
+  const [showWithDroppped, setShowWithDroppped] = useState(false)
+  const [selectedCycle, setSelectedCycle] = useState<undefined | string>()
+  const [ddIsOpen, setDdIsOpen] = useState(false)
 
   const { search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
   const filteredProposals = useMemo(() => {
-    if (showAllProposals) {
-      return proposalsList.filter(({ status }) => status === 0)
-    }
+    return proposalsList.filter(({ status, cycle }) => {
+      if (showWithDroppped && selectedCycle) {
+        return status === 0 && cycle === Number(selectedCycle)
+      }
 
-    return proposalsList
-  }, [showAllProposals])
+      if (showWithDroppped) {
+        return status === 0
+      }
+      if (selectedCycle) {
+        return cycle === Number(selectedCycle)
+      }
+
+      return true
+    })
+  }, [showWithDroppped, proposalsList, selectedCycle])
 
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, listName)
     return filteredProposals.slice(from, to)
-  }, [currentPage, filteredProposals])
+  }, [currentPage, filteredProposals, listName])
 
   const votersList = useMemo(
     () =>
@@ -106,23 +123,38 @@ export const ProposalsView = ({
         <Checkbox
           id={'show_dropped'}
           onChangeHandler={() => {
-            setShowAllProposals(!showAllProposals)
+            setShowWithDroppped(!showWithDroppped)
           }}
-          checked={showAllProposals}
+          checked={showWithDroppped}
           className={'proposal-history-checkbox'}
         >
           <span>Hide dropped proposals</span>
         </Checkbox>
       ) : null}
-      {paginatedItemsList.length &&
+      {isHistoryPage ? (
+        <DropDown
+          className="cycle-dropdown"
+          placeholder={'Choose cycle number'}
+          items={dropDownOptions}
+          clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
+          clickOnItem={(value: string) => {
+            setSelectedCycle(value)
+            setDdIsOpen(false)
+          }}
+          isOpen={ddIsOpen}
+          setIsOpen={setDdIsOpen}
+          itemSelected={selectedCycle}
+        />
+      ) : null}
+      {paginatedItemsList.length ? (
         paginatedItemsList.map((proposal, index) => {
           const statusInfo = getProposalStatusInfo(
             governancePhase,
             proposal,
-            governanceStorage.timelockProposalId,
+            timelockProposalId,
             isProposalPhase,
-            governanceStorage.cycleHighestVotedProposalId,
-            governanceStorage.cycleCounter,
+            cycleHighestVotedProposalId,
+            cycleCounter,
           )
 
           const contentStatus = statusInfo.statusFlag
@@ -144,7 +176,17 @@ export const ProposalsView = ({
               <StatusFlag text={contentStatus} status={contentStatus} />
             </ProposalListItem>
           )
-        })}
+        })
+      ) : (
+        <EmptyContainer className="empty">
+          <img src="/images/not-found.svg" alt=" No proposals to show" />
+          <figcaption>
+            {selectedCycle
+              ? `There was no propoposals on the cycle ${selectedCycle}`
+              : 'There are no history proposals'}
+          </figcaption>
+        </EmptyContainer>
+      )}
       <Pagination itemsCount={proposalsList.length} listName={listName} />
       {showVotersList && votersList?.length ? (
         <div className="voters-list">
