@@ -69,7 +69,6 @@ export const ProposalsView = ({
         }>
       >((acc, { voter_id, round, vote }) => {
         const satelliteData = satelliteLedger?.find(({ address }) => address === voter_id)
-        console.log(satelliteData)
 
         if (satelliteData && round === 1) {
           acc.push({
@@ -82,14 +81,12 @@ export const ProposalsView = ({
 
         return acc
       }, []),
-    [],
+    [satelliteLedger, selectedProposal],
   )
 
   if (!proposalsList.length) {
     return null
   }
-
-  console.log('showVotersList', showVotersList, selectedProposal, satelliteLedger, votersList)
 
   return (
     <ProposalListContainer>
