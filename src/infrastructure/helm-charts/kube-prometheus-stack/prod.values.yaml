@@ -763,17 +763,15 @@ kube-prometheus-stack:
         team_ids: '7093653'
         allowed_organizations: mavrykfinance
 
-    env:
-      - name: GITHUB_CLIENT_ID
-        valueFrom:
-          secretKeyRef:
-            name: prod-kube-prometheus-stack-grafana
-            key: GITHUB_CLIENT_ID
-      - name: GITHUB_CLIENT_SECRET
-        valueFrom:
-          secretKeyRef:
-            name: prod-kube-prometheus-stack-grafana
-            key: GITHUB_CLIENT_SECRET
+    envValueFrom:
+      GITHUB_CLIENT_ID:
+        secretKeyRef:
+          name: prod-kube-prometheus-stack-grafana
+          key: GITHUB_CLIENT_ID
+      GITHUB_CLIENT_SECRET:
+        secretKeyRef:
+          name: prod-kube-prometheus-stack-grafana
+          key: GITHUB_CLIENT_SECRET
 
     # Use an existing secret for the admin user.
     admin:
