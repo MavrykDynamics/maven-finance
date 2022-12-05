@@ -4,11 +4,15 @@ import { CardHover, boxShadowColor, cyanColor, royalPurpleColor, skyColor } from
 import { MavrykTheme } from '../../../styles/interfaces'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
-export const ProposalListContainer = styled.div`
+export const ProposalListContainer = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 38px;
 
   .voters-list {
     margin-top: 30px;
+  }
+
+  .proposal-history-checkbox {
+    margin: 15px 0 15px 0;
   }
 `
 
