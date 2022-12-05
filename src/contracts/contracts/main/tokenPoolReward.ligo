@@ -349,7 +349,7 @@ block {
 // ------------------------------------------------------------------------------
 
 // Token Pool Reward Lambdas:
-#include "../partials/contractLambdas/tokenPoolReward/tokenPoolRewardLambdas.ligo"
+#include "../partials/contractLambdas/tokenPoolRewardLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 //
