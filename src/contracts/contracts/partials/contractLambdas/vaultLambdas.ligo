@@ -86,6 +86,7 @@ block {
                 // check sender is vault owner
                 checkSenderIsVaultOwner(s);
                 
+                // Create delegate to tez baker operation
                 const delegateToTezBakerOperation : operation = Tezos.set_delegate(delegateParams);
                 
                 operations := delegateToTezBakerOperation # operations;
@@ -110,15 +111,8 @@ block {
                 // check sender is vault owner
                 checkSenderIsVaultOwner(s);
 
-                // Get Delegation Address from the General Contracts map on the Governance Contract
-                const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-                // create delegate to satellite operation
-                const delegateToSatelliteOperation : operation = Tezos.transaction(
-                    satelliteAddress,
-                    0tez,
-                    getDelegateToSatelliteEntrypoint(delegationAddress)
-                );
+                // Create delegate to satellite operation
+                const delegateToSatelliteOperation : operation = delegateToSatelliteOperation(satelliteAddress, s);
 
                 operations := delegateToSatelliteOperation # operations;
                 
@@ -148,47 +142,40 @@ block {
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
 
-                // check if collateral token is protected
-                if collateralTokenRecord.protected = True then failwith(error_CANNOT_DEPOSIT_PROTECTED_COLLATERAL_TOKEN) else skip;
+                // verify that collateral token is not protected (e.g. cannot be staked MVK)
+                verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_DEPOSIT_PROTECTED_COLLATERAL_TOKEN);
 
                 // get collateral token's token type
                 const tokenType : tokenType = collateralTokenRecord.tokenType;
 
-                // check if sender is owner
-                var isOwnerCheck : bool := False;
-                if Tezos.get_sender() = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
+                // check if sender is owner or a whitelisted depositor
+                const isOwner : bool = checkSenderIsOwner(s);
+                const isWhitelistedDepositor : bool = checkSenderIsWhitelistedDepositor(s);
 
-                // check if sender is a whitelisted depositor
-                const isAbleToDeposit : bool = case s.depositors of [
-                    | Any                    -> True
-                    | Whitelist(_depositors) -> _depositors contains Tezos.get_sender()
+                // verify that sender is either the vault owner or a whitelisted depositor
+                verifyDepositAllowed(isOwner, isWhitelistedDepositor);
+            
+                // register deposit in Lending Controller
+                const registerDepositOperation : operation = registerDepositInLendingController(
+                    amount,       // amount
+                    tokenName,    // tokenName
+                    s             // storage
+                );
+
+                // process deposit from sender to vault
+                const processVaultDepositOperation : operation = processVaultTransfer(
+                    Tezos.get_sender(),         // from_
+                    Tezos.get_self_address(),   // to_
+                    amount,                     // amount
+                    tokenType                   // tokenType
+                );
+
+                operations := list[
+                    registerDepositOperation; 
+                    processVaultDepositOperation
                 ];
-                
-                // check that sender is either the vault owner or a depositor
-                if isOwnerCheck = True or isAbleToDeposit = True then block {
 
-                    // register deposit in Lending Controller
-                    const registerDepositOperation : operation = registerDepositInLendingController(
-                        amount,       // amount
-                        tokenName,    // tokenName
-                        tokenType,    // tokenType
-                        s             // storage
-                    );
-
-                    // process deposit from sender to vault
-                    const processVaultDepositOperation : operation = processVaultTransfer(
-                        Tezos.get_sender(),         // from_
-                        Tezos.get_self_address(),   // to_
-                        amount,                     // amount
-                        tokenType                   // tokenType
-                    );
-
-                    operations := list[
-                        registerDepositOperation; 
-                        processVaultDepositOperation
-                    ];
-
-                } else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT);
+            
                 
             }   
         |   _ -> skip
@@ -220,8 +207,8 @@ block {
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
 
-                // check if collateral token is protected
-                if collateralTokenRecord.protected = True then failwith(error_CANNOT_WITHDRAW_PROTECTED_COLLATERAL_TOKEN) else skip;
+                // verify that collateral token is not protected (e.g. cannot be staked MVK)
+                verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_WITHDRAW_PROTECTED_COLLATERAL_TOKEN);
 
                 // get collateral token's token type
                 const tokenType : tokenType = collateralTokenRecord.tokenType;
@@ -230,7 +217,6 @@ block {
                 const registerWithdrawalOperation : operation = registerWithdrawalInLendingController(
                     amount,       // amount
                     tokenName,    // tokenName
-                    tokenType,    // tokenType
                     s             // storage
                 );
 
@@ -347,21 +333,9 @@ block {
     case vaultLambdaAction of [
         |   LambdaUpdateMvkOperators(updateOperatorsParams) -> {
                 
-                // Get %update_operators entrypoint in MVK Token Contract
-                const updateEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%update_operators",
-                    s.mvkTokenAddress) : option(contract(updateOperatorsType))) of [
-                            Some (contr)    -> contr
-                        |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
-                    ];
-
-                const updateOperation : operation = Tezos.transaction(
-                    (updateOperatorsParams),
-                    0tez, 
-                    updateEntrypoint
-                );
-
-                operations := updateOperation # operations;
+                // Create operation to update operators in MVK token contract
+                const updateMvkOperatorsOperation : operation = updateMvkOperatorsOperation(updateOperatorsParams, s);
+                operations := updateMvkOperatorsOperation # operations;
 
             }
         |   _ -> skip
