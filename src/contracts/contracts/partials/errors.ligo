@@ -510,6 +510,7 @@
 [@inline] const error_PROPOSAL_EXECUTED                                                                                 = 364n;
 [@inline] const error_PROPOSAL_HAS_NO_DATA_TO_EXECUTE                                                                   = 365n;
 [@inline] const error_PROPOSAL_DATA_NOT_FOUND                                                                           = 366n;
+[@inline] const error_PAYMENT_DATA_NOT_FOUND                                                                            = 366n;
 [@inline] const error_PROPOSAL_EXECUTION_ALREADY_STARTED                                                                = 367n;
 [@inline] const error_PROPOSAL_NOT_EXECUTED                                                                             = 368n;
 [@inline] const error_PROPOSAL_PAYMENTS_PROCESSED                                                                       = 369n;

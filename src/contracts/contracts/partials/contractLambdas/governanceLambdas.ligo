@@ -524,11 +524,10 @@ block {
 
                             // Execute timelocked proposal if boolean input is True
                             if s.timelockProposalId =/= 0n then {
+                                
                                 // Mark the proposal as ready to execute even if it's not executed during this cycle
-                                var proposalToExecute                           := case Big_map.find_opt(s.timelockProposalId, s.proposalLedger) of [
-                                        Some (_proposal)    -> _proposal
-                                    |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
-                                ];
+                                var proposalToExecute : proposalRecordType := getProposalRecord(s.timelockProposalId, s);
+
                                 proposalToExecute.executionReady                := True;
                                 s.proposalLedger[s.timelockProposalId]          := proposalToExecute;
 
@@ -1182,10 +1181,7 @@ block {
                     var operationIndex: nat := abs(dataCounter - 1n);
                     
                     // Get the proposal metadata
-                    var metadata: option(proposalDataType)  := case Map.find_opt(operationIndex, proposal.proposalData) of [
-                            Some (_optionData)      -> _optionData
-                        |   None                    -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
-                    ];
+                    var metadata : option(proposalDataType) := getProposalData(proposal, operationIndex);
 
                     // Execute the data or skip if this entry has no data to execute
                     case metadata of [
@@ -1284,10 +1280,7 @@ block {
 
                     // Get the data with the corresponding index
                     var operationIndex : nat := abs(dataCounter - 1n);
-                    var metadata : option(paymentDataType) := case Map.find_opt(operationIndex, proposal.paymentData) of [
-                            Some (_optionData)      -> _optionData
-                        |   None                    -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
-                    ];
+                    var metadata : option(paymentDataType) := getProposalPaymentData(proposal, operationIndex);
 
                     // Execute the data or skip if this entry has no data to execute
                     case metadata of [
@@ -1373,20 +1366,14 @@ block {
                 // ------------------------------------------------------------------
 
                 // Proposal data should be executed in FIFO mode
-                // Get the data to execute next based on the proposalDataExecutionCounter
-                var optionData : option(proposalDataType) := case proposal.proposalData[proposal.proposalDataExecutionCounter] of [
-                        Some (_data)    -> _data
-                    |   None            -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
-                ];
+                // Get the data to execute next based on the proposalDataExecutionCounter - (proposalRecord, index)
+                var optionData : option(proposalDataType) := getProposalData(proposal, proposal.proposalDataExecutionCounter); 
 
                 // If there is no data to execute, loop through all the proposalData, starting from tail to head to get data
                 while proposal.proposalDataExecutionCounter < Map.size(proposal.proposalData) and optionData = (None : option(proposalDataType)) block {
                     
-                    proposal.proposalDataExecutionCounter   := proposal.proposalDataExecutionCounter + 1n;
-                    optionData                              := case proposal.proposalData[proposal.proposalDataExecutionCounter] of [
-                            Some (_data)    -> _data
-                        |   None            -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
-                    ];
+                    const proposalIndex : nat = proposal.proposalDataExecutionCounter + 1n;
+                    optionData := getProposalData(proposal, proposalIndex); 
 
                 };
 
@@ -1435,8 +1422,8 @@ block {
         |   LambdaDistributeProposalRewards(claimParams) -> {
             
             // Get values from params
-            const satelliteAddress : address         = claimParams.satelliteAddress;
-            const proposalIds : set(actionIdType)    = claimParams.proposalIds;
+            const satelliteAddress : address      = claimParams.satelliteAddress;
+            const proposalIds : set(actionIdType) = claimParams.proposalIds;
 
             // Get the distribute reward entrypoint
             const claimSatellite : set(address)  = set [satelliteAddress];
@@ -1457,7 +1444,7 @@ block {
                             verifyRewardReadyToBeClaimed(_record);
 
                             // Add the reward to the storage
-                            const satelliteRewardProposalKey : (actionIdType*address) = (proposalId, satelliteAddress);
+                            const satelliteRewardProposalKey : (actionIdType * address) = (proposalId, satelliteAddress);
                             s.proposalRewards[satelliteRewardProposalKey] := unit;
 
                             // Calculate the reward
@@ -1528,17 +1515,11 @@ block {
                     proposal.status               := "DROPPED";
                     s.proposalLedger[proposalId]  := proposal;
 
-                    // Remove proposal from currentCycleInfo.cycleProposers
-                    var satelliteProposals : set(nat) := getSatelliteProposals(proposal.proposerAddress, s.cycleId, s);
-                    s.cycleProposers[(s.cycleId, proposal.proposerAddress)] := Set.remove(proposalId, satelliteProposals);
-
-                    // Remove proposal from current cycle proposal
-                    s.cycleProposals := Map.remove(proposalId, s.cycleProposals);
+                    // Drop and remove proposal
+                    s := dropProposal(proposal.proposerAddress, proposalId, s);
 
                     // If current round is a timelock or voting round (where there is only one proposal), restart the cycle
-                    if s.currentCycleInfo.round = (Voting : roundType) or s.currentCycleInfo.round = (Timelock : roundType) 
-                    then s := setupProposalRound(s) 
-                    else skip;
+                    s := restartCycleIfVotingOrTimelockRound(s);
 
                 } else failwith(error_ONLY_PROPOSER_ALLOWED)
                 
