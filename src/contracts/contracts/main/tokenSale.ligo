@@ -52,6 +52,10 @@ const noOperations : list (operation) = nil;
 type return is list (operation) * tokenSaleStorageType
 
 
+// ------------------------------------------------------------------------------
+// Constants specific for Token Sale
+// ------------------------------------------------------------------------------
+
 const oneDayInSeconds : int = 86_400;
 const onePeriodInSeconds : int = 2_592_000;
 

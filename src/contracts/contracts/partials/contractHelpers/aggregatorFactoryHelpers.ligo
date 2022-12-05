@@ -1,0 +1,443 @@
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// Allowed Senders: Admin, Governance Contract
+function checkSenderIsAllowed(var s : aggregatorFactoryStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsAdmin(const s: aggregatorFactoryStorageType): unit is
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    else unit
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : aggregatorFactoryStorageType) : unit is
+block{
+    if Tezos.get_sender() = s.admin then skip
+    else {
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    }
+} with unit
+
+
+
+function verifySenderIsTrackedAggregators(const s : aggregatorFactoryStorageType) : unit is
+block {
+
+    const senderIsInTrackedAggregatorsBool : bool = Set.mem(Tezos.get_sender(), s.trackedAggregators);
+    if senderIsInTrackedAggregatorsBool = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
+
+} with unit
+
+
+
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p : unit) : unit is
+    if (Tezos.get_amount() = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check that the %createAggregator entrypoint is not paused
+function checkCreateAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
+    if s.breakGlassConfig.createAggregatorIsPaused then failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %trackAggregator entrypoint is not paused
+function checkTrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
+    if s.breakGlassConfig.trackAggregatorIsPaused then failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %untrackAggregator entrypoint is not paused
+function checkUntrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
+    if s.breakGlassConfig.untrackAggregatorIsPaused then failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %distributeRewardXtz entrypoint is not paused
+function checkDistributeRewardXtzIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
+    if s.breakGlassConfig.distributeRewardXtzIsPaused then failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %distributeRewardStakedMvk entrypoint is not paused
+function checkDistributeRewardStakedMvkIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
+    if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to %addOracle entrypoint in a specified Aggregator Contract
+function addOracleOperation(const aggregatorAddress: address; const satelliteAddress: address) : operation is
+block{
+
+    const tokenContract: contract(address) =
+        case (Tezos.get_entrypoint_opt("%addOracle", aggregatorAddress) : option(contract(address))) of [
+                Some (c) -> c
+            |   None     -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+} with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
+
+
+
+// helper function to %removeOracle entrypoint in a specified Aggregator Contract
+function removeOracleOperation(const aggregatorAddress: address; const satelliteAddress: address) : operation is
+block{
+
+    const tokenContract: contract(address) =
+        case (Tezos.get_entrypoint_opt("%removeOracle", aggregatorAddress) : option(contract(address))) of [
+                Some (c) -> c
+            |   None     -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+} with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
+
+
+
+// helper function to get transfer entrypoint in treasury contract
+function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%transfer",
+        contractAddress) : option(contract(transferActionType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
+        ];
+
+
+
+// helper function to get distributeReward entrypoint in delegation contract
+function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
+    case (Tezos.get_entrypoint_opt(
+        "%distributeReward",
+        contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
+        ];
+
+
+
+// helper function to get setAggregatorReference entrypoint in governanceSatellite contract
+function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(setAggregatorReferenceType) is
+    case (Tezos.get_entrypoint_opt(
+        "%setAggregatorReference",
+        contractAddress) : option(contract(setAggregatorReferenceType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(setAggregatorReferenceType))
+        ];  
+
+
+
+// helper function to %stake entrypoint on the Doorman contract
+function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateGeneralContracts",
+        contractAddress) : option(contract(updateGeneralContractsType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
+        ];
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Operation Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to update general contracts on the Governance contract
+function updateGeneralContractsOperation(const contractName : string; const contractAddress : address; const s : aggregatorFactoryStorageType) : operation is 
+block {
+
+    const updateGeneralMapRecord : updateGeneralContractsType = record [
+        generalContractName    = contractName;
+        generalContractAddress = contractAddress;
+    ];
+
+    // Create and send updateGeneralContractsMap operation to the Governance Contract
+    const updateGeneralContractsOperation : operation = Tezos.transaction(
+        updateGeneralMapRecord,
+        0tez, 
+        getUpdateGeneralContractsEntrypoint(s.governanceAddress)
+    );
+
+} with updateGeneralContractsOperation
+
+
+
+// helper function to set aggregator reference on the Governance Satellite contract
+function setAggregatorReferenceOperation(const aggregatorName : string; const aggregatorAddress : address; const s : aggregatorFactoryStorageType) : operation is 
+block {
+
+    // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
+    // Set Aggregator Reference operation to Governance Satellite Contract
+    const setAggregatorReferenceParams : setAggregatorReferenceType = record [
+        aggregatorAddress   = aggregatorAddress;
+        oldName             = aggregatorName;
+        newName             = aggregatorName;
+    ];
+
+    // Create and send setAggregatorReference operation to the Governance Contract
+    const setAggregatorReferenceOperation : operation = Tezos.transaction(
+        setAggregatorReferenceParams,
+        0tez,
+        getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
+    );
+
+} with setAggregatorReferenceOperation
+
+
+
+// helper function to distribute reward xtz
+function distributeRewardXtzOperation(const recipient : address; const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
+block {
+
+    // Get Aggregator Treasury Contract Address from the General Contracts Map on the Governance Contract
+    const treasuryAddress : address = getContractAddressFromGovernanceContract("aggregatorTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+
+    // set token type to Tez
+    const tokenTransferType : tokenType = Tez;
+    
+    // Create operation to transfer XTZ reward from Aggregator Treasury to oracle recipient (satellite)
+    const distributeRewardXtzParams : transferActionType = list[
+        record [
+            to_        = recipient;
+            token      = tokenTransferType;
+            amount     = rewardAmount;
+        ]
+    ];
+
+    const distributeRewardXtzOperation : operation = Tezos.transaction(
+        distributeRewardXtzParams, 
+        0tez, 
+        sendTransferOperationToTreasury(treasuryAddress)
+    );
+
+} with distributeRewardXtzOperation
+
+
+
+// helper function to distribute reward staked MVK
+function distributeRewardStakedMvkOperation(const eligibleSatellites : set(address); const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
+block {
+
+    // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    // Create operation to distribute staked MVK reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
+    const rewardParams : distributeRewardStakedMvkType = record [
+        eligibleSatellites   = eligibleSatellites;
+        totalStakedMvkReward = rewardAmount;
+    ];
+
+    const distributeRewardStakedMvkOperation : operation = Tezos.transaction(
+        rewardParams,
+        0tez,
+        getDistributeRewardInDelegationEntrypoint(delegationAddress)
+    );
+
+} with distributeRewardStakedMvkOperation
+
+// ------------------------------------------------------------------------------
+// Operation Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+
+// ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get aggregator's name
+function getAggregatorName(const aggregatorAddress : address) : string is
+block {
+
+    const aggregatorNameView : option(string) = Tezos.call_view ("getName", unit, aggregatorAddress);
+    const aggregatorName : string = case aggregatorNameView of [
+                Some (_name)    -> _name
+            |   None            -> failwith (error_GET_NAME_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
+    ];
+
+} with aggregatorName
+
+
+
+// helper funtion to prepare new aggregator storage
+function prepareAggregatorStorage(const createAggregatorParams : createAggregatorParamsType; const s : aggregatorFactoryStorageType) : aggregatorStorageType is 
+block {
+
+    const lastCompletedData = record[
+        round                     = 0n;
+        epoch                     = 0n;
+        data                      = 0n;
+        percentOracleResponse     = 0n;
+        lastUpdatedAt             = Tezos.get_now();
+    ];
+    const oracleRewardXtz        : oracleRewardXtzType        = map[];
+    const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
+
+    // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
+    // Add Aggregator Factory Contract and Governance Satellite Contract to Whitelisted Contracts Map on the new Aggregator Contract
+    const aggregatorWhitelistContracts : whitelistContractsType = map[
+        ("aggregatorFactory")   -> (Tezos.get_self_address() : address);
+        ("governanceSatellite") -> (governanceSatelliteAddress : address);
+    ];
+    
+    const aggregatorGeneralContracts : generalContractsType = map[];
+
+    const aggregatorLambdaLedger : lambdaLedgerType = s.aggregatorLambdaLedger;
+
+    const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
+        updateDataIsPaused                 = False;
+        withdrawRewardXtzIsPaused           = False;
+        withdrawRewardStakedMvkIsPaused     = False;
+    ];
+
+    // Prepare Aggregator Metadata
+    const aggregatorMetadata: metadataType = Big_map.literal (list [
+        ("", ("74657a6f732d73746f726167653a64617461" : bytes));
+        ("data", createAggregatorParams.metadata);
+    ]); 
+
+    // Validate name input does not exceed max length
+    const aggregatorName : string = createAggregatorParams.name;
+    validateStringLength(aggregatorName, s.config.aggregatorNameMaxLength, error_WRONG_INPUT_PROVIDED);
+
+    // Originate an aggregator
+    const originatedAggregatorStorageType : aggregatorStorageType = record [
+
+        admin                     = s.admin;                         
+        metadata                  = aggregatorMetadata;
+        name                      = aggregatorName;
+        config                    = createAggregatorParams.aggregatorConfig;
+        breakGlassConfig          = aggregatorBreakGlassConfig;
+
+        mvkTokenAddress           = s.mvkTokenAddress;
+        governanceAddress         = s.governanceAddress;
+
+        whitelistContracts        = aggregatorWhitelistContracts;      
+        generalContracts          = aggregatorGeneralContracts;
+
+        oracleAddresses           = createAggregatorParams.oracleAddresses;
+        
+        lastCompletedData        = lastCompletedData;
+                            
+        oracleRewardXtz           = oracleRewardXtz;
+        oracleRewardStakedMvk     = oracleRewardStakedMvk;      
+
+        lambdaLedger              = aggregatorLambdaLedger;
+    ];
+
+} with originatedAggregatorStorageType 
+
+
+
+// helper function to track an aggregator 
+function trackAggregator(const aggregatorAddress : address; const s : aggregatorFactoryStorageType) : set(address) is 
+block {
+
+    const trackedAggregators : set(address) = case Set.mem(aggregatorAddress, s.trackedAggregators) of [
+            True  -> (failwith(error_AGGREGATOR_ALREADY_TRACKED) : set(address))
+        |   False -> Set.add(aggregatorAddress, s.trackedAggregators)
+    ];
+
+} with trackedAggregators
+
+
+
+// helper function to untrack an aggregator 
+function untrackAggregator(const aggregatorAddress : address; const s : aggregatorFactoryStorageType) : set(address) is 
+block {
+
+    var trackedAggregators : set(address) := case Set.mem(aggregatorAddress, s.trackedAggregators) of [
+            True  -> Set.remove(aggregatorAddress, s.trackedAggregators)
+        |   False -> (failwith(error_AGGREGATOR_NOT_TRACKED) : set(address))
+    ];
+
+} with trackedAggregators
+
+// ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get lambda bytes
+function getLambdaBytes(const lambdaKey : string; const s : aggregatorFactoryStorageType) : bytes is 
+block {
+    
+    // get lambda bytes from lambda ledger
+    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+} with lambdaBytes
+
+
+
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
+function unpackLambda(const lambdaBytes : bytes; const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorFactoryUnpackLambdaFunctionType)) of [
+            Some(f) -> f(aggregatorFactoryLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------

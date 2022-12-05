@@ -22,7 +22,7 @@ import fa2LpTokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Farm, setFarmLambdas } from "../helpers/farmHelper"
+import { Farm, setFarmLambdas } from "../contractHelpers/farmTestHelper"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
