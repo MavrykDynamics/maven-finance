@@ -10,13 +10,18 @@ import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 // view
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
-import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import { ProposalRecordType, ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // style
-import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
-import { calculateSlicePositions, LIST_NAMES_MAPPER } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem, VoterListItem } from './Proposals.style'
+import {
+  calculateSlicePositions,
+  GOVERNANCE_VOTERS_LIST_NAME,
+  LIST_NAMES_MAPPER,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { GovRightContainerTitleArea } from '../Governance.style'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -25,6 +30,7 @@ type ProposalsViewProps = {
   selectedProposal: ProposalRecordType | undefined
   isProposalPhase: boolean
   listName: string
+  showVotersList: boolean
 }
 export const ProposalsView = ({
   listTitle,
@@ -33,8 +39,10 @@ export const ProposalsView = ({
   selectedProposal,
   isProposalPhase,
   listName,
+  showVotersList,
 }: ProposalsViewProps) => {
   const { governancePhase, governanceStorage } = useSelector((state: State) => state.governance)
+  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const { search } = useLocation()
   const currentPage = getPageNumber(search, listName)
@@ -44,9 +52,38 @@ export const ProposalsView = ({
     return proposalsList.slice(from, to)
   }, [currentPage, proposalsList])
 
+  const votersList = useMemo(
+    () =>
+      selectedProposal?.votes?.reduce<
+        Array<{
+          vote: number
+          name: string
+          avatar: string
+          address: string
+        }>
+      >((acc, { voter_id, round, vote }) => {
+        const satelliteData = satelliteLedger?.find(({ address }) => address === voter_id)
+        console.log(satelliteData)
+
+        if (satelliteData && round === 1) {
+          acc.push({
+            vote,
+            name: satelliteData.name,
+            avatar: satelliteData.image,
+            address: voter_id,
+          })
+        }
+
+        return acc
+      }, []),
+    [],
+  )
+
   if (!proposalsList.length) {
     return null
   }
+
+  console.log('showVotersList', showVotersList, selectedProposal, satelliteLedger, votersList)
 
   return (
     <ProposalListContainer>
@@ -85,6 +122,34 @@ export const ProposalsView = ({
           )
         })}
       <Pagination itemsCount={proposalsList.length} listName={listName} />
+      {showVotersList && votersList?.length ? (
+        <div className="voters-list">
+          <GovRightContainerTitleArea>
+            <h1>Satellite Voting History</h1>
+          </GovRightContainerTitleArea>
+          {votersList.map(({ vote, address, name, avatar }) => {
+            const status =
+              vote === 1 ? ProposalStatus.EXECUTED : vote === -1 ? ProposalStatus.DEFEATED : ProposalStatus.ONGOING
+            const statusText = vote === 1 ? 'Yes' : vote === -1 ? 'No' : 'Pass'
+            return (
+              <VoterListItem>
+                <div className="left">
+                  <div className="avatar">
+                    <img src={avatar} alt={`${name} avatar`} />
+                  </div>
+                  <div className="info">
+                    <span>{name}</span>
+                    <TzAddress tzAddress={address} />
+                  </div>
+                </div>
+                .state
+                <StatusFlag text={statusText} status={status} />
+              </VoterListItem>
+            )
+          })}
+          <Pagination itemsCount={votersList.length} listName={GOVERNANCE_VOTERS_LIST_NAME} />
+        </div>
+      ) : null}
     </ProposalListContainer>
   )
 }

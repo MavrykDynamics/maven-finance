@@ -52,6 +52,7 @@ export const Proposals = ({
       selectedProposal={selectedProposal}
       isProposalPhase={!onProposalHistoryPage}
       listName={listName}
+      showVotersList={governancePhase === 'TIME_LOCK' || governancePhase === 'VOTING'}
     />
   )
 }
