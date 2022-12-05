@@ -737,6 +737,43 @@ kube-prometheus-stack:
     defaultDashboardsTimezone: utc
 
     # adminPassword:
+    grafana.ini:
+      paths:
+        data: /var/lib/grafana/
+        logs: /var/log/grafana
+        plugins: /var/lib/grafana/plugins
+        provisioning: /etc/grafana/provisioning
+      analytics:
+        check_for_updates: true
+      log:
+        mode: console
+      grafana_net:
+        url: https://grafana.net
+      server:
+        domain: "{{ if (and .Values.ingress.enabled .Values.ingress.hosts) }}{{ .Values.ingress.hosts | first }}{{ else }}''{{ end }}"
+      auth.github:
+        enabled: true
+        allow_sign_up: true
+        client_id: ${GITHUB_CLIENT_ID}
+        client_secret: ${GITHUB_CLIENT_SECRET}
+        scopes: user:email,read:org
+        auth_url: https://github.com/login/oauth/authorize
+        token_url: https://github.com/login/oauth/access_token
+        api_url: https://api.github.com/user
+        team_ids: '7093653'
+        allowed_organizations: mavrykfinance
+
+    env:
+      - name: GITHUB_CLIENT_ID
+        valueFrom:
+          secretKeyRef:
+            name: prod-kube-prometheus-stack-grafana
+            key: GITHUB_CLIENT_ID
+      - name: GITHUB_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: prod-kube-prometheus-stack-grafana
+            key: GITHUB_CLIENT_SECRET
 
     # Use an existing secret for the admin user.
     admin:
