@@ -1143,7 +1143,7 @@
 //             assert.equal(aggregatorOracles,      undefined);
 
 //             // get bob satellite oracle record
-//             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
+//             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
 //             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.size;
             
 //             const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1217,7 +1217,7 @@
 //             const updatedGovernanceAction                           = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
 //             const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
-//             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
+//             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
 //             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
@@ -1292,7 +1292,7 @@
 //             assert.equal(aggregatorOracles.oraclePublicKey, bob.pk);
 
 //             // get bob satellite oracle record
-//             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
+//             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
 //             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord.size;
             
 //             const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1363,7 +1363,7 @@
 //             const updatedGovernanceAction                           = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
 //             const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
-//             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
+//             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
 //             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
@@ -1623,7 +1623,7 @@
 //             const updatedGovernanceAction              = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
 //             const updatedInitiatorsActions             = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
-//             const updatedBobSatelliteOracleRecord      = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
+//             const updatedBobSatelliteOracleRecord      = await updatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
 
 //             const bobUsdBtcOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 //             const bobUsdXtzOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.get(usdXtzAggregatorAddress);
@@ -1721,7 +1721,7 @@
 //             const finalUpdatedGovernanceSatelliteStorage    = await governanceSatelliteInstance.storage();        
 //             const finalUpdatedGovernanceAction              = await finalUpdatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
 
-//             const finalUpdatedBobSatelliteOracleRecord      = await finalUpdatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
+//             const finalUpdatedBobSatelliteOracleRecord      = await finalUpdatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
 //             const finalBobUsdBtcOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 //             const finalBobUsdXtzOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.get(usdXtzAggregatorAddress);
 //             const finalBobUsdDogeOracleAggregatorRecord     = await finalUpdatedBobSatelliteOracleRecord.get(usdDogeAggregatorAddress);

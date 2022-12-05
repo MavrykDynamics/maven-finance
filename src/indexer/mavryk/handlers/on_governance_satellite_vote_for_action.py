@@ -30,7 +30,7 @@ async def on_governance_satellite_vote_for_action(
         vote_type   = models.GovernanceVoteType.PASS
 
     # Votes execution results
-    satellite_oracle_ledger         = vote_for_action.storage.satelliteOracleLedger
+    satellite_aggregator_ledger     = vote_for_action.storage.satelliteAggregatorLedger
     aggregator_ledger               = vote_for_action.storage.aggregatorLedger
 
     # Create or update vote record

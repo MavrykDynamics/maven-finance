@@ -111,7 +111,7 @@ class AggregatorPairs(BaseModel):
     startDateTime: str
 
 
-class SatelliteOracleLedger(BaseModel):
+class SatelliteAggregatorLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -135,5 +135,5 @@ class GovernanceSatelliteStorage(BaseModel):
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
     mvkTokenAddress: str
-    satelliteOracleLedger: Dict[str, SatelliteOracleLedger]
+    satelliteAggregatorLedger: Dict[str, SatelliteAggregatorLedger]
     whitelistContracts: Dict[str, str]
