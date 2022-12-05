@@ -216,6 +216,7 @@ block {
 } with unit
 
 
+
 // helper function to verify cycle highest voted proposal exists
 function verifyCycleHighestVotedProposalExists(const s : governanceStorageType) : unit is
 block {
@@ -925,6 +926,49 @@ block {
 
 } with checkIfSatelliteHasVotedFlag
 
+
+
+// helper function to get proposal data
+function getProposalData(const proposal : proposalRecordType; const index : nat) : option(proposalDataType) is 
+block {
+
+    const optionProposalData : option(proposalDataType) = case proposal.proposalData[index] of [
+            Some (_data)    -> _data
+        |   None            -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
+    ];
+
+} with optionProposalData
+
+
+
+// helper function to get proposal payment data
+function getProposalPaymentData(const proposal : proposalRecordType; const index : nat) : option(paymentDataType) is 
+block {
+
+    const optionPaymentData : option(paymentDataType) = case proposal.paymentData[index] of [
+            Some (_data)    -> _data
+        |   None            -> failwith(error_PAYMENT_DATA_NOT_FOUND)
+    ];
+
+} with optionPaymentData
+
+
+
+// helper function to drop proposals
+function dropProposal(const proposerAddress : address; const proposalId : nat; var s : governanceStorageType) : governanceStorageType is 
+block {
+
+    // get satellite proposals belonging to proposer
+    const satelliteProposals : set(nat) = getSatelliteProposals(proposerAddress, s.cycleId, s);
+
+    // Remove proposal from cycle proposers
+    s.cycleProposers[(s.cycleId, proposerAddress)] := Set.remove(proposalId, satelliteProposals);
+
+    // Remove proposal from cycle proposals
+    s.cycleProposals := Map.remove(proposalId, s.cycleProposals);
+
+} with s
+
 // ------------------------------------------------------------------------------
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
@@ -1256,6 +1300,18 @@ block {
     s.timelockProposalId         := s.cycleHighestVotedProposalId;
     
 } with (s)
+
+
+
+// helper function to restart cycle if round is voting or timelock round
+function restartCycleIfVotingOrTimelockRound(var s : governanceStorageType) : governanceStorageType is
+block {
+    
+    if s.currentCycleInfo.round = (Voting : roundType) or s.currentCycleInfo.round = (Timelock : roundType) 
+    then s := setupProposalRound(s) 
+    else skip;
+
+} with s
 
 
 
