@@ -142,7 +142,7 @@ argo-cd:
             id: github
             name: GitHub
             config:
-              clientID: 78bd16921cb6f00fc6d7
+              clientID: 5950b09fc5bd7399a9b0
               clientSecret: $prod-github:dex.github.clientSecret # Alternatively $<some_K8S_secret>:dex.github.clientSecret
               orgs:
               - name: mavrykfinance
