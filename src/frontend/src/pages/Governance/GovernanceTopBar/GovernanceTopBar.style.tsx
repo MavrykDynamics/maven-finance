@@ -41,12 +41,12 @@ export const GovTopBarSidewaysArrowIcon = styled.svg<{ theme: MavrykTheme }>`
   display: inline-block;
   vertical-align: sub;
   margin: 0;
-  fill: ${({ theme }) => theme.headerColor};
+  fill: ${({ theme }) => theme.textColor};
 `
 
 export const GovTopBarPhaseText = styled.div<{ isCorrectPhase?: boolean; theme: MavrykTheme }>`
   margin: 0 10px;
-  color: ${({ isCorrectPhase, theme }) => (isCorrectPhase ? theme.valueColor : theme.headerColor)};
+  color: ${({ isCorrectPhase, theme }) => (isCorrectPhase ? theme.valueColor : theme.textColor)};
   font-weight: 600;
   font-size: 18px;
   width: 146px;

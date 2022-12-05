@@ -237,7 +237,9 @@ export const normalizeProposal = (item: GovernanceProposalGraphQL, dipDupTokens?
       isLocalBytes: false,
     })),
     proposalPayments: item.payments.map((paymentData) => {
-      const decimals = dipDupTokens?.find(({ contract }) => contract === paymentData.token_address)?.metadata?.decimals
+      const decimals =
+        dipDupTokens?.find(({ contract }) => contract === paymentData.token_address)?.metadata?.decimals ?? 0
+
       return {
         ...paymentData,
         // we're getting amount * by 10 in decimals grage, need to parse it to initial user input
