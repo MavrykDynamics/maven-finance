@@ -2609,7 +2609,7 @@ kube-prometheus-stack:
 
       ## How long to retain metrics
       ##
-      retention: 10d
+      retention: 7d
 
       ## Maximum size of metrics
       ##

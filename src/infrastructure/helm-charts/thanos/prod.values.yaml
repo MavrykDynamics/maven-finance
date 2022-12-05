@@ -3133,7 +3133,7 @@ thanos:
     logFormat: logfmt
     ## @param receive.tsdbRetention Thanos Receive TSDB retention period
     ##
-    tsdbRetention: 15d
+    tsdbRetention: 7d
     ## @param receive.replicationFactor Thanos Receive replication-factor
     ##
     replicationFactor: 1
