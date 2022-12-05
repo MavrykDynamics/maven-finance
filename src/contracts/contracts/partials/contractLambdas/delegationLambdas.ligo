@@ -783,7 +783,7 @@ block {
                 checkSenderIsDoormanContract(s);
 
                 // Update user's rewards
-                s := updateRewards(userAddress, s);
+                // s := updateRewards(userAddress, s);
 
                 // Check if user has a satellite rewards record
                 if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
@@ -792,7 +792,8 @@ block {
                     var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
 
                     // Get satellite's rewards record (that user is delegated to)
-                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteRewardsRecord.satelliteReferenceAddress, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND, s);
+                    const satelliteReferenceAddress : address = satelliteRewardsRecord.satelliteReferenceAddress;
+                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND, s);
 
                     // Update user's satellite rewards record - empty pending rewards
                     // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare
