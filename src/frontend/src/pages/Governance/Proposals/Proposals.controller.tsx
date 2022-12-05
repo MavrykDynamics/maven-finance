@@ -49,7 +49,7 @@ export const Proposals = ({
       selectedProposal={selectedProposal}
       isHistoryPage={type === 'history'}
       listName={listName}
-      showVotersList={governancePhase === 'TIME_LOCK' || governancePhase === 'VOTING'}
+      showVotersList={(governancePhase === 'TIME_LOCK' || governancePhase === 'VOTING') && type !== 'history'}
     />
   )
 }
