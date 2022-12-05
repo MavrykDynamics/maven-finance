@@ -30,6 +30,7 @@ import { EmptyContainer, GovRightContainerTitleArea } from '../Governance.style'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import Checkbox from 'app/App.components/Checkbox/Checkbox.view'
 import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
+import { calcWithoutPrecision } from 'utils/calcFunctions'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -148,7 +149,7 @@ export const ProposalsView = ({
       ) : null}
       {paginatedItemsList.length ? (
         paginatedItemsList.map((proposal, index) => {
-          const statusInfo = getProposalStatusInfo(
+          const { statusFlag } = getProposalStatusInfo(
             governancePhase,
             proposal,
             timelockProposalId,
@@ -157,9 +158,9 @@ export const ProposalsView = ({
             cycleCounter,
           )
 
-          const contentStatus = statusInfo.statusFlag
+          const votedMVK =
+            (proposal.abstainMvkTotal ?? 0) + (proposal.downvoteMvkTotal ?? 0) + (proposal.upvoteMvkTotal ?? 0)
 
-          const dividedPassVoteMvkTotal = proposal.passVoteMvkTotal ? proposal.passVoteMvkTotal / 1_000_000_000 : 0
           return (
             <ProposalListItem
               key={proposal.id}
@@ -170,10 +171,15 @@ export const ProposalsView = ({
                 <span>{index + 1 + (Number(currentPage) - 1) * LIST_NAMES_MAPPER[listName]}</span>
                 <h4>{proposal.title}</h4>
               </ProposalItemLeftSide>
-              {isProposalPhase && (
-                <CommaNumber className="proposal-voted-mvk" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
+              {!isProposalPhase && (
+                <CommaNumber
+                  className="proposal-voted-mvk"
+                  value={votedMVK}
+                  endingText={'voted MVK'}
+                  showDecimal={false}
+                />
               )}
-              <StatusFlag text={contentStatus} status={contentStatus} />
+              <StatusFlag text={statusFlag} status={statusFlag} />
             </ProposalListItem>
           )
         })

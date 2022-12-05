@@ -454,8 +454,7 @@ export const GovernanceView = ({
                     <li key={item.id}>
                       <div>
                         <div>
-                          <b className="proposal-list-title">Title: </b>
-                          <span className="proposal-list-title-valie">{item.title}</span>
+                          <b className="proposal-list-title">Title: {item.title}</b>
                         </div>
                         <div>
                           <b className="proposal-list-title">Bytes: </b>
@@ -503,14 +502,8 @@ export const GovernanceView = ({
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
                     {rightSideContent.proposalPayments.map((item: Governance_Proposal_Payment, i: number) => {
-                      if (!item || !item.token_amount) return null
                       const paymentType = dipDupTokens.find(({ contract }) => contract === item.token_address)?.metadata
                         .symbol
-
-                      const amount =
-                        paymentType === 'MVK'
-                          ? calcWithoutPrecision(item.token_amount)
-                          : calcWithoutMu(item.token_amount)
 
                       return (
                         <tr key={item.id}>
@@ -518,7 +511,7 @@ export const GovernanceView = ({
                             <TzAddress tzAddress={item.to__id || ''} hasIcon={false} isBold={true} />
                           </td>
                           <td>{item.title}</td>
-                          <td>{amount}</td>
+                          <td>{item.token_amount ?? 0}</td>
                           <td>{paymentType}</td>
                         </tr>
                       )
@@ -547,7 +540,7 @@ export const GovernanceView = ({
               <RightSideSubHeader>Governance Info</RightSideSubHeader>
               <div className="governance-contract">
                 <p>Governance Contract</p>
-                <TzAddress tzAddress={rightSideContent.governanceId} hasIcon={false} isBold={true} />
+                <TzAddress tzAddress={rightSideContent.governanceId} hasIcon={true} isBold={true} />
               </div>
             </article>
           ) : null}

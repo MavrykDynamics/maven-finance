@@ -48,10 +48,9 @@ export const ProposalListItem = styled(CardHover)<{ selected: boolean; theme: Ma
 
   .proposal-voted-mvk {
     font-weight: 600;
-    font-size: 12px;
-    line-height: 12px;
+    font-size: 14px;
     color: ${skyColor};
-    margin-right: 30px;
+    margin-right: 10px;
   }
 `
 
@@ -112,16 +111,15 @@ export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   align-items: center;
   margin-right: auto;
+  color: ${({ theme }) => theme.textColor};
 
   > span {
-    font-weight: 400;
-    width: 40px;
-    color: ${({ theme }) => theme.headerColor};
+    font-weight: 600;
+    width: 25px;
   }
 
   > h4 {
     font-weight: 600;
-    color: ${cyanColor};
     padding-right: 8px;
   }
 `
