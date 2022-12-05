@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -28,27 +28,32 @@ import {
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { GovRightContainerTitleArea } from '../Governance.style'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import Checkbox from 'app/App.components/Checkbox/Checkbox.view'
 
 type ProposalsViewProps = {
   listTitle: string
   proposalsList: ProposalRecordType[]
   handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
-  isProposalPhase: boolean
   listName: string
   showVotersList: boolean
+  isHistoryPage: boolean
 }
 export const ProposalsView = ({
   listTitle,
   proposalsList,
   handleItemSelect,
   selectedProposal,
-  isProposalPhase,
   listName,
   showVotersList,
+  isHistoryPage,
 }: ProposalsViewProps) => {
   const { governancePhase, governanceStorage } = useSelector((state: State) => state.governance)
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+
+  const isProposalPhase = governancePhase === 'PROPOSAL'
+
+  const [showAllProposals, setShowAllProposals] = useState(true)
 
   const { search } = useLocation()
   const currentPage = getPageNumber(search, listName)
@@ -93,6 +98,18 @@ export const ProposalsView = ({
       <GovRightContainerTitleArea>
         <h1>{listTitle}</h1>
       </GovRightContainerTitleArea>
+      {isHistoryPage ? (
+        <Checkbox
+          id={'show_dropped'}
+          onChangeHandler={() => {
+            setShowAllProposals(!showAllProposals)
+          }}
+          checked={showAllProposals}
+          className={'proposal-history-checkbox'}
+        >
+          <span>Hide dropped proposals</span>
+        </Checkbox>
+      ) : null}
       {paginatedItemsList.length &&
         paginatedItemsList.map((proposal, index) => {
           const statusInfo = getProposalStatusInfo(
