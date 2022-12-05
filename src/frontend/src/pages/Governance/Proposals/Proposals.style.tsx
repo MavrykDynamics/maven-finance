@@ -95,36 +95,6 @@ export const VoterListItem = styled(CardHover)<{ theme: MavrykTheme }>`
   }
 `
 
-export const VoteStatusFlag = styled.div<{ status: ProposalStatus; theme: MavrykTheme }>`
-  padding: 9px 25px;
-  border-radius: 10px;
-  border: 1px solid;
-  border-color: ${({ status }) => {
-    switch (status) {
-      case ProposalStatus.EXECUTED:
-        return ({ theme }) => theme.upColor
-      case ProposalStatus.DEFEATED:
-        return ({ theme }) => theme.downColor
-      case ProposalStatus.ONGOING:
-        return ({ theme }) => theme.primaryColor
-      default:
-        return ({ theme }) => theme.infoColor
-    }
-  }};
-  color: ${({ status }) => {
-    switch (status) {
-      case ProposalStatus.EXECUTED:
-        return ({ theme }) => theme.upColor
-      case ProposalStatus.DEFEATED:
-        return ({ theme }) => theme.downColor
-      case ProposalStatus.ONGOING:
-        return ({ theme }) => theme.primaryColor
-      default:
-        return ({ theme }) => theme.infoColor
-    }
-  }};
-`
-
 export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   font-size: 14px;
@@ -144,10 +114,15 @@ export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const ProposalStatusFlag = styled.div<{ status: ProposalStatus; theme: MavrykTheme }>`
-  padding: 9px 25px;
+export const ProposalStatusFlag = styled.div<{ status?: ProposalStatus; theme: MavrykTheme }>`
   border-radius: 10px;
+  font-size: 12px;
   border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  width: 110px;
   border-color: ${({ status }) => {
     switch (status) {
       case ProposalStatus.EXECUTED:
@@ -157,7 +132,7 @@ export const ProposalStatusFlag = styled.div<{ status: ProposalStatus; theme: Ma
       case ProposalStatus.ONGOING:
         return ({ theme }) => theme.primaryColor
       default:
-        return ({ theme }) => theme.infoColor
+        return ({ theme }) => theme.dataColor
     }
   }};
   color: ${({ status }) => {
@@ -169,7 +144,7 @@ export const ProposalStatusFlag = styled.div<{ status: ProposalStatus; theme: Ma
       case ProposalStatus.ONGOING:
         return ({ theme }) => theme.primaryColor
       default:
-        return ({ theme }) => theme.infoColor
+        return ({ theme }) => theme.dataColor
     }
   }};
 `
