@@ -58,10 +58,18 @@ export const ProposalsView = ({
   const { search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
+  const filteredProposals = useMemo(() => {
+    if (showAllProposals) {
+      return proposalsList.filter(({ status }) => status === 0)
+    }
+
+    return proposalsList
+  }, [showAllProposals])
+
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, listName)
-    return proposalsList.slice(from, to)
-  }, [currentPage, proposalsList])
+    return filteredProposals.slice(from, to)
+  }, [currentPage, filteredProposals])
 
   const votersList = useMemo(
     () =>
@@ -88,10 +96,6 @@ export const ProposalsView = ({
       }, []),
     [satelliteLedger, selectedProposal],
   )
-
-  if (!proposalsList.length) {
-    return null
-  }
 
   return (
     <ProposalListContainer>
