@@ -23,8 +23,8 @@ export const Treasury = () => {
   const dispatch = useDispatch()
   const { treasuryStorage, treasuryFactoryAddress } = useSelector((state: State) => state.treasury)
 
-  const itemsForDropDown = 
-    treasuryStorage.map((treasury) => ({
+  const itemsForDropDown = treasuryStorage
+    .map((treasury) => ({
       text: treasury.name,
       value: treasury.address,
     }))
@@ -75,7 +75,7 @@ export const Treasury = () => {
           <h2>Active Treasuries</h2>
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder='Choose treasury'
+            placeholder="Choose treasury"
             isOpen={ddIsOpen}
             setIsOpen={setDdIsOpen}
             itemSelected={chosenDdItem?.text}

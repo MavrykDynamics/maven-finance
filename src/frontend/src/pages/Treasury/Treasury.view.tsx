@@ -1,19 +1,21 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 
 // view
 import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 import PieChartView from '../../app/App.components/PieСhart/PieСhart.view'
 
 // helpers
-import { calcPersent } from './helpers/treasury.utils'
 import { scrollToFullView } from 'utils/scrollToFullView'
 
 // style
 import { TreasuryViewStyle, TzAddress } from './Treasury.style'
 import { getPieChartData } from './helpers/calculateChartData'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
-import { MIN_TREASURY_PERSENT_TO_DISPLAY } from './Treasury.helpers'
+import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
+import { columnNames, fieldsMapper } from 'pages/Dashboard/TabScreens/TreasuryTab.controller'
+import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
+import Checkbox from 'app/App.components/Checkbox/Checkbox.view'
+import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
 
 type Props = {
   treasury: TreasuryType
@@ -23,11 +25,20 @@ type Props = {
 
 export default function TreasuryView({ treasury, isGlobal = false, factoryAddress = '' }: Props) {
   const [hoveredPath, setHoveredPath] = useState<null | string>(null)
+  const [showZeroTreasuries, setShowZeroTreasuries] = useState<Boolean>(false)
   const ref = useRef<HTMLDivElement | null>(null)
 
+  const filteredBalance = useMemo(
+    () =>
+      isGlobal || !showZeroTreasuries
+        ? treasury.balances
+        : treasury.balances.filter((item) => Number(item.balance) > 0.01),
+    [isGlobal, showZeroTreasuries, treasury.balances],
+  )
+
   const chartData = useMemo(() => {
-    return getPieChartData(treasury.balances, treasury.treasuryTVL, hoveredPath)
-  }, [hoveredPath, treasury.treasuryTVL, treasury.balances])
+    return getPieChartData(filteredBalance, treasury.treasuryTVL, hoveredPath)
+  }, [hoveredPath, treasury.treasuryTVL, filteredBalance])
 
   useEffect(() => {
     if (treasury) {
@@ -37,6 +48,10 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
 
   return (
     <TreasuryViewStyle ref={ref}>
+      <a href="https://mavryk.finance" target="_blank" rel="noreferrer" className="treasuryTooltip-link">
+        <CustomTooltip iconId="question" className="treasuryTooltip" />
+      </a>
+
       <div className="content-wrapper">
         <header>
           {treasury.name ? <h1 title={treasury.name}>{treasury.name}</h1> : null}
@@ -47,46 +62,50 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
           ) : null}
         </header>
         {factoryAddress ? (
-          <div className="factory_address">
-            <div className="text">Treasury Factory address</div>{' '}
-            <TzAddress type={CYAN} tzAddress={factoryAddress} hasIcon={false} />
+          <div className="info-block">
+            <div className="text">Treasury Factory address</div>
+            <div className="value">
+              <TzAddress type={BLUE} tzAddress={factoryAddress} hasIcon={true} />
+            </div>
           </div>
         ) : null}
         <div>
           {!isGlobal ? (
-            <div className="assets-block assets-block-tvl">
-              <p className="asset-name">TVL</p>
-              <p className="asset-value">
-                <CommaNumber beginningText="$" value={treasury.treasuryTVL} />
-              </p>
-              <div />
-            </div>
+            <>
+              <div className="info-block not-global">
+                <p className="text">TVL</p>
+                <p className="value">
+                  <CommaNumber beginningText="$" value={treasury.treasuryTVL} />
+                </p>
+                <div />
+              </div>
+              <div className="info-block not-global">
+                <p className="text">Treasury Address</p>
+                <p className="value">
+                  <CommaNumber beginningText="$" value={treasury.treasuryTVL} />
+                </p>
+                <div />
+              </div>
+
+              <Checkbox
+                id={'show_dropped'}
+                onChangeHandler={() => {
+                  setShowZeroTreasuries(!showZeroTreasuries)
+                }}
+                checked={showZeroTreasuries}
+                className={'treasury-checkbox'}
+              >
+                <span>Hide assets with a balance of 0</span>
+              </Checkbox>
+            </>
           ) : null}
 
-          <div className="assets-block">
-            <h5>Asset</h5>
-            <h5>Amount</h5>
-            <h5 className="right-text">USD Value</h5>
-          </div>
-          <div style={{ paddingRight: treasury?.balances?.length > 4 ? 16 : 0 }} className="assets-map scroll-block">
-            {treasury.balances.map((balanceValue) => {
-              return (
-                <div className="assets-block assets-block-map" key={balanceValue.contract + balanceValue.symbol}>
-                  <p className="asset-name">{balanceValue.symbol}</p>
-                  <p className="asset-value">
-                    <CommaNumber value={balanceValue.balance} useAccurateParsing />
-                  </p>
-                  <p className="asset-value right-text value">
-                    {balanceValue.rate && balanceValue.usdValue ? (
-                      <CommaNumber beginningText="$" value={balanceValue.usdValue} useAccurateParsing />
-                    ) : (
-                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} useAccurateParsing />
-                    )}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
+          <SimpleTable
+            colunmNames={columnNames}
+            data={filteredBalance}
+            fieldsMapper={fieldsMapper}
+            className="treasury-st"
+          />
         </div>
       </div>
       <div>
@@ -94,38 +113,24 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
       </div>
       <div>
         <div className="asset-lables scroll-block">
-          {treasury.balances.map((balanceValue) => {
-            const balanceSum = Number(balanceValue.usdValue)
-            const persentOfTheAsset = calcPersent(balanceSum, treasury.treasuryTVL)
-
-            return (
-              <div
-                style={{
-                  background: `linear-gradient(90deg,${
-                    chartData.find(({ title }) => title === balanceValue.symbol || title.includes(balanceValue.symbol))
-                      ?.color
-                  } 0%,rgba(255,255,255,0) 100%)`,
-                }}
-                className="asset-lable"
-                onMouseEnter={() => {
-                  setHoveredPath(balanceValue.symbol)
-                }}
-                onMouseLeave={() => setHoveredPath(null)}
-                key={balanceValue.contract + balanceValue.symbol}
-              >
-                <p className="asset-lable-text">
-                  {balanceValue.symbol}
-                  <span className="asset-persent">
-                    {persentOfTheAsset < MIN_TREASURY_PERSENT_TO_DISPLAY ? (
-                      `< ${MIN_TREASURY_PERSENT_TO_DISPLAY} %`
-                    ) : (
-                      <CommaNumber endingText="%" value={persentOfTheAsset} />
-                    )}
-                  </span>
-                </p>
-              </div>
-            )
-          })}
+          {filteredBalance.map((balanceValue) => (
+            <div
+              style={{
+                background: `linear-gradient(90deg,${
+                  chartData.find(({ title }) => title === balanceValue.symbol || title.includes(balanceValue.symbol))
+                    ?.color
+                } 0%,rgba(255,255,255,0) 100%)`,
+              }}
+              className="asset-lable"
+              onMouseEnter={() => {
+                setHoveredPath(balanceValue.symbol)
+              }}
+              onMouseLeave={() => setHoveredPath(null)}
+              key={balanceValue.contract + balanceValue.symbol}
+            >
+              <p className="asset-lable-text">{balanceValue.symbol}</p>
+            </div>
+          ))}
         </div>
       </div>
     </TreasuryViewStyle>

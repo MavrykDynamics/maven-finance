@@ -85,4 +85,8 @@ export const SimpletableStyled = styled.div<{ theme: MavrykTheme }>`
       max-height: 115px;
     }
   }
+
+  &.treasury-st {
+    margin-top: 30px;
+  }
 `

@@ -1,15 +1,38 @@
 import styled from 'styled-components/macro'
-import { Card, cyanColor, skyColor, headerColor, whiteColor, containerColor } from 'styles'
+import { Card, cyanColor } from 'styles'
 import { TzAddress as TzAddressBase } from 'app/App.components/TzAddress/TzAddress.view'
+import { MavrykTheme } from 'styles/interfaces'
 
-export const TreasuryViewStyle = styled(Card)`
+export const TreasuryViewStyle = styled(Card)<{ theme: MavrykTheme }>`
   display: grid;
   grid-template-columns: auto 254px 184px;
   gap: 50px;
   padding-bottom: 33px;
+  position: relative;
 
   .content-wrapper {
     max-width: 480px;
+
+    .treasury-checkbox {
+      margin-top: 25px;
+      margin-bottom: -15px;
+    }
+  }
+
+  .treasuryTooltip-link {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+
+    .treasuryTooltip {
+      width: 12px;
+      height: 12px;
+      border-color: ${cyanColor};
+
+      svg {
+        fill: ${cyanColor};
+      }
+    }
   }
 
   header {
@@ -31,95 +54,49 @@ export const TreasuryViewStyle = styled(Card)`
   }
 
   var {
-    color: ${cyanColor};
+    color: ${({ theme }) => theme.dataColor};
     font-style: normal;
     font-weight: 600;
-    font-size: 18px;
-    line-height: 18px;
+    font-size: 22px;
     padding-bottom: 13px;
     white-space: nowrap;
   }
 
-  .factory_address {
+  .info-block {
     display: flex;
+    align-items: center;
+    margin: 5px 0;
 
-    .text {
-      color: #8d86eb;
-      opacity: 0.7;
-      margin-right: 20px;
+    &.not-global {
+      margin: 7px 0;
     }
-
-    .tzAddressToClick {
-      font-size: 12px;
-    }
-  }
-
-  .assets-block {
-    display: grid;
-    grid-template-columns: 100px 150px auto;
-    gap: 30px;
-
-    h5 {
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 12px;
-      color: ${headerColor};
-      margin: 0;
-      margin-top: 37px;
-    }
-  }
-
-  .right-text {
-    text-align: right;
-
-    &.value {
-      padding-right: 0;
-    }
-  }
-
-  .asset-name {
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 16px;
-    color: ${skyColor};
-    margin: 0;
-    margin-top: 4px;
-    text-transform: uppercase;
-  }
-
-  .assets-block-tvl {
-    padding-top: 4px;
-    margin: 0;
-
-    .asset-name {
-      margin: 0;
-      margin-top: 0px;
-    }
-
-    .asset-value {
-      margin-top: 0;
-
-      p {
-        margin: 0;
-      }
-    }
-  }
-
-  .assets-block-map {
-    margin-top: 7px;
-    margin-bottom: 11px;
-  }
-
-  .asset-value {
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 16px;
-    color: ${cyanColor};
-    margin: 0;
-    margin-top: 4px;
 
     p {
       margin: 0;
+    }
+
+    .text {
+      color: ${({ theme }) => theme.textColor};
+      margin-right: 20px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .tzAddressToClick {
+      font-size: 16px;
+      font-weight: 600;
+      svg {
+        stroke: ${({ theme }) => theme.dataColor};
+      }
+    }
+
+    .value {
+      margin-top: 0;
+      color: ${({ theme }) => theme.dataColor};
+
+      svg {
+        stroke: ${({ theme }) => theme.dataColor};
+      }
     }
   }
 
@@ -143,8 +120,8 @@ export const TreasuryViewStyle = styled(Card)`
     font-weight: 600;
     font-size: 18px;
     line-height: 18px;
-    color: ${whiteColor};
-    background-color: ${containerColor};
+    color: ${({ theme }) => theme.textColor};
+    background-color: ${({ theme }) => theme.containerColor};
     margin: 0;
     margin-left: 8px;
     line-height: 40px;
@@ -152,21 +129,15 @@ export const TreasuryViewStyle = styled(Card)`
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    .asset-persent {
-      font-size: 16px;
-      line-height: 24px;
-      color: ${skyColor};
-    }
   }
 
   .assets-map {
     max-height: 132px;
     overflow: auto;
   }
-` //TreasuryViewStyle
+`
 
-export const TreasuryActiveStyle = styled.section`` //TreasuryActiveStyle
+export const TreasuryActiveStyle = styled.section``
 export const TreasurySelectStyle = styled(Card)<{ isSelectedTreasury?: boolean }>`
   display: flex;
   border-bottom-left-radius: ${({ isSelectedTreasury }) => (isSelectedTreasury ? 0 : '10px')};
@@ -187,7 +158,11 @@ export const TreasurySelectStyle = styled(Card)<{ isSelectedTreasury?: boolean }
     font-weight: 600;
     font-size: 22px;
     line-height: 22px;
-    color: ${headerColor};
+    color: ${({ theme }) => theme.textColor};
+
+    &::after {
+      display: none;
+    }
 
     & + div {
       width: 502px;
@@ -195,7 +170,7 @@ export const TreasurySelectStyle = styled(Card)<{ isSelectedTreasury?: boolean }
       margin-right: 0;
     }
   }
-` //TreasurySelectStyle
+`
 
 export const TzAddress = styled(TzAddressBase)`
   transition: opacity 0.3s;

@@ -7,15 +7,15 @@ import { CheckboxStyled } from './Checkbox.style'
 type Props = {
   id: string
   className?: string
-  checked?: boolean
+  checked: Boolean
   onChangeHandler: () => void
   children?: JSX.Element
 }
 
-export default function Checkbox({ id, className = '', checked = false, onChangeHandler, children }: Props) {
+export default function Checkbox({ id, className = '', checked, onChangeHandler, children }: Props) {
   return (
     <CheckboxStyled className={className}>
-      <input type="checkbox" id={id} onChange={onChangeHandler} checked={checked} />
+      <input type="checkbox" id={id} onChange={onChangeHandler} checked={Boolean(checked)} />
       <label htmlFor={id}>
         <Icon id="check-fill" />
       </label>
