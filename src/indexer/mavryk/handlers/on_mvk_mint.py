@@ -19,9 +19,7 @@ async def on_mvk_mint(
     total_supply        = float(mint.storage.totalSupply)
 
     # Get mint account
-    user, _ = await models.MavrykUser.get_or_create(
-        address = mintAddress
-    )
+    user                = await models.mavryk_user_cache.get(address=mintAddress)
     user.mvk_balance = new_user_balance
     await user.save()
 

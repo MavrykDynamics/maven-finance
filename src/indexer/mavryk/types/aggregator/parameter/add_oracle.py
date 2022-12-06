@@ -3,20 +3,8 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Extra
-
-
-class OracleInformation(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    oraclePublicKey: str
-    oraclePeerId: str
+from pydantic import BaseModel
 
 
 class AddOracleParameter(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    oracleAddress: str
-    oracleInformation: OracleInformation
+    __root__: str

@@ -55,6 +55,8 @@ class SatelliteLedger(BaseModel):
     image: str
     website: str
     registeredDateTime: str
+    oraclePublicKey: str
+    oraclePeerId: str
 
 
 class SatelliteRewardsLedger(BaseModel):

@@ -15,11 +15,12 @@ async def on_governance_propose(
     governance              = await models.Governance.get(
         address = governance_address
     )
-    current_id              = str(int(governance.next_proposal_id))
+    next_proposal_id        = int(propose.storage.nextProposalId)
+    current_id              = str(next_proposal_id - 1)
     storage_record          = propose.storage.proposalLedger[current_id]
     proposer_address        = storage_record.proposerAddress
     execution_counter       = int(storage_record.proposalDataExecutionCounter)
-    status                  = models.GovernanceRecordStatus.ACTIVE
+    status                  = models.GovernanceActionStatus.ACTIVE
     if storage_record.status == 'DROPPED':
         status  = models.GovernanceActionStatus.DROPPED
     title                   = storage_record.title
@@ -53,13 +54,10 @@ async def on_governance_propose(
     satellite_snapshots     = propose.storage.snapshotLedger
 
     # Proposal record
-    user, _ = await models.MavrykUser.get_or_create(
-        address = proposer_address
-    )
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=proposer_address)
 
     proposalRecord              = models.GovernanceProposal(
-        id                              = int(governance.next_proposal_id),
+        id                              = int(current_id),
         governance                      = governance,
         proposer                        = user,
         status                          = status,

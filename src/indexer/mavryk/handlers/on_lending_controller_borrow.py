@@ -13,10 +13,16 @@ async def on_lending_controller_borrow(
 
     # Get operation info
     lending_controller_address              = borrow.data.target_address
+    timestamp                               = borrow.data.timestamp
+    level                                   = borrow.data.level
+    operation_hash                          = borrow.data.hash
+    sender_address                          = borrow.data.sender_address
+    vault_borrow_amount                     = float(borrow.parameter.quantity)
     vault_internal_id                       = int(borrow.parameter.vaultId)
     vaults_storage                          = borrow.storage.vaults
     lending_controller                      = await models.LendingController.get(
-        address             = lending_controller_address
+        address             = lending_controller_address,
+        mock_time           = False
     )
     lending_controller_vault                = await models.LendingControllerVault.get(
         lending_controller  = lending_controller,
@@ -57,10 +63,6 @@ async def on_lending_controller_borrow(
             vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
 
             # Save updated vault
-            lending_controller_vault                = await models.LendingControllerVault.get(
-                lending_controller  = lending_controller,
-                internal_id         = vault_internal_id
-            )
             lending_controller_vault.internal_id                        = vault_internal_id
             lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
             lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -72,3 +74,20 @@ async def on_lending_controller_borrow(
             lending_controller_vault.marked_for_liquidation_level       = vault_marked_for_liquidation_level
             lending_controller_vault.liquidation_end_level              = vault_liquidation_end_level
             await lending_controller_vault.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.BORROW,
+                amount              = vault_borrow_amount
+            )
+            await history_data.save()

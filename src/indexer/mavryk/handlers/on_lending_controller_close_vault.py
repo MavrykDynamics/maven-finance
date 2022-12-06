@@ -12,18 +12,19 @@ async def on_lending_controller_close_vault(
 
     # Get operation info
     lending_controller_address  = close_vault.data.target_address
+    timestamp                   = close_vault.data.timestamp
+    level                       = close_vault.data.level
+    operation_hash              = close_vault.data.hash
+    sender_address              = close_vault.data.sender_address
     vault_owner_address         = close_vault.data.sender_address
     vault_internal_id           = int(close_vault.parameter.__root__)
-    vaults_storage              = close_vault.storage.vaults
 
     # Update record
     lending_controller          = await models.LendingController.get(
-        address = lending_controller_address
+        address             = lending_controller_address,
+        mock_time           = False
     )
-    owner, _                    = await models.MavrykUser.get_or_create(
-        address = vault_owner_address
-    )
-    await owner.save()
+    owner                       = await models.mavryk_user_cache.get(address=vault_owner_address)
     lending_controller_vault    = await models.LendingControllerVault.get(
         lending_controller  = lending_controller,
         owner               = owner,
@@ -36,3 +37,20 @@ async def on_lending_controller_close_vault(
     for vault_collateral_balance in vault_collateral_balances:
         vault_collateral_balance.deposited_amount   = 0
         await vault_collateral_balance.save()
+
+    # Save history data
+    sender, _                               = await models.MavrykUser.get_or_create(
+        address             = sender_address
+    )
+    await sender.save()
+    history_data                            = models.LendingControllerHistoryData(
+        lending_controller  = lending_controller,
+        vault               = lending_controller_vault,
+        sender              = sender,
+        operation_hash      = operation_hash,
+        timestamp           = timestamp,
+        level               = level,
+        type                = models.LendingControllerOperationType.CLOSE_VAULT,
+        amount              = 0
+    )
+    await history_data.save()
