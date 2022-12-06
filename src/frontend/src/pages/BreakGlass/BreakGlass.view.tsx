@@ -8,12 +8,9 @@ import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/Sl
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 // helpers
-import {
-  BREAK_GLASS_LIST_NAME,
-  calculateSlicePositions,
-} from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { BREAK_GLASS_LIST_NAME, calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { updatePageInUrl } from 'pages/FinacialRequests/FinancialRequests.helpers' 
+import { updatePageInUrl } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 // styles
 import {
@@ -28,6 +25,8 @@ import {
   Pagination,
 } from './BreakGlass.style'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
+import { Button } from 'app/App.components/Button/Button.controller'
+import { ACTION_SIMPLE } from 'app/App.components/Button/Button.constants'
 
 type BreakGlassViewProps = {
   glassBroken: boolean
@@ -64,41 +63,31 @@ export const BreakGlassView = ({
 
   const filteredBreakGlassStatuses = useMemo(() => {
     return breakGlassStatuses
-    ? selectedContract === ALL
-      ? breakGlassStatuses
-      : breakGlassStatuses?.filter((item) => {
-          const type = item.type as string
-          return selectedContract === type
-        })
-    : []}, [breakGlassStatuses, selectedContract])
+      ? selectedContract === ALL
+        ? breakGlassStatuses
+        : breakGlassStatuses?.filter((item) => {
+            const type = item.type as string
+            return selectedContract === type
+          })
+      : []
+  }, [breakGlassStatuses, selectedContract])
 
-  const currentPage = getPageNumber(
-    search,
-    BREAK_GLASS_LIST_NAME,
-  )
+  const currentPage = getPageNumber(search, BREAK_GLASS_LIST_NAME)
 
   const paginatedMyPastCouncilActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_LIST_NAME)
     return filteredBreakGlassStatuses?.slice(from, to)
   }, [currentPage, filteredBreakGlassStatuses])
 
-  const brakeGlassTabsList = useMemo(
-    () =>
-      uniqueContracts.map((item, i) => {
-        return {
-          text: item,
-          id: i + 1,
-          active: item === selectedContract,
-        }
-      }),
-    [selectedContract, uniqueContracts],
-  )
-
-  const handleTabChange = (tabId?: number) => {
-    setSelectedContract(tabId ? brakeGlassTabsList.find((item) => item.id === tabId)?.text || '' : '')
-  
+  const handleTabChange = () => {
     // this is required to reset the page number when changing the tab
-    const generateNewUrl = updatePageInUrl({ page, newPage: 1, listName: BREAK_GLASS_LIST_NAME, pathname, restQP: rest })
+    const generateNewUrl = updatePageInUrl({
+      page,
+      newPage: 1,
+      listName: BREAK_GLASS_LIST_NAME,
+      pathname,
+      restQP: rest,
+    })
     history.push(generateNewUrl)
   }
 
@@ -136,13 +125,25 @@ export const BreakGlassView = ({
               <TzAddress tzAddress={whitelistDev} hasIcon />
             </div>
           </BGWhitelist>
-          <div className='line'></div>
+          <div className="line"></div>
         </BGInfo>
       </BGTop>
 
       <BGMiddleWrapper>
         <BGPrimaryTitle>Contract Status</BGPrimaryTitle>
-        <SlidingTabButtons className="brake-glass-tabs" tabItems={brakeGlassTabsList} onClick={handleTabChange} />
+        <div className="buttons-selector">
+          {uniqueContracts.map((item) => (
+            <Button
+              kind={ACTION_SIMPLE}
+              onClick={() => {
+                setSelectedContract(item)
+                handleTabChange()
+              }}
+              text={item}
+              className={item === selectedContract ? 'active' : ''}
+            />
+          ))}
+        </div>
       </BGMiddleWrapper>
 
       <BGCardsWrapper>
@@ -169,10 +170,7 @@ export const BreakGlassView = ({
         })}
       </BGCardsWrapper>
 
-      <Pagination
-        itemsCount={filteredBreakGlassStatuses.length}
-        listName={BREAK_GLASS_LIST_NAME}
-      />
+      <Pagination itemsCount={filteredBreakGlassStatuses.length} listName={BREAK_GLASS_LIST_NAME} />
     </BGStyled>
   )
 }
