@@ -27,6 +27,9 @@ export const CONTRACT_ADDRESSES_QUERY = `
     governance(where: {active: {_eq: true}}) {
       address
     }
+    governance_proxy {
+      address
+    }
     treasury {
       address
     }

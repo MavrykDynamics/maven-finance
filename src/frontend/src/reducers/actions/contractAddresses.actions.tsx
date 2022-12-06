@@ -7,6 +7,7 @@ export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'
 
 export const getContractAddressesStorage = () => async (dispatch: AppDispatch) => {
   try {
+    console.log('check is here, test 1')
     const storage = await fetchFromIndexerWithPromise(
       CONTRACT_ADDRESSES_QUERY,
       CONTRACT_ADDRESSES_QUERY_NAME,

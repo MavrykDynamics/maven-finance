@@ -3,6 +3,17 @@ import styled from 'styled-components/macro'
 import { containerColor, royalPurpleColor, darkColor } from 'styles'
 
 export const CheckboxStyled = styled.div`
+  position: relative;
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+
+  .children {
+    color: ${({ theme }) => theme.textColor};
+    font-weight: 600;
+    font-size: 14px;
+  }
+
   label {
     width: 24px;
     height: 24px;
@@ -31,6 +42,8 @@ export const CheckboxStyled = styled.div`
   input {
     appearance: none;
     visibility: hidden;
+    position: absolute;
+    z-index: -1;
 
     &:checked {
       & + label {

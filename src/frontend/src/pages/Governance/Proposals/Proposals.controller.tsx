@@ -20,8 +20,6 @@ export const Proposals = ({
   type,
   listName,
 }: ProposalsProps) => {
-  const location = useLocation()
-
   const { governancePhase } = useSelector((state: State) => state.governance)
   let proposalListTitle = ''
   switch (governancePhase) {
@@ -43,15 +41,15 @@ export const Proposals = ({
     proposalListTitle = 'Past Proposals'
   }
 
-  const onProposalHistoryPage = location.pathname === '/proposal-history'
   return (
     <ProposalsView
       listTitle={title || proposalListTitle}
       proposalsList={proposalsList}
       handleItemSelect={handleItemSelect}
       selectedProposal={selectedProposal}
-      isProposalPhase={!onProposalHistoryPage}
+      isHistoryPage={type === 'history'}
       listName={listName}
+      showVotersList={(governancePhase === 'TIME_LOCK' || governancePhase === 'VOTING') && type !== 'history'}
     />
   )
 }

@@ -18,6 +18,7 @@ query GetGovernanceStorageQuery {
       current_blocks_per_voting_round
       current_cycle_total_voters_reward
       cycle_voters_reward
+      cycle_id
       governance_proxy_address
       proposal_invoice_max_length
       proposal_metadata_title_max_length
