@@ -16,7 +16,7 @@ block {
     // 1. Check that sender is from the Emergency Governance Contract
     // 2. Set glassBroken boolean to True -> this will allow access to protected entrypoints (e.g. propagateBreakGlass entrypoint)
 
-    checkSenderIsEmergencyGovernanceContract(s);
+    verifySenderIsEmergencyGovernanceContract(s);
 
     case breakGlassLambdaAction of [
         |   LambdaBreakGlass(_parameters) -> {
@@ -41,7 +41,9 @@ block {
 function lambdaSetAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
 
     case breakGlassLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -58,7 +60,8 @@ block {
 function lambdaSetGovernance(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case breakGlassLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -75,7 +78,8 @@ block {
 function lambdaUpdateMetadata(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case breakGlassLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -96,8 +100,9 @@ block {
 function lambdaUpdateConfig(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
   
-    checkSenderIsAdmin(s); // check that sender is admin
-  
+    // verify that sender is admin 
+    verifySenderIsAdmin(s.admin); 
+
     case breakGlassLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
                 
@@ -124,7 +129,8 @@ block {
 function lambdaUpdateWhitelistContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    // verify that sender is admin 
+    verifySenderIsAdmin(s.admin); 
 
     case breakGlassLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -141,7 +147,8 @@ block {
 function lambdaUpdateGeneralContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    // verify that sender is admin 
+    verifySenderIsAdmin(s.admin); 
 
     case breakGlassLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -167,8 +174,8 @@ block {
     case breakGlassLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList: list(operation)) : list(operation) is
@@ -249,7 +256,7 @@ block {
     //      - Action Type: addCouncilMember
     // 5. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaAddCouncilMember(newCouncilMember) -> {
@@ -296,7 +303,7 @@ block {
     //      - Action Type: removeCouncilMember
     // 4. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaRemoveCouncilMember(councilMemberAddress) -> {
@@ -339,7 +346,7 @@ block {
     //      - Action Type: changeCouncilMember
     // 6. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaChangeCouncilMember(councilActionChangeMemberParams) -> {
@@ -398,7 +405,7 @@ block {
     // 4. Increment action counter
 
     checkGlassIsBroken(s);          
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaPauseAllEntrypoints(_parameters) -> {
@@ -430,7 +437,7 @@ block {
     // 4. Increment action counter
 
     checkGlassIsBroken(s);        
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaUnpauseAllEntrypoints(_parameters) -> {
@@ -462,7 +469,7 @@ block {
     // 4. Increment action counter
 
     checkGlassIsBroken(s);         
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaPropagateBreakGlass(_parameters) -> {
@@ -499,7 +506,7 @@ block {
     // 6. Increment action counter
 
     checkGlassIsBroken(s);         
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaSetSingleContractAdmin(setSingleContractParams) -> {
@@ -555,7 +562,7 @@ block {
     // 5. Increment action counter
 
     checkGlassIsBroken(s);          
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaSetAllContractsAdmin(newAdminAddress) -> {
@@ -600,7 +607,7 @@ block {
     // 4. Increment action counter
 
     checkGlassIsBroken(s);         
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaRemoveBreakGlassControl(_parameters) -> {
@@ -640,7 +647,7 @@ block {
     //      - Action Type: flushAction
     // 5. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
         |   LambdaFlushAction(actionId) -> {
@@ -683,7 +690,7 @@ block {
     // 3. Update signers and signersCount for Break Glass Council Action record
     // 4. Execute action if signers threshold has been reached     
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     var operations : list(operation) := nil;
 

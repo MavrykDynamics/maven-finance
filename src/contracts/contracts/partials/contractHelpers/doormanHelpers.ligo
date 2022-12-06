@@ -8,59 +8,12 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : doormanStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(var s : doormanStorageType) : unit is
-    if (Tezos.get_sender() = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
-
-
-
-// Allowed Senders: MVK Token Address
-function checkSenderIsMvkTokenContract(var s : doormanStorageType) : unit is
-block{
-
-  const mvkTokenAddress : address = s.mvkTokenAddress;
-  
-  if (Tezos.get_sender() = mvkTokenAddress) then skip
-  else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
-
-} with unit
-
-
-
-// Allowed Senders: Delegation Contract
-function checkSenderIsDelegationContract(var s : doormanStorageType) : unit is
-block{
-
-    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-    if (Tezos.get_sender() = delegationAddress) then skip
-    else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
-
-} with unit
-
-
-
 // Allowed Senders: Admin, Governance Satellite Contract
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorageType) : unit is
 block{
-        
-    if Tezos.get_sender() = s.admin then skip
-    else {
 
-        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-
-        if Tezos.get_sender() = governanceSatelliteAddress then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-
-    }
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
 
 } with unit
 

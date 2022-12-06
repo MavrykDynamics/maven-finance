@@ -104,26 +104,6 @@ block {
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to verify input is greater than 0
-function verifyGreaterThanZero(const input : nat; const errorCode : nat) : unit is 
-block {
-
-    if input = 0n then failwith(errorCode) else skip;
-
-} with unit
-
-
-
-// helper function to verify first input is less than second input
-function verifyLessThan(const firstInput : nat; const secondInput : nat; const errorCode : nat) : unit is 
-block {
-
-    if firstInput > secondInput then failwith(errorCode) else skip;
-
-} with unit
-
-
-
 // helper function to get a vestee's record
 function getVesteeRecord(const vesteeAddress : address; const s : vestingStorageType) : vesteeRecordType is 
 block {

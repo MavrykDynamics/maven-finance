@@ -8,25 +8,15 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : councilStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(var s : councilStorageType) : unit is
-    if (Tezos.get_sender() = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
-
-
-
 // Allowed Senders: Council Member address
-function checkSenderIsCouncilMember(var s : councilStorageType) : unit is
-    if Map.mem(Tezos.get_sender(), s.councilMembers) then unit 
+function verifySenderIsCouncilMember(var s : councilStorageType) : unit is
+block {
+
+    if Map.mem(Tezos.get_sender(), s.councilMembers) then skip
     else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
+} with unit
+    
 
 
 // Check that no Tezos is sent to the entrypoint
@@ -140,6 +130,19 @@ function sendSetContractBakerParams(const contractAddress : address) : contract(
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to get a council action record
+function getCouncilActionRecord(const councilActionId : nat; const s : councilStorageType) : councilActionRecordType is
+block {
+
+    const councilActionRecord : councilActionRecordType = case Big_map.find_opt(councilActionId, s.councilActionsLedger) of [
+            Some (_action) -> _action
+        |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+    ];
+
+} with councilActionRecord
+
+
+
 // helper function to check if a satellite can interact with an action
 function validateAction(const actionRecord : councilActionRecordType) : unit is
 block {
@@ -161,10 +164,7 @@ block {
 function validateActionById(const councilActionId : nat; const s : councilStorageType) : unit is
 block {
 
-    const actionRecord : councilActionRecordType = case Big_map.find_opt(councilActionId, s.councilActionsLedger) of [
-            Some (_action) -> _action
-        |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
-    ];
+    const actionRecord : councilActionRecordType = getCouncilActionRecord(councilActionId, s);
 
     // Check if governance satellite action has been flushed
     if actionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)  else skip;
@@ -209,19 +209,6 @@ block {
 
 
 
-// helper function to get a council action record
-function getCouncilActionRecord(const councilActionId : nat; const s : councilStorageType) : councilActionRecordType is
-block {
-
-    const councilActionRecord : councilActionRecordType = case Big_map.find_opt(councilActionId, s.councilActionsLedger) of [
-            Some (_action) -> _action
-        |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
-    ];
-
-} with councilActionRecord
-
-
-
 // helper function to verify that council member is in the council
 function verifyCouncilMemberExists(const councilMemberAddress : address; const  s : councilStorageType) : unit is 
 block {
@@ -259,10 +246,7 @@ block {
 function verifyCouncilActionExists(const councilActionId : nat; const s : councilStorageType) : unit is 
 block {
 
-    const _councilActionRecord : councilActionRecordType = case Big_map.find_opt(councilActionId, s.councilActionsLedger) of [
-            Some (_action) -> _action
-        |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
-    ];
+    const _councilActionRecord : councilActionRecordType = getCouncilActionRecord(councilActionId, s);
 
 } with unit
 

@@ -13,7 +13,9 @@ function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var
 block {
     
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case councilLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -31,7 +33,9 @@ function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType
 block {
     
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case councilLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -49,7 +53,9 @@ function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionTyp
 block {
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case councilLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -70,10 +76,12 @@ block {
 function lambdaUpdateConfig(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
-  case councilLambdaAction of [
+    case councilLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
 
                 const updateConfigAction    : councilUpdateConfigActionType   = updateConfigParams.updateConfigAction;
@@ -101,7 +109,8 @@ block {
 function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
     
     case councilLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -118,7 +127,8 @@ block {
 function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
     
     case councilLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -189,7 +199,7 @@ block {
     //      - Action Type: addCouncilMember
     // 5. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilAddMember(newCouncilMember) -> {
@@ -236,7 +246,7 @@ block {
     //      - Action Type: removeCouncilMember
     // 4. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilRemoveMember(councilMemberAddress) -> {
@@ -279,7 +289,7 @@ block {
     //      - Action Type: changeCouncilMember
     // 6. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilChangeMember(councilActionChangeMemberParams) -> {
@@ -327,7 +337,7 @@ block {
     //      - Action Type: setBaker
     // 3. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilSetBaker(setBakerParams) -> {
@@ -371,7 +381,7 @@ block {
     //      - Action Type: addVestee
     // 6. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilAddVestee(addVesteeParams) -> {
@@ -423,7 +433,7 @@ block {
     //      - Action Type: removeVestee
     // 6. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilRemoveVestee(vesteeAddress) -> {
@@ -466,7 +476,7 @@ block {
     //      - Action Type: updateVestee
     // 6. Increment action counter
     
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilUpdateVestee(updateVesteeParams) -> {
@@ -518,7 +528,7 @@ block {
     //      - Action Type: toggleVesteeLock
     // 6. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilToggleVesteeLock(vesteeAddress) -> {
@@ -567,7 +577,7 @@ block {
     //      - Action Type: transfer
     // 5. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilTransfer(councilActionTransferParams) -> {
@@ -616,7 +626,7 @@ block {
     //      - Action Type: requestTokens
     // 7. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilRequestTokens(councilActionRequestTokensParams) -> {                
@@ -669,7 +679,7 @@ block {
     //      - Action Type: requestMint
     // 6. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilRequestMint(councilActionRequestMintParams) -> {
@@ -713,7 +723,7 @@ block {
     //      - Action Type: setContractBaker
     // 5. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
@@ -751,7 +761,7 @@ block {
     //      - Action Type: dropFinancialRequest
     // 4. Increment action counter
 
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaCouncilDropFinancialReq(requestId) -> {
@@ -796,7 +806,7 @@ block {
     //      - Action Type: flushAction
     // 4. Increment action counter
     
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         |   LambdaFlushAction(actionId) -> {
@@ -839,7 +849,7 @@ block {
     // 3. Update signers and signersCount for Council Action record
     // 4. Execute action if signers threshold has been reached     
     
-    checkSenderIsCouncilMember(s);
+    verifySenderIsCouncilMember(s);
 
     var operations : list(operation) := nil;
 
