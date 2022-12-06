@@ -21,7 +21,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { LendingController, setLendingControllerLambdas } from '../helpers/lendingControllerHelper'
+import { LendingController, setLendingControllerLambdas } from '../contractHelpers/lendingControllerTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

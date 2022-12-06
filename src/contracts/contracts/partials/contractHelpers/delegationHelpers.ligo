@@ -115,18 +115,6 @@ block {
 
 
 
-// helper function to verify first value is less than second value
-function verifyLessThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
-block {
-
-    if firstValue > secondValue then failwith(errorCode)
-    else skip;
-
-} with unit
-
-
-
-
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.get_amount() = 0tez) then unit

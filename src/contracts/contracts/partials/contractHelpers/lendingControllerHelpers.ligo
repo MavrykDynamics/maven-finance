@@ -43,6 +43,36 @@ block{
 
 
 
+// verify that sender is vault
+function verifySenderIsVault(const vaultAddress : address; const sender : address) : unit is 
+block {
+
+    if vaultAddress =/= sender then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip; 
+
+} with unit
+
+
+
+// verify that collateral token is not protected
+function verifyCollateralTokenIsNotProtected(const collateralTokenRecord : collateralTokenRecordType; const errorCode : nat) : unit is
+block {
+
+    if collateralTokenRecord.protected = True then failwith(errorCode) else skip;
+
+} with unit
+
+
+
+// verify that loan token does not exist
+function verifyLoanTokenDoesNotExist(const loanTokenName : string; const s : lendingControllerStorageType) : unit is 
+block {
+
+    if Map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+
+} with unit
+
+
+
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.get_amount() = 0tez) then unit
@@ -327,6 +357,19 @@ block {
 
 
 
+// helper function to get loan token record
+function getLoanTokenRecord(const loanTokenName : string; const s : lendingControllerStorageType) : loanTokenRecordType is 
+block {
+
+    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[loanTokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with loanTokenRecord
+
+
+
 // helper function to create new loan token record
 function createLoanTokenRecord(const createLoanTokenParams : createLoanTokenActionType) : loanTokenRecordType is 
 block {
@@ -386,6 +429,25 @@ block {
 
 
 
+// helper function to create new loan token record
+function updateLoanTokenRecord(const loanTokenName : string; const updateLoanTokenParams : updateLoanTokenActionType; const s : lendingControllerStorageType) : loanTokenRecordType is 
+block {
+
+    var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
+
+    loanTokenRecord.oracleAddress                        := updateLoanTokenParams.oracleAddress;
+    loanTokenRecord.reserveRatio                         := updateLoanTokenParams.reserveRatio;
+    loanTokenRecord.optimalUtilisationRate               := updateLoanTokenParams.optimalUtilisationRate;
+    loanTokenRecord.baseInterestRate                     := updateLoanTokenParams.baseInterestRate;
+    loanTokenRecord.maxInterestRate                      := updateLoanTokenParams.maxInterestRate;
+    loanTokenRecord.interestRateBelowOptimalUtilisation  := updateLoanTokenParams.interestRateBelowOptimalUtilisation;
+    loanTokenRecord.interestRateAboveOptimalUtilisation  := updateLoanTokenParams.interestRateAboveOptimalUtilisation;
+    loanTokenRecord.minRepaymentAmount                   := updateLoanTokenParams.minRepaymentAmount;
+
+} with loanTokenRecord
+
+
+
 // helper function to create new collateral token record
 function createCollateralTokenRecord(const createCollateralTokenParams : createCollateralTokenActionType) : collateralTokenRecordType is 
 block {
@@ -418,6 +480,32 @@ block {
     ];
 
 } with newCollateralTokenRecord
+
+
+
+// helper function to get vault token collateral balance
+function getVaultTokenCollateralBalance(const vault : vaultRecordType; const tokenName : string) : nat is 
+block {
+
+    const vaultTokenCollateralBalance : nat = case vault.collateralBalanceLedger[tokenName] of [
+            Some(_balance) -> _balance
+        |   None           -> failwith(error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT)
+    ];
+
+} with vaultTokenCollateralBalance
+
+
+
+// helper function to get vault token collateral balance - set to 0 if not found
+function getOrSetVaultTokenCollateralBalance(const vault : vaultRecordType; const tokenName : string) : nat is 
+block {
+
+    const vaultTokenCollateralBalance : nat = case vault.collateralBalanceLedger[tokenName] of [
+            Some(_balance) -> _balance
+        |   None           -> 0n
+    ];
+
+} with vaultTokenCollateralBalance
 
 
 
@@ -519,11 +607,52 @@ block {
 // helper function to get vault by vaultHandle
 function getVaultByHandle(const handle : vaultHandleType; const s : lendingControllerStorageType) : vaultRecordType is 
 block {
+
     var vault : vaultRecordType := case s.vaults[handle] of [
             Some(_vault) -> _vault
         |   None -> failwith(error_VAULT_CONTRACT_NOT_FOUND)
     ];
+
 } with vault
+
+
+
+// helper function to make vault handle
+function makeVaultHandle(const vaultId : nat; const vaultOwner : address) : vaultHandleType is 
+block {
+
+    const vaultHandle : vaultHandleType = record [
+        id     = vaultId;
+        owner  = vaultOwner;
+    ];
+
+} with vaultHandle
+
+
+
+// helper function to get owner vault set
+function getOwnerVaultSet(const vaultOwner : address; const s : lendingControllerStorageType) : ownerVaultSetType is 
+block {
+
+    const ownerVaultSet : ownerVaultSetType = case s.ownerLedger[vaultOwner] of [
+            Some (_set) -> _set
+        |   None        -> failwith(error_OWNER_VAULT_SET_DOES_NOT_EXIST)
+    ];
+
+} with ownerVaultSet
+
+
+
+// helper function to get or create owner vault set
+function getOrCreateOwnerVaultSet(const vaultOwner : address; const s : lendingControllerStorageType) : ownerVaultSetType is 
+block {
+
+    const ownerVaultSet : ownerVaultSetType = case s.ownerLedger[vaultOwner] of [
+            Some (_set) -> _set
+        |   None        -> set []
+    ];
+
+} with ownerVaultSet
 
 
 
