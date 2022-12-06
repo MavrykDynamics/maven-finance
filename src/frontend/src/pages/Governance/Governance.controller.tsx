@@ -44,10 +44,16 @@ export const Governance = () => {
     // TODO: clarify how to make this fethces on the global level, fetch some data after initial data loads
     if (!isInitialDataloading) {
       ;(async () => {
-        await dispatch(getCurrentRoundProposals())
-        await dispatch(getEmergencyGovernanceStorage())
-        await dispatch(getDelegationStorage())
-        await dispatch(getGovernanceStorage())
+        try {
+          await Promise.all([
+            dispatch(getCurrentRoundProposals()),
+            dispatch(getEmergencyGovernanceStorage()),
+            dispatch(getDelegationStorage()),
+            dispatch(getGovernanceStorage()),
+          ])
+        } catch (e) {
+          console.error('Governance data fetching error', e)
+        }
       })()
     }
   }, [isInitialDataloading])
