@@ -45,6 +45,9 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
     width: 100%;
     display: flex;
     justify-content: space-between;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
   }
 
   .color-red,
@@ -100,10 +103,12 @@ export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
 
   p {
     margin: 0;
+    font-weight: 500;
   }
 
   a {
     color: ${({ theme }) => theme.navLinkTextActive};
+    font-weight: 600;
   }
 
   .line {

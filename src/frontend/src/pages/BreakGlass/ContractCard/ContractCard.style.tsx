@@ -43,7 +43,7 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     line-height: 24px;
     width: 180px;
     height: 60px;
-    color: ${headerColor};
+    color: ${({ theme }) => theme.textColor};
     padding-right: 10px;
     text-transform: capitalize;
   }
@@ -52,16 +52,18 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     margin-top: 5px;
     justify-content: space-between;
     display: flex;
-    color: ${skyColor};
+    color: ${({ theme }) => theme.textColor};
     column-gap: 15px;
     font-weight: 600;
+    font-size: 14px;
 
     > div {
-      color: ${cyanColor};
+      font-size: 16px;
+      color: ${({ theme }) => theme.dataColor};
     }
 
     svg {
-      stroke: rgb(134, 212, 201);
+      stroke: ${({ theme }) => theme.dataColor};
     }
   }
 `

@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { headerColor, royalPurpleColor } from 'styles/colors'
+import { cyanColor, headerColor, royalPurpleColor } from 'styles/colors'
 
 export const AccordionWrapper = styled.div<{ theme: MavrykTheme }>`
   transition: 0.5s all;
@@ -11,12 +11,16 @@ export const AccordionToggler = styled.div<{ theme: MavrykTheme }>`
 
   justify-content: center;
   align-items: center;
-  padding-top: 14px;
-  padding-bottom: 10px;
+  padding-top: 20px;
+  padding-bottom: 4vpx;
   cursor: pointer;
   font-weight: 400;
-  font-size: 16px;
-  color: ${headerColor};
+  font-size: 14px;
+  color: ${cyanColor};
+
+  svg {
+    stroke: ${cyanColor};
+  }
 
   .accordion-icon {
     width: 16px;
@@ -48,6 +52,7 @@ export const AccordionContent = styled.div<{ theme: MavrykTheme }>`
   &.expanded {
     opacity: 1;
     max-height: 185px;
+    margin-top: 10px;
   }
 
   &::-webkit-scrollbar-track {
