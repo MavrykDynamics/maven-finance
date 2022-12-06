@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from '../helpers/vaultFactoryHelper'
+import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from '../contractHelpers/vaultFactoryTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

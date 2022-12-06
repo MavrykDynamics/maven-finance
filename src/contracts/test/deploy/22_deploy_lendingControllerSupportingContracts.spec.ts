@@ -25,8 +25,8 @@ import lendingControllerMockTimeAddress from '../../deployments/lendingControlle
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Aggregator, setAggregatorLambdas } from '../helpers/aggregatorHelper'
-import { MToken } from '../helpers/mTokenHelper'
+import { Aggregator, setAggregatorLambdas } from '../contractHelpers/aggregatorTestHelper'
+import { MToken } from '../contractHelpers/mTokenTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

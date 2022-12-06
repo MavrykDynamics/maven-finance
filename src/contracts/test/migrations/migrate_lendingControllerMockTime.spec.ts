@@ -30,18 +30,18 @@ import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import {Aggregator, setAggregatorLambdas} from '../helpers/aggregatorHelper'
+import {Aggregator, setAggregatorLambdas} from '../contractHelpers/aggregatorTestHelper'
 import {
     AggregatorFactory,
     setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
-} from '../helpers/aggregatorFactoryHelper'
-import { LendingControllerMockTime, setLendingControllerLambdas } from "../helpers/lendingControllerMockTimeHelper"
-import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from "../helpers/vaultFactoryHelper"
-import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPoolRewardHelper"
+} from '../contractHelpers/aggregatorFactoryTestHelper'
+import { LendingControllerMockTime, setLendingControllerLambdas } from "../contractHelpers/lendingControllerMockTimeTestHelper"
+import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from "../contractHelpers/vaultFactoryTestHelper"
+import { TokenPoolReward, setTokenPoolRewardLambdas } from "../contractHelpers/tokenPoolRewardTestHelper"
 
-import { MavrykFa12Token } from '../helpers/mavrykFa12TokenHelper'
-import { MavrykFa2Token } from '../helpers/mavrykFa2TokenHelper'
-import { MToken } from '../helpers/mTokenHelper'
+import { MavrykFa12Token } from '../contractHelpers/mavrykFa12TokenTestHelper'
+import { MavrykFa2Token } from '../contractHelpers/mavrykFa2TokenTestHelper'
+import { MToken } from '../contractHelpers/mTokenTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

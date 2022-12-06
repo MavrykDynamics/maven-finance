@@ -16,7 +16,6 @@ const breakGlassConfig = {
 }
 
 const config = {
-    nameMaxLength                       : new BigNumber(200),
     decimals                            : new BigNumber(8),
     alphaPercentPerThousand             : new BigNumber(2),
     

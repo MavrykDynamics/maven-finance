@@ -165,7 +165,7 @@ block {
                 const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
 
                 // Verify that vestingInMonths is not zero (div by 0 error)
-                verifyGreaterThanZero(vestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
+                verifyNotZero(vestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
                 // Verify that cliffInMonths cannot be greater than vestingInMonths (duration error)
                 verifyLessThan(cliffInMonths, vestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
@@ -237,7 +237,7 @@ block {
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
                 // Verify that new vestingInMonths is not zero (div by 0 error)
-                verifyGreaterThanZero(newVestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
+                verifyNotZero(newVestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
                 // Verify that new cliffInMonths cannot be greater than new vestingInMonths (duration error)
                 verifyLessThan(newCliffInMonths, newVestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
@@ -355,7 +355,7 @@ block {
                 else skip;
 
                 // Verify that vestee's total remainder is greater than zero
-                verifyGreaterThanZero(_vestee.totalRemainder, error_NO_VESTING_REWARDS_TO_CLAIM);
+                verifyNotZero(_vestee.totalRemainder, error_NO_VESTING_REWARDS_TO_CLAIM);
 
                 // check that current timestamp is greater than vestee's next redemption timestamp
                 const timestampCheck : bool = Tezos.get_now() > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;

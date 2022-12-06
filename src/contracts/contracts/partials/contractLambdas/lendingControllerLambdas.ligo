@@ -349,34 +349,21 @@ block {
                 case setLoanTokenParams.action of [
                     |   CreateLoanToken(createLoanTokenParams) -> block {
 
-                            // Check if loan token already exists
-                            if Map.mem(createLoanTokenParams.tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+                            const loanTokenName : string = createLoanTokenParams.tokenName;
+
+                            // Verify that loan token does not already exist
+                            verifyLoanTokenDoesNotExist(loanTokenName, s);
                             
                             // update loan token ledger
-                            s.loanTokenLedger[createLoanTokenParams.tokenName] := createLoanTokenRecord(createLoanTokenParams);
+                            s.loanTokenLedger[loanTokenName] := createLoanTokenRecord(createLoanTokenParams);
 
                         }
                     |   UpdateLoanToken(updateLoanTokenParams) -> block{
 
                             const loanTokenName : string = updateLoanTokenParams.tokenName;
 
-                            var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
-                                    Some(_record) -> _record
-                                |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                            ];
-
-                            loanTokenRecord.oracleAddress                        := updateLoanTokenParams.oracleAddress;
-
-                            loanTokenRecord.reserveRatio                         := updateLoanTokenParams.reserveRatio;
-                            loanTokenRecord.optimalUtilisationRate               := updateLoanTokenParams.optimalUtilisationRate;
-                            loanTokenRecord.baseInterestRate                     := updateLoanTokenParams.baseInterestRate;
-                            loanTokenRecord.maxInterestRate                      := updateLoanTokenParams.maxInterestRate;
-                            loanTokenRecord.interestRateBelowOptimalUtilisation  := updateLoanTokenParams.interestRateBelowOptimalUtilisation;
-                            loanTokenRecord.interestRateAboveOptimalUtilisation  := updateLoanTokenParams.interestRateAboveOptimalUtilisation;
-                            loanTokenRecord.minRepaymentAmount                   := updateLoanTokenParams.minRepaymentAmount;
-                            
-                            // update storage
-                            s.loanTokenLedger[loanTokenName] := loanTokenRecord;
+                            // update loan token ledger
+                            s.loanTokenLedger[loanTokenName] := updateLoanTokenRecord(loanTokenName, updateLoanTokenParams, s);
 
                         }
                 ];
@@ -471,15 +458,10 @@ block {
                 const loanTokenName  : string  = registerVaultCreationParams.loanTokenName;
 
                 // Make vault handle
-                const handle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+                const handle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
-                // Get loan token record
+                // Get loan token record and update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
-
-                // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
 
                 // Get borrow index of token
@@ -501,10 +483,7 @@ block {
                 s.vaults := Big_map.update(handle, Some(vault), s.vaults);
 
                 // add new vault to owner's vault set
-                var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
-                        Some (_set) -> _set
-                    |   None        -> set []
-                ];
+                var ownerVaultSet : ownerVaultSetType := getOrCreateOwnerVaultSet(vaultOwner, s);
                 s.ownerLedger[vaultOwner] := Set.add(vaultId, ownerVaultSet);
 
             }
@@ -624,16 +603,16 @@ block {
                 const lpTokensTotal             : nat         = loanTokenRecord.lpTokensTotal;
                 const lpTokensBurned            : nat         = amount;
 
-                // Calculate new total of LP Tokens
-                if lpTokensBurned > lpTokensTotal then failwith(error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS) else skip;
+                // Calculate new total of LP Tokens - verify that lpTokensBurned is less than lpTokensTotal
+                verifyLessThan(lpTokensBurned, lpTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
                 const newLpTokensTotal : nat = abs(lpTokensTotal - lpTokensBurned);
 
-                // Calculate new token pool amount
-                if amount > loanTokenPoolTotal then failwith(error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE) else skip;
+                // Calculate new token pool amount - verify that amount is less than loan token pool total
+                verifyLessThan(amount, loanTokenPoolTotal, error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE);
                 const newTokenPoolTotal : nat = abs(loanTokenPoolTotal - amount);
 
-                // Calculate new token pool remaining
-                if amount > loanTotalRemaining then failwith(error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE) else skip;
+                // Calculate new token pool remaining - verify that amount is less than loan total remaining
+                verifyLessThan(amount, loanTotalRemaining, error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE);
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
                 // burn LP Tokens and send to sender
@@ -693,10 +672,7 @@ block {
                 const vaultOwner  : vaultOwnerType   = Tezos.get_sender();
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
                 // Get vault if exists
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
@@ -779,11 +755,7 @@ block {
 
 
                 // remove vault from stroage
-                var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
-                        Some (_set) -> _set
-                    |   None        -> failwith(error_OWNER_VAULT_SET_DOES_NOT_EXIST)
-                ];
-
+                var ownerVaultSet : ownerVaultSetType := getOwnerVaultSet(vaultOwner, s);
                 s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
                 remove vaultHandle from map s.vaults;
                 
@@ -820,10 +792,7 @@ block {
                 const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -900,10 +869,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
                 // Update vault state
                 const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
@@ -1036,8 +1002,8 @@ block {
                     totalInterestPaid := newLoanInterestTotal;
                     newLoanInterestTotal := 0n;
 
-                    // Calculate final loan principal
-                    if principalReductionAmount > initialLoanPrincipalTotal then failwith(error_PRINCIPAL_REDUCTION_MISCALCULATION) else skip;
+                    // Calculate final loan principal - verify that principalReductionAmount is less than initialLoanPrincipalTotal
+                    verifyLessThan(principalReductionAmount, initialLoanPrincipalTotal, error_PRINCIPAL_REDUCTION_MISCALCULATION);
                     newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
                     // set total principal repaid amount
@@ -1051,14 +1017,14 @@ block {
                     // set total interest paid
                     totalInterestPaid := totalLiquidationAmount;
 
-                    // Calculate final loan interest
-                    if totalLiquidationAmount > newLoanInterestTotal then failwith(error_LOAN_INTEREST_MISCALCULATION) else skip;
+                    // Calculate final loan interest - verify that totalLiquidationAmount is less than newLoanInterestTotal
+                    verifyLessThan(totalLiquidationAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
                     newLoanInterestTotal := abs(newLoanInterestTotal - totalLiquidationAmount);
 
                 };
 
-                // Calculate final loan outstanding total
-                if totalLiquidationAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
+                // Calculate final loan outstanding total - verify that totalLiquidationAmount is less than newLoanOutstandingTotal
+                verifyLessThan(totalLiquidationAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);
                 newLoanOutstandingTotal := abs(newLoanOutstandingTotal - totalLiquidationAmount);
 
                 // ------------------------------------------------------------------
@@ -1068,8 +1034,8 @@ block {
                 // Calculate amount of interest that goes to the Treasury 
                 const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-                // Calculate amount of interest                 
-                if interestSentToTreasury > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
+                // Calculate amount of interest - verify that interestSentToTreasury is less than totalInterestPaid
+                verifyLessThan(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
                 const interestRewards : nat = abs(totalInterestPaid - interestSentToTreasury);
 
                 // ------------------------------------------------------------------
@@ -1096,8 +1062,10 @@ block {
                 // Process repayment of principal if total principal repaid quantity is greater than 0
                 if totalPrincipalRepaid > 0n then {
 
+                    // verify that totalPrincipalRepaid is less than totalBorrowed
+                    verifyLessThan(totalPrincipalRepaid, totalBorrowed, error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT);
+
                     // Calculate new totalBorrowed and totalRemaining
-                    if totalPrincipalRepaid > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
                     newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
                     newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
                     newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
@@ -1190,8 +1158,8 @@ block {
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
 
-                // Check that token name is not protected (e.g. smvk)
-                if collateralTokenRecord.protected then failwith(error_CANNOT_REGISTER_DEPOSIT_FOR_PROTECTED_COLLATERAL_TOKEN) else skip;
+                // Verify that token name is not protected (e.g. smvk)
+                verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_REGISTER_DEPOSIT_FOR_PROTECTED_COLLATERAL_TOKEN);
 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -1201,8 +1169,8 @@ block {
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
 
-                // Check if initiator matches vault address
-                if vault.address =/= initiator then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip; 
+                // Verify that initiator (sender) matches vault address
+                verifySenderIsVault(vault.address, initiator);
 
                 // ------------------------------------------------------------------
                 // Register token deposit in vault collateral balance ledger
@@ -1214,10 +1182,7 @@ block {
                 };
 
                 // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
-                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
-                        Some(_balance) -> _balance
-                    |   None           -> 0n
-                ];
+                var vaultTokenCollateralBalance : nat := getOrSetVaultTokenCollateralBalance(vault, tokenName);
 
                 // Calculate new collateral balance
                 const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
@@ -1226,7 +1191,7 @@ block {
                 // Update storage
                 // ------------------------------------------------------------------
 
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+                vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
 
                 // reset vault liquidation levels if vault is no longer liquidatable
                 const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
@@ -1265,8 +1230,8 @@ block {
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
 
-                // Check that token name is not protected (e.g. smvk)
-                if collateralTokenRecord.protected then failwith(error_CANNOT_REGISTER_WITHDRAWAL_FOR_PROTECTED_COLLATERAL_TOKEN) else skip;
+                // Verify that token name is not protected (e.g. smvk)
+                verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_REGISTER_WITHDRAWAL_FOR_PROTECTED_COLLATERAL_TOKEN);
 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -1276,8 +1241,8 @@ block {
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
 
-                // Check if initiator matches vault address
-                if vault.address =/= initiator then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip;
+                // Verify that initiator (sender) matches vault address
+                verifySenderIsVault(vault.address, initiator);
 
                 // Check if vault is undercollaterized, if not then send withdraw operation
                 if isUnderCollaterized(vault, s) 
@@ -1289,13 +1254,10 @@ block {
                 // ------------------------------------------------------------------
 
                 // get token collateral balance in vault, fail if none found
-                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
-                        Some(_balance) -> _balance
-                    |   None -> failwith(error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT)
-                ];
+                var vaultTokenCollateralBalance : nat := getVaultTokenCollateralBalance(vault, tokenName);
 
-                // Calculate new vault balance
-                if withdrawalAmount > vaultTokenCollateralBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
+                // Calculate new vault balance - verify that withdrawalAmount is less than vaultTokenCollateralBalance
+                verifyLessThan(withdrawalAmount, vaultTokenCollateralBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
                 const newCollateralBalance : nat  = abs(vaultTokenCollateralBalance - withdrawalAmount);
                 
                 // ------------------------------------------------------------------
@@ -1342,10 +1304,7 @@ block {
                 const treasuryAddress: address        = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = initiator;
-                ];
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, initiator);
 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -1377,8 +1336,8 @@ block {
                 // Calculate share of fees that goes to the Treasury 
                 const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * s.config.minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-                // Calculate share of fees that goes to Rewards
-                if minimumLoanFeeToTreasury > minimumLoanFee then failwith(error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE) else skip;
+                // Calculate share of fees that goes to Rewards - verify that minimumLoanFeeToTreasury is less than minimumLoanFee
+                verifyLessThan(minimumLoanFeeToTreasury, minimumLoanFee, error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE);
                 const minimumLoanFeeReward : nat = abs(minimumLoanFee - minimumLoanFeeToTreasury);
 
                 // ------------------------------------------------------------------
@@ -1389,8 +1348,8 @@ block {
                 var newLoanOutstandingTotal        : nat := vault.loanOutstandingTotal;
                 var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
 
-                // Reduce finalLoanAmount by minimum loan fee
-                if minimumLoanFee > finalLoanAmount then failwith(error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
+                // Reduce finalLoanAmount by minimum loan fee - verify that minimumLoanFee is less than finalLoanAmount
+                verifyLessThan(minimumLoanFee, finalLoanAmount, error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT);
                 finalLoanAmount := abs(finalLoanAmount - minimumLoanFee);
 
                 // Calculate new loan outstanding
@@ -1413,12 +1372,12 @@ block {
                 // calculate new totalBorrowed 
                 newTotalBorrowed := totalBorrowed + initialLoanAmount;
                 
-                // calculate new total remaining
-                if initialLoanAmount > totalRemaining then failwith(error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED) else skip;
+                // calculate new total remaining - verify that initialLoanAmount is less than totalRemaining
+                verifyLessThan(initialLoanAmount, totalRemaining, error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED);
                 newTotalRemaining := abs(totalRemaining - initialLoanAmount);
 
-                // check that new total remaining is greater than required token pool reserves
-                if newTotalRemaining > requiredTokenPoolReserves then skip else failwith(error_TOKEN_POOL_RESERVES_RATIO_NOT_MET);
+                // verify that newTotalRemaining is greater than requiredTokenPoolReserves
+                verifyGreaterThan(newTotalRemaining, requiredTokenPoolReserves, error_TOKEN_POOL_RESERVES_RATIO_NOT_MET);
 
                 // ------------------------------------------------------------------
                 // Process Transfers (loan, fees, and rewards)
@@ -1510,11 +1469,8 @@ block {
                 const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = initiator;
-                ];
-                
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, initiator);
+
                 // ------------------------------------------------------------------
                 // Update vault state
                 // ------------------------------------------------------------------
@@ -1535,8 +1491,8 @@ block {
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
                 const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
 
-                // Check that minimum repayment amount is reached
-                if initialRepaymentAmount < minRepaymentAmount then failwith(error_MIN_REPAYMENT_AMOUNT_NOT_REACHED) else skip;
+                // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
+                verifyGreaterThan(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
 
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
@@ -1592,21 +1548,21 @@ block {
                     // set total interest paid
                     totalInterestPaid := finalRepaymentAmount;
 
-                    // Calculate final loan interest
-                    if finalRepaymentAmount > newLoanInterestTotal then failwith(error_LOAN_INTEREST_MISCALCULATION) else skip;
+                    // Calculate final loan interest - verify that finalRepaymentAmount is less than newLoanInterestTotal
+                    verifyLessThan(finalRepaymentAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
                     newLoanInterestTotal := abs(newLoanInterestTotal - finalRepaymentAmount);
 
                 };
 
-                // Calculate final loan outstanding total
-                if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
+                // Calculate final loan outstanding total - verify that finalRepaymentAmount is less than newLoanOutstandingTotal
+                verifyLessThan(finalRepaymentAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);
                 newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
                 // Calculate amount of interest that goes to the Treasury 
                 const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-                // Calculate amount of interest that goes to the Reward Pool 
-                if interestSentToTreasury > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
+                // Calculate amount of interest that goes to the Reward Pool - verify that interestSentToTreasury is less than totalInterestPaid
+                verifyLessThan(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
                 const interestRewards : nat = abs(totalInterestPaid - interestSentToTreasury);
 
                 // ------------------------------------------------------------------
@@ -1634,8 +1590,10 @@ block {
                 // Process repayment of principal if total principal repaid quantity is greater than 0
                 if totalPrincipalRepaid > 0n then {
 
+                    // verify that totalPrincipalRepaid is less than totalBorrowed
+                    verifyLessThan(totalPrincipalRepaid, totalBorrowed, error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT);
+
                     // Calculate new totalBorrowed and totalRemaining
-                    if totalPrincipalRepaid > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
                     newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
                     newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
                     newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
@@ -1738,10 +1696,7 @@ block {
                 checkCollateralTokenExists(tokenName, s);
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
                 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -1807,10 +1762,7 @@ block {
                 checkCollateralTokenExists(tokenName, s);
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
                 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -1837,8 +1789,8 @@ block {
                 // - for better accuracy, there should be a frontend call to compound rewards for the vault first
                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
 
-                // Calculate new collateral balance                
-                if withdrawAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
+                // Calculate new collateral balance - verify that withdrawAmount is less than currentVaultStakedMvkBalance
+                verifyLessThan(withdrawAmount, currentVaultStakedMvkBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
                 const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
 
                 // ------------------------------------------------------------------
