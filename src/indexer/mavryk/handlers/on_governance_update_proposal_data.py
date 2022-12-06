@@ -1,5 +1,6 @@
 
-from mavryk.types.governance.storage import GovernanceStorage
+from mavryk.utils.persisters import persist_token_metadata
+from mavryk.types.governance.storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
 from mavryk.types.governance.parameter.update_proposal_data import UpdateProposalDataParameter
@@ -11,37 +12,88 @@ async def on_governance_update_proposal_data(
 ) -> None:
 
     # Get operation info
-    governance_address  = update_proposal_data.data.target_address
-    proposal_id         = int(update_proposal_data.parameter.proposalId)
-    storage_proposal    = update_proposal_data.storage.proposalLedger[update_proposal_data.parameter.proposalId]
-    proposal_metadata   = storage_proposal.proposalData
-    title               = update_proposal_data.parameter.title
-    bytes               = update_proposal_data.parameter.proposalBytes
-
+    governance_address      = update_proposal_data.data.target_address
+    proposal_id             = int(update_proposal_data.parameter.proposalId)
+    storage_proposal        = update_proposal_data.storage.proposalLedger[update_proposal_data.parameter.proposalId]
+    proposal_data_storage   = storage_proposal.proposalData
+    payment_data_storage    = storage_proposal.paymentData
+    
     # Update or create record
     governance      = await models.Governance.get(address   = governance_address)
     proposal        = await models.GovernanceProposal.get(
         id                  = proposal_id,
         governance          = governance
     )
-    bytes_record     = await models.GovernanceProposalData.get_or_none(
-        governance_proposal         = proposal,
-        title                       = title,
-        bytes                       = bytes
-    )
-    # Delete record if it already exists, else update or add it
-    if bytes_record:
-        await bytes_record.delete()
-    else:
-        # Get internal data id
-        internal_id = 0
-        for key in proposal_metadata:
-            if proposal_metadata[key] and proposal_metadata[key].title == title:
-                int(key)
-        bytes_record, _     = await models.GovernanceProposalData.get_or_create(
-            governance_proposal         = proposal,
-            record_internal_id          = internal_id,
-            title                       = title,
+
+    # Update proposal data
+    for proposal_data_index in proposal_data_storage:
+        
+        # Get or create proposal data
+        proposal_single_data    = proposal_data_storage[proposal_data_index]
+        proposal_data, _        = await models.GovernanceProposalData.get_or_create(
+            governance_proposal = proposal,
+            internal_id         = int(proposal_data_index)
         )
-        bytes_record.bytes   = bytes
-        await bytes_record.save()
+        await proposal_data.save()
+
+        # Update proposal data
+        if proposal_single_data:
+            proposal_data.title              = proposal_single_data.title
+            proposal_data.encoded_code       = proposal_single_data.encodedCode
+            proposal_data.code_description   = proposal_single_data.codeDescription
+        else:
+            proposal_data.title              = None
+            proposal_data.encoded_code       = None
+            proposal_data.code_description   = None
+        await proposal_data.save()
+
+    # Update payment data
+    for payment_data_index in payment_data_storage:
+
+        # Get or create payment data
+        payment_single_data     = payment_data_storage[payment_data_index]
+        payment_data, _         = await models.GovernanceProposalPayment.get_or_create(
+            governance_proposal = proposal,
+            internal_id         = int(payment_data_index)
+        )
+        await payment_data.save()
+
+        # Update payment data
+        if payment_single_data:
+
+            # Fill parameters depending on the token type
+            token               = payment_single_data.transaction.token
+            token_address       = ""
+            token_id            = 0
+            if type(token) == fa12:
+                token_address   = token.fa12
+            elif type(token) == fa2:
+                token_address   = token.fa2.tokenContractAddress
+                token_id        = int(token.fa2.tokenId)
+            elif type(token) == tez:
+                token_address   = "XTZ"
+
+            # Persist Token Metadata
+            await persist_token_metadata(
+                ctx=ctx,
+                token_address=token_address,
+                token_id=str(token_id)
+            )
+
+            # Get receiver
+            receiver_address                = payment_single_data.transaction.to_
+            receiver                        = await models.mavryk_user_cache.get(address=receiver_address)
+
+            # Save the payment record
+            payment_data.title              = payment_single_data.title
+            payment_data.token_address      = token_address
+            payment_data.token_id           = token_id
+            payment_data.to_                = receiver
+            payment_data.token_amount       = float(payment_single_data.transaction.amount)
+        else:
+            payment_data.title              = None
+            payment_data.token_address      = None
+            payment_data.token_id           = None
+            payment_data.to_                = None
+            payment_data.token_amount       = None
+        await payment_data.save()

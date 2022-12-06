@@ -44,11 +44,8 @@ async def on_governance_financial_vote_for_request(
     if executed:
         financial_request.execution_datetime    = timestamp
     await financial_request.save()
-    
-    voter, _                = await models.MavrykUser.get_or_create(
-        address = voter_address
-    )
-    await voter.save()
+
+    voter                   = await models.mavryk_user_cache.get(address=voter_address)
 
     # Register vote
     satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(

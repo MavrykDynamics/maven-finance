@@ -364,6 +364,7 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
 
     contract_address        = ""
     contract_name           = ""
+    tzip                    = ""
     contract_in_storage     = False
     entrypoint_name         = update_linked_contracts.data.entrypoint
     if entrypoint_name == "updateGeneralContracts":
@@ -383,13 +384,28 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
                 ctx=ctx,
                 token_address=contract_address,
             )
+
+        # Save whitelist token contract token standard
+        if contract_address[0:3] == 'KT1' and len(contract_address) == 36:
+            contract_summary    = await ctx.datasource.get_contract_summary(
+                address = contract_address,
+            )
+            if contract_summary:
+                if 'tzips' in contract_summary:
+                    tzips   = contract_summary['tzips']
+                    if 'fa2' in tzips:
+                        tzip    = 'fa2'
+                    else:
+                        if 'fa12' in tzips:
+                            tzip    = 'fa12'
    
     # Update general contracts record
     linked_contract, _ = await linked_contract_class.get_or_create(
         contract        = contract,
         contract_name   = contract_name
     )
-    linked_contract.contract_address   = contract_address
+    linked_contract.contract_address        = contract_address
+    linked_contract.token_contract_standard = tzip
 
     if contract_in_storage:
         await linked_contract.save()

@@ -12,17 +12,15 @@ async def on_aggregator_factory_untrack_aggregator(
 
     # Get operation info
     aggregator_factory_address  = untrack_aggregator.data.target_address
-    aggregator_pair_first       = untrack_aggregator.parameter.pairFirst
-    aggregator_pair_second      = untrack_aggregator.parameter.pairSecond
+    aggregator_address          = untrack_aggregator.parameter.__root__
 
     # Update record
     aggregator_factory          = await models.AggregatorFactory.get(
-        address = aggregator_factory_address
+        address             = aggregator_factory_address
     )
     aggregator                  = await models.Aggregator.get_or_none(
         factory             = aggregator_factory,
-        token_0_symbol      = aggregator_pair_first,
-        token_1_symbol      = aggregator_pair_second
+        address             = aggregator_address
     )
     if aggregator:    
         aggregator.factory          = None

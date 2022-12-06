@@ -14,18 +14,21 @@ async def on_lending_controller_register_deposit(
 
     # Get operation info
     lending_controller_address  = register_deposit.data.target_address
+    timestamp                   = register_deposit.data.timestamp
+    level                       = register_deposit.data.level
+    operation_hash              = register_deposit.data.hash
+    sender_address              = register_deposit.data.initiator_address
     vault_owner_address         = register_deposit.parameter.handle.owner
+    vault_deposit_amount        = float(register_deposit.parameter.amount)
     vault_internal_id           = int(register_deposit.parameter.handle.id)
     vaults_storage              = register_deposit.storage.vaults
 
     # Update record
     lending_controller          = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
-    vault_owner, _              = await models.MavrykUser.get_or_create(
-        address = vault_owner_address
-    )
-    await vault_owner.save()
+    vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
     
     for vault_storage in vaults_storage:
         if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -87,3 +90,20 @@ async def on_lending_controller_register_deposit(
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.DEPOSIT,
+                amount              = vault_deposit_amount
+            )
+            await history_data.save()

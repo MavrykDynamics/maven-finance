@@ -18,9 +18,7 @@ async def on_vesting_remove_vestee(
     vesting = await models.Vesting.get(
         address=vesting_address
     )
-    vestee = await models.MavrykUser.get(
-        address=vestee_address
-    )
+    vestee  = await models.mavryk_user_cache.get(address=vestee_address)
     vesteeRecord    = await models.VestingVestee.get(
         vestee  = vestee,
         vesting = vesting

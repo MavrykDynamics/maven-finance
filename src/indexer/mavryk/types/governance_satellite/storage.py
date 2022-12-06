@@ -8,24 +8,6 @@ from typing import Any, Dict, List, Union
 from pydantic import BaseModel, Extra, Field
 
 
-class AggregatorPair(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    string_0: str
-    string_1: str
-
-
-class AggregatorLedger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    aggregatorPair: AggregatorPair
-    status: str
-    createdTimestamp: str
-    oracles: List[str]
-
-
 class Config(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -94,38 +76,13 @@ class GovernanceSatelliteVoter(BaseModel):
     value: Union[ValueItem, ValueItem1, ValueItem2]
 
 
-class AggregatorPair1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    string_0: str
-    string_1: str
-
-
-class AggregatorPairs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    aggregatorPair: AggregatorPair1
-    aggregatorAddress: str
-    startDateTime: str
-
-
-class SatelliteOracleLedger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    aggregatorsSubscribed: str
-    aggregatorPairs: Dict[str, AggregatorPairs]
-
-
 class GovernanceSatelliteStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
     actionsInitiators: Dict[str, List[str]]
     admin: str
-    aggregatorLedger: Dict[str, AggregatorLedger]
+    aggregatorLedger: Dict[str, str]
     config: Config
     generalContracts: Dict[str, str]
     governanceAddress: str
@@ -135,5 +92,5 @@ class GovernanceSatelliteStorage(BaseModel):
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
     mvkTokenAddress: str
-    satelliteOracleLedger: Dict[str, SatelliteOracleLedger]
+    satelliteOracleLedger: Dict[str, Dict[str, str]]
     whitelistContracts: Dict[str, str]

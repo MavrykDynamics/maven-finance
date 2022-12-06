@@ -9,40 +9,53 @@ async def on_liquidity_baking_token_to_token(
     ctx: HandlerContext,
     token_to_token: Transaction[TokenToTokenParameter, LiquidityBakingStorage],
 ) -> None:
+    ...
+    # TODO: Refactor when needed
+    # breakpoint()
     
-    # Get operation data
-    liquidity_baking_address    = token_to_token.data.target_address
-    timestamp                   = token_to_token.data.timestamp
-    token_pool                  = int(token_to_token.storage.tokenPool)
-    xtz_pool                    = int(token_to_token.storage.xtzPool)
-    lqt_total                   = int(token_to_token.storage.lqtTotal)
-    token_address               = token_to_token.storage.tokenAddress
-    lqt_address                 = token_to_token.storage.lqtAddress
+    # # Get operation data
+    # trader_address              = token_to_token.data.sender_address
+    # liquidity_baking_address    = token_to_token.data.target_address
+    # timestamp                   = token_to_token.data.timestamp
+    # level                       = token_to_token.data.level
+    # token_pool                  = int(token_to_token.storage.tokenPool)
+    # xtz_pool                    = int(token_to_token.storage.xtzPool)
+    # lqt_total                   = int(token_to_token.storage.lqtTotal)
+    # token_address               = token_to_token.storage.tokenAddress
+    # lqt_address                 = token_to_token.storage.lqtAddress
 
-    # Create / Update record
-    liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-        address = liquidity_baking_address
-    )
-    liquidity_baking.token_pool     = token_pool
-    liquidity_baking.xtz_pool       = xtz_pool
-    liquidity_baking.lqt_total      = lqt_total
-    liquidity_baking.token_address  = token_address
-    liquidity_baking.lqt_address    = lqt_address
-    await liquidity_baking.save()
+    # # Create / Update record
+    # liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
+    #     address = liquidity_baking_address
+    # )
 
-    xtz_pool_decimals       = xtz_pool * (10**-liquidity_baking.xtz_decimals)
-    token_pool_decimals     = token_pool * (10**-liquidity_baking.token_decimals)
-    xtz_token_price         = float(round(xtz_pool_decimals / token_pool_decimals, liquidity_baking.xtz_decimals))
-    token_xtz_price         = float(round(token_pool_decimals / xtz_pool_decimals, liquidity_baking.token_decimals))
+    # xtz_pool_decimals                 = xtz_pool / (10**liquidity_baking.xtz_decimals)
+    # token_pool_decimals               = token_pool / (10**liquidity_baking.token_decimals)
+    # price                             = xtz_pool_decimals / token_pool_decimals
+    # xtz_pool_decimals                 = xtz_pool / (10**liquidity_baking.xtz_decimals)
+    # token_pool_decimals               = token_pool / (10**liquidity_baking.token_decimals)
+    # share_price                       = (xtz_pool_decimals + (token_pool_decimals / xtz_pool_decimals) * token_pool_decimals) / lqt_total
 
-    liquidity_baking_history_data   = models.LiquidityBakingHistoryData(
-        timestamp           = timestamp,
-        liquidity_baking    = liquidity_baking,
-        type                = models.DexType.TOKEN_TO_TOKEN,
-        token_pool          = token_pool,
-        xtz_pool            = xtz_pool,
-        lqt_total           = lqt_total,
-        xtz_token_price     = xtz_token_price,
-        token_xtz_price     = token_xtz_price
-    )
-    await liquidity_baking_history_data.save()
+    # liquidity_baking.token_pool       = token_pool
+    # liquidity_baking.xtz_pool         = xtz_pool
+    # liquidity_baking.lqt_total        = lqt_total
+    # liquidity_baking.token_address    = token_address
+    # liquidity_baking.lqt_address      = lqt_address
+    # liquidity_baking.share_price      = share_price
+    # await liquidity_baking.save()
+
+    # trader, _                       = await models.MavrykUser.get_or_create(
+    #     address = trader_address
+    # )
+    # await trader.save()
+
+    # liquidity_baking_history_data   = models.LiquidityBakingHistoryData(
+    #     timestamp           = timestamp,
+    #     level               = level,
+    #     liquidity_baking    = liquidity_baking,
+    #     type                = models.DexType.TOKEN_TO_TOKEN,
+    #     price               = price,
+    #     token_pool          = token_pool,
+    #     xtz_pool            = xtz_pool,
+    # )
+    # await liquidity_baking_history_data.save()

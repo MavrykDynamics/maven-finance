@@ -27,16 +27,12 @@ async def on_mvk_transfer(
             mvk_token = await models.MVKToken.get(address=mvk_address)
 
             # Get or create sender
-            sender, _ = await models.MavrykUser.get_or_create(
-                address=sender_address
-            )
+            sender    = await models.mavryk_user_cache.get(address=sender_address)
             sender.mvk_balance = user_ledger[sender_address]
             await sender.save()
 
             # Get or create receiver
-            receiver, _ = await models.MavrykUser.get_or_create(
-                address=receiver_address
-            )
+            receiver    = await models.mavryk_user_cache.get(address=receiver_address)
             receiver.mvk_balance = user_ledger[receiver_address]
             await receiver.save()
 
@@ -65,7 +61,7 @@ async def on_mvk_transfer(
                 smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
                 
                 if smvk_users > 0:
-                    avg_smvk_per_user   = smvk_total_supply / smvk_users
+                    avg_smvk_per_user   = float(smvk_total_supply) / float(smvk_users)
                     smvk_history_data   = models.SMVKHistoryData(
                         timestamp           = timestamp,
                         doorman             = doorman,

@@ -1,6 +1,6 @@
-from .enums import OracleType
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
+from .enums import LendingControllerOperationType
+from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
 
 ###
 # Lending Controller Tables
@@ -8,6 +8,7 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContr
 
 class LendingController(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='lending_controllers', null=True)
+    mock_time                               = fields.BooleanField(default=False)
     collateral_ratio                        = fields.SmallIntField(default=0)
     liquidation_ratio                       = fields.SmallIntField(default=0)
     liquidation_fee_pct                     = fields.SmallIntField(default=0)
@@ -59,7 +60,7 @@ class LendingControllerWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'lending_controller_whitelist_contract'
 
-class LendingControllerWhitelistTokenContract(LinkedContract, Model):
+class LendingControllerWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
     contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_token_contracts')
 
     class Meta:
@@ -95,22 +96,13 @@ class LendingControllerVaultCollateralBalance(Model):
     class Meta:
         table = 'lending_controller_vault_collateral_balance'
 
-class LendingControllerDepositor(Model):
-    id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='depositors', null=True)
-    depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_depositors', null=True, index=True)
-    loan_token                              = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='depositors', null=True, index=True)
-    deposited_amount                        = fields.FloatField(default=0.0)
-
-    class Meta:
-        table = 'lending_controller_depositor'
-
 class LendingControllerCollateralToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_tokens', null=True)
     token_address                           = fields.CharField(max_length=36, default="", index=True)
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_collateral_token_oracles', null=True, index=True)
     protected                               = fields.BooleanField(default=False, index=True)
+    is_scaled_token                         = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_collateral_token'
@@ -141,3 +133,17 @@ class LendingControllerLoanToken(Model):
 
     class Meta:
         table = 'lending_controller_loan_token'
+
+class LendingControllerHistoryData(Model):
+    id                                      = fields.BigIntField(pk=True)
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='history_data')
+    vault                                   = fields.ForeignKeyField('models.LendingControllerVault', related_name='history_data', null=True)
+    sender                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_history_data_sender', index=True)
+    operation_hash                          = fields.CharField(max_length=51)
+    timestamp                               = fields.DatetimeField(index=True)
+    level                                   = fields.BigIntField(default=0)
+    type                                    = fields.IntEnumField(enum_type=LendingControllerOperationType, index=True)
+    amount                                  = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'lending_controller_history_data'
