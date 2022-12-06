@@ -16,12 +16,9 @@ async def on_aggregator_withdraw_reward_xtz(
     oracle_reward_xtz_storage   = withdraw_reward_xtz.storage.oracleRewardXtz[oracle_address]
 
     # Update record
-    user, _                         = await models.MavrykUser.get_or_create(
-        address     = oracle_address
-    )
-    await user.save()
+    user                            = await models.mavryk_user_cache.get(address=oracle_address)
     aggregator                      = await models.Aggregator.get(address   = aggregator_address)
-    oracle, _                       = await models.AggregatorOracle.get_or_create(
+    oracle                          = await models.AggregatorOracle.get(
         aggregator  = aggregator,
         user        = user
     )

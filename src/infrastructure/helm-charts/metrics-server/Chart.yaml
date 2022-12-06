@@ -1,0 +1,8 @@
+name: metrics-server-mavryk
+version: 0.0.1
+apiVersion: v2
+appVersion: 0.6.1
+dependencies:
+  - name: metrics-server
+    version: 3.8.2
+    repository: https://kubernetes-sigs.github.io/metrics-server/

@@ -10,7 +10,6 @@ class OnVaultLiquidateStakedMvkParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultOwner: str
     vaultAddress: str
     liquidator: str
     liquidatedAmount: str

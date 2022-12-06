@@ -1,4 +1,3 @@
-from mavryk.utils.persisters import persist_token_metadata
 from mavryk.types.lending_controller.parameter.remove_liquidity import RemoveLiquidityParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -12,8 +11,12 @@ async def on_lending_controller_remove_liquidity(
 
     # Get operation info
     lending_controller_address              = remove_liquidity.data.target_address
-    depositor_address                       = remove_liquidity.data.sender_address
+    timestamp                               = remove_liquidity.data.timestamp
+    level                                   = remove_liquidity.data.level
+    operation_hash                          = remove_liquidity.data.hash
+    sender_address                          = remove_liquidity.data.sender_address
     loan_token_name                         = remove_liquidity.parameter.loanTokenName
+    loan_token_amount                       = float(remove_liquidity.parameter.amount)
     loan_token_storage                      = remove_liquidity.storage.loanTokenLedger[loan_token_name]
     loan_token_type_storage                 = loan_token_storage.tokenType
     loan_token_token_pool_total             = float(loan_token_storage.tokenPoolTotal)
@@ -23,7 +26,6 @@ async def on_lending_controller_remove_liquidity(
     loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
     loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
     loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)
-    token_pool_depositor_storage            = remove_liquidity.storage.tokenPoolDepositorLedger
     loan_token_address                      = ""
     
     # Loan Token attributes
@@ -36,12 +38,9 @@ async def on_lending_controller_remove_liquidity(
 
     # Create / Update record
     lending_controller                      = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
-    depositor, _                            = await models.MavrykUser.get_or_create(
-        address = depositor_address
-    )
-    await depositor.save()
     lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
         lending_controller  = lending_controller,
         loan_token_address  = loan_token_address
@@ -55,15 +54,18 @@ async def on_lending_controller_remove_liquidity(
     lending_controller_loan_token.current_interest_rate     = loan_token_current_interest_rate
     await lending_controller_loan_token.save()
 
-    for depositor_storage in token_pool_depositor_storage:
-        depositor_address_storage   = depositor_storage.key.address
-        deposited_amount            = float(depositor_storage.value)
-        if depositor_address_storage == depositor_address:
-            lending_controller_depositor, _         = await models.LendingControllerDepositor.get_or_create(
-                lending_controller  = lending_controller,
-                depositor           = depositor,
-                loan_token          = lending_controller_loan_token
-            )
-            lending_controller_depositor.deposited_amount   = deposited_amount
-            await lending_controller_depositor.save()
-
+    # Save history data
+    sender, _                               = await models.MavrykUser.get_or_create(
+        address             = sender_address
+    )
+    await sender.save()
+    history_data                            = models.LendingControllerHistoryData(
+        lending_controller  = lending_controller,
+        sender              = sender,
+        operation_hash      = operation_hash,
+        timestamp           = timestamp,
+        level               = level,
+        type                = models.LendingControllerOperationType.REMOVE_LIQUIDITY,
+        amount              = loan_token_amount
+    )
+    await history_data.save()

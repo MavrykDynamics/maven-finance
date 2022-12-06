@@ -1,5 +1,4 @@
 
-from mavryk.utils.persisters import persist_token_metadata
 from mavryk.types.lending_controller.parameter.register_vault_creation import RegisterVaultCreationParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -14,17 +13,19 @@ async def on_lending_controller_register_vault_creation(
 
     # Get operation info
     lending_controller_address  = register_vault_creation.data.target_address
+    timestamp                   = register_vault_creation.data.timestamp
+    level                       = register_vault_creation.data.level
+    operation_hash              = register_vault_creation.data.hash
+    sender_address              = register_vault_creation.data.initiator_address
     vaults_storage              = register_vault_creation.storage.vaults
     vault_owner_address         = register_vault_creation.parameter.vaultOwner
 
     # Create / Update record
     lending_controller          = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
-    vault_owner, _              = await models.MavrykUser.get_or_create(
-        address = vault_owner_address
-    )
-    await vault_owner.save()
+    vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
     for vault_storage in vaults_storage:
         vault_address                           = vault_storage.value.address
         vault_loan_token_name                   = vault_storage.value.loanToken
@@ -75,3 +76,20 @@ async def on_lending_controller_register_vault_creation(
         lending_controller_vault.marked_for_liquidation_level       = vault_marked_for_liquidation_level
         lending_controller_vault.liquidation_end_level              = vault_liquidation_end_level
         await lending_controller_vault.save()
+
+        # Save history data
+        sender, _                               = await models.MavrykUser.get_or_create(
+            address             = sender_address
+        )
+        await sender.save()
+        history_data                            = models.LendingControllerHistoryData(
+            lending_controller  = lending_controller,
+            vault               = lending_controller_vault,
+            sender              = sender,
+            operation_hash      = operation_hash,
+            timestamp           = timestamp,
+            level               = level,
+            type                = models.LendingControllerOperationType.VAULT_CREATION,
+            amount              = 0
+        )
+        await history_data.save()

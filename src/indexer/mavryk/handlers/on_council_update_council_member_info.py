@@ -20,8 +20,7 @@ async def on_council_update_council_member_info(
 
     # Update record
     council                 = await models.Council.get(address   = council_address)
-    user, _                 = await models.MavrykUser.get_or_create(address   = council_member_address)
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=council_member_address)
     council_member          = await models.CouncilCouncilMember.get(
         council     = council,
         user        = user

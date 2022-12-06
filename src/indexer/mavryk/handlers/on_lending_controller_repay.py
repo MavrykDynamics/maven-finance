@@ -10,12 +10,19 @@ async def on_lending_controller_repay(
     ctx: HandlerContext,
     repay: Transaction[RepayParameter, LendingControllerStorage],
 ) -> None:
+
     # Get operation info
     lending_controller_address              = repay.data.target_address
+    timestamp                               = repay.data.timestamp
+    level                                   = repay.data.level
+    operation_hash                          = repay.data.hash
+    sender_address                          = repay.data.sender_address
+    vault_repay_amount                      = float(repay.parameter.quantity)
     vault_internal_id                       = int(repay.parameter.vaultId)
     vaults_storage                          = repay.storage.vaults
     lending_controller                      = await models.LendingController.get(
-        address             = lending_controller_address
+        address             = lending_controller_address,
+        mock_time           = False
     )
     lending_controller_vault                = await models.LendingControllerVault.get(
         lending_controller  = lending_controller,
@@ -56,10 +63,6 @@ async def on_lending_controller_repay(
             vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
 
             # Save updated vault
-            lending_controller_vault                = await models.LendingControllerVault.get(
-                lending_controller  = lending_controller,
-                internal_id         = vault_internal_id
-            )
             lending_controller_vault.internal_id                        = vault_internal_id
             lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
             lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -71,3 +74,20 @@ async def on_lending_controller_repay(
             lending_controller_vault.marked_for_liquidation_level       = vault_marked_for_liquidation_level
             lending_controller_vault.liquidation_end_level              = vault_liquidation_end_level
             await lending_controller_vault.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.REPAY,
+                amount              = vault_repay_amount
+            )
+            await history_data.save()

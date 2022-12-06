@@ -53,9 +53,7 @@ async def on_council_origination(
     await council.save()
 
     for member_address in council_members:
-        user, _ = await models.MavrykUser.get_or_create(
-            address = member_address
-        )
+        user            = await models.mavryk_user_cache.get(address=member_address)
         user.council    = council
         await user.save()
 
