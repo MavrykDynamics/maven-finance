@@ -289,8 +289,7 @@ block{
 function setLambda(const setLambdaParams : setLambdaType; var s : doormanStorageType) : return is
 block{
     
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     // assign params to constants for better code readability
     const lambdaName    = setLambdaParams.name;

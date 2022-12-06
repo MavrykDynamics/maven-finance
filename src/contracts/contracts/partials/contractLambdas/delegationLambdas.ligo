@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case delegationLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +30,8 @@ block {
 function lambdaSetGovernance(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case delegationLambdaAction of [
         |    LambdaSetGovernance(newGovernanceAddress) -> {
@@ -46,7 +48,8 @@ block {
 function lambdaUpdateMetadata(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case delegationLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -67,7 +70,8 @@ block {
 function lambdaUpdateConfig(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    // verify that sender is admin 
+    verifySenderIsAdmin(s.admin); 
 
     case delegationLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -96,7 +100,8 @@ block {
 function lambdaUpdateWhitelistContracts(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin 
+    verifySenderIsAdmin(s.admin); 
 
     case delegationLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -113,7 +118,8 @@ block {
 function lambdaUpdateGeneralContracts(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin 
+    verifySenderIsAdmin(s.admin); 
 
     case delegationLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -139,8 +145,8 @@ block {
     case delegationLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
@@ -178,7 +184,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Pause all main entrypoints in the Delegation Contract
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case delegationLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
@@ -217,7 +224,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Unpause all main entrypoints in the Delegation Contract
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     // set all pause configs to False
     case delegationLambdaAction of [
@@ -257,7 +265,8 @@ block {
     // 1. Check that sender is admin
     // 2. Pause or unpause entrypoint depending on boolean parameter sent 
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin
+    verifySenderIsAdmin(s.admin); 
 
     case delegationLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
@@ -780,7 +789,7 @@ block {
                 operations := updateGovernanceSnapshot(userAddress, True, operations, s);
 
                 // Verify that sender is the Doorman Contract
-                checkSenderIsDoormanContract(s);
+                verifySenderIsDoormanContract(s);
 
                 // Update user's rewards
                 // s := updateRewards(userAddress, s);

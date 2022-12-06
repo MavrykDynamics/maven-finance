@@ -23,6 +23,8 @@ block {
 
 } with inContractAddressMap
 
+
+
 (* UpdateGeneralContracts Entrypoint *)
 function updateGeneralContractsMap(const updateGeneralContractsParams : updateGeneralContractsType; const generalContracts : generalContractsType) : generalContractsType is 
 block {
@@ -43,6 +45,8 @@ block {
         );
 
 } with (updatedGeneralContracts)
+
+
 
 (* Get an address from the governance contract general contracts map *)
 function getContractAddressFromGovernanceContract(const contractName : string; const governanceAddress : address; const errorCode : nat) : address is 
@@ -68,6 +72,8 @@ block {
     }
 
 } with inWhitelistContractsMap
+
+
 
 (* UpdateWhitelistContracts Function *)
 function updateWhitelistContractsMap(const updateWhitelistContractsParams : updateWhitelistContractsType; const whitelistContracts : whitelistContractsType) : whitelistContractsType is 
@@ -105,6 +111,8 @@ block {
      
 } with inWhitelistTokenContractsMap
 
+
+
 (* UpdateWhitelistTokenContracts Entrypoint *)
 function updateWhitelistTokenContractsMap(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; const whitelistTokenContracts : whitelistTokenContractsType) : whitelistTokenContractsType is 
 block {
@@ -135,5 +143,83 @@ block {
     if String.length(inputString) > maxLength then failwith(errorCode) else skip;
 
 } with unit 
+
+
+
+// helper function to verify first value is less than second value
+function verifyLessThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue > secondValue then failwith(errorCode)
+    else skip;
+
+} with unit
+
+
+
+// helper function to verify first value is greater than second value
+function verifyGreaterThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue < secondValue then failwith(errorCode)
+    else skip;
+
+} with unit
+
+
+
+// helper function to verify input is not 0
+function verifyNotZero(const input : nat; const errorCode : nat) : unit is 
+block {
+
+    if input = 0n then failwith(errorCode) else skip;
+
+} with unit
+
+
+
+// helper function to verify sender is admin
+function verifySenderIsAdmin(const adminAddress : address) : unit is
+block {
+
+    const senderIsAdmin : bool = adminAddress = Tezos.get_sender();
+    if senderIsAdmin then skip else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+} with unit
+
+
+
+// helper function to verify sender is admin or governance
+function verifySenderIsAdminOrGovernance(const adminAddress : address; const governanceAddress : address) : unit is
+block {
+
+    const senderIsAdminOrGovernance : bool = adminAddress = Tezos.get_sender() or governanceAddress = Tezos.get_sender();
+    if senderIsAdminOrGovernance then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+} with unit
+
+
+
+// helper function to verify sender is allowed (set of addresses)
+function verifySenderIsAllowed(const allowedSet : set(address); const errorCode : nat) : unit is
+block {
+
+    const senderIsAllowed : bool = allowedSet contains Tezos.get_sender();
+    if senderIsAllowed then skip else failwith(errorCode);
+
+} with unit
+
+
+
+// verify that sender is self or specified user
+function verifySenderIsSelfOrUser(const userAddress : address) : unit is
+block {
+
+    if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() 
+    then skip 
+    else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
+
+} with unit
+
 
 
