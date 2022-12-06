@@ -106,7 +106,7 @@ export const StageThreeForm = ({
   }
 
   const handleAddRow = () => {
-    const { address = '', id = 0 } = paymentMethods[0]
+    const { address = '', id = 0 } = paymentMethods?.[0] ?? {}
     const newId = -(proposalPayments.length + 1)
     updateLocalProposalData(
       {
@@ -205,7 +205,7 @@ export const StageThreeForm = ({
                   ({ paymentId }) => paymentId === rowItems.id,
                 )
                 const { symbol: selectedSymbol = 'MVK' } =
-                  paymentMethods.find(({ address }) => address === rowItems.token_address) ?? paymentMethods?.[0]
+                  paymentMethods.find(({ address }) => address === rowItems.token_address) ?? paymentMethods?.[0] ?? {}
 
                 if (!rowItems || rowItems.title === null || rowItems.token_amount === null) return null
 

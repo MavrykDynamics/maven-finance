@@ -23,6 +23,7 @@ import { isValidLength, isValidHttpUrl } from '../../../utils/validatorFunctions
 
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import '@silevis/reactgrid/styles.css'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 export const StageOneForm = ({
   proposalId,
@@ -113,7 +114,7 @@ export const StageOneForm = ({
   }
 
   return (
-    <form>
+    <>
       <FormHeaderGroup>
         <h1>Stage 1 </h1>
         <StatusFlag
@@ -148,11 +149,15 @@ export const StageOneForm = ({
         </FormTitleContainer>
         <div>
           <label>2 - Proposal Success Reward</label>
-          <FormTitleEntry>{successReward} MVK</FormTitleEntry>
+          <FormTitleEntry>
+            <CommaNumber value={successReward} endingText="MVK" />
+          </FormTitleEntry>
         </div>
         <div>
           <label>3 - Fee</label>
-          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
+          <FormTitleEntry>
+            <CommaNumber value={fee} endingText="XTZ" />
+          </FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
       {isProposalSubmitted ? (
@@ -178,7 +183,9 @@ export const StageOneForm = ({
       {isProposalSubmitted ? (
         <div className="desr-block">
           <label>5 - Proposal source code</label>
-          <FormTitleEntry>{currentProposal.sourceCode}</FormTitleEntry>
+          <FormTitleEntry>
+            <a href={currentProposal.sourceCode}>{currentProposal.sourceCode}</a>
+          </FormTitleEntry>
         </div>
       ) : (
         <div className="source-code-input-wrap">
@@ -194,6 +201,6 @@ export const StageOneForm = ({
           />
         </div>
       )}
-    </form>
+    </>
   )
 }

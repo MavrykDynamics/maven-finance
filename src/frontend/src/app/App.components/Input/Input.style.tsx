@@ -30,6 +30,13 @@ export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
     transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     will-change: border-color, box-shadow;
 
+    // for saving styling with autocomplete
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus {
+      transition: background-color 600000s 0s, color 600000s 0s;
+    }
+
     &.search {
       color: ${({ theme }) => theme.headerColor};
     }

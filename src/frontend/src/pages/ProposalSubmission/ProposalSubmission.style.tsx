@@ -14,11 +14,12 @@ export const SubmissionStyled = styled.section<{ theme: MavrykTheme }>`
   flex-direction: column;
 `
 
-export const ProposalSubmissionForm = styled(Card)`
+export const ProposalSubmissionForm = styled(Card)<{ theme: MavrykTheme }>`
   padding-bottom: 30px;
   position: relative;
   margin-top: 20px;
   padding-top: 28px;
+  min-height: 555px;
 
   h1 {
     margin-top: 0;
@@ -30,7 +31,7 @@ export const ProposalSubmissionForm = styled(Card)`
   }
 
   label {
-    color: ${headerColor};
+    color: ${({ theme }) => theme.textColor};
     padding-bottom: 9px;
     display: block;
     padding-left: 5px;
@@ -82,10 +83,10 @@ export const ProposalSubmissionForm = styled(Card)`
         left: 15px;
         top: 50%;
         transform: translateY(-50%);
-        font-weight: 600;
+        font-weight: 500;
         font-size: 14px;
         line-height: 14px;
-        color: ${({ theme }) => theme.headerColor};
+        color: ${({ theme }) => theme.textColor};
       }
 
       &:hover {
@@ -139,7 +140,7 @@ export const ProposalSubmissionForm = styled(Card)`
 
   .step-plus-bytes {
     position: absolute;
-    color: ${headerColor};
+    color: ${({ theme }) => theme.textColor};
     font-size: 24px;
     right: 0;
     bottom: -26px;
@@ -178,6 +179,7 @@ export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
   display: grid;
   grid-template-columns: 517px 1fr 170px;
   column-gap: 30px;
+  font-weight: 500;
 `
 export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>``
 
@@ -186,12 +188,21 @@ export const FormSubTitle = styled.p<{ theme: MavrykTheme }>`
   font-weight: 700;
 `
 export const FormTitleEntry = styled.div<{ theme: MavrykTheme }>`
-  font-weight: 700;
+  font-weight: 500;
   font-size: 14px;
   line-height: 14px;
   padding-left: 5px;
-  color: ${({ theme }) => theme.valueColor};
+  color: ${({ theme }) => theme.textColor};
   padding-top: 10px;
+
+  p {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  a {
+    color: ${cyanColor};
+  }
 `
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   margin: 15px 0;
@@ -260,7 +271,7 @@ export const ProposalSubmissionInvoiceImage = styled.div`
     height: 100%;
   }
 `
-export const FormTableGrid = styled.div`
+export const FormTableGrid = styled.div<{ theme: MavrykTheme }>`
   padding-top: 10px;
   margin-bottom: auto;
 
@@ -283,7 +294,7 @@ export const FormTableGrid = styled.div`
           border: none;
           background-color: transparent;
           box-shadow: unset;
-          color: ${cyanColor};
+          color: ${({ theme }) => theme.dataColor};
 
           &:hover {
             background-color: transparent;
@@ -298,6 +309,7 @@ export const FormTableGrid = styled.div`
             width: 85%;
             border: none;
             box-shadow: unset;
+            color: ${({ theme }) => theme.downColor};
 
             &:focus {
               box-shadow: unset;
@@ -307,7 +319,7 @@ export const FormTableGrid = styled.div`
           &.success {
             border: none;
             box-shadow: unset;
-            color: ${cyanColor};
+            color: ${({ theme }) => theme.dataColor};
 
             &:focus {
               box-shadow: unset;
