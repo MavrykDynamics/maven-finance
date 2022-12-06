@@ -237,11 +237,13 @@ export const normalizeProposal = (item: GovernanceProposalGraphQL, dipDupTokens?
       isLocalBytes: false,
     })),
     proposalPayments: item.payments.map((paymentData) => {
-      const decimals = dipDupTokens?.find(({ contract }) => contract === paymentData.token_address)?.metadata?.decimals
+      const decimals =
+        dipDupTokens?.find(({ contract }) => contract === paymentData.token_address)?.metadata?.decimals ?? 0
+
       return {
         ...paymentData,
         // we're getting amount * by 10 in decimals grage, need to parse it to initial user input
-        token_amount: Number(paymentData.token_amount) / Math.pow(10, Number(decimals)),
+        token_amount: Number(paymentData.token_amount) / Math.pow(10, Number(decimals)) ?? 0,
       }
     }),
     governanceId: item.governance_id,
@@ -290,6 +292,7 @@ export const normalizeGovernanceStorage = (
     currentRoundEndLevel: currentGovernance?.current_round_end_level ?? 0,
     currentRoundProposals: new MichelsonMap<string, ProposalRecordType>(),
     currentRoundStartLevel: currentGovernance?.current_round_start_level ?? 0,
+    cycle: currentGovernance?.cycle_id ?? 0,
     financialRequestLedger,
     nextProposalId: currentGovernance?.next_proposal_id ?? 0,
     proposalLedger,

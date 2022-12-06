@@ -45,7 +45,7 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
 
   td,
   input {
-    color: ${cyanColor};
+    color: ${({ theme }) => theme.dataColor};
     padding-left: 8px;
     padding-right: 8px;
     font-size: 14px;
@@ -88,7 +88,7 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
       td {
         border-top: none;
         font-weight: 700;
-        color: ${headerColor};
+        color: ${({ theme }) => theme.textColor};
 
         &:first-child {
           border-top-left-radius: 10px;

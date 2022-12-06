@@ -104,12 +104,12 @@ export const GovernanceRightContainer = styled(Card)<{ isAuthorized?: boolean; t
 
     li {
       &::marker {
-        color: ${skyColor};
+        color: ${({ theme }) => theme.textColor};
       }
     }
 
     h4 {
-      font-weight: 700;
+      font-weight: 500;
       font-size: 14px;
       line-height: 21px;
       color: ${headerColor};
@@ -121,11 +121,15 @@ export const GovernanceRightContainer = styled(Card)<{ isAuthorized?: boolean; t
       font-weight: 700;
       font-size: 14px;
       line-height: 14px;
-      color: ${cyanColor};
+      color: ${({ theme }) => theme.dataColor};
+
+      svg {
+        stroke: ${({ theme }) => theme.dataColor};
+      }
 
       p {
-        color: ${skyColor};
         margin: 0;
+        color: ${({ theme }) => theme.textColor};
       }
     }
 
@@ -163,33 +167,32 @@ export const GovernanceRightContainer = styled(Card)<{ isAuthorized?: boolean; t
     padding-left: 20px;
     font-size: 14px;
     line-height: 21px;
-    font-weight: 400;
+    font-weight: 500;
     margin-bottom: 30px;
+    color: ${({ theme }) => theme.textColor};
 
     li {
       margin-bottom: 6px;
+
+      svg {
+        stroke: ${({ theme }) => theme.textColorHovered};
+      }
     }
   }
   .visible-button {
-    text-decoration: underline;
-    color: ${headerColor};
+    color: ${({ theme }) => theme.textColorHovered};
     cursor: pointer;
     position: relative;
+    font-weight: 500;
     top: -1px;
-  }
-
-  .proposal-list-title {
-    font-weight: 700;
-    color: ${skyColor};
-  }
-
-  .proposal-list-title-valie {
-    color: ${cyanColor};
   }
 
   .proposal-list-bites {
     word-break: break-all;
-    color: ${skyColor};
+    color: ${({ theme }) => theme.dataColor};
+    button {
+      font-weight: 500;
+    }
   }
 
   .drop-proposal {
@@ -254,37 +257,34 @@ export const RightSideSubHeader = styled.div<{ theme: MavrykTheme }>`
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 10px;
-  color: ${({ theme }) => theme.headerColor};
+  color: ${({ theme }) => theme.textColor};
 `
 export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
   margin-top: 10px;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 14px;
-  line-height: 21px;
+  line-height: 24px;
   font-weight: normal;
   word-break: break-all;
+  color: ${({ theme }) => theme.dataColor};
 
-  &,
   a {
-    color: ${skyColor};
+    color: ${({ theme }) => theme.textColorHovered};
+  }
+
+  & {
+    font-weight: 500;
   }
 
   .address {
-    * {
-      color: ${cyanColor};
-      stroke: ${cyanColor};
-    }
+    stroke: ${({ theme }) => theme.dataColor};
   }
 
   &#votingDeadline {
-    color: ${cyanColor};
-    font-size: 12px;
-    line-height: 1;
+    color: ${({ theme }) => theme.dataColor};
+    font-size: 14px;
     font-weight: 600;
-
-    * {
-      color: ${cyanColor};
-    }
+    margin-bottom: 10px;
   }
 `
 
