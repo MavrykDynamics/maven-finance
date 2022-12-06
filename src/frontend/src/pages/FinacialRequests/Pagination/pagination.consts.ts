@@ -27,6 +27,7 @@ export const HISTORY_PROPOSALS_LIST_NAME = 'historyProposals'
 export const ONGOING_PROPOSALS_LIST_NAME = 'ongoingProposals'
 export const NEXT_PROPOSALS_LIST_NAME = 'nextProposals'
 export const ONGOING_VOTING_PROPOSALS_LIST_NAME = 'ongoingVotingProposals'
+export const GOVERNANCE_VOTERS_LIST_NAME = 'govVotets'
 
 export const BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME = 'myPastCouncilActions'
 export const BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME = 'pastBreakGlassCouncilActions'
@@ -52,6 +53,7 @@ export const LIST_NAMES_MAPPER: Record<string, number> = {
   [WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME]: 10,
   [HISTORY_PROPOSALS_LIST_NAME]: 10,
   [ONGOING_PROPOSALS_LIST_NAME]: 10,
+  [GOVERNANCE_VOTERS_LIST_NAME]: 10,
   [NEXT_PROPOSALS_LIST_NAME]: 10,
   [ONGOING_VOTING_PROPOSALS_LIST_NAME]: 10,
   [SATELITES_TOP_LIST_NAME]: 3,

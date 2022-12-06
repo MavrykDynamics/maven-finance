@@ -35,16 +35,28 @@ export const Governance = () => {
     accountPkh,
     user: { isSatellite },
   } = useSelector((state: State) => state.wallet)
+  const { isInitialDataloading } = useSelector((state: State) => state.loading)
   const { governanceStorage, governancePhase, currentRoundProposals, pastProposals } = useSelector(
     (state: State) => state.governance,
   )
 
   useEffect(() => {
-    dispatch(getEmergencyGovernanceStorage())
-    dispatch(getDelegationStorage())
-    dispatch(getGovernanceStorage())
-    dispatch(getCurrentRoundProposals())
-  }, [])
+    // TODO: clarify how to make this fethces on the global level, fetch some data after initial data loads
+    if (!isInitialDataloading) {
+      ;(async () => {
+        try {
+          await Promise.all([
+            dispatch(getCurrentRoundProposals()),
+            dispatch(getEmergencyGovernanceStorage()),
+            dispatch(getDelegationStorage()),
+            dispatch(getGovernanceStorage()),
+          ])
+        } catch (e) {
+          console.error('Governance data fetching error', e)
+        }
+      })()
+    }
+  }, [isInitialDataloading])
 
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'

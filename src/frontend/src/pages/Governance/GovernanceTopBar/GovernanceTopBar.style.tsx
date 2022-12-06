@@ -41,7 +41,7 @@ export const GovTopBarSidewaysArrowIcon = styled.svg<{ theme: MavrykTheme }>`
   display: inline-block;
   vertical-align: sub;
   margin: 0;
-  fill: ${({ theme }) => theme.headerColor};
+  fill: ${({ theme }) => theme.textColor};
 `
 
 export const GovTopBarPhaseText = styled.div<{ isCorrectPhase?: boolean; theme: MavrykTheme }>`
