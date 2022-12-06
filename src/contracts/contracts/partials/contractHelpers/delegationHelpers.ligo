@@ -8,76 +8,23 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : delegationStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(var s : delegationStorageType) : unit is
-    if (Tezos.get_sender() = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
-
-
-
-// Allowed Senders: Self
-function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
-    else failwith(error_ONLY_SELF_ALLOWED);
-
-
-
-// verify that sender is self or specified user
-function verifySenderIsSelfOrUser(const userAddress : address) : unit is
-block {
-
-    if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip 
-    else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
-
-} with unit
-
-
-
 // Allowed Senders: Doorman Contract
-function checkSenderIsDoormanContract(var s : delegationStorageType) : unit is
+function verifySenderIsDoormanContract(var s : delegationStorageType) : unit is
 block{
 
     const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-    if (Tezos.get_sender() = doormanAddress) then skip
-    else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
-
-} with unit
-
-
-
-// Allowed Senders: Governance Contract 
-function checkSenderIsGovernanceContract(var s : delegationStorageType) : unit is
-block{
-    
-    const governanceAddress : address = s.governanceAddress;
-    
-    if (Tezos.get_sender() = governanceAddress) then skip
-    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+    verifySenderIsAllowed(set[doormanAddress], error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 
 } with unit
 
 
 
 // Allowed Senders: Admin, Governance Satellite Contract
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : delegationStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : delegationStorageType) : unit is
 block{
-        
-    if Tezos.get_sender() = s.admin then skip
-    else {
 
-        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-
-        if Tezos.get_sender() = governanceSatelliteAddress then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-    }
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
 
 } with unit
 
@@ -112,18 +59,6 @@ block {
     else skip;
 
 } with unit
-
-
-
-// helper function to verify first value is less than second value
-function verifyLessThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
-block {
-
-    if firstValue > secondValue then failwith(errorCode)
-    else skip;
-
-} with unit
-
 
 
 
