@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { TokenPoolReward, setTokenPoolRewardLambdas } from '../helpers/tokenPoolRewardHelper'
+import { TokenPoolReward, setTokenPoolRewardLambdas } from '../contractHelpers/tokenPoolRewardTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

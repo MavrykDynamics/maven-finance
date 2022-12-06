@@ -6,12 +6,6 @@
 #include "../errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Constants
-// ------------------------------------------------------------------------------
-
-const zeroTimestamp : timestamp = ("1970-01-01t00:00:00Z" : timestamp);
-
-// ------------------------------------------------------------------------------
 // General Contract Helpers
 // ------------------------------------------------------------------------------
 
@@ -29,6 +23,8 @@ block {
 
 } with inContractAddressMap
 
+
+
 (* UpdateGeneralContracts Entrypoint *)
 function updateGeneralContractsMap(const updateGeneralContractsParams : updateGeneralContractsType; const generalContracts : generalContractsType) : generalContractsType is 
 block {
@@ -36,7 +32,7 @@ block {
     const contractName     : string  = updateGeneralContractsParams.generalContractName;
     const contractAddress  : address = updateGeneralContractsParams.generalContractAddress; 
 
-    const existingAddress : option(address) = case Map.find_opt(contractName, generalContracts) of [
+    const existingAddress : option(address) = case generalContracts[contractName] of [
             Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress) : option(address))
         |   None            -> (Some (contractAddress) : option(address))
     ];
@@ -49,6 +45,8 @@ block {
         );
 
 } with (updatedGeneralContracts)
+
+
 
 (* Get an address from the governance contract general contracts map *)
 function getContractAddressFromGovernanceContract(const contractName : string; const governanceAddress : address; const errorCode : nat) : address is 
@@ -75,6 +73,8 @@ block {
 
 } with inWhitelistContractsMap
 
+
+
 (* UpdateWhitelistContracts Function *)
 function updateWhitelistContractsMap(const updateWhitelistContractsParams : updateWhitelistContractsType; const whitelistContracts : whitelistContractsType) : whitelistContractsType is 
 block {
@@ -82,7 +82,7 @@ block {
     const contractName     : string  = updateWhitelistContractsParams.whitelistContractName;
     const contractAddress  : address = updateWhitelistContractsParams.whitelistContractAddress;
 
-    const existingAddress : option(address) = case Map.find_opt(contractName, whitelistContracts) of [
+    const existingAddress : option(address) = case whitelistContracts[contractName] of [
             Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress) : option(address))
         |   None            -> (Some (contractAddress) : option(address))
     ];
@@ -111,6 +111,8 @@ block {
      
 } with inWhitelistTokenContractsMap
 
+
+
 (* UpdateWhitelistTokenContracts Entrypoint *)
 function updateWhitelistTokenContractsMap(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; const whitelistTokenContracts : whitelistTokenContractsType) : whitelistTokenContractsType is 
 block {
@@ -130,7 +132,6 @@ block {
 
 } with (updatedWhitelistTokenContracts)
 
-
 // ------------------------------------------------------------------------------
 // General Helpers
 // ------------------------------------------------------------------------------
@@ -143,3 +144,33 @@ block {
 } with unit 
 
 
+
+// helper function to verify first value is less than second value
+function verifyLessThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue > secondValue then failwith(errorCode)
+    else skip;
+
+} with unit
+
+
+
+// helper function to verify first value is greater than second value
+function verifyGreaterThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue < secondValue then failwith(errorCode)
+    else skip;
+
+} with unit
+
+
+
+// helper function to verify input is greater than 0
+function verifyNotZero(const input : nat; const errorCode : nat) : unit is 
+block {
+
+    if input = 0n then failwith(errorCode) else skip;
+
+} with unit

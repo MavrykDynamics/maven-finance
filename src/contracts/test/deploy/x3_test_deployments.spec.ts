@@ -22,42 +22,42 @@ import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer }
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Governance, setGovernanceLambdas } from '../helpers/governanceHelper'
-import { GovernanceFinancial, setGovernanceFinancialLambdas } from '../helpers/governanceFinancialHelper'
-import { GovernanceSatellite, setGovernanceSatelliteLambdas } from '../helpers/governanceSatelliteHelper'
-import { GovernanceProxy, setGovernanceProxyContractLambdas, setGovernanceProxyContractProxyLambdas } from '../helpers/governanceProxyHelper'
-import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../helpers/emergencyGovernanceHelper'
-import { BreakGlass, setBreakGlassLambdas } from '../helpers/breakGlassHelper'
-import { Vesting, setVestingLambdas } from '../helpers/vestingHelper'
-import { Council, setCouncilLambdas } from '../helpers/councilHelper'
+import { Governance, setGovernanceLambdas } from '../contractHelpers/governanceTestHelper'
+import { GovernanceFinancial, setGovernanceFinancialLambdas } from '../contractHelpers/governanceFinancialTestHelper'
+import { GovernanceSatellite, setGovernanceSatelliteLambdas } from '../contractHelpers/governanceSatelliteTestHelper'
+import { GovernanceProxy, setGovernanceProxyContractLambdas, setGovernanceProxyContractProxyLambdas } from '../contractHelpers/governanceProxyTestHelper'
+import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../contractHelpers/emergencyGovernanceTestHelper'
+import { BreakGlass, setBreakGlassLambdas } from '../contractHelpers/breakGlassTestHelper'
+import { Vesting, setVestingLambdas } from '../contractHelpers/vestingTestHelper'
+import { Council, setCouncilLambdas } from '../contractHelpers/councilTestHelper'
 
-import { Doorman, setDoormanLambdas } from '../helpers/doormanHelper'
-import { Delegation, setDelegationLambdas } from '../helpers/delegationHelper'
+import { Doorman, setDoormanLambdas } from '../contractHelpers/doormanTestHelper'
+import { Delegation, setDelegationLambdas } from '../contractHelpers/delegationTestHelper'
 
-import { Farm, setFarmLambdas } from "../helpers/farmHelper"
-import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas } from "../helpers/farmFactoryHelper"
+import { Farm, setFarmLambdas } from "../contractHelpers/farmTestHelper"
+import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas } from "../contractHelpers/farmFactoryTestHelper"
 
-import { Treasury, setTreasuryLambdas } from '../helpers/treasuryHelper'
+import { Treasury, setTreasuryLambdas } from '../contractHelpers/treasuryTestHelper'
 import { TreasuryFactory, 
   setTreasuryFactoryLambdas, setTreasuryFactoryProductLambdas 
-} from '../helpers/treasuryFactoryHelper'
+} from '../contractHelpers/treasuryFactoryTestHelper'
 
-import {Aggregator, setAggregatorLambdas} from '../helpers/aggregatorHelper'
+import {Aggregator, setAggregatorLambdas} from '../contractHelpers/aggregatorTestHelper'
 import {
   AggregatorFactory,
   setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
-} from '../helpers/aggregatorFactoryHelper'
+} from '../contractHelpers/aggregatorFactoryTestHelper'
 
-import { MvkToken } from '../helpers/mvkHelper'
-import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
-import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
-import { LPToken } from "../helpers/testLPHelper"
-import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
+import { MvkToken } from '../contractHelpers/mvkTestHelper'
+import { MavrykFa12Token } from '../contractHelpers/mavrykFa12TokenTestHelper'
+import { MavrykFa2Token } from '../contractHelpers/mavrykFa2TokenTestHelper'
+import { LPToken } from "../contractHelpers/testLPHelper"
+import { TokenPoolLpToken } from "../contractHelpers/tokenPoolLpTokenTestHelper"
 
-import { Vault } from "../helpers/vaultHelper"
+import { Vault } from "../contractHelpers/vaultTestHelper"
 
-import { LendingController, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerHelper"
-import { TokenPoolReward } from "../helpers/tokenPoolRewardHelper"
+import { LendingController, setLendingControllerLambdas } from "../contractHelpers/lendingControllerTestHelper"
+import { TokenPoolReward } from "../contractHelpers/tokenPoolRewardTestHelper"
 
 
 // ------------------------------------------------------------------------------
@@ -87,8 +87,8 @@ import { aggregatorStorage } from '../../storage/aggregatorStorage'
 import { aggregatorFactoryStorage } from '../../storage/aggregatorFactoryStorage'
 
 import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
-import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
-import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import { mavrykFa12TokenStorage } from '../../storage/mavrykFa12TokenStorage'
+import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage"
 import { tokenPoolLpTokenStorage } from "../../storage/tokenPoolLpTokenStorage"
 
@@ -125,8 +125,8 @@ describe('Contracts Deployment for Tests', async () => {
   var farmFA2: Farm;
   var farmFactory: FarmFactory;
   var lpToken: LPToken;
-  var mockFa12Token : MockFa12Token
-  var mockFa2Token : MockFa2Token
+  var mockFa12Token : MavrykFa12Token
+  var mockFa2Token : MavrykFa2Token
 
   var mockUsdXtzAggregator : Aggregator;
   var mockUsdMockFa12TokenAggregator : Aggregator;
@@ -336,17 +336,17 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Treasury Factory Contract deployed at:', treasuryFactory.contract.address)
   
   
-      mockFa12Token = await MockFa12Token.originate(
+      mockFa12Token = await MavrykFa12Token.originate(
         utils.tezos,
-        mockFa12TokenStorage
+        mavrykFa12TokenStorage
       )
   
       await saveContractAddress('mockFa12TokenAddress', mockFa12Token.contract.address)
       console.log('Mock FA12 Token Contract deployed at:', mockFa12Token.contract.address)
   
-      mockFa2Token = await MockFa2Token.originate(
+      mockFa2Token = await MavrykFa2Token.originate(
         utils.tezos,
-        mockFa2TokenStorage
+        mavrykFa2TokenStorage
       )
   
       await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
@@ -429,26 +429,21 @@ describe('Contracts Deployment for Tests', async () => {
   
 
       aggregatorStorage.config = {
-        nameMaxLength                       : new BigNumber(200),
         decimals                            : new BigNumber(6),
-        numberBlocksDelay                   : new BigNumber(2),
+        alphaPercentPerThousand             : new BigNumber(2),
         
-        deviationTriggerBanDuration         : new BigNumber(86400), // one day
-        perThousandDeviationTrigger         : new BigNumber(2),
         percentOracleThreshold              : new BigNumber(49),
-    
-        requestRateDeviationDepositFee      : new BigNumber(0),
+        heartBeatSeconds                    : new BigNumber(3),
         
-        deviationRewardStakedMvk            : new BigNumber(15000000), // 0.015 MVK
-        deviationRewardAmountXtz            : new BigNumber(0),  
         rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
         rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
       };
-      aggregatorStorage.lastCompletedRoundPrice = {
+      aggregatorStorage.lastCompletedData = {
         round                   : new BigNumber(0),
-        price                   : new BigNumber(1500000),
+        epoch                   : new BigNumber(0),
+        data                    : new BigNumber(1500000),
         percentOracleResponse   : new BigNumber(100),
-        priceDateTime           : '1'
+        lastUpdatedAt           : '1'
       };
       mockUsdMockFa12TokenAggregator = await Aggregator.originate(
         utils.tezos,
@@ -459,11 +454,12 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Mock USD/MockFA12Token Aggregator Contract deployed at:', mockUsdMockFa12TokenAggregator.contract.address)
 
 
-      aggregatorStorage.lastCompletedRoundPrice = {
+      aggregatorStorage.lastCompletedData = {
         round                   : new BigNumber(0),
-        price                   : new BigNumber(3500000),
+        epoch                   : new BigNumber(0),
+        data                    : new BigNumber(3500000),
         percentOracleResponse   : new BigNumber(100),
-        priceDateTime           : '1'
+        lastUpdatedAt           : '1'
       };
       mockUsdMockFa2TokenAggregator = await Aggregator.originate(
         utils.tezos,
@@ -474,11 +470,12 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Mock USD/MockFA2Token Aggregator Contract deployed at:', mockUsdMockFa2TokenAggregator.contract.address)
 
 
-      aggregatorStorage.lastCompletedRoundPrice = {
+      aggregatorStorage.lastCompletedData = {
         round                   : new BigNumber(0),
-        price                   : new BigNumber(1800000),
+        epoch                   : new BigNumber(0),
+        data                    : new BigNumber(1800000),
         percentOracleResponse   : new BigNumber(100),
-        priceDateTime           : '1'
+        lastUpdatedAt           : '1'
       };
       mockUsdXtzAggregator = await Aggregator.originate(
         utils.tezos,
@@ -618,8 +615,8 @@ describe('Contracts Deployment for Tests', async () => {
       console.log("Lending Controller Lambdas Setup")
 
       // Lending Controller Setup Vault Lambdas
-      await setLendingControllerProductLambdas(tezos, lendingController.contract)
-      console.log("Lending Controller Vault Lambdas Setup")
+      // await setLendingControllerProductLambdas(tezos, lendingController.contract)
+      // console.log("Lending Controller Vault Lambdas Setup")
   
     
       // Set Lambdas End
