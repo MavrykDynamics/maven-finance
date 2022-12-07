@@ -320,8 +320,8 @@ block{
 function setLambda(const setLambdaParams: setLambdaType; var s: farmStorageType) : return is
 block{
     
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    // verify that sender is admin
+    verifySenderIsAdmin(s.admin);
     
     // assign params to constants for better code readability
     const lambdaName    = setLambdaParams.name;

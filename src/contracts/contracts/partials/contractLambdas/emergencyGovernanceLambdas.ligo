@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
-    checkNoAmount(Unit);      // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +30,8 @@ block {
 function lambdaSetGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
-    checkNoAmount(Unit);     // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -69,8 +69,8 @@ block {
 function lambdaUpdateConfig(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin 
+  verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+  verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -100,7 +100,7 @@ block {
 function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -117,7 +117,7 @@ block {
 function lambdaUpdateWhitelistContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -143,8 +143,8 @@ block {
     case emergencyGovernanceLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify if the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
@@ -274,7 +274,7 @@ block {
     //    - Trigger break glass in Governance contract  - set Governance Contract admin to Break Glass Contract address
     // 7. Update storage - emergency governance record
 
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
 
     var operations : list(operation) := nil;
 
@@ -354,7 +354,7 @@ block {
     // 4. Update Emergency Governance Record dropped boolean to true and update storage
     // 5. Reset currentEmergencyGovernanceId to 0
 
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
 
     case emergencyGovernanceLambdaAction of [
         |   LambdaDropEmergencyGovernance(_parameters) -> {

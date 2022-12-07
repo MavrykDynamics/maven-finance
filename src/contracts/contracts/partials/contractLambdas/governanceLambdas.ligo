@@ -17,7 +17,7 @@ block {
     // 2. Get Break Glass Contract address from the general contracts map
     // 3. Set Governance Contract admin to the Break Glass Contract
 
-    checkSenderIsEmergencyGovernanceContract(s); // Check that sender is from the Emergency Governance Gontract 
+    verifySenderIsEmergencyGovernanceContract(s); // verify that sender is from the Emergency Governance Gontract 
 
     case governanceLambdaAction of [
         |   LambdaBreakGlass(_parameters) -> {
@@ -48,7 +48,7 @@ block {
     //      -   First, trigger pauseAll entrypoint in contract 
     //      -   Second, trigger setAdmin entrypoint in contract to change admin to Break Glass Contract
 
-    checkSenderIsAdmin(s); // Check that sender is admin (if glass has been broken, admin should be the Break Glass Contract)
+    verifySenderIsAdmin(s.admin); // Check that sender is admin (if glass has been broken, admin should be the Break Glass Contract)
 
     var operations : list(operation) := nil;
 
@@ -97,8 +97,8 @@ block {
     //      -   Check if the new admin address is the Break Glass Contract
     // 4. Set new admin address
 
-    checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
-    checkSenderIsAdmin(s);  // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifySenderIsAdmin(s.admin); // verify that sender is admin (e.g. Governance Proxy contract)
     
     case governanceLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -126,8 +126,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Set new Governance Proxy Contract address
     
-    checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
-    checkSenderIsAdmin(s);  // check that sender is admin
+    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceLambdaAction of [
         |   LambdaSetGovernanceProxy(newGovernanceProxyAddress) -> {
@@ -148,8 +148,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Set new contract metadata
 
-    checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
-    checkSenderIsAdmin(s);  // check that sender is admin 
+    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -175,8 +175,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update config with new input (validate if necessary)
 
-    checkNoAmount(Unit);   // check that no tez is sent to the entrypoint
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifyNoAmountSent(Unit);   // check that no tez is sent to the entrypoint
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -223,8 +223,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update general contracts map
 
-    checkSenderIsWhitelistedOrAdmin(s); // check that sender is admin or whitelisted (e.g. Factory contracts)
-    checkNoAmount(Unit);                // check that no tez is sent to the entrypoint
+    verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
+    verifyNoAmountSent(Unit);            // verify that no tez is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -246,8 +246,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update whitelist contracts map
 
-    checkSenderIsAdmin(s);  // check that sender is admin
-    checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -270,8 +270,8 @@ block {
     // 3. Remove developer address if it is already present in the whitelist developers set, otherwise add developer address
     //      -   Check that there will always be at least one whitelisted developer address present
 
-    checkSenderIsAdmin(s);  // check that sender is admin
-    checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint
 
     case governanceLambdaAction of [
             LambdaUpdateWhitelistDevelopers(developer) -> 
@@ -300,8 +300,8 @@ block {
     case governanceLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList: list(operation)) : list(operation) is
@@ -334,8 +334,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Create operation to set new admin of contract
 
-    checkSenderIsAdmin(s);  // check that sender is admin
-    checkNoAmount(Unit);    // check that no tez is sent to the entrypoint    
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
 
     var operations : list(operation) := nil;
 
@@ -362,8 +362,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Create operation to set new Governance Address of contract
 
-    checkSenderIsAdmin(s);  // check that sender is admin
-    checkNoAmount(Unit);    // check that no tez is sent to the entrypoint    
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
 
     // Operations list
     var operations : list(operation) := nil;
@@ -399,8 +399,8 @@ block {
     case governanceLambdaAction of [
         |   LambdaUpdateSatelliteSnapshot(updateSatelliteSnapshotParams) -> {
 
-                // Check sender is in the whitelist contracts or is the admin
-                checkSenderIsWhitelistedOrAdmin(s);
+                // Verify sender is whitelisted or is the admin
+                verifySenderIsWhitelistedOrAdmin(s);
                 
                 // Update the storage with the new snapshot
                 s := updateSatelliteSnapshotRecord(updateSatelliteSnapshotParams, s);
