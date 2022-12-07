@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -32,7 +32,7 @@ block {
 function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -52,10 +52,8 @@ block {
 function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount
+    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case councilLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -76,10 +74,8 @@ block {
 function lambdaUpdateConfig(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case councilLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -109,8 +105,7 @@ block {
 function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case councilLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -127,8 +122,7 @@ block {
 function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case councilLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

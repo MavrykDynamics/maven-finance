@@ -90,12 +90,6 @@ function checkSenderIsAdmin(const store : mvkTokenStorageType) : unit is
 
 
 
-function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-    else unit
-
-
-
 function checkSenderIsDoormanContract(const store : mvkTokenStorageType) : unit is
 if getContractAddressFromGovernanceContract("doorman", store.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND) =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
 
@@ -593,7 +587,7 @@ block {
 function main (const action : action; const store : mvkTokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
 
 } with(
     

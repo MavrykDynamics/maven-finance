@@ -331,7 +331,7 @@ block {
                 const satelliteAddress  : address = delegateToSatelliteParams.satelliteAddress;
 
                 // Check if the sender is the user specified in parameters, or the Delegation Contract
-                verifySenderIsSelfOrUser(userAddress);
+                verifySenderIsSelfOrAddress(userAddress);
 
                 // Check that user is not a satellite
                 checkUserIsNotSatellite(userAddress, s);
@@ -446,7 +446,7 @@ block {
         |   LambdaUndelegateFromSatellite(userAddress) -> {
 
                 // Verify that sender is self (Delegation Contract) or userAddress -> Needed now because a user can compound for another user, so onStakeChange needs to reference a userAddress
-                verifySenderIsSelfOrUser(userAddress);
+                verifySenderIsSelfOrAddress(userAddress);
 
                 // Get user's delegate record
                 var delegateRecord : delegateRecordType := getDelegateRecord(userAddress, s);
@@ -581,7 +581,7 @@ block {
         |   LambdaUnregisterAsSatellite(userAddress) -> {
 
                 // Check if sender is self (Delegation Contract) or userAddress
-                verifySenderIsSelfOrUser(userAddress);
+                verifySenderIsSelfOrAddress(userAddress);
 
                 // Check that sender is a satellite
                 checkUserIsSatellite(userAddress, s);

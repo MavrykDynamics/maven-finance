@@ -116,7 +116,7 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 function main (const action : delegationAction; const s : delegationStorageType) : return is 
 block{
 
-    checkNoAmount(unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(unit); // entrypoints should not receive any tez amount  
 
 } with (case action of [    
 
