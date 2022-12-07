@@ -8,79 +8,24 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(const s : farmStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(const s : farmStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
-    else unit
-
-
-
-// Allowed Senders: Council, Farm Factory Contract
-function checkSenderIsCouncilOrFarmFactory(const s : farmStorageType) : unit is
-block {
-
-    const councilAddress : address = case s.whitelistContracts["council"] of [
-            Some (_address) -> _address
-        |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
-    ];
-
-    if Tezos.get_sender() = councilAddress then skip
-    else {
-
-        const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND) : address)
-        ];
-
-        if Tezos.get_sender() = farmFactoryAddress then skip
-        else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
-
-    }
-
-} with(unit)
-
-
-
 // Allowed Senders: Admin, Governance Contract, Farm Factory Contract
-function checkSenderIsGovernanceOrFactory(const s : farmStorageType) : unit is
+function verifySenderIsGovernanceOrFactory(const s : farmStorageType) : unit is
 block {
 
-    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress then skip
-    else{
-
-        const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED) : address)
-        ];
-
-        if Tezos.get_sender() = farmFactoryAddress then skip 
-        else failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED);
-
-    };
+    const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; s.governanceAddress; farmFactoryAddress], error_ONLY_ADMIN_OR_GOVERNANCE_OR_FARM_FACTORY_CONTRACT_ALLOWED)
 
 } with(unit)
 
 
 
 // Allowed Senders: Admin, Governance Satellite Contract
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : farmStorageType) : unit is
 block{
-    if Tezos.get_sender() = s.admin then skip
-    else {
 
-        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
 
-        if Tezos.get_sender() = governanceSatelliteAddress then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-
-    }
 } with unit
 
 
@@ -102,13 +47,6 @@ function checkFarmIsInit(const s : farmStorageType) : unit is
 // Get the Deposit of a user
 function getDepositorDeposit(const depositor : depositorType; const s : farmStorageType) : option(depositorRecordType) is
     Big_map.find_opt(depositor, s.depositorLedger)
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-    else unit
 
 
 
@@ -469,7 +407,7 @@ block {
     
     // get lambda bytes from lambda ledger
     const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-        |   Some(_v) -> _v
+            Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 

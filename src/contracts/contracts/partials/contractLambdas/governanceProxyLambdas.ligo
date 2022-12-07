@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address     // check that sender is admin or the Governance Contract address   
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceProxyLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +30,8 @@ block {
 function lambdaSetGovernance(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address     // check that sender is admin or the Governance Contract address   
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceProxyLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -48,8 +48,8 @@ block {
 function lambdaUpdateMetadata(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
 
-    checkNoAmount(Unit);      // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s);    // check that sender is admin
+    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin);  // verify that sender is admin
     
     case governanceProxyLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -70,8 +70,8 @@ block {
 function lambdaUpdateWhitelistContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkNoAmount(Unit);      // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s);    // check that sender is admin
+    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin);  // verify that sender is admin
     
     case governanceProxyLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -88,8 +88,8 @@ block {
 function lambdaUpdateGeneralContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
 
-    checkNoAmount(Unit);      // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s);    // check that sender is admin
+    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin);  // verify that sender is admin
     
     case governanceProxyLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -106,8 +106,8 @@ block {
 function lambdaUpdateWhitelistTokenContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
 
-    checkNoAmount(Unit);      // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s);    // check that sender is admin
+    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin);  // verify that sender is admin
 
     case governanceProxyLambdaAction of [
         |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
@@ -135,8 +135,8 @@ block {
     case governanceProxyLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
@@ -168,7 +168,8 @@ block {
 function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
     const id : nat = case executeAction of [
@@ -252,7 +253,8 @@ block {
 function updateProxyLambda(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case executeAction of [
         |   UpdateProxyLambda(params) -> {
@@ -284,7 +286,8 @@ block {
 function setContractAdmin(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -316,7 +319,8 @@ block {
 function setContractGovernance(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -348,7 +352,8 @@ block {
 function setContractLambda(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -387,7 +392,8 @@ block {
 function setFactoryProductLambda(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -426,7 +432,8 @@ block {
 function updateContractMetadata(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -464,7 +471,8 @@ block {
 function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -502,7 +510,8 @@ block {
 function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -540,7 +549,8 @@ block {
 function updateContractWhitelistTokenMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
  
     var operations : list(operation) := nil;
 
@@ -578,7 +588,8 @@ block {
 function setContractName(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -611,7 +622,8 @@ block {
 function updateContractConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -645,7 +657,8 @@ block {
 function pauseAllContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -673,7 +686,8 @@ block {
 function unpauseAllContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -701,7 +715,8 @@ block {
 function toggleContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -731,7 +746,8 @@ block {
 function updateWhitelistDevelopersSet(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -759,7 +775,8 @@ block {
 function setGovernanceProxy(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -795,7 +812,8 @@ block {
 function createFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -834,7 +852,8 @@ block {
 function trackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -873,7 +892,8 @@ block {
 function untrackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -912,7 +932,8 @@ block {
 function initFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -952,7 +973,8 @@ block {
 function closeFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -988,7 +1010,8 @@ block {
 function createTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1027,7 +1050,8 @@ block {
 function trackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1066,7 +1090,8 @@ block {
 function untrackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1105,7 +1130,8 @@ block {
 function transferTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1146,7 +1172,8 @@ block {
 function updateMvkOperatorsTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1187,7 +1214,8 @@ block {
 function mintMvkAndTransferTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1228,7 +1256,8 @@ block {
 function stakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1268,7 +1297,8 @@ block {
 function unstakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1309,7 +1339,8 @@ block {
 function createAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1348,7 +1379,8 @@ block {
 function trackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1387,7 +1419,8 @@ block {
 function untrackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1426,7 +1459,8 @@ block {
 function updateMvkInflationRate(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1462,7 +1496,8 @@ block {
 function triggerMvkInflation(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1498,7 +1533,8 @@ block {
 function addVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1537,7 +1573,8 @@ block {
 function removeVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1576,7 +1613,8 @@ block {
 function updateVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -1615,7 +1653,8 @@ block {
 function toggleVesteeLock(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 

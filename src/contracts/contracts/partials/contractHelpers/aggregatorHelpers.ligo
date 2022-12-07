@@ -8,91 +8,24 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders : Admin, Governance Contract
-function checkSenderIsAllowed(var s : aggregatorStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders : Admin
-function checkSenderIsAdmin(const s : aggregatorStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
-    else unit
-
-
-
 // Allowed Senders : Admin, Governance Satellite Contract
-function checkSenderIsAdminOrGovernanceSatellite(const s : aggregatorStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(const s : aggregatorStorageType) : unit is
 block {
 
-    if Tezos.get_sender() = s.admin then skip
-    else{
-        const governanceSatelliteAddress : address = case s.whitelistContracts["governanceSatellite"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
-        ];
-
-        if Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED);
-    };
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
 
 } with(unit)
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : aggregatorStorageType) : unit is
-block{
-  if Tezos.get_sender() = s.admin then skip
-  else {
-    const governanceSatelliteAddress: address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-
-    if Tezos.get_sender() = governanceSatelliteAddress then skip
-      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-  }
-} with unit
-
-
-
-function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
+// Allowed Senders : Admin, Governance Contract, Governance Satellite Contract, Aggregator Factory Contract
+function verifySenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
-    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress then skip
-    else {
-        const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : address)
-        ];
-
-        const governanceSatelliteAddress : address = case s.whitelistContracts["governanceSatellite"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
-        ];
-
-        if Tezos.get_sender() = aggregatorFactoryAddress or Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
-    };
-
-} with(unit)
-
-
-
-// Allowed Senders : Admin, Governance Satellite Contract, Aggregator Factory Contract
-function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s : aggregatorStorageType) : unit is
-block {
-
-    if Tezos.get_sender() = s.admin then skip
-    else {
-        const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : address)
-        ];
-
-        const governanceSatelliteAddress : address = case s.whitelistContracts["governanceSatellite"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
-        ];
-
-        if Tezos.get_sender() = aggregatorFactoryAddress or Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
-    };
+    const aggregatorFactoryAddress    : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
+    const governanceSatelliteAddress  : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; s.governanceAddress; governanceSatelliteAddress; aggregatorFactoryAddress], error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED)
 
 } with(unit)
 
@@ -200,13 +133,6 @@ block {
     checkSatelliteStatus(satelliteAddress, delegationAddress, True, True);
 
 } with unit
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -743,7 +669,7 @@ block {
     
     // get lambda bytes from lambda ledger
     const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-        |   Some(_v) -> _v
+            Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 

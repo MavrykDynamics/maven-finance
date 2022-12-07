@@ -108,7 +108,7 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 function main (const action : farmFactoryAction; var s : farmFactoryStorageType) : return is
 block{
     
-    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with (
 

@@ -8,59 +8,14 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : emergencyGovernanceStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(var s : emergencyGovernanceStorageType) : unit is
-    if (Tezos.get_sender() = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
-
-
-
-// Allowed Senders: MVK Token Contract
-function checkSenderIsMvkTokenContract(var s : emergencyGovernanceStorageType) : unit is    
-    if (Tezos.get_sender() = s.mvkTokenAddress) then unit
-    else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
-
-
-
-// Allowed Senders: Doorman Contract
-function checkSenderIsDoormanContract(var s : emergencyGovernanceStorageType) : unit is
-block{
-
-    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-    if (Tezos.get_sender() = doormanAddress) then skip
-    else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
-
-} with unit
-
-
-
 // Allowed Senders: Admin, Governance Satellite Contract
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : emergencyGovernanceStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : emergencyGovernanceStorageType) : unit is
 block{
-    if Tezos.get_sender() = s.admin then skip
-    else {
 
-        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
 
-        if Tezos.get_sender() = governanceSatelliteAddress then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-    }
 } with unit
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -339,7 +294,7 @@ block {
     
     // get lambda bytes from lambda ledger
     const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-        |   Some(_v) -> _v
+            Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 

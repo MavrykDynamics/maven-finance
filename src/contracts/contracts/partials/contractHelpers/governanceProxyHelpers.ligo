@@ -9,13 +9,6 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders : Admin
-function checkSenderIsAdmin(var s : governanceProxyStorageType) : unit is
-    if (Tezos.get_sender() = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
-
-
-
 // Allowed Senders : Self
 function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.get_sender() = Tezos.get_self_address()) then unit
@@ -31,28 +24,14 @@ function checkSenderIsAdminOrGovernance(var s : governanceProxyStorageType) : un
 
 
 // Allowed Senders : Admin, Governance Satellite Contract
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorageType) : unit is
 block{
 
-    if Tezos.get_sender() = s.admin then skip
-    else {
-
-        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-
-        if Tezos.get_sender() = governanceSatelliteAddress then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-
-    }
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
 
 } with unit
     
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -841,7 +820,7 @@ block {
     
     // get lambda bytes from lambda ledger
     const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-        |   Some(_v) -> _v
+            Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 

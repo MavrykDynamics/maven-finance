@@ -108,7 +108,7 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 function main (const action : breakGlassAction; const s : breakGlassStorageType) : return is 
 block {
 
-    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with(
 

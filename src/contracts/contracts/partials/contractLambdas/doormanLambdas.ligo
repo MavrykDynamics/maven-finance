@@ -181,7 +181,7 @@ block {
     // 4. Get Doorman MVK balance from MVK Token Contract - equivalent to total staked MVK supply
     // 5. Create a transfer to transfer all funds to an upgraded Doorman Contract
     
-    checkNoAmount(Unit);          // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     var operations : list(operation) := nil;
@@ -278,7 +278,7 @@ block {
 function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    checkNoAmount(Unit);          // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     case doormanLambdaAction of [

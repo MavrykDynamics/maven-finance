@@ -44,7 +44,6 @@ block {
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-
     case breakGlassLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
