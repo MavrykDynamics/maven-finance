@@ -95,7 +95,7 @@ type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorag
 function main (const action : vestingAction; const s : vestingStorageType) : return is
 block{
         
-    checkNoAmount(unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(unit); // entrypoints should not receive any tez amount  
 
 } with (case action of [
 

@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
     
     case governanceFinancialLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +30,8 @@ block {
 function lambdaSetGovernance(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
     
     case governanceFinancialLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceFinancialLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -69,8 +69,8 @@ block {
 function lambdaUpdateConfig(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+  verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+  verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case governanceFinancialLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -94,8 +94,8 @@ block {
 (*  updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
-    
-    checkSenderIsAdmin(s); // check that sender is admin
+
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceFinancialLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -111,8 +111,8 @@ block {
 (*  updateGeneralContracts lambda *)
 function lambdaUpdateGeneralContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
-
-    checkSenderIsAdmin(s); // check that sender is admin
+    
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceFinancialLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -129,7 +129,7 @@ block {
 function lambdaUpdateWhitelistTokenContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceFinancialLambdaAction of [
         |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
@@ -155,8 +155,8 @@ block {
     case governanceFinancialLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
@@ -203,7 +203,7 @@ block {
     // 6. Create new financial request record - "TRANSFER"
     // 7. Update storage with new records
   
-    checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
+    verifySenderIsCouncilContract(s); // verify that sender is the Council contract
 
     case governanceFinancialLambdaAction of [
         |   LambdaRequestTokens(requestTokensParams) -> 
@@ -244,7 +244,7 @@ block {
     // 5. Create new financial request record - "MINT"
     // 6. Update storage with new records 
   
-    checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
+    verifySenderIsCouncilContract(s); // verify that sender is the Council contract
 
     case governanceFinancialLambdaAction of [
         |   LambdaRequestMint(requestMintParams) -> 
@@ -285,7 +285,7 @@ block {
     // 5. Create new financial request record - "SET_CONTRACT_BAKER"
     // 6. Update storage with new records 
   
-    checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
+    verifySenderIsCouncilContract(s); // verify that sender is the Council contract
 
     case governanceFinancialLambdaAction of [
         |   LambdaSetContractBaker(setContractBakerParams) -> 
@@ -324,7 +324,7 @@ block {
     // 3. Drop financial request (set status to false)
     // 4. Update storage 
     
-    checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
+    verifySenderIsCouncilContract(s); // verify that sender is the Council contract
 
     case governanceFinancialLambdaAction of [
         |   LambdaDropFinancialRequest(financialRequestId) -> {

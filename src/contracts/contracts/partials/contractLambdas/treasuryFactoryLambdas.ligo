@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
     
     case treasuryFactoryLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +29,7 @@ block {
 function lambdaSetGovernance(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryFactoryLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -46,7 +46,7 @@ block {
 function lambdaUpdateMetadata(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -68,7 +68,7 @@ block {
 function lambdaUpdateConfig(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -92,7 +92,7 @@ block {
 function lambdaUpdateWhitelistContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -109,7 +109,7 @@ block {
 function lambdaUpdateGeneralContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -126,7 +126,7 @@ block {
 function lambdaUpdateWhitelistTokenContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
@@ -152,8 +152,8 @@ block {
     case treasuryFactoryLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
@@ -194,7 +194,7 @@ block {
     // 2. Pause entrypoints in Treasury Factory
     // 3. Create and execute operations to %pauseAll entrypoint in tracked Treasuries
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     var operations : list(operation) := nil;
 
@@ -236,7 +236,7 @@ block {
     // 2. Unpause entrypoints in Treasury Factory
     // 3. Create and execute operations to %unpauseAll entrypoint in tracked Treasuries
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     var operations : list(operation) := nil;
 
@@ -277,7 +277,7 @@ block {
     // 1. Check that sender is admin
     // 2. Pause or unpause entrypoint depending on boolean parameter sent 
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryFactoryLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
@@ -323,7 +323,7 @@ block{
     // 5. Add newly created Treasury to tracked Treasuries
     // 6. Add newly created Treasury to the Governance Contract - General Contracts map
 
-    checkSenderIsAdmin(s);              // check that sender is admin
+    verifySenderIsAdmin(s.admin);       // verify that sender is admin 
     checkCreateTreasuryIsNotPaused(s);  // check that %createTreasury entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
@@ -380,7 +380,7 @@ block{
     // 2. Check that %trackTreasury entrypoint is not paused (e.g. glass broken)
     // 3. Add Treasury Contract to tracked Treasuries
 
-    checkSenderIsAdmin(s);              // check that sender is admin
+    verifySenderIsAdmin(s.admin);       // verify that sender is admin 
     checkTrackTreasuryIsNotPaused(s);   // check that %trackTreasury entrypoint is not paused (e.g. glass broken)
 
     case treasuryFactoryLambdaAction of [
@@ -405,7 +405,7 @@ block{
     // 2. Check that %untrackTreasury entrypoint is not paused (e.g. glass broken)
     // 3. Remove Treasury Contract from tracked Treasuries
 
-    checkSenderIsAdmin(s);               // check that sender is admin
+    verifySenderIsAdmin(s.admin);        // verify that sender is admin 
     checkUntrackTreasuryIsNotPaused(s);  // check that %untrackTreasury entrypoint is not paused (e.g. glass broken)
 
     case treasuryFactoryLambdaAction of [

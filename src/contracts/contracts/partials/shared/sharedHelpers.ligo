@@ -136,6 +136,7 @@ block {
 // General Helpers
 // ------------------------------------------------------------------------------
 
+// validate string length does not exceed max length
 function validateStringLength(const inputString : string; const maxLength : nat; const errorCode : nat) : unit is 
 block {
 
@@ -145,7 +146,7 @@ block {
 
 
 
-// helper function to verify first value is less than second value
+// verify first value is less than second value
 function verifyLessThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
 block {
 
@@ -156,7 +157,7 @@ block {
 
 
 
-// helper function to verify first value is greater than second value
+// verify first value is greater than second value
 function verifyGreaterThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
 block {
 
@@ -167,10 +168,74 @@ block {
 
 
 
-// helper function to verify input is greater than 0
+// verify input is not 0
 function verifyNotZero(const input : nat; const errorCode : nat) : unit is 
 block {
 
     if input = 0n then failwith(errorCode) else skip;
 
 } with unit
+
+
+
+// verify sender is admin
+function verifySenderIsAdmin(const adminAddress : address) : unit is
+block {
+
+    const senderIsAdmin : bool = adminAddress = Tezos.get_sender();
+    if senderIsAdmin then skip else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+} with unit
+
+
+
+// verify sender is admin or governance
+function verifySenderIsAdminOrGovernance(const adminAddress : address; const governanceAddress : address) : unit is
+block {
+
+    const senderIsAdminOrGovernance : bool = adminAddress = Tezos.get_sender() or governanceAddress = Tezos.get_sender();
+    if senderIsAdminOrGovernance then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+} with unit
+
+
+
+// verify sender is allowed (set of addresses)
+function verifySenderIsAllowed(const allowedSet : set(address); const errorCode : nat) : unit is
+block {
+
+    const senderIsAllowed : bool = allowedSet contains Tezos.get_sender();
+    if senderIsAllowed then skip else failwith(errorCode);
+
+} with unit
+
+
+
+// verify that sender is self
+function verifySenderIsSelf(const _p : unit) : unit is
+block {
+
+    if Tezos.get_sender() = Tezos.get_self_address() 
+    then skip 
+    else failwith(error_ONLY_SELF_ALLOWED);
+
+} with unit
+
+
+
+// verify that sender is self or specified user
+function verifySenderIsSelfOrAddress(const userAddress : address) : unit is
+block {
+
+    if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() 
+    then skip 
+    else failwith(error_ONLY_SELF_OR_SPECIFIED_ADDRESS_ALLOWED);
+
+} with unit
+
+
+
+// verify that no Tezos is sent to the entrypoint
+function verifyNoAmountSent(const _p : unit) : unit is
+    if (Tezos.get_amount() = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
