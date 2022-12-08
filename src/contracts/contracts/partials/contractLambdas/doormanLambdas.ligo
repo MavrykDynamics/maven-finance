@@ -320,10 +320,8 @@ block {
     // 4. Transfer MVK from user to the Doorman Contract
     // 5. Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     // 6. Update user's staked MVK balance in storage
-    
 
-    // Check that %stake entrypoint is not paused (e.g. glass broken)
-    checkStakeIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeIsPaused, error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -405,9 +403,7 @@ block {
     //      -   Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     
-
-    // Check that %unstake entrypoint is not paused (e.g. glass broken)
-    checkUnstakeIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -522,9 +518,7 @@ block{
     // 3. Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     // 4. Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     
-    
-    // Check that %compound entrypoint is not paused (e.g. glass broken)
-    checkCompoundIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.compoundIsPaused, error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -566,9 +560,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
     // 6. Update Delegation contract since user staked MVK balance has changed
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
 
-
-    // Check that %farmClaim entrypoint is not paused (e.g. glass broken)
-    checkFarmClaimIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.farmClaimIsPaused, error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -689,8 +681,7 @@ block {
     // New unstake lambda for upgradability testing
     // - different exit fee calculation
 
-    // break glass check
-    checkUnstakeIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 

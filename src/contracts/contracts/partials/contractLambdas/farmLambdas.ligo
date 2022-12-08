@@ -128,7 +128,7 @@ block {
                 |   ConfigRewardPerBlock (_v)           -> block {
                         
                         // Check if Farm has been initiated
-                        checkFarmIsInit(s);
+                        verifyFarmIsInitialised(s);
 
                         // Update Farm storage
                         s := updateFarm(s);
@@ -421,11 +421,11 @@ block{
     // 8. Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
 
 
-    // Check that %deposit entrypoint is not paused (e.g. glass broken)
-    checkDepositIsNotPaused(s);
+    // Verify that %deposit entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.depositIsPaused, error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED);
 
     // Check if farm has started
-    checkFarmIsInit(s);
+    verifyFarmIsInitialised(s);
 
     var operations : list(operation) := nil;
 
@@ -498,11 +498,11 @@ block{
     // 7. Transfer LP tokens to the user from the farm balance in the LP Contract
 
 
-    // Check that %withdraw entrypoint is not paused (e.g. glass broken)
-    checkWithdrawIsNotPaused(s);
+    // Verify that %withdraw entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawIsPaused, error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED);
 
     // Check if farm has started
-    checkFarmIsInit(s);
+    verifyFarmIsInitialised(s);
 
     var operations : list(operation) := nil;
 
@@ -568,11 +568,11 @@ block{
     // 9. Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
 
     
-    // Check that %claim entrypoint is not paused (e.g. glass broken)
-    checkClaimIsNotPaused(s);
+    // Verify that %claim entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.claimIsPaused, error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED);
 
     // Check if farm has started
-    checkFarmIsInit(s);
+    verifyFarmIsInitialised(s);
 
     var operations : list(operation) := nil;
 

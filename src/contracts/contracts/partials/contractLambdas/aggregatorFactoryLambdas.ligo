@@ -309,8 +309,8 @@ block {
     // 7. Execute operations
     
     
-    verifySenderIsAdmin(s.admin);        // check that sender is admin
-    checkCreateAggregatorIsNotPaused(s); // Check that %createAggregator entrypoint is not paused (e.g. glass broken)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.createAggregatorIsPaused, error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -375,8 +375,8 @@ block{
     // 2. Check if Aggregator Name exists (e.g. BTC/USD) 
     //      -   Add Aggregator Contract to Tracked Aggregators Map if Aggregator Name does not exist
 
-    verifySenderIsAdmin(s.admin);       // Check if sender is admin
-    checkTrackAggregatorIsNotPaused(s); // Check that %trackAggregator entrypoint is not paused (e.g. glass broken)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.trackAggregatorIsPaused, error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -417,7 +417,7 @@ block{
     // 2. Remove Aggregator Contract from Tracked Aggregators Map 
 
     verifySenderIsAdmin(s.admin);               // verify that sender is admin
-    checkUntrackAggregatorIsNotPaused(s); // Check that %untrackAggregator entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.untrackAggregatorIsPaused, error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -438,6 +438,7 @@ block{
 // ------------------------------------------------------------------------------
 
 
+
 // ------------------------------------------------------------------------------
 // Aggregator Lambdas Begin
 // ------------------------------------------------------------------------------
@@ -455,7 +456,7 @@ block{
 
 
     // Check that %distributeRewardXtz entrypoint is not paused (e.g. glass broken)
-    checkDistributeRewardXtzIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.distributeRewardXtzIsPaused, error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -493,7 +494,7 @@ block{
     // 3. Create operation to distribute staked MVK reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
 
     // Check that %distributeRewardStakedMvk entrypoint is not paused (e.g. glass broken)
-    checkDistributeRewardStakedMvkIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.distributeRewardStakedMvkIsPaused, error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 

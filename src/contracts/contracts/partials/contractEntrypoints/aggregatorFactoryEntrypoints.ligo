@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress: address; const s: aggregatorFactoryStor
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : aggregatorF
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams: updateMetadataType; const s:
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams: aggregatorFactoryUpdateConfigPar
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams: updateWh
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -98,7 +98,7 @@ function updateGeneralContracts(const updateGeneralContractsParams: updateGenera
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -115,7 +115,7 @@ function mistakenTransfer(const destinationParams: transferActionType; var s: ag
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -140,7 +140,7 @@ function pauseAll(var s: aggregatorFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaPauseAll(unit);
@@ -157,7 +157,7 @@ function unpauseAll(var s: aggregatorFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUnpauseAll(unit);
@@ -174,7 +174,7 @@ function togglePauseEntrypoint(const targetEntrypoint: aggregatorFactoryTogglePa
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -201,7 +201,7 @@ function createAggregator(const createAggregatorParams: createAggregatorParamsTy
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateAggregator", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateAggregator", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaCreateAggregator(createAggregatorParams);
@@ -218,7 +218,7 @@ function trackAggregator(const trackAggregatorParams: address; var s: aggregator
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTrackAggregator", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTrackAggregator", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTrackAggregator(trackAggregatorParams);
@@ -235,7 +235,7 @@ function untrackAggregator(const untrackAggregatorParams: address; var s: aggreg
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUntrackAggregator", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUntrackAggregator", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUntrackAggregator(untrackAggregatorParams);
@@ -260,7 +260,7 @@ function distributeRewardXtz(const distributeRewardXtzParams : distributeRewardX
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardXtz", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardXtz", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardXtz(distributeRewardXtzParams);
@@ -277,7 +277,7 @@ function distributeRewardStakedMvk(const distributeRewardStakedMvkParams : distr
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardStakedMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardStakedMvk", s.lambdaLedger);
 
     // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams);

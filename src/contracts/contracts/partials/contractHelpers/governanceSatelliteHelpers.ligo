@@ -8,18 +8,6 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders : Admin, Self
-function checkSenderIsAdminOrSelf(var s : governanceSatelliteStorageType) : unit is
-block{
-    if Tezos.get_sender() = s.admin then skip
-    else {
-        if Tezos.get_sender() = Tezos.get_self_address() then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-    }
-} with Unit
-
-
-
 // helper function to verify sender is governance satellite action initiator
 function verifySenderIsInitiator(const initiatorAddrss : address) : unit is
 block {
@@ -38,12 +26,6 @@ block {
     checkSatelliteStatus(satelliteAddress, delegationAddress, True, True);
 
 } with unit
-
-
-
-function verifyNoAmountSent(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -932,20 +914,6 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : governanceSatelliteStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is 
