@@ -12,8 +12,10 @@
 function lambdaSetAdmin(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // Check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case lendingControllerLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +32,10 @@ block {
 function lambdaSetGovernance(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // Check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case lendingControllerLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -48,7 +52,7 @@ block {
 function lambdaUpdateConfig(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
 block {
 
-    checkSenderIsAdmin(s); // Check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case lendingControllerLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -77,7 +81,7 @@ block {
 function lambdaUpdateWhitelistTokenContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // Check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case lendingControllerLambdaAction of [
         |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
@@ -106,7 +110,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Pause all main entrypoints in the Delegation Contract
     
-    checkSenderIsAllowed(s); // Check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case lendingControllerLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
@@ -187,7 +192,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Unpause all main entrypoints in the Delegation Contract
 
-    checkSenderIsAllowed(s); // Check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     // set all pause configs to False
     case lendingControllerLambdaAction of [
@@ -269,7 +275,7 @@ block {
     // 1. Check that sender is admin
     // 2. Pause or unpause entrypoint depending on boolean parameter sent 
 
-    checkSenderIsAdmin(s); // Check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case lendingControllerLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
@@ -339,8 +345,8 @@ block {
     //      -   Update and save loan token record with new parameters
 
 
-    checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s);              // Check that sender is admin
+    verifyNoAmountSent(Unit);           // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin);       // verify that sender is admin
     checkSetLoanTokenIsNotPaused(s);    // Check that %setLoanToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
@@ -392,8 +398,8 @@ block {
     //      -   Get collateral token record if exists
     //      -   Update and save collateral token record with new parameters
 
-    checkNoAmount(Unit);                      // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s);                    // Check that sender is admin 
+    verifyNoAmountSent(Unit);                 // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin);             // verify that sender is admin
     checkSetCollateralTokenIsNotPaused(s);    // Check that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
@@ -448,8 +454,8 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaRegisterVaultCreation(registerVaultCreationParams) -> {
 
-                // Check sender is vault factory contract
-                checkSenderIsVaultFactoryContract(s);
+                // Verify sender is vault factory contract
+                verifySenderIsVaultFactoryContract(s);
 
                 // init params
                 const vaultOwner     : address = registerVaultCreationParams.vaultOwner;
@@ -578,7 +584,7 @@ block {
     // 3. Get or create user's current token pool deposit balance 
     // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
     
-    checkNoAmount(Unit);                   // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);                   // entrypoint should not receive any tez amount  
     checkRemoveLiquidityIsNotPaused(s);    // Check that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
 
     // init operations

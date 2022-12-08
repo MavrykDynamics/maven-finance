@@ -20,12 +20,11 @@ block{
 
 
 // Allowed Senders: Lending Controller Contract
-function checkSenderIsLendingControllerContract(var s : doormanStorageType) : unit is
+function verifySenderIsLendingControllerContract(var s : doormanStorageType) : unit is
 block{
 
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
-    if (Tezos.get_sender() = lendingControllerAddress) then skip
-    else failwith(error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED);
+    verifySenderIsAllowed(set[lendingControllerAddress], error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED)
 
 } with unit
 
@@ -101,13 +100,6 @@ block {
     if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
 } with unit
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function verifyNoAmountSent(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End

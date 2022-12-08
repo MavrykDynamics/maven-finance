@@ -106,7 +106,7 @@ type vaultFactoryUnpackLambdaFunctionType is (vaultFactoryLambdaActionType * vau
 function main (const action : vaultFactoryAction; var s : vaultFactoryStorageType) : return is
 block{
     
-    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with (
 
