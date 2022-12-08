@@ -24,21 +24,6 @@ block{
 
 
 // ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %createVault entrypoint is not paused
-function checkCreateVaultIsNotPaused(var s : vaultFactoryStorageType) : unit is
-    if s.breakGlassConfig.createVaultIsPaused then failwith(error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -136,20 +121,6 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : vaultFactoryStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is 

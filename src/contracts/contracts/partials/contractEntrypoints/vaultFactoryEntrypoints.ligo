@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : vaultFactoryStorageTy
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : vaultFactor
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams : vaultFactoryUpdateConfigParamsT
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init delegation lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -98,7 +98,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -115,7 +115,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -140,7 +140,7 @@ function pauseAll(var s : vaultFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaPauseAll(unit);
@@ -157,7 +157,7 @@ function unpauseAll(var s : vaultFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaUnpauseAll(unit);
@@ -174,7 +174,7 @@ function togglePauseEntrypoint(const targetEntrypoint : vaultFactoryTogglePauseE
 block{
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init vault Factory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -199,7 +199,7 @@ function createVault(const createVaultParams : createVaultType; var s : vaultFac
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateVault", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateVault", s.lambdaLedger);
 
     // init vaultFactory lambda action
     const vaultFactoryLambdaAction : vaultFactoryLambdaActionType = LambdaCreateVault(createVaultParams);

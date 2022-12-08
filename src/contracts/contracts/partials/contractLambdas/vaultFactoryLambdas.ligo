@@ -266,7 +266,8 @@ block{
     // 2. Create Vault
     // 3. Create operation to originate new Vault
 
-    checkCreateVaultIsNotPaused(s);  // check that %createVault entrypoint is not paused (e.g. glass broken)
+    // verify that %createVault entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.createVaultIsPaused, error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 

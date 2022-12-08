@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : vaultStorageType) : r
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
     
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : vaultStorag
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -72,7 +72,7 @@ function delegateTezToBaker(const delegateParams : delegateTezToBakerType; var s
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDelegateTezToBaker", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDelegateTezToBaker", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaDelegateTezToBaker(delegateParams);
@@ -89,7 +89,7 @@ function delegateMvkToSatellite(const satelliteAddress : address; var s : vaultS
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDelegateMvkToSat", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDelegateMvkToSat", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaDelegateMvkToSat(satelliteAddress);
@@ -106,7 +106,7 @@ function deposit(const depositParams : depositType; var s : vaultStorageType) : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDeposit", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDeposit", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaDeposit(depositParams);
@@ -123,7 +123,7 @@ function withdraw(const withdrawParams : withdrawType; var s : vaultStorageType)
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdraw", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdraw", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaWithdraw(withdrawParams);
@@ -140,7 +140,7 @@ function onLiquidate(const onLiquidateParams : onLiquidateType; var s : vaultSto
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnLiquidate", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnLiquidate", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaOnLiquidate(onLiquidateParams);
@@ -157,7 +157,7 @@ function updateDepositor(const updateDepositorParams : updateDepositorType; var 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateDepositor", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateDepositor", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateDepositor(updateDepositorParams);
@@ -174,7 +174,7 @@ function updateMvkOperators(const updateMvkOperatorsParams : updateOperatorsType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMvkOperators", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMvkOperators", s.lambdaLedger);
 
     // init vault controller lambda action
     const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateMvkOperators(updateMvkOperatorsParams);

@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : lendingControllerStor
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
     
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : lendingCont
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateConfig(const updateConfigParams : lendingControllerUpdateConfigPa
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -64,7 +64,7 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistTokenContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistTokenContracts", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
@@ -89,7 +89,7 @@ function pauseAll(var s : lendingControllerStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaPauseAll(unit);
@@ -106,7 +106,7 @@ function unpauseAll(var s : lendingControllerStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUnpauseAll(unit);
@@ -123,7 +123,7 @@ function togglePauseEntrypoint(const targetEntrypoint : lendingControllerToggleP
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -148,7 +148,7 @@ function setLoanToken(const setLoanTokenParams : setLoanTokenActionType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetLoanToken", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetLoanToken", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetLoanToken(setLoanTokenParams);
@@ -165,7 +165,7 @@ function setCollateralToken(const setCollateralTokenParams : setCollateralTokenA
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetCollateralToken", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetCollateralToken", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetCollateralToken(setCollateralTokenParams);
@@ -182,7 +182,7 @@ function registerVaultCreation(const registerVaultCreationParams : registerVault
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterVaultCreation", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterVaultCreation", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRegisterVaultCreation(registerVaultCreationParams);
@@ -207,7 +207,7 @@ function addLiquidity(const addLiquidityParams : addLiquidityActionType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaAddLiquidity", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaAddLiquidity", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaAddLiquidity(addLiquidityParams);
@@ -224,7 +224,7 @@ function removeLiquidity(const removeLiquidityParams : removeLiquidityActionType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveLiquidity", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveLiquidity", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRemoveLiquidity(removeLiquidityParams);
@@ -249,7 +249,7 @@ function closeVault(const closeVaultParams : closeVaultActionType; var s : lendi
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCloseVault", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCloseVault", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCloseVault(closeVaultParams);
@@ -266,7 +266,7 @@ function registerDeposit(const registerDepositParams : registerDepositActionType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterDeposit", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterDeposit", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRegisterDeposit(registerDepositParams);
@@ -284,7 +284,7 @@ function registerWithdrawal(const registerWithdrawalParams : registerWithdrawalA
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterWithdrawal", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterWithdrawal", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRegisterWithdrawal(registerWithdrawalParams);
@@ -301,7 +301,7 @@ function markForLiquidation(const markForLiquidationParams : markForLiquidationA
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMarkForLiquidation", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMarkForLiquidation", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaMarkForLiquidation(markForLiquidationParams);
@@ -318,7 +318,7 @@ function liquidateVault(const liquidateVaultParams : liquidateVaultActionType; v
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaLiquidateVault", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaLiquidateVault", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaLiquidateVault(liquidateVaultParams);
@@ -335,7 +335,7 @@ function borrow(const borrowParams : borrowActionType; var s : lendingController
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaBorrow", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaBorrow", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaBorrow(borrowParams);
@@ -352,7 +352,7 @@ function repay(const repayParams : repayActionType; var s : lendingControllerSto
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRepay", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRepay", s.lambdaLedger);
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRepay(repayParams);
@@ -377,7 +377,7 @@ function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositS
 block {
  
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultDepositStakedMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultDepositStakedMvk", s.lambdaLedger);
  
      // init lending controller lambda action
      const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
@@ -394,7 +394,7 @@ function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdr
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultWithdrawStakedMvk", s); 
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultWithdrawStakedMvk", s.lambdaLedger); 
 
      // init lending controller lambda action
      const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);

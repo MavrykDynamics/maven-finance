@@ -686,8 +686,8 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 (*  onVaultDepositStakedMvk lambda *)
 function lambdaOnVaultDepositStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
-    
-    checkOnVaultDepositStakedMvkIsNotPaused(s);
+
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultDepositStakedMvkIsPaused, error_ON_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -756,8 +756,8 @@ block{
 (*  onVaultWithdrawStakedMvk lambda *)
 function lambdaOnVaultWithdrawStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
-    
-    checkOnVaultWithdrawStakedMvkIsNotPaused(s);
+
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused, error_ON_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -821,7 +821,7 @@ block{
 function lambdaOnVaultLiquidateStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
     
-    checkOnVaultLiquidateStakedMvkIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused, error_ON_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
