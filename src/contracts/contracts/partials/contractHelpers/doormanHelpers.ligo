@@ -33,9 +33,9 @@ block {
 // helper function to verify min MVK amount reached
 function verifyMinMvkAmountReached(const stakeAmount : nat; const s : doormanStorageType) : unit is 
 block {
-
-    if stakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
-    else skip;
+    
+    // verify first value (stakeAmount) is greater than second value (minMvkAmount)
+    verifyGreaterThan(stakeAmount, s.config.minMvkAmount, error_MVK_ACCESS_AMOUNT_NOT_REACHED);
 
 } with unit 
 
@@ -45,8 +45,8 @@ block {
 function verifySufficientWithdrawalBalance(const unstakeAmount : nat; const userStakeBalanceRecord : userStakeBalanceRecordType) : unit is
 block {
 
-    if unstakeAmount > userStakeBalanceRecord.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
-    else skip;
+    // verify first value (unstakeAmount) is less than second value (user balance)
+    verifyLessThan(unstakeAmount, userStakeBalanceRecord.balance, error_NOT_ENOUGH_SMVK_BALANCE);
 
 } with unit
 
@@ -56,8 +56,8 @@ block {
 function verifyUnstakeAmountLessThanStakedTotalSupply(const unstakeAmount : nat; const stakedMvkTotalSupply : nat) : unit is 
 block {
 
-    if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
-    else skip;
+    // verify first value (unstakeAmount) is less than second value (staked MVK total supply)
+    verifyLessThan(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_ERROR);
 
 } with unit
 
@@ -86,7 +86,6 @@ function verifyFarmExists(const farmAddress : address; const s : doormanStorageT
 block {
 
     const checkFarmExists : bool = checkFarmExists(farmAddress, s);
-
     if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
 } with unit
@@ -119,17 +118,6 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
         tokenAddress) : option(contract(fa2TransferType))) of [
                 Some(contr) -> contr
             |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
-        ];
-
-
-
-// helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
         ];
 
 
