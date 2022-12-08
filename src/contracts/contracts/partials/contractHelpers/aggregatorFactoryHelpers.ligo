@@ -34,49 +34,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %createAggregator entrypoint is not paused
-function checkCreateAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
-    if s.breakGlassConfig.createAggregatorIsPaused then failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %trackAggregator entrypoint is not paused
-function checkTrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
-    if s.breakGlassConfig.trackAggregatorIsPaused then failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %untrackAggregator entrypoint is not paused
-function checkUntrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
-    if s.breakGlassConfig.untrackAggregatorIsPaused then failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %distributeRewardXtz entrypoint is not paused
-function checkDistributeRewardXtzIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
-    if s.breakGlassConfig.distributeRewardXtzIsPaused then failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %distributeRewardStakedMvk entrypoint is not paused
-function checkDistributeRewardStakedMvkIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
-    if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -385,20 +342,6 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : aggregatorFactoryStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is 

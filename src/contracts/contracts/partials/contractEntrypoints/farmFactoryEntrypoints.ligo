@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : farmFactoryStorageTyp
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : farmFactory
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams : farmFactoryUpdateConfigParamsTy
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init delegation lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
         
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -98,7 +98,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -115,7 +115,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -140,7 +140,7 @@ function pauseAll(var s : farmFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaPauseAll(unit);
@@ -157,7 +157,7 @@ function unpauseAll(var s : farmFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUnpauseAll(unit);
@@ -174,7 +174,7 @@ function togglePauseEntrypoint(const targetEntrypoint : farmFactoryTogglePauseEn
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init farm factory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -201,7 +201,7 @@ function createFarm(const createFarmParams : createFarmType; var s : farmFactory
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateFarm", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateFarm", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaCreateFarm(createFarmParams);
@@ -218,7 +218,7 @@ function trackFarm (const farmContract : address; var s : farmFactoryStorageType
 block{
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTrackFarm", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTrackFarm", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTrackFarm(farmContract);
@@ -235,7 +235,7 @@ function untrackFarm (const farmContract : address; var s : farmFactoryStorageTy
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUntrackFarm", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUntrackFarm", s.lambdaLedger);
 
     // init farmFactory lambda action
     const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUntrackFarm(farmContract);

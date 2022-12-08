@@ -319,7 +319,7 @@ block {
     //        - Update satellite's total delegated amount (increment by user's staked MVK balance)
     //        - Update satellite record in storage
 
-    checkDelegateToSatelliteIsNotPaused(s); // check that %delegateToSatellite entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.delegateToSatelliteIsPaused, error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -438,7 +438,7 @@ block {
     //    - Update satellite record in storage
     // 9. Remove user's address from delegateLedger
 
-    checkUndelegateFromSatelliteIsNotPaused(s); // check that %undelegateFromSatellite entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.undelegateFromSatelliteIsPaused, error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -518,7 +518,7 @@ block {
     // 7. Save new satellite record
     // 8. Update or create a satellite rewards record
 
-    checkRegisterAsSatelliteIsNotPaused(s); // check that %registerAsSatellite entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.registerAsSatelliteIsPaused, error_REGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -573,7 +573,7 @@ block {
     // 5. Update user's unclaimed rewards
     // 6. Remove user from satellite ledger
     
-    checkUnregisterAsSatelliteIsNotPaused(s); // check that %unregisterAsSatellite entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unregisterAsSatelliteIsPaused, error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -620,7 +620,7 @@ block {
     //    - Validate inputs (max length not exceeded)
     //    - Validate satellite fee input not exceeding 100%
 
-    checkUpdateSatelliteRecordIsNotPaused(s); // check that %updateSatelliteRecord entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.updateSatelliteRecordIsPaused, error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -676,7 +676,7 @@ block {
     //    - Calculate increment to satellite accumulated rewards per share
     //    - Update satellite's rewards record (satelliteAccumulatedRewardsPerShare, unpaid amount)
 
-    checkDistributeRewardIsNotPaused(s); // check that %distributeReward entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.distributeRewardIsPaused, error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
 
     // Operation list
     var operations: list(operation) := nil;

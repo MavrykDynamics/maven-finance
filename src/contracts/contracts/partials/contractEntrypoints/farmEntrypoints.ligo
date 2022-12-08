@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : farmStorageType) : re
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : farmStorage
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function setName(const updatedName : string; var s : farmStorageType) : return i
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetName", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetName", s.lambdaLedger);
 
     // init treasury lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaSetName(updatedName);
@@ -64,7 +64,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -81,7 +81,7 @@ function updateConfig(const updateConfigParams : farmUpdateConfigParamsType; var
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -98,7 +98,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams: updateWh
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -115,7 +115,7 @@ function updateGeneralContracts(const updateGeneralContractsParams: updateGenera
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -132,7 +132,7 @@ function mistakenTransfer(const destinationParams: transferActionType; var s: fa
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -159,7 +159,7 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: farmStorageT
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaInitFarm", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaInitFarm", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaInitFarm(initFarmParams);
@@ -176,7 +176,7 @@ function closeFarm (var s: farmStorageType) : return is
 block{
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCloseFarm", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCloseFarm", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaCloseFarm(unit);
@@ -201,7 +201,7 @@ function pauseAll(var s: farmStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaPauseAll(unit);
@@ -218,7 +218,7 @@ function unpauseAll(var s : farmStorageType) : return is
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaUnpauseAll(unit);
@@ -235,7 +235,7 @@ function togglePauseEntrypoint(const targetEntrypoint: farmTogglePauseEntrypoint
 block{
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -262,7 +262,7 @@ function deposit(const tokenAmount: tokenBalanceType; var s: farmStorageType) : 
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDeposit", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDeposit", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaDeposit(tokenAmount);
@@ -279,7 +279,7 @@ function withdraw(const tokenAmount: tokenBalanceType; var s: farmStorageType) :
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdraw", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdraw", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaWithdraw(tokenAmount);
@@ -296,7 +296,7 @@ function claim(const depositor: depositorType; var s: farmStorageType) : return 
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaClaim", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaClaim", s.lambdaLedger);
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaClaim(depositor);

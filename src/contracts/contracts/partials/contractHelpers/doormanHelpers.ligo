@@ -108,62 +108,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %stake entrypoint is not paused
-function checkStakeIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %unstake entrypoint is not paused
-function checkUnstakeIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %compound entrypoint is not paused
-function checkCompoundIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %farmClaim entrypoint is not paused
-function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %onVaultDepositStakedMvk entrypoint is not paused
-function checkOnVaultDepositStakedMvkIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.onVaultDepositStakedMvkIsPaused then failwith(error_ON_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %onVaultWithdrawStakedMvk entrypoint is not paused
-function checkOnVaultWithdrawStakedMvkIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused then failwith(error_ON_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %onVaultLiquidateStakedMvk entrypoint is not paused
-function checkOnVaultLiquidateStakedMvkIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused then failwith(error_ON_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -566,20 +510,6 @@ block{
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : doormanStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 

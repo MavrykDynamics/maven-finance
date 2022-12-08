@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : treasuryStorageType) 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : treasurySto
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function setBaker(const keyHash : option(key_hash); var s : treasuryStorageType)
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetBaker", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetBaker", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetBaker(keyHash);
@@ -64,7 +64,7 @@ function setName(const updatedName : string; var s : treasuryStorageType) : retu
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetName", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetName", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetName(updatedName);
@@ -81,7 +81,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -98,7 +98,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -115,7 +115,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -132,7 +132,7 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistTokenContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistTokenContracts", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
@@ -157,7 +157,7 @@ function pauseAll(var s : treasuryStorageType) : return is
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaPauseAll(unit);
@@ -174,7 +174,7 @@ function unpauseAll(var s : treasuryStorageType) : return is
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnpauseAll(unit);
@@ -191,7 +191,7 @@ function togglePauseEntrypoint(const targetEntrypoint: treasuryTogglePauseEntryp
 block{
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -218,7 +218,7 @@ function transfer(const transferTokenParams : transferActionType; var s : treasu
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTransfer", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaTransfer(transferTokenParams);
@@ -235,7 +235,7 @@ function mintMvkAndTransfer(const mintMvkAndTransferParams : mintMvkAndTransferT
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMintMvkAndTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMintMvkAndTransfer", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaMintMvkAndTransfer(mintMvkAndTransferParams);
@@ -252,7 +252,7 @@ function updateMvkOperators(const updateOperatorsParams : updateOperatorsType ; 
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMvkOperators", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMvkOperators", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateMvkOperators(updateOperatorsParams);
@@ -269,7 +269,7 @@ function stakeMvk(const stakeAmount : nat ; var s : treasuryStorageType) : retur
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaStakeMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaStakeMvk", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaStakeMvk(stakeAmount);
@@ -286,7 +286,7 @@ function unstakeMvk(const unstakeAmount : nat ; var s : treasuryStorageType) : r
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstakeMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstakeMvk", s.lambdaLedger);
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstakeMvk(unstakeAmount);
