@@ -426,7 +426,7 @@ block{
     // 6. Update storage with lastCompletedData
 
     // Check that %updateData entrypoint is not paused (e.g. glass broken)
-    checkUpdateDataIsNotPaused(s); 
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.updateDataIsPaused, error_UPDATE_DATA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
 
     case aggregatorLambdaAction of [
         |   LambdaUpdateData(params) -> {
@@ -514,7 +514,7 @@ block{
     //    - Reset oracle XTZ rewards to zero and update storage
 
     // Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
-    checkWithdrawRewardXtzIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardXtzIsPaused, error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -565,7 +565,7 @@ block{
 
 
     // Check that %withdrawRewardStakedMvk entrypoint is not paused (e.g. glass broken)
-    checkWithdrawRewardStakedMvkIsNotPaused(s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardStakedMvkIsPaused, error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
     
     var operations : list(operation) := nil;
 

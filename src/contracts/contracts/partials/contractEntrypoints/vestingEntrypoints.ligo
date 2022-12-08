@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : vestingStorageType) :
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : vestingStor
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init council lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -81,7 +81,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -98,7 +98,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -123,7 +123,7 @@ function addVestee(const addVesteeParams : addVesteeType; var s : vestingStorage
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaAddVestee", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaAddVestee", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaAddVestee(addVesteeParams);
@@ -140,7 +140,7 @@ function removeVestee(const vesteeAddress : address; var s : vestingStorageType)
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveVestee", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveVestee", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaRemoveVestee(vesteeAddress);
@@ -157,7 +157,7 @@ function updateVestee(const updateVesteeParams : updateVesteeType; var s : vesti
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateVestee", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateVestee", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateVestee(updateVesteeParams);
@@ -174,7 +174,7 @@ function toggleVesteeLock(const vesteeAddress : address; var s : vestingStorageT
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaToggleVesteeLock", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaToggleVesteeLock", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaToggleVesteeLock(vesteeAddress);
@@ -199,7 +199,7 @@ function claim(var s : vestingStorageType) : return is
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaClaim", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaClaim", s.lambdaLedger);
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaClaim(unit);

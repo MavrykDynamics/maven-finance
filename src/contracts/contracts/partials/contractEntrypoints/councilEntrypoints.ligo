@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : councilStorageType) :
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : councilStor
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
     
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams : councilUpdateConfigParamsType; 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -98,7 +98,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -115,7 +115,7 @@ function updateCouncilMemberInfo(const councilMemberInfo : councilMemberInfoType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateCouncilMemberInfo", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateCouncilMemberInfo", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaUpdateCouncilMemberInfo(councilMemberInfo);
@@ -140,7 +140,7 @@ function councilActionAddMember(const newCouncilMember : councilActionAddMemberT
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilAddMember", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilAddMember", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilAddMember(newCouncilMember);
@@ -157,7 +157,7 @@ function councilActionRemoveMember(const councilMemberAddress : address ; var s 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRemoveMember", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRemoveMember", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilRemoveMember(councilMemberAddress);
@@ -174,7 +174,7 @@ function councilActionChangeMember(const councilActionChangeMemberParams : counc
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilChangeMember", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilChangeMember", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilChangeMember(councilActionChangeMemberParams);
@@ -191,7 +191,7 @@ function councilActionSetBaker(const councilActionSetBakerParams : setBakerType;
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilSetBaker", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilSetBaker", s.lambdaLedger);
     
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilSetBaker(councilActionSetBakerParams);
@@ -216,7 +216,7 @@ function councilActionAddVestee(const addVesteeParams : addVesteeType ; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilAddVestee", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilAddVestee", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilAddVestee(addVesteeParams);
@@ -233,7 +233,7 @@ function councilActionRemoveVestee(const vesteeAddress : address ; var s : counc
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRemoveVestee", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRemoveVestee", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilRemoveVestee(vesteeAddress);
@@ -250,7 +250,7 @@ function councilActionUpdateVestee(const updateVesteeParams : updateVesteeType; 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilUpdateVestee", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilUpdateVestee", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilUpdateVestee(updateVesteeParams);
@@ -267,7 +267,7 @@ function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : c
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilToggleVesteeLock", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilToggleVesteeLock", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilToggleVesteeLock(vesteeAddress);
@@ -292,7 +292,7 @@ function councilActionTransfer(const councilActionTransferParams : councilAction
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilTransfer", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilTransfer(councilActionTransferParams);
@@ -309,7 +309,7 @@ function councilActionRequestTokens(const councilActionRequestTokensParams : cou
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRequestTokens", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRequestTokens", s.lambdaLedger);
     
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilRequestTokens(councilActionRequestTokensParams);
@@ -326,7 +326,7 @@ function councilActionRequestMint(const councilActionRequestMintParams : council
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRequestMint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRequestMint", s.lambdaLedger);
     
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilRequestMint(councilActionRequestMintParams);
@@ -343,7 +343,7 @@ function councilActionSetContractBaker(const councilActionSetContractBakerParams
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilSetContractBaker", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilSetContractBaker", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilSetContractBaker(councilActionSetContractBakerParams);
@@ -360,7 +360,7 @@ function councilActionDropFinancialRequest(const requestId : nat ; var s : counc
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilDropFinancialReq", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilDropFinancialReq", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaCouncilDropFinancialReq(requestId);
@@ -385,7 +385,7 @@ function flushAction(const actionId : actionIdType; var s : councilStorageType) 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaFlushAction", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaFlushAction", s.lambdaLedger);
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaFlushAction(actionId);
@@ -402,7 +402,7 @@ function signAction(const actionId : actionIdType; var s : councilStorageType) :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSignAction", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSignAction", s.lambdaLedger);
     
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaSignAction(actionId);
