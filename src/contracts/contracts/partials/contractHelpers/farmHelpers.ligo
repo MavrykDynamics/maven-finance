@@ -38,7 +38,7 @@ function checkFarmIsOpen(const s : farmStorageType) : unit is
 
 
 // Check that farm is initiated
-function checkFarmIsInit(const s : farmStorageType) : unit is 
+function verifyFarmIsInitialised(const s : farmStorageType) : unit is 
     if not s.init then failwith(error_FARM_NOT_INITIATED)
     else unit
 
@@ -100,35 +100,6 @@ block {
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %deposit entrypoint is not paused
-function checkDepositIsNotPaused(var s : farmStorageType) : unit is
-    if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %withdraw entrypoint is not paused
-function checkWithdrawIsNotPaused(var s : farmStorageType) : unit is
-    if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %claim entrypoint is not paused
-function checkClaimIsNotPaused(var s : farmStorageType) : unit is
-    if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
-    else unit;
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -400,20 +371,6 @@ block{
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : farmStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 

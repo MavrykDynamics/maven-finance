@@ -2,12 +2,15 @@
 // Include Types
 // ------------------------------------------------------------------------------
 
+
 #include "./sharedTypes.ligo"
 #include "../errors.ligo"
+
 
 // ------------------------------------------------------------------------------
 // General Contract Helpers
 // ------------------------------------------------------------------------------
+
 
 function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
 block {
@@ -58,9 +61,11 @@ case (Tezos.call_view ("getGeneralContractOpt", contractName, governanceAddress)
     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
 ];
 
+
 // ------------------------------------------------------------------------------
 // Whitelist Contract Helpers
 // ------------------------------------------------------------------------------
+
 
 function checkInWhitelistContracts(const contractAddress : address; var whitelistContracts : whitelistContractsType) : bool is 
 block {
@@ -96,9 +101,11 @@ block {
 
 } with (updatedWhitelistContracts)
 
+
 // ------------------------------------------------------------------------------
 // Whitelist Token Contract Helpers
 // ------------------------------------------------------------------------------
+
 
 function checkInWhitelistTokenContracts(const contractAddress : address; var whitelistTokenContracts : whitelistTokenContractsType) : bool is 
 block {
@@ -136,6 +143,7 @@ block {
 // ------------------------------------------------------------------------------
 // General Helpers
 // ------------------------------------------------------------------------------
+
 
 // validate string length does not exceed max length
 function validateStringLength(const inputString : string; const maxLength : nat; const errorCode : nat) : unit is 
@@ -177,6 +185,17 @@ block {
 
 } with unit
 
+
+
+// verify that no Tezos is sent to the entrypoint
+function verifyNoAmountSent(const _p : unit) : unit is
+    if (Tezos.get_amount() = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+
+
+// ------------------------------------------------------------------------------
+// Access Control Helpers
+// ------------------------------------------------------------------------------
 
 
 // verify sender is admin
@@ -235,8 +254,43 @@ block {
 } with unit
 
 
+// ------------------------------------------------------------------------------
+// Break Glass / Pause Helpers
+// ------------------------------------------------------------------------------
 
-// verify that no Tezos is sent to the entrypoint
-function verifyNoAmountSent(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+
+// verify entrypoint is not paused
+function verifyEntrypointIsNotPaused(const entrypoint : bool; const errorCode : nat) : unit is
+block {
+
+    if entrypoint = True then failwith(errorCode) else skip;
+
+} with unit
+
+
+
+// verify entrypoint is paused
+function verifyEntrypointIsPaused(const entrypoint : bool; const errorCode : nat) : unit is
+block {
+
+    if entrypoint = True then skip else failwith(errorCode);
+
+} with unit
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helpers
+// ------------------------------------------------------------------------------
+
+
+// helper function to get lambda bytes
+function getLambdaBytes(const lambdaKey : string; const lambdaLedger : lambdaLedgerType) : bytes is 
+block {
+    
+    // get lambda bytes from lambda ledger
+    const lambdaBytes : bytes = case lambdaLedger[lambdaKey] of [
+            Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+} with lambdaBytes

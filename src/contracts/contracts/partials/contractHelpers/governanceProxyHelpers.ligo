@@ -9,20 +9,6 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders : Self
-function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
-    else failwith(error_ONLY_SELF_ALLOWED);
-
-
-
-// Allowed Senders : Admin, Governance Contract
-function checkSenderIsAdminOrGovernance(var s : governanceProxyStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
 // Allowed Senders : Admin, Governance Satellite Contract
 function verifySenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorageType) : unit is
 block{
@@ -813,20 +799,6 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : governanceProxyStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is 

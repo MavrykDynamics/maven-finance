@@ -141,35 +141,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %updateData entrypoint is not paused
-function checkUpdateDataIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.updateDataIsPaused then failwith(error_UPDATE_DATA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %withdrawRewardXtz entrypoint is not paused
-function checkWithdrawRewardXtzIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.withdrawRewardXtzIsPaused then failwith(error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %withdrawRewardStakedMvk entrypoint is not paused
-function checkWithdrawRewardStakedMvkIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then failwith(error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
-    else unit;
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -662,20 +633,6 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : aggregatorStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is 

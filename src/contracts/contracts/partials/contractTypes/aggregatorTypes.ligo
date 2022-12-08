@@ -22,7 +22,7 @@ type aggregatorConfigType is [@layout:comb] record [
 ];
 
 type aggregatorBreakGlassConfigType is [@layout:comb] record [
-    updateDataIsPaused                 : bool;
+    updateDataIsPaused                  : bool;
     withdrawRewardXtzIsPaused           : bool;
     withdrawRewardStakedMvkIsPaused     : bool;
 ]

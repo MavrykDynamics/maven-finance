@@ -91,51 +91,8 @@ block {
 
 } with unit
 
-
-
-// Check that no Tezos is sent to the entrypoint
-function verifyNoAmountSent(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %stake entrypoint is not paused
-function checkStakeIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %unstake entrypoint is not paused
-function checkUnstakeIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %compound entrypoint is not paused
-function checkCompoundIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %farmClaim entrypoint is not paused
-function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
-    if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -543,20 +500,6 @@ block{
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : doormanStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 

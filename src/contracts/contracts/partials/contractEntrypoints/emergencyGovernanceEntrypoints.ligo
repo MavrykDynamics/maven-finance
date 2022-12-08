@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : emergencyGovernanceSt
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : emergencyGo
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -98,7 +98,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -115,7 +115,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -140,7 +140,7 @@ function triggerEmergencyControl(const triggerEmergencyControlParams : triggerEm
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTriggerEmergencyControl", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTriggerEmergencyControl", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaTriggerEmergencyControl(triggerEmergencyControlParams);
@@ -157,7 +157,7 @@ function voteForEmergencyControl(var s : emergencyGovernanceStorageType) : retur
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVoteForEmergencyControl", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVoteForEmergencyControl", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaVoteForEmergencyControl(unit);
@@ -174,7 +174,7 @@ function dropEmergencyGovernance(var s : emergencyGovernanceStorageType) : retur
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDropEmergencyGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDropEmergencyGovernance", s.lambdaLedger);
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaDropEmergencyGovernance(unit);
