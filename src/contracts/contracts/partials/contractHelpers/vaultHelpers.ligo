@@ -8,36 +8,23 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : vaultStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(const s : vaultStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
-    else unit
-
-
-
 // Allowed Senders: Vault Owner
-function checkSenderIsVaultOwner(const s : vaultStorageType) : unit is
-    if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_VAULT_OWNER_ALLOWED)
-    else unit
+function verifySenderIsVaultOwner(const s : vaultStorageType) : unit is
+block {
+    
+    verifySenderIsAllowed(set[s.handle.owner], error_ONLY_VAULT_OWNER_ALLOWED)
 
+} with unit
+    
 
 
 // Allowed Senders: Lending Controller Contract
-function checkSenderIsLendingControllerContract(var s : vaultStorageType) : unit is
+function verifySenderIsLendingControllerContract(var s : vaultStorageType) : unit is
 block{
 
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
-
-    if (Tezos.get_sender() = lendingControllerAddress) then skip
-    else failwith(error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED);
+    verifySenderIsAllowed(set[lendingControllerAddress], error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED)
 
 } with unit
 
@@ -62,13 +49,6 @@ block {
     else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT)
 
 } with unit
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-    else unit
 
 
 
@@ -260,11 +240,11 @@ block {
     const processVaultTransferOperation : operation = case tokenType of [
             Tez(_tez)   -> transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amount * 1mutez)
         |   Fa12(token) -> {
-                checkNoAmount(unit);
+                verifyNoAmountSent(unit);
                 const transferOperation : operation = transferFa12Token(from_, to_, amount, token)
             } with transferOperation
         |   Fa2(token)  -> {
-                checkNoAmount(unit);
+                verifyNoAmountSent(unit);
                 const transferOperation : operation = transferFa2Token(from_, to_, amount, token.tokenId, token.tokenContractAddress)
             } with transferOperation
     ];

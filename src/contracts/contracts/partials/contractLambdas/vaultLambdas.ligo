@@ -12,8 +12,10 @@
 function lambdaSetAdmin(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case vaultLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +32,10 @@ block {
 function lambdaSetGovernance(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case vaultLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -48,7 +52,7 @@ block {
 function lambdaUpdateMetadata(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
     
     case vaultLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -83,8 +87,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaDelegateTezToBaker(delegateParams) -> {
 
-                // check sender is vault owner
-                checkSenderIsVaultOwner(s);
+                // verify sender is vault owner
+                verifySenderIsVaultOwner(s);
                 
                 // Create delegate to tez baker operation
                 const delegateToTezBakerOperation : operation = Tezos.set_delegate(delegateParams);
@@ -108,8 +112,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaDelegateMvkToSat(satelliteAddress) -> {
 
-                // check sender is vault owner
-                checkSenderIsVaultOwner(s);
+                // verify sender is vault owner
+                verifySenderIsVaultOwner(s);
 
                 // Create delegate to satellite operation
                 const delegateToSatelliteOperation : operation = delegateToSatelliteOperation(satelliteAddress, s);
@@ -197,8 +201,8 @@ block {
                 // check that %withdraw is not paused on Lending Controller
                 checkVaultWithdrawIsNotPaused(s);
 
-                // check sender is vault owner
-                checkSenderIsVaultOwner(s);
+                // verify sender is vault owner
+                verifySenderIsVaultOwner(s);
 
                 // withdraw operation
                 const amount     : nat        = withdrawParams.amount;
@@ -251,7 +255,7 @@ block {
         |   LambdaOnLiquidate(onLiquidateParams) -> {
 
                 checkVaultOnLiquidateIsNotPaused(s);
-                checkSenderIsLendingControllerContract(s);
+                verifySenderIsLendingControllerContract(s);
 
                 // onLiquidate operation
                 const receiver   : address    = onLiquidateParams.receiver;
@@ -289,8 +293,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaUpdateDepositor(updateDepositorParams) -> {
 
-                // check sender is vault owner
-                checkSenderIsVaultOwner(s);
+                // verify sender is vault owner
+                verifySenderIsVaultOwner(s);
 
                 // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
                 // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
@@ -326,7 +330,7 @@ block {
     // 2. Update operators of Vault Contract on the MVK Token contract 
     //    - required to set Doorman Contract as an operator for staking/unstaking 
 
-    checkSenderIsVaultOwner(s);
+    verifySenderIsVaultOwner(s);
 
     var operations : list(operation) := nil;
 
