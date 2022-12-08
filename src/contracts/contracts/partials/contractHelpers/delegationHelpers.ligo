@@ -92,17 +92,6 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
 
 
 
-// helper function to %transfer entrypoint on a Treasury contract
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
-        ];
-
-
-
 // helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
 function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
     case (Tezos.get_entrypoint_opt(

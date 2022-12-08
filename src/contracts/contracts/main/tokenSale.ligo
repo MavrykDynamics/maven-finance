@@ -134,23 +134,6 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
-// Entrypoint Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
-        ];
-
-// ------------------------------------------------------------------------------
-// Entrypoint Helper Functions End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
 //
 // Helper Functions End
 //

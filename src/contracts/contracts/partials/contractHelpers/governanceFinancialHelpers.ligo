@@ -124,17 +124,6 @@ function getExecuteGovernanceActionEntrypoint(const contractAddress : address) :
 
 
 
-// helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
-        ];
-
-
-
 // helper function to send mint MVK and transfer operation to treasury
 function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
     case (Tezos.get_entrypoint_opt(

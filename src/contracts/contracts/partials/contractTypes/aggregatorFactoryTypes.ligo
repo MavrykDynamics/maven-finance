@@ -3,7 +3,6 @@
 // ------------------------------------------------------------------------------
 
 
-
 type aggregatorFactoryConfigType is [@layout:comb] record [
     aggregatorNameMaxLength   : nat;
     empty                     : unit;
