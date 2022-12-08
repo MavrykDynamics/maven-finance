@@ -297,7 +297,8 @@ block {
     // Verify that sender is whitelisted
     verifySenderIsWhitelisted(s);
 
-    checkTransferIsNotPaused(s); // check that %transfer entrypoint is not paused (e.g. if glass broken)
+    // verify that %transfer entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.transferIsPaused, error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -351,7 +352,8 @@ block {
     // Verify that sender is whitelisted
     verifySenderIsWhitelisted(s);
 
-    checkMintMvkAndTransferIsNotPaused(s); // check that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)
+    // verify that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.mintMvkAndTransferIsPaused, error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -417,7 +419,9 @@ block {
     // 5. Create and send stake operation to the Doorman Contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
-    checkStakeMvkIsNotPaused(s);  // check that %stakeMvk entrypoint is not paused (e.g. if glass broken)
+    
+    // verify that %stakeMvk entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeMvkIsPaused, error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -449,7 +453,9 @@ block {
     // 5. Create and send unstake operation to the Doorman Contract
     
     verifySenderIsAdmin(s.admin);  // verify that sender is admin 
-    checkUnstakeMvkIsNotPaused(s); // check that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
+    
+    // verify that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeMvkIsPaused, error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 

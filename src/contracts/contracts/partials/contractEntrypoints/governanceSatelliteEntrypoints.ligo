@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : governanceSatelliteSt
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : governanceS
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams : governanceSatelliteUpdateConfig
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -98,7 +98,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -115,7 +115,7 @@ function mistakenTransfer(const destinationParams: transferActionType; var s: go
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -140,7 +140,7 @@ function suspendSatellite(const suspendSatelliteParams : suspendSatelliteActionT
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSuspendSatellite", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSuspendSatellite", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSuspendSatellite(suspendSatelliteParams);
@@ -157,7 +157,7 @@ function banSatellite(const banSatelliteParams : banSatelliteActionType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaBanSatellite", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaBanSatellite", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaBanSatellite(banSatelliteParams);
@@ -174,7 +174,7 @@ function restoreSatellite(const restoreSatelliteParams : restoreSatelliteActionT
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRestoreSatellite", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRestoreSatellite", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRestoreSatellite(restoreSatelliteParams);
@@ -199,7 +199,7 @@ function removeAllSatelliteOracles(const removeAllSatelliteOraclesParams : remov
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveAllSatelliteOracles", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveAllSatelliteOracles", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams);
@@ -216,7 +216,7 @@ function addOracleToAggregator(const addOracleToAggregatorParams : addOracleToAg
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaAddOracleToAggregator", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaAddOracleToAggregator", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaAddOracleToAggregator(addOracleToAggregatorParams);
@@ -233,7 +233,7 @@ function removeOracleInAggregator(const removeOracleInAggregatorParams : removeO
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveOracleInAggregator", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveOracleInAggregator", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRemoveOracleInAggregator(removeOracleInAggregatorParams);
@@ -258,7 +258,7 @@ function setAggregatorReference(const setAggregatorReferenceParams : setAggregat
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAggregatorReference", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAggregatorReference", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAggregatorReference(setAggregatorReferenceParams);
@@ -275,7 +275,7 @@ function togglePauseAggregator(const togglePauseAggregatorParams : togglePauseAg
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseAggregator", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseAggregator", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaTogglePauseAggregator(togglePauseAggregatorParams);
@@ -300,7 +300,7 @@ function fixMistakenTransfer(const fixMistakenTransferParams : fixMistakenTransf
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaFixMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaFixMistakenTransfer", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaFixMistakenTransfer(fixMistakenTransferParams);
@@ -325,7 +325,7 @@ function voteForAction(const voteForActionParams : voteForActionType; var s : go
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVoteForAction", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVoteForAction", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaVoteForAction(voteForActionParams);
@@ -342,7 +342,7 @@ function dropAction(const dropActionParams : dropActionType; var s : governanceS
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDropAction", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDropAction", s.lambdaLedger);
 
     // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaDropAction(dropActionParams);

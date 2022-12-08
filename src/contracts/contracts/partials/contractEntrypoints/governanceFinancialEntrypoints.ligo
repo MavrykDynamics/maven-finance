@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : governanceFinancialSt
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -31,7 +31,7 @@ function setGovernance(const newGovernanceProxyAddress : address; var s : govern
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaSetGovernance(newGovernanceProxyAddress);
@@ -48,7 +48,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -65,7 +65,7 @@ function updateConfig(const updateConfigParams : governanceFinancialUpdateConfig
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -82,7 +82,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -99,7 +99,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
         
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init farmFactory lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -116,7 +116,7 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistTokenContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistTokenContracts", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
@@ -133,7 +133,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -158,7 +158,7 @@ function requestTokens(const requestTokensParams : councilActionRequestTokensTyp
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRequestTokens", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRequestTokens", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaRequestTokens(requestTokensParams);
@@ -175,7 +175,7 @@ function requestMint(const requestMintParams : councilActionRequestMintType; var
 block {
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRequestMint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRequestMint", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaRequestMint(requestMintParams);
@@ -192,7 +192,7 @@ function setContractBaker(const setContractBakerParams : councilActionSetContrac
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetContractBaker", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetContractBaker", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaSetContractBaker(setContractBakerParams);
@@ -209,7 +209,7 @@ function dropFinancialRequest(const requestId : nat; var s : governanceFinancial
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDropFinancialRequest", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDropFinancialRequest", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaDropFinancialRequest(requestId);
@@ -226,7 +226,7 @@ function voteForRequest(const voteForRequest : voteForRequestType; var s : gover
 block {
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVoteForRequest", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVoteForRequest", s.lambdaLedger);
 
     // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaVoteForRequest(voteForRequest);

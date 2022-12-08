@@ -39,35 +39,6 @@ block{
 
 
 // ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %createFarm entrypoint is not paused
-function checkCreateFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
-    if s.breakGlassConfig.createFarmIsPaused then failwith(error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %trackFarm entrypoint is not paused
-function checkTrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
-    if s.breakGlassConfig.trackFarmIsPaused then failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %untrackFarm entrypoint is not paused
-function checkUntrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
-    if s.breakGlassConfig.untrackFarmIsPaused then failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
-    else unit;
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -246,22 +217,14 @@ block {
 } with trackedFarms
 
 // ------------------------------------------------------------------------------
-// Lambda Helper Functions Begin
+// General Helper Functions End
 // ------------------------------------------------------------------------------
 
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : farmFactoryStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
 
 
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is 
