@@ -702,8 +702,8 @@ block{
     case doormanLambdaAction of [
         | LambdaOnVaultDepositStakedMvk(onVaultDepositStakedMvkParams) -> {
 
-                // check sender is Lending Controller 
-                checkSenderIsLendingControllerContract(s);
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
 
                 // init parameters
                 const vaultOwner     : address  = onVaultDepositStakedMvkParams.vaultOwner;
@@ -772,8 +772,8 @@ block{
     case doormanLambdaAction of [
         | LambdaOnVaultWithdrawStakedMvk(onVaultWithdrawStakedMvkParams) -> {
 
-                // check sender is Lending Controller 
-                checkSenderIsLendingControllerContract(s);
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
 
                 // init parameters
                 const vaultOwner      : address = onVaultWithdrawStakedMvkParams.vaultOwner;
@@ -836,8 +836,8 @@ block{
     case doormanLambdaAction of [
         | LambdaOnVaultLiquidateStakedMvk(onVaultLiquidateStakedMvkParams) -> {
 
-                // check sender is Lending Controller 
-                checkSenderIsLendingControllerContract(s);
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
 
                 // init parameters
                 const vaultAddress      : address  = onVaultLiquidateStakedMvkParams.vaultAddress;

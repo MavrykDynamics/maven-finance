@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case vaultFactoryLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +30,8 @@ block {
 function lambdaSetGovernance(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case vaultFactoryLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -46,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address) 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
     
     case vaultFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -67,7 +69,7 @@ block {
 function lambdaUpdateConfig(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is 
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case vaultFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -91,7 +93,7 @@ block {
 function lambdaUpdateWhitelistContracts(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vaultFactoryLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -108,7 +110,7 @@ block {
 function lambdaUpdateGeneralContracts(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vaultFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -134,8 +136,8 @@ block {
     case vaultFactoryLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check that sender is admin or from the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that sender is admin or from the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
@@ -175,7 +177,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Pause entrypoints in Vault Factory
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -202,7 +205,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Unpause entrypoints in Vault Factory
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -225,7 +229,7 @@ block {
 function lambdaTogglePauseEntrypoint(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // check that sender is admin
 
     case vaultFactoryLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {

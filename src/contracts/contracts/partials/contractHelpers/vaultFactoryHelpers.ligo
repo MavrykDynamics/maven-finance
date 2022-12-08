@@ -8,57 +8,14 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : vaultFactoryStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-        
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(const s : vaultFactoryStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
-    else unit
-
-
-
-// Allowed Senders: Council Contract
-function checkSenderIsCouncil(const s : vaultFactoryStorageType) : unit is
-block {
-
-    const councilAddress : address = case s.whitelistContracts["council"] of [
-            Some (_address) -> _address
-        |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
-    ];
-
-    if Tezos.get_sender() = councilAddress then skip
-    else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
-
-} with (unit)
-
-
-
 // Allowed Senders: Admin, Governance Satellite Contract
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : vaultFactoryStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : vaultFactoryStorageType) : unit is
 block{
 
-    if Tezos.get_sender() = s.admin then skip
-    else {
-
-        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-
-        if Tezos.get_sender() = governanceSatelliteAddress then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-    }
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
 
 } with unit
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-    else unit
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -179,6 +136,20 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// helper function to get lambda bytes
+function getLambdaBytes(const lambdaKey : string; const s : vaultFactoryStorageType) : bytes is 
+block {
+    
+    // get lambda bytes from lambda ledger
+    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
+            Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+} with lambdaBytes
+
+
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is 

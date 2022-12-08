@@ -8,36 +8,13 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : lendingControllerStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders: Admin
-function checkSenderIsAdmin(const s : lendingControllerStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
-    else unit
-
-
-
-// Allowed Senders: Self
-function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
-    else failwith(error_ONLY_SELF_ALLOWED);
-
-
-
 // Allowed Senders: Vault Factory Contract
-function checkSenderIsVaultFactoryContract(var s : lendingControllerStorageType) : unit is
+function verifySenderIsVaultFactoryContract(var s : lendingControllerStorageType) : unit is
 block{
 
     // Get Vault Factory Address from the General Contracts map on the Governance Contract
     const vaultFactoryAddress: address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
-
-    if (Tezos.get_sender() = vaultFactoryAddress) then skip
-    else failwith(error_ONLY_VAULT_FACTORY_CONTRACT_ALLOWED);
+    verifySenderIsAllowed(set[vaultFactoryAddress], error_ONLY_VAULT_FACTORY_CONTRACT_ALLOWED)
 
 } with unit
 
@@ -70,13 +47,6 @@ block {
     if Map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
 
 } with unit
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -670,7 +640,7 @@ block {
 
         |   Fa12(_token) -> {
 
-                checkNoAmount(Unit);
+                verifyNoAmountSent(Unit);
 
                 const transferFa12Operation : operation = transferFa12Token(
                     from_,                      // from_
@@ -683,7 +653,7 @@ block {
 
         |   Fa2(_token) -> {
 
-                checkNoAmount(Unit);
+                verifyNoAmountSent(Unit);
 
                 const transferFa2Operation : operation = transferFa2Token(
                     from_,                          // from_
