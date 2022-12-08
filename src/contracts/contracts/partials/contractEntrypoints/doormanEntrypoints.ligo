@@ -283,7 +283,7 @@ function onVaultDepositStakedMvk(const onVaultDepositStakedMvkParams : onVaultDe
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultDepositStakedMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultDepositStakedMvk", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultDepositStakedMvk(onVaultDepositStakedMvkParams);
@@ -300,7 +300,7 @@ function onVaultWithdrawStakedMvk(const onVaultWithdrawStakedMvkParams : onVault
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultWithdrawStakedMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultWithdrawStakedMvk", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultWithdrawStakedMvk(onVaultWithdrawStakedMvkParams);
@@ -317,7 +317,7 @@ function onVaultLiquidateStakedMvk(const onVaultLiquidateStakedMvkParams : onVau
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultLiquidateStakedMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultLiquidateStakedMvk", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultLiquidateStakedMvk(onVaultLiquidateStakedMvkParams);

@@ -347,7 +347,9 @@ block {
 
     verifyNoAmountSent(Unit);           // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin);       // verify that sender is admin
-    checkSetLoanTokenIsNotPaused(s);    // Check that %setLoanToken entrypoint is not paused (e.g. if glass broken)
+    
+    // verify that %setLoanToken entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.setLoanTokenIsPaused, error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaSetLoanToken(setLoanTokenParams) -> {
@@ -400,7 +402,9 @@ block {
 
     verifyNoAmountSent(Unit);                 // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin);             // verify that sender is admin
-    checkSetCollateralTokenIsNotPaused(s);    // Check that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.setCollateralTokenIsPaused, error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaSetCollateralToken(setCollateralTokenParams) -> {
@@ -449,7 +453,9 @@ block {
     // 5. Add new vault to owner's vault set
     
     var operations : list(operation) := nil;
-    checkRegisterVaultCreationIsNotPaused(s);    // Check that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
+    
+    // verify that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.registerVaultCreationIsPaused, error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaRegisterVaultCreation(registerVaultCreationParams) -> {
@@ -524,7 +530,9 @@ block {
     
     // init operations
     var operations : list(operation) := nil;
-    checkAddLiquidityIsNotPaused(s);    // Check that %addLiquidity entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %addLiquidity entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.addLiquidityIsPaused, error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaAddLiquidity(addLiquidityParams) -> {
@@ -585,7 +593,9 @@ block {
     // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
     
     verifyNoAmountSent(Unit);                   // entrypoint should not receive any tez amount  
-    checkRemoveLiquidityIsNotPaused(s);    // Check that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.removeLiquidityIsPaused, error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     // init operations
     var operations : list(operation) := nil;
@@ -666,7 +676,9 @@ function lambdaCloseVault(const lendingControllerLambdaAction : lendingControlle
 block {
     
     var operations : list(operation) := nil;
-    checkCloseVaultIsNotPaused(s);    // Check that %closeVault entrypoint is not paused (e.g. if glass broken)
+
+    // Verify that %closeVault entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.closeVaultIsPaused, error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaCloseVault(closeVaultParams) -> {
@@ -778,7 +790,9 @@ function lambdaMarkForLiquidation(const lendingControllerLambdaAction : lendingC
 block {
 
     var operations : list(operation) := nil;
-    checkMarkForLiquidationIsNotPaused(s);    // Check that %markForLiquidation entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %markForLiquidation entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.markForLiquidationIsPaused, error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaMarkForLiquidation(markForLiquidationParams) -> {
@@ -856,7 +870,9 @@ function lambdaLiquidateVault(const lendingControllerLambdaAction : lendingContr
 block {
     
     var operations : list(operation) := nil;
-    checkLiquidateVaultIsNotPaused(s);    // Check that %liquidateVault entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %liquidateVault entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.liquidateVaultIsPaused, error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaLiquidateVault(liquidateVaultParams) -> {
@@ -1150,7 +1166,8 @@ block {
 function lambdaRegisterDeposit(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    checkRegisterDepositIsNotPaused(s);    // Check that %registerDeposit entrypoint is not paused (e.g. if glass broken)
+    // Verify that %registerDeposit entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.registerDepositIsPaused, error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaRegisterDeposit(registerDepositParams) -> {
@@ -1222,7 +1239,8 @@ block {
 function lambdaRegisterWithdrawal(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    checkRegisterWithdrawalIsNotPaused(s);    // Check that %registerWithdrawal entrypoint is not paused (e.g. if glass broken)
+    // Verify that %registerWithdrawal entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.registerWithdrawalIsPaused, error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaRegisterWithdrawal(registerWithdrawalParams) -> {
@@ -1296,7 +1314,9 @@ function lambdaBorrow(const lendingControllerLambdaAction : lendingControllerLam
 block {
     
     var operations : list(operation):= nil;
-    checkBorrowIsNotPaused(s);    // Check that %borrow entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %borrow entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.borrowIsPaused, error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaBorrow(borrowParams) -> {
@@ -1460,7 +1480,9 @@ function lambdaRepay(const lendingControllerLambdaAction : lendingControllerLamb
 block {
     
     var operations : list(operation) := nil;
-    checkRepayIsNotPaused(s);    // Check that %repay entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %repay entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.repayIsPaused, error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaRepay(repayParams) -> {
@@ -1687,7 +1709,9 @@ function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendi
 block {
     
     var operations : list(operation) := nil;
-    checkVaultDepositStakedMvkIsNotPaused(s);    // Check that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultDepositStakedMvkIsPaused, error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
@@ -1753,7 +1777,9 @@ function lambdaVaultWithdrawStakedMvk(const lendingControllerLambdaAction : lend
 block {
     
     var operations : list(operation)  := nil;
-    checkVaultWithdrawStakedMvkIsNotPaused(s);    // Check that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
+    
+    // Verify that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused, error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
