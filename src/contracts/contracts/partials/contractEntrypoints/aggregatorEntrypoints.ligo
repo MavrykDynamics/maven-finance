@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; const s : aggregatorStorageTy
 block{
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : aggregatorS
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function setName(const newContractName : string; var s : aggregatorStorageType) 
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetName", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetName", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetName(newContractName);
@@ -64,7 +64,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; const s
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -81,7 +81,7 @@ function updateConfig(const updateConfigParams : aggregatorUpdateConfigParamsTyp
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -98,7 +98,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -115,7 +115,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -132,7 +132,7 @@ function mistakenTransfer(const destinationParams: transferActionType; var s: ag
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -156,7 +156,7 @@ function addOracle(const addOracleParams : addOracleType; const s : aggregatorSt
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaAddOracle", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaAddOracle", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaAddOracle(addOracleParams);
@@ -173,7 +173,7 @@ function updateOracle(const s : aggregatorStorageType) : return is
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateOracle", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateOracle", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateOracle(unit);
@@ -190,7 +190,7 @@ function removeOracle(const oracleAddress : address; const s : aggregatorStorage
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveOracle", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveOracle", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaRemoveOracle(oracleAddress);
@@ -215,7 +215,7 @@ function pauseAll(const s : aggregatorStorageType) : return is
 block{
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaPauseAll(unit);
@@ -232,7 +232,7 @@ function unpauseAll(const s : aggregatorStorageType) : return is
 block{
   
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUnpauseAll(unit);
@@ -249,7 +249,7 @@ function togglePauseEntrypoint(const targetEntrypoint: aggregatorTogglePauseEntr
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -276,7 +276,7 @@ function updateData(const params : updateDataType; const s : aggregatorStorageTy
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateData", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateData", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateData(params);
@@ -301,7 +301,7 @@ function withdrawRewardXtz(const receiver: address; const s : aggregatorStorageT
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardXtz", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardXtz", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardXtz(receiver);
@@ -317,7 +317,7 @@ function withdrawRewardStakedMvk(const receiver: address; const s : aggregatorSt
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardStakedMvk", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardStakedMvk", s.lambdaLedger);
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardStakedMvk(receiver);

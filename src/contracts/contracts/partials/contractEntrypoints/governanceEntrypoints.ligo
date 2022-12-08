@@ -13,7 +13,7 @@ function breakGlass(var s : governanceStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaBreakGlass", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaBreakGlass", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaBreakGlass(unit);
@@ -30,7 +30,7 @@ function propagateBreakGlass(var s : governanceStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPropagateBreakGlass", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPropagateBreakGlass", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaPropagateBreakGlass(unit);
@@ -55,7 +55,7 @@ function setAdmin(const newAdminAddress : address; var s : governanceStorageType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -73,7 +73,7 @@ function setGovernanceProxy(const newGovernanceProxyAddress : address; var s : g
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernanceProxy", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernanceProxy", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaSetGovernanceProxy(newGovernanceProxyAddress);
@@ -90,7 +90,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -107,7 +107,7 @@ function updateConfig(const updateConfigParams : governanceUpdateConfigParamsTyp
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -124,7 +124,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -141,7 +141,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init farmFactory lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -158,7 +158,7 @@ function updateWhitelistDevelopers(const developer : address; var s : governance
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistDevelopers", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistDevelopers", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistDevelopers(developer);
@@ -175,7 +175,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -192,7 +192,7 @@ function setContractAdmin(const setContractAdminParams : setContractAdminType; v
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetContractAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetContractAdmin", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractAdmin(setContractAdminParams);
@@ -209,7 +209,7 @@ function setContractGovernance(const setContractGovernanceParams : setContractGo
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetContractGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetContractGovernance", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractGovernance(setContractGovernanceParams);
@@ -234,7 +234,7 @@ function updateSatelliteSnapshot(const updateSatelliteSnapshotParams : updateSat
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatelliteSnapshot", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatelliteSnapshot", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateSatelliteSnapshot(updateSatelliteSnapshotParams);
@@ -251,7 +251,7 @@ function startNextRound(const executePastProposal : bool; var s : governanceStor
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaStartNextRound", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaStartNextRound", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaStartNextRound(executePastProposal);
@@ -268,7 +268,7 @@ function propose(const newProposal : newProposalType ; var s : governanceStorage
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPropose", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPropose", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaPropose(newProposal);
@@ -285,7 +285,7 @@ function updateProposalData(const proposalData : updateProposalType; var s : gov
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateProposalData", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateProposalData", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateProposalData(proposalData);
@@ -302,7 +302,7 @@ function lockProposal(const proposalId : nat; var s : governanceStorageType) : r
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaLockProposal", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaLockProposal", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaLockProposal(proposalId);
@@ -319,7 +319,7 @@ function proposalRoundVote(const proposalId : nat; var s : governanceStorageType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaProposalRoundVote", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaProposalRoundVote", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaProposalRoundVote(proposalId);
@@ -336,7 +336,7 @@ function votingRoundVote(const voteType : votingRoundVoteType; var s : governanc
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVotingRoundVote", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVotingRoundVote", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaVotingRoundVote(voteType);
@@ -353,7 +353,7 @@ function executeProposal(const proposalId : actionIdType; var s : governanceStor
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteProposal", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteProposal", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaExecuteProposal(proposalId);
@@ -370,7 +370,7 @@ function processProposalPayment(const proposalID: actionIdType; var s : governan
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaProcessProposalPayment", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaProcessProposalPayment", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalPayment(proposalID);
@@ -387,7 +387,7 @@ function processProposalSingleData(const proposalId : actionIdType; var s : gove
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaProcessProposalSingleData", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaProcessProposalSingleData", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalSingleData(proposalId);
@@ -404,7 +404,7 @@ function distributeProposalRewards(const claimParams: distributeProposalRewardsT
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeProposalRewards", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeProposalRewards", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaDistributeProposalRewards(claimParams);
@@ -421,7 +421,7 @@ function dropProposal(const proposalId : actionIdType; var s : governanceStorage
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDropProposal", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDropProposal", s.lambdaLedger);
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaDropProposal(proposalId);

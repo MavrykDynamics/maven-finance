@@ -60,65 +60,8 @@ block {
 
 } with unit
 
-
-
-// Check that no Tezos is sent to the entrypoint
-function verifyNoAmountSent(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to check that the %delegateToSatellite entrypoint is not paused
-function checkDelegateToSatelliteIsNotPaused(var s : delegationStorageType) : unit is
-    if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
-    else unit;
-
-    
-
-// helper function to check that the %undelegateFromSatellite entrypoint is not paused
-function checkUndelegateFromSatelliteIsNotPaused(var s : delegationStorageType) : unit is
-    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %registerAsSatellite entrypoint is not paused
-function checkRegisterAsSatelliteIsNotPaused(var s : delegationStorageType) : unit is
-    if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith(error_REGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %unregisterAsSatellite entrypoint is not paused
-function checkUnregisterAsSatelliteIsNotPaused(var s : delegationStorageType) : unit is
-    if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith(error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %updateSatelliteRecord entrypoint is not paused
-function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorageType) : unit is
-    if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith(error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %distributeReward entrypoint is not paused
-function checkDistributeRewardIsNotPaused(var s : delegationStorageType) : unit is
-    if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
-    else unit;
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -629,20 +572,6 @@ block{
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : delegationStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 

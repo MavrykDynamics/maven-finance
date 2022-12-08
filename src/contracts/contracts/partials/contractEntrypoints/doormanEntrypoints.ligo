@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : doormanStorageType) :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : doormanStor
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams : doormanUpdateConfigParamsType; 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init delegation lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -98,7 +98,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -115,7 +115,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -132,7 +132,7 @@ function migrateFunds(const destinationAddress : address; var s : doormanStorage
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMigrateFunds", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMigrateFunds", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaMigrateFunds(destinationAddress);
@@ -156,7 +156,7 @@ function pauseAll(var s : doormanStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaPauseAll(unit);
@@ -173,7 +173,7 @@ function unpauseAll(var s : doormanStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaUnpauseAll(unit);
@@ -190,7 +190,7 @@ function togglePauseEntrypoint(const targetEntrypoint : doormanTogglePauseEntryp
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -215,7 +215,7 @@ function stake(const stakeAmount : nat; var s : doormanStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaStake", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaStake", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaStake(stakeAmount);
@@ -232,7 +232,7 @@ function unstake(const unstakeAmount : nat; var s : doormanStorageType) : return
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstake", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstake", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaUnstake(unstakeAmount);
@@ -249,7 +249,7 @@ function compound(const userAddress : address; var s : doormanStorageType) : ret
 block{
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaCompound", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCompound", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(userAddress);
@@ -266,7 +266,7 @@ function farmClaim(const farmClaim : farmClaimType; var s : doormanStorageType) 
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaFarmClaim", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaFarmClaim", s.lambdaLedger);
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaFarmClaim(farmClaim);

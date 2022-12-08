@@ -324,7 +324,9 @@ block{
     // 6. Add newly created Treasury to the Governance Contract - General Contracts map
 
     verifySenderIsAdmin(s.admin);       // verify that sender is admin 
-    checkCreateTreasuryIsNotPaused(s);  // check that %createTreasury entrypoint is not paused (e.g. glass broken)
+    
+    // verify that %createTreasury entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.createTreasuryIsPaused, error_CREATE_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -381,7 +383,9 @@ block{
     // 3. Add Treasury Contract to tracked Treasuries
 
     verifySenderIsAdmin(s.admin);       // verify that sender is admin 
-    checkTrackTreasuryIsNotPaused(s);   // check that %trackTreasury entrypoint is not paused (e.g. glass broken)
+    
+    // verify that %trackTreasury entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.trackTreasuryIsPaused, error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED);
 
     case treasuryFactoryLambdaAction of [
         |   LambdaTrackTreasury(treasuryContract) -> {
@@ -406,7 +410,9 @@ block{
     // 3. Remove Treasury Contract from tracked Treasuries
 
     verifySenderIsAdmin(s.admin);        // verify that sender is admin 
-    checkUntrackTreasuryIsNotPaused(s);  // check that %untrackTreasury entrypoint is not paused (e.g. glass broken)
+    
+    // check that %untrackTreasury entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.untrackTreasuryIsPaused, error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED);
 
     case treasuryFactoryLambdaAction of [
         |   LambdaUntrackTreasury(treasuryContract) -> {

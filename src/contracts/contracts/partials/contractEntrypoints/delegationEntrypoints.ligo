@@ -13,7 +13,7 @@ function setAdmin(const newAdminAddress : address; var s : delegationStorageType
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
     
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaSetAdmin(newAdminAddress);
@@ -30,7 +30,7 @@ function setGovernance(const newGovernanceAddress : address; var s : delegationS
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
@@ -47,7 +47,7 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
@@ -64,7 +64,7 @@ function updateConfig(const updateConfigParams : delegationUpdateConfigParamsTyp
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateConfig(updateConfigParams);
@@ -81,7 +81,7 @@ function updateWhitelistContracts(const updateWhitelistContractsParams : updateW
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
@@ -98,7 +98,7 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
@@ -115,7 +115,7 @@ function mistakenTransfer(const destinationParams : transferActionType; var s : 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaMistakenTransfer(destinationParams);
@@ -140,7 +140,7 @@ function pauseAll(var s : delegationStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaPauseAll(unit);
@@ -157,7 +157,7 @@ function unpauseAll(var s : delegationStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUnpauseAll(unit);
@@ -174,7 +174,7 @@ function togglePauseEntrypoint(const targetEntrypoint : delegationTogglePauseEnt
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
@@ -199,7 +199,7 @@ function delegateToSatellite(const delegateToSatelliteParams : delegateToSatelli
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDelegateToSatellite", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDelegateToSatellite", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaDelegateToSatellite(delegateToSatelliteParams);
@@ -216,7 +216,7 @@ function undelegateFromSatellite(const undelegateToSatelliteParams : address; va
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUndelegateFromSatellite", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUndelegateFromSatellite", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(undelegateToSatelliteParams);
@@ -241,7 +241,7 @@ function registerAsSatellite(const registerAsSatelliteParams : registerAsSatelli
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterAsSatellite", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaRegisterAsSatellite", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaRegisterAsSatellite(registerAsSatelliteParams);
@@ -258,7 +258,7 @@ function unregisterAsSatellite(const userAddress : address; var s : delegationSt
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnregisterAsSatellite", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnregisterAsSatellite", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUnregisterAsSatellite(userAddress);
@@ -275,7 +275,7 @@ function updateSatelliteRecord(const updateSatelliteRecordParams : updateSatelli
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatelliteRecord", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatelliteRecord", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateSatelliteRecord(updateSatelliteRecordParams);
@@ -292,7 +292,7 @@ function distributeReward(const distributeRewardParams : distributeRewardStakedM
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeReward", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeReward", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaDistributeReward(distributeRewardParams);
@@ -317,7 +317,7 @@ function onStakeChange(const userAddress : address; var s : delegationStorageTyp
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnStakeChange", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnStakeChange", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaOnStakeChange(userAddress);
@@ -334,7 +334,7 @@ function updateSatelliteStatus(const updateSatelliteStatusParams : updateSatelli
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatelliteStatus", s);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatelliteStatus", s.lambdaLedger);
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateSatelliteStatus(updateSatelliteStatusParams);

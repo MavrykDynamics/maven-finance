@@ -308,7 +308,7 @@ block{
     // 6. Add newly created Farm to the Governance Contract - General Contracts map
 
     verifySenderIsAdmin(s.admin);   // verify that sender is admin
-    checkCreateFarmIsNotPaused(s);  // check that %createFarm entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.createFarmIsPaused, error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
@@ -362,7 +362,7 @@ block{
     // 3. Add Farm Contract to tracked Farms
     
     verifySenderIsAdmin(s.admin);   // verify that sender is admin
-    checkTrackFarmIsNotPaused(s);   // check that %trackFarm entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.trackFarmIsPaused, error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED);
 
     case farmFactoryLambdaAction of [
         |   LambdaTrackFarm(farmContract) -> {
@@ -387,7 +387,7 @@ block{
     // 3. Remove Farm Contract from tracked Farms
 
     verifySenderIsAdmin(s.admin);     // verify that sender is admin
-    checkUntrackFarmIsNotPaused(s);   // check that %untrackFarm entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.untrackFarmIsPaused, error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED);
 
     case farmFactoryLambdaAction of [
         |   LambdaUntrackFarm(farmContract) -> {
