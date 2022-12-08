@@ -137,7 +137,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaDeposit(depositParams) -> {
 
-                checkVaultDepositIsNotPaused(s);
+                // verify that %deposit is not paused on Lending Controller
+                verifyVaultDepositIsNotPaused(s);
 
                 // init deposit operation params
                 const amount     : nat        = depositParams.amount;
@@ -198,8 +199,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaWithdraw(withdrawParams) -> {
 
-                // check that %withdraw is not paused on Lending Controller
-                checkVaultWithdrawIsNotPaused(s);
+                // verify that %withdraw is not paused on Lending Controller
+                verifyEntrypointIsNotPaused(s);
 
                 // verify sender is vault owner
                 verifySenderIsVaultOwner(s);
@@ -254,7 +255,9 @@ block {
     case vaultLambdaAction of [
         |   LambdaOnLiquidate(onLiquidateParams) -> {
 
-                checkVaultOnLiquidateIsNotPaused(s);
+                // verify that %onLiquidate is not paused on Lending Controller
+                verifyVaultOnLiquidateIsNotPaused(s);
+
                 verifySenderIsLendingControllerContract(s);
 
                 // onLiquidate operation

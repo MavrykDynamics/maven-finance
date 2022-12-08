@@ -311,39 +311,36 @@ block {
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to check that %vaultDeposit is not paused
-function checkVaultDepositIsNotPaused(var s : vaultStorageType) : unit is
+// verify that %vaultDeposit is not paused
+function verifyVaultDepositIsNotPaused(var s : vaultStorageType) : unit is
 block {
 
     const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+    verifyEntrypointIsNotPaused(breakGlassConfig.vaultDepositIsPaused, error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
-    const checkEntrypointPaused : unit = if breakGlassConfig.vaultDepositIsPaused then failwith(error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
-
-} with checkEntrypointPaused
-
+} with unit
 
 
-// helper function to check that vaultWithdraw is not paused in Lending Controller
-function checkVaultWithdrawIsNotPaused(var s : vaultStorageType) : unit is
+
+// verify that vaultWithdraw is not paused in Lending Controller
+function verifyVaultWithdrawIsNotPaused(var s : vaultStorageType) : unit is
 block {
 
     const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+    verifyEntrypointIsNotPaused(breakGlassConfig.vaultWithdrawIsPaused, error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
-    const checkEntrypointPaused : unit = if breakGlassConfig.vaultWithdrawIsPaused then failwith(error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
-
-} with checkEntrypointPaused
-
+} with unit
 
 
-// helper function to check that vaultOnLiquidate is not paused in Lending Controller
-function checkVaultOnLiquidateIsNotPaused(var s : vaultStorageType) : unit is
+
+// verify that vaultOnLiquidate is not paused in Lending Controller
+function verifyVaultOnLiquidateIsNotPaused(var s : vaultStorageType) : unit is
 block {
 
     const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+    verifyEntrypointIsNotPaused(breakGlassConfig.vaultOnLiquidateIsPaused, error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
-    const checkEntrypointPaused : unit = if breakGlassConfig.vaultOnLiquidateIsPaused then failwith(error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
-
-} with checkEntrypointPaused
+} with unit
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End
@@ -354,20 +351,6 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get lambda bytes
-function getLambdaBytes(const lambdaKey : string; const s : vaultStorageType) : bytes is 
-block {
-    
-    // get lambda bytes from lambda ledger
-    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-            Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-} with lambdaBytes
-
-
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is 
