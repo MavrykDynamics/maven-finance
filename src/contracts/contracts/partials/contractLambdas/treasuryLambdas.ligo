@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +30,8 @@ block {
 function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -48,8 +48,8 @@ block {
 function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkNoAmount(Unit);                            // entrypoint should not receive any tez amount  
-    checkSenderIsAdminOrGovernanceFinancial(s);     // check that sender is admin or the Governance Financial Contract address
+    verifyNoAmountSent(Unit);                        // entrypoint should not receive any tez amount  
+    verifySenderIsAdminOrGovernanceFinancial(s);     // verify that sender is admin or the Governance Financial Contract address
 
     var operations : list(operation) := nil;
 
@@ -76,7 +76,7 @@ block {
     // 4. Get the treasuryNameMaxLength parameter from the Treasury Factory Contract Config
     // 5. Validate input (name does not exceed max length) and update the Treasury Contract name
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case treasuryLambdaAction of [
         |   LambdaSetName(updatedName) -> {
@@ -109,7 +109,7 @@ block {
 function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case treasuryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -131,7 +131,7 @@ block {
 function lambdaUpdateWhitelistContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case treasuryLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -148,7 +148,7 @@ block {
 function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case treasuryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -165,7 +165,7 @@ block {
 function lambdaUpdateWhitelistTokenContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryLambdaAction of [
         |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
@@ -191,8 +191,8 @@ block {
 function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    // check that sender is admin, Governance Contract address or Treasury Factory Contract address
-    checkSenderIsGovernanceOrFactory(s); 
+    // verify that sender is admin, Governance Contract address or Treasury Factory Contract address
+    verifySenderIsAdminOrGovernanceOrFactory(s); 
 
     case treasuryLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
@@ -222,8 +222,8 @@ block {
 function lambdaUnpauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    // check that sender is admin, Governance Contract address or Treasury Factory Contract address
-    checkSenderIsGovernanceOrFactory(s);
+    // verify that sender is admin, Governance Contract address or Treasury Factory Contract address
+    verifySenderIsAdminOrGovernanceOrFactory(s);
 
     case treasuryLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
@@ -253,8 +253,8 @@ block {
 function lambdaTogglePauseEntrypoint(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    checkNoAmount(Unit);    // entrypoint should not receive any tez amount    
-    checkSenderIsAdmin(s);  // check that sender is admin 
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount    
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
@@ -386,7 +386,7 @@ block {
     // 2. Update operators of Treasury Contract on the MVK Token contract 
     //    - required to set Doorman Contract as an operator for staking/unstaking 
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     var operations : list(operation) := nil;
 
@@ -416,9 +416,8 @@ block {
     // 4. Get stake entrypoint in the Doorman Contract
     // 5. Create and send stake operation to the Doorman Contract
 
-    checkSenderIsAdmin(s);       // check that sender is admin
-
-    checkStakeMvkIsNotPaused(s); // check that %stakeMvk entrypoint is not paused (e.g. if glass broken)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    checkStakeMvkIsNotPaused(s);  // check that %stakeMvk entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;
 
@@ -449,7 +448,7 @@ block {
     // 4. Get unstake entrypoint in the Doorman Contract
     // 5. Create and send unstake operation to the Doorman Contract
     
-    checkSenderIsAdmin(s);         // check that sender is admin
+    verifySenderIsAdmin(s.admin);  // verify that sender is admin 
     checkUnstakeMvkIsNotPaused(s); // check that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;

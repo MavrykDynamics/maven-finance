@@ -8,22 +8,8 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders : Admin, Governance Contract
-function checkSenderIsAllowed(const s : treasuryStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-// Allowed Senders : Admin
-function checkSenderIsAdmin(var s : treasuryStorageType) : unit is
-    if (Tezos.get_sender() = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
-
-
-
 // Allowed Senders : Admin, Governance Financial Contract
-function checkSenderIsAdminOrGovernanceFinancial(const s : treasuryStorageType) : unit is
+function verifySenderIsAdminOrGovernanceFinancial(const s : treasuryStorageType) : unit is
 block{
 
     const governanceFinancialAddress : address = case s.whitelistContracts["governanceFinancial"] of [
@@ -31,28 +17,22 @@ block{
         |   None            -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED) : address)
     ];
     
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = governanceFinancialAddress) then skip
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+    verifySenderIsAllowed(set[s.admin; governanceFinancialAddress], error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_FINANCIAL_ALLOWED)
 
 } with(unit)
 
 
 
 // Allowed Senders : Admin, Governance Contract, Treasury Factory Contract
-function checkSenderIsGovernanceOrFactory(const s : treasuryStorageType) : unit is
+function verifySenderIsAdminOrGovernanceOrFactory(const s : treasuryStorageType) : unit is
 block {
     
-    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress
-    then skip
-    else{
+    const treasuryFactoryAddress : address = case s.whitelistContracts["treasuryFactory"] of [
+            Some (_address) -> _address
+        |   None            -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : address)
+    ];
 
-        const treasuryFactoryAddress : address = case s.whitelistContracts["treasuryFactory"] of [
-                Some (_address) -> _address
-            |   None            -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : address)
-        ];
-
-        if Tezos.get_sender() = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
-    };
+    verifySenderIsAllowed(set[s.admin; s.governanceAddress; treasuryFactoryAddress], error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED)
 
 } with(unit)
 
@@ -66,13 +46,6 @@ block {
     else skip;
 
 } with unit 
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -261,7 +234,7 @@ block {
     
     // get lambda bytes from lambda ledger
     const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-        |   Some(_v) -> _v
+            Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 

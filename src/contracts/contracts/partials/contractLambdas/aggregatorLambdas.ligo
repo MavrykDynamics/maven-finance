@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);  
 
     case aggregatorLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +30,8 @@ block {
 function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);  
 
     case aggregatorLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -54,7 +56,8 @@ block {
     // 5. Validate that new name input does not exceed aggregatorNameMaxLength
     // 6. Set new name on Aggregator Contract
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     var operations : list(operation) := nil;
 
@@ -106,7 +109,8 @@ block {
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // check that sender is admin 
+    verifySenderIsAdmin(s.admin); 
 
     case aggregatorLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -128,7 +132,8 @@ block {
 function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // check that sender is admin
+    verifySenderIsAdmin(s.admin);
 
     case aggregatorLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -158,7 +163,8 @@ block{
 function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // check that sender is admin
+    verifySenderIsAdmin(s.admin); 
     
     case aggregatorLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -175,7 +181,8 @@ block {
 function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // check that sender is admin
+    verifySenderIsAdmin(s.admin); 
     
     case aggregatorLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -198,7 +205,7 @@ block {
         | LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is the governanceSatellite contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
@@ -233,7 +240,8 @@ block {
 function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernanceSatellite(s);  
+    // verify sender is admin or governance satellite contract
+    verifySenderIsAdminOrGovernanceSatelliteContract(s);  
 
     case aggregatorLambdaAction of [
         |   LambdaAddOracle(addOracleParams) -> {
@@ -285,7 +293,8 @@ block {
 function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernanceSatellite(s);
+    // verify sender is admin or governance satellite contract
+    verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
     case aggregatorLambdaAction of [
         |   LambdaRemoveOracle(oracleAddress) -> {
@@ -316,8 +325,8 @@ block {
 function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {  
 
-    // check that sender is admin, the Governance Contract, the Governance Satellite Contract, or the Aggregator Factory Contract
-    checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
+    // verify that sender is admin, the Governance Contract, the Governance Satellite Contract, or the Aggregator Factory Contract
+    verifySenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
@@ -344,8 +353,8 @@ block {
 function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    // check that sender is admin, the Governance Contract, the Governance Satellite Contract, or the Aggregator Factory Contract
-    checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
+    // verify that sender is admin, the Governance Contract, the Governance Satellite Contract, or the Aggregator Factory Contract
+    verifySenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
@@ -371,8 +380,9 @@ block {
 (*  togglePauseEntrypoint lambda *)
 function lambdaTogglePauseEntrypoint(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
-
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    
+    // verify that sender is admin 
+    verifySenderIsAdmin(s.admin);
 
     case aggregatorLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {

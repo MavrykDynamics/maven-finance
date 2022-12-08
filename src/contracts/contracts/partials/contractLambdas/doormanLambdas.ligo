@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
     
     case doormanLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +30,8 @@ block {
 function lambdaSetGovernance(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case doormanLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -46,7 +48,8 @@ block {
 function lambdaUpdateMetadata(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -67,7 +70,8 @@ block {
 function lambdaUpdateConfig(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -91,7 +95,8 @@ block {
 function lambdaUpdateWhitelistContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -108,7 +113,8 @@ block {
 function lambdaUpdateGeneralContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -130,14 +136,13 @@ block {
     // 2. Check that token is not MVK (it would break staked MVK in the Doorman Contract) before creating the transfer operation
     // 3. Create and execute transfer operations based on the params sent
 
-
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Get MVK Token address
                 const mvkTokenAddress : address  = s.mvkTokenAddress;
@@ -176,9 +181,8 @@ block {
     // 4. Get Doorman MVK balance from MVK Token Contract - equivalent to total staked MVK supply
     // 5. Create a transfer to transfer all funds to an upgraded Doorman Contract
     
-    
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     var operations : list(operation) := nil;
 
@@ -212,7 +216,8 @@ block {
 function lambdaPauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case doormanLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
@@ -252,7 +257,8 @@ block {
 function lambdaUnpauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case doormanLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
@@ -292,8 +298,8 @@ block {
 function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     case doormanLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {

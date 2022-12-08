@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
     
     case farmLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +30,8 @@ block {
 function lambdaSetGovernance(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case farmLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -53,7 +55,7 @@ block {
     // 4. Get the nameMaxLength parameter from the Farm Factory Contract Config
     // 5. Validate input (name does not exceed max length) and update the Farm Contract name
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case farmLambdaAction of [
         |   LambdaSetName(updatedName) -> {
@@ -86,7 +88,7 @@ block {
 function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case farmLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -107,7 +109,7 @@ block {
 function lambdaUpdateConfig(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 
 block {
 
-  checkSenderIsAdmin(s); // check that sender is admin
+  verifySenderIsAdmin(s.admin); // verify that sender is admin
   
   case farmLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -154,7 +156,7 @@ block {
 function lambdaUpdateWhitelistContracts(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case farmLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -171,7 +173,7 @@ block {
 function lambdaUpdateGeneralContracts(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case farmLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -198,8 +200,8 @@ block {
     case farmLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check that sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Get LP Token address
                 const lpTokenAddress : address  = s.config.lpToken.tokenAddress;
@@ -246,8 +248,7 @@ block{
     // 4. Check whether the farm is infinite or if its total blocks has been set
     // 5. Update Farm Storage and init Farm
 
-
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case farmLambdaAction of [
         |   LambdaInitFarm(initFarmParams) -> {
@@ -279,8 +280,7 @@ block{
     // 2. Check that farm is open
     // 3. Update and close farm
 
-
-    checkSenderIsAdmin(s);  // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     checkFarmIsOpen(s);     // check that farm is open
 
     case farmLambdaAction of [
@@ -310,12 +310,11 @@ function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s : f
 block {
 
     // Steps Overview:    
-    // 1. Check that sender is admin, Governance Contract address or Treasury Factory Contract address
+    // 1. Check that sender is admin, Governance Contract address or Farm Factory Contract address
     // 2. Pause all main entrypoints in the Farm Contract
     
-
-    // check that sender is admin, Governance Contract address or Treasury Factory Contract address
-    checkSenderIsGovernanceOrFactory(s);
+    // verify that sender is admin, Governance Contract address or Farm Factory Contract address
+    verifySenderIsGovernanceOrFactory(s);
 
     case farmLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
@@ -346,9 +345,8 @@ block {
     // 1. Check that sender is admin, Governance Contract address or Treasury Factory Contract address
     // 2. Unpause all main entrypoints in the Farm Contract
 
-
-    // check that sender is admin, Governance Contract address or Treasury Factory Contract address
-    checkSenderIsGovernanceOrFactory(s);
+    // verify that sender is admin, Governance Contract address or Treasury Factory Contract address
+    verifySenderIsGovernanceOrFactory(s);
 
     case farmLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
@@ -379,8 +377,7 @@ block {
     // 1. Check that sender is admin
     // 2. Pause or unpause specified entrypoint
 
-
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case farmLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
