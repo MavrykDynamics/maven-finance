@@ -2,6 +2,7 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
+
 type oracleInformationType is [@layout:comb] record [
     oraclePublicKey  : key;
     oraclePeerId     : string;
@@ -34,7 +35,6 @@ type aggregatorBreakGlassConfigType is [@layout:comb] record [
 
 
 type pivotedObservationsType     is map (nat, nat);
-
 
 type lastCompletedDataType is  [@layout:comb] record [
     round                       : nat;

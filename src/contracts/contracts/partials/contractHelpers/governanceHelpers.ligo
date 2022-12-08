@@ -439,17 +439,6 @@ function getExecuteGovernanceActionEntrypoint(const contractAddress : address) :
 
 
 
-// helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
-        ];
-
-
-
 // helper function to %executeProposal entrypoint on the Governance Contract
 function getExecuteProposalEntrypoint(const contractAddress : address) : contract(actionIdType) is
     case (Tezos.get_entrypoint_opt(
