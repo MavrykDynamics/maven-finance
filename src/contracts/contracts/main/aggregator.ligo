@@ -120,7 +120,7 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 function main (const action : aggregatorAction; const s : aggregatorStorageType) : return is
 block {
 
-    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with(
     case action of [

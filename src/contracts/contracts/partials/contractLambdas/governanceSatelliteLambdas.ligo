@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address   
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceSatelliteLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +30,8 @@ block {
 function lambdaSetGovernance(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address   
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceSatelliteLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -47,7 +47,7 @@ block {
 function lambdaUpdateMetadata(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceSatelliteLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -68,8 +68,8 @@ block {
 function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is 
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+  verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+  verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case governanceSatelliteLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -96,7 +96,7 @@ block {
 function lambdaUpdateWhitelistContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceSatelliteLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -113,7 +113,7 @@ block {
 function lambdaUpdateGeneralContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceSatelliteLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -135,8 +135,8 @@ block {
     case governanceSatelliteLambdaAction of [
         | LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is the governanceSatellite contract
-                checkSenderIsAdminOrSelf(s);
+                // verify if the sender is the governanceSatellite contract or admin
+                verifySenderIsSelfOrAddress(s.admin);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
@@ -185,7 +185,7 @@ block {
     // 6. Create new governance satellite action record - "SUSPEND"
     // 6. Update storage with new records 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaSuspendSatellite(suspendSatelliteParams) -> {
@@ -233,7 +233,7 @@ block {
     // 6. Create new governance satellite action record - "BAN"
     // 6. Update storage with new records 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaBanSatellite(banSatelliteParams) -> {
@@ -281,7 +281,7 @@ block {
     // 6. Create new governance satellite action record - "RESTORE"
     // 6. Update storage with new records 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRestoreSatellite(restoreSatelliteParams) -> {
@@ -337,7 +337,7 @@ block {
     // 6. Create new governance satellite action record - "REMOVE_ALL_SATELLITE_ORACLES"
     // 6. Update storage with new records 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams) -> {
@@ -385,7 +385,7 @@ block {
     // 6. Create new governance satellite action record - "ADD_ORACLE_TO_AGGREGATOR"
     // 6. Update storage with new records 
 
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaAddOracleToAggregator(addOracleToAggregatorParams) -> {
@@ -435,7 +435,7 @@ block {
     // 6. Create new governance satellite action record - "REMOVE_ORACLE_IN_AGGREGATOR"
     // 6. Update storage with new records 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRemoveOracleInAggregator(removeOracleInAggregatorParams) -> {
@@ -487,7 +487,7 @@ block {
     // 2. Delete the entry associated with old name in the aggregatorLedger
     // 3. Create the entry associated with new name in the aggregatorLedger
 
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
 
     case governanceSatelliteLambdaAction of [
         |   LambdaSetAggregatorReference(setAggregatorReferenceParams) -> {
@@ -539,7 +539,7 @@ block {
     // 6. Create new governance satellite action record - "REMOVE_ORACLE_IN_AGGREGATOR"
     // 6. Update storage with new records 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaTogglePauseAggregator(togglePauseAggregatorParams) -> {
@@ -597,7 +597,7 @@ block {
     // 6. Create new governance satellite action record - "MISTAKEN_TRANSFER_FIX"
     // 6. Update storage with new records 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         | LambdaFixMistakenTransfer(fixMistakenTransferParams) -> {
@@ -656,7 +656,7 @@ block {
     // 7. Update storage - action ledger
 
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaDropAction(dropActionParams) -> {
@@ -719,7 +719,7 @@ block {
     //      -   Update governance satellite action map of voters with new vote
     // 5. Compute governance satellite action's vote totals and execute governance satellite action if enough votes have been gathered
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     var operations : list(operation) := nil;
 

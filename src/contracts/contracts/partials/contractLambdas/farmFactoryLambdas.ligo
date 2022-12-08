@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case farmFactoryLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +30,8 @@ block {
 function lambdaSetGovernance(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case farmFactoryLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -46,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address) 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case farmFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -67,7 +69,7 @@ block {
 function lambdaUpdateConfig(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is 
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case farmFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -91,7 +93,7 @@ block {
 function lambdaUpdateWhitelistContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case farmFactoryLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -108,7 +110,7 @@ block {
 function lambdaUpdateGeneralContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case farmFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -134,8 +136,8 @@ block {
     case farmFactoryLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check that sender is admin or from the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that sender is admin or from the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
@@ -176,7 +178,8 @@ block {
     // 2. Pause entrypoints in Farm Factory
     // 3. Create and execute operations to %pauseAll entrypoint in tracked Farms
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -218,7 +221,8 @@ block {
     // 2. Unpause entrypoints in Farm Factory
     // 3. Create and execute operations to %unpauseAll entrypoint in tracked Farms
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -255,7 +259,7 @@ block {
 function lambdaTogglePauseEntrypoint(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case farmFactoryLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
@@ -303,7 +307,7 @@ block{
     // 5. Add newly created Farm to tracked Farms
     // 6. Add newly created Farm to the Governance Contract - General Contracts map
 
-    checkSenderIsAdmin(s);          // check that sender is admin
+    verifySenderIsAdmin(s.admin);   // verify that sender is admin
     checkCreateFarmIsNotPaused(s);  // check that %createFarm entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
@@ -357,7 +361,7 @@ block{
     // 2. Check that %trackFarm entrypoint is not paused (e.g. glass broken)
     // 3. Add Farm Contract to tracked Farms
     
-    checkSenderIsAdmin(s);          // check that sender is admin
+    verifySenderIsAdmin(s.admin);   // verify that sender is admin
     checkTrackFarmIsNotPaused(s);   // check that %trackFarm entrypoint is not paused (e.g. glass broken)
 
     case farmFactoryLambdaAction of [
@@ -382,7 +386,7 @@ block{
     // 2. Check that %untrackFarm entrypoint is not paused (e.g. glass broken)
     // 3. Remove Farm Contract from tracked Farms
 
-    checkSenderIsAdmin(s);          // check that sender is admin
+    verifySenderIsAdmin(s.admin);     // verify that sender is admin
     checkUntrackFarmIsNotPaused(s);   // check that %untrackFarm entrypoint is not paused (e.g. glass broken)
 
     case farmFactoryLambdaAction of [

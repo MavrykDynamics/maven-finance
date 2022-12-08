@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case vestingLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -29,7 +30,8 @@ block {
 function lambdaSetGovernance(const vestingLambdaAction : vestingLambdaActionType;  var s : vestingStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case vestingLambdaAction of [
         |    LambdaSetGovernance(newGovernanceAddress) -> {
@@ -46,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vestingLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -67,7 +69,7 @@ block {
 function lambdaUpdateWhitelistContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vestingLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -84,7 +86,7 @@ block {
 function lambdaUpdateGeneralContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vestingLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -110,8 +112,8 @@ block {
     case vestingLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is admin or the Governance Satellite Contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
@@ -155,8 +157,8 @@ block {
     case vestingLambdaAction of [
         |   LambdaAddVestee(addVesteeParams) -> {
                 
-                // check sender is from council contract
-                checkSenderIsCouncilOrAdmin(s);
+                // verify that sender is admin or from council contract
+                verifySenderIsCouncilOrAdmin(s);
 
                 // init parameters
                 const vesteeAddress          : address  = addVesteeParams.vesteeAddress;
@@ -200,7 +202,8 @@ block {
     case vestingLambdaAction of [
         |   LambdaRemoveVestee(vesteeAddress) -> {
                 
-                checkSenderIsCouncilOrAdmin(s);
+                // verify that sender is admin or from council contract
+                verifySenderIsCouncilOrAdmin(s);
 
                 var _vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);
 
@@ -228,7 +231,8 @@ block {
     case vestingLambdaAction of [
         |   LambdaUpdateVestee(updateVesteeParams) -> {
                 
-                checkSenderIsCouncilOrAdmin(s);
+                // verify that sender is admin or from council contract
+                verifySenderIsCouncilOrAdmin(s);
                 
                 // init parameters
                 const vesteeAddress             : address  = updateVesteeParams.vesteeAddress;
@@ -299,7 +303,8 @@ block {
     case vestingLambdaAction of [
         |   LambdaToggleVesteeLock(vesteeAddress) -> {
                 
-                checkSenderIsCouncilOrAdmin(s);
+                // verify that sender is admin or from council contract
+                verifySenderIsCouncilOrAdmin(s);
 
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);

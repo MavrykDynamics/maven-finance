@@ -8,45 +8,24 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Admin, Governance Contract
-function checkSenderIsAllowed(var s : aggregatorFactoryStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-function checkSenderIsAdmin(const s: aggregatorFactoryStorageType): unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
-    else unit
-
-
-
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : aggregatorFactoryStorageType) : unit is
+// Allowed Senders: Admin, Governance Satellite Contract
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : aggregatorFactoryStorageType) : unit is
 block{
-    if Tezos.get_sender() = s.admin then skip
-    else {
-        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-        if Tezos.get_sender() = governanceSatelliteAddress then skip
-        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-    }
+
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
+
 } with unit
 
 
 
+// Allowed Senders: Tracked Aggregator
 function verifySenderIsTrackedAggregators(const s : aggregatorFactoryStorageType) : unit is
 block {
 
-    const senderIsInTrackedAggregatorsBool : bool = Set.mem(Tezos.get_sender(), s.trackedAggregators);
-    if senderIsInTrackedAggregatorsBool = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
+    verifySenderIsAllowed(s.trackedAggregators, error_SENDER_IS_NOT_TRACKED_AGGREGATOR)
 
 } with unit
-
-
-
-// Check that no Tezos is sent to the entrypoint
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -413,7 +392,7 @@ block {
     
     // get lambda bytes from lambda ledger
     const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
-        |   Some(_v) -> _v
+            Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 

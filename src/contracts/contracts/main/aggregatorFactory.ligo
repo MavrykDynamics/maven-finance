@@ -115,7 +115,7 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with (
     case action of [

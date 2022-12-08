@@ -60,13 +60,6 @@ function checkSenderIsAdmin(const s : mavrykFa12TokenStorageType) : unit is
     else unit
 
 
-
-function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-    else unit
-
-
-
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavrykFa12TokenStorageType) : unit is
 block{
 
@@ -439,7 +432,7 @@ block {
 function main (const action : action; const s : mavrykFa12TokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
 
 } with(
     

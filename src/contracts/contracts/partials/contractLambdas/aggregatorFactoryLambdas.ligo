@@ -12,7 +12,8 @@
 function lambdaSetAdmin(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
@@ -28,8 +29,9 @@ block {
 (*  setGovernance lambda *)
 function lambdaSetGovernance(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
-    
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
@@ -46,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block{
   
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -67,7 +69,7 @@ block{
 function lambdaUpdateConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block{
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -91,7 +93,7 @@ block{
 function lambdaUpdateWhitelistContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin 
+    verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case aggregatorFactoryLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -108,7 +110,7 @@ block {
 function lambdaUpdateGeneralContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
     
-    checkSenderIsAdmin(s);  // check that sender is admin
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case aggregatorFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -130,8 +132,8 @@ block {
     case aggregatorFactoryLambdaAction of [
         | LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is the governanceSatellite contract
-                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+                // Verify that the sender is admin or the governanceSatellite contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
@@ -166,7 +168,8 @@ block {
 function lambdaPauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -209,7 +212,8 @@ block {
 function lambdaUnpauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
 
-    checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -252,8 +256,8 @@ block {
 function lambdaTogglePauseEntrypoint(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
@@ -305,7 +309,7 @@ block {
     // 7. Execute operations
     
     
-    checkSenderIsAdmin(s);               // check that sender is admin
+    verifySenderIsAdmin(s.admin);        // check that sender is admin
     checkCreateAggregatorIsNotPaused(s); // Check that %createAggregator entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
@@ -371,7 +375,7 @@ block{
     // 2. Check if Aggregator Name exists (e.g. BTC/USD) 
     //      -   Add Aggregator Contract to Tracked Aggregators Map if Aggregator Name does not exist
 
-    checkSenderIsAdmin(s);              // Check if sender is admin
+    verifySenderIsAdmin(s.admin);       // Check if sender is admin
     checkTrackAggregatorIsNotPaused(s); // Check that %trackAggregator entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
@@ -412,7 +416,7 @@ block{
     //      -   Check that sender is admin
     // 2. Remove Aggregator Contract from Tracked Aggregators Map 
 
-    checkSenderIsAdmin(s);                // Check if sender is admin
+    verifySenderIsAdmin(s.admin);               // verify that sender is admin
     checkUntrackAggregatorIsNotPaused(s); // Check that %untrackAggregator entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
