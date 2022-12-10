@@ -15,6 +15,9 @@
 // Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
 
+// Common Entrypoints
+#include "../partials/shared/commonEntrypoints.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------

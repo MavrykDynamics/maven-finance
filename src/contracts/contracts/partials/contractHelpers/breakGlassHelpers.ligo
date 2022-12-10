@@ -22,12 +22,8 @@ block {
 // Allowed Senders: Emergency Governance Contract
 function verifySenderIsEmergencyGovernanceContract(var s : breakGlassStorageType) : unit is
 block{
-
-    const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
-                Some(_address) -> _address
-            |   None           -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
+    
+    const emergencyGovernanceAddress : address = getLocalWhitelistContract("emergencyGovernance", s.whitelistContracts, error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[emergencyGovernanceAddress], error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED)
 
 } with unit
@@ -49,17 +45,6 @@ block{
 function checkGlassIsBroken(var s : breakGlassStorageType) : unit is
     if s.glassBroken = True then unit
     else failwith(error_GLASS_NOT_BROKEN);
-
-
-
-// Helper function to set admin entrypoints in contract 
-function setAdminInContract(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%setAdmin",
-        contractAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
-        ];
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -211,7 +196,7 @@ block {
 function getCouncilActionRecord(const actionId : nat; const s : breakGlassStorageType) : councilActionRecordType is
 block {
 
-    const councilActionRecord : councilActionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
+    const councilActionRecord : councilActionRecordType = case s.actionsLedger[actionId] of [
             Some (_action) -> _action
         |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
     ];
@@ -304,7 +289,7 @@ block {
     const setSingleContractAdminOperation : operation = Tezos.transaction(
         newAdminAddress, 
         0tez, 
-        setAdminInContract(targetContractAddress)
+        getEntrypointAddressType("%setAdmin", targetContractAddress, error_SET_ADMIN_ENTRYPOINT_NOT_FOUND)
     );
 
 } with setSingleContractAdminOperation 

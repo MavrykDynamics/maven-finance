@@ -48,13 +48,35 @@ function getAddOracleInAggregatorEntrypoint(const contractAddress : address) : c
 
 
 
-// helper function to get removeOracle entrypoint in aggregator contract
-function getRemoveOracleInAggregatorEntrypoint(const contractAddress : address) : contract(address) is
+// helper function to get updateSatelliteStatus entrypoint in delegation contract
+function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : address) : contract(updateSatelliteStatusParamsType) is
     case (Tezos.get_entrypoint_opt(
-        "%removeOracle",
-        contractAddress) : option(contract(address))) of [
+        "%updateSatelliteStatus",
+        contractAddress) : option(contract(updateSatelliteStatusParamsType))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
+        ];
+
+
+
+// helper function to get mistaken transfer entrypoint in contract
+function getMistakenTransferEntrypoint(const contractAddress : address) : contract(transferActionType) is
+case (Tezos.get_entrypoint_opt(
+      "%mistakenTransfer",
+      contractAddress) : option(contract(transferActionType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_MISTAKEN_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
+];
+
+
+
+// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
+function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateSatelliteSnapshot",
+        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
         ];
 
 
@@ -79,39 +101,6 @@ function getUnpauseAllInAggregatorEntrypoint(const contractAddress : address) : 
             |   None        -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
         ];
 
-
-
-// helper function to get updateSatelliteStatus entrypoint in delegation contract
-function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : address) : contract(updateSatelliteStatusParamsType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateSatelliteStatus",
-        contractAddress) : option(contract(updateSatelliteStatusParamsType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
-        ];
-
-
-
-
-// helper function to get mistaken transfer entrypoint in contract
-function getMistakenTransferEntrypoint(const contractAddress : address) : contract(transferActionType) is
-case (Tezos.get_entrypoint_opt(
-      "%mistakenTransfer",
-      contractAddress) : option(contract(transferActionType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_MISTAKEN_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
-];
-
-
-
-// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
-function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateSatelliteSnapshot",
-        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
-        ];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -148,7 +137,7 @@ block {
     const removeOracleFromAggregatorOperation : operation = Tezos.transaction(
         oracleAddress, 
         0tez, 
-        getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
+        getEntrypointAddressType("%removeOracle", aggregatorAddress, error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
     );
 
 } with removeOracleFromAggregatorOperation

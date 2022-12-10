@@ -38,17 +38,6 @@ function sendAddVesteeParams(const contractAddress : address) : contract(addVest
 
 
 
-// helper function to %removeVestee entrypoint to remove a vestee on the Vesting contract
-function sendRemoveVesteeParams(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%removeVestee",
-        contractAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
-        ];
-
-
-
 // helper function to %updateVestee entrypoint to update a vestee on the Vesting contract
 function sendUpdateVesteeParams(const contractAddress : address) : contract(updateVesteeType) is
     case (Tezos.get_entrypoint_opt(
@@ -56,17 +45,6 @@ function sendUpdateVesteeParams(const contractAddress : address) : contract(upda
         contractAddress) : option(contract(updateVesteeType))) of [
                 Some(contr) -> contr
             |   None        -> (failwith(error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(updateVesteeType))
-        ];
-
-
-
-// helper function to %toggleVesteeLock entrypoint to lock or unlock a vestee on the Vesting contract
-function sendToggleVesteeLockParams(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%toggleVesteeLock",
-        contractAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -89,17 +67,6 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
         contractAddress) : option(contract(councilActionRequestMintType))) of [
                 Some(contr) -> contr
             |   None        -> (failwith(error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestMintType))
-        ];
-
-
-
-// helper function to %dropFinancialRequest entrypoint on the Governance Financial contract
-function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
-        "%dropFinancialRequest",
-        contractAddress) : option(contract(nat))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(nat))
         ];
 
 
@@ -423,7 +390,7 @@ block {
     const removeVesteeOperation : operation = Tezos.transaction(
         vesteeAddress,
         0tez, 
-        sendRemoveVesteeParams(vestingAddress)
+        getEntrypointAddressType("%removeVestee", vestingAddress, error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND)
     );
 
 } with removeVesteeOperation
@@ -464,7 +431,7 @@ block {
     const toggleVesteeLockOperation : operation = Tezos.transaction(
         vesteeAddress,
         0tez, 
-        sendToggleVesteeLockParams(vestingAddress)
+        getEntrypointAddressType("%toggleVesteeLock", vestingAddress, error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND)
     );
 
 } with toggleVesteeLockOperation
@@ -562,7 +529,7 @@ block {
     const dropFinancialRequestOperation : operation = Tezos.transaction(
         requestId,
         0tez, 
-        sendDropFinancialRequestParams(governanceFinancialAddress)
+        getEntrypointNatType("%dropFinancialRequest", governanceFinancialAddress, error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
     );
 
 } with dropFinancialRequestOperation
@@ -592,7 +559,7 @@ block {
     } else if entrypointName = "removeVestee" then {
         
         // Check if removeVestee entrypoint exists on the Vesting Contract
-        const _checkEntrypoint: contract(address) = sendRemoveVesteeParams(vestingAddress);
+        const _checkEntrypoint: contract(address) = getEntrypointAddressType("%removeVestee", vestingAddress, error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND)
 
     } else if entrypointName = "updateVestee" then {
 
@@ -602,7 +569,7 @@ block {
     } else if entrypointName = "toggleVesteeLock" then {
 
         // Check if toggleVesteeLock entrypoint exists on the Vesting Contract
-        const _checkEntrypoint: contract(address) = sendToggleVesteeLockParams(vestingAddress);
+        const _checkEntrypoint: contract(address) = getEntrypointAddressType("%toggleVesteeLock", vestingAddress, error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND)
 
     } else failwith(error_SPECIFIED_ENTRYPOINT_NOT_FOUND)
 
