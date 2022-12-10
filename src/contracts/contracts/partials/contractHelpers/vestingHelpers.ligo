@@ -12,11 +12,7 @@
 function verifySenderIsCouncilOrAdmin(var s : vestingStorageType) : unit is
 block{
 
-    const councilAddress : address = case s.whitelistContracts["council"] of [
-            Some (_address) -> _address
-        |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
-    ];
-
+    const councilAddress : address = getLocalWhitelistContract("council", s.whitelistContracts, error_COUNCIL_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; councilAddress], error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
 
 } with (unit)
@@ -41,17 +37,6 @@ block{
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get %mint entrypoint from MVK Token address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
-    case (Tezos.get_entrypoint_opt(
-        "%mint",
-        token_address) : option(contract(mintType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
-        ];
-
-
 
 // helper function to mint mvk tokens 
 function mintTokens(const to_ : address; const amount_ : nat; const s : vestingStorageType) : operation is

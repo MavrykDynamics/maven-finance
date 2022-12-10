@@ -514,7 +514,7 @@ block {
                 const targetContractAddress  : address = setSingleContractParams.targetContractAddress;
 
                 // Check if the provided contract has a setAdmin entrypoint
-                const _checkEntrypoint: contract(address) = setAdminInContract(targetContractAddress);
+                const _checkEntrypoint: contract(address) = getEntrypointAddressType("%setAdmin", targetContractAddress, error_SET_ADMIN_ENTRYPOINT_NOT_FOUND);
 
                 // Get Whitelist Developers map from the Governance Contract
                 const whitelistDevelopers : whitelistDevelopersType = getWhitelistDevelopersMap(s);

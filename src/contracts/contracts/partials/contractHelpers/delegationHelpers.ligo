@@ -81,17 +81,6 @@ function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : c
 
 
 
-// helper function to %undelegateFromSatellite entrypoint on the Delegation contract
-function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%undelegateFromSatellite",
-        delegationAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
-        ];
-
-
-
 // helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
 function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
     case (Tezos.get_entrypoint_opt(
@@ -166,7 +155,7 @@ block {
     const undelegateFromSatelliteOperation : operation = Tezos.transaction(
         (userAddress),
         0tez, 
-        getUndelegateFromSatelliteEntrypoint(Tezos.get_self_address())
+        getEntrypointAddressType("undelegateFromSatellite", Tezos.get_self_address(), error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND);
     );
 
 } with undelegateFromSatelliteOperation
