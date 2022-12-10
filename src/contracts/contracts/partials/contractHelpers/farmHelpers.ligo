@@ -144,11 +144,10 @@ block{
     const doormanContractAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
     
     // Get %farmClaim entrypoint on the Doorman Contract
-    const doormanContract : contract(farmClaimType) =
-        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
-                Some (c) -> c
-            |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
-        ];
+    const doormanContract : contract(farmClaimType) = case Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType)) of [
+            Some (c) -> c
+        |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
+    ];
 
     // Init farmClaim entrypoint parameters 
     const farmClaimParams : farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);

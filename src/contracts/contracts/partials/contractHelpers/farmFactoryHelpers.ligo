@@ -12,11 +12,7 @@
 function checkSenderIsCouncil(const s : farmFactoryStorageType) : unit is
 block {
 
-    const councilAddress : address = case s.whitelistContracts["council"] of [
-            Some (_address) -> _address
-        |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
-    ];
-
+    const councilAddress : address = getLocalWhitelistContract("council", s.whitelistContracts, error_COUNCIL_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[councilAddress], error_ONLY_COUNCIL_CONTRACT_ALLOWED)
 
 } with (unit)
@@ -34,25 +30,6 @@ block{
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Entrypoint Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to %stake entrypoint on the Doorman contract
-function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateGeneralContracts",
-        contractAddress) : option(contract(updateGeneralContractsType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
-        ];
-
-// ------------------------------------------------------------------------------
-// Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
 
 

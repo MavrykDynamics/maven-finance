@@ -120,17 +120,6 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
             |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
         ];
 
-
-
-// helper function to send mint MVK and transfer operation to treasury
-function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
-    case (Tezos.get_entrypoint_opt(
-        "%mintMvkAndTransfer",
-        contractAddress) : option(contract(mintMvkAndTransferType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
-        ];
-
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------

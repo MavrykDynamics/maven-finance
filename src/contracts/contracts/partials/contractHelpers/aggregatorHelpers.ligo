@@ -103,8 +103,7 @@ block {
 function verifyEpochIsEqualOrGreaterThanPreviousEpoch(const currentEpoch : nat; const s : aggregatorStorageType) : unit is
 block {
     
-    if (currentEpoch < s.lastCompletedData.epoch) 
-    then failwith(error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
+    verifyGreaterThan(currentEpoch, s.lastCompletedData.epoch, error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
 
 } with unit
 
@@ -174,7 +173,6 @@ function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contract
                 Some(contr) -> contr
             |   None        -> (failwith(error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(setAggregatorReferenceType))
         ];  
-
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End

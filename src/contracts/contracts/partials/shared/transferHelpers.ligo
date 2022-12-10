@@ -3,6 +3,8 @@
 // ------------------------------------------------------------------------------
 
 #include "./transferTypes.ligo"
+#include "../contractTypes/treasuryTypes.ligo"
+#include "../contractTypes/mvkTokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
@@ -68,3 +70,24 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
             |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
         ];
 
+
+
+// helper function to get %mint entrypoint from MVK Token address
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
+    case (Tezos.get_entrypoint_opt(
+        "%mint",
+        token_address) : option(contract(mintType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
+        ];
+
+
+
+// helper function to send mint MVK and transfer operation to treasury
+function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
+    case (Tezos.get_entrypoint_opt(
+        "%mintMvkAndTransfer",
+        contractAddress) : option(contract(mintMvkAndTransferType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
+        ];
