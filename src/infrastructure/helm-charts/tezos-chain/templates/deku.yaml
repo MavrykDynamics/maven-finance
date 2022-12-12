@@ -69,10 +69,10 @@ spec:
       volumes:
         - name: node-db-volume
           emptyDir: {}
-{{- if $.node_vals.api }}
+      {{- if $.node_vals.api }}
         - name: api-db-volume
           emptyDir: {}
-{{— end }}
+      {{- end }}
       containers:
         - name: deku
           env:
