@@ -29,6 +29,10 @@ deku:
         publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
         secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
     deku-on-baking-archive:
+      ingress:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+        host: deku-on-baking-archive-node.mavryk.network
       tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
       image:
         registry: docker.io
