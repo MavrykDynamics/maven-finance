@@ -66,9 +66,6 @@ spec:
       {{- end }}
       imagePullSecrets:
         - name: {{ $.Values.deku.dockerPullSecretName }}
-      volumes:
-        - name: db-volume
-          emptyDir: {}
       containers:
         - name: deku
           env:
@@ -126,6 +123,9 @@ spec:
           volumeMounts:
             - mountPath: /var/deku
               name: db-volume
+      volumes:
+        - name: db-volume
+          emptyDir: {}
 {{- end }}
 ---
 {{- end }}
