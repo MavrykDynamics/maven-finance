@@ -105,6 +105,50 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllFarmEntrypoints(var s : farmStorageType) : farmStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.depositIsPaused then skip
+    else s.breakGlassConfig.depositIsPaused := True;
+
+    if s.breakGlassConfig.withdrawIsPaused then skip
+    else s.breakGlassConfig.withdrawIsPaused := True;
+
+    if s.breakGlassConfig.claimIsPaused then skip
+    else s.breakGlassConfig.claimIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllFarmEntrypoints(var s : farmStorageType) : farmStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -144,7 +188,7 @@ block{
     const doormanContractAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
     
     // Get %farmClaim entrypoint on the Doorman Contract
-    const doormanContract : contract(farmClaimType) = case Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType)) of [
+    const doormanContract : contract(farmClaimType) = case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
             Some (c) -> c
         |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
     ];
