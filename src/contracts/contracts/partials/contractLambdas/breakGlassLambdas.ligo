@@ -176,17 +176,8 @@ block {
                 // Verify that the sender is admin or the Governance Satellite Contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Create transfer operations
-                function transferOperationFold(const transferParam : transferDestinationType; const operationList: list(operation)) : list(operation) is
-                    block{
-                        const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                        ];
-                    } with(transferTokenOperation # operationList);
-                
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
         |   _ -> skip
@@ -514,7 +505,7 @@ block {
                 const targetContractAddress  : address = setSingleContractParams.targetContractAddress;
 
                 // Check if the provided contract has a setAdmin entrypoint
-                const _checkEntrypoint: contract(address) = getEntrypointAddressType("%setAdmin", targetContractAddress, error_SET_ADMIN_ENTRYPOINT_NOT_FOUND);
+                const _checkEntrypoint: contract(address) = setAdminInContract(targetContractAddress);
 
                 // Get Whitelist Developers map from the Governance Contract
                 const whitelistDevelopers : whitelistDevelopersType = getWhitelistDevelopersMap(s);
@@ -715,7 +706,7 @@ block {
                 if signersCount >= s.config.threshold and not actionRecord.executed then block {
                     const executeBreakGlassActionReturn : return   = executeBreakGlassAction(actionRecord, actionId, operations, s);
                     s           := executeBreakGlassActionReturn.1;
-                    operations  := executeBreakGlassActionReturn.0;
+                    operations := executeBreakGlassActionReturn.0;
                 } else skip;
 
             }

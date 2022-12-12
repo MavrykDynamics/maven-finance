@@ -95,6 +95,54 @@ block {
 // ------------------------------------------------------------------------------
 
 
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllDoormanEntrypoints(var s : doormanStorageType) : doormanStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.stakeIsPaused then skip
+    else s.breakGlassConfig.stakeIsPaused := True;
+
+    if s.breakGlassConfig.unstakeIsPaused then skip
+    else s.breakGlassConfig.unstakeIsPaused := True;
+
+    if s.breakGlassConfig.compoundIsPaused then skip
+    else s.breakGlassConfig.compoundIsPaused := True;
+
+    if s.breakGlassConfig.farmClaimIsPaused then skip
+    else s.breakGlassConfig.farmClaimIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllDoormanEntrypoints(var s : doormanStorageType) : doormanStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+    else skip;
+    
+    if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
+    else skip;
+    
+    if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin

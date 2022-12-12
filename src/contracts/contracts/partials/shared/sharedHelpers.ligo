@@ -315,7 +315,7 @@ block {
 function getEntrypointNatType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(nat) is
 block {
 
-    const contractEntrypoint : contract(nat) = case Tezos.get_entrypoint_opt(entrypointName,contractAddress) of [
+    const contractEntrypoint : contract(nat) = case Tezos.get_entrypoint_opt(entrypointName, contractAddress) of [
             Some(contr) -> contr
         |   None        -> (failwith(errorCode) : contract(nat))
     ];
@@ -328,7 +328,7 @@ block {
 function getEntrypointAddressType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(address) is
 block {
 
-    const contractEntrypoint : contract(address) = case Tezos.get_entrypoint_opt(entrypointName,contractAddress) of [
+    const contractEntrypoint : contract(address) = case (Tezos.get_entrypoint_opt(entrypointName, contractAddress)) of [
             Some(contr) -> contr
         |   None        -> (failwith(errorCode) : contract(address))
     ];
@@ -336,6 +336,24 @@ block {
 } with contractEntrypoint
 
 
+// function getEntrypointAddressType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(address) is
+//     case (Tezos.get_entrypoint_opt(
+//         "%" ^ entrypointName, 
+//         contractAddress) : option(contract(address))) of [
+//             Some(contr) -> contr
+//         |   None        -> (failwith(errorCode) : contract(address))
+//     ];
+
+
+// helper function to %addVestee entrypoint to add a new vestee on the Vesting contract
+// function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
+// block {
+
+//     case (Tezos.get_entrypoint_opt("%addVestee",contractAddress) : option(contract(addVesteeType))) of [
+//             Some(contr) -> contr
+//         |   None        -> (failwith(error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(addVesteeType))
+//     ];
+// }   
 
 // helper function to get an entrypoint with unit type on specified contract
 function getEntrypointUnitType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(unit) is
