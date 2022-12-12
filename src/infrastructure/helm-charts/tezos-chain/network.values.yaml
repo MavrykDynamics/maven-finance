@@ -4,6 +4,8 @@ deku:
     defaultBlockSize: 500
     tezosConsensusAddress: KT1NwE2fTQUvoktz1MA5rxBQNXFXRc9nwYRS
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
+    apiDatabaseUri: "sqlite3:/var/deku/database.sqlite"
+    apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
   nodes:
     deku-on-baking-full:
       tezosRpcUrl: https://basenet-baking-full-node.mavryk.network
@@ -22,15 +24,6 @@ deku:
       validator: #TRUDY
         publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
         secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
-      api:
-        config:
-          apiDatabaseUri: "sqlite3:/var/deku/api_database.db"
-        image:
-          registry: docker.io
-          repository: tezosdynamics/deku-api
-          tag: v0.0.1
-          pullPolicy: Always
-          pullSecret: docker-pull-credentials
     deku-on-baking-archive:
       tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
       image:
@@ -51,7 +44,7 @@ deku:
         secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
       api:
         config:
-          apiDatabaseUri: "sqlite3:/var/deku/api_database.db"
+          apiDatabaseUri: "sqlite3:/var/deku/api_database.sqlite"
         image:
           registry: docker.io
           repository: tezosdynamics/deku-api
