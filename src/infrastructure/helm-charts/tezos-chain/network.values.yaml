@@ -2,7 +2,7 @@ deku:
   dockerPullSecretName: docker-pull-credentials
   config:
     defaultBlockSize: 500
-    tezosConsensusAddress: KT1H3wfYCKc9i84aZKcm6YpHJuH6rNXJhbjf
+    tezosConsensusAddress: KT1EML63YCtiet2RCQ4UdzQTgwjDoYyMYzMZ
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
   nodes:
     deku-on-baking-full:
