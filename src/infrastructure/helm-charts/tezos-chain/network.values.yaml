@@ -8,6 +8,10 @@ deku:
     apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
   nodes:
     deku-on-baking-full:
+      ingress:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+        host: deku-on-baking-full-node.mavryk.network
       tezosRpcUrl: https://basenet-baking-full-node.mavryk.network
       image:
         registry: docker.io
