@@ -19,9 +19,9 @@ deku:
           operator: 'Equal'
           value: '0'
           effect: 'NoSchedule'
-      validator: #MALLORY
+      validator: #TRUDY
         publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
-        secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
+        secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
     deku-on-baking-archive:
       tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
       image:
@@ -37,9 +37,9 @@ deku:
           operator: 'Equal'
           value: '1'
           effect: 'NoSchedule'
-      validator: #TRUDY
+      validator: #MALLORY
         publicKeyHash: tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
-        secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
+        secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
       api:
         config:
           apiDatabaseUri: sqlite3:/var/deku/api_database.db
