@@ -439,7 +439,7 @@ block {
                 verifyVesteeExists(vesteeAddress, s);
 
                 const dataMap : dataMapType = map [
-                    ("vesteeAddress"         : string) -> Bytes.pack(vesteeAddress);
+                    ("vesteeAddress" : string) -> Bytes.pack(vesteeAddress);
                 ];
 
                 // create council action
@@ -534,7 +534,7 @@ block {
                 verifyVesteeExists(vesteeAddress, s);
 
                 const dataMap : dataMapType = map [
-                    ("vesteeAddress"         : string) -> Bytes.pack(vesteeAddress);
+                    ("vesteeAddress" : string) -> Bytes.pack(vesteeAddress);
                 ];
 
                 // create council action
@@ -873,7 +873,7 @@ block {
                     const executeCouncilActionReturn : return = executeCouncilAction(councilActionRecord, actionId, operations, s);
                     
                     s           := executeCouncilActionReturn.1;
-                    operations  := executeCouncilActionReturn.0;
+                    operations := executeCouncilActionReturn.0;
 
                 } else skip;
 

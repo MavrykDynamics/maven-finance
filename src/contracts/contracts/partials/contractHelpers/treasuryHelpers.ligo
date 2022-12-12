@@ -46,6 +46,56 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllTreasuryEntrypoints(var s : treasuryStorageType) : treasuryStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.transferIsPaused then skip
+    else s.breakGlassConfig.transferIsPaused := True;
+
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
+    else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+
+    if s.breakGlassConfig.stakeMvkIsPaused then skip
+    else s.breakGlassConfig.stakeMvkIsPaused := True;
+
+    if s.breakGlassConfig.unstakeMvkIsPaused then skip
+    else s.breakGlassConfig.unstakeMvkIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllTreasuryEntrypoints(var s : treasuryStorageType) : treasuryStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.stakeMvkIsPaused then s.breakGlassConfig.stakeMvkIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.unstakeMvkIsPaused then s.breakGlassConfig.unstakeMvkIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 

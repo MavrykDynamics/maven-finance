@@ -46,6 +46,17 @@ function checkGlassIsBroken(var s : breakGlassStorageType) : unit is
     if s.glassBroken = True then unit
     else failwith(error_GLASS_NOT_BROKEN);
 
+
+
+// Helper function to set admin entrypoints in contract 
+function setAdminInContract(const contractAddress : address) : contract(address) is
+    case (Tezos.get_entrypoint_opt(
+        "%setAdmin",
+        contractAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
+        ];
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -289,7 +300,7 @@ block {
     const setSingleContractAdminOperation : operation = Tezos.transaction(
         newAdminAddress, 
         0tez, 
-        getEntrypointAddressType("%setAdmin", targetContractAddress, error_SET_ADMIN_ENTRYPOINT_NOT_FOUND)
+        setAdminInContract(targetContractAddress)
     );
 
 } with setSingleContractAdminOperation 

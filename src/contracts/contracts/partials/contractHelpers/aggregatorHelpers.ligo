@@ -140,6 +140,50 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllAggregatorEntrypoints(var s : aggregatorStorageType) : aggregatorStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.updateDataIsPaused then skip
+    else s.breakGlassConfig.updateDataIsPaused := True;
+
+    if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
+    else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
+
+    if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then skip
+    else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllAggregatorEntrypoints(var s : aggregatorStorageType) : aggregatorStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.updateDataIsPaused then s.breakGlassConfig.updateDataIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 

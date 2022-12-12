@@ -148,17 +148,8 @@ block {
                 // Verify that the sender is admin or the Governance Satellite Contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Create transfer operations
-                function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
-                    block{
-                        const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                        ];
-                    } with (transferTokenOperation # operationList);
-                
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
         |   _ -> skip
@@ -369,11 +360,11 @@ block {
 
                     // Create operation to delegate to new satellite
                     const delegateToSatelliteOperation : operation = delegateToSatelliteOperation(delegateToSatelliteParams);
-                    operations  := delegateToSatelliteOperation # operations;
+                    operations := delegateToSatelliteOperation # operations;
 
                     // Create operation to undelegate from previous satellite
                     const undelegateFromSatelliteOperation : operation = undelegateFromSatelliteOperation(userAddress);
-                    operations  := undelegateFromSatelliteOperation # operations;
+                    operations := undelegateFromSatelliteOperation # operations;
 
                 } else block {
 
