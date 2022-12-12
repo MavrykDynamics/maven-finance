@@ -2,7 +2,7 @@ deku:
   dockerPullSecretName: docker-pull-credentials
   config:
     defaultBlockSize: 500
-    tezosConsensusAddress: KT1EML63YCtiet2RCQ4UdzQTgwjDoYyMYzMZ
+    tezosConsensusAddress: KT1NwE2fTQUvoktz1MA5rxBQNXFXRc9nwYRS
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
   nodes:
     deku-on-baking-full:
@@ -10,7 +10,7 @@ deku:
       image:
         registry: docker.io
         repository: tezosdynamics/deku
-        tag: v0.0.1
+        tag: v0.0.2
         pullPolicy: Always
       nodeSelector:
         type: mavryk-node
@@ -22,12 +22,21 @@ deku:
       validator: #TRUDY
         publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
         secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
+      api:
+        config:
+          apiDatabaseUri: "sqlite3:/var/deku/api_database.db"
+        image:
+          registry: docker.io
+          repository: tezosdynamics/deku-api
+          tag: v0.0.1
+          pullPolicy: Always
+          pullSecret: docker-pull-credentials
     deku-on-baking-archive:
       tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
       image:
         registry: docker.io
         repository: tezosdynamics/deku
-        tag: v0.0.1
+        tag: v0.0.2
         pullPolicy: Always
         pullSecret: docker-pull-credentials
       nodeSelector:
@@ -42,7 +51,7 @@ deku:
         secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
       api:
         config:
-          apiDatabaseUri: sqlite3:/var/deku/api_database.db
+          apiDatabaseUri: "sqlite3:/var/deku/api_database.db"
         image:
           registry: docker.io
           repository: tezosdynamics/deku-api
