@@ -1,0 +1,133 @@
+{{- range $key, $val := .Values.deku.nodes }}
+{{- if $val }}
+  {{- $_ := set $ "node_class" $key }}
+  {{- $_ := set $ "node_vals" $val }}
+  {{- $_ := set $ "node_identities" dict }}
+
+{{- $deku_validators := "" }}
+{{- $deku_validators_uri := "" }}
+{{- range $i, $e := $.Values.deku.nodes }}
+{{- if $i }}
+{{- $deku_validators = print $deku_validators $e.validator.publicKeyHash "," }}
+{{- $deku_validators_uri = print $deku_validators_uri $i "." $.Release.Namespace ".svc.cluster.local:4440" "," }}
+{{- end }}
+{{- end }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.node_class }}
+  labels:
+    app: {{ $.node_class }}
+spec:
+  ports:
+    - name: deku
+      port: 4440
+      protocol: TCP
+      targetPort: deku
+{{- if $.node_vals.api }}
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: api
+{{- end }}
+  selector:
+    app: {{ $.node_class }}
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.node_class }}
+  labels:
+    app: {{ $.node_class }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $.node_class }}
+  template:
+    metadata:
+      labels:
+        app: {{ $.node_class }}
+    spec:
+      {{- if $.node_vals.nodeSelector }}
+      nodeSelector:
+        {{ $.node_vals.nodeSelector | toYaml }}
+      {{- end }}
+      {{- if $.node_vals.tolerations }}
+      {{- range $key, $val := $.node_vals.tolerations }}
+      tolerations:
+        - key: "{{ $val.key }}"
+          operator: "{{ $val.operator }}"
+          value: "{{ $val.value }}"
+          effect: "{{ $val.effect }}"
+      {{- end }}
+      {{- end }}
+      imagePullSecrets:
+        - name: {{ $.node_vals.dockerPullSecretName }}
+      volumes:
+        - name: db-volume
+          emptyDir: {}
+      containers:
+        - name: deku
+          env:
+            - name: DEKU_VALIDATORS
+              value: {{ regexReplaceAll "[,]$" $deku_validators "" }}
+            - name: DEKU_VALIDATOR_URIS
+              value: {{ regexReplaceAll "[,]$" $deku_validators_uri "" }}
+            - name: DEKU_TEZOS_RPC_NODE
+              value: '{{ $.node_vals.tezosRpcUrl }}'
+            - name: DEKU_TEZOS_SECRET
+              value: '{{ $.Values.deku.config.tezosSecret }}'
+            - name: DEKU_TEZOS_CONSENSUS_ADDRESS
+              value: '{{ $.Values.deku.config.tezosConsensusAddress }}'
+            - name: DEKU_DEFAULT_BLOCK_SIZE
+              value: '{{ $.Values.deku.config.defaultBlockSize }}'
+            - name: DEKU_VM_DEBUG_LOGGING
+              value: 'true'
+            - name: DEKU_SECRET
+              value: '{{ $.node_vals.validator.secretKey }}'
+            - name: DEKU_PORT
+              value: '4440'
+          image: '{{ $.node_vals.image.registry }}/{{ $.node_vals.image.repository }}:{{ $.node_vals.image.tag }}'
+          imagePullPolicy: '{{ $.node_vals.image.pullPolicy }}'
+          ports:
+            - name: deku
+              containerPort: 4440
+              protocol: TCP
+{{- if $.node_vals.api }}
+        - name: api
+          env:
+            - name: DEKU_API_DATABASE_URI
+              value: '{{ $.node_vals.api.config.apiDatabaseUri }}'
+            - name: DEKU_API_DATA_FOLDER
+              value: '/var/deku'
+            - name: DEKU_API_LOG_VERBOSITY
+              value: 'info'
+            - name: DEKU_API_NODE_URI
+              value: '{{ $.node_class }}.{{ $.Release.Namespace }}.svc.cluster.local:4440'
+            - name: DEKU_API_PORT
+              value: '8080'
+            - name: DEKU_API_DOMAINS
+              value: '8'
+            - name: DEKU_DEFAULT_BLOCK_SIZE
+              value: '{{ $.Values.deku.config.defaultBlockSize }}'
+            - name: DEKU_API_VM
+              value: '/var/deku/api_vm_pipe'
+            - name: DEKU_TEZOS_CONSENSUS_ADDRESS
+              value: '{{ $.Values.deku.config.tezosConsensusAddress }}'
+          image: '{{ $.node_vals.api.image.registry }}/{{ $.node_vals.api.image.repository }}:{{ $.node_vals.api.image.tag }}'
+          imagePullPolicy: '{{ $.node_vals.api.image.pullPolicy }}'
+          imagePullPolicy: 'Always'
+          ports:
+            - name: api
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/deku
+              name: db-volume
+{{- end }}
+---
+{{- end }}
+{{- end }}
