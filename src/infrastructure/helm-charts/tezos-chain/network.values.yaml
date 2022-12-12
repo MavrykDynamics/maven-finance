@@ -2,7 +2,7 @@ deku:
   dockerPullSecretName: docker-pull-credentials
   config:
     defaultBlockSize: 500
-    tezosConsensusAddress: KT1NwE2fTQUvoktz1MA5rxBQNXFXRc9nwYRS
+    tezosConsensusAddress: KT1Bk7QqPmjE1rpGNm222ERD4K5g5g6SXRLi
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     apiDatabaseUri: "sqlite3:/var/deku/database.sqlite"
     apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
