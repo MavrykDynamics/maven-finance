@@ -158,7 +158,6 @@ spec:
                 name: {{ $.node_class }}
                 port:
                   name: deku
-{{- end }}
 ---
 {{- end }}
 {{- end }}
