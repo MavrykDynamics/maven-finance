@@ -1,4 +1,54 @@
-namespace: basenet
+deku:
+  dockerPullSecretName: docker-pull-credentials
+  config:
+    defaultBlockSize: 500
+    tezosConsensusAddress: KT1H3wfYCKc9i84aZKcm6YpHJuH6rNXJhbjf
+    tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
+  nodes:
+    deku-on-baking-full:
+      tezosRpcUrl: https://basenet-baking-full-node.mavryk.network
+      image:
+        registry: docker.io
+        repository: tezosdynamics/deku
+        tag: v0.0.1
+        pullPolicy: IfNotPresent
+      nodeSelector:
+        type: mavryk-node
+      tolerations:
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '0'
+          effect: 'NoSchedule'
+      validator: #MALLORY
+        publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
+        secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
+    deku-on-baking-archive:
+      tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
+      image:
+        registry: docker.io
+        repository: tezosdynamics/deku
+        tag: v0.0.1
+        pullPolicy: IfNotPresent
+        pullSecret: docker-pull-credentials
+      nodeSelector:
+        type: mavryk-node
+      tolerations:
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '1'
+          effect: 'NoSchedule'
+      validator: #TRUDY
+        publicKeyHash: tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
+        secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
+      api:
+        config:
+          apiDatabaseUri: sqlite3:/var/deku/api_database.db
+        image:
+          registry: docker.io
+          repository: tezosdynamics/deku-api
+          tag: v0.0.1
+          pullPolicy: IfNotPresent
+          pullSecret: docker-pull-credentials
 
 tezos-faucet:
   images:
