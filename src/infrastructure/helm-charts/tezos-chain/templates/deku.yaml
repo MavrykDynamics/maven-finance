@@ -67,8 +67,12 @@ spec:
       imagePullSecrets:
         - name: {{ $.Values.deku.dockerPullSecretName }}
       volumes:
-        - name: db-volume
+        - name: node-db-volume
           emptyDir: {}
+{{- if $.node_vals.api }}
+        - name: api-db-volume
+          emptyDir: {}
+{{— end }}
       containers:
         - name: deku
           env:
@@ -91,7 +95,7 @@ spec:
             - name: DEKU_DATA_FOLDER
               value: '/var/deku'
             - name: DEKU_DATABASE_URI
-              value: '{{ $.Values.deku.config.apiDatabaseUri }}'
+              value: '{{ $.Values.deku.config.databaseUri }}'
             - name: DEKU_DOMAINS
               value: '8'
             - name: DEKU_SECRET
@@ -106,14 +110,14 @@ spec:
               protocol: TCP
           volumeMounts:
             - mountPath: /var/deku
-              name: db-volume
+              name: node-db-volume
 {{- if $.node_vals.api }}
         - name: api
           env:
             - name: DEKU_API_DATABASE_URI
               value: '{{ $.node_vals.api.config.apiDatabaseUri }}'
             - name: DEKU_API_DATA_FOLDER
-              value: '/var/deku'
+              value: '/var/deku-api'
             - name: DEKU_API_LOG_VERBOSITY
               value: 'info'
             - name: DEKU_API_NODE_URI
@@ -135,8 +139,8 @@ spec:
               containerPort: 8080
               protocol: TCP
           volumeMounts:
-            - mountPath: /var/deku
-              name: db-volume
+            - mountPath: /var/deku-api
+              name: api-db-volume
 {{- end }}
 ---
 apiVersion: networking.k8s.io/v1
