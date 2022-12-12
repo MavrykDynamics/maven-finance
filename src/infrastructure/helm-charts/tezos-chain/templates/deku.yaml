@@ -65,7 +65,7 @@ spec:
       {{- end }}
       {{- end }}
       imagePullSecrets:
-        - name: {{ $.node_vals.dockerPullSecretName }}
+        - name: {{ $.Values.deku.dockerPullSecretName }}
       volumes:
         - name: db-volume
           emptyDir: {}
@@ -119,7 +119,6 @@ spec:
               value: '{{ $.Values.deku.config.tezosConsensusAddress }}'
           image: '{{ $.node_vals.api.image.registry }}/{{ $.node_vals.api.image.repository }}:{{ $.node_vals.api.image.tag }}'
           imagePullPolicy: '{{ $.node_vals.api.image.pullPolicy }}'
-          imagePullPolicy: 'Always'
           ports:
             - name: api
               containerPort: 8080

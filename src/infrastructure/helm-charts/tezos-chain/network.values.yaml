@@ -11,7 +11,7 @@ deku:
         registry: docker.io
         repository: tezosdynamics/deku
         tag: v0.0.1
-        pullPolicy: IfNotPresent
+        pullPolicy: Always
       nodeSelector:
         type: mavryk-node
       tolerations:
@@ -28,7 +28,7 @@ deku:
         registry: docker.io
         repository: tezosdynamics/deku
         tag: v0.0.1
-        pullPolicy: IfNotPresent
+        pullPolicy: Always
         pullSecret: docker-pull-credentials
       nodeSelector:
         type: mavryk-node
