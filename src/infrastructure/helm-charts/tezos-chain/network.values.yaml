@@ -47,7 +47,7 @@ deku:
           registry: docker.io
           repository: tezosdynamics/deku-api
           tag: v0.0.1
-          pullPolicy: IfNotPresent
+          pullPolicy: Always
           pullSecret: docker-pull-credentials
 
 tezos-faucet:
