@@ -6,6 +6,7 @@
     current_handles_hash = 0x;
     current_validators = [
       ("tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n": key_hash);
+      ("tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq": key_hash);
     ];
   };
   vault = {
