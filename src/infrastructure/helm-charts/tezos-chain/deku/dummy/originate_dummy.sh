@@ -2,7 +2,7 @@
 
 echo "Deploying new Dummy Ticket contract"
 
-contract=$(ligo compile contract "dummy_ticket.mligo")
+contract=$(docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:0.57.0 compile contract "dummy_ticket.mligo")
 
 kubectl exec -it tezos-baking-archive-node-0 -c octez-node -- tezos-client \
     --wait 1 \
