@@ -382,7 +382,7 @@ block {
                     s.delegateLedger[userAddress] := createDelegateRecord(satelliteAddress, stakedMvkBalance);
 
                     // Get satellite's rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
                     // Update or create new rewards record for user (delegate)
                     var delegateRewardsRecord : satelliteRewardsType := getOrCreateDelegateRewardsRecord(
@@ -391,10 +391,7 @@ block {
                         satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare,         // satellites's accumulate rewards per share
                         s                                                                   // storage
                     );
-
-                    delegateRewardsRecord.participationRewardsPerShare   := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                    delegateRewardsRecord.satelliteReferenceAddress      := satelliteAddress;
-                    s.satelliteRewardsLedger[userAddress]                := delegateRewardsRecord;
+                    s.satelliteRewardsLedger[userAddress] := delegateRewardsRecord;
 
                     // Update satellite's total delegated amount (increment by user's staked MVK balance)
                     satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
@@ -698,7 +695,7 @@ block {
                     var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
                     // Get satellite rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
                     // Calculate satellite fee portion of reward
                     const satelliteFee : nat         = satelliteRecord.satelliteFee * rewardPerSatellite / 10000n;
@@ -789,11 +786,11 @@ block {
                 if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
 
                     // Get user's satellite rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
                     // Get satellite's rewards record (that user is delegated to)
                     const satelliteReferenceAddress : address = satelliteRewardsRecord.satelliteReferenceAddress;
-                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND, s);
+                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
 
                     // Update user's satellite rewards record - empty pending rewards
                     // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare
