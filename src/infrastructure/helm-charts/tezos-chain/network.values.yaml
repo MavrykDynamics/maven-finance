@@ -2,7 +2,7 @@ deku:
   dockerPullSecretName: docker-pull-credentials
   config:
     defaultBlockSize: 100
-    tezosConsensusAddress: KT1PWACS8ycTYWu5rBak3tvNFR88JjgqgeNg
+    tezosConsensusAddress: KT1FfcABe4ELbD5YRKmG4x3wzSNK9dcMwPHz
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
     apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
@@ -50,15 +50,15 @@ deku:
       validator: #MALLORY
         publicKeyHash: tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
         secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
-      api:
-        config:
-          apiDatabaseUri: "sqlite3:/var/deku-api/database.sqlite"
-        image:
-          registry: docker.io
-          repository: tezosdynamics/deku-api
-          tag: v0.0.1
-          pullPolicy: Always
-          pullSecret: docker-pull-credentials
+      # api:
+      #   config:
+      #     apiDatabaseUri: "sqlite3:/var/deku-api/database.sqlite"
+      #   image:
+      #     registry: docker.io
+      #     repository: tezosdynamics/deku-api
+      #     tag: v0.0.1
+      #     pullPolicy: Always
+      #     pullSecret: docker-pull-credentials
 
 tezos-faucet:
   images:
