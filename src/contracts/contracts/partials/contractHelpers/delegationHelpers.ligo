@@ -331,7 +331,7 @@ block {
 
 
 // helper function to get satellite rewards record
-function getSatelliteRewardsRecord(const userAddress : address; const errorCode : nat; const s : delegationStorageType) : satelliteRewardsType is 
+function getSatelliteRewardsRecord(const userAddress : address; const s : delegationStorageType; const errorCode : nat) : satelliteRewardsType is 
 block {
 
     const satelliteRewardsRecord : satelliteRewardsType = case s.satelliteRewardsLedger[userAddress] of [
@@ -525,13 +525,13 @@ block{
         if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
 
             // Get user's satellite rewards record
-            var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
+            var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
             // Get user's staked MVK balance from the Doorman Contract
             const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
             // Get satellite rewards record of satellite that user is delegated to
-            const satelliteReferenceRewardsRecord : satelliteRewardsType = getSatelliteRewardsRecord(satelliteRewardsRecord.satelliteReferenceAddress, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND, s);
+            const satelliteReferenceRewardsRecord : satelliteRewardsType = getSatelliteRewardsRecord(satelliteRewardsRecord.satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
 
             // Calculate satellite unclaimed rewards
             // - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare

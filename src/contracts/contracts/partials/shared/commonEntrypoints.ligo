@@ -1,5 +1,5 @@
 // Shared Types
-#include "../partials/shared/sharedTypes.ligo"
+#include "./sharedTypes.ligo"
 
 // helper function to %updateGeneralContracts entrypoint on the Governance contract
 function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
