@@ -2,7 +2,7 @@
 
 ## Deploy all contracts on the Ghostnet
 
-- Checkout to the branch you want to deploy the contract from
+- Checkout to the branch where the most updated contracts are (**probably not this branch**)
 
 ```bash
 git checkout [REVISION]
@@ -34,7 +34,7 @@ yarn test-net-deploy
 cp -R ./deployments ./deployments-bckp
 ```
 
-- Checkout to the branch where the most updated indexer is
+- Checkout to the branch where the most updated indexer is (**probably not this branch**)
 
 ```bash
 git checkout [REVISION]
