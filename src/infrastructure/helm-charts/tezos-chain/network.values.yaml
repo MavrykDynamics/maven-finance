@@ -2,32 +2,32 @@ deku:
   dockerPullSecretName: docker-pull-credentials
   config:
     defaultBlockSize: 100
-    tezosConsensusAddress: KT1XnFpYigQynJ9Ao3H4MURAKBwAZdfVtyGx
+    tezosConsensusAddress: KT1DXEjbBhYM92HLa4u5Ys4CDV93UBsXvKoZ
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
     apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
   nodes:
-    deku-on-baking-full:
-      ingress:
-        annotations:
-          kubernetes.io/ingress.class: nginx
-        host: deku-on-baking-full-node.mavryk.network
-      tezosRpcUrl: https://basenet-baking-full-node.mavryk.network
-      image:
-        registry: docker.io
-        repository: tezosdynamics/deku
-        tag: v0.0.1
-        pullPolicy: Always
-      nodeSelector:
-        type: mavryk-node
-      tolerations:
-        - key: 'mavryk-node'
-          operator: 'Equal'
-          value: '0'
-          effect: 'NoSchedule'
-      validator: #TRUDY
-        publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
-        secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
+    # deku-on-baking-full:
+    #   ingress:
+    #     annotations:
+    #       kubernetes.io/ingress.class: nginx
+    #     host: deku-on-baking-full-node.mavryk.network
+    #   tezosRpcUrl: https://basenet-baking-full-node.mavryk.network
+    #   image:
+    #     registry: docker.io
+    #     repository: tezosdynamics/deku
+    #     tag: v0.0.1
+    #     pullPolicy: Always
+    #   nodeSelector:
+    #     type: mavryk-node
+    #   tolerations:
+    #     - key: 'mavryk-node'
+    #       operator: 'Equal'
+    #       value: '0'
+    #       effect: 'NoSchedule'
+    #   validator: #TRUDY
+    #     publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
+    #     secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
     deku-on-baking-archive:
       ingress:
         annotations:
