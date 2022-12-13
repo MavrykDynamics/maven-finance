@@ -79,7 +79,7 @@ spec:
             - name: DEKU_VALIDATORS
               value: {{ regexReplaceAll "[,]$" $deku_validators "" }}
             - name: DEKU_VALIDATOR_URIS
-              value: {{ regexReplaceAll "[,]$" $deku_validators_uri "" }}
+              value: localhost:4440
             - name: DEKU_TEZOS_RPC_NODE
               value: '{{ $.node_vals.tezosRpcUrl }}'
             - name: DEKU_TEZOS_SECRET
@@ -90,18 +90,22 @@ spec:
               value: '{{ $.Values.deku.config.defaultBlockSize }}'
             - name: DEKU_VM_DEBUG_LOGGING
               value: 'true'
-            - name: DEKU_API_URI
-              value: '{{ $.Values.deku.config.apiUri }}'
-            - name: DEKU_DATA_FOLDER
-              value: '/var/deku'
-            - name: DEKU_DATABASE_URI
-              value: '{{ $.Values.deku.config.databaseUri }}'
-            - name: DEKU_DOMAINS
-              value: '8'
+            # - name: DEKU_API_URI
+            #   value: '{{ $.Values.deku.config.apiUri }}'
+            # - name: DEKU_DATA_FOLDER
+            #   value: '/var/deku'
+            # - name: DEKU_DATABASE_URI
+            #   value: '{{ $.Values.deku.config.databaseUri }}'
+            # - name: DEKU_DOMAINS
+            #   value: '8'
             - name: DEKU_SECRET
               value: '{{ $.node_vals.validator.secretKey }}'
             - name: DEKU_PORT
               value: '4440'
+            - name: DEKU_API_ENABLED
+              value: 'true'
+            - name: DEKU_API_PORT
+              value: '8080'
           image: '{{ $.node_vals.image.registry }}/{{ $.node_vals.image.repository }}:{{ $.node_vals.image.tag }}'
           imagePullPolicy: '{{ $.node_vals.image.pullPolicy }}'
           ports:
