@@ -80,6 +80,7 @@
 //     });
 
 //     describe("%distributeRewards", async () => {
+
 //         before("Set admin to whitelist and init satellite and delegators", async () => {
 //             try{
 //                 // Set Whitelist
@@ -93,13 +94,14 @@
 //                 const bobSatelliteImage                 = "https://placeholder.com/300";
 //                 const bobSatelliteWebsite               = "https://placeholder.com/300";
 //                 const bobSatelliteFee                   = "1000"; // 10% fee
+                
 //                 const mallorySatelliteName              = "New Satellite (Mallory)";
 //                 const mallorySatelliteDescription       = "New Satellite Description (Mallory)";
 //                 const mallorySatelliteImage             = "https://placeholder.com/300";
 //                 const mallorySatelliteWebsite           = "https://placeholder.com/300";
 //                 const mallorySatelliteFee               = "2000"; // 20% fee
 
-//                 // Register Bob
+//                 // Register Bob Satellite
 //                 var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
 //                     add_operator: {
@@ -124,7 +126,7 @@
 //                     ).send();
 //                 await registerAsSatelliteOperation.confirmation();
 
-//                 // Register Mallory
+//                 // Register Mallory Satellite
 //                 await signerFactory(mallory.sk);
 //                 var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
@@ -150,7 +152,7 @@
 //                     ).send();
 //                 await registerAsSatelliteOperation.confirmation();
 
-//                 // Delegate Alice
+//                 // Delegate Alice to Bob's Satellite
 //                 await signerFactory(alice.sk);
 //                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
@@ -169,7 +171,7 @@
 //                 var delegationOperation   = await delegationInstance.methods.delegateToSatellite(alice.pkh, bob.pkh).send();
 //                 await delegationOperation.confirmation();
 
-//                 // Delegate Eve
+//                 // Delegate Eve to Bob's Satellite
 //                 await signerFactory(eve.sk);
 //                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
@@ -188,7 +190,7 @@
 //                 delegationOperation   = await delegationInstance.methods.delegateToSatellite(eve.pkh, bob.pkh).send();
 //                 await delegationOperation.confirmation();
 
-//                 // Delegate Oscar
+//                 // Delegate Oscar to Mallory's Satellite
 //                 await signerFactory(oscar.sk);
 //                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
@@ -207,7 +209,7 @@
 //                 delegationOperation   = await delegationInstance.methods.delegateToSatellite(oscar.pkh, mallory.pkh).send();
 //                 await delegationOperation.confirmation();
 
-//                 // Delegate Trudy
+//                 // Delegate Trudy to Mallory's Satellite
 //                 await signerFactory(trudy.sk);
 //                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
@@ -231,10 +233,12 @@
 //                 // Set delegation admin in order for the packed data to work
 //                 const setDoormanAdmin        = await doormanInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                 await setDoormanAdmin.confirmation();
+
 //             } catch (e){
 //                 console.dir(e, {depth: 5});
 //             }
 //         });
+
 //         beforeEach("Set signer to admin", async () => {
 //             await signerFactory(bob.sk)
 //         });
@@ -286,6 +290,7 @@
 
 //         it('Reward distribution tests #2', async () => {
 //             try{
+                
 //                 console.log("configuration:\n- 2 satellites (Bob|Mallory)\n- 2 delegates on Bob (Alice|Eve)\n- Operations: \n   DistributeReward(100MVK)\n   Unregister(Bob)\n   Undelegate(Alice)\n   Claim(Bob)\n   Delegate(Alice->Mallory)\n   Claim(Alice)\n   Claim(Eve)");
 
 //                 // Initial Values

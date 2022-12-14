@@ -161,7 +161,7 @@ block {
                 verifyIsNotZero(vestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
                 // Verify that cliffInMonths cannot be greater than vestingInMonths (duration error)
-                verifyLessThan(cliffInMonths, vestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
+                verifyLessThanOrEqual(cliffInMonths, vestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
 
                 var newVestee : vesteeRecordType := createVesteeRecord(
                     vesteeAddress,
@@ -235,7 +235,7 @@ block {
                 verifyIsNotZero(newVestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
                 // Verify that new cliffInMonths cannot be greater than new vestingInMonths (duration error)
-                verifyLessThan(newCliffInMonths, newVestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
+                verifyLessThanOrEqual(newCliffInMonths, newVestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
 
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);

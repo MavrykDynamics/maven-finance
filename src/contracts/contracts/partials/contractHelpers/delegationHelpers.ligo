@@ -67,6 +67,68 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllDelegationEntrypoints(var s : delegationStorageType) : delegationStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.delegateToSatelliteIsPaused then skip
+    else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
+
+    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then skip
+    else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
+
+    if s.breakGlassConfig.registerAsSatelliteIsPaused then skip
+    else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
+
+    if s.breakGlassConfig.unregisterAsSatelliteIsPaused then skip
+    else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
+
+    if s.breakGlassConfig.updateSatelliteRecordIsPaused then skip
+    else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
+
+    if s.breakGlassConfig.distributeRewardIsPaused then skip
+    else s.breakGlassConfig.distributeRewardIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllDelegationEntrypoints(var s : delegationStorageType) : delegationStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -213,7 +275,7 @@ block {
 function getSatelliteRecord(const satelliteAddress : address; const s : delegationStorageType) : satelliteRecordType is 
 block {
 
-    const satelliteRecord: satelliteRecordType = case s.satelliteLedger[satelliteAddress] of [
+    const satelliteRecord : satelliteRecordType = case s.satelliteLedger[satelliteAddress] of [
             Some(_record) -> _record
         |   None          -> failwith(error_SATELLITE_NOT_FOUND)
     ];
@@ -233,8 +295,7 @@ block {
     const userStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
     // Check if user's staked MVK balance has reached the minimum staked MVK amount required to be a satellite
-    if userStakedMvkBalance < s.config.minimumStakedMvkBalance then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
-    else skip;
+    verifyGreaterThanOrEqual(userStakedMvkBalance, s.config.minimumStakedMvkBalance, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
 
     // Init new satellite record params
     const name          : string  = registerAsSatelliteParams.name;
@@ -260,25 +321,28 @@ block {
     validateStringLength(website        , s.config.satelliteWebsiteMaxLength,       error_WRONG_INPUT_PROVIDED);
     
     // Validate satellite fee input not exceeding 100%
-    if satelliteFee > 10000n then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+    verifyLessThanOrEqual(satelliteFee, 10000n, error_WRONG_INPUT_PROVIDED);
 
     // Create new satellite record
-    const satelliteRecord : satelliteRecordType = record [            
-        status                = "ACTIVE";
-        stakedMvkBalance      = userStakedMvkBalance;
-        satelliteFee          = satelliteFee;
-        totalDelegatedAmount  = 0n;
+    const satelliteRecord : satelliteRecordType = case s.satelliteLedger[userAddress] of [
+            Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
+        |   None -> record [            
+                status                = "ACTIVE";
+                stakedMvkBalance      = userStakedMvkBalance;
+                satelliteFee          = satelliteFee;
+                totalDelegatedAmount  = 0n;
 
-        name                  = name;
-        description           = description;
-        image                 = image;
-        website               = website;
-        
-        registeredDateTime    = Tezos.get_now();
-        
-        oraclePublicKey       = oraclePublicKey;
-        oraclePeerId          = oraclePeerId;
-    ]
+                name                  = name;
+                description           = description;
+                image                 = image;
+                website               = website;
+                
+                registeredDateTime    = Tezos.get_now();
+                
+                oraclePublicKey       = oraclePublicKey;
+                oraclePeerId          = oraclePeerId;
+            ]
+    ];
 
 } with satelliteRecord
 
