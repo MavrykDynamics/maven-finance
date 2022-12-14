@@ -15,14 +15,14 @@ bcdHub:
       registry: docker.io
       pullPolicy: Always
       pullSecret: docker-pull-credentials
-      repository: tezosdynamics/bcdhub-api
+      repository: mavrykdynamics/bcdhub-api
       tag: v4.3.0
   indexer:
     image:
       registry: docker.io
       pullPolicy: Always
       pullSecret: docker-pull-credentials
-      repository: tezosdynamics/bcdhub-indexer
+      repository: mavrykdynamics/bcdhub-indexer
       tag: v4.3.0
   ingress:
     host: api-better-call.mavryk.io
@@ -43,7 +43,7 @@ bcd:
     registry: docker.io
     pullPolicy: Always
     dockerPullSecret: docker-pull-credentials
-    repository: tezosdynamics/bcd
+    repository: mavrykdynamics/bcd
     tag: 'v4.3.2'
   env:
     - name: NODE_ENV
