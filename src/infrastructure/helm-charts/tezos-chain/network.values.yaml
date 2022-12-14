@@ -14,7 +14,7 @@ deku:
       secretName: ligo-deku-rpc-tls
     image:
       registry: docker.io
-      repository: tezosdynamics/ligo-deku-rpc
+      repository: mavrykdynamics/ligo-deku-rpc
       tag: v0.0.1
       pullPolicy: Always
   config:
@@ -33,7 +33,7 @@ deku:
       tezosRpcUrl: https://basenet-baking-full-node.mavryk.network
       image:
         registry: docker.io
-        repository: tezosdynamics/deku
+        repository: mavrykdynamics/deku
         tag: 2022-12-03-3156d01
         pullPolicy: Always
       nodeSelector:
@@ -54,7 +54,7 @@ deku:
       tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
       image:
         registry: docker.io
-        repository: tezosdynamics/deku
+        repository: mavrykdynamics/deku
         tag: 2022-12-03-3156d01
         pullPolicy: Always
         pullSecret: docker-pull-credentials
@@ -73,7 +73,7 @@ deku:
           apiDatabaseUri: "sqlite3:/var/deku-api/database.sqlite"
         image:
           registry: docker.io
-          repository: tezosdynamics/deku-api
+          repository: mavrykdynamics/deku-api
           tag: 2022-12-03-3156d01
           pullPolicy: Always
           pullSecret: docker-pull-credentials
