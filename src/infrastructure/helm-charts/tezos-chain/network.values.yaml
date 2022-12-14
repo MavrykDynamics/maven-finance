@@ -2,7 +2,7 @@ deku:
   dockerPullSecretName: docker-pull-credentials
   config:
     defaultBlockSize: 100
-    tezosConsensusAddress: KT1RhDvJcsZ3z7C8vBZt5jp6EHB2yMWFENEF
+    tezosConsensusAddress: KT1CDK1LGA3fPP25s2BRwu3FWo96ZdznNvFf
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
     apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
@@ -16,7 +16,7 @@ deku:
       image:
         registry: docker.io
         repository: tezosdynamics/deku
-        tag: v0.0.1
+        tag: 2022-12-03-3156d01
         pullPolicy: Always
       nodeSelector:
         type: mavryk-node
@@ -37,7 +37,7 @@ deku:
       image:
         registry: docker.io
         repository: tezosdynamics/deku
-        tag: v0.0.1
+        tag: 2022-12-03-3156d01
         pullPolicy: Always
         pullSecret: docker-pull-credentials
       nodeSelector:
@@ -56,7 +56,7 @@ deku:
         image:
           registry: docker.io
           repository: tezosdynamics/deku-api
-          tag: v0.0.1
+          tag: 2022-12-03-3156d01
           pullPolicy: Always
           pullSecret: docker-pull-credentials
 
