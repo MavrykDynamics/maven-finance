@@ -65,7 +65,7 @@ spec:
       {{- end }}
       {{- end }}
       imagePullSecrets:
-        - name: {{ $.Values.deku.dockerPullSecretName }}
+        - name: {{ $.Values.dockerPullSecretName }}
       volumes:
         - name: node-db-volume
           emptyDir: {}
