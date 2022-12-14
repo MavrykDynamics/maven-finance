@@ -5,6 +5,9 @@ spec:
 basenet:
   valueFiles: network.values.yaml
 
+betterCallDev:
+  valueFiles: network.values.yaml
+
 certManager:
   valueFiles: network.values.yaml
 
