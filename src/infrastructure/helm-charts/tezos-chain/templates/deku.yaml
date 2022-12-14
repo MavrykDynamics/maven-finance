@@ -94,8 +94,10 @@ spec:
               value: '{{ $.Values.deku.config.dummyTicketAddress }}'
             - name: DEKU_DEFAULT_BLOCK_SIZE
               value: '{{ $.Values.deku.config.defaultBlockSize }}'
-            - name: DEKU_VM_DEBUG_LOGGING
-              value: 'true'
+            - name: DEKU_LOG_VERBOSITY
+              value: 'info'
+            - name: DEKU_API_LOG_VERBOSITY
+              value: 'info'
             - name: DEKU_API_URI
               value: '{{ $.Values.deku.config.apiUri }}'
             - name: DEKU_DATA_FOLDER
@@ -124,6 +126,8 @@ spec:
               value: '{{ $.node_vals.api.config.apiDatabaseUri }}'
             - name: DEKU_API_DATA_FOLDER
               value: '/var/deku-api'
+            - name: DEKU_LOG_VERBOSITY
+              value: 'info'
             - name: DEKU_API_LOG_VERBOSITY
               value: 'info'
             - name: DEKU_API_NODE_URI
