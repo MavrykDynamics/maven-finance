@@ -86,6 +86,12 @@ spec:
               value: '{{ $.Values.deku.config.tezosSecret }}'
             - name: DEKU_TEZOS_CONSENSUS_ADDRESS
               value: '{{ $.Values.deku.config.tezosConsensusAddress }}'
+            - name: DEKU_DUMMYT_TICKET
+              value: '{{ $.Values.deku.config.dummyTicketAddress }}'
+            - name: DEKU_DUMMY_TICKET
+              value: '{{ $.Values.deku.config.dummyTicketAddress }}'
+            - name: DEKU_DUMMY_TICKET_CONTRACT
+              value: '{{ $.Values.deku.config.dummyTicketAddress }}'
             - name: DEKU_DEFAULT_BLOCK_SIZE
               value: '{{ $.Values.deku.config.defaultBlockSize }}'
             - name: DEKU_VM_DEBUG_LOGGING
@@ -132,6 +138,12 @@ spec:
               value: '/var/deku/api_vm_pipe'
             - name: DEKU_TEZOS_CONSENSUS_ADDRESS
               value: '{{ $.Values.deku.config.tezosConsensusAddress }}'
+            - name: DEKU_DUMMYT_TICKET
+              value: '{{ $.Values.deku.config.dummyTicketAddress }}'
+            - name: DEKU_DUMMY_TICKET
+              value: '{{ $.Values.deku.config.dummyTicketAddress }}'
+            - name: DEKU_DUMMY_TICKET_CONTRACT
+              value: '{{ $.Values.deku.config.dummyTicketAddress }}'
           image: '{{ $.node_vals.api.image.registry }}/{{ $.node_vals.api.image.repository }}:{{ $.node_vals.api.image.tag }}'
           imagePullPolicy: '{{ $.node_vals.api.image.pullPolicy }}'
           ports:
