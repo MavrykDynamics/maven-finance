@@ -232,7 +232,7 @@ describe("Doorman tests", async () => {
 
                 // Test values
                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
-                const exitFee = Math.trunc((500 * 10**36 * 10**36) / (mli + 5*10**36));
+                const exitFee = (((300_000 * 10**36) - (5_250 * mli)) * 10**36 + 25*mli*mli) / (10_000 * 10**36)
                 const paidFee = Math.trunc(userUnstake * (exitFee/100));
                 const expectedFinalAmount = userUnstake - (paidFee/10**36);
 
@@ -242,8 +242,6 @@ describe("Doorman tests", async () => {
                 const userStakeBalanceEnd = userStakeLedgerEnd.balance.toNumber()
                 const doormanSMVKTotalSupplyEnd = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
 
-                console.log(`Math.floor(doormanSMVKTotalSupply - expectedFinalAmount): ${Math.floor(doormanSMVKTotalSupply - expectedFinalAmount)}`);
-                console.log(`doormanSMVKTotalSupplyEnd : ${doormanSMVKTotalSupplyEnd}`);
                 // Assertion
                 assert.equal(almostEqual(Math.floor(doormanSMVKTotalSupply - expectedFinalAmount), doormanSMVKTotalSupplyEnd, 0.01), true)
                 assert.equal(almostEqual(Math.round(userMVKBalance + expectedFinalAmount), userMVKBalanceEnd, 0.01), true)
@@ -347,7 +345,7 @@ describe("Doorman tests", async () => {
                 console.log("COMBINED REWARDS: ", combinedRewards)
 
                 // Assertions
-                assert.equal(combinedRewards, exitFee)
+                assert.equal(almostEqual(combinedRewards, exitFee, 0.001), true)
             } catch(e) {
                 console.dir(e, {depth: 5})
             }

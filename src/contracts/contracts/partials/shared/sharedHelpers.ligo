@@ -181,11 +181,32 @@ block {
 
 
 
+// verify first value is less than second value
+function verifyLessThanOrEqual(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue <= secondValue then skip else failwith(errorCode);
+
+} with unit
+
+
+
 // verify first value is greater than second value
 function verifyGreaterThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
 block {
 
+    // if firstValue < secondValue then failwith(errorCode) else skip;
     if firstValue > secondValue then skip else failwith(errorCode);
+
+} with unit
+
+
+
+// verify first value is greater than or equal to second value
+function verifyGreaterThanOrEqual(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue >= secondValue then skip else failwith(errorCode);
 
 } with unit
 

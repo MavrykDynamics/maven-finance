@@ -181,23 +181,8 @@ block {
     case delegationLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
                 
-                if s.breakGlassConfig.delegateToSatelliteIsPaused then skip
-                else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then skip
-                else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.registerAsSatelliteIsPaused then skip
-                else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then skip
-                else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.updateSatelliteRecordIsPaused then skip
-                else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
-
-                if s.breakGlassConfig.distributeRewardIsPaused then skip
-                else s.breakGlassConfig.distributeRewardIsPaused := True;
+                // set all pause configs to True
+                s := pauseAllDelegationEntrypoints(s);
 
             }
         |   _ -> skip
@@ -222,23 +207,8 @@ block {
     case delegationLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
             
-                if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
-                else skip;
+                // set all pause configs to False
+                s := unpauseAllDelegationEntrypoints(s);
             
             }
         |   _ -> skip
@@ -459,7 +429,7 @@ block {
                 if satelliteRecord.status =/= "INACTIVE" then block {
                 
                     // Verify that user's staked MVK balance does not exceed satellite's total delegated amount
-                    verifyLessThan(stakedMvkBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
+                    verifyLessThanOrEqual(stakedMvkBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
                     
                     // Update satellite total delegated amount (decrement by user's staked MVK balance)
                     satelliteRecord.totalDelegatedAmount := abs(satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 

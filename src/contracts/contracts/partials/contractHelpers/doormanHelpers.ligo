@@ -35,7 +35,7 @@ function verifyMinMvkAmountReached(const stakeAmount : nat; const s : doormanSto
 block {
     
     // verify first value (stakeAmount) is greater than second value (minMvkAmount)
-    verifyGreaterThan(stakeAmount, s.config.minMvkAmount, error_MVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvkAmount, error_MVK_ACCESS_AMOUNT_NOT_REACHED);
 
 } with unit 
 
@@ -46,7 +46,7 @@ function verifySufficientWithdrawalBalance(const unstakeAmount : nat; const user
 block {
 
     // verify first value (unstakeAmount) is less than second value (user balance)
-    verifyLessThan(unstakeAmount, userStakeBalanceRecord.balance, error_NOT_ENOUGH_SMVK_BALANCE);
+    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_NOT_ENOUGH_SMVK_BALANCE);
 
 } with unit
 
@@ -57,7 +57,7 @@ function verifyUnstakeAmountLessThanStakedTotalSupply(const unstakeAmount : nat;
 block {
 
     // verify first value (unstakeAmount) is less than second value (staked MVK total supply)
-    verifyLessThan(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_ERROR);
+    verifyLessThanOrEqual(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_ERROR);
 
 } with unit
 
@@ -439,14 +439,24 @@ block {
 
     // Call the %getSatelliteRewardsOpt view on the Delegation Contract
     const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
-      
-    const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOptView of [
-            Some (optionView) -> case optionView of [
-                    Some(_rewardsRecord)      -> _rewardsRecord
-                |   None                      -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
-            ]
+
+    const satelliteRewardsOpt : option(satelliteRewardsType) = case satelliteRewardsOptView of [
+            Some (value) -> value
         |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
+
+    const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOpt of [
+            Some (_record)  -> _record
+        |   None            -> failwith (error_SATELLITE_REWARDS_NOT_FOUND)
+    ];
+        
+    // const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOptView of [
+    //         Some (optionView) -> case optionView of [
+    //                 Some(_rewardsRecord)      -> _rewardsRecord
+    //             |   None                      -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+    //         ]
+    //     |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    // ];
 
 } with userRewardsRecord
 
@@ -491,10 +501,11 @@ block{
         block{
 
             // get user satellite rewards record
-            // const userRewardsRecord : satelliteRewardsType = getUserRewardsRecord(userAddress, s);
+            const _userRewardsRecord : satelliteRewardsType = getUserRewardsRecord(userAddress, s);
 
-            // // get satellite reference rewards record
-            // const satelliteReferenceRewardsRecord : satelliteRewardsType = getUserRewardsRecord(userRewardsRecord.satelliteReferenceAddress, s);
+            // get satellite reference rewards record
+            // const satelliteReferenceAddress : address = userRewardsRecord.satelliteReferenceAddress;
+            // const satelliteReferenceRewardsRecord : satelliteRewardsType = getUserRewardsRecord(satelliteReferenceAddress, s);
 
             // // calculate increment rewards based on difference between satellite's accumulated rewards per share and user's participations rewards per share
             // const rewardsRatio      : nat = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - userRewardsRecord.participationRewardsPerShare);
@@ -502,36 +513,37 @@ block{
 
             // // update user's unpaid rewards
             // satelliteUnpaidRewards := userRewardsRecord.unpaid + (incrementRewards / fixedPointAccuracy);
+            
             // Get the user satelliteRewards record from the %getSatelliteRewardsOpt view above
-            const satelliteRewardsOpt : option(satelliteRewardsType) = case satelliteRewardsOptView of [
-                    Some (value) -> value
-                |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-            ];
+            // const satelliteRewardsOpt : option(satelliteRewardsType) = case satelliteRewardsOptView of [
+            //         Some (value) -> value
+            //     |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+            // ];
 
-            satelliteUnpaidRewards := case satelliteRewardsOpt of [
-                    Some (_rewards) -> block{
+            // satelliteUnpaidRewards := case satelliteRewardsOpt of [
+            //         Some (_rewards) -> block{
 
-                        // Get the rewards record of the satellite that user is delegated to (satelliteReferenceAddress)
-                        const getUserReferenceRewardOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
-                        const getUserReferenceRewardOpt : option(satelliteRewardsType) = case getUserReferenceRewardOptView of [
-                                Some (value) -> value
-                            |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                        ];
+            //             // Get the rewards record of the satellite that user is delegated to (satelliteReferenceAddress)
+            //             const getUserReferenceRewardOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
+            //             const getUserReferenceRewardOpt : option(satelliteRewardsType) = case getUserReferenceRewardOptView of [
+            //                     Some (value) -> value
+            //                 |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+            //             ];
                         
-                        // Calculate the user unclaimed rewards - i.e. satelliteRewardsRatio * user balance
-                        const satelliteReward : nat  = case getUserReferenceRewardOpt of [
-                                Some (_referenceRewards) -> block{
+            //             // Calculate the user unclaimed rewards - i.e. satelliteRewardsRatio * user balance
+            //             const satelliteReward : nat  = case getUserReferenceRewardOpt of [
+            //                     Some (_referenceRewards) -> block{
                                     
-                                    const satelliteRewardsRatio  : nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-                                    const satelliteRewards       : nat  = userStakeBalanceRecord.balance * satelliteRewardsRatio;
+            //                         const satelliteRewardsRatio  : nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
+            //                         const satelliteRewards       : nat  = userStakeBalanceRecord.balance * satelliteRewardsRatio;
 
-                                } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-                            |   None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
-                        ];
+            //                     } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
+            //                 |   None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
+            //             ];
 
-                    } with (satelliteReward)
-                |   None -> 0n
-            ];
+            //         } with (satelliteReward)
+            //     |   None -> 0n
+            // ];
 
         }
         else skip;
