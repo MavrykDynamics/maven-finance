@@ -44,5 +44,3 @@ class NewLineDumper(yaml.SafeDumper):
 for file in listdir("./"):
     if file.endswith("dipdup.yml"):
         update_dipdup_config(file)
-
-
