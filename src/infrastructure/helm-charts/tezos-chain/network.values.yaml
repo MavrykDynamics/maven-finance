@@ -1,5 +1,22 @@
+dockerPullSecretName: docker-pull-credentials
+
 deku:
-  dockerPullSecretName: docker-pull-credentials
+  ligoRpc:
+    ingress:
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/enable-cors: 'true'
+        nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+        nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+      host: ligo-deku-rpc.mavryk.network
+      secretName: ligo-deku-rpc-tls
+    image:
+      registry: docker.io
+      repository: tezosdynamics/ligo-deku-rpc
+      tag: v0.0.1
+      pullPolicy: Always
   config:
     defaultBlockSize: 100
     tezosConsensusAddress: KT1UrCDFGnTCtucoZ4d65ffCrLLD1PWCJFwr
