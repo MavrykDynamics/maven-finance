@@ -53,7 +53,7 @@
 
 # Build and Push an indexer image on Dockerhub
 
-1. Get the latest **_mavryk-indexer_** image tag on dockerhub: https://hub.docker.com/repository/docker/tezosdynamics/mavryk-indexer
+1. Get the latest **_mavryk-indexer_** image tag on dockerhub: https://hub.docker.com/repository/docker/mavrykdynamics/mavryk-indexer
 2. Setup a new tag based on the previous one and respecting the `vX.Y.Z` nomenclature:
    - _X_: Major version (in our case **0** for now)
      - Major indexer upgrade (example: first ever mainnet version etc.)
@@ -63,9 +63,9 @@
      - Minor indexer upgrade (example: a new contract is indexed, an index is refactored)
    - _Z_: Bugfix
      - A bug is fixed
-3. _(Do once)_ Login on Dockerhub with the TezosDynamics account with `docker login`
-4. Build the image with `docker build . -t tezosdynamics/mavryk-indexer:TAG`. Don't forget to replace `TAG` by your tag.
-5. Push the image on Dockerhub with `docker push tezosdynamics/mavryk-indexer:TAG`. Don't forget to replace `TAG` by your tag.
+3. _(Do once)_ Login on Dockerhub with the mavrykdynamics account with `docker login`
+4. Build the image with `docker build . -t mavrykdynamics/mavryk-indexer:TAG`. Don't forget to replace `TAG` by your tag.
+5. Push the image on Dockerhub with `docker push mavrykdynamics/mavryk-indexer:TAG`. Don't forget to replace `TAG` by your tag.
 
 # Deploy the indexer on Kubernetes
 
