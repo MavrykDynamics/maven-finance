@@ -422,7 +422,7 @@ block {
                 const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
                 // Get satellite record
-                var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
+                var satelliteRecord : satelliteRecordType := getOrDefaultSatelliteRecord(satelliteAddress, s);
 
                 // Check if satellite exists and is not inactive (if satellite does not exist, it will return "INACTIVE" from the empty satellite record above)
                 // - if satellite is suspended or banned, users should be able to undelegate from satellite 

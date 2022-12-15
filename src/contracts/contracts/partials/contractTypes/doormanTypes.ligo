@@ -107,6 +107,7 @@ type doormanStorageType is [@layout:comb] record [
 
   unclaimedRewards          : nat; // current exit fee pool rewards
   accumulatedFeesPerShare   : nat;
+//   totalStakedMvkSupply      : nat;
 
   lambdaLedger              : lambdaLedgerType;
 ]
