@@ -284,6 +284,38 @@ block {
 
 
 
+// helper function to get a satellite's record or default to an empty record
+function getOrDefaultSatelliteRecord(const satelliteAddress : address; const s : delegationStorageType) : satelliteRecordType is 
+block {
+
+    // Init empty satellite record - for type checking 
+    const emptySatelliteRecord : satelliteRecordType = record [
+        status                = "INACTIVE";        
+        stakedMvkBalance      = 0n;
+        satelliteFee          = 0n;
+        totalDelegatedAmount  = 0n;
+        
+        name                  = "Empty Satellite";
+        description           = "Empty Satellite";
+        image                 = "";
+        website               = "";
+
+        registeredDateTime    = Tezos.get_now();
+
+        oraclePublicKey       = ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key); // random default public key
+        oraclePeerId          = "peerId";
+    ];
+
+
+    const satelliteRecord : satelliteRecordType = case s.satelliteLedger[satelliteAddress] of [
+            None          -> emptySatelliteRecord
+        |   Some(_record) -> _record
+    ];
+
+} with satelliteRecord
+
+
+
 // helper function to create a new satellite record
 function createSatelliteRecord(const registerAsSatelliteParams : registerAsSatelliteParamsType; const s : delegationStorageType) : satelliteRecordType is 
 block {

@@ -493,7 +493,7 @@
 //                 console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
 //                 // Prepare proposal metadata
-//                 console.log(governanceProxyInstance.methods)
+//                 // console.log(governanceProxyInstance.methods)
 //                 const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
 //                     'updateContractGeneralMap', doormanAddress.address, 'bob', bob.pkh
 //                 ).toTransferParams();
