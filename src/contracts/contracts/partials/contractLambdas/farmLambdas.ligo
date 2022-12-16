@@ -558,7 +558,7 @@ block{
     case farmLambdaAction of [
         |   LambdaClaim(depositor) -> {
                 
-                // Update pool farmStorageType
+                // Update farm
                 s := updateFarm(s);
 
                 // Update user's unclaimed rewards
