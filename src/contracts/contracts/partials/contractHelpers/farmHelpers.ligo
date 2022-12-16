@@ -44,12 +44,6 @@ function verifyFarmIsInitialised(const s : farmStorageType) : unit is
 
 
 
-// Get the Deposit of a user
-function getDepositorDeposit(const depositor : depositorType; const s : farmStorageType) : option(depositorRecordType) is
-    Big_map.find_opt(depositor, s.depositorLedger)
-
-
-
 // Verify that farm is not open
 function verifyFarmIsNotOpen(const s : farmStorageType) : unit is
 block {
@@ -235,6 +229,7 @@ block {
 } with depositorRecord
 
 
+
 // helper function to init farm
 function _initFarm(const initFarmParams : initFarmParamsType; var s : farmStorageType) : farmStorageType is
 block {
@@ -357,14 +352,14 @@ block{
 // helper function to update farm
 function updateFarm(var s : farmStorageType) : farmStorageType is
 block{
-    s   := case s.config.lpToken.tokenBalance = 0n of [
+    s := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
         |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
                     True -> s
                 |   False -> updateFarmParameters(s)
             ]
     ];
-    s   := updateDurationAndRewards(s);
+    s := updateDurationAndRewards(s);
 } with (s)
 
 
@@ -374,10 +369,7 @@ function updateUnclaimedRewards(const depositor : depositorType; var s : farmSto
 block{
 
     // Check if sender as already a record
-    var depositorRecord : depositorRecordType := case getDepositorDeposit(depositor, s) of [
-            Some (r) -> r
-        |   None -> (failwith(error_DEPOSITOR_NOT_FOUND) : depositorRecordType)
-    ];
+    var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
     // Compute depositor reward
     //  -   calculate user's currentMvkPerShare based on difference between his participationRewardsPerShare and farm's accumulatedRewardsPerShare
@@ -401,7 +393,7 @@ block{
     // Update user's unclaimed rewards and participationRewardsPerShare
     depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
     depositorRecord.participationRewardsPerShare := accumulatedRewardsPerShareEnd;
-    s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
+    s.depositorLedger[depositor] := depositorRecord;
 
 } with(s)
 
