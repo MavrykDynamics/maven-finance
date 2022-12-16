@@ -45,8 +45,8 @@ export const doormanStorage: doormanStorageType = {
     userStakeBalanceLedger    : MichelsonMap.fromLiteral({}),
     
     unclaimedRewards          : new BigNumber(0),
-
     accumulatedFeesPerShare   : new BigNumber(0),
+    totalStakedMvkSupply      : new BigNumber(0),
     
     lambdaLedger              : MichelsonMap.fromLiteral({})
 

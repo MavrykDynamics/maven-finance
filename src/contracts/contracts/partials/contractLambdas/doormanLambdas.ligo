@@ -336,6 +336,9 @@ block {
                 userStakeBalanceRecord.balance  := userStakeBalanceRecord.balance + stakeAmount; 
 
                 s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
+
+                // increment total staked mvk supply
+                s.totalStakedMvkSupply := s.totalStakedMvkSupply + stakeAmount;
                 
             }
         |   _ -> skip
@@ -422,6 +425,10 @@ block {
 
                 // Update user's stake balance record
                 userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
+
+                // increment total staked mvk supply
+                verifyGreaterThanOrEqual(s.totalStakedMvkSupply, unstakeAmount, error_CALCULATION_ERROR);
+                s.totalStakedMvkSupply := abs(s.totalStakedMvkSupply - unstakeAmount);
 
                 // -------------------------------------------
                 // Transfer MVK Operation
@@ -569,6 +576,9 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 userStakeBalanceRecord.totalFarmRewardsClaimed := userStakeBalanceRecord.totalFarmRewardsClaimed + claimAmount;
                 s.userStakeBalanceLedger[delegator] := userStakeBalanceRecord;
 
+                // increment total staked mvk supply
+                s.totalStakedMvkSupply := s.totalStakedMvkSupply + claimAmount;
+
                 // ------------------------------------------------------------------
                 // Check if MVK Tokens should be minted or transferred from Treasury
                 // ------------------------------------------------------------------
@@ -701,6 +711,10 @@ block {
                 verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
 
                 userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
+
+                // increment total staked mvk supply
+                verifyGreaterThanOrEqual(s.totalStakedMvkSupply, unstakeAmount, error_CALCULATION_ERROR);
+                s.totalStakedMvkSupply := abs(s.totalStakedMvkSupply - unstakeAmount);
 
                 const transferOperation : operation = transferFa2Token(
                     Tezos.get_self_address(),   // from_

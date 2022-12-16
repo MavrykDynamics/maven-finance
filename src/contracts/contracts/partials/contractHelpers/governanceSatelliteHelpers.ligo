@@ -221,12 +221,18 @@ block {
     // Get Doorman Contract address from the General Contracts Map on the Governance Contract
     const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
-            Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-    ];
+    // const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+    // const stakedMvkTotalSupply: nat = case getBalanceView of [
+    //         Some (value) -> value
+    //     |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+    // ];
 
+    const getTotalStakedMvkSupplyView : option (nat) = Tezos.call_view ("getTotalStakedMvkSupply", unit, doormanAddress);
+    const stakedMvkTotalSupply: nat = case getTotalStakedMvkSupplyView of [
+            Some (value) -> value
+        |   None         -> (failwith (error_GET_TOTAL_STAKED_MVK_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+    ];
+    
 } with stakedMvkTotalSupply 
 
 

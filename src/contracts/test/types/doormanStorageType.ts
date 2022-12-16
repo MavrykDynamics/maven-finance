@@ -19,8 +19,8 @@ export type doormanStorageType = {
     userStakeBalanceLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 
     unclaimedRewards          : BigNumber;
-
     accumulatedFeesPerShare   : BigNumber;
+    totalStakedMvkSupply      : BigNumber;
 
     lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
     

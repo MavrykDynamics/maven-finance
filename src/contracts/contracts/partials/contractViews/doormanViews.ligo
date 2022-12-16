@@ -52,6 +52,12 @@
 
 
 
+(*  View: totalStakedMvkSupply *)
+[@view] function getTotalStakedMvkSupply(const _ : unit; const s : doormanStorageType) : nat is
+    s.totalStakedMvkSupply
+
+
+
 (* View: stakedBalance *)
 [@view] function getStakedBalance(const userAddress : address; const s : doormanStorageType) : nat is
     case s.userStakeBalanceLedger[userAddress] of [

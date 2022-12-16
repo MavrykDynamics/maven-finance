@@ -307,11 +307,13 @@ block {
 function getStakedMvkTotalSupply(const s : doormanStorageType) : nat is 
 block {
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
-            Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-    ];
+    // const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
+    // const stakedMvkTotalSupply: nat = case getBalanceView of [
+    //         Some (value) -> value
+    //     |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+    // ];
+
+    const stakedMvkTotalSupply : nat = s.totalStakedMvkSupply;
 
 } with stakedMvkTotalSupply 
 
@@ -518,6 +520,9 @@ block{
         userStakeBalanceRecord.totalSatelliteRewardsClaimed  := userStakeBalanceRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
         userStakeBalanceRecord.balance                       := userStakeBalanceRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
         s.unclaimedRewards                                   := abs(s.unclaimedRewards - exitFeeRewards);
+        
+        // increment total staked mvk supply
+        s.totalStakedMvkSupply                               := s.totalStakedMvkSupply + exitFeeRewards + satelliteUnpaidRewards;
 
     }
     else skip;
