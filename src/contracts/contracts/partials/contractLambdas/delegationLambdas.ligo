@@ -148,17 +148,8 @@ block {
                 // Verify that the sender is admin or the Governance Satellite Contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Create transfer operations
-                function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
-                    block{
-                        const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                        ];
-                    } with (transferTokenOperation # operationList);
-                
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
         |   _ -> skip
@@ -190,23 +181,8 @@ block {
     case delegationLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
                 
-                if s.breakGlassConfig.delegateToSatelliteIsPaused then skip
-                else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then skip
-                else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.registerAsSatelliteIsPaused then skip
-                else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then skip
-                else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.updateSatelliteRecordIsPaused then skip
-                else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
-
-                if s.breakGlassConfig.distributeRewardIsPaused then skip
-                else s.breakGlassConfig.distributeRewardIsPaused := True;
+                // set all pause configs to True
+                s := pauseAllDelegationEntrypoints(s);
 
             }
         |   _ -> skip
@@ -231,23 +207,8 @@ block {
     case delegationLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
             
-                if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
-                else skip;
+                // set all pause configs to False
+                s := unpauseAllDelegationEntrypoints(s);
             
             }
         |   _ -> skip
@@ -369,11 +330,11 @@ block {
 
                     // Create operation to delegate to new satellite
                     const delegateToSatelliteOperation : operation = delegateToSatelliteOperation(delegateToSatelliteParams);
-                    operations  := delegateToSatelliteOperation # operations;
+                    operations := delegateToSatelliteOperation # operations;
 
                     // Create operation to undelegate from previous satellite
                     const undelegateFromSatelliteOperation : operation = undelegateFromSatelliteOperation(userAddress);
-                    operations  := undelegateFromSatelliteOperation # operations;
+                    operations := undelegateFromSatelliteOperation # operations;
 
                 } else block {
 
@@ -391,7 +352,7 @@ block {
                     s.delegateLedger[userAddress] := createDelegateRecord(satelliteAddress, stakedMvkBalance);
 
                     // Get satellite's rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
                     // Update or create new rewards record for user (delegate)
                     var delegateRewardsRecord : satelliteRewardsType := getOrCreateDelegateRewardsRecord(
@@ -400,10 +361,7 @@ block {
                         satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare,         // satellites's accumulate rewards per share
                         s                                                                   // storage
                     );
-
-                    delegateRewardsRecord.participationRewardsPerShare   := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                    delegateRewardsRecord.satelliteReferenceAddress      := satelliteAddress;
-                    s.satelliteRewardsLedger[userAddress]                := delegateRewardsRecord;
+                    s.satelliteRewardsLedger[userAddress] := delegateRewardsRecord;
 
                     // Update satellite's total delegated amount (increment by user's staked MVK balance)
                     satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
@@ -464,14 +422,14 @@ block {
                 const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
                 // Get satellite record
-                var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
+                var satelliteRecord : satelliteRecordType := getOrDefaultSatelliteRecord(satelliteAddress, s);
 
                 // Check if satellite exists and is not inactive (if satellite does not exist, it will return "INACTIVE" from the empty satellite record above)
                 // - if satellite is suspended or banned, users should be able to undelegate from satellite 
                 if satelliteRecord.status =/= "INACTIVE" then block {
                 
                     // Verify that user's staked MVK balance does not exceed satellite's total delegated amount
-                    verifyLessThan(stakedMvkBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
+                    verifyLessThanOrEqual(stakedMvkBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
                     
                     // Update satellite total delegated amount (decrement by user's staked MVK balance)
                     satelliteRecord.totalDelegatedAmount := abs(satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
@@ -707,7 +665,7 @@ block {
                     var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
                     // Get satellite rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
                     // Calculate satellite fee portion of reward
                     const satelliteFee : nat         = satelliteRecord.satelliteFee * rewardPerSatellite / 10000n;
@@ -798,11 +756,11 @@ block {
                 if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
 
                     // Get user's satellite rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
                     // Get satellite's rewards record (that user is delegated to)
                     const satelliteReferenceAddress : address = satelliteRewardsRecord.satelliteReferenceAddress;
-                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND, s);
+                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
 
                     // Update user's satellite rewards record - empty pending rewards
                     // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare

@@ -74,7 +74,7 @@ block {
                     newName             = updatedName;
                 ];
 
-                operations  :=  Tezos.transaction(
+                operations :=  Tezos.transaction(
                     setAggregatorReferenceParams,
                     0tez,
                     getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
@@ -207,18 +207,8 @@ block {
                 // Check if the sender is the governanceSatellite contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
-                  block{
-                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
-                    const transferTokenOperation : operation = case transferParam.token of [
-                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                    ];
-                  } with(transferTokenOperation # operationList);
-                
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
         | _ -> skip
@@ -332,14 +322,7 @@ block {
         |   LambdaPauseAll(_parameters) -> {
                 
                 // set all pause configs to True
-                if s.breakGlassConfig.updateDataIsPaused then skip
-                else s.breakGlassConfig.updateDataIsPaused := True;
-
-                if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
-                else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
-
-                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then skip
-                else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
+                s := pauseAllAggregatorEntrypoints(s);
 
             }
         |   _ -> skip
@@ -360,14 +343,7 @@ block {
         |   LambdaUnpauseAll(_parameters) -> {
                 
                 // set all pause configs to False
-                if s.breakGlassConfig.updateDataIsPaused then s.breakGlassConfig.updateDataIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
-                else skip;
+                s := unpauseAllAggregatorEntrypoints(s);
 
             }
         |   _ -> skip

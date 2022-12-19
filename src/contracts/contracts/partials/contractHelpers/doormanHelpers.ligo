@@ -43,9 +43,9 @@ block {
 // helper function to verify min MVK amount reached
 function verifyMinMvkAmountReached(const stakeAmount : nat; const s : doormanStorageType) : unit is 
 block {
-
-    if stakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
-    else skip;
+    
+    // verify first value (stakeAmount) is greater than second value (minMvkAmount)
+    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvkAmount, error_MVK_ACCESS_AMOUNT_NOT_REACHED);
 
 } with unit 
 
@@ -55,8 +55,8 @@ block {
 function verifySufficientWithdrawalBalance(const unstakeAmount : nat; const userStakeBalanceRecord : userStakeBalanceRecordType) : unit is
 block {
 
-    if unstakeAmount > userStakeBalanceRecord.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
-    else skip;
+    // verify first value (unstakeAmount) is less than second value (user balance)
+    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_NOT_ENOUGH_SMVK_BALANCE);
 
 } with unit
 
@@ -66,8 +66,8 @@ block {
 function verifyUnstakeAmountLessThanStakedTotalSupply(const unstakeAmount : nat; const stakedMvkTotalSupply : nat) : unit is 
 block {
 
-    if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
-    else skip;
+    // verify first value (unstakeAmount) is less than second value (staked MVK total supply)
+    verifyLessThanOrEqual(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_ERROR);
 
 } with unit
 
@@ -96,7 +96,6 @@ function verifyFarmExists(const farmAddress : address; const s : doormanStorageT
 block {
 
     const checkFarmExists : bool = checkFarmExists(farmAddress, s);
-
     if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
 } with unit
@@ -105,6 +104,54 @@ block {
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllDoormanEntrypoints(var s : doormanStorageType) : doormanStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.stakeIsPaused then skip
+    else s.breakGlassConfig.stakeIsPaused := True;
+
+    if s.breakGlassConfig.unstakeIsPaused then skip
+    else s.breakGlassConfig.unstakeIsPaused := True;
+
+    if s.breakGlassConfig.compoundIsPaused then skip
+    else s.breakGlassConfig.compoundIsPaused := True;
+
+    if s.breakGlassConfig.farmClaimIsPaused then skip
+    else s.breakGlassConfig.farmClaimIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllDoormanEntrypoints(var s : doormanStorageType) : doormanStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+    else skip;
+    
+    if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
+    else skip;
+    
+    if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------------
@@ -129,28 +176,6 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
         tokenAddress) : option(contract(fa2TransferType))) of [
                 Some(contr) -> contr
             |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
-        ];
-
-
-
-// helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
-        ];
-
-
-
-// helper function to send mint MVK and transfer operation to treasury
-function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
-    case (Tezos.get_entrypoint_opt(
-        "%mintMvkAndTransfer",
-        contractAddress) : option(contract(mintMvkAndTransferType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -407,8 +432,11 @@ block {
 
     // Check if user has any satellite rewards
     const userHasSatelliteRewards : bool = case satelliteRewardsOptView of [
-            Some (_v) -> True
-        |   None      -> False
+            Some (_optionView) -> case _optionView of [
+                    Some(_rewardsRecord)      -> True
+                |   None                      -> False
+            ]
+        |   None      -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
 } with userHasSatelliteRewards
@@ -424,14 +452,24 @@ block {
 
     // Call the %getSatelliteRewardsOpt view on the Delegation Contract
     const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
-      
-    const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOptView of [
-            Some (optionView) -> case optionView of [
-                    Some(_rewardsRecord)      -> _rewardsRecord
-                |   None                      -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
-            ]
+
+    const satelliteRewardsOpt : option(satelliteRewardsType) = case satelliteRewardsOptView of [
+            Some (value) -> value
         |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
+
+    const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOpt of [
+            Some (_record)  -> _record
+        |   None            -> failwith (error_SATELLITE_REWARDS_NOT_FOUND)
+    ];
+        
+    // const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOptView of [
+    //         Some (optionView) -> case optionView of [
+    //                 Some(_rewardsRecord)      -> _rewardsRecord
+    //             |   None                      -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+    //         ]
+    //     |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    // ];
 
 } with userRewardsRecord
 
@@ -467,7 +505,8 @@ block{
             const userRewardsRecord : satelliteRewardsType = getUserRewardsRecord(userAddress, s);
 
             // get satellite reference rewards record
-            const satelliteReferenceRewardsRecord : satelliteRewardsType = getUserRewardsRecord(userRewardsRecord.satelliteReferenceAddress, s);
+            const satelliteReferenceAddress : address = userRewardsRecord.satelliteReferenceAddress;
+            const satelliteReferenceRewardsRecord : satelliteRewardsType = getUserRewardsRecord(satelliteReferenceAddress, s);
 
             // calculate increment rewards based on difference between satellite's accumulated rewards per share and user's participations rewards per share
             const rewardsRatio      : nat = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - userRewardsRecord.participationRewardsPerShare);
@@ -475,7 +514,7 @@ block{
 
             // update user's unpaid rewards
             satelliteUnpaidRewards := userRewardsRecord.unpaid + (incrementRewards / fixedPointAccuracy);
-
+            
         }
         else skip;
 

@@ -29,12 +29,10 @@ block{
 
 // helper function to %breakGlass entrypoint on specified contract
 function triggerBreakGlass(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt(
-        "%breakGlass",
-        contractAddress) : option(contract(unit))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND) : contract(unit))
-        ];
+    case (Tezos.get_entrypoint_opt("%breakGlass", contractAddress) : option(contract(unit))) of [
+            Some(contr) -> contr
+        |   None        -> (failwith(error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND) : contract(unit))
+    ];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -83,10 +81,8 @@ block {
 // helper function to verify there is no active emergency governance ongoing
 function verifyNoActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
-    
-    if s.currentEmergencyGovernanceId = 0n 
-    then skip
-    else failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
+
+    verifyIsZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
 
 } with unit
 
@@ -96,8 +92,7 @@ block {
 function verifyOngoingActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
     
-    if s.currentEmergencyGovernanceId = 0n then failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
-    else skip;
+    verifyIsNotZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS);
 
 } with unit
 
@@ -152,9 +147,7 @@ block {
 function verifySufficientBalanceToTrigger(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
-    then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED) 
-    else skip;
+    verifyGreaterThan(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
 
 } with unit
 
@@ -164,7 +157,7 @@ block {
 function verifySufficientBalanceToVote(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThan(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
 
 } with unit
 
@@ -270,10 +263,10 @@ function transferFeeToTreasuryOperation(const s : emergencyGovernanceStorageType
 block {
 
     // Get Tax Treasury Contract Address from the General Contracts Map on the Governance Contract
-    const treasuryAddress: address = getContractAddressFromGovernanceContract("taxTreasury", s.governanceAddress, error_TAX_TREASURY_CONTRACT_NOT_FOUND);
+    const treasuryAddress : address = getContractAddressFromGovernanceContract("taxTreasury", s.governanceAddress, error_TAX_TREASURY_CONTRACT_NOT_FOUND);
 
     // Transfer fee to Treasury
-    const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
+    const treasuryContract : contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
     const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
 
 } with transferFeeToTreasuryOperation

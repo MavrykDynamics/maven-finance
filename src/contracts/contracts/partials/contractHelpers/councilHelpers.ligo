@@ -71,6 +71,17 @@ function sendToggleVesteeLockParams(const contractAddress : address) : contract(
 
 
 
+// helper function to %dropFinancialRequest entrypoint on the Governance Financial contract
+function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
+    case (Tezos.get_entrypoint_opt(
+        "%dropFinancialRequest",
+        contractAddress) : option(contract(nat))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(nat))
+        ];
+
+
+
 // helper function to %requestTokens entrypoint on the Governance Financial contract
 function sendRequestTokensParams(const contractAddress : address) : contract(councilActionRequestTokensType) is
     case (Tezos.get_entrypoint_opt(
@@ -89,17 +100,6 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
         contractAddress) : option(contract(councilActionRequestMintType))) of [
                 Some(contr) -> contr
             |   None        -> (failwith(error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestMintType))
-        ];
-
-
-
-// helper function to %dropFinancialRequest entrypoint on the Governance Financial contract
-function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
-        "%dropFinancialRequest",
-        contractAddress) : option(contract(nat))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(nat))
         ];
 
 
@@ -852,18 +852,18 @@ block {
     const to_    : address   = receiverAddress;
     const amt    : nat       = tokenAmount;
     
-    // ---- set token type ----
+    // ---- initialise and set token type ----
     var _tokenTransferType : tokenType := Tez;
 
     if tokenType = "TEZ" then block {
+        
         _tokenTransferType      := (Tez: tokenType); 
-    } else skip;
 
-    if tokenType = "FA12" then block {
+    } else if tokenType = "FA12" then block {
+        
         _tokenTransferType      := (Fa12(tokenContractAddress) : tokenType);
-    } else skip;
 
-    if tokenType = "FA2" then block {
+    } else if tokenType = "FA2" then block {
 
         _tokenTransferType     := (Fa2(record [
             tokenContractAddress    = tokenContractAddress;

@@ -133,7 +133,7 @@ block {
 function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceProxyStorageType) : return is 
 block {
     
-    checkSenderIsAdminOrGovernance(s); // governance contract will also be the admin in most cases unless break glass
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
     
     // assign params to constants for better code readability
     const lambdaId      = setProxyLambdaParams.id;
@@ -150,7 +150,7 @@ block {
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceProxyStorageType) : return is 
 block {
     
-    checkSenderIsAdminOrGovernance(s); // governance contract will also be the admin in most cases unless break glass
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
 
     const governanceAction : executeActionType = case (Bytes.unpack(governanceActionBytes) : option(executeActionType)) of [
             Some(_action) -> _action
