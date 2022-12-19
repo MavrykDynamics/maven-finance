@@ -25,27 +25,6 @@ deku:
     databaseUri: sqlite3:/var/deku/database.sqlite
     apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
   nodes:
-    deku-on-baking-full:
-      ingress:
-        annotations:
-          kubernetes.io/ingress.class: nginx
-        host: deku-on-baking-full-node.mavryk.network
-      tezosRpcUrl: https://basenet-baking-full-node.mavryk.network
-      image:
-        registry: docker.io
-        repository: mavrykdynamics/deku
-        tag: 2022-12-03-3156d01
-        pullPolicy: Always
-      nodeSelector:
-        type: mavryk-node
-      tolerations:
-        - key: 'mavryk-node'
-          operator: 'Equal'
-          value: '0'
-          effect: 'NoSchedule'
-      validator: #TRUDY
-        publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
-        secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
     deku-on-baking-archive:
       ingress:
         annotations:
