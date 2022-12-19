@@ -77,7 +77,10 @@ type collateralTokenRecordType is [@layout:comb] record [
 
     oracleAddress           : address;   
     protected               : bool;
+    
     isScaledToken           : bool;
+    isStakedToken           : bool;
+    stakingContractAddress  : option(address);
 
     tokenType               : tokenType; 
 ]
@@ -242,7 +245,10 @@ type createCollateralTokenActionType is [@layout:comb] record [
 
     oracleAddress           : address;   
     protected               : bool;
+    
     isScaledToken           : bool;
+    isStakedToken           : bool;
+    stakingContractAddress  : option(address);
 
     // variants at the end for taquito 
     tokenType               : tokenType; 
