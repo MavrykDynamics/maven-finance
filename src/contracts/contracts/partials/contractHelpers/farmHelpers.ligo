@@ -44,12 +44,6 @@ function verifyFarmIsInitialised(const s : farmStorageType) : unit is
 
 
 
-// Get the Deposit of a user
-function getDepositorDeposit(const depositor : depositorType; const s : farmStorageType) : option(depositorRecordType) is
-    Big_map.find_opt(depositor, s.depositorLedger)
-
-
-
 // Verify that farm is not open
 function verifyFarmIsNotOpen(const s : farmStorageType) : unit is
 block {
@@ -105,6 +99,50 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllFarmEntrypoints(var s : farmStorageType) : farmStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.depositIsPaused then skip
+    else s.breakGlassConfig.depositIsPaused := True;
+
+    if s.breakGlassConfig.withdrawIsPaused then skip
+    else s.breakGlassConfig.withdrawIsPaused := True;
+
+    if s.breakGlassConfig.claimIsPaused then skip
+    else s.breakGlassConfig.claimIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllFarmEntrypoints(var s : farmStorageType) : farmStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -144,11 +182,10 @@ block{
     const doormanContractAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
     
     // Get %farmClaim entrypoint on the Doorman Contract
-    const doormanContract : contract(farmClaimType) =
-        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
-                Some (c) -> c
-            |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
-        ];
+    const doormanContract : contract(farmClaimType) = case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
+            Some (c) -> c
+        |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
+    ];
 
     // Init farmClaim entrypoint parameters 
     const farmClaimParams : farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);
@@ -190,6 +227,7 @@ block {
     ];
 
 } with depositorRecord
+
 
 
 // helper function to init farm
@@ -314,14 +352,14 @@ block{
 // helper function to update farm
 function updateFarm(var s : farmStorageType) : farmStorageType is
 block{
-    s   := case s.config.lpToken.tokenBalance = 0n of [
+    s := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
         |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
                     True -> s
                 |   False -> updateFarmParameters(s)
             ]
     ];
-    s   := updateDurationAndRewards(s);
+    s := updateDurationAndRewards(s);
 } with (s)
 
 
@@ -331,10 +369,7 @@ function updateUnclaimedRewards(const depositor : depositorType; var s : farmSto
 block{
 
     // Check if sender as already a record
-    var depositorRecord : depositorRecordType := case getDepositorDeposit(depositor, s) of [
-            Some (r) -> r
-        |   None -> (failwith(error_DEPOSITOR_NOT_FOUND) : depositorRecordType)
-    ];
+    var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
     // Compute depositor reward
     //  -   calculate user's currentMvkPerShare based on difference between his participationRewardsPerShare and farm's accumulatedRewardsPerShare
@@ -358,7 +393,7 @@ block{
     // Update user's unclaimed rewards and participationRewardsPerShare
     depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
     depositorRecord.participationRewardsPerShare := accumulatedRewardsPerShareEnd;
-    s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
+    s.depositorLedger[depositor] := depositorRecord;
 
 } with(s)
 

@@ -147,20 +147,11 @@ block {
                 // Get MVK Token address
                 const mvkTokenAddress : address  = s.mvkTokenAddress;
 
-                // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
-                    block{
-                        
-                        // Check that token is not MVK (it would break staked MVK in the Doorman Contract) before creating the transfer operation
-                        const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> if token.tokenContractAddress = mvkTokenAddress then failwith(error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                        ];
+                // verify token is allowed to be transferred
+                verifyTokenAllowedForOperationFold(mvkTokenAddress, destinationParams, error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER);
 
-                    } with(transferTokenOperation # operationList);
-                
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
         |   _ -> skip
@@ -223,27 +214,7 @@ block {
         |   LambdaPauseAll(_parameters) -> {
               
                 // set all pause configs to True
-                if s.breakGlassConfig.stakeIsPaused then skip
-                else s.breakGlassConfig.stakeIsPaused := True;
-
-                if s.breakGlassConfig.unstakeIsPaused then skip
-                else s.breakGlassConfig.unstakeIsPaused := True;
-
-                if s.breakGlassConfig.compoundIsPaused then skip
-                else s.breakGlassConfig.compoundIsPaused := True;
-
-                if s.breakGlassConfig.farmClaimIsPaused then skip
-                else s.breakGlassConfig.farmClaimIsPaused := True;
-
-                // vault entrypoints
-                if s.breakGlassConfig.onVaultDepositStakedMvkIsPaused then skip
-                else s.breakGlassConfig.onVaultDepositStakedMvkIsPaused := True;
-
-                if s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused then skip
-                else s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused := True;
-
-                if s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused then skip
-                else s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused := True;
+                s := pauseAllDoormanEntrypoints(s);
               
             }
         |   _ -> skip
@@ -264,27 +235,7 @@ block {
         |   LambdaUnpauseAll(_parameters) -> {
                 
                 // set all pause configs to False
-                if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
-                else skip;
-                
-                if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
-                else skip;
-                
-                if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
-                else skip;
-
-                // vault entrypoints
-                if s.breakGlassConfig.onVaultDepositStakedMvkIsPaused then s.breakGlassConfig.onVaultDepositStakedMvkIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused then s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused then s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused := False
-                else skip;
+                s := unpauseAllDoormanEntrypoints(s);
               
             }
         |   _ -> skip

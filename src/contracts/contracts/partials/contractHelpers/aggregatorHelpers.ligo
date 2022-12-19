@@ -103,8 +103,7 @@ block {
 function verifyEpochIsEqualOrGreaterThanPreviousEpoch(const currentEpoch : nat; const s : aggregatorStorageType) : unit is
 block {
     
-    if (currentEpoch < s.lastCompletedData.epoch) 
-    then failwith(error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
+    verifyGreaterThan(currentEpoch, s.lastCompletedData.epoch, error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
 
 } with unit
 
@@ -136,6 +135,50 @@ block {
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to pause all entrypoints
+function pauseAllAggregatorEntrypoints(var s : aggregatorStorageType) : aggregatorStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.updateDataIsPaused then skip
+    else s.breakGlassConfig.updateDataIsPaused := True;
+
+    if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
+    else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
+
+    if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then skip
+    else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
+
+} with s
+
+
+
+// helper function to unpause all entrypoints
+function unpauseAllAggregatorEntrypoints(var s : aggregatorStorageType) : aggregatorStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.updateDataIsPaused then s.breakGlassConfig.updateDataIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -174,7 +217,6 @@ function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contract
                 Some(contr) -> contr
             |   None        -> (failwith(error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(setAggregatorReferenceType))
         ];  
-
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End

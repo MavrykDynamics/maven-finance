@@ -230,11 +230,11 @@
 // //                 doormanStorage = await doormanInstance.storage();
 // //                 mvkTokenStorage = await mvkTokenInstance.storage();
 
-// //                 // Test values
-// //                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
-// //                 const exitFee = Math.trunc((500 * 10**36 * 10**36) / (mli + 5*10**36));
-// //                 const paidFee = Math.trunc(userUnstake * (exitFee/100));
-// //                 const expectedFinalAmount = userUnstake - (paidFee/10**36);
+//                 // Test values
+//                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
+//                 const exitFee = (((300_000 * 10**36) - (5_250 * mli)) * 10**36 + 25*mli*mli) / (10_000 * 10**36)
+//                 const paidFee = Math.trunc(userUnstake * (exitFee/100));
+//                 const expectedFinalAmount = userUnstake - (paidFee/10**36);
 
 // //                 // Final Values
 // //                 const userMVKBalanceEnd = (await mvkTokenStorage.ledger.get(bob.pkh)).toNumber();
@@ -344,13 +344,13 @@
 // //                 console.log("SECOND USER REWARD: ", secondUserReward)
 // //                 console.log("COMBINED REWARDS: ", combinedRewards)
 
-// //                 // Assertions
-// //                 assert.equal(combinedRewards, exitFee)
-// //             } catch(e) {
-// //                 console.dir(e, {depth: 5})
-// //             }
-// //         })
-// //     })
+//                 // Assertions
+//                 assert.equal(almostEqual(combinedRewards, exitFee, 0.001), true)
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+//     })
 
 // //     describe("%compound", async () => {
 // //         it("user should not be able to earn rewards without having staked MVK before", async() => {

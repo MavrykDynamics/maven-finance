@@ -206,18 +206,11 @@ block {
                 // Get LP Token address
                 const lpTokenAddress : address  = s.config.lpToken.tokenAddress;
 
-                // Create transfer operations
-                function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
-                  block{
-                    // Check that token is not Farm's LP Token before creating the transfer operation
-                    const transferTokenOperation : operation = case transferParam.token of [
-                        |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                        |   Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                        |   Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                    ];
-                  } with (transferTokenOperation # operationList);
-                
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                // verify token is allowed to be transferred
+                verifyTokenAllowedForOperationFold(lpTokenAddress, destinationParams, error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER);
+
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
         |   _ -> skip
@@ -320,14 +313,7 @@ block {
         |   LambdaPauseAll(_parameters) -> {
                 
                 // set all pause configs to True
-                if s.breakGlassConfig.depositIsPaused then skip
-                else s.breakGlassConfig.depositIsPaused := True;
-
-                if s.breakGlassConfig.withdrawIsPaused then skip
-                else s.breakGlassConfig.withdrawIsPaused := True;
-
-                if s.breakGlassConfig.claimIsPaused then skip
-                else s.breakGlassConfig.claimIsPaused := True;
+                s := pauseAllFarmEntrypoints(s);
 
             }
         |   _ -> skip
@@ -352,14 +338,7 @@ block {
         |   LambdaUnpauseAll(_parameters) -> {
                 
                 // set all pause configs to False
-                if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
-                else skip;
+                s := unpauseAllFarmEntrypoints(s);
 
             }
         |   _ -> skip
@@ -579,7 +558,7 @@ block{
     case farmLambdaAction of [
         |   LambdaClaim(depositor) -> {
                 
-                // Update pool farmStorageType
+                // Update farm
                 s := updateFarm(s);
 
                 // Update user's unclaimed rewards

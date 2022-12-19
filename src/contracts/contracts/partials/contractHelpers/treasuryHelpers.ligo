@@ -12,11 +12,7 @@
 function verifySenderIsAdminOrGovernanceFinancial(const s : treasuryStorageType) : unit is
 block{
 
-    const governanceFinancialAddress : address = case s.whitelistContracts["governanceFinancial"] of [
-            Some (_address) -> _address
-        |   None            -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED) : address)
-    ];
-    
+    const governanceFinancialAddress : address = getLocalWhitelistContract("governanceFinancial", s.whitelistContracts, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; governanceFinancialAddress], error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_FINANCIAL_ALLOWED)
 
 } with(unit)
@@ -26,12 +22,8 @@ block{
 // Allowed Senders : Admin, Governance Contract, Treasury Factory Contract
 function verifySenderIsAdminOrGovernanceOrFactory(const s : treasuryStorageType) : unit is
 block {
-    
-    const treasuryFactoryAddress : address = case s.whitelistContracts["treasuryFactory"] of [
-            Some (_address) -> _address
-        |   None            -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : address)
-    ];
 
+    const treasuryFactoryAddress : address = getLocalWhitelistContract("treasuryFactory", s.whitelistContracts, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; s.governanceAddress; treasuryFactoryAddress], error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED)
 
 } with(unit)
@@ -54,41 +46,58 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Entrypoint Helper Functions Begin
+// Pause / BreakGlass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get mint entrypoint from specified token contract address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
-    case (Tezos.get_entrypoint_opt(
-        "%mint",
-        token_address) : option(contract(mintType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
-        ];
+// helper function to pause all entrypoints
+function pauseAllTreasuryEntrypoints(var s : treasuryStorageType) : treasuryStorageType is 
+block {
+
+    // set all pause configs to True
+    if s.breakGlassConfig.transferIsPaused then skip
+    else s.breakGlassConfig.transferIsPaused := True;
+
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
+    else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+
+    if s.breakGlassConfig.stakeMvkIsPaused then skip
+    else s.breakGlassConfig.stakeMvkIsPaused := True;
+
+    if s.breakGlassConfig.unstakeMvkIsPaused then skip
+    else s.breakGlassConfig.unstakeMvkIsPaused := True;
+
+} with s
 
 
 
-// helper function to %stake entrypoint on the Doorman contract
-function getStakeEntrypointOnDoorman(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
-        "%stake",
-        contractAddress) : option(contract(nat))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
-        ];
+// helper function to unpause all entrypoints
+function unpauseAllTreasuryEntrypoints(var s : treasuryStorageType) : treasuryStorageType is 
+block {
+
+    // set all pause configs to False
+    if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.stakeMvkIsPaused then s.breakGlassConfig.stakeMvkIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.unstakeMvkIsPaused then s.breakGlassConfig.unstakeMvkIsPaused := False
+    else skip;
+
+} with s
+
+// ------------------------------------------------------------------------------
+// Pause / BreakGlass Helper Functions End
+// ------------------------------------------------------------------------------
 
 
 
-// helper function to %unstake entrypoint on the Doorman contract
-function getUnstakeEntrypointOnDoorman(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
-        "%unstake",
-        contractAddress) : option(contract(nat))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
-        ];
-
-
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
 
 // helper function to %update_operators entrypoint on the MVK token contract
 function getUpdateMvkOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
@@ -120,7 +129,7 @@ block {
     const stakeMvkOperation : operation = Tezos.transaction(
         (stakeAmount),
         0tez, 
-        getStakeEntrypointOnDoorman(doormanAddress)
+        getEntrypointNatType("%stake", doormanAddress, error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND)
     );
 
 } with stakeMvkOperation
@@ -138,7 +147,7 @@ block {
     const unstakeMvkOperation : operation = Tezos.transaction(
         (unstakeAmount),
         0tez, 
-        getUnstakeEntrypointOnDoorman(doormanAddress)
+        getEntrypointNatType("%unstake", doormanAddress, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND)
     );
 
 } with unstakeMvkOperation
