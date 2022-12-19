@@ -493,7 +493,7 @@ block {
                 );
                 
                 // update controller storage with new vault
-                s.vaults := Big_map.update(handle, Some(vault), s.vaults);
+                s.vaults[handle] := vault;
 
                 // add new vault to owner's vault set
                 var ownerVaultSet : ownerVaultSetType := getOrCreateOwnerVaultSet(vaultOwner, s);
@@ -722,7 +722,11 @@ block {
                             
                             // get user staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
                             // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-                            finalTokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
+                            const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
+                                    Some(_address) -> _address
+                                |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+                            ];
+                            finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
                             const withdrawAllStakedMvkOperation : operation = onWithdrawStakedMvkFromVaultOperation(
@@ -1376,7 +1380,7 @@ block {
                 const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * s.config.minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate share of fees that goes to Rewards - verify that minimumLoanFeeToTreasury is less than minimumLoanFee
-                verifyLessThan(minimumLoanFeeToTreasury, minimumLoanFee, error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE);
+                verifyLessThanOrEqual(minimumLoanFeeToTreasury, minimumLoanFee, error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE);
                 const minimumLoanFeeReward : nat = abs(minimumLoanFee - minimumLoanFeeToTreasury);
 
                 // ------------------------------------------------------------------
@@ -1388,7 +1392,7 @@ block {
                 var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
 
                 // Reduce finalLoanAmount by minimum loan fee - verify that minimumLoanFee is less than finalLoanAmount
-                verifyLessThan(minimumLoanFee, finalLoanAmount, error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT);
+                verifyLessThanOrEqual(minimumLoanFee, finalLoanAmount, error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT);
                 finalLoanAmount := abs(finalLoanAmount - minimumLoanFee);
 
                 // Calculate new loan outstanding
@@ -1775,7 +1779,8 @@ block {
                 
                 // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
                 // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-                const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
+                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+                const currentVaultStakedMvkBalance : nat = getBalanceFromStakingContract(vault.address, doormanAddress);
 
                 // Calculate new collateral balance
                 const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
@@ -1843,7 +1848,8 @@ block {
                 
                 // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
                 // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-                const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
+                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+                const currentVaultStakedMvkBalance : nat = getBalanceFromStakingContract(vault.address, doormanAddress);
 
                 // Calculate new collateral balance - verify that withdrawAmount is less than currentVaultStakedMvkBalance
                 verifyLessThan(withdrawAmount, currentVaultStakedMvkBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);

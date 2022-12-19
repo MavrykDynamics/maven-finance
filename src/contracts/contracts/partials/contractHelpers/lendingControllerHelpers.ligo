@@ -151,36 +151,18 @@ function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : 
 // Contract Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get user staked mvk balance from Doorman contract
-function getUserStakedMvkBalanceFromDoorman(const userAddress : address; const s : lendingControllerStorageType) : nat is 
+// helper function to get user staked mvk balance from staking contract (e.g. Doorman)
+function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address) : nat is 
 block {
 
-    // Get Doorman Address from the General Contracts map on the Governance Contract
-    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
     // get staked MVK balance of user from Doorman contract
-    const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+    const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, contractAddress);
     const userStakedMvkBalance : nat = case getStakedBalanceView of [
             Some (_value) -> _value
-        |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
+        |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND)
     ];
 
 } with userStakedMvkBalance
-
-
-
-// helper function to get user staked mvk balance from staking contract (e.g. Doorman)
-// function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address; const s : lendingControllerStorageType) : nat is 
-// block {
-
-//     // get staked MVK balance of user from Doorman contract
-//     const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, contractAddress);
-//     const userStakedMvkBalance : nat = case getStakedBalanceView of [
-//             Some (_value) -> _value
-//         |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND)
-//     ];
-
-// } with userStakedMvkBalance
 
 
 
@@ -320,19 +302,22 @@ block {
     const isScaledToken         : bool         = createCollateralTokenParams.isScaledToken;
 
     // To extend functionality beyond sMVK to other staked tokens in future
-    // const isStakedToken         : bool         = createCollateralTokenParams.isStakedToken;
-    // const stakingContractAddress   : option(address)         = createCollateralTokenParams.stakingContractAddress;
+    const isStakedToken             : bool              = createCollateralTokenParams.isStakedToken;
+    const stakingContractAddress    : option(address)   = createCollateralTokenParams.stakingContractAddress;
     
     const newCollateralTokenRecord : collateralTokenRecordType = record [
-        tokenName            = tokenName;
-        tokenContractAddress = tokenContractAddress;
-        tokenDecimals        = tokenDecimals;
+        tokenName               = tokenName;
+        tokenContractAddress    = tokenContractAddress;
+        tokenDecimals           = tokenDecimals;
 
-        oracleAddress        = oracleAddress;
-        protected            = protected;
-        isScaledToken        = isScaledToken;
+        oracleAddress           = oracleAddress;
+        protected               = protected;
+        
+        isScaledToken           = isScaledToken;
+        isStakedToken           = isStakedToken;
+        stakingContractAddress  = stakingContractAddress;
 
-        tokenType            = tokenType;
+        tokenType               = tokenType;
     ];
 
 } with newCollateralTokenRecord
@@ -923,10 +908,14 @@ block {
         // get collateral token reference using on-chain views
         const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
 
-        // check if collateral token is sMVK or a scaled token (e.g. mToken) - get balance from doorman contract and token contract address respectively
-        if collateralTokenName = "smvk" then {
+        // check if collateral token is a staked token (e.g. sMVK) or a scaled token (e.g. mToken) - get balance from doorman contract and token contract address respectively
+        if collateralTokenRecord.isStakedToken then {
 
-            finalTokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
+            const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
+                    Some(_address) -> _address
+                |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+            ];
+            finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
         } else if collateralTokenRecord.isScaledToken then {
 
@@ -1340,11 +1329,17 @@ block {
 
     // if token is sMVK, get latest balance from Doorman Contract through on-chain views
     // - may differ from token balance if rewards have been claimed 
-    // - requires a call to %compound on doorman contract to compound rewards for the vault and get the latest balance
-    var   collateralTokenBalance    : nat := 
-        // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
+    // - requires a call to %compound on staking contract (i.e. doorman contract) to compound rewards for the vault and get the latest balance
+    var collateralTokenBalance : nat := 
+        // get vault staked balance from staking contract i.e. doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
         // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-        if collateralTokenName = "smvk" then getUserStakedMvkBalanceFromDoorman(vaultAddress, s)
+        if collateralTokenRecord.isStakedToken then {
+            const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
+                    Some(_address) -> _address
+                |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+            ];
+            const stakedBalance : nat = getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
+        } with stakedBalance
         // get updated scaled token balance (e.g. mToken)
         else if collateralTokenRecord.isScaledToken then getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress)
         else collateralTokenBalance;

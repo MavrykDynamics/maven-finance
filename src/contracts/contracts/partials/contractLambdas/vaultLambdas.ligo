@@ -200,7 +200,7 @@ block {
         |   LambdaWithdraw(withdrawParams) -> {
 
                 // verify that %withdraw is not paused on Lending Controller
-                verifyEntrypointIsNotPaused(s);
+                verifyVaultWithdrawIsNotPaused(s);
 
                 // verify sender is vault owner
                 verifySenderIsVaultOwner(s);
