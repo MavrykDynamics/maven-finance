@@ -65,7 +65,7 @@ describe('Satellite setup', async () => {
             // For Oracle/Aggregator test net deployment if needed
             //----------------------------
 
-            if (utils.network != "development") {
+            if (utils.network != "development" && utils.production !== "true") {
                 console.log("Setup Satellite")
 
                 for (const oracle of oracles) {
