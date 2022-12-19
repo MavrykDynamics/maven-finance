@@ -59,28 +59,6 @@ function getRemoveOracleInAggregatorEntrypoint(const contractAddress : address) 
 
 
 
-// helper function to get pauseAll entrypoint in aggregator contract
-function getPauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt(
-        "%pauseAll",
-        contractAddress) : option(contract(unit))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_PAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
-        ];
-
-
-
-// helper function to get unpauseAll entrypoint in aggregator contract
-function getUnpauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt(
-        "%unpauseAll",
-        contractAddress) : option(contract(unit))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
-        ];
-
-
-
 // helper function to get updateSatelliteStatus entrypoint in delegation contract
 function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : address) : contract(updateSatelliteStatusParamsType) is
     case (Tezos.get_entrypoint_opt(
@@ -89,7 +67,6 @@ function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : 
                 Some(contr) -> contr
             |   None        -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
         ];
-
 
 
 
@@ -112,6 +89,29 @@ function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddres
                 Some(contr) -> contr
             |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
         ];
+
+
+
+// helper function to get pauseAll entrypoint in aggregator contract
+function getPauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
+    case (Tezos.get_entrypoint_opt(
+        "%pauseAll",
+        contractAddress) : option(contract(unit))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_PAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
+        ];
+
+
+
+// helper function to get unpauseAll entrypoint in aggregator contract
+function getUnpauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
+    case (Tezos.get_entrypoint_opt(
+        "%unpauseAll",
+        contractAddress) : option(contract(unit))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
+        ];
+
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -864,28 +864,28 @@ block {
     if actionRecord.governanceType = "ADD_ORACLE_TO_AGGREGATOR" then block {
         const addOracleToAggregatorActionTrigger : return                               = triggerAddOracleToAggregatorSatelliteAction(actionRecord, operations, s);
         s           := addOracleToAggregatorActionTrigger.1;
-        operations  := addOracleToAggregatorActionTrigger.0;
+        operations := addOracleToAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove Oracle In Aggregator
     if actionRecord.governanceType = "REMOVE_ORACLE_IN_AGGREGATOR" then block {
         const removeOracleInAggregatorActionTrigger : return                            = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, operations, s);
         s           := removeOracleInAggregatorActionTrigger.1;
-        operations  := removeOracleInAggregatorActionTrigger.0;
+        operations := removeOracleInAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove All Satellite Oracles (in aggregators)
     if actionRecord.governanceType = "REMOVE_ALL_SATELLITE_ORACLES" then block {
         const removeAllSatelliteOraclesActionTrigger : return                           = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, operations, s);
         s           := removeAllSatelliteOraclesActionTrigger.1;
-        operations  := removeAllSatelliteOraclesActionTrigger.0;
+        operations := removeAllSatelliteOraclesActionTrigger.0;
     } else skip;
 
     // Governance: Update Aggregator Status
     if actionRecord.governanceType = "TOGGLE_PAUSE_AGGREGATOR" then block {
         const togglePauseAggregatorActionTrigger : return                               = triggerTogglePauseAggregatorSatelliteAction(actionRecord, operations, s);
         s           := togglePauseAggregatorActionTrigger.1;
-        operations  := togglePauseAggregatorActionTrigger.0;
+        operations := togglePauseAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Mistaken Transfer Fix

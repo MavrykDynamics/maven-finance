@@ -53,18 +53,34 @@ block {
 
 (* Get an address from the governance contract general contracts map *)
 function getContractAddressFromGovernanceContract(const contractName : string; const governanceAddress : address; const errorCode : nat) : address is 
-case (Tezos.call_view ("getGeneralContractOpt", contractName, governanceAddress) : option (option(address))) of [
-        Some (_optionContract) -> case _optionContract of [
-                Some (_contract)    -> _contract
-            |   None                -> failwith (errorCode)
-        ]
-    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-];
+block {
+ 
+    const contractAddress : address = case Tezos.call_view("getGeneralContractOpt", contractName, governanceAddress) of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (errorCode)
+            ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+} with contractAddress
 
 
 // ------------------------------------------------------------------------------
 // Whitelist Contract Helpers
 // ------------------------------------------------------------------------------
+
+
+function getLocalWhitelistContract(const contractName : string; const whitelistContractsMap : whitelistContractsType; const errorCode : nat) : address is
+block {
+
+    const whitelistContract : address = case whitelistContractsMap[contractName] of [
+            Some(_contr) -> _contr
+        |   None -> failwith(errorCode)
+    ];
+
+} with whitelistContract
+
 
 
 function checkInWhitelistContracts(const contractAddress : address; var whitelistContracts : whitelistContractsType) : bool is 
@@ -158,8 +174,17 @@ block {
 function verifyLessThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
 block {
 
-    if firstValue > secondValue then failwith(errorCode)
-    else skip;
+    if firstValue < secondValue then skip else failwith(errorCode);
+
+} with unit
+
+
+
+// verify first value is less than second value
+function verifyLessThanOrEqual(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue <= secondValue then skip else failwith(errorCode);
 
 } with unit
 
@@ -169,15 +194,35 @@ block {
 function verifyGreaterThan(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
 block {
 
-    if firstValue < secondValue then failwith(errorCode)
-    else skip;
+    // if firstValue < secondValue then failwith(errorCode) else skip;
+    if firstValue > secondValue then skip else failwith(errorCode);
+
+} with unit
+
+
+
+// verify first value is greater than or equal to second value
+function verifyGreaterThanOrEqual(const firstValue : nat; const secondValue : nat; const errorCode : nat) : unit is
+block {
+
+    if firstValue >= secondValue then skip else failwith(errorCode);
+
+} with unit
+
+
+
+// verify input is 0
+function verifyIsZero(const input : nat; const errorCode : nat) : unit is 
+block {
+
+    if input = 0n then skip else failwith(errorCode);
 
 } with unit
 
 
 
 // verify input is not 0
-function verifyNotZero(const input : nat; const errorCode : nat) : unit is 
+function verifyIsNotZero(const input : nat; const errorCode : nat) : unit is 
 block {
 
     if input = 0n then failwith(errorCode) else skip;
@@ -188,9 +233,12 @@ block {
 
 // verify that no Tezos is sent to the entrypoint
 function verifyNoAmountSent(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+block {
+    
+    if (Tezos.get_amount() = 0tez) then skip else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
+} with unit 
+    
 
 // ------------------------------------------------------------------------------
 // Access Control Helpers
@@ -253,6 +301,7 @@ block {
 } with unit
 
 
+
 // ------------------------------------------------------------------------------
 // Break Glass / Pause Helpers
 // ------------------------------------------------------------------------------
@@ -275,6 +324,81 @@ block {
     if entrypoint = True then skip else failwith(errorCode);
 
 } with unit
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helpers
+// ------------------------------------------------------------------------------
+
+
+// helper function to get an entrypoint with nat type on specified contract
+function getEntrypointNatType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(nat) is
+block {
+
+    const contractEntrypoint : contract(nat) = case Tezos.get_entrypoint_opt(entrypointName, contractAddress) of [
+            Some(contr) -> contr
+        |   None        -> (failwith(errorCode) : contract(nat))
+    ];
+
+} with contractEntrypoint
+
+
+
+// helper function to get an entrypoint with address type on specified contract
+function getEntrypointAddressType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(address) is
+block {
+
+    const contractEntrypoint : contract(address) = case (Tezos.get_entrypoint_opt(entrypointName, contractAddress)) of [
+            Some(contr) -> contr
+        |   None        -> (failwith(errorCode) : contract(address))
+    ];
+
+} with contractEntrypoint
+
+
+// function getEntrypointAddressType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(address) is
+//     case (Tezos.get_entrypoint_opt(
+//         "%" ^ entrypointName, 
+//         contractAddress) : option(contract(address))) of [
+//             Some(contr) -> contr
+//         |   None        -> (failwith(errorCode) : contract(address))
+//     ];
+
+
+// helper function to %addVestee entrypoint to add a new vestee on the Vesting contract
+// function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
+// block {
+
+//     case (Tezos.get_entrypoint_opt("%addVestee",contractAddress) : option(contract(addVesteeType))) of [
+//             Some(contr) -> contr
+//         |   None        -> (failwith(error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(addVesteeType))
+//     ];
+// }   
+
+// helper function to get an entrypoint with unit type on specified contract
+function getEntrypointUnitType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(unit) is
+block {
+
+    const contractEntrypoint : contract(unit) = case Tezos.get_entrypoint_opt(entrypointName, contractAddress) of [
+            Some(contr) -> contr
+        |   None        -> (failwith(errorCode) : contract(unit))
+    ];
+
+} with contractEntrypoint
+
+
+
+// helper function to get an entrypoint with bytes type on specified contract
+function getEntrypointBytesType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(bytes) is
+block {
+
+    const contractEntrypoint : contract(bytes) = case Tezos.get_entrypoint_opt(entrypointName,contractAddress) of [
+            Some(contr) -> contr
+        |   None        -> (failwith(errorCode) : contract(bytes))
+    ];
+
+} with contractEntrypoint
+    
 
 
 // ------------------------------------------------------------------------------

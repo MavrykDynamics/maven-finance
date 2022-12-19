@@ -115,17 +115,8 @@ block {
                 // Verify that the sender is admin or the Governance Satellite Contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
-                  block{
-                    const transferTokenOperation : operation = case transferParam.token of [
-                        |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                        |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                        |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                    ];
-                  } with(transferTokenOperation # operationList);
-                
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
         |   _ -> skip
@@ -167,10 +158,10 @@ block {
                 const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
 
                 // Verify that vestingInMonths is not zero (div by 0 error)
-                verifyNotZero(vestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
+                verifyIsNotZero(vestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
                 // Verify that cliffInMonths cannot be greater than vestingInMonths (duration error)
-                verifyLessThan(cliffInMonths, vestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
+                verifyLessThanOrEqual(cliffInMonths, vestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
 
                 var newVestee : vesteeRecordType := createVesteeRecord(
                     vesteeAddress,
@@ -241,10 +232,10 @@ block {
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
                 // Verify that new vestingInMonths is not zero (div by 0 error)
-                verifyNotZero(newVestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
+                verifyIsNotZero(newVestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
                 // Verify that new cliffInMonths cannot be greater than new vestingInMonths (duration error)
-                verifyLessThan(newCliffInMonths, newVestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
+                verifyLessThanOrEqual(newCliffInMonths, newVestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
 
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);
@@ -360,7 +351,7 @@ block {
                 else skip;
 
                 // Verify that vestee's total remainder is greater than zero
-                verifyNotZero(_vestee.totalRemainder, error_NO_VESTING_REWARDS_TO_CLAIM);
+                verifyIsNotZero(_vestee.totalRemainder, error_NO_VESTING_REWARDS_TO_CLAIM);
 
                 // check that current timestamp is greater than vestee's next redemption timestamp
                 const timestampCheck : bool = Tezos.get_now() > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;

@@ -37,45 +37,6 @@ block {
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to %addOracle entrypoint in a specified Aggregator Contract
-function addOracleOperation(const aggregatorAddress: address; const satelliteAddress: address) : operation is
-block{
-
-    const tokenContract: contract(address) =
-        case (Tezos.get_entrypoint_opt("%addOracle", aggregatorAddress) : option(contract(address))) of [
-                Some (c) -> c
-            |   None     -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
-        ];
-
-} with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
-
-
-
-// helper function to %removeOracle entrypoint in a specified Aggregator Contract
-function removeOracleOperation(const aggregatorAddress: address; const satelliteAddress: address) : operation is
-block{
-
-    const tokenContract: contract(address) =
-        case (Tezos.get_entrypoint_opt("%removeOracle", aggregatorAddress) : option(contract(address))) of [
-                Some (c) -> c
-            |   None     -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
-        ];
-
-} with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
-
-
-
-// helper function to get transfer entrypoint in treasury contract
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
-        ];
-
-
-
 // helper function to get distributeReward entrypoint in delegation contract
 function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
     case (Tezos.get_entrypoint_opt(
@@ -95,17 +56,6 @@ function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contract
                 Some(contr) -> contr
             |   None        -> (failwith(error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(setAggregatorReferenceType))
         ];  
-
-
-
-// helper function to %stake entrypoint on the Doorman contract
-function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateGeneralContracts",
-        contractAddress) : option(contract(updateGeneralContractsType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
-        ];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -215,7 +165,6 @@ block {
 // ------------------------------------------------------------------------------
 // Operation Helper Functions End
 // ------------------------------------------------------------------------------
-
 
 
 

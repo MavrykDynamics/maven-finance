@@ -2696,9 +2696,17 @@
 //                     doormanStorage                      = await doormanInstance.storage();
 //                     delegationStorage                   = await delegationInstance.storage();
 //                     var currentCycle                    = governanceStorage.cycleId;
+
+//                     // Eve stake 1 MVK to create a snapshot
+//                     var stakeOperation = await doormanInstance.methods.stake(MVK(1)).send();
+//                     await stakeOperation.confirmation();
+
 //                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
 //                     const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
 //                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(eve.pkh);
+
+//                     console.log('preIncreaseSnapshot');
+//                     console.log(preIncreaseSnapshot);
 
 //                     // User increases its stake
 //                     var stakeOperation    = await doormanInstance.methods.stake(MVK(20)).send()
@@ -2745,8 +2753,11 @@
 //                     const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
 //                     const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
                     
-//                     console.log("BALANCE:", preIncreaseSatellite)
-//                     console.log("BALANCE2:", postIncreaseSatellite)
+//                     // console.log("BALANCE:", preIncreaseSatellite)
+//                     // console.log("BALANCE2:", postIncreaseSatellite)
+
+//                     console.log('postIncreaseSnapshot');
+//                     console.log(postIncreaseSnapshot);
 
 //                     // Assertions
 //                     assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
@@ -2755,7 +2766,6 @@
 //                     assert.equal(postIncreaseSnapshot.totalStakedMvkBalance.toNumber(), preIncreaseSnapshot.totalStakedMvkBalance.toNumber())
 //                     assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
 //                     assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
-//                     assert.notEqual(postIncreaseSnapshot.cycle.toNumber(), preIncreaseSnapshot.cycle.toNumber())
 //                     assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
