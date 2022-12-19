@@ -1,7 +1,7 @@
 const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
-import { Utils, zeroAddress, TEZ } from "./helpers/Utils";
+import { Utils, zeroAddress } from "./helpers/Utils";
 import fs from "fs";
 import { confirmOperation } from "../scripts/confirmation";
 import * as lendingHelper from "./helpers/lendingHelpers"
@@ -711,7 +711,9 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
                 const tokenProtected                    = false;
+                
                 const isScaledToken                     = false;
+                const isStakedToken                     = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -728,7 +730,10 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
                         oracleAddress,
                         tokenProtected,
+                        
                         isScaledToken,
+                        isStakedToken,
+                        null,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -770,7 +775,9 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
                 const tokenProtected                        = false;
+                
                 const isScaledToken                         = false;
+                const isStakedToken                         = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -787,7 +794,10 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
                         oracleAddress,
                         tokenProtected,
+
                         isScaledToken,
+                        isStakedToken,
+                        null,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -829,7 +839,9 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
                 const tokenProtected                        = false;
+
                 const isScaledToken                         = false;
+                const isStakedToken                         = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -846,7 +858,10 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
                         oracleAddress,
                         tokenProtected,
+
                         isScaledToken,
+                        isStakedToken,
+                        null,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -889,7 +904,9 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
                 const tokenProtected                        = false;
+
                 const isScaledToken                         = false;
+                const isStakedToken                         = false;
             
 
                 await chai.expect(lendingControllerInstance.methods.setCollateralToken(
@@ -900,9 +917,12 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                     tokenContractAddress,
                     tokenDecimals,
 
-//                     oracleAddress,
-//                     tokenProtected,
-//                     isScaledToken,
+                    oracleAddress,
+                    tokenProtected,
+
+                    isScaledToken,
+                    isStakedToken,
+                    null,
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
