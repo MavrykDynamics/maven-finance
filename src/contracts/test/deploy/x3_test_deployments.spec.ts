@@ -660,27 +660,29 @@ describe('Contracts Deployment for Tests', async () => {
   
       console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
       
-      // Send MVK to treasury contract and council 
-      const transferToTreasury = await mvkToken.contract.methods
-        .transfer([
-          {
-            from_: bob.pkh,
-            txs: [
-              {
-                to_: treasury.contract.address,
-                token_id: 0,
-                amount: MVK(6000),
-              },
-              {
-                to_: council.contract.address,
-                token_id: 0,
-                amount: MVK(15),
-              }
-            ],
-          },
-        ])
-        .send()
-      await confirmOperation(tezos, transferToTreasury.hash)
+      // Send MVK to treasury contract and council
+      if (utils.production !== "true"){
+        const transferToTreasury = await mvkToken.contract.methods
+          .transfer([
+            {
+              from_: bob.pkh,
+              txs: [
+                {
+                  to_: treasury.contract.address,
+                  token_id: 0,
+                  amount: MVK(6000),
+                },
+                {
+                  to_: council.contract.address,
+                  token_id: 0,
+                  amount: MVK(15),
+                }
+              ],
+            },
+          ])
+          .send()
+        await confirmOperation(tezos, transferToTreasury.hash)
+      }
       const updateOperatorsTreasury = (await treasury.contract.methods
         .updateMvkOperators([
           {
