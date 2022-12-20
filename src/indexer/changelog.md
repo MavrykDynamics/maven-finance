@@ -35,6 +35,8 @@
   - Table added
 - MTokenAccount
   - Table added
+- LendingControllerHistoryData
+  - Column LoanToken added
 
 <details><summary>Previous versions</summary>
 
