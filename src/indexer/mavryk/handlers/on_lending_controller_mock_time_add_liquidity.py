@@ -62,6 +62,7 @@ async def on_lending_controller_mock_time_add_liquidity(
     await sender.save()
     history_data                            = models.LendingControllerHistoryData(
         lending_controller  = lending_controller,
+        loan_token          = lending_controller_loan_token,
         sender              = sender,
         operation_hash      = operation_hash,
         timestamp           = timestamp,

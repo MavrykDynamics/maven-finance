@@ -31,6 +31,7 @@ async def on_lending_controller_mock_time_close_vault(
         internal_id         = vault_internal_id
     )
     lending_controller_vault.open   = False
+    loan_token                      = await lending_controller_vault.loan_token
 
     # Update collateral balance ledger
     vault_collateral_balances   = await models.LendingControllerVaultCollateralBalance.filter(lending_controller_vault=lending_controller_vault).all()
@@ -45,6 +46,7 @@ async def on_lending_controller_mock_time_close_vault(
     await sender.save()
     history_data                            = models.LendingControllerHistoryData(
         lending_controller  = lending_controller,
+        loan_token          = loan_token,
         vault               = lending_controller_vault,
         sender              = sender,
         operation_hash      = operation_hash,

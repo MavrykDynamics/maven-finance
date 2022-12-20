@@ -250,7 +250,7 @@ describe("Testnet interactions helper", async () => {
             await signerFactory(bob.sk)
 
             // Admin sends 2000XTZ to treasury contract
-            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
+            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 500});
             await transferOperation.confirmation();
         });
 
