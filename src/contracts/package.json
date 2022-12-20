@@ -32,6 +32,9 @@
     "compile-all-lambdas-2": "yarn compile-contract-lambdas farm,farmFactory,treasury,treasuryFactory,aggregator,aggregatorFactory",
     "compile-all-lambdas-3": "yarn compile-contract-lambdas vault,lendingController",
     "compile-all-contracts-no-lambdas": "./compile-contracts.sh --contracts-only",
+
+    "old-compile-contract": "ts-node scripts/cli.ts old-compile-contract -c",
+    "generate-lambda-indexes": "ts-node scripts/cli.ts generate-lambda-indexes",
     
     "compile": "./compile-contracts.sh",
     "compile-m1": "./compile-contracts.sh -a",
