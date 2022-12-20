@@ -1,22 +1,22 @@
-
-from dipdup.models import Transaction
 from dipdup.context import HandlerContext
-from mavryk.types.mvk.storage import MvkStorage
-from mavryk.types.mvk.parameter.update_operators import UpdateOperatorsParameter
+from dipdup.models import Transaction
+from mavryk.types.m_token.parameter.update_operators import UpdateOperatorsParameter
+from mavryk.types.m_token.storage import MTokenStorage
 import mavryk.models as models
 
-async def on_mvk_update_operators(
+
+async def on_m_token_update_operators(
     ctx: HandlerContext,
-    update_operators: Transaction[UpdateOperatorsParameter, MvkStorage],
+    update_operators: Transaction[UpdateOperatorsParameter, MTokenStorage],
 ) -> None:
 
     # Get operation values
     operator_changes    = update_operators.parameter.__root__
-    mvk_token_address   = update_operators.data.target_address
+    m_token_address     = update_operators.data.target_address
 
     # Update records
-    mvk_token           = await models.MVKToken.get(
-        address = mvk_token_address
+    m_token             = await models.MToken.get(
+        address = m_token_address
     )
     for operatorChange in operator_changes:
         if hasattr(operatorChange, 'add_operator'):
@@ -26,8 +26,8 @@ async def on_mvk_update_operators(
             owner               = await models.mavryk_user_cache.get(address=owner_address)            
             operator            = await models.mavryk_user_cache.get(address=operator_address)
 
-            operator_record, _  = await models.MVKTokenOperator.get_or_create(
-                mvk_token   = mvk_token,
+            operator_record, _  = await models.MTokenOperator.get_or_create(
+                m_token     = m_token,
                 owner       = owner,
                 operator    = operator
             )
@@ -39,8 +39,8 @@ async def on_mvk_update_operators(
             owner               = await models.mavryk_user_cache.get(address=owner_address)
             operator            = await models.mavryk_user_cache.get(address=operator_address)
 
-            operator_record, _  = await models.MVKTokenOperator.get_or_create(
-                mvk_token   = mvk_token,
+            operator_record, _  = await models.MTokenOperator.get_or_create(
+                m_token     = m_token,
                 owner       = owner,
                 operator    = operator
             )

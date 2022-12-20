@@ -16,20 +16,21 @@ async def on_mvk_transfer(
     mvk_address         = transfer.data.target_address
     user_ledger         = transfer.storage.ledger
 
+    # Get MVK Token
+    mvk_token = await models.MVKToken.get(address=mvk_address)
+
     for entry in transaction_batch:
         sender_address = entry.from_
         transactions = entry.txs
+
+        # Get or create sender
+        sender    = await models.mavryk_user_cache.get(address=sender_address)
+        sender.mvk_balance = user_ledger[sender_address]
+        await sender.save()
+
         for transaction in transactions:
             receiver_address = transaction.to_
             amount = int(transaction.amount)
-
-            # Get MVK Token
-            mvk_token = await models.MVKToken.get(address=mvk_address)
-
-            # Get or create sender
-            sender    = await models.mavryk_user_cache.get(address=sender_address)
-            sender.mvk_balance = user_ledger[sender_address]
-            await sender.save()
 
             # Get or create receiver
             receiver    = await models.mavryk_user_cache.get(address=receiver_address)
@@ -37,7 +38,7 @@ async def on_mvk_transfer(
             await receiver.save()
 
             # Create transfer
-            transfer_record = models.MVKTransferHistoryData(
+            transfer_record = models.MVKTokenTransferHistoryData(
                 timestamp=timestamp,
                 mvk_token=mvk_token,
                 from_=sender,
