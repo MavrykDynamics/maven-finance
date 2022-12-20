@@ -179,7 +179,7 @@ export const oldCompileContract = async (
             let res: object = {};
 
             const michelsonFormat: string = execSync(
-                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol jakarta`,
+                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol kathmandu`,
                 { 
                     maxBuffer: 1024 * 1024 * 1024 * 1024,
                     timeout: 1024 * 1024 * 1024 * 1024
@@ -187,7 +187,7 @@ export const oldCompileContract = async (
             ).toString()
 
             const jsonFormat: string = execSync(
-                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol jakarta`,
+                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol kathmandu`,
                 { 
                     maxBuffer: 1024 * 1024,
                     timeout: 1024 * 1024
@@ -235,7 +235,7 @@ export const oldCompileContract = async (
                 for (const lambda of lambdas) {
                     
                     const michelson = execSync(
-                        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol jakarta`,
+                        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol kathmandu`,
                         { 
                             maxBuffer: 1024 * 1024,
                             timeout: 1024 * 1024
