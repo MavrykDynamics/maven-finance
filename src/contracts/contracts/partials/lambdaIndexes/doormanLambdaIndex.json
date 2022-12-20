@@ -58,5 +58,17 @@
 	{
 		"index": 14,
 		"name": "lambdaFarmClaim"
+	},
+	{
+		"index": 15,
+		"name": "lambdaOnVaultDepositStakedMvk"
+	},
+	{
+		"index": 16,
+		"name": "lambdaOnVaultWithdrawStakedMvk"
+	},
+	{
+		"index": 17,
+		"name": "lambdaOnVaultLiquidateStakedMvk"
 	}
 ]

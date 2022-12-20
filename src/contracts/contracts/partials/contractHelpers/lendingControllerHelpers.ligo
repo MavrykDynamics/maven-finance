@@ -432,19 +432,6 @@ block {
 
 
 
-// helper function to get loan token record 
-function getLoanTokenRecord(const loanTokenName : string; const s : lendingControllerStorageType) : loanTokenRecordType is
-block {
-
-    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[loanTokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    ];
-
-} with loanTokenRecord
-
-
-
 // helper function to get vault by vaultHandle
 function getVaultByHandle(const handle : vaultHandleType; const s : lendingControllerStorageType) : vaultRecordType is 
 block {

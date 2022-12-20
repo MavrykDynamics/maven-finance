@@ -1390,6 +1390,10 @@ describe("Lending Controller tests", async () => {
                 const depositors    = "any";
                 const loanTokenName = "mockFa12";
 
+                const initialLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
+                console.log('test loan token view');
+                console.log(initialLoanTokenRecordView);
+
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     eve.pkh,                // delegate to
                     loanTokenName,          // loan token type
