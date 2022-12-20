@@ -52,19 +52,20 @@ async def on_lending_controller_mock_time_set_loan_token(
     elif type(loan_token_type_storage) == tez:
         loan_token_address  = "XTZ"
 
-    # Persist loan Token Metadata
-    await persist_token_metadata(
-        ctx=ctx,
-        token_address=loan_token_address,
-        token_id=str(loan_token_id)
-    )
+    if loan_token_address != "XTZ":
+        # Persist loan Token Metadata
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=loan_token_address,
+            token_id=str(loan_token_id)
+        )
 
-    # Persist LP Token Metadata
-    await persist_token_metadata(
-        ctx=ctx,
-        token_address=loan_token_lp_token_address,
-        token_id=str(loan_token_lp_token_id)
-    )
+        # Persist LP Token Metadata
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=loan_token_lp_token_address,
+            token_id=str(loan_token_lp_token_id)
+        )
 
     # Create / Update record
     lending_controller                  = await models.LendingController.get(
