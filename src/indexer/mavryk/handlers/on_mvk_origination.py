@@ -46,7 +46,7 @@ async def on_mvk_origination(
     await mvk.save()
     
     # Create first users
-    originated_ledger = mvk_origination.data.storage['ledger']
+    originated_ledger = mvk_origination.storage.ledger
     for address in originated_ledger:
         new_user                = await models.mavryk_user_cache.get(address=address)
         new_user.mvk_balance    = originated_ledger[address]

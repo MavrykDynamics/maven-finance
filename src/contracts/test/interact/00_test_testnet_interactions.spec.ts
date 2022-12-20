@@ -26,7 +26,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import lpTokenPoolMockFa12TokenAddress from '../../deployments/lpTokenPoolMockFa12TokenAddress.json';
+import mTokenAddress from '../../deployments/mTokenAddress.json';
 import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
 import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
 import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
@@ -84,6 +84,7 @@ describe("Testnet interactions helper", async () => {
     let tokenSaleInstance;
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
+    let mTokenInstance;
     let vaultInstance;
     let vaultFactoryInstance;
     let mavrykFa12TokenInstance;
@@ -109,6 +110,7 @@ describe("Testnet interactions helper", async () => {
     let tokenSaleStorage;
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
+    let mTokenStorage;
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
@@ -186,6 +188,7 @@ describe("Testnet interactions helper", async () => {
             tokenSaleInstance                       = await utils.tezos.contract.at(tokenSaleAddress.address);
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
+            mTokenInstance                          = await utils.tezos.contract.at(mTokenAddress.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
             mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
     
@@ -210,6 +213,7 @@ describe("Testnet interactions helper", async () => {
             tokenSaleStorage                        = await tokenSaleInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
+            mTokenStorage                           = await mTokenInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
     
@@ -231,6 +235,7 @@ describe("Testnet interactions helper", async () => {
             console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
+            console.log('MToken Contract deployed at:', mTokenInstance.address);
             console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
             console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
 
@@ -4246,7 +4251,7 @@ describe("Testnet interactions helper", async () => {
     //             const oracleType                            = "oracle";
     //             const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-    //             const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
+    //             const lpTokenContractAddress                = mTokenAddress.address;
     //             const lpTokenId                             = 0;
 
     //             const interestRateDecimals                  = 27;
@@ -4939,7 +4944,7 @@ describe("Testnet interactions helper", async () => {
 
                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-                const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
+                const lpTokenContractAddress                = mTokenAddress.address;
                 const lpTokenId                             = 0;
 
                 const interestRateDecimals                  = 27;
@@ -5315,6 +5320,94 @@ describe("Testnet interactions helper", async () => {
 
                 // Operation
                 const operation                     = await lendingControllerMockTimeInstance.methods.liquidateVault(vaultId, bob.pkh, 100).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    });
+
+    describe("MToken", async () => {
+
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin transfers MVK', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.transfer([
+                    {
+                        from_: bob.pkh,
+                        txs: [
+                        {
+                            to_: bob.pkh,
+                            token_id: 0,
+                            amount: 100,
+                        },
+                        {
+                            to_: eve.pkh,
+                            token_id: 0,
+                            amount: 100,
+                        },
+                        {
+                            to_: alice.pkh,
+                            token_id: 0,
+                            amount: 0,
+                        },
+                        ],
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates its operators', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: alice.pkh,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
