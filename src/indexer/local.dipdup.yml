@@ -60,73 +60,73 @@ contracts:
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1P6b3c8RJa2P9o2dHBGy4mX4Kk4gxrNiEq
+    address: KT1PZciWRMWzJX7FWEoWGU9wJBnDjWWmVUcU
     typename: mvk_token
   governance_proxy:
-    address: KT1KVgWVnvnhFqjXpf5QbNX265btFtkEL9iw
+    address: KT1Fwcr5zEg1199VoamF6XpsVn4Qfd9osXGi
     typename: governance_proxy
   governance:
-    address: KT1Bazxi8rHk7t3qJUgxrEB4A41XMiNFeo16
+    address: KT1BWBd9y6ezNLfSp1FYHoomLGq9W11sPTau
     typename: governance
   doorman:
-    address: KT18twdkW5oibGYSPUXTJgEDfZtnP5mtTX3v
+    address: KT1LTGz73oWVZa42hZJjLoc9zadkobYtn5eW
     typename: doorman
   farm:
-    address: KT1PEjqGMVCQt6bQc3BKUCkucHMM5sJFgJJ7
+    address: KT1VErmLQrDVzixrxWHxcQyoaYULQPNJMmbW
     typename: farm
   farm_factory:
-    address: KT1MEktVaHjfKJbdYNAzvcJeLj8ssW8nfHyv
+    address: KT1K9JNLif6acx2Rjn5VGVdsTidxfAJUDkt1
     typename: farm_factory
   delegation:
-    address: KT1XAV9LeqLLQBoNXCKf9iEH7dqrePnNxRao
+    address: KT1VKe8Ca4Q23Ni2DgwQgqiZuho65EY5bPBC
     typename: delegation
   vesting:
-    address: KT1RkQJcG35CFbXUQ6ZXEPnrRRRGWPY16aRq
+    address: KT1F3VRTUEZnMpvc8Mzd7dYWuUFsaVwJ426m
     typename: vesting
   emergency_governance:
-    address: KT1XEsdg9tFRqDFNCr6bdVzftCHVEmLCYomF
+    address: KT1HPuixN9nTdrDA63R8bCrRCz88B5YxKv8b
     typename: emergency_governance
   council:
-    address: KT1EEf4TjK233UFsp6hPmpX9tR5BESZDz54j
+    address: KT1S9Djte7XDVn866AJMopVpMJBxjduNBfc1
     typename: council
   break_glass:
-    address: KT1Uyk9ibP2T2KYn3Cy8bcF67vcr4FrBBzjQ
+    address: KT1QMwk4VinfCvxLCDVpRXvjSQJomU4LPPLd
     typename: break_glass
   governance_financial:
-    address: KT1TNK4jVMp58h22VhRWnrYDhuzr4LxqNo8R
+    address: KT1KFbfwSb3CV7XfWNbpynHnVrykX3QbHyPf
     typename: governance_financial
   governance_satellite:
-    address: KT1JERYCRNWY1Xb63qMiUDCRQoY69Vk2ze7e
+    address: KT1Avf9S1v7XPGYKzfTbzLXUL29BqAe9Y3mF
     typename: governance_satellite
   aggregator:
-    address: KT1WzVERaZfV1d1wnivZUSCzm419jzKfWqUh
+    address: KT1JgBX8LRJ7AmVhTk64niDZxfXH8UBXyiDv
     typename: aggregator
   aggregator_factory:
-    address: KT1Fo9XcNGXQ4n3TcjLYhTYFjHAi3uxFhBrL
+    address: KT198U4vWNSUfnbv8jtnJME5oAM2MaXBtGSn
     typename: aggregator_factory
   treasury:
-    address: KT1KKC2aMLkvKW26dYeMM4hx5vFkbLiY5mxd
+    address: KT1JeqQnM5SECPSuVU3dF6NJNxLwmgX8nqhm
     typename: treasury
   treasury_factory:
-    address: KT1EksZEsHJj8ns7TpnHMB3FgFkejFVA6QQR
+    address: KT1VrHhxvUsr1LPC3UFcwgv6QSHPW8bypG2h
     typename: treasury_factory
   token_sale:
-    address: KT1QnfejR4MwYQ2NFvVTyA8gv2e5SXbBbExF
+    address: KT1FrT3KBNtpxuVksjFw3hA2E2iBByHMsboS
     typename: token_sale
   lending_controller:
-    address: KT1VexwqwrSqS4WQytcwLwnVobLd9Kgrqg3r
+    address: KT1MNA6Ya2CLDUnJX8d1LoRx6Bx7yoZpHV4N
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1DCp6hK4rwcxiWyvzkC7eGEhMEcGJMV6kA
+    address: KT1DC8F98WDPL2Z5nvJjMr9qs3VqQcfEo7oP
     typename: lending_controller_mock_time
   m_token:
-    address: KT1UUQF3DqZY8YS56YVa2LAA5Zg2tGnbPk5r
+    address: KT19h6gP8AYafbaDL6SMbFJwiVBHEhRbgRve
     typename: m_token
   vault:
     address: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
     typename: vault
   vault_factory:
-    address: KT1FcZ5CRbXvLCZf84h5J6gH88kMawv26ueE
+    address: KT1E5LueY6pvvQtg3Lo3ujp2TwYLN26djvZe
     typename: vault_factory
 
 hooks:

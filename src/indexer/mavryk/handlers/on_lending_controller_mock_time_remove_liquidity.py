@@ -63,6 +63,7 @@ async def on_lending_controller_mock_time_remove_liquidity(
     history_data                            = models.LendingControllerHistoryData(
         lending_controller  = lending_controller,
         sender              = sender,
+        loan_token          = lending_controller_loan_token,
         operation_hash      = operation_hash,
         timestamp           = timestamp,
         level               = level,
