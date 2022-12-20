@@ -60,70 +60,73 @@ contracts:
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1KoCQ3eCqRRmXU8Xtjp7gGdjexSnCtC35v
+    address: KT1P6b3c8RJa2P9o2dHBGy4mX4Kk4gxrNiEq
     typename: mvk_token
   governance_proxy:
-    address: KT1K8PyQUpvTeSe1dy8W7LE5jTJY1og3ry4a
+    address: KT1KVgWVnvnhFqjXpf5QbNX265btFtkEL9iw
     typename: governance_proxy
   governance:
-    address: KT1N8PvmN4C7EaHqrMgLJSzKTZmZurnATiLC
+    address: KT1Bazxi8rHk7t3qJUgxrEB4A41XMiNFeo16
     typename: governance
   doorman:
-    address: KT1SLgqAVE314YviNmDwT4KyU9umzA4RpgTb
+    address: KT18twdkW5oibGYSPUXTJgEDfZtnP5mtTX3v
     typename: doorman
   farm:
-    address: KT1Fz1wszVsCZBpMqhJx4aL2EY8AQcWm2JzB
+    address: KT1PEjqGMVCQt6bQc3BKUCkucHMM5sJFgJJ7
     typename: farm
   farm_factory:
-    address: KT19bpYrWPjryRu6TDnmVmNyf7yRSLPpUbw9
+    address: KT1MEktVaHjfKJbdYNAzvcJeLj8ssW8nfHyv
     typename: farm_factory
   delegation:
-    address: KT1BCAapifR3Ff2uYjwLqbEC1DZXcFm3SSpc
+    address: KT1XAV9LeqLLQBoNXCKf9iEH7dqrePnNxRao
     typename: delegation
   vesting:
-    address: KT1TYoSvqjnmg9J9aY9Nb9KxEij4YmYTe4oL
+    address: KT1RkQJcG35CFbXUQ6ZXEPnrRRRGWPY16aRq
     typename: vesting
   emergency_governance:
-    address: KT1P3edd7EssaVSG2nBgvCqYdQH5eqVxNQ6F
+    address: KT1XEsdg9tFRqDFNCr6bdVzftCHVEmLCYomF
     typename: emergency_governance
   council:
-    address: KT1MqBxu2hKAHgsAuVCFoJXQV3gagjwMP1LA
+    address: KT1EEf4TjK233UFsp6hPmpX9tR5BESZDz54j
     typename: council
   break_glass:
-    address: KT1FaJ9EfsUWdH56JGSC7Hhq7tyHXWEGGgY1
+    address: KT1Uyk9ibP2T2KYn3Cy8bcF67vcr4FrBBzjQ
     typename: break_glass
   governance_financial:
-    address: KT1BcbqSgV6iEm9qngo1DA86Ha3oU81VaBwp
+    address: KT1TNK4jVMp58h22VhRWnrYDhuzr4LxqNo8R
     typename: governance_financial
   governance_satellite:
-    address: KT1HPwJ8Pi1UmCVkwoS3hzHgBreRcqWM8jbt
+    address: KT1JERYCRNWY1Xb63qMiUDCRQoY69Vk2ze7e
     typename: governance_satellite
   aggregator:
-    address: KT1H5SNhonKcMFXqs2KzpyAKtQvQFscw8GAc
+    address: KT1WzVERaZfV1d1wnivZUSCzm419jzKfWqUh
     typename: aggregator
   aggregator_factory:
-    address: KT1WbHpL4cRr83QKCECjdXwNMfBWnvrrorqY
+    address: KT1Fo9XcNGXQ4n3TcjLYhTYFjHAi3uxFhBrL
     typename: aggregator_factory
   treasury:
-    address: KT1Udii8JWBptpPe7ePXLLLduKnbc2myY75f
+    address: KT1KKC2aMLkvKW26dYeMM4hx5vFkbLiY5mxd
     typename: treasury
   treasury_factory:
-    address: KT1BYBDD9d9DiTGrjx44vtKUgsmVCiQ8C3DY
+    address: KT1EksZEsHJj8ns7TpnHMB3FgFkejFVA6QQR
     typename: treasury_factory
   token_sale:
-    address: KT1Ks6fv6RLVYkLWTk8FaFNKDkpGCnQuQTR4
+    address: KT1QnfejR4MwYQ2NFvVTyA8gv2e5SXbBbExF
     typename: token_sale
   lending_controller:
-    address: KT1Mn1iRtevFAVwtJtiCXuo6qtKsYzVopuTf
+    address: KT1VexwqwrSqS4WQytcwLwnVobLd9Kgrqg3r
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1EfNf1qoNvSXaWGuxFe5cFRukG6fQCpEpy
+    address: KT1DCp6hK4rwcxiWyvzkC7eGEhMEcGJMV6kA
     typename: lending_controller_mock_time
+  m_token:
+    address: KT1UUQF3DqZY8YS56YVa2LAA5Zg2tGnbPk5r
+    typename: m_token
   vault:
     address: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
     typename: vault
   vault_factory:
-    address: KT19c2cda6RSZHFMbaX2yF6eazPidV7RQ2gu
+    address: KT1FcZ5CRbXvLCZf84h5J6gH88kMawv26ueE
     typename: vault_factory
 
 hooks:
@@ -1947,3 +1950,40 @@ indexes:
       pattern:
       - destination: lending_controller_mock_time
         entrypoint: setLambda
+  m_token:
+    kind: operation
+    datasource: tzkt_ghostnet
+    types:
+    - origination
+    - transaction
+    contracts:
+    - m_token
+    handlers:
+    - callback: on_m_token_origination
+      pattern:
+      - type: origination
+        originated_contract: m_token
+    - callback: on_m_token_set_admin
+      pattern:
+      - destination: m_token
+        entrypoint: setAdmin
+    - callback: on_m_token_set_governance
+      pattern:
+      - destination: m_token
+        entrypoint: setGovernance
+    - callback: on_m_token_update_whitelist_contracts
+      pattern:
+      - destination: m_token
+        entrypoint: updateWhitelistContracts
+    - callback: on_m_token_transfer
+      pattern:
+      - destination: m_token
+        entrypoint: transfer
+    - callback: on_m_token_update_operators
+      pattern:
+      - destination: m_token
+        entrypoint: update_operators
+    - callback: on_m_token_mint_or_burn
+      pattern:
+      - destination: m_token
+        entrypoint: mintOrBurn
