@@ -1,0 +1,42 @@
+[
+	{
+		"index": 0,
+		"name": "lambdaSetAdmin"
+	},
+	{
+		"index": 1,
+		"name": "lambdaSetGovernance"
+	},
+	{
+		"index": 2,
+		"name": "lambdaUpdateMetadata"
+	},
+	{
+		"index": 3,
+		"name": "lambdaDelegateTezToBaker"
+	},
+	{
+		"index": 4,
+		"name": "lambdaDelegateMvkToSat"
+	},
+	{
+		"index": 5,
+		"name": "lambdaDeposit"
+	},
+	{
+		"index": 6,
+		"name": "lambdaWithdraw"
+	},
+	{
+		"index": 7,
+		"name": "lambdaOnLiquidate"
+	},
+	{
+		"index": 8,
+		"name": "lambdaUpdateDepositor"
+	},
+	{
+		"index": 9,
+		"name": "lambdaUpdateMvkOperators"
+	}
+]
