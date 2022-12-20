@@ -97,6 +97,7 @@ async def on_lending_controller_mock_time_vault_deposit_staked_mvk(
             await sender.save()
             history_data                            = models.LendingControllerHistoryData(
                 lending_controller  = lending_controller,
+                loan_token          = loan_token,
                 vault               = lending_controller_vault,
                 sender              = sender,
                 operation_hash      = operation_hash,

@@ -85,6 +85,7 @@ async def on_lending_controller_mock_time_register_vault_creation(
         await sender.save()
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
+            loan_token          = lending_controller_loan_token,
             vault               = lending_controller_vault,
             sender              = sender,
             operation_hash      = operation_hash,
