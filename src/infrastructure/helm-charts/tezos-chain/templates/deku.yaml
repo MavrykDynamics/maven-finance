@@ -169,30 +169,6 @@ spec:
           volumeMounts:
             - mountPath: /var/deku-api
               name: api-db-volume
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: {{ $.node_class }}
-#   namespace: {{ $.Release.Namespace }}
-#   annotations:
-# {{- $.node_vals.ingress.annotations | toYaml | nindent 4  }}
-# spec:
-#   tls:
-#     - hosts:
-#         - {{ $.node_vals.ingress.host }}
-#       secretName: {{ $.node_class }}-api-tls
-#   rules:
-#     - host: {{ $.node_vals.ingress.host }}
-#       http:
-#         paths:
-#           - path: /
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: {{ $.node_class }}
-#                 port:
-#                   name: api
 {{- end }}
 ---
 {{- end }}
