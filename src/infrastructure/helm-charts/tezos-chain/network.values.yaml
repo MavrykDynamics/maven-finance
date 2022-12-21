@@ -15,7 +15,7 @@ deku:
     image:
       registry: docker.io
       repository: mavrykdynamics/ligo-deku-rpc
-      tag: v0.0.1
+      tag: rc-v0.1.1-6
       pullPolicy: Always
   config:
     defaultBlockSize: 100
