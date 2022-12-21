@@ -69,12 +69,8 @@ spec:
       volumes:
         - name: node-db-volume
           emptyDir: {}
-        - name: node-volume
-          emptyDir: {}
       {{- if $.node_vals.api }}
         - name: api-db-volume
-          emptyDir: {}
-        - name: api-volume
           emptyDir: {}
       {{- end }}
       containers:
@@ -114,30 +110,15 @@ spec:
               value: '{{ $.node_vals.validator.secretKey }}'
             - name: DEKU_PORT
               value: '4440'
-            - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
-            - name: POSTGRES_DB
-              value: dekunode
-            - name: POSTGRES_PASSWORD
-              value: psswd
-            - name: POSTGRES_USER
-              value: deku
           image: '{{ $.node_vals.image.registry }}/{{ $.node_vals.image.repository }}:{{ $.node_vals.image.tag }}'
           imagePullPolicy: '{{ $.node_vals.image.pullPolicy }}'
           ports:
             - name: deku
               containerPort: 4440
               protocol: TCP
-            - name: db
-              containerPort: 5432
-              protocol: TCP
           volumeMounts:
             - mountPath: /var/deku
-              name: node-volume
-              subPath: deku
-            - mountPath: /var/lib/postgresql/data
               name: node-db-volume
-              subPath: data
 {{- if $.node_vals.api }}
         - name: api
           env:
@@ -167,30 +148,15 @@ spec:
               value: '{{ $.Values.deku.config.dummyTicketAddress }}'
             - name: DEKU_DUMMY_TICKET_CONTRACT
               value: '{{ $.Values.deku.config.dummyTicketAddress }}'
-            - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
-            - name: POSTGRES_DB
-              value: dekuapi
-            - name: POSTGRES_PASSWORD
-              value: psswd
-            - name: POSTGRES_USER
-              value: deku
           image: '{{ $.node_vals.api.image.registry }}/{{ $.node_vals.api.image.repository }}:{{ $.node_vals.api.image.tag }}'
           imagePullPolicy: '{{ $.node_vals.api.image.pullPolicy }}'
           ports:
             - name: api
               containerPort: 8080
               protocol: TCP
-            - name: db
-              containerPort: 5432
-              protocol: TCP
           volumeMounts:
             - mountPath: /var/deku-api
-              name: api-volume
-              subPath: deku-api
-            - mountPath: /var/lib/postgresql/data
               name: api-db-volume
-              subPath: data
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
