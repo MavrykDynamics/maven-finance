@@ -42,6 +42,10 @@ deku:
       tolerations:
         - key: 'mavryk-node'
           operator: 'Equal'
+          value: '0'
+          effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
           value: '1'
           effect: 'NoSchedule'
       validator: #MALLORY
