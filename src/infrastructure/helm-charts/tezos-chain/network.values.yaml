@@ -37,8 +37,6 @@ deku:
         tag: rc-v0.1.1-6
         pullPolicy: Always
         pullSecret: docker-pull-credentials
-      nodeSelector:
-        type: mavryk-node
       tolerations:
         - key: 'mavryk-node'
           operator: 'Equal'
