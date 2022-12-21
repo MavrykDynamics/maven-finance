@@ -180,7 +180,7 @@ spec:
               service:
                 name: {{ $.node_class }}
                 port:
-                  name: api
+                  number: 8080
 {{- end }}
 ---
 {{- end }}
