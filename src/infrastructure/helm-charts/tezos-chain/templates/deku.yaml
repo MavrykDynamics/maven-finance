@@ -166,6 +166,10 @@ metadata:
   annotations:
 {{- $.node_vals.ingress.annotations | toYaml | nindent 4  }}
 spec:
+  tls:
+    - hosts:
+        - {{ $.node_vals.ingress.host }}
+      secretName: {{ $.node_class }}-tls
   rules:
     - host: {{ $.node_vals.ingress.host }}
       http:
