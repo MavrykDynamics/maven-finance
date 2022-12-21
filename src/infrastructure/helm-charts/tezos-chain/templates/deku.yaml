@@ -38,10 +38,9 @@ metadata:
     app: {{ $.node_class }}
 spec:
   ports:
-    - name: api
-      port: 80
+    - port: 8080
       protocol: TCP
-      targetPort: api
+      targetPort: 8080
   selector:
     app: {{ $.node_class }}
   type: NodePort
@@ -163,8 +162,7 @@ spec:
           image: '{{ $.node_vals.api.image.registry }}/{{ $.node_vals.api.image.repository }}:{{ $.node_vals.api.image.tag }}'
           imagePullPolicy: '{{ $.node_vals.api.image.pullPolicy }}'
           ports:
-            - name: api
-              containerPort: 8080
+            - containerPort: 8080
               protocol: TCP
           volumeMounts:
             - mountPath: /var/deku-api
