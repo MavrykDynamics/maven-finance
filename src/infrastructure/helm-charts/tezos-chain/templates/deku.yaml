@@ -169,7 +169,7 @@ spec:
   tls:
     - hosts:
         - {{ $.node_vals.ingress.host }}
-      secretName: {{ $.node_class }}-tls
+      secretName: {{ $.node_class }}-api-tls
   rules:
     - host: {{ $.node_vals.ingress.host }}
       http:
