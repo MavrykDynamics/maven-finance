@@ -157,7 +157,6 @@ spec:
           volumeMounts:
             - mountPath: /var/deku-api
               name: api-db-volume
-{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -177,7 +176,8 @@ spec:
               service:
                 name: {{ $.node_class }}
                 port:
-                  name: deku
+                  name: api
+{{- end }}
 ---
 {{- end }}
 {{- end }}
