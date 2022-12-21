@@ -23,7 +23,7 @@ deku:
     tezosConsensusAddress: KT1UUykLG7GCNgkhPTZPCz3si9BL2b2RZMEL
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
-    databaseUri: postgres://deku:psswd@localhost:5432/dekunode
+    databaseUri: sqlite3:/var/deku/database.sqlite
     apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
   nodes:
     deku-on-baking-archive:
@@ -54,7 +54,7 @@ deku:
         secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
       api:
         config:
-          apiDatabaseUri: postgres://deku:psswd@localhost:5432/dekuapi
+          apiDatabaseUri: "sqlite3:/var/deku-api/database.sqlite"
         image:
           registry: docker.io
           repository: mavrykdynamics/deku-api
