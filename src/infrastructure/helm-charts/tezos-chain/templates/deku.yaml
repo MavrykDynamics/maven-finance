@@ -134,6 +134,7 @@ spec:
           volumeMounts:
             - mountPath: /var/deku
               name: node-volume
+              subPath: deku
             - mountPath: /var/lib/postgresql/data
               name: node-db-volume
               subPath: data
@@ -186,6 +187,7 @@ spec:
           volumeMounts:
             - mountPath: /var/deku-api
               name: api-volume
+              subPath: deku-api
             - mountPath: /var/lib/postgresql/data
               name: api-db-volume
               subPath: data
