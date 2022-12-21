@@ -38,9 +38,10 @@ metadata:
     app: {{ $.node_class }}
 spec:
   ports:
-    - port: 8080
+    - name: api
+      port: 80
       protocol: TCP
-      targetPort: 8080
+      targetPort: api
   selector:
     app: {{ $.node_class }}
   type: NodePort
@@ -162,11 +163,36 @@ spec:
           image: '{{ $.node_vals.api.image.registry }}/{{ $.node_vals.api.image.repository }}:{{ $.node_vals.api.image.tag }}'
           imagePullPolicy: '{{ $.node_vals.api.image.pullPolicy }}'
           ports:
-            - containerPort: 8080
+            - name: api
+              containerPort: 80
               protocol: TCP
           volumeMounts:
             - mountPath: /var/deku-api
               name: api-db-volume
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $.node_class }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+{{- $.node_vals.ingress.annotations | toYaml | nindent 4  }}
+spec:
+  tls:
+    - hosts:
+        - {{ $.node_vals.ingress.host }}
+      secretName: {{ $.node_class }}-api-tls
+  rules:
+    - host: {{ $.node_vals.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $.node_class }}
+                port:
+                  name: api
 {{- end }}
 ---
 {{- end }}
