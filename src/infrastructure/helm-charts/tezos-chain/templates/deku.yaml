@@ -25,27 +25,15 @@ spec:
       port: 4440
       protocol: TCP
       targetPort: deku
-  selector:
-    app: {{ $.node_class }}
-  type: ClusterIP
 {{- if $.node_vals.api }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ $.node_class }}-api
-  labels:
-    app: {{ $.node_class }}
-spec:
-  ports:
     - name: api
       port: 80
       protocol: TCP
       targetPort: api
+{{- end }}
   selector:
     app: {{ $.node_class }}
   type: ClusterIP
-{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -190,7 +178,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ $.node_class }}-api
+                name: {{ $.node_class }}
                 port:
                   name: api
 {{- end }}
