@@ -29,6 +29,7 @@ deku:
       ingress:
         annotations:
           kubernetes.io/ingress.class: nginx
+          cert-manager.io/cluster-issuer: letsencrypt-prod
         host: deku-on-baking-archive-node.mavryk.network
       tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
       image:
