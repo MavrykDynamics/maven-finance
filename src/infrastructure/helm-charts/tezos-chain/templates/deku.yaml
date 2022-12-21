@@ -133,7 +133,7 @@ spec:
             - name: DEKU_API_NODE_URI
               value: '{{ $.node_class }}.{{ $.Release.Namespace }}.svc.cluster.local:4440'
             - name: DEKU_API_PORT
-              value: '80'
+              value: '8080'
             - name: DEKU_API_DOMAINS
               value: '8'
             - name: DEKU_DEFAULT_BLOCK_SIZE
