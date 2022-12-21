@@ -19,7 +19,7 @@ deku:
       pullPolicy: Always
   config:
     defaultBlockSize: 100
-    tezosConsensusAddress: KT1FdabCU55jzEud2wA8tc6SFPWWRGzVNYgF
+    tezosConsensusAddress: KT1RY8gfjnY3xcp5MDgv4wwoswK4iEVCH72k
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
@@ -34,7 +34,7 @@ deku:
       image:
         registry: docker.io
         repository: mavrykdynamics/deku
-        tag: 2022-12-03-3156d01
+        tag: rc-v0.1.1-6
         pullPolicy: Always
         pullSecret: docker-pull-credentials
       nodeSelector:
@@ -53,7 +53,7 @@ deku:
         image:
           registry: docker.io
           repository: mavrykdynamics/deku-api
-          tag: 2022-12-03-3156d01
+          tag: rc-v0.1.1-6
           pullPolicy: Always
           pullSecret: docker-pull-credentials
 
