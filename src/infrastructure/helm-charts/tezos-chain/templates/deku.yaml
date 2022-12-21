@@ -25,27 +25,15 @@ spec:
       port: 4440
       protocol: TCP
       targetPort: deku
+{{- if $.node_vals.api }}
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: api
+{{- end }}
   selector:
     app: {{ $.node_class }}
   type: ClusterIP
-{{- if $.node_vals.api }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ $.node_class }}-api
-  labels:
-    app: {{ $.node_class }}
-spec:
-  ports:
-    - name: api
-      port: 80
-      protocol: TCP
-      targetPort: api
-  selector:
-    app: {{ $.node_class }}
-  type: NodePort
-{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -145,7 +133,7 @@ spec:
             - name: DEKU_API_NODE_URI
               value: '{{ $.node_class }}.{{ $.Release.Namespace }}.svc.cluster.local:4440'
             - name: DEKU_API_PORT
-              value: '8080'
+              value: '80'
             - name: DEKU_API_DOMAINS
               value: '8'
             - name: DEKU_DEFAULT_BLOCK_SIZE
