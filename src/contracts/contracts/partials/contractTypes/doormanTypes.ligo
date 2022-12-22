@@ -20,9 +20,9 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     farmClaimIsPaused       : bool;
 
     // vault entrypoints
-    onVaultDepositStakedMvkIsPaused    : bool;
-    onVaultWithdrawStakedMvkIsPaused   : bool;
-    onVaultLiquidateStakedMvkIsPaused  : bool;
+    onVaultDepositStakeIsPaused    : bool;
+    onVaultWithdrawStakeIsPaused   : bool;
+    onVaultLiquidateStakeIsPaused  : bool;
 
 ]
 
@@ -51,17 +51,17 @@ type doormanUpdateConfigParamsType is [@layout:comb] record [
     updateConfigAction      : doormanUpdateConfigActionType;
 ]
 
-type onVaultDepositStakedMvkType is [@layout:comb] record [
+type onVaultDepositStakeType is [@layout:comb] record [
     vaultOwner       : address;
     vaultAddress     : address;
     depositAmount    : nat;
 ]
-type onVaultWithdrawStakedMvkType is [@layout:comb] record [
+type onVaultWithdrawStakeType is [@layout:comb] record [
     vaultOwner       : address;
     vaultAddress     : address;
     withdrawAmount   : nat;
 ]
-type onVaultLiquidateStakedMvkType is [@layout:comb] record [
+type onVaultLiquidateStakeType is [@layout:comb] record [
     vaultAddress      : address;
     liquidator        : address; 
     liquidatedAmount  : nat; 
@@ -72,9 +72,9 @@ type doormanPausableEntrypointType is
     |   Unstake                       of bool
     |   Compound                      of bool
     |   FarmClaim                     of bool
-    |   OnVaultDepositStakedMvk       of bool
-    |   OnVaultWithdrawStakedMvk      of bool
-    |   OnVaultLiquidateStakedMvk     of bool
+    |   OnVaultDepositStake           of bool
+    |   OnVaultWithdrawStake          of bool
+    |   OnVaultLiquidateStake         of bool
 
 type doormanTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : doormanPausableEntrypointType;
@@ -111,9 +111,9 @@ type doormanLambdaActionType is
     |   LambdaFarmClaim                   of farmClaimType
 
         // Vault Lambdas
-    |   LambdaOnVaultDepositStakedMvk       of onVaultDepositStakedMvkType
-    |   LambdaOnVaultWithdrawStakedMvk      of onVaultWithdrawStakedMvkType
-    |   LambdaOnVaultLiquidateStakedMvk     of onVaultLiquidateStakedMvkType
+    |   LambdaOnVaultDepositStake         of onVaultDepositStakeType
+    |   LambdaOnVaultWithdrawStake        of onVaultWithdrawStakeType
+    |   LambdaOnVaultLiquidateStake       of onVaultLiquidateStakeType
 
 // ------------------------------------------------------------------------------
 // Storage
