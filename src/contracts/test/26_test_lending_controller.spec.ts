@@ -163,61 +163,57 @@ describe("Lending Controller tests", async () => {
         // ------------------------------------------------------------------
         await signerFactory(bob.sk);
 
-        console.log('set lp tokens');
-
         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
-        
-        // if(mockFa12LoanToken !== undefined || mockFa12LoanToken !== null){
-        //     console.log('test');
-        //     updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
-        //     {
-        //         from_: bob.pkh,
-        //         txs: [
-        //             {
-        //                 to_: eve.pkh,
-        //                 token_id: 0,
-        //                 amount: 1,
-        //             },
-        //         ]
-        //     }]).send();
-        //     console.log('test2');
-        //     await updateTokenRewardIndexOperation.confirmation();
-        //     console.log('mockfa12 loan token set');
-        // }
 
-        // if(mockFa2LoanToken !== undefined || mockFa2LoanToken !== null){
-        //     updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
-        //     {
-        //         from_: bob.pkh,
-        //         txs: [
-        //             {
-        //                 to_: eve.pkh,
-        //                 token_id: 0,
-        //                 amount: 0,
-        //             },
-        //         ]
-        //     }]).send();
-        //     await updateTokenRewardIndexOperation.confirmation();
-        //     console.log('mockfa2 loan token set');
-        // }
+        if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
+            updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: eve.pkh,
+                        token_id: 0,
+                        amount: 0,
+                    },
+                ]
+            }]).send();
+            await updateTokenRewardIndexOperation.confirmation();
+            console.log('mockfa12 loan token set');
+        }
 
-        // if(tezLoanToken !== undefined || tezLoanToken !== null){
-        //     updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
-        //     {
-        //         from_: bob.pkh,
-        //         txs: [
-        //             {
-        //                 to_: eve.pkh,
-        //                 token_id: 0,
-        //                 amount: 0,
-        //             },
-        //         ]
-        //     }]).send();
-        //     await updateTokenRewardIndexOperation.confirmation();
-        //     console.log('tez loan token set');
-        // }
+        if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
+            updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: eve.pkh,
+                        token_id: 0,
+                        amount: 0,
+                    },
+                ]
+            }]).send();
+            await updateTokenRewardIndexOperation.confirmation();
+            console.log('mockfa2 loan token set');
+        }
+
+        if(!(tezLoanToken == undefined || tezLoanToken == null)){
+            updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: eve.pkh,
+                        token_id: 0,
+                        amount: 0,
+                    },
+                ]
+            }]).send();
+            await updateTokenRewardIndexOperation.confirmation();
+            console.log('tez loan token set');
+        }
 
     });
 
@@ -1389,10 +1385,6 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner    = eve.pkh;
                 const depositors    = "any";
                 const loanTokenName = "mockFa12";
-
-                const initialLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-                console.log('test loan token view');
-                console.log(initialLoanTokenRecordView);
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     eve.pkh,                // delegate to
