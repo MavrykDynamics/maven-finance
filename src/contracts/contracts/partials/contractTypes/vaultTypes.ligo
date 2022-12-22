@@ -53,6 +53,11 @@ type onLiquidateType  is [@layout:comb] record [
 ]
 
 
+type updateTokenOperatorsType is [@layout:comb] record [
+    tokenName        : string;
+    updateOperators  :  updateOperatorsType
+];
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -72,7 +77,7 @@ type vaultLambdaActionType is
     |   LambdaWithdraw                   of withdrawType
     |   LambdaOnLiquidate                of onLiquidateType 
     |   LambdaUpdateDepositor            of updateDepositorType
-    |   LambdaUpdateMvkOperators         of updateOperatorsType
+    |   LambdaUpdateTokenOperators       of updateTokenOperatorsType
 
 
 // ------------------------------------------------------------------------------

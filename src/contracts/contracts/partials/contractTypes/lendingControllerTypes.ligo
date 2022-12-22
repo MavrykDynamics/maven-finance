@@ -63,9 +63,9 @@ type lendingControllerBreakGlassConfigType is record [
     vaultWithdrawIsPaused               : bool;
     vaultOnLiquidateIsPaused            : bool;
 
-    // Vault Staked MVK Entrypoints
-    vaultDepositStakedMvkIsPaused       : bool;
-    vaultWithdrawStakedMvkIsPaused      : bool;
+    // Vault Staked Token Entrypoints
+    vaultDepositStakedTokenIsPaused     : bool;
+    vaultWithdrawStakedTokenIsPaused    : bool;
 
 ]
 
@@ -81,6 +81,9 @@ type collateralTokenRecordType is [@layout:comb] record [
     isScaledToken           : bool;
     isStakedToken           : bool;
     stakingContractAddress  : option(address);
+
+    totalDeposited          : nat;
+    maxDepositAmount        : option(nat);
 
     tokenType               : tokenType; 
 ]
@@ -250,6 +253,8 @@ type createCollateralTokenActionType is [@layout:comb] record [
     isStakedToken           : bool;
     stakingContractAddress  : option(address);
 
+    maxDepositAmount        : option(nat);
+
     // variants at the end for taquito 
     tokenType               : tokenType; 
 ]
@@ -316,13 +321,15 @@ type updateRewardsActionType is [@layout:comb] record [
 ]
 
 
-type vaultDepositStakedMvkActionType is [@layout:comb] record [
+type vaultDepositStakedTokenActionType is [@layout:comb] record [
+    tokenName       : string;
     vaultId         : nat;
     depositAmount   : nat;
 ]
 
 
-type vaultWithdrawStakedMvkActionType is [@layout:comb] record [
+type vaultWithdrawStakedTokenActionType is [@layout:comb] record [
+    tokenName       : string;
     vaultId         : nat;
     withdrawAmount  : nat;
 ]
@@ -356,9 +363,9 @@ type lendingControllerPausableEntrypointType is
     |   VaultWithdraw               of bool
     |   VaultOnLiquidate            of bool
 
-        // Vault Staked MVK Entrypoints
-    |   VaultDepositStakedMvk       of bool
-    |   VaultWithdrawStakedMvk      of bool
+        // Vault Staked Token Entrypoints
+    |   VaultDepositStakedToken     of bool
+    |   VaultWithdrawStakedToken    of bool
 
 type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : lendingControllerPausableEntrypointType;
@@ -401,9 +408,9 @@ type lendingControllerLambdaActionType is
     |   LambdaBorrow                          of borrowActionType
     |   LambdaRepay                           of repayActionType
 
-        // Vault Staked MVK Entrypoints   
-    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
-    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
+        // Vault Staked Token Entrypoints   
+    |   LambdaVaultDepositStakedToken         of vaultDepositStakedTokenActionType
+    |   LambdaVaultWithdrawStakedToken        of vaultWithdrawStakedTokenActionType
 
 // ------------------------------------------------------------------------------
 // Storage

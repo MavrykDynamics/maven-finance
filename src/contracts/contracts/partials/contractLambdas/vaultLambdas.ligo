@@ -324,33 +324,41 @@ block {
 
 
 
-(* updateMvkOperators lambda *)
-function lambdaUpdateMvkOperators(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is 
+(* updateTokenOperators lambda *)
+function lambdaUpdateTokenOperators(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is 
 block {
 
     // Steps Overview:
     // 1. Check if sender is vault owner
-    // 2. Update operators of Vault Contract on the MVK Token contract 
-    //    - required to set Doorman Contract as an operator for staking/unstaking 
+    // 2. Update operators of Vault Contract on the Staked Token contract (e.g. MVK Token Contract)
+    //    - required to set Staking Contract (e.g. Doorman) as an operator for staking/unstaking 
 
     verifySenderIsVaultOwner(s);
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaUpdateMvkOperators(updateOperatorsParams) -> {
+        |   LambdaUpdateTokenOperators(updateTokenOperatorsParams) -> {
+
+                const tokenName         : string              = updateTokenOperatorsParams.tokenName;
+                const updateOperators   : updateOperatorsType = updateTokenOperatorsParams.updateOperators;
+
+                // get collateral token record from Lending Controller through on-chain view
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+                const collateralTokenContractAddress : address = collateralTokenRecord.tokenContractAddress;
+
+                // verify token is a staked token 
+                verifyCollateralTokenIsStakedToken(collateralTokenRecord);
                 
-                // Create operation to update operators in MVK token contract
-                const updateMvkOperatorsOperation : operation = updateMvkOperatorsOperation(updateOperatorsParams, s);
-                operations := updateMvkOperatorsOperation # operations;
+                // Create operation to update operators in token contract
+                const updateTokenOperatorsOperation : operation = updateTokenOperatorsOperation(updateOperators, collateralTokenContractAddress);
+                operations := updateTokenOperatorsOperation # operations;
 
             }
         |   _ -> skip
     ];
 
 } with (operations, s)
-
-
 
 // ------------------------------------------------------------------------------
 //

@@ -24,8 +24,8 @@
         "lambdaBorrow",
         "lambdaRepay",
 
-        "lambdaVaultDepositStakedMvk",
-        "lambdaVaultWithdrawStakedMvk"
+        "lambdaVaultDepositStakedToken",
+        "lambdaVaultWithdrawStakedToken"
     ],
     "lendingControllerMockTime": [
         "lambdaSetAdmin",
@@ -52,8 +52,8 @@
         "lambdaBorrow",
         "lambdaRepay",
 
-        "lambdaVaultDepositStakedMvk",
-        "lambdaVaultWithdrawStakedMvk"
+        "lambdaVaultDepositStakedToken",
+        "lambdaVaultWithdrawStakedToken"
     ],
     "vault": [
         "lambdaSetAdmin",
@@ -66,7 +66,7 @@
         "lambdaWithdraw",
         "lambdaOnLiquidate",
         "lambdaUpdateDepositor",
-        "lambdaUpdateMvkOperators"
+        "lambdaUpdateTokenOperators"
     ],
     "vaultFactory": [
         "lambdaSetAdmin",

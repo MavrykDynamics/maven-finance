@@ -278,15 +278,15 @@ block{
 
 
 
-(* onVaultDepositStakedMvk entrypoint *)
-function onVaultDepositStakedMvk(const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType; var s: doormanStorageType): return is
+(* onVaultDepositStake entrypoint *)
+function onVaultDepositStake(const onVaultDepositStakeParams : onVaultDepositStakeType; var s: doormanStorageType): return is
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultDepositStakedMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultDepositStake", s.lambdaLedger);
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultDepositStakedMvk(onVaultDepositStakedMvkParams);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultDepositStake(onVaultDepositStakeParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -296,14 +296,14 @@ block{
 
 
 (* onVaultWithdrawStakedMvk entrypoint *)
-function onVaultWithdrawStakedMvk(const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType; var s: doormanStorageType): return is
+function onVaultWithdrawStake(const onVaultWithdrawStakeParams : onVaultWithdrawStakeType; var s: doormanStorageType): return is
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultWithdrawStakedMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultWithdrawStake", s.lambdaLedger);
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultWithdrawStakedMvk(onVaultWithdrawStakedMvkParams);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultWithdrawStake(onVaultWithdrawStakeParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -312,15 +312,15 @@ block{
 
 
 
-(* onVaultLiquidateStakedMvk entrypoint *)
-function onVaultLiquidateStakedMvk(const onVaultLiquidateStakedMvkParams : onVaultLiquidateStakedMvkType; var s: doormanStorageType): return is
+(* onVaultLiquidateStake\ entrypoint *)
+function onVaultLiquidateStake(const onVaultLiquidateStakeParams : onVaultLiquidateStakeType; var s: doormanStorageType): return is
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultLiquidateStakedMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaOnVaultLiquidateStake", s.lambdaLedger);
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultLiquidateStakedMvk(onVaultLiquidateStakedMvkParams);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultLiquidateStake(onVaultLiquidateStakeParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  

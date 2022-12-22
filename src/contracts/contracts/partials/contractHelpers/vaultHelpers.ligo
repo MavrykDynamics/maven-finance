@@ -133,15 +133,14 @@ function getDelegateToSatelliteEntrypoint(const contractAddress : address) : con
 
 
 
-// helper function to %update_operators entrypoint on the MVK token contract
-function getUpdateMvkOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
+// helper function to %update_operators entrypoint on a given token contract
+function getUpdateTokenOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
     case (Tezos.get_entrypoint_opt(
         "%update_operators",
         tokenContractAddress) : option(contract(updateOperatorsType))) of [
                 Some (contr)    -> contr
-            |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
+            |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_STAKING_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
         ];
-
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -170,18 +169,18 @@ block {
 
 
 
-// helper function to create updateMvkOperators operation
-function updateMvkOperatorsOperation(const updateOperatorsParams : updateOperatorsType; const s : vaultStorageType) : operation is 
+// helper function to create updateTokenOperators operation
+function updateTokenOperatorsOperation(const updateOperatorsParams : updateOperatorsType; const tokenContractAddress : address) : operation is 
 block {
 
-    // Create operation to update operators in MVK token contract
-    const updateMvkOperatorsOperation : operation = Tezos.transaction(
+    // Create operation to update operators in token contract
+    const updateTokenOperatorsOperation : operation = Tezos.transaction(
         (updateOperatorsParams),
         0tez, 
-        getUpdateMvkOperatorsEntrypoint(s.mvkTokenAddress)
+        getUpdateTokenOperatorsEntrypoint(tokenContractAddress)
     );
 
-} with updateMvkOperatorsOperation
+} with updateTokenOperatorsOperation
 
 // ------------------------------------------------------------------------------
 // Operation Helper Functions End
@@ -230,6 +229,16 @@ block {
     ];
 
 } with collateralTokenRecord
+
+
+
+// helper function to verify that collateral token is staked token
+function verifyCollateralTokenIsStakedToken(const collateralTokenRecord : collateralTokenRecordType) : unit is 
+block {
+
+    if collateralTokenRecord.isStakedToken = False then failwith(error_NOT_STAKED_TOKEN) else skip;
+
+} with unit
 
 
 
