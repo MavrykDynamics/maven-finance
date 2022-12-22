@@ -75,9 +75,9 @@ type lendingControllerAction is
     |   Borrow                          of borrowActionType
     |   Repay                           of repayActionType
 
-        // Vault Staked MVK Entrypoints    
-    |   VaultDepositStakedMvk           of vaultDepositStakedMvkActionType   
-    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType   
+        // Vault Staked Token Entrypoints    
+    |   VaultDepositStakedToken         of vaultDepositStakedTokenActionType   
+    |   VaultWithdrawStakedToken        of vaultWithdrawStakedTokenActionType   
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -156,9 +156,9 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   Borrow(parameters)                            -> borrow(parameters, s)
         |   Repay(parameters)                             -> repay(parameters, s)
 
-            // Vault Staked MVK Entrypoints 
-        |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
-        |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
+            // Vault Staked Token Entrypoints 
+        |   VaultDepositStakedToken(parameters)           -> vaultDepositStakedToken(parameters, s)
+        |   VaultWithdrawStakedToken(parameters)          -> vaultWithdrawStakedToken(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    

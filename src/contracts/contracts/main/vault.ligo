@@ -43,7 +43,7 @@ type vaultActionType is
     |   Withdraw                        of withdrawType
     |   OnLiquidate                     of onLiquidateType
     |   UpdateDepositor                 of updateDepositorType
-    |   UpdateMvkOperators              of updateOperatorsType
+    |   UpdateTokenOperators            of updateTokenOperatorsType
   
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -105,7 +105,7 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
         |   Withdraw(parameters)                         -> withdraw(parameters, s)
         |   OnLiquidate(parameters)                      -> onLiquidate(parameters, s)
         |   UpdateDepositor(parameters)                  -> updateDepositor(parameters, s)
-        |   UpdateMvkOperators(parameters)               -> updateMvkOperators(parameters, s)
+        |   UpdateTokenOperators(parameters)             -> updateTokenOperators(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                        -> setLambda(parameters, s)    

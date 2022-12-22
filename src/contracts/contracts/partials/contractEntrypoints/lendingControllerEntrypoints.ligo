@@ -369,18 +369,18 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Vault Staked MVK Entrypoints Begin
+// Vault Staked Token Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* vaultDepositStakedMvk entrypoint *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkActionType; var s : lendingControllerStorageType) : return is 
+(* vaultDepositStakedToken entrypoint *)
+function vaultDepositStakedToken(const vaultDepositStakedTokenParams : vaultDepositStakedTokenActionType; var s : lendingControllerStorageType) : return is 
 block {
  
      // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultDepositStakedMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultDepositStakedToken", s.lambdaLedger);
  
      // init lending controller lambda action
-     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedToken(vaultDepositStakedTokenParams);
  
      // init response
      const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
@@ -389,15 +389,15 @@ block {
 
 
 
-// (* vaultWithdrawStakedMvk entrypoint *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkActionType; var s : lendingControllerStorageType) : return is 
+// (* vaultWithdrawStakedToken entrypoint *)
+function vaultWithdrawStakedToken(const vaultWithdrawStakedTokenParams : vaultWithdrawStakedTokenActionType; var s : lendingControllerStorageType) : return is 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultWithdrawStakedMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaVaultWithdrawStakedToken", s.lambdaLedger);
 
     // init lending controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedToken(vaultWithdrawStakedTokenParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
@@ -405,7 +405,7 @@ block {
 } with response
 
 // ------------------------------------------------------------------------------
-// Vault Staked MVK Entrypoints End
+// Vault Staked Token Entrypoints End
 // ------------------------------------------------------------------------------
 
 

@@ -634,27 +634,27 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
 
 
-(*  onVaultDepositStakedMvk lambda *)
-function lambdaOnVaultDepositStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
+(*  onVaultDepositStake lambda *)
+function lambdaOnVaultDepositStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
 
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultDepositStakedMvkIsPaused, error_ON_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultDepositStakeIsPaused, error_ON_VAULT_DEPOSIT_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        | LambdaOnVaultDepositStakedMvk(onVaultDepositStakedMvkParams) -> {
+        | LambdaOnVaultDepositStake(onVaultDepositStakeParams) -> {
 
                 // verify sender is Lending Controller 
                 verifySenderIsLendingControllerContract(s);
 
                 // init parameters
-                const vaultOwner     : address  = onVaultDepositStakedMvkParams.vaultOwner;
-                const vaultAddress   : address  = onVaultDepositStakedMvkParams.vaultAddress;
-                const depositAmount  : nat      = onVaultDepositStakedMvkParams.depositAmount;
+                const vaultOwner     : address  = onVaultDepositStakeParams.vaultOwner;
+                const vaultAddress   : address  = onVaultDepositStakeParams.vaultAddress;
+                const depositAmount  : nat      = onVaultDepositStakeParams.depositAmount;
                 
                 // Get Delegation Address from the General Contracts map on the Governance Contract
-                const delegationAddress         : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Compound rewards for user and vault before any changes in balance takes place
                 s := compoundUserRewards(vaultOwner, s);
@@ -704,27 +704,27 @@ block{
 
 
 
-(*  onVaultWithdrawStakedMvk lambda *)
-function lambdaOnVaultWithdrawStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
+(*  onVaultWithdrawStake lambda *)
+function lambdaOnVaultWithdrawStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
 
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused, error_ON_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultWithdrawStakeIsPaused, error_ON_VAULT_WITHDRAW_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        | LambdaOnVaultWithdrawStakedMvk(onVaultWithdrawStakedMvkParams) -> {
+        | LambdaOnVaultWithdrawStake(onVaultWithdrawStakeParams) -> {
 
                 // verify sender is Lending Controller 
                 verifySenderIsLendingControllerContract(s);
 
                 // init parameters
-                const vaultOwner      : address = onVaultWithdrawStakedMvkParams.vaultOwner;
-                const vaultAddress    : address = onVaultWithdrawStakedMvkParams.vaultAddress;
-                const withdrawAmount  : nat     = onVaultWithdrawStakedMvkParams.withdrawAmount;
+                const vaultOwner      : address = onVaultWithdrawStakeParams.vaultOwner;
+                const vaultAddress    : address = onVaultWithdrawStakeParams.vaultAddress;
+                const withdrawAmount  : nat     = onVaultWithdrawStakeParams.withdrawAmount;
 
                 // Get Delegation Address from the General Contracts map on the Governance Contract
-                const delegationAddress         : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Compound rewards for user and vault before any changes in balance takes place
                 s := compoundUserRewards(vaultOwner, s);
@@ -768,24 +768,24 @@ block{
 
 
 
-(*  onVaultLiquidateStakedMvk lambda *)
-function lambdaOnVaultLiquidateStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
+(*  onVaultLiquidateStake lambda *)
+function lambdaOnVaultLiquidateStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
     
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused, error_ON_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultLiquidateStakeIsPaused, error_ON_VAULT_LIQUIDATE_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        | LambdaOnVaultLiquidateStakedMvk(onVaultLiquidateStakedMvkParams) -> {
+        | LambdaOnVaultLiquidateStake(onVaultLiquidateStakeParams) -> {
 
                 // verify sender is Lending Controller 
                 verifySenderIsLendingControllerContract(s);
 
                 // init parameters
-                const vaultAddress      : address  = onVaultLiquidateStakedMvkParams.vaultAddress;
-                const liquidator        : address  = onVaultLiquidateStakedMvkParams.liquidator;
-                const liquidatedAmount  : nat      = onVaultLiquidateStakedMvkParams.liquidatedAmount;
+                const vaultAddress      : address  = onVaultLiquidateStakeParams.vaultAddress;
+                const liquidator        : address  = onVaultLiquidateStakeParams.liquidator;
+                const liquidatedAmount  : nat      = onVaultLiquidateStakeParams.liquidatedAmount;
 
                 // Get Delegation Address from the General Contracts map on the Governance Contract
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);

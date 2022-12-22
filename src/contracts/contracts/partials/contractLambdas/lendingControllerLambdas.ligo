@@ -169,12 +169,12 @@ block {
                 else s.breakGlassConfig.vaultOnLiquidateIsPaused := True;
 
 
-                // Vault Staked MVK Entrypoints
-                if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then skip
-                else s.breakGlassConfig.vaultDepositStakedMvkIsPaused := True;
+                // Vault Staked Token Entrypoints
+                if s.breakGlassConfig.vaultDepositStakedTokenIsPaused then skip
+                else s.breakGlassConfig.vaultDepositStakedTokenIsPaused := True;
 
-                if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then skip
-                else s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused := True;
+                if s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused then skip
+                else s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused := True;
 
             }
         |   _ -> skip
@@ -252,11 +252,11 @@ block {
                 else skip;
 
 
-                // Vault Staked MVK Entrypoints
-                if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then s.breakGlassConfig.vaultDepositStakedMvkIsPaused := False
+                // Vault Staked Token Entrypoints
+                if s.breakGlassConfig.vaultDepositStakedTokenIsPaused then s.breakGlassConfig.vaultDepositStakedTokenIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused := False
+                if s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused then s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused := False
                 else skip;
             
             }
@@ -305,9 +305,9 @@ block {
                     |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
                     |   VaultOnLiquidate (_v)                -> s.breakGlassConfig.vaultOnLiquidateIsPaused              := _v
 
-                        // Vault Staked MVK Entrypoints
-                    |   VaultDepositStakedMvk (_v)           -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused         := _v
-                    |   VaultWithdrawStakedMvk (_v)          -> s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused        := _v
+                        // Vault Staked Token Entrypoints
+                    |   VaultDepositStakedToken (_v)         -> s.breakGlassConfig.vaultDepositStakedTokenIsPaused       := _v
+                    |   VaultWithdrawStakedToken (_v)        -> s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused      := _v
 
                 ]
                 
@@ -475,9 +475,6 @@ block {
                 // Get loan token record and update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
-
-                // Get borrow index of token
-                const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
                 
                 // init empty collateral balance ledger map
                 var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
@@ -488,7 +485,7 @@ block {
                     collateralBalanceLedgerMap,     // collateral balance ledger
                     loanTokenRecord.tokenName,      // loan token name
                     loanTokenRecord.tokenDecimals,  // loan token decimals
-                    tokenBorrowIndex                // token borrow index
+                    loanTokenRecord.borrowIndex     // loan token borrow index
                 );
                 
                 // update controller storage with new vault
@@ -620,15 +617,15 @@ block {
                 const lpTokensBurned            : nat         = amount;
 
                 // Calculate new total of LP Tokens - verify that lpTokensBurned is less than lpTokensTotal
-                verifyLessThan(lpTokensBurned, lpTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
+                verifyLessThanOrEqual(lpTokensBurned, lpTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
                 const newLpTokensTotal : nat = abs(lpTokensTotal - lpTokensBurned);
 
                 // Calculate new token pool amount - verify that amount is less than loan token pool total
-                verifyLessThan(amount, loanTokenPoolTotal, error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE);
+                verifyLessThanOrEqual(amount, loanTokenPoolTotal, error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE);
                 const newTokenPoolTotal : nat = abs(loanTokenPoolTotal - amount);
 
                 // Calculate new token pool remaining - verify that amount is less than loan total remaining
-                verifyLessThan(amount, loanTotalRemaining, error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE);
+                verifyLessThanOrEqual(amount, loanTotalRemaining, error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE);
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
                 // burn LP Tokens and send to sender
@@ -730,11 +727,11 @@ block {
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
-                            const withdrawAllStakedMvkOperation : operation = onWithdrawStakedMvkFromVaultOperation(
+                            const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
                                 vaultOwner,                         // vault owner
                                 vaultAddress,                       // vault address
                                 finalTokenBalance,                  // withdraw amount
-                                s                                   // storage
+                                stakingContractAddress              // staking contract address
                             );
 
                             operations := withdrawAllStakedMvkOperation # operations;
@@ -1031,7 +1028,7 @@ block {
                     newLoanInterestTotal := 0n;
 
                     // Calculate final loan principal - verify that principalReductionAmount is less than initialLoanPrincipalTotal
-                    verifyLessThan(principalReductionAmount, initialLoanPrincipalTotal, error_PRINCIPAL_REDUCTION_MISCALCULATION);
+                    verifyLessThanOrEqual(principalReductionAmount, initialLoanPrincipalTotal, error_PRINCIPAL_REDUCTION_MISCALCULATION);
                     newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
                     // set total principal repaid amount
@@ -1046,13 +1043,13 @@ block {
                     totalInterestPaid := totalLiquidationAmount;
 
                     // Calculate final loan interest - verify that totalLiquidationAmount is less than newLoanInterestTotal
-                    verifyLessThan(totalLiquidationAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
+                    verifyLessThanOrEqual(totalLiquidationAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
                     newLoanInterestTotal := abs(newLoanInterestTotal - totalLiquidationAmount);
 
                 };
 
                 // Calculate final loan outstanding total - verify that totalLiquidationAmount is less than newLoanOutstandingTotal
-                verifyLessThan(totalLiquidationAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);
+                verifyLessThanOrEqual(totalLiquidationAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);
                 newLoanOutstandingTotal := abs(newLoanOutstandingTotal - totalLiquidationAmount);
 
                 // ------------------------------------------------------------------
@@ -1063,7 +1060,7 @@ block {
                 const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate amount of interest - verify that interestSentToTreasury is less than totalInterestPaid
-                verifyLessThan(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
+                verifyLessThanOrEqual(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
                 const interestRewards : nat = abs(totalInterestPaid - interestSentToTreasury);
 
                 // ------------------------------------------------------------------
@@ -1091,7 +1088,7 @@ block {
                 if totalPrincipalRepaid > 0n then {
 
                     // verify that totalPrincipalRepaid is less than totalBorrowed
-                    verifyLessThan(totalPrincipalRepaid, totalBorrowed, error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT);
+                    verifyLessThanOrEqual(totalPrincipalRepaid, totalBorrowed, error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT);
 
                     // Calculate new totalBorrowed and totalRemaining
                     newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
@@ -1287,7 +1284,7 @@ block {
                 var vaultTokenCollateralBalance : nat := getVaultTokenCollateralBalance(vault, tokenName);
 
                 // Calculate new vault balance - verify that withdrawalAmount is less than vaultTokenCollateralBalance
-                verifyLessThan(withdrawalAmount, vaultTokenCollateralBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
+                verifyLessThanOrEqual(withdrawalAmount, vaultTokenCollateralBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
                 const newCollateralBalance : nat  = abs(vaultTokenCollateralBalance - withdrawalAmount);
                 
                 // ------------------------------------------------------------------
@@ -1405,7 +1402,7 @@ block {
                 newTotalBorrowed := totalBorrowed + initialLoanAmount;
                 
                 // calculate new total remaining - verify that initialLoanAmount is less than totalRemaining
-                verifyLessThan(initialLoanAmount, totalRemaining, error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED);
+                verifyLessThanOrEqual(initialLoanAmount, totalRemaining, error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED);
                 newTotalRemaining := abs(totalRemaining - initialLoanAmount);
 
                 // verify that newTotalRemaining is greater than requiredTokenPoolReserves
@@ -1583,20 +1580,20 @@ block {
                     totalInterestPaid := finalRepaymentAmount;
 
                     // Calculate final loan interest - verify that finalRepaymentAmount is less than newLoanInterestTotal
-                    verifyLessThan(finalRepaymentAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
+                    verifyLessThanOrEqual(finalRepaymentAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
                     newLoanInterestTotal := abs(newLoanInterestTotal - finalRepaymentAmount);
 
                 };
 
                 // Calculate final loan outstanding total - verify that finalRepaymentAmount is less than newLoanOutstandingTotal
-                verifyLessThan(finalRepaymentAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);
+                verifyLessThanOrEqual(finalRepaymentAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);
                 newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
                 // Calculate amount of interest that goes to the Treasury 
                 const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate amount of interest that goes to the Reward Pool - verify that interestSentToTreasury is less than totalInterestPaid
-                verifyLessThan(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
+                verifyLessThanOrEqual(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
                 const interestRewards : nat = abs(totalInterestPaid - interestSentToTreasury);
 
                 // ------------------------------------------------------------------
@@ -1625,7 +1622,7 @@ block {
                 if totalPrincipalRepaid > 0n then {
 
                     // verify that totalPrincipalRepaid is less than totalBorrowed
-                    verifyLessThan(totalPrincipalRepaid, totalBorrowed, error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT);
+                    verifyLessThanOrEqual(totalPrincipalRepaid, totalBorrowed, error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT);
 
                     // Calculate new totalBorrowed and totalRemaining
                     newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
@@ -1707,29 +1704,37 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Vault Staked MVK Lambdas Begin
+// Vault Staked Token Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* depositStakedMvk lambda *)
-function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+(* depositStakedToken lambda *)
+function lambdaVaultDepositStakedToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
     var operations : list(operation) := nil;
     
     // Verify that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultDepositStakedMvkIsPaused, error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultDepositStakedTokenIsPaused, error_VAULT_DEPOSIT_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
-        |   LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
+        |   LambdaVaultDepositStakedToken(vaultDepositStakedTokenParams) -> {
                 
                 // init variables for convenience
-                const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
-                const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
-                const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "smvk";
+                const vaultId               : vaultIdType       = vaultDepositStakedTokenParams.vaultId;
+                const depositAmount         : nat               = vaultDepositStakedTokenParams.depositAmount;
+                const collateralTokenName   : string            = vaultDepositStakedTokenParams.tokenName;
+                const vaultOwner            : vaultOwnerType    = Tezos.get_sender();
 
-                // Check if token (sMVK) exists in collateral token ledger
-                checkCollateralTokenExists(tokenName, s);
+                var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
+
+                // Check if token (e.g. sMVK) exists in collateral token ledger
+                checkCollateralTokenExists(collateralTokenName, s);
+
+                // Verify that collateral token is of staked token type
+                verifyCollateralTokenIsStakedToken(collateralTokenRecord);
+
+                // Verify that max deposit amount has not been exceeded
+                verifyMaxDepositAmountNotExceeded(collateralTokenRecord, depositAmount);
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
@@ -1744,32 +1749,44 @@ block {
                 const vaultAddress      : address                               = vault.address;
 
                 // ------------------------------------------------------------------
-                // Register vaultDepositStakedMvk action on the Doorman Contract
+                // Register vaultDepositStakedMvk action on the Staking Contract (e.g. Doorman)
                 // ------------------------------------------------------------------
+                
+                // get staking contract address
+                const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
+                        Some(_address) -> _address
+                    |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+                ];
 
-                const vaultDepositStakedMvkOperation : operation = onDepositStakedMvkToVaultOperation(
+                const vaultDepositStakedTokenOperation : operation = onDepositStakedTokenToVaultOperation(
                     vaultOwner,                         // vault owner
                     vaultAddress,                       // vault address
                     depositAmount,                      // deposit amount
-                    s                                   // storage
+                    stakingContractAddress              // staking contract address
                 );
-                operations := vaultDepositStakedMvkOperation # operations;
+                operations := vaultDepositStakedTokenOperation # operations;
                 
-                // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
-                // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-                const currentVaultStakedMvkBalance : nat = getBalanceFromStakingContract(vault.address, doormanAddress);
+                // get vault staked balance from staking contract (e.g. doorman contract - includes unclaimed exit fee rewards, does not include satellite rewards)
+                // - for better accuracy, there could be a frontend call to compound rewards for the vault first
+                const currentVaultStakedTokenBalance : nat = getBalanceFromStakingContract(vault.address, stakingContractAddress);
 
                 // Calculate new collateral balance
-                const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
+                const newCollateralBalance : nat = currentVaultStakedTokenBalance + depositAmount;
 
                 // ------------------------------------------------------------------
                 // Update storage
                 // ------------------------------------------------------------------
 
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
-                s.loanTokenLedger[vault.loanToken]        := loanTokenRecord;
+                // Update vaults
+                vault.collateralBalanceLedger[collateralTokenName]  := newCollateralBalance;
+                s.vaults[vaultHandle]                               := vault;
+
+                // Update loan token
+                s.loanTokenLedger[vault.loanToken]                  := loanTokenRecord;
+
+                // Update collateral token record
+                collateralTokenRecord.totalDeposited                := collateralTokenRecord.totalDeposited + depositAmount;
+                s.collateralTokenLedger[collateralTokenName]        := collateralTokenRecord;
                 
             }
         |   _ -> skip
@@ -1779,26 +1796,31 @@ block {
 
 
 
-(* withdrawStakedMvk lambda *)
-function lambdaVaultWithdrawStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+(* withdrawStakedToken lambda *)
+function lambdaVaultWithdrawStakedToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
     var operations : list(operation)  := nil;
     
-    // Verify that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused, error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    // Verify that %vaultWithdrawStakedToken entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused, error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
-        |   LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
+        |   LambdaVaultWithdrawStakedToken(vaultWithdrawStakedTokenParams) -> {
                 
                 // init variables for convenience
-                const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
-                const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
-                const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "smvk";
+                const vaultId                   : vaultIdType       = vaultWithdrawStakedTokenParams.vaultId;
+                const withdrawAmount            : nat               = vaultWithdrawStakedTokenParams.withdrawAmount;
+                const collateralTokenName       : string            = vaultWithdrawStakedTokenParams.tokenName;
+                const vaultOwner                : vaultOwnerType    = Tezos.get_sender();
+
+                var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
                 // Check if token (sMVK) exists in collateral token ledger
-                checkCollateralTokenExists(tokenName, s);
+                checkCollateralTokenExists(collateralTokenName, s);
+
+                // Verify that collateral token is of staked token type
+                verifyCollateralTokenIsStakedToken(collateralTokenRecord);
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
@@ -1813,34 +1835,46 @@ block {
                 const vaultAddress      : address                               = vault.address;
 
                 // ------------------------------------------------------------------
-                // Register vaultWithdrawStakedMvk action on the Doorman Contract
+                // Register vaultWithdrawStakedToken action on the Staking Contract (e.g. Doorman)
                 // ------------------------------------------------------------------
 
-                const vaultWithdrawStakedMvkOperation : operation = onWithdrawStakedMvkFromVaultOperation(
+                // get staking contract address
+                const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
+                        Some(_address) -> _address
+                    |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+                ];
+
+                const vaultWithdrawStakedTokenOperation : operation = onWithdrawStakedTokenFromVaultOperation(
                     vaultOwner,                         // vault owner
                     vaultAddress,                       // vault address
                     withdrawAmount,                     // withdraw amount
-                    s                                   // storage
+                    stakingContractAddress              // staking contract address
                 );
-                operations := vaultWithdrawStakedMvkOperation # operations;
+                operations := vaultWithdrawStakedTokenOperation # operations;
                 
-                // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
-                // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-                const currentVaultStakedMvkBalance : nat = getBalanceFromStakingContract(vault.address, doormanAddress);
+                // get vault staked balance from staking contract (e.g. doorman contract - includes unclaimed exit fee rewards, does not include satellite rewards)
+                // - for better accuracy, there could be a frontend call to compound rewards for the vault first
+                const currentVaultStakedTokenBalance : nat = getBalanceFromStakingContract(vault.address, stakingContractAddress);
 
                 // Calculate new collateral balance - verify that withdrawAmount is less than currentVaultStakedMvkBalance
-                verifyLessThan(withdrawAmount, currentVaultStakedMvkBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
-                const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
+                verifyLessThanOrEqual(withdrawAmount, currentVaultStakedTokenBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
+                const newCollateralBalance : nat = abs(currentVaultStakedTokenBalance - withdrawAmount);
 
                 // ------------------------------------------------------------------
                 // Update storage
                 // ------------------------------------------------------------------
 
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
-                s.loanTokenLedger[vault.loanToken]        := loanTokenRecord;
+                // Update vaults
+                vault.collateralBalanceLedger[collateralTokenName]  := newCollateralBalance;
+                s.vaults[vaultHandle]                               := vault;
+
+                // Update loan token
+                s.loanTokenLedger[vault.loanToken]                  := loanTokenRecord;
                 
+                // Update collateral token record
+                verifyLessThanOrEqual(withdrawAmount, collateralTokenRecord.totalDeposited, error_WRONG_INPUT_PROVIDED);
+                collateralTokenRecord.totalDeposited                := abs(collateralTokenRecord.totalDeposited - withdrawAmount);
+                s.collateralTokenLedger[collateralTokenName]        := collateralTokenRecord;
             }
         |   _ -> skip
     ];
@@ -1848,7 +1882,7 @@ block {
 } with (operations, s)
 
 // ------------------------------------------------------------------------------
-// Vault Staked MVK Lambdas End
+// Vault Staked Token Lambdas End
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------

@@ -169,15 +169,15 @@ block {
 
 
 
-(* updateMvkOperators entrypoint *)
-function updateMvkOperators(const updateMvkOperatorsParams : updateOperatorsType; var s : vaultStorageType) : return is
+(* updateTokenOperators entrypoint *)
+function updateTokenOperators(const updateTokenOperatorsParams : updateTokenOperatorsType; var s : vaultStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMvkOperators", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateTokenOperators", s.lambdaLedger);
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateMvkOperators(updateMvkOperatorsParams);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateTokenOperators(updateTokenOperatorsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
