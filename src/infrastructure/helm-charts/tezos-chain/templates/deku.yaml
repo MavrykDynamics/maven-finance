@@ -36,13 +36,16 @@ spec:
   type: ClusterIP
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ $.node_class }}
   labels:
     app: {{ $.node_class }}
+  namespace: {{ $.Release.Namespace }}
 spec:
+  podManagementPolicy: Parallel
   replicas: 1
+  serviceName: {{ $.node_class }}
   selector:
     matchLabels:
       app: {{ $.node_class }}
@@ -66,13 +69,6 @@ spec:
       {{- end }}
       imagePullSecrets:
         - name: {{ $.Values.dockerPullSecretName }}
-      volumes:
-        - name: node-db-volume
-          emptyDir: {}
-      {{- if $.node_vals.api }}
-        - name: api-db-volume
-          emptyDir: {}
-      {{- end }}
       containers:
         - name: deku
           env:
@@ -157,6 +153,32 @@ spec:
           volumeMounts:
             - mountPath: /var/deku-api
               name: api-db-volume
+{{— end }}
+      securityContext:
+        fsGroup: 1000
+  volumeClaimTemplates:
+{{- if $.node_vals.api }}
+    - metadata:
+        name: api-db-volume
+        namespace: {{ $.Release.Namespace }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: do-block-storage
+        resources:
+          requests:
+            storage: "5Gi"
+{{— end }}
+    - metadata:
+        name: node-db-volume
+        namespace: {{ $.Release.Namespace }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: do-block-storage
+        resources:
+          requests:
+            storage: "5Gi"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
