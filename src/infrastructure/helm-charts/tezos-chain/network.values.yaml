@@ -20,7 +20,7 @@ deku:
       pullPolicy: Always
   config:
     defaultBlockSize: 10000
-    tezosConsensusAddress: KT1RCHsTCqPQEmSrCaW6uMUCXfBp7eySx5e5
+    tezosConsensusAddress: KT1A9XGY9GKoWWjAkRaq89mqMw91spiszDc7
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
@@ -61,6 +61,66 @@ deku:
           tag: rc-v0.1.1-6
           pullPolicy: Always
           pullSecret: docker-pull-credentials
+    deku-on-baking-archive-2:
+      tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
+      image:
+        registry: docker.io
+        repository: mavrykdynamics/deku
+        tag: rc-v0.1.1-6
+        pullPolicy: Always
+        pullSecret: docker-pull-credentials
+      tolerations:
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '0'
+          effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '1'
+          effect: 'NoSchedule'
+      validator: #TRUDY
+        publicKeyHash: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
+        secretKey: edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c
+    deku-on-baking-archive-3:
+      tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
+      image:
+        registry: docker.io
+        repository: mavrykdynamics/deku
+        tag: rc-v0.1.1-6
+        pullPolicy: Always
+        pullSecret: docker-pull-credentials
+      tolerations:
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '0'
+          effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '1'
+          effect: 'NoSchedule'
+      validator: #ISAAC
+        publicKeyHash: tz1SDg2Wah3wBHFwCK5gYV591BhpLWZTWX42
+        secretKey: edsk3ahGaSWjzjHuS7mK5Bsy7LxH8iTRXpGcMvzjgSypKHKw2wrq1u
+    deku-on-baking-archive-4:
+      tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
+      image:
+        registry: docker.io
+        repository: mavrykdynamics/deku
+        tag: rc-v0.1.1-6
+        pullPolicy: Always
+        pullSecret: docker-pull-credentials
+      tolerations:
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '0'
+          effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '1'
+          effect: 'NoSchedule'
+      validator: #DAVID
+        publicKeyHash: tz1PPLFcQyechtAm9XRZWRnMEXJ8NsXUNGdS
+        secretKey: edsk3hwth6tL9hppsUT6sZQ5687DDY9GPgKiZgjg9DDcMjJxoRUsGc
 
 tezos-faucet:
   images:

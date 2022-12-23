@@ -78,9 +78,9 @@ spec:
             - name: DEKU_API_DATA_FOLDER
               value: '/var/deku-api'
             - name: DEKU_LOG_VERBOSITY
-              value: 'info'
+              value: 'debug'
             - name: DEKU_API_LOG_VERBOSITY
-              value: 'info'
+              value: 'debug'
             - name: DEKU_API_NODE_URI
               value: '{{ $.node_class }}.{{ $.Release.Namespace }}.svc.cluster.local:4440'
             - name: DEKU_API_PORT
@@ -130,9 +130,9 @@ spec:
             - name: DEKU_DEFAULT_BLOCK_SIZE
               value: '{{ $.Values.deku.config.defaultBlockSize }}'
             - name: DEKU_LOG_VERBOSITY
-              value: 'info'
+              value: 'debug'
             - name: DEKU_API_LOG_VERBOSITY
-              value: 'info'
+              value: 'debug'
             - name: DEKU_API_URI
               value: '{{ $.Values.deku.config.apiUri }}'
             - name: DEKU_DATA_FOLDER
