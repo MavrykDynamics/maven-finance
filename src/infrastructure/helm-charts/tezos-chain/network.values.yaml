@@ -19,8 +19,8 @@ deku:
       tag: rc-v0.1.1-6
       pullPolicy: Always
   config:
-    defaultBlockSize: 10000
-    tezosConsensusAddress: KT1LroEP13pJxJufNe1rMGUXkDTc8jtS2jgQ
+    defaultBlockSize: 500
+    tezosConsensusAddress: KT1Fp7FvCyHEvqCRKDuLNQzgU2TcA6ZTmA37
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
