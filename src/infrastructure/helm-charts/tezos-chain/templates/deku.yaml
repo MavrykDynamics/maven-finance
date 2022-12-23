@@ -30,6 +30,10 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: api
+    - name: api-tcp
+      port: 5550
+      protocol: TCP
+      targetPort: api-tcp
 {{- end }}
   selector:
     app: {{ $.node_class }}
@@ -85,6 +89,8 @@ spec:
               value: '{{ $.node_class }}.{{ $.Release.Namespace }}.svc.cluster.local:4440'
             - name: DEKU_API_PORT
               value: '8080'
+            - name: DEKU_API_TCP_PORT
+              value: '5550'
             - name: DEKU_API_DOMAINS
               value: '8'
             - name: DEKU_DEFAULT_BLOCK_SIZE
@@ -104,6 +110,9 @@ spec:
           ports:
             - name: api
               containerPort: 80
+              protocol: TCP
+            - name: api-tcp
+              containerPort: 5550
               protocol: TCP
           volumeMounts:
             - mountPath: /var/deku-api
