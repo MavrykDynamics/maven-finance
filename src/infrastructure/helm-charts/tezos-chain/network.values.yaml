@@ -20,11 +20,11 @@ deku:
       pullPolicy: Always
   config:
     defaultBlockSize: 10000
-    tezosConsensusAddress: KT18mf3qx7bWpF3Jpz1ssCy2qxrCWkFophVd
+    tezosConsensusAddress: KT1LroEP13pJxJufNe1rMGUXkDTc8jtS2jgQ
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
-    apiUri: deku-on-baking-archive.basenet.svc.cluster.local:8080
+    apiUri: deku-on-baking-archive.basenet.svc.cluster.local:5550
   nodes:
     deku-on-baking-archive:
       ingress:
