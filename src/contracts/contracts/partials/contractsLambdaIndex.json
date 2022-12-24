@@ -238,9 +238,9 @@
         "lambdaCompound",
         "lambdaFarmClaim",
 
-        "lambdaOnVaultDepositStakedMvk",
-        "lambdaOnVaultWithdrawStakedMvk",
-        "lambdaOnVaultLiquidateStakedMvk"
+        "lambdaOnVaultDepositStake",
+        "lambdaOnVaultWithdrawStake",
+        "lambdaOnVaultLiquidateStake"
     ],
     "emergencyGovernance": [
         "lambdaSetAdmin",
