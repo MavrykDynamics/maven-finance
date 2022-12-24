@@ -520,6 +520,19 @@ block {
 
 
 
+// helper function to get staking contract address
+function getStakingContractAddress(const optionAddress : option(address)) : address is
+block {
+
+    const stakingContractAddress : address = case optionAddress of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+    ];
+
+} with stakingContractAddress
+
+
+
 // helper function for transfers related to token pool (from/to)
 function tokenPoolTransfer(const from_ : address; const to_ : address; const amount : nat; const token : tokenType) : operation is
 block {

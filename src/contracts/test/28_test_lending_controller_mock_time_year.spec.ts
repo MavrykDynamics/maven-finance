@@ -702,6 +702,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 
                 const isScaledToken                     = false;
                 const isStakedToken                     = false;
+                const stakingContractAddress            = null;
+                
+                const maxDepositAmount                  = null;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists        = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -721,7 +724,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                         isScaledToken,
                         isStakedToken,
-                        null,
+                        stakingContractAddress,
+
+                        maxDepositAmount,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -766,6 +771,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                 const isScaledToken                         = false;
                 const isStakedToken                         = false;
+                const stakingContractAddress                = null;
+                
+                const maxDepositAmount                      = null;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -785,7 +793,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                         isScaledToken,
                         isStakedToken,
-                        null,
+                        stakingContractAddress,
+
+                        maxDepositAmount,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -831,6 +841,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                 const isScaledToken                         = false;
                 const isStakedToken                         = false;
+                const stakingContractAddress                = null;
+                
+                const maxDepositAmount                      = null;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -850,7 +863,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                         isScaledToken,
                         isStakedToken,
-                        null,
+                        stakingContractAddress,
+
+                        maxDepositAmount,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -896,6 +911,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                 const isScaledToken                         = false;
                 const isStakedToken                         = false;
+                const stakingContractAddress                = null;
+                
+                const maxDepositAmount                      = null;
 
                 await chai.expect(lendingControllerInstance.methods.setCollateralToken(
                         
@@ -910,7 +928,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                     isScaledToken,
                     isStakedToken,
-                    null,
+                    stakingContractAddress,
+
+                    maxDepositAmount,
                     
                     // fa2 token type - token contract address + token id
                     tokenType,

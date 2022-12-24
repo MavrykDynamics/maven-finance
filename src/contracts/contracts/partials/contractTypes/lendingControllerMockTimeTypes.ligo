@@ -271,8 +271,8 @@ type updateCollateralTokenActionType is [@layout:comb] record [
     tokenName               : string;
     oracleAddress           : address;  
     
-    // stakingContractAddress  : option(address);
-    // viewName : string;
+    stakingContractAddress  : option(address);
+    maxDepositAmount        : option(nat);
 ]
 
 
