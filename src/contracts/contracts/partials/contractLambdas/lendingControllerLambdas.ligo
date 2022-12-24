@@ -425,7 +425,9 @@ block {
                     
                             var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                            collateralTokenRecord.oracleAddress := updateCollateralTokenParams.oracleAddress;
+                            collateralTokenRecord.oracleAddress             := updateCollateralTokenParams.oracleAddress;
+                            collateralTokenRecord.maxDepositAmount          := updateCollateralTokenParams.maxDepositAmount;
+                            collateralTokenRecord.stakingContractAddress    := updateCollateralTokenParams.stakingContractAddress;
 
                             // update storage
                             s.collateralTokenLedger[collateralTokenName] := collateralTokenRecord;
@@ -720,10 +722,7 @@ block {
                             // - for better accuracy, there should be a frontend call to compound rewards for the vault first
                             // finalTokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
 
-                            const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
-                                    Some(_address) -> _address
-                                |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
-                            ];
+                            const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
@@ -1753,10 +1752,7 @@ block {
                 // ------------------------------------------------------------------
                 
                 // get staking contract address
-                const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
-                ];
+                const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
 
                 const vaultDepositStakedTokenOperation : operation = onDepositStakedTokenToVaultOperation(
                     vaultOwner,                         // vault owner
@@ -1816,7 +1812,7 @@ block {
 
                 var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                // Check if token (sMVK) exists in collateral token ledger
+                // Check if token (e.g. sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
@@ -1839,10 +1835,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // get staking contract address
-                const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
-                ];
+                const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
 
                 const vaultWithdrawStakedTokenOperation : operation = onWithdrawStakedTokenFromVaultOperation(
                     vaultOwner,                         // vault owner

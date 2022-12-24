@@ -837,8 +837,12 @@ describe("Lending Controller tests", async () => {
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
                 const tokenProtected                    = false;
+                
                 const isScaledToken                     = false;
                 const isStakedToken                     = false;
+                const stakingContractAddress            = null;
+                
+                const maxDepositAmount                  = null;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -859,7 +863,9 @@ describe("Lending Controller tests", async () => {
                         
                         isScaledToken,
                         isStakedToken,
-                        null,
+                        stakingContractAddress,
+
+                        maxDepositAmount,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -902,6 +908,9 @@ describe("Lending Controller tests", async () => {
                 
                 const isScaledToken                         = false;
                 const isStakedToken                         = false;
+                const stakingContractAddress                = null;
+                
+                const maxDepositAmount                      = null;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -922,7 +931,9 @@ describe("Lending Controller tests", async () => {
                         
                         isScaledToken,
                         isStakedToken,
-                        null,
+                        stakingContractAddress,
+
+                        maxDepositAmount,
 
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -967,6 +978,9 @@ describe("Lending Controller tests", async () => {
 
                 const isScaledToken                         = false;
                 const isStakedToken                         = false;
+                const stakingContractAddress                = null;
+                
+                const maxDepositAmount                      = null;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -987,7 +1001,9 @@ describe("Lending Controller tests", async () => {
 
                         isScaledToken,
                         isStakedToken,
-                        null,
+                        stakingContractAddress,
+
+                        maxDepositAmount,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -1032,8 +1048,10 @@ describe("Lending Controller tests", async () => {
                 const tokenProtected                    = true; // sMVK is protected
 
                 const isScaledToken                     = false;
-                const isStakedToken                     = false;
+                const isStakedToken                     = true;
                 const stakingContractAddress            = doormanAddress.address;
+                
+                const maxDepositAmount                  = null;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -1055,6 +1073,8 @@ describe("Lending Controller tests", async () => {
                         isScaledToken,
                         isStakedToken,
                         stakingContractAddress,
+
+                        maxDepositAmount,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -1100,6 +1120,10 @@ describe("Lending Controller tests", async () => {
                 
                 const isScaledToken                         = false;
                 const isStakedToken                         = false;
+                const stakingContractAddress                = null;
+                
+                const maxDepositAmount                      = null;
+                
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -1120,7 +1144,9 @@ describe("Lending Controller tests", async () => {
                         
                         isScaledToken,
                         isStakedToken,
-                        null,
+                        stakingContractAddress,
+
+                        maxDepositAmount,
 
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -1145,14 +1171,17 @@ describe("Lending Controller tests", async () => {
                         
                     const updateCollateralTokenActionType       = "updateCollateralToken";
                     const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
+                    const stakingContractAddress                = null;
+                    const maxDepositAmount                      = null;
                     
                     const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
 
                         updateCollateralTokenActionType,
                         
                         tokenName,
-
-                        newOracleAddress
+                        newOracleAddress,
+                        stakingContractAddress,
+                        maxDepositAmount
 
                     ).send();
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
@@ -1193,6 +1222,9 @@ describe("Lending Controller tests", async () => {
 
                 const isScaledToken                         = false;
                 const isStakedToken                         = false;
+                const stakingContractAddress                = null;
+                
+                const maxDepositAmount                      = null;
             
                 await chai.expect(lendingControllerInstance.methods.setCollateralToken(
 
@@ -1207,7 +1239,9 @@ describe("Lending Controller tests", async () => {
                     
                     isScaledToken,
                     isStakedToken,
-                    null,
+                    stakingContractAddress,
+
+                    maxDepositAmount,
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
@@ -1243,22 +1277,17 @@ describe("Lending Controller tests", async () => {
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
+                const stakingContractAddress                = null;
+                const maxDepositAmount                      = null;
             
-
                 await chai.expect(lendingControllerInstance.methods.setCollateralToken(
 
                     setCollateralTokenActionType,
-                        
-                    tokenName,
-                    tokenContractAddress,
-                    tokenDecimals,
 
+                    tokenName,
                     oracleAddress,
-                    
-                    // fa2 token type - token contract address + token id
-                    tokenType,
-                    tokenContractAddress,
-                    tokenId
+                    stakingContractAddress,
+                    maxDepositAmount
 
                 ).send()).to.be.rejected;
 
@@ -3971,11 +4000,11 @@ describe("Lending Controller tests", async () => {
     })
 
     // 
-    // Test: vault deposit staked mvk
+    // Test: vault deposit staked token
     //
-    describe('%vaultDepositStakedMvk', function () {
+    describe('%vaultDepositStakedToken', function () {
 
-        it('user (eve) can deposit staked MVK tokens to her vault', async () => {
+        it('user (eve) can deposit staked tokens (e.g. smvk) to her vault', async () => {
 
             await signerFactory(eve.sk);
             const vaultId        = eveVaultSet[0]; 
@@ -4051,23 +4080,28 @@ describe("Lending Controller tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             // eve set doorman as operator for vault
-            const vaultUpdateMvkOperatorOperation = await eveVaultInstance.methods.updateMvkOperators([
-                {
-                add_operator: {
-                    owner: vaultAddress,
-                    operator: doormanAddress.address,
-                    token_id: 0,
-                },
-            }])
+            const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.updateTokenOperators(
+                tokenName,
+                [
+                    {
+                    add_operator: {
+                        owner: vaultAddress,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                    }
+                ]
+            )
             .send();
-            await vaultUpdateMvkOperatorOperation.confirmation();
+            await vaultUpdateTokenOperatorOperation.confirmation();
 
-            // vault staked mvk operation
-            const eveVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedMvk(
+            // vault staked token operation
+            const eveVaultDepositStakedTokenOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
+                tokenName,
                 vaultId,                 
                 depositAmount                            
             ).send();
-            await eveVaultDepositStakedMvkOperation.confirmation();
+            await eveVaultDepositStakedTokenOperation.confirmation();
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
@@ -4094,7 +4128,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('user (eve) cannot deposit more staked MVK tokens than she has to her vault', async () => {
+        it('user (eve) cannot deposit more staked tokens (e.g. smvk) than she has to her vault', async () => {
 
             await signerFactory(eve.sk);
             const vaultId        = eveVaultSet[0]; 
@@ -4134,24 +4168,29 @@ describe("Lending Controller tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             // eve set doorman as operator for vault
-            const eveVaultInstance                = await utils.tezos.contract.at(vaultAddress);
-            const vaultUpdateMvkOperatorOperation = await eveVaultInstance.methods.updateMvkOperators([
-                {
-                add_operator: {
-                    owner: vaultAddress,
-                    operator: doormanAddress.address,
-                    token_id: 0,
-                },
-            }])
+            const eveVaultInstance                  = await utils.tezos.contract.at(vaultAddress);
+            const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.updateTokenOperators(
+                tokenName,
+                [
+                    {
+                    add_operator: {
+                        owner: vaultAddress,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                    }
+                ]
+            )
             .send();
-            await vaultUpdateMvkOperatorOperation.confirmation();
+            await vaultUpdateTokenOperatorOperation.confirmation();
 
-            // fail vault staked mvk operation
-            const eveVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedMvk(
+            // fail vault staked token operation
+            const eveVaultDepositStakedTokenOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
+                tokenName,
                 vaultId,                 
                 depositAmount                            
             );
-            await chai.expect(eveVaultDepositStakedMvkOperation.send()).to.be.rejected;  
+            await chai.expect(eveVaultDepositStakedTokenOperation.send()).to.be.rejected;  
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
@@ -4183,7 +4222,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('non-owner of the vault (user: mallory) cannot deposit staked MVK tokens into another user\'s (eve) vault', async () => {
+        it('non-owner of the vault (user: mallory) cannot deposit staked tokens (e.g. smvk) into another user\'s (eve) vault', async () => {
 
             await signerFactory(mallory.sk);
             const vaultId        = eveVaultSet[0]; 
@@ -4262,22 +4301,27 @@ describe("Lending Controller tests", async () => {
 
             // mallory set doorman as operator for vault
             const eveVaultInstance                = await utils.tezos.contract.at(vaultAddress);
-            const vaultUpdateMvkOperatorOperation = await eveVaultInstance.methods.updateMvkOperators([
-                {
-                add_operator: {
-                    owner: vaultAddress,
-                    operator: doormanAddress.address,
-                    token_id: 0,
-                },
-            }]);
-            await chai.expect(vaultUpdateMvkOperatorOperation.send()).to.be.rejected;  
+            const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.updateTokenOperators(
+                tokenName,
+                [
+                    {
+                    add_operator: {
+                        owner: vaultAddress,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                    }
+                ]
+            );
+            await chai.expect(vaultUpdateTokenOperatorOperation.send()).to.be.rejected;  
 
             // fail vault staked mvk operation
-            const malloryVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedMvk(
+            const malloryVaultDepositStakedTokenOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
+                tokenName,
                 vaultId,                 
                 depositAmount                            
             );
-            await chai.expect(malloryVaultDepositStakedMvkOperation.send()).to.be.rejected;  
+            await chai.expect(malloryVaultDepositStakedTokenOperation.send()).to.be.rejected;  
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
@@ -4320,11 +4364,11 @@ describe("Lending Controller tests", async () => {
 
 
     // 
-    // Test: vault withdraw staked mvk
+    // Test: vault withdraw staked token
     //
-    describe('%vaultWithdrawStakedMvk', function () {
+    describe('%vaultWithdrawStakedToken', function () {
 
-        it('user (eve) can withdraw staked MVK tokens from her vault to her user balance', async () => {
+        it('user (eve) can withdraw staked tokens (e.g. smvk) from her vault to her user balance', async () => {
 
             await signerFactory(eve.sk);
             const vaultId        = eveVaultSet[0]; 
@@ -4358,15 +4402,16 @@ describe("Lending Controller tests", async () => {
             const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
 
             // ----------------------------------------------------------------------------------------------
-            // Eve's vault stake some MVK to Doorman Contract
+            // Eve's vault withdraw some staked MVK
             // ----------------------------------------------------------------------------------------------
 
-            // vault staked mvk operation
-            const eveVaultWithdrawStakedMvkOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(
+            // vault staked token (e.g. smvk) operation
+            const eveVaultWithdrawStakedTokenOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedToken(
+                tokenName,
                 vaultId,                 
                 withdrawAmount                            
             ).send();
-            await eveVaultWithdrawStakedMvkOperation.confirmation();
+            await eveVaultWithdrawStakedTokenOperation.confirmation();
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
@@ -4397,7 +4442,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('user (eve) cannot withdraw more staked MVK tokens than she has from her vault to her user balance', async () => {
+        it('user (eve) cannot withdraw more staked tokens (e.g. smvk) than she has from her vault to her user balance', async () => {
 
             await signerFactory(eve.sk);
             const vaultId        = eveVaultSet[0]; 
@@ -4436,12 +4481,13 @@ describe("Lending Controller tests", async () => {
             // Eve's vault stake some MVK to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
-            // fail vault staked mvk operation
-            const eveVaultWithdrawStakedMvkOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(
+            // fail vault staked token operation
+            const eveVaultWithdrawStakedTokenOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedToken(
+                tokenName,
                 vaultId,                 
                 withdrawAmount                            
             );
-            await chai.expect(eveVaultWithdrawStakedMvkOperation.send()).to.be.rejected;  
+            await chai.expect(eveVaultWithdrawStakedTokenOperation.send()).to.be.rejected;  
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
@@ -4472,7 +4518,7 @@ describe("Lending Controller tests", async () => {
 
 
 
-        it('non-owner of the vault (user: mallory) cannot deposit staked MVK tokens into another user\'s (eve) vault', async () => {
+        it('non-owner of the vault (user: mallory) cannot deposit staked tokens (e.g. smvk) into another user\'s (eve) vault', async () => {
 
             await signerFactory(mallory.sk);
             const vaultId        = eveVaultSet[0]; 
@@ -4512,12 +4558,13 @@ describe("Lending Controller tests", async () => {
             // Eve's vault stake some MVK to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
-            // fail vault staked mvk operation
-            const initiatorVaultWithdrawStakedMvkOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(
+            // fail vault staked token operation
+            const initiatorVaultWithdrawStakedTokenOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedToken(
+                tokenName,
                 vaultId,                 
                 withdrawAmount                            
             );
-            await chai.expect(initiatorVaultWithdrawStakedMvkOperation.send()).to.be.rejected;  
+            await chai.expect(initiatorVaultWithdrawStakedTokenOperation.send()).to.be.rejected;  
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();

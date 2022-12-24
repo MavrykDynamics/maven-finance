@@ -1,0 +1,1309 @@
+const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
+const { InMemorySigner, importKey } = require("@taquito/signer");
+import { BigNumber } from 'bignumber.js'
+import assert, { ok, rejects, strictEqual } from "assert";
+import { Utils, zeroAddress, TEZ, MVK } from "./helpers/Utils";
+import fs from "fs";
+import { confirmOperation } from "../scripts/confirmation";
+
+const chai = require("chai");
+const chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);   
+chai.should();
+
+import env from "../env";
+import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+
+import doormanAddress           from '../deployments/doormanAddress.json';
+import delegationAddress        from '../deployments/delegationAddress.json';
+import mvkTokenAddress          from '../deployments/mvkTokenAddress.json';
+import governanceAddress        from '../deployments/governanceAddress.json';
+import governanceProxyAddress   from '../deployments/governanceProxyAddress.json';
+import mockFa12TokenAddress     from '../deployments/mavrykFa12TokenAddress.json';
+import mockFa2TokenAddress      from '../deployments/mavrykFa2TokenAddress.json';
+
+import mockUsdMockFa12TokenAggregatorAddress    from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
+import mockUsdMockFa2TokenAggregatorAddress     from "../deployments/mockUsdMockFa2TokenAggregatorAddress.json";
+import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
+import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
+
+import lpTokenPoolMockFa12TokenAddress          from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
+import lpTokenPoolMockFa2TokenAddress           from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
+import lpTokenPoolXtzAddress                    from "../deployments/lpTokenPoolXtzAddress.json";
+
+import lendingControllerAddress from '../deployments/lendingControllerAddress.json';
+import vaultFactoryAddress      from '../deployments/vaultFactoryAddress.json';
+
+import { vaultStorageType } from "./types/vaultStorageType"
+
+describe("Lending Controller tests", async () => {
+    
+    var utils: Utils
+
+    //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
+    //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
+    var eveVaultSet = []
+    var malloryVaultSet = [] 
+    
+    let updateTokenRewardIndexOperation
+
+    let doormanInstance
+    let delegationInstance
+    let mvkTokenInstance
+    
+    let mockFa12TokenInstance
+    let mockFa2TokenInstance
+
+    let mockUsdMockFa12TokenAggregatorInstance
+    let mockUsdMockFa2TokenAggregatorInstance
+    let mockUsdXtzAggregatorInstance
+    let mockUsdMvkAggregatorInstance
+
+    let lpTokenPoolMockFa12TokenInstance
+    let lpTokenPoolMockFa2TokenInstance
+    let lpTokenPoolXtzInstance
+
+    let governanceInstance
+    let governanceProxyInstance
+
+    let lendingControllerInstance
+    let vaultFactoryInstance
+
+    let doormanStorage
+    let delegationStorage
+    let mvkTokenStorage
+    let mockFa12TokenStorage
+    let mockFa2TokenStorage
+    let governanceStorage
+    let governanceProxyStorage
+
+    let lendingControllerStorage
+    let vaultFactoryStorage
+
+    const almostEqual = (actual, expected, delta) => {
+        let greaterLimit  = expected + expected * delta
+        let lowerLimit    = expected - expected * delta
+        // console.log("GREATER: ", greaterLimit) 
+        // console.log("LOWER: ", lowerLimit)
+        // console.log("STUDIED: ", actual)
+        return actual <= greaterLimit && actual >= lowerLimit
+    }
+    
+    const signerFactory = async (pk) => {
+        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+        return utils.tezos;
+    };
+
+    before("setup", async () => {
+
+        utils = new Utils();
+        await utils.init(bob.sk);
+        
+        doormanInstance                         = await utils.tezos.contract.at(doormanAddress.address);
+        delegationInstance                      = await utils.tezos.contract.at(delegationAddress.address);
+        mvkTokenInstance                        = await utils.tezos.contract.at(mvkTokenAddress.address);
+        mockFa12TokenInstance                   = await utils.tezos.contract.at(mockFa12TokenAddress.address);
+        mockFa2TokenInstance                    = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+        governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
+        governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
+
+        lpTokenPoolMockFa12TokenInstance        = await utils.tezos.contract.at(lpTokenPoolMockFa12TokenAddress.address);
+        lpTokenPoolMockFa2TokenInstance         = await utils.tezos.contract.at(lpTokenPoolMockFa2TokenAddress.address);
+        lpTokenPoolXtzInstance                  = await utils.tezos.contract.at(lpTokenPoolXtzAddress.address);
+
+        mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
+        mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
+        mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(mockUsdXtzAggregatorAddress.address);
+        mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(mockUsdMvkAggregatorAddress.address);
+
+        lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
+        vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
+
+        doormanStorage                          = await doormanInstance.storage();
+        delegationStorage                       = await delegationInstance.storage();
+        mvkTokenStorage                         = await mvkTokenInstance.storage();
+        mockFa12TokenStorage                    = await mockFa12TokenInstance.storage();
+        mockFa2TokenStorage                     = await mockFa2TokenInstance.storage();
+        governanceStorage                       = await governanceInstance.storage();
+        governanceProxyStorage                  = await governanceInstance.storage();
+        lendingControllerStorage                = await lendingControllerInstance.storage();
+        vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+
+
+        console.log('-- -- -- -- -- Vault Tests -- -- -- --')
+        console.log('Doorman Contract deployed at:',            doormanInstance.address);
+        console.log('Delegation Contract deployed at:',         delegationInstance.address);
+        console.log('MVK Token Contract deployed at:',          mvkTokenInstance.address);
+        console.log('Mock FA12 Token Contract deployed at:',    mockFa12TokenInstance.address);
+        console.log('Mock FA2 Token Contract deployed at:',     mockFa2TokenInstance.address);
+        console.log('Governance Contract deployed at:',         governanceInstance.address);
+        console.log('Governance Proxy Contract deployed at:',   governanceProxyInstance.address);
+
+        console.log('LP Token Pool - Mock FA12 Token - deployed at:',   lpTokenPoolMockFa12TokenInstance.address);
+        console.log('LP Token Pool - Mock FA2 Token - deployed at:',    lpTokenPoolMockFa2TokenInstance.address);
+        console.log('LP Token Pool - XTZ - deployed at:',               lpTokenPoolXtzInstance.address);
+
+        console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:',   mockUsdMockFa12TokenAggregatorInstance.address);
+        console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:',    mockUsdMockFa2TokenAggregatorInstance.address);
+        console.log('Mock Aggregator - USD / XTZ - deployed at:',               mockUsdXtzAggregatorInstance.address);
+        console.log('Mock Aggregator - USD / MVK - deployed at:',               mockUsdMvkAggregatorInstance.address);
+
+        console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
+        console.log('Vault Factory Contract deployed at:',      vaultFactoryInstance.address);
+
+        console.log('Alice address: '   + alice.pkh);
+        console.log('Bob address: '     + bob.pkh);
+        console.log('Eve address: '     + eve.pkh);
+
+        // ------------------------------------------------------------------
+        //
+        // Update LP Tokens (i.e. mTokens) tokenRewardIndex by transferring 0
+        //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
+        //
+        // ------------------------------------------------------------------
+        await signerFactory(bob.sk);
+
+        const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
+        const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
+        const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
+
+        if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
+            updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: eve.pkh,
+                        token_id: 0,
+                        amount: 0,
+                    },
+                ]
+            }]).send();
+            await updateTokenRewardIndexOperation.confirmation();
+            console.log('mockfa12 loan token set');
+        }
+
+        if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
+            updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: eve.pkh,
+                        token_id: 0,
+                        amount: 0,
+                    },
+                ]
+            }]).send();
+            await updateTokenRewardIndexOperation.confirmation();
+            console.log('mockfa2 loan token set');
+        }
+
+        if(!(tezLoanToken == undefined || tezLoanToken == null)){
+            updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: eve.pkh,
+                        token_id: 0,
+                        amount: 0,
+                    },
+                ]
+            }]).send();
+            await updateTokenRewardIndexOperation.confirmation();
+            console.log('tez loan token set');
+        }
+
+    });
+
+
+
+    // 
+    // Setup loan tokens for vault test
+    //
+    describe('setup loan tokens for vault test', function () {
+
+        it('admin can set mock FA12 as a loan token', async () => {
+
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+
+                const setLoanTokenActionType                = "createLoanToken";
+                const tokenName                             = "mockFa12";
+                const tokenContractAddress                  = mockFa12TokenAddress.address;
+                const tokenType                             = "fa12";
+                const tokenDecimals                         = 6;
+
+                const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+
+                const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
+                const lpTokenId                             = 0;
+
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+                const minRepaymentAmount                    = 10000;
+
+                // check if loan token exists
+                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
+                if(checkLoanTokenExists === undefined){
+
+                    const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                        
+                        setLoanTokenActionType,
+
+                        tokenName,
+                        tokenDecimals,
+
+                        oracleAddress,
+
+                        lpTokenContractAddress,
+                        lpTokenId,
+                        
+                        reserveRatio,
+                        optimalUtilisationRate,
+                        baseInterestRate,
+                        maxInterestRate,
+                        interestRateBelowOptimalUtilisation,
+                        interestRateAboveOptimalUtilisation,
+
+                        minRepaymentAmount,
+
+                        // fa12 token type - token contract address
+                        tokenType,
+                        tokenContractAddress,
+
+                    ).send();
+                    await adminSetMockFa12LoanTokenOperation.confirmation();
+
+                    lendingControllerStorage  = await lendingControllerInstance.storage();
+                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                    assert.equal(mockFa12LoanToken.tokenName              , tokenName);
+                    // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
+    
+                    assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
+                    assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
+                    assert.equal(mockFa12LoanToken.lpTokenId              , 0);
+    
+                    assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
+                    assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
+                    assert.equal(mockFa12LoanToken.totalBorrowed          , 0);
+                    assert.equal(mockFa12LoanToken.totalRemaining         , 0);
+    
+                    assert.equal(mockFa12LoanToken.optimalUtilisationRate , optimalUtilisationRate);
+                    assert.equal(mockFa12LoanToken.baseInterestRate       , baseInterestRate);
+                    assert.equal(mockFa12LoanToken.maxInterestRate        , maxInterestRate);
+                    
+                    assert.equal(mockFa12LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+                    assert.equal(mockFa12LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+
+                    assert.equal(mockFa12LoanToken.minRepaymentAmount       , minRepaymentAmount);
+    
+                } else {
+
+                    lendingControllerStorage  = await lendingControllerInstance.storage();
+                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                
+                    // other variables will be affected by repeated tests
+                    assert.equal(mockFa12LoanToken.tokenName, tokenName);
+
+                }
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+        it('admin can set mock FA2 as a loan token', async () => {
+
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+
+                const setLoanTokenActionType                = "createLoanToken";
+                const tokenName                             = "mockFa2";
+                const tokenContractAddress                  = mockFa2TokenAddress.address;
+                const tokenType                             = "fa2";
+                const tokenId                               = 0;
+                const tokenDecimals                         = 6;
+
+                const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+
+                const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
+                const lpTokenId                             = 0;
+
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+                const minRepaymentAmount                    = 10000;
+
+                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
+                if(checkLoanTokenExists === undefined){
+
+                    const adminSetMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                        setLoanTokenActionType,
+                        
+                        tokenName,
+                        tokenDecimals,
+
+                        oracleAddress,
+
+                        lpTokenContractAddress,
+                        lpTokenId,
+                        
+                        reserveRatio,
+                        optimalUtilisationRate,
+                        baseInterestRate,
+                        maxInterestRate,
+                        interestRateBelowOptimalUtilisation,
+                        interestRateAboveOptimalUtilisation,
+
+                        minRepaymentAmount,
+                        
+                        // fa2 token type - token contract address + token id
+                        tokenType,
+                        tokenContractAddress,
+                        tokenId
+
+                    ).send();
+                    await adminSetMockFa2LoanTokenOperation.confirmation();
+
+                    lendingControllerStorage = await lendingControllerInstance.storage();
+                    const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                    assert.equal(mockFa2LoanToken.tokenName              , tokenName);
+
+                    assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
+                    assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
+                    assert.equal(mockFa2LoanToken.lpTokenId              , 0);
+
+                    assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
+                    assert.equal(mockFa2LoanToken.tokenPoolTotal         , 0);
+                    assert.equal(mockFa2LoanToken.totalBorrowed          , 0);
+                    assert.equal(mockFa2LoanToken.totalRemaining         , 0);
+
+                    assert.equal(mockFa2LoanToken.optimalUtilisationRate , optimalUtilisationRate);
+                    assert.equal(mockFa2LoanToken.baseInterestRate       , baseInterestRate);
+                    assert.equal(mockFa2LoanToken.maxInterestRate        , maxInterestRate);
+                    
+                    assert.equal(mockFa2LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+                    assert.equal(mockFa2LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+
+                    assert.equal(mockFa2LoanToken.minRepaymentAmount       , minRepaymentAmount);
+
+                } else {
+
+                    lendingControllerStorage = await lendingControllerInstance.storage();
+                    const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                    // other variables will be affected by repeated tests
+                    assert.equal(mockFa2LoanToken.tokenName, tokenName);
+
+                }
+                
+                
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+
+        it('admin can set tez as a loan token', async () => {
+
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+
+                const setLoanTokenActionType                = "createLoanToken";
+                const tokenName                             = "tez";
+                const tokenType                             = "tez";
+                const tokenDecimals                         = 6;
+
+                const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+
+                const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
+                const lpTokenId                             = 0;
+
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+                const minRepaymentAmount                    = 10000;
+
+                // check if loan token exists
+                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
+                if(checkLoanTokenExists === undefined){
+
+                    const adminSeTezLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                        setLoanTokenActionType,
+                        
+                        tokenName,
+                        tokenDecimals,
+
+                        oracleAddress,
+
+                        lpTokenContractAddress,
+                        lpTokenId,
+                        
+                        reserveRatio,
+                        optimalUtilisationRate,
+                        baseInterestRate,
+                        maxInterestRate,
+                        interestRateBelowOptimalUtilisation,
+                        interestRateAboveOptimalUtilisation,
+
+                        minRepaymentAmount,
+
+                        // fa12 token type - token contract address
+                        tokenType
+
+                    ).send();
+                    await adminSeTezLoanTokenOperation.confirmation();
+
+                    lendingControllerStorage  = await lendingControllerInstance.storage();
+                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                
+                    assert.equal(tezLoanToken.tokenName              , tokenName);
+                    assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
+
+                    assert.equal(tezLoanToken.lpTokensTotal          , 0);
+                    assert.equal(tezLoanToken.lpTokenContractAddress , lpTokenContractAddress);
+                    assert.equal(tezLoanToken.lpTokenId              , 0);
+    
+                    assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
+                    assert.equal(tezLoanToken.tokenPoolTotal         , 0);
+                    assert.equal(tezLoanToken.totalBorrowed          , 0);
+                    assert.equal(tezLoanToken.totalRemaining         , 0);
+    
+                    assert.equal(tezLoanToken.optimalUtilisationRate , optimalUtilisationRate);
+                    assert.equal(tezLoanToken.baseInterestRate       , baseInterestRate);
+                    assert.equal(tezLoanToken.maxInterestRate        , maxInterestRate);
+                    
+                    assert.equal(tezLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+                    assert.equal(tezLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+
+                    assert.equal(tezLoanToken.minRepaymentAmount       , minRepaymentAmount);
+    
+
+                } else {
+
+                    lendingControllerStorage  = await lendingControllerInstance.storage();
+                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                
+                    // other variables will be affected by repeated tests
+                    assert.equal(tezLoanToken.tokenName, tokenName);
+                    
+                }
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
+    });
+
+
+
+    // 
+    // Setup collateral tokens for vault test
+    //
+    describe('setup collateral tokens for vault test', function () {
+
+        it('admin can set mock FA12 as collateral token', async () => {
+
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+
+                const setCollateralTokenActionType      = "createCollateralToken";
+                const tokenName                         = "mockFa12";
+                const tokenContractAddress              = mockFa12TokenAddress.address;
+                const tokenType                         = "fa12";
+                const tokenId                           = 0;
+
+                const tokenDecimals                     = 6;
+                const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
+                const tokenProtected                    = false;
+                const isScaledToken                     = false;
+                const isStakedToken                     = false;
+                
+                // check if collateral token exists
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
+                if(checkCollateralTokenExists === undefined){
+
+                    const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
+                        
+                        tokenName,
+                        tokenContractAddress,
+                        tokenDecimals,
+
+                        oracleAddress,
+                        tokenProtected,
+                        
+                        isScaledToken,
+                        isStakedToken,
+                        null,
+
+                        // fa12 token type - token contract address
+                        tokenType,
+                        tokenContractAddress,
+
+                    ).send();
+                    await adminSetMockFa12CollateralTokenOperation.confirmation();
+
+                }
+
+                lendingControllerStorage        = await lendingControllerInstance.storage();
+                const mockFa12CollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+            
+                assert.equal(mockFa12CollateralToken.tokenName              , tokenName);
+                assert.equal(mockFa12CollateralToken.tokenDecimals          , tokenDecimals);
+                assert.equal(mockFa12CollateralToken.oracleAddress          , oracleAddress);
+                assert.equal(mockFa12CollateralToken.protected              , tokenProtected);
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+        it('admin can set mock FA2 as collateral token', async () => {
+
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+
+                const setCollateralTokenActionType          = "createCollateralToken";
+                const tokenName                             = "mockFa2";
+                const tokenContractAddress                  = mockFa2TokenAddress.address;
+                const tokenType                             = "fa2";
+                const tokenId                               = 0;
+
+                const tokenDecimals                         = 6;
+                const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+                const tokenProtected                        = false;
+                
+                const isScaledToken                         = false;
+                const isStakedToken                         = false;
+                
+                // check if collateral token exists
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
+                if(checkCollateralTokenExists === undefined){
+
+                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
+                        
+                        tokenName,
+                        tokenContractAddress,
+                        tokenDecimals,
+
+                        oracleAddress,
+                        tokenProtected,
+                        
+                        isScaledToken,
+                        isStakedToken,
+                        null,
+
+                        // fa2 token type - token contract address + token id
+                        tokenType,
+                        tokenContractAddress,
+                        tokenId
+
+                    ).send();
+                    await adminSetMockFa2CollateralTokenOperation.confirmation();
+
+                }
+
+                lendingControllerStorage        = await lendingControllerInstance.storage();
+                const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+                assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
+                assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
+                assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
+                assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
+
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+        it('admin can set tez as collateral token', async () => {
+
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+
+                const setCollateralTokenActionType          = "createCollateralToken";
+                const tokenName                             = "tez";
+                const tokenContractAddress                  = zeroAddress;
+                const tokenType                             = "tez";
+                const tokenId                               = 0;
+
+                const tokenDecimals                         = 6;
+                const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+                const tokenProtected                        = false;
+
+                const isScaledToken                         = false;
+                const isStakedToken                         = false;
+                
+                // check if collateral token exists
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
+                if(checkCollateralTokenExists === undefined){
+
+                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
+                        
+                        tokenName,
+                        tokenContractAddress,
+                        tokenDecimals,
+
+                        oracleAddress,
+                        tokenProtected,
+
+                        isScaledToken,
+                        isStakedToken,
+                        null,
+                        
+                        // fa2 token type - token contract address + token id
+                        tokenType,
+                        tokenContractAddress,
+                        tokenId
+
+                    ).send();
+                    await adminSetMockFa2CollateralTokenOperation.confirmation();
+
+                }
+
+                lendingControllerStorage        = await lendingControllerInstance.storage();
+                const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+                assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
+                assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
+                assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
+                assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
+
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+
+        it('admin can set staked MVK as a collateral token', async () => {
+
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+
+                const setCollateralTokenActionType      = "createCollateralToken";
+                const tokenName                         = "smvk";
+                const tokenContractAddress              = mvkTokenAddress.address;
+                const tokenType                         = "fa2";
+                const tokenId                           = 0;
+
+                const tokenDecimals                     = 9;
+                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+                const tokenProtected                    = true; // sMVK is protected
+
+                const isScaledToken                     = false;
+                const isStakedToken                     = false;
+                const stakingContractAddress            = doormanAddress.address;
+                
+                // check if collateral token exists
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
+                if(checkCollateralTokenExists === undefined){
+
+                    const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
+                        
+                        tokenName,
+                        tokenContractAddress,
+                        tokenDecimals,
+
+                        oracleAddress,
+                        tokenProtected,
+
+                        isScaledToken,
+                        isStakedToken,
+                        stakingContractAddress,
+
+                        // fa12 token type - token contract address
+                        tokenType,
+                        tokenContractAddress,
+                        tokenId
+
+                    ).send();
+                    await adminSetMockFa12CollateralTokenOperation.confirmation();
+
+                }
+
+                lendingControllerStorage   = await lendingControllerInstance.storage();
+                const stakedMvkCollateralTokenRecord       = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+            
+                assert.equal(stakedMvkCollateralTokenRecord.tokenName              , tokenName);
+                assert.equal(stakedMvkCollateralTokenRecord.tokenDecimals          , tokenDecimals);
+                assert.equal(stakedMvkCollateralTokenRecord.oracleAddress          , oracleAddress);
+                assert.equal(stakedMvkCollateralTokenRecord.protected              , tokenProtected);
+                
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
+        
+    });
+
+
+
+    // 
+    // Test: Set Lending Controller Admin
+    //
+    describe('%setAdmin - Lending Controller and Vault Controller', function () {
+    
+        it('admin can set admin for lending controller', async () => {
+            try{        
+        
+                await signerFactory(bob.sk);
+                const previousAdmin = lendingControllerStorage.admin;
+                
+                if(previousAdmin == bob.pkh){
+                    
+                    assert.equal(previousAdmin, bob.pkh);
+                    const setNewAdminOperation = await lendingControllerInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                    await setNewAdminOperation.confirmation();
+
+                    const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                    const newAdmin = updatedLendingControllerStorage.admin;
+
+                    assert.equal(newAdmin, governanceProxyAddress.address);
+                };
+
+            } catch(e){
+                console.log(e);
+            } 
+
+        });   
+
+
+    })
+
+
+    // 
+    // Test: Create vault - mockFa12 loan token
+    //
+    describe('%createVault', function () {
+
+        it('user (eve) can create a new vault (depositors: any) with no tez - LOAN TOKEN: MockFA12', async () => {
+            try{        
+                
+                // init variables
+                await signerFactory(eve.sk);
+                const vaultId       = vaultFactoryStorage.vaultCounter.toNumber();
+                const vaultOwner    = eve.pkh;
+                const depositors    = "any";
+                const loanTokenName = "mockFa12";
+
+                const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                    eve.pkh,                // delegate to
+                    loanTokenName,          // loan token type
+                    depositors              // depositors type
+                ).send();
+                await userCreatesNewVaultOperation.confirmation();
+
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                const vaultHandle = {
+                    "id"    : vaultId,
+                    "owner" : vaultOwner
+                };
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+
+                assert.equal(vaultRecord.loanToken              , loanTokenName);
+                assert.equal(vaultRecord.loanOutstandingTotal   , 0);
+                assert.equal(vaultRecord.loanPrincipalTotal     , 0);
+                assert.equal(vaultRecord.loanInterestTotal      , 0);
+
+                const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
+                const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
+
+                assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+
+                // push new vault id to vault set
+                eveVaultSet.push(vaultId);
+
+            } catch(e){
+                console.log(e);
+            } 
+
+        });    
+
+
+        it('user (mallory) can create a new vault (depositors: whitelist set) with no tez - LOAN TOKEN: MockFA12', async () => {
+            try{        
+
+                // init variables
+                await signerFactory(mallory.sk);
+                const vaultFactoryStorage       = await vaultFactoryInstance.storage();
+                const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
+                const vaultOwner                = mallory.pkh;
+                const depositors                = "whitelist";
+                const loanTokenName             = "mockFa12";
+
+                const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                    mallory.pkh,  
+                    loanTokenName,
+                    depositors,
+                    [alice.pkh]
+                ).send();
+                await userCreatesNewVaultOperation.confirmation();
+
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                const vaultHandle = {
+                    "id"    : vaultId,
+                    "owner" : vaultOwner
+                }
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+
+                assert.equal(vaultRecord.loanToken              , loanTokenName);
+                assert.equal(vaultRecord.loanOutstandingTotal   , 0);
+                assert.equal(vaultRecord.loanPrincipalTotal     , 0);
+                assert.equal(vaultRecord.loanInterestTotal      , 0);
+
+                const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
+                const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
+
+                assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+
+                // push new vault id to vault set
+                malloryVaultSet.push(vaultId);
+
+            } catch(e){
+                console.log(e);
+            } 
+
+        });    
+
+    }); // end test: create vaults with tez as initial deposit
+
+
+    // 
+    // Test: Update Depositor
+    //
+    describe('%updateDepositor - "Any" to "Whitelist Account" ', function () {
+
+        it('user (mallory) can deposit tez into user (eve)\'s vault (depositors: any)', async () => {
+            
+            // init variables
+            await signerFactory(mallory.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+
+            const depositAmountMutez = 10000000;
+            const depositAmountTez   = 10;
+            const finalAmountMutez   = 20000000;
+            const finalAmountTez     = 20;
+
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
+
+            // check that initial tez collateral balance is now ten tez
+            assert.equal(initialTezCollateralBalance, TEZ(10));
+
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+            const eveVaultInstanceStorage  = await eveVaultInstance.storage();
+
+            const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
+                depositAmountMutez,                   // amt
+                "tez"                                 // token
+            ).send({ mutez : true, amount : depositAmountMutez });
+            await malloryDepositTezIntoEveVaultOperation.confirmation();
+
+            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+            
+            // check that tez balance is now 20 tez
+            assert.equal(tezCollateralBalance, TEZ(finalAmountTez));
+
+        });
+
+
+        it('user (eve) update depositors to whitelist set only (with alice address)', async () => {
+            
+            // init variables
+            await signerFactory(eve.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+
+            const newDepositorType = "allowAccount";
+            const whitelistAddress = alice.pkh;
+
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+            const eveVaultInstanceStorage : vaultStorageType  = await eveVaultInstance.storage();
+
+            // check that initial depositors type is any
+            assert.equal(eveVaultInstanceStorage.depositors, "any");            
+
+            const eveUpdateDepositorOperation  = await eveVaultInstance.methods.updateDepositor(
+                newDepositorType,           // whitelist 
+                [whitelistAddress, true]    // whitelist address
+            ).send();
+            await eveUpdateDepositorOperation.confirmation();
+
+            const updatedEveVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
+            const updatedEveVaultInstanceStorage : vaultStorageType  = await updatedEveVaultInstance.storage();
+
+            console.log(updatedEveVaultInstanceStorage);
+
+            // check that depositors type is no longer any and now has alice address
+            // assert.equal(updatedEveVaultInstanceStorage.depositors, "any");            
+
+        });
+
+
+
+        it('user (alice) can deposit tez into user (eve)\'s vault (depositors: whitelist) but mallory cannot', async () => {
+            
+            // init variables
+            await signerFactory(alice.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+
+            const depositAmountMutez = 10000000;
+            const depositAmountTez   = 10;
+            const finalAmountMutez   = 30000000;
+            const finalAmountTez     = 30;
+
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
+
+            // check that initial tez collateral balance is now ten tez
+            assert.equal(initialTezCollateralBalance, TEZ(20));
+
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+            const eveVaultInstanceStorage  = await eveVaultInstance.storage();
+
+            const aliceDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
+                depositAmountMutez,                   // amt
+                "tez"                                 // token
+            ).send({ mutez : true, amount : depositAmountMutez });
+            await aliceDepositTezIntoEveVaultOperation.confirmation();
+
+            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+            
+            // check that tez balance is now 20 tez
+            assert.equal(tezCollateralBalance, TEZ(finalAmountTez));
+
+            // check that mallory is not able to deposit into the vault now
+            await signerFactory(mallory.sk);
+            const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
+                depositAmountMutez,                   // amt
+                "tez"                                 // token
+            );
+            await chai.expect(malloryDepositTezIntoEveVaultOperation.send({ mutez : true, amount : depositAmountMutez })).to.be.rejected;
+
+        });
+
+    });
+
+
+    // 
+    // Test: Update Depositor
+    //
+    describe('%updateDepositor - "Whitelist" to "Any" ', function () {
+
+        it('user (alice) can deposit mock FA12 tokens into mallory\'s vault (depositors: whitelist set)', async () => {
+    
+            // init variables
+            await signerFactory(alice.sk);
+            const vaultId            = malloryVaultSet[0];
+            const vaultOwner         = mallory.pkh;
+
+            const tokenName          = "mockFa12";
+            const tokenType          = "fa12";
+            const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+
+            // create vault handle
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
+
+            // get vault from Lending Controller
+            const vault                   = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
+
+            // get mock fa12 token storage
+            const mockFa12TokenStorage     = await mockFa12TokenInstance.storage();
+
+            // get initial alice's mock fa12 token balance
+            const aliceMockFa12Ledger              = await mockFa12TokenStorage.ledger.get(alice.pkh);            
+            const aliceInitialMockFa12TokenBalance = aliceMockFa12Ledger == undefined ? 0 : aliceMockFa12Ledger.balance.toNumber();
+
+            // get initial vault's Mock FA12 Token balance
+            const vaultMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(vaultAddress);            
+            const vaultInitialMockFa12TokenBalance   = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();        
+            
+            // alice resets mock FA12 tokens allowance then set new allowance to deposit amount
+            // reset token allowance
+            const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                0
+            ).send();
+            await resetTokenAllowance.confirmation();
+
+            // set new token allowance
+            const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                depositAmount
+            ).send();
+            await setNewTokenAllowance.confirmation();
+
+            // alice deposits mock FA12 tokens into mallory's vault
+            const aliceDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+                depositAmount,                         
+                tokenName
+            ).send();
+            await aliceDepositMockFa12TokenOperation.confirmation();
+
+            const updatedLendingControllerStorage   = await lendingControllerInstance.storage();
+            const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const mockFa12TokenCollateralBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            
+            // vault Mock FA12 Token Collateral Balance
+            const vaultTokenCollateralBalance = depositAmount;
+            assert.equal(mockFa12TokenCollateralBalance, vaultTokenCollateralBalance);
+
+            // check that mallory has the correct amount of Mock FA12 Token balance
+            const updatedMockFa12TokenStorage      = await mockFa12TokenInstance.storage();
+            const updatedAliceMockFa12Ledger       = await updatedMockFa12TokenStorage.ledger.get(alice.pkh);            
+            assert.equal(updatedAliceMockFa12Ledger.balance, aliceInitialMockFa12TokenBalance - depositAmount);
+
+            const vaultMockFa12Account = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
+            assert.equal(vaultMockFa12Account.balance, vaultInitialMockFa12TokenBalance + depositAmount);
+
+            // check that eve is not able to deposit into the vault now
+            await signerFactory(eve.sk);
+            
+            // reset token allowance
+            const eveResetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                0
+            ).send();
+            await eveResetTokenAllowance.confirmation();
+
+            // set new token allowance
+            const eveSetNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                depositAmount
+            ).send();
+            await eveSetNewTokenAllowance.confirmation();
+
+            const eveDepositTezIntoEveVaultOperation  = await vaultInstance.methods.deposit(
+                depositAmount,                   // amt
+                tokenName                        // token
+            );
+            await chai.expect(eveDepositTezIntoEveVaultOperation.send()).to.be.rejected;
+
+        });
+
+
+        it('user (mallory) update depositors type from Whitelist to Any', async () => {
+            
+            // init variables
+            await signerFactory(mallory.sk);
+            const vaultId            = malloryVaultSet[0];
+            const vaultOwner         = mallory.pkh;
+
+            const newDepositorType = "allowAny";
+
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const malloryVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+            const malloryVaultInstanceStorage : vaultStorageType  = await malloryVaultInstance.storage();
+
+            // check that initial depositors type is any
+            assert.equal(malloryVaultInstanceStorage.depositors, "whitelist");            
+
+            const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.updateDepositor(
+                newDepositorType,           // any 
+                true                        // bool
+            ).send();
+            await malloryUpdateDepositorOperation.confirmation();
+
+            const updatedMalloryVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
+            const updatedMalloryVaultInstanceStorage : vaultStorageType  = await updatedMalloryVaultInstance.storage();
+
+            console.log(updatedMalloryVaultInstanceStorage);
+
+            // check that depositors type is no longer whitelisted and is now any
+            // assert.equal(updatedEveVaultInstanceStorage.depositors, "any");            
+
+        });
+
+
+        it('user (eve) can now deposit mock FA12 tokens into mallory\'s vault (depositors: any)', async () => {
+    
+            // init variables
+            await signerFactory(eve.sk);
+            const vaultId            = malloryVaultSet[0];
+            const vaultOwner         = mallory.pkh;
+
+            const tokenName          = "mockFa12";
+            const tokenType          = "fa12";
+            const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+
+            // create vault handle
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
+
+            // get vault from Lending Controller
+            const vault                   = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
+
+            // get mock fa12 token storage
+            const mockFa12TokenStorage     = await mockFa12TokenInstance.storage();
+
+            // get initial eve's mock fa12 token balance
+            const eveMockFa12Ledger              = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMockFa12TokenBalance = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
+
+            // get initial vault's Mock FA12 Token balance
+            const vaultMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(vaultAddress);            
+            const vaultInitialMockFa12TokenBalance   = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();        
+            
+            // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
+            // reset token allowance
+            const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                0
+            ).send();
+            await resetTokenAllowance.confirmation();
+
+            // set new token allowance
+            const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                depositAmount
+            ).send();
+            await setNewTokenAllowance.confirmation();
+
+            // eve deposits mock FA12 tokens into mallory's vault
+            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+                depositAmount,                         
+                tokenName
+            ).send();
+            await eveDepositMockFa12TokenOperation.confirmation();
+
+            const updatedLendingControllerStorage   = await lendingControllerInstance.storage();
+            const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const mockFa12TokenCollateralBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            
+            // vault Mock FA12 Token Collateral Balance
+            const vaultTokenCollateralBalance = depositAmount;
+            assert.equal(mockFa12TokenCollateralBalance, vaultTokenCollateralBalance);
+
+            // check that mallory has the correct amount of Mock FA12 Token balance
+            const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
+            const updatedEveMockFa12Ledger       = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - depositAmount);
+
+            const vaultMockFa12Account = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
+            assert.equal(vaultMockFa12Account.balance, vaultInitialMockFa12TokenBalance + depositAmount);
+
+        });
+    
+    });
+
+
+});

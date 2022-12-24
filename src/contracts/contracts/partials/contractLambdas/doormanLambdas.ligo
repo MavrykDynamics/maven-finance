@@ -262,9 +262,9 @@ block {
                     |   FarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused   := _v
 
                         // Vault Entrypoints
-                    |   OnVaultDepositStakedMvk (_v)    -> s.breakGlassConfig.onVaultDepositStakedMvkIsPaused    := _v
-                    |   OnVaultWithdrawStakedMvk (_v)   -> s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused   := _v
-                    |   OnVaultLiquidateStakedMvk (_v)  -> s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused  := _v
+                    |   OnVaultDepositStake (_v)    -> s.breakGlassConfig.onVaultDepositStakeIsPaused    := _v
+                    |   OnVaultWithdrawStake (_v)   -> s.breakGlassConfig.onVaultWithdrawStakeIsPaused   := _v
+                    |   OnVaultLiquidateStake (_v)  -> s.breakGlassConfig.onVaultLiquidateStakeIsPaused  := _v
                 ]
                 
             }

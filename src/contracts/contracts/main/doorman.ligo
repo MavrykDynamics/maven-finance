@@ -60,9 +60,9 @@ type doormanAction is
     |   FarmClaim                   of farmClaimType
 
         // Vault Entrypoints - callable only by USDM Token Controller
-    |   OnVaultDepositStakedToken       of onVaultDepositStakedTokenType
-    |   OnVaultWithdrawStakedToken      of onVaultWithdrawStakedTokenType
-    |   OnVaultLiquidateStakedToken     of onVaultLiquidateStakedTokenType
+    |   OnVaultDepositStake         of onVaultDepositStakeType
+    |   OnVaultWithdrawStake        of onVaultWithdrawStakeType
+    |   OnVaultLiquidateStake       of onVaultLiquidateStakeType
 
         // Lambda Entrypoints
     |   SetLambda                   of setLambdaType
@@ -138,9 +138,9 @@ block {
         |   FarmClaim(parameters)                 -> farmClaim(parameters, s)
 
             // Vault Entrypoints - callable only by Lending Controller
-        |   OnVaultDepositStakedToken(parameters)     -> onVaultDepositStakedToken(parameters, s)
-        |   OnVaultWithdrawStakedToken(parameters)    -> onVaultWithdrawStakedToken(parameters, s)
-        |   OnVaultLiquidateStakedToken(parameters)   -> onVaultLiquidateStakedToken(parameters, s)
+        |   OnVaultDepositStake(parameters)       -> onVaultDepositStake(parameters, s)
+        |   OnVaultWithdrawStake(parameters)      -> onVaultWithdrawStake(parameters, s)
+        |   OnVaultLiquidateStake(parameters)     -> onVaultLiquidateStake(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                 -> setLambda(parameters, s)

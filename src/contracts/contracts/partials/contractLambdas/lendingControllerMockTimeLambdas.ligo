@@ -426,7 +426,9 @@ block {
                     
                             var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                            collateralTokenRecord.oracleAddress := updateCollateralTokenParams.oracleAddress;
+                            collateralTokenRecord.oracleAddress             := updateCollateralTokenParams.oracleAddress;
+                            collateralTokenRecord.maxDepositAmount          := updateCollateralTokenParams.maxDepositAmount;
+                            collateralTokenRecord.stakingContractAddress    := updateCollateralTokenParams.stakingContractAddress;
 
                             // update storage
                             s.collateralTokenLedger[collateralTokenName] := collateralTokenRecord;
@@ -719,10 +721,7 @@ block {
                             
                             // get user staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
                             // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-                            const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
-                                    Some(_address) -> _address
-                                |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
-                            ];
+                            const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
@@ -1742,13 +1741,13 @@ block {
         |   LambdaVaultDepositStakedToken(vaultDepositStakedTokenParams) -> {
                 
                 // init variables for convenience
-                const vaultId         : vaultIdType       = vaultDepositStakedTokenParams.vaultId;
-                const depositAmount   : nat               = vaultDepositStakedTokenParams.depositAmount;
-                const tokenName       : string            = vaultDepositStakedTokenParams.tokenName;
-                const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
+                const vaultId               : vaultIdType       = vaultDepositStakedTokenParams.vaultId;
+                const depositAmount         : nat               = vaultDepositStakedTokenParams.depositAmount;
+                const collateralTokenName   : string            = vaultDepositStakedTokenParams.tokenName;
+                const vaultOwner            : vaultOwnerType    = Tezos.get_sender();
 
                 // Check if token (e.g. sMVK) exists in collateral token ledger
-                checkCollateralTokenExists(tokenName, s);
+                checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
                 verifyCollateralTokenIsStakedToken(collateralTokenRecord);
@@ -1770,10 +1769,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // get staking contract address
-                const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
-                ];
+                const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
 
                 const vaultDepositStakedTokenOperation : operation = onDepositStakedTokenToVaultOperation(
                     vaultOwner,                         // vault owner
@@ -1794,10 +1790,17 @@ block {
                 // Update storage
                 // ------------------------------------------------------------------
 
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
-                s.loanTokenLedger[vault.loanToken]        := loanTokenRecord;
+                // Update vaults
+                vault.collateralBalanceLedger[collateralTokenName]  := newCollateralBalance;
+                s.vaults[vaultHandle]                               := vault;
 
+                // Update loan token
+                s.loanTokenLedger[vault.loanToken]                  := loanTokenRecord;
+
+                // Update collateral token record
+                collateralTokenRecord.totalDeposited                := collateralTokenRecord.totalDeposited + depositAmount;
+                s.collateralTokenLedger[collateralTokenName]        := collateralTokenRecord;
+                
             }
         |   _ -> skip
     ];
@@ -1819,13 +1822,13 @@ block {
         |   LambdaVaultWithdrawStakedToken(vaultWithdrawStakedTokenParams) -> {
                 
                 // init variables for convenience
-                const vaultId         : vaultIdType       = vaultWithdrawStakedTokenParams.vaultId;
-                const withdrawAmount  : nat               = vaultWithdrawStakedTokenParams.withdrawAmount;
-                const tokenName       : string            = vaultWithdrawStakedTokenParams.tokenName;
-                const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
+                const vaultId                   : vaultIdType       = vaultWithdrawStakedTokenParams.vaultId;
+                const withdrawAmount            : nat               = vaultWithdrawStakedTokenParams.withdrawAmount;
+                const collateralTokenName       : string            = vaultWithdrawStakedTokenParams.tokenName;
+                const vaultOwner                : vaultOwnerType    = Tezos.get_sender();
 
-                // Check if token (sMVK) exists in collateral token ledger
-                checkCollateralTokenExists(tokenName, s);
+                // Check if token (e.g. sMVK) exists in collateral token ledger
+                checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
                 verifyCollateralTokenIsStakedToken(collateralTokenRecord);
@@ -1845,6 +1848,9 @@ block {
                 // ------------------------------------------------------------------
                 // Register vaultWithdrawStakedMvk action on the Staking Contract (e.g. Doorman)
                 // ------------------------------------------------------------------
+
+                // get staking contract address
+                const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
 
                 const vaultWithdrawStakedTokenOperation : operation = onWithdrawStakedTokenFromVaultOperation(
                     vaultOwner,                         // vault owner
@@ -1866,9 +1872,17 @@ block {
                 // Update storage
                 // ------------------------------------------------------------------
 
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
-                s.loanTokenLedger[vault.loanToken]        := loanTokenRecord;
+                // Update vaults
+                vault.collateralBalanceLedger[collateralTokenName]  := newCollateralBalance;
+                s.vaults[vaultHandle]                               := vault;
+
+                // Update loan token
+                s.loanTokenLedger[vault.loanToken]                  := loanTokenRecord;
+                
+                // Update collateral token record
+                verifyLessThanOrEqual(withdrawAmount, collateralTokenRecord.totalDeposited, error_WRONG_INPUT_PROVIDED);
+                collateralTokenRecord.totalDeposited                := abs(collateralTokenRecord.totalDeposited - withdrawAmount);
+                s.collateralTokenLedger[collateralTokenName]        := collateralTokenRecord;
 
             }
         |   _ -> skip

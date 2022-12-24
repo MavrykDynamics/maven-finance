@@ -80,12 +80,12 @@ describe('Linked contracts updates for Tests', async () => {
       const lendingControllerInstance: any            = await utils.tezos.contract.at(lendingControllerAddress.address);
       const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
       const vaultFactoryInstance: any                 = await utils.tezos.contract.at(vaultFactoryAddress.address);
-      const tokenPoolRewardInstance: any              = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
+      // const tokenPoolRewardInstance: any              = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
       
       //----------------------------
       // Set remaining contract addresses - post-deployment
       //----------------------------
-      
+
       await signerFactory(bob.sk);
 
       // Break Glass Contract - set whitelist contract addresses [emergencyGovernance]
@@ -240,10 +240,10 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial', governanceFinancialAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory', vaultFactoryAddress.address))
-      // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerAddress.address))
 
       // uncomment if lending controller mock time contract is used
-      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
+      // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
   
       // whitelist contracts
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory', vaultFactoryAddress.address))
