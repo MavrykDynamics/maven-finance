@@ -117,6 +117,20 @@ spec:
           volumeMounts:
             - mountPath: /var/deku-api
               name: api-db-volume
+        - name: prometheus
+          env:
+            - name: POLLING_INTERVAL_SECONDS
+              value: '5'
+            - name: APP_PORT
+              value: '80'
+            - name: EXPORTER_PORT
+              value: '9090'
+          image: '{{ $.node_vals.api.metrics.image.registry }}/{{ $.node_vals.api.metrics.image.repository }}:{{ $.node_vals.api.metrics.image.tag }}'
+          imagePullPolicy: '{{ $.node_vals.api.metrics.image.pullPolicy }}'
+          ports:
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
         {{- end }}
         - name: deku
           env:
