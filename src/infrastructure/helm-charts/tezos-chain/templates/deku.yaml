@@ -241,6 +241,7 @@ spec:
   endpoints:
     - honorLabels: true
       port: metrics
+      path: /
   namespaceSelector:
     matchNames:
       - {{ $.Release.Namespace }}
