@@ -15,8 +15,8 @@ class AppMetrics:
 
         # Prometheus metrics to collect
         self.deku_info = Info("deku", "Deku info")
-        self.deku_tps = Histogram("deku_transactions_per_second", "Deku transactions per second", ['consensus_address'])
-        self.deku_latency = Histogram("deku_latency", "Deku latency", ['consensus_address'])
+        self.deku_tps = Gauge("deku_transactions_per_second", "Deku transactions per second", ['consensus_address'])
+        self.deku_latency = Gauge("deku_latency", "Deku latency", ['consensus_address'])
         self.deku_chain_head_level = Gauge("deku_chain_head_level", "Deku chain head level", ['consensus_address'])
         self.deku_contracts_originated = Gauge("deku_contracts_originated", "Deku contracts originated", ['consensus_address'])
 
@@ -42,8 +42,8 @@ class AppMetrics:
 
         resp = requests.get(url=f"http://localhost:{self.app_port}/api/v1/chain/stats")
         data = resp.json()
-        self.deku_tps.labels(consensus_address=consensus_address).observe(float(data['tps']))
-        self.deku_latency.labels(consensus_address=consensus_address).observe(float(data['latency']))
+        self.deku_tps.labels(consensus_address=consensus_address).set(float(data['tps']))
+        self.deku_latency.labels(consensus_address=consensus_address).set(float(data['latency']))
 
         resp = requests.get(url=f"http://localhost:{self.app_port}/api/v1/chain/level")
         data = resp.json()
