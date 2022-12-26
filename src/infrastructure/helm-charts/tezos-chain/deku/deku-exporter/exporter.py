@@ -1,6 +1,7 @@
 import os
 import time
 from prometheus_client import start_http_server, Gauge, Histogram, Info
+from pytezos import pytezos
 import requests
 
 class AppMetrics:
@@ -19,6 +20,7 @@ class AppMetrics:
         self.deku_latency = Gauge("deku_latency", "Deku latency", ['consensus_address'])
         self.deku_chain_head_level = Gauge("deku_chain_head_level", "Deku chain head level", ['consensus_address'])
         self.deku_contracts_originated = Gauge("deku_contracts_originated", "Deku contracts originated", ['consensus_address'])
+        self.deku_validators = Gauge("deku_validators", "Deku validators", ['consensus_address', 'validator'])
 
     def run_metrics_loop(self):
         """Metrics fetching loop"""
@@ -52,6 +54,12 @@ class AppMetrics:
         resp = requests.get(url=f"http://localhost:{self.app_port}/api/v1/state/unix")
         data = resp.json()
         self.deku_contracts_originated.labels(consensus_address=consensus_address).set(len(data))
+
+        consensus_address="KT1Fp7FvCyHEvqCRKDuLNQzgU2TcA6ZTmA37"
+        consensus_contract_storage = pytezos.using("https://basenet-baking-archive-node.mavryk.network").contract(consensus_address).storage()
+        validators = consensus_contract_storage['root_hash']['current_validators']
+        for validator in validators:
+            self.deku_validators.labels(consensus_address=consensus_address, validator=validator).set(0)
 
 def main():
     """Main entry point"""
