@@ -2722,6 +2722,9 @@ kube-prometheus-stack:
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#remotewritespec
       remoteWrite:
         - url: https://thanos-receive.mavryk.io/api/v1/receive
+          basicAuth:
+            username: 'test'
+            password: 'test12345'
       # - url: http://remote1/push
       ## additionalRemoteWrite is appended to remoteWrite
       additionalRemoteWrite: []
