@@ -231,13 +231,24 @@ spec:
                 name: {{ $.node_class }}
                 port:
                   name: api
-          - path: /metrics
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $.node_class }}
-                port:
-                  name: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $.node_class }}
+  namespace: kube-prometheus-stack
+  labels:
+    release: 'prod'
+spec:
+  endpoints:
+    - honorLabels: true
+      port: metrics
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}s
+  selector:
+    matchLabels:
+      app: {{ $.node_class }}
 {{- end }}
 ---
 {{- end }}
