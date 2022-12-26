@@ -20,7 +20,7 @@ deku:
       pullPolicy: Always
   config:
     defaultBlockSize: 500
-    tezosConsensusAddress: KT1Fp7FvCyHEvqCRKDuLNQzgU2TcA6ZTmA37
+    tezosConsensusAddress: KT1VGg5VgH4hzATrttN9cGqK2Nvf3fGg7hoS
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
