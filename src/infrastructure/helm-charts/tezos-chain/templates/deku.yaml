@@ -237,15 +237,13 @@ kind: ServiceMonitor
 metadata:
   name: {{ $.node_class }}
   namespace: kube-prometheus-stack
-  labels:
-    release: 'prod'
 spec:
   endpoints:
     - honorLabels: true
       port: metrics
   namespaceSelector:
     matchNames:
-      - {{ $.Release.Namespace }}s
+      - {{ $.Release.Namespace }}
   selector:
     matchLabels:
       app: {{ $.node_class }}
