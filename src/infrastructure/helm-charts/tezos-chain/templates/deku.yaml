@@ -34,6 +34,10 @@ spec:
       port: 5550
       protocol: TCP
       targetPort: api-tcp
+    - name: metrics
+      port: 9090
+      protocol: TCP
+      targetPort: metrics
 {{- end }}
   selector:
     app: {{ $.node_class }}
@@ -227,6 +231,13 @@ spec:
                 name: {{ $.node_class }}
                 port:
                   name: api
+          - path: /metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $.node_class }}
+                port:
+                  name: metrics
 {{- end }}
 ---
 {{- end }}
