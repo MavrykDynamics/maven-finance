@@ -65,7 +65,7 @@ deku:
           image:
             registry: docker.io
             repository: mavrykdynamics/deku-prometheus-exporter
-            tag: v0.0.3
+            tag: v0.0.4
             pullPolicy: Always
     deku-on-baking-archive-2:
       tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
