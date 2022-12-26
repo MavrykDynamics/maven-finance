@@ -55,7 +55,6 @@ class AppMetrics:
         data = resp.json()
         self.deku_contracts_originated.labels(consensus_address=consensus_address).set(len(data))
 
-        consensus_address="KT1Fp7FvCyHEvqCRKDuLNQzgU2TcA6ZTmA37"
         consensus_contract_storage = pytezos.using("https://basenet-baking-archive-node.mavryk.network").contract(consensus_address).storage()
         validators = consensus_contract_storage['root_hash']['current_validators']
         for validator in validators:
