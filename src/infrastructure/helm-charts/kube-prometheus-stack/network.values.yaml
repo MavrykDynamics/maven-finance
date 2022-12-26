@@ -1,3 +1,6 @@
+thanosReceiveBasicAuth:
+  enabled: True
+
 kube-prometheus-stack:
   # Default values for kube-prometheus-stack.
   # This is a YAML-formatted file.
@@ -2722,6 +2725,13 @@ kube-prometheus-stack:
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#remotewritespec
       remoteWrite:
         - url: https://thanos-receive.mavryk.io/api/v1/receive
+          basicAuth:
+            username:
+              name: thanos-receive-basic-auth
+              key: username
+            password:
+              name: thanos-receive-basic-auth
+              key: password
       # - url: http://remote1/push
       ## additionalRemoteWrite is appended to remoteWrite
       additionalRemoteWrite: []
