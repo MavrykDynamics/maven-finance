@@ -52,7 +52,7 @@ block {
 function lambdaUpdateConfig(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdminOrTester(s); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case lendingControllerLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -82,7 +82,7 @@ block {
 function lambdaUpdateWhitelistTokenContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrTester(s); // verify that sender is admin 
 
     case lendingControllerLambdaAction of [
         |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
@@ -276,7 +276,7 @@ block {
     // 1. Check that sender is admin
     // 2. Pause or unpause entrypoint depending on boolean parameter sent 
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrTester(s); // verify that sender is admin 
 
     case lendingControllerLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
@@ -347,7 +347,7 @@ block {
 
 
     verifyNoAmountSent(Unit);           // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin);       // verify that sender is admin 
+    verifySenderIsAdminOrTester(s);       // verify that sender is admin 
     
     // verify that %setLoanToken entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.setLoanTokenIsPaused, error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
@@ -402,7 +402,7 @@ block {
     //      -   Update and save collateral token record with new parameters
 
     verifyNoAmountSent(Unit);                 // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin);             // verify that sender is admin 
+    verifySenderIsAdminOrTester(s);             // verify that sender is admin 
     
     // Verify that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.setCollateralTokenIsPaused, error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
@@ -1537,7 +1537,7 @@ block {
                 const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
 
                 // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
-                verifyGreaterThan(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
+                verifyGreaterThanOrEqual(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
 
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
@@ -1746,11 +1746,16 @@ block {
                 const collateralTokenName   : string            = vaultDepositStakedTokenParams.tokenName;
                 const vaultOwner            : vaultOwnerType    = Tezos.get_sender();
 
+                var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
+
                 // Check if token (e.g. sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
                 verifyCollateralTokenIsStakedToken(collateralTokenRecord);
+
+                // Verify that max deposit amount has not been exceeded
+                verifyMaxDepositAmountNotExceeded(collateralTokenRecord, depositAmount);
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
@@ -1816,7 +1821,7 @@ block {
     var operations : list(operation)  := nil;
     
     // Verify that %vaultWithdrawStakedToken entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultWithdrawStakedTOKENIsPaused, error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused, error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultWithdrawStakedToken(vaultWithdrawStakedTokenParams) -> {
@@ -1826,6 +1831,8 @@ block {
                 const withdrawAmount            : nat               = vaultWithdrawStakedTokenParams.withdrawAmount;
                 const collateralTokenName       : string            = vaultWithdrawStakedTokenParams.tokenName;
                 const vaultOwner                : vaultOwnerType    = Tezos.get_sender();
+
+                var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
                 // Check if token (e.g. sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(collateralTokenName, s);

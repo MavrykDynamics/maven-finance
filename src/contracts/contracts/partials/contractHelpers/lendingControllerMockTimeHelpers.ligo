@@ -8,8 +8,19 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Verify that sender is admin or tester
+function verifySenderIsAdminOrTester(const s : lendingControllerStorageType) : unit is
+block {
+
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.tester then skip
+    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+} with unit
+
+
+
 // Allowed Senders: Vault Factory Contract
-function verifySenderIsVaultFactoryContract(var s : lendingControllerStorageType) : unit is
+function verifySenderIsVaultFactoryContract(const s : lendingControllerStorageType) : unit is
 block{
 
     // Get Vault Factory Address from the General Contracts map on the Governance Contract
@@ -99,36 +110,36 @@ function getVaultOnLiquidateEntrypoint(const vaultAddress : address) : contract(
 
 
 
-// helper function to get %onVaultDepositStakedMvk entrypoint in Doorman Contract
-function getOnVaultDepositStakedMvkEntrypoint(const contractAddress : address) : contract(onVaultDepositStakedMvkType) is
+// helper function to get %onVaultDepositStake entrypoint in staking Contract
+function getOnVaultDepositStakeEntrypoint(const contractAddress : address) : contract(onVaultDepositStakeType) is
     case (Tezos.get_entrypoint_opt(
-        "%onVaultDepositStakedMvk",
-        contractAddress) : option(contract(onVaultDepositStakedMvkType))) of [
+        "%onVaultDepositStake",
+        contractAddress) : option(contract(onVaultDepositStakeType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ON_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(onVaultDepositStakedMvkType))
+            |   None -> (failwith(error_ON_VAULT_DEPOSIT_STAKE_ENTRYPOINT_IN_STAKING_CONTRACT_NOT_FOUND) : contract(onVaultDepositStakeType))
         ]
 
 
 
-// helper function to get %onVaultWithdrawStakedMvk entrypoint from doorman contract
-function getOnVaultWithdrawStakedMvkEntrypoint(const contractAddress : address) : contract(onVaultWithdrawStakedMvkType) is
+// helper function to get %onVaultWithdrawStake entrypoint from staking contract address
+function getOnVaultWithdrawStakeEntrypoint(const contractAddress : address) : contract(onVaultWithdrawStakeType) is
     case (Tezos.get_entrypoint_opt(
-        "%onVaultWithdrawStakedMvk",
-        contractAddress) : option(contract(onVaultWithdrawStakedMvkType))) of [
+        "%onVaultWithdrawStake",
+        contractAddress) : option(contract(onVaultWithdrawStakeType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ON_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(onVaultWithdrawStakedMvkType))
+            |   None -> (failwith(error_ON_VAULT_WITHDRAW_STAKE_ENTRYPOINT_IN_STAKING_CONTRACT_NOT_FOUND) : contract(onVaultWithdrawStakeType))
         ]
 
 
 
-// helper function to get %onVaultLiquidateStakedMvk entrypoint from Doorman Contract
-function getOnVaultLiquidateStakedMvkEntrypoint(const contractAddress : address) : contract(onVaultLiquidateStakedMvkType) is
+// helper function to get %onVaultLiquidateStake entrypoint from staking contract address
+function getOnVaultLiquidateStakeEntrypoint(const contractAddress : address) : contract(onVaultLiquidateStakeType) is
     case (Tezos.get_entrypoint_opt(
-        "%onVaultLiquidateStakedMvk",
-        contractAddress) : option(contract(onVaultLiquidateStakedMvkType))) of [
+        "%onVaultLiquidateStake",
+        contractAddress) : option(contract(onVaultLiquidateStakeType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ON_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(onVaultLiquidateStakedMvkType))
-        ]
+            |   None -> (failwith(error_ON_VAULT_LIQUIDATE_STAKE_ENTRYPOINT_IN_STAKING_CONTRACT_NOT_FOUND) : contract(onVaultLiquidateStakeType))
+        ]        
 
 
 
@@ -424,10 +435,31 @@ block {
 
 
 // helper function to verify that collateral token is staked token
-function verifyCollateralTokenIsStakedToken(const collateralTokenRecord : collateralTokenRecordOpt) : unit is 
+function verifyCollateralTokenIsStakedToken(const collateralTokenRecord : collateralTokenRecordType) : unit is 
 block {
 
     if collateralTokenRecord.isStakedToken = False then failwith(error_NOT_STAKED_TOKEN) else skip;
+
+} with unit
+
+
+
+function verifyMaxDepositAmountNotExceeded(const collateralTokenRecord : collateralTokenRecordType; const depositAmount : nat) : unit is
+block {
+
+    const maxDepositAmount : nat = case collateralTokenRecord.maxDepositAmount of [
+            Some(_amount) -> _amount
+        |   None          -> 0n
+    ];
+
+    if maxDepositAmount =/= 0n then {
+
+        const totalDeposited     : nat = collateralTokenRecord.totalDeposited;
+        const newTotalDeposited  : nat = totalDeposited + depositAmount;
+
+        if newTotalDeposited > maxDepositAmount then failwith(error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED) else skip;
+
+    } else skip;
 
 } with unit
 
@@ -1275,22 +1307,28 @@ block {
 
         // use %onVaultLiquidateStakedMvk entrypoint in Doorman Contract to transfer staked MVK balances
 
+        // get staking contract address
+        const stakingContractAddress : address = case collateralToken.stakingContractAddress of [
+                Some(_address) -> _address
+            |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+        ];
+
         // send staked mvk from vault to liquidator
-        const sendStakedMvkFromVaultToLiquidatorOperation : operation = onLiquidateStakedMvkFromVaultOperation(
+        const sendStakedMvkFromVaultToLiquidatorOperation : operation = onLiquidateStakedTokenFromVaultOperation(
             vaultAddress,                       // vault address
             liquidatorAddress,                  // liquidator              
             liquidatorTokenAmount,              // liquidated amount
-            s                                   // storage
+            stakingContractAddress              // staking contract address
         );                
 
         operations := sendStakedMvkFromVaultToLiquidatorOperation # operations;
 
         // send staked mvk from vault to treasury
-        const sendStakedMvkFromVaultToTreasuryOperation : operation = onLiquidateStakedMvkFromVaultOperation(
+        const sendStakedMvkFromVaultToTreasuryOperation : operation = onLiquidateStakedTokenFromVaultOperation(
             vaultAddress,                       // vault address
             treasuryAddress,                    // liquidator              
             treasuryTokenAmount,                // liquidated amount
-            s                                   // storage
+            stakingContractAddress              // staking contract address
         );                
 
         operations := sendStakedMvkFromVaultToTreasuryOperation # operations;

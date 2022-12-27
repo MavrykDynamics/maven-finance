@@ -1522,7 +1522,7 @@ block {
                 const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
 
                 // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
-                verifyGreaterThan(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
+                verifyGreaterThanOrEqual(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
 
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
