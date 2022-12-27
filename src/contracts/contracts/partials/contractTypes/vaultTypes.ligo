@@ -11,9 +11,14 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type depositorsType is
-  | Any       of unit 
-  | Whitelist of set(address)
+// type depositorsType is
+//     |   Any       of unit 
+//     |   Whitelist of set(address)
+
+type depositorsType is [@layout:comb] record [
+    depositorsConfig        : string; 
+    whitelistedDepositors   : set(address);
+]
 
 type vaultHandleType is [@layout:comb] record [
     id      : nat;          // vault id
@@ -27,13 +32,19 @@ type vaultHandleType is [@layout:comb] record [
 type delegateTezToBakerType is option(key_hash)
 type satelliteAddressType is address
 
-type updateDepositorAllowanceType is
-    |   AllowAny        of bool
-    |   AllowAccount    of bool * address
+// type updateDepositorAllowanceType is
+//     |   AllowAny        of bool
+//     |   AllowAccount    of bool * address
+
+// type updateDepositorType is [@layout:comb] record [
+//     allowance       : updateDepositorAllowanceType;
+//     empty           : unit;
+// ]
 
 type updateDepositorType is [@layout:comb] record [
-    allowance       : updateDepositorAllowanceType;
-    empty           : unit;
+    depositorsConfig        : string;
+    depositorAddress        : address;
+    addOrRemoveBool         : bool;
 ]
 
 type withdrawType  is [@layout:comb] record [
@@ -51,7 +62,6 @@ type onLiquidateType  is [@layout:comb] record [
     amount          : nat;
     tokenName       : string
 ]
-
 
 type updateTokenOperatorsType is [@layout:comb] record [
     tokenName        : string;
