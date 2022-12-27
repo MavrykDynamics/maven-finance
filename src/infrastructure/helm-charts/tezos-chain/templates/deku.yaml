@@ -124,7 +124,7 @@ spec:
         - name: prometheus
           env:
             - name: POLLING_INTERVAL_SECONDS
-              value: '5'
+              value: '15'
             - name: APP_PORT
               value: '80'
             - name: EXPORTER_PORT
