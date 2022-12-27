@@ -301,20 +301,42 @@ block {
 
                 // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
                 // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
-                const emptyWhitelistSet : set(address) = set[];
-                const depositors : depositorsType = case updateDepositorParams.allowance of [
-                    | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
-                    | AllowAccount(_account) -> block {
-                        const updateDepositors : depositorsType = case s.depositors of [
-                            | Any -> failwith("Error. Set any off first")
-                            | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
-                        ];
-                    } with updateDepositors
-                ];
-                
-                // update depositors
-                s.depositors := depositors;
+                // const emptyWhitelistSet : set(address) = set[];
+                // const depositors : depositorsType = case updateDepositorParams.allowance of [
+                //     | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
+                //     | AllowAccount(_account) -> block {
+                //         const updateDepositors : depositorsType = case s.depositors of [
+                //             | Any -> failwith("Error. Set any off first")
+                //             | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
+                //         ];
+                //     } with updateDepositors
+                // ];
 
+                // update depositors
+                // s.depositors := depositors;
+
+                const depositorsConfig : string     = updateDepositorParams.depositorsConfig;
+                const addDepositorBool : bool       = updateDepositorParams.addOrRemoveBool;
+                const depositorAddress : address    = updateDepositorParams.depositorAddress;
+
+                if depositorsConfig = "any" then {
+                    
+                    s.depositors.depositorsConfig := "any";
+
+                } else if depositorsConfig = "whitelist" then {
+                
+                    var whitelistedDepositors : set(address) := s.depositors.whitelistedDepositors;
+
+                    if addDepositorBool then {
+                        whitelistedDepositors := Set.add(depositorAddress, whitelistedDepositors);
+                    } else {
+                        whitelistedDepositors := Set.remove(depositorAddress, whitelistedDepositors);
+                    };
+
+                    s.depositors.depositorsConfig       := "whitelist";    
+                    s.depositors.whitelistedDepositors  := whitelistedDepositors;
+
+                } else failwith(error_INVALID_DEPOSITORS_CONFIG)
 
             }   
         |   _ -> skip
