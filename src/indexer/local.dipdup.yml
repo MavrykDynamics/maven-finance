@@ -13,7 +13,7 @@ database:
 
 hasura:
   url: http://127.0.0.1:42000
-  admin_secret: ${ADMIN_SECRET:-changeme}
+  admin_secret: hasura12345
   select_limit: 1000
 
 prometheus:
@@ -44,10 +44,10 @@ datasources:
     network: ghostnet
   tzkt_ghostnet:
     kind: tzkt
-    url: ${TZKT_GHOSTNET_URL:-changeme}
+    url: https://api.ghostnet.tzkt.io
   tzkt_mainnet:
     kind: tzkt
-    url: ${TZKT_MAINNET_URL:-changeme}
+    url: https://api.tzkt.io
 
 contracts:
   liquidity_baking:
