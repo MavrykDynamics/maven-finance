@@ -315,28 +315,48 @@ block {
                 // update depositors
                 // s.depositors := depositors;
 
-                const depositorsConfig : string     = updateDepositorParams.depositorsConfig;
-                const addDepositorBool : bool       = updateDepositorParams.addOrRemoveBool;
-                const depositorAddress : address    = updateDepositorParams.depositorAddress;
+                const depositorsConfig : depositorsConfigType   = updateDepositorParams.depositorsConfig;
+                const addDepositorBool : bool                   = updateDepositorParams.addOrRemoveBool;
+                const depositorAddress : address                = updateDepositorParams.depositorAddress;
 
-                if depositorsConfig = "any" then {
+                case depositorsConfig of [
+                    |   Any(_any) -> {
+                            s.depositors.depositorsConfig := depositorsConfig;
+                        }
+                    |   Whitelist(_whitelist) -> {
+
+                        var whitelistedDepositors : set(address) := s.depositors.whitelistedDepositors;
+
+                        if addDepositorBool then {
+                            whitelistedDepositors := Set.add(depositorAddress, whitelistedDepositors);
+                        } else {
+                            whitelistedDepositors := Set.remove(depositorAddress, whitelistedDepositors);
+                        };
+
+                        s.depositors.depositorsConfig       := depositorsConfig;    
+                        s.depositors.whitelistedDepositors  := whitelistedDepositors;
+
+                    }
+                ];
+
+                // if depositorsConfig = "any" then {
                     
-                    s.depositors.depositorsConfig := "any";
+                //     s.depositors.depositorsConfig := "any";
 
-                } else if depositorsConfig = "whitelist" then {
+                // } else if depositorsConfig = "whitelist" then {
                 
-                    var whitelistedDepositors : set(address) := s.depositors.whitelistedDepositors;
+                //     var whitelistedDepositors : set(address) := s.depositors.whitelistedDepositors;
 
-                    if addDepositorBool then {
-                        whitelistedDepositors := Set.add(depositorAddress, whitelistedDepositors);
-                    } else {
-                        whitelistedDepositors := Set.remove(depositorAddress, whitelistedDepositors);
-                    };
+                //     if addDepositorBool then {
+                //         whitelistedDepositors := Set.add(depositorAddress, whitelistedDepositors);
+                //     } else {
+                //         whitelistedDepositors := Set.remove(depositorAddress, whitelistedDepositors);
+                //     };
 
-                    s.depositors.depositorsConfig       := "whitelist";    
-                    s.depositors.whitelistedDepositors  := whitelistedDepositors;
+                //     s.depositors.depositorsConfig       := "whitelist";    
+                //     s.depositors.whitelistedDepositors  := whitelistedDepositors;
 
-                } else failwith(error_INVALID_DEPOSITORS_CONFIG)
+                // } else failwith(error_INVALID_DEPOSITORS_CONFIG)
 
             }   
         |   _ -> skip
