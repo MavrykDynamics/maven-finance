@@ -4,6 +4,7 @@
   "description": "Indexer scripts",
   "scripts": {
     "poetry": "poetry shell",
+    "setup-env": "poetry install",
     "up": "docker compose up -d",
     "down": "docker compose down",
     "start": "dipdup -c local.dipdup.yml run",
