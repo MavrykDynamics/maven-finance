@@ -16,7 +16,6 @@ async def on_m_token_transfer(
     user_ledger                 = transfer.storage.ledger
     reward_index_ledger         = transfer.storage.rewardIndexLedger
     token_reward_index          = float(transfer.storage.tokenRewardIndex)
-
     # Get MVK Token
     m_token                     = await models.MToken.get(address=m_token_address)
     m_token.token_reward_index  = token_reward_index
@@ -32,6 +31,7 @@ async def on_m_token_transfer(
             m_token = m_token,
             user    = from_user
         )
+        from_account.rewards_earned += (token_reward_index - from_account.reward_index) * from_account.balance
         from_account.balance        = float(user_ledger[from_address])
         from_account.reward_index   = float(reward_index_ledger[from_address])
         await from_account.save()
@@ -45,6 +45,7 @@ async def on_m_token_transfer(
                 m_token = m_token,
                 user    = to_user
             )
+            to_account.rewards_earned += (token_reward_index - to_account.reward_index) * to_account.balance
             to_account.balance      = float(user_ledger[to_address])
             to_account.reward_index = float(reward_index_ledger[to_address])
             await to_account.save()

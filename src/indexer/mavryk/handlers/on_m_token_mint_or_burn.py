@@ -29,6 +29,7 @@ async def on_m_token_mint_or_burn(
         m_token = m_token,
         user    = user
     )
+    user_account.rewards_earned += (token_reward_index - user_account.reward_index) * user_account.balance
     user_account.balance        = user_balance
     user_account.reward_index   = user_reward_index
     await user_account.save()
