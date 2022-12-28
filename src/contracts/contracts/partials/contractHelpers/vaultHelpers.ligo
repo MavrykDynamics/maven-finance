@@ -73,12 +73,17 @@ block {
     //     |   Whitelist(_depositors) -> _depositors contains Tezos.get_sender()
     // ];
 
-    const isAllowedToDeposit : bool = 
-    if s.depositors.depositorsConfig = "any" then True 
-    else if s.depositors.depositorsConfig = "whitelist" then {
-        const isWhitelistedDepositor : bool = s.depositors.whitelistedDepositors contains Tezos.get_sender();
-    } with isWhitelistedDepositor
-    else False;
+    // const isAllowedToDeposit : bool = 
+    // if s.depositors.depositorsConfig = "any" then True 
+    // else if s.depositors.depositorsConfig = "whitelist" then {
+    //     const isWhitelistedDepositor : bool = s.depositors.whitelistedDepositors contains Tezos.get_sender();
+    // } with isWhitelistedDepositor
+    // else False;
+
+    const isAllowedToDeposit : bool = case s.depositors.depositorsConfig of [
+            Any       -> True
+        |   Whitelist -> s.depositors.whitelistedDepositors contains Tezos.get_sender()
+    ];
 
 } with isAllowedToDeposit
 
@@ -130,12 +135,12 @@ function getRegisterWithdrawalEntrypointInLendingController(const contractAddres
 
 
 // helper function to %delegateToSatellite entrypoint in the delegation contract
-function getDelegateToSatelliteEntrypoint(const contractAddress : address) : contract(address) is
+function getDelegateToSatelliteEntrypoint(const contractAddress : address) : contract(delegateToSatelliteType) is
     case (Tezos.get_entrypoint_opt(
         "%delegateToSatellite",
-        contractAddress) : option(contract(address))) of [
+        contractAddress) : option(contract(delegateToSatelliteType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
+            |   None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegateToSatelliteType))
         ]
 
 
@@ -165,9 +170,14 @@ block {
     // Get Delegation Address from the General Contracts map on the Governance Contract
     const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
+    const delegateToSatelliteParams : delegateToSatelliteType = record [
+        userAddress         = Tezos.get_self_address();
+        satelliteAddress    = satelliteAddress;
+    ];
+
     // Create delegate to satellite operation
     const delegateToSatelliteOperation : operation = Tezos.transaction(
-        satelliteAddress,
+        delegateToSatelliteParams,
         0tez,
         getDelegateToSatelliteEntrypoint(delegationAddress)
     );
