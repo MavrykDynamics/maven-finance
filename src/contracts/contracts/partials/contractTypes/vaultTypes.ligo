@@ -11,13 +11,14 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-// type depositorsType is
-//     |   Any       of unit 
-//     |   Whitelist of set(address)
+type depositorsConfigType is
+    |   Any       of unit 
+    |   Whitelist of unit
 
 type depositorsType is [@layout:comb] record [
-    depositorsConfig        : string; 
+    // depositorsConfig        : depositorsConfigType; 
     whitelistedDepositors   : set(address);
+    depositorsConfig        : depositorsConfigType; 
 ]
 
 type vaultHandleType is [@layout:comb] record [
@@ -42,9 +43,9 @@ type satelliteAddressType is address
 // ]
 
 type updateDepositorType is [@layout:comb] record [
-    depositorsConfig        : string;
     depositorAddress        : address;
     addOrRemoveBool         : bool;
+    depositorsConfig        : depositorsConfigType;
 ]
 
 type withdrawType  is [@layout:comb] record [

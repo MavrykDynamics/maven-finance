@@ -22,6 +22,9 @@
 // Vault Types
 #include "../partials/contractTypes/vaultTypes.ligo"
 
+// Delegation Types
+#include "../partials/contractTypes/delegationTypes.ligo"
+
 // Lending Controller Types
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 

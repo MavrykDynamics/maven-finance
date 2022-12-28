@@ -955,11 +955,12 @@ describe("Vault tests", async () => {
                 const whitelistedDepositors = [];
                 const loanTokenName         = "mockFa12";
 
+
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     eve.pkh,                // delegate to
                     loanTokenName,          // loan token type
-                    depositorsConfig,       // depositors config type - any / whitelist
-                    whitelistedDepositors   // whitelisted depositors
+                    whitelistedDepositors,  // whitelisted depositors
+                    depositorsConfig        // depositors config type - any / whitelist
                 ).send();
                 await userCreatesNewVaultOperation.confirmation();
 
@@ -1005,8 +1006,8 @@ describe("Vault tests", async () => {
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     mallory.pkh,  
                     loanTokenName,
-                    depositorsConfig,
-                    whitelistedDepositors
+                    whitelistedDepositors,
+                    depositorsConfig
                 ).send();
                 await userCreatesNewVaultOperation.confirmation();
 
@@ -1106,24 +1107,26 @@ describe("Vault tests", async () => {
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
             const eveVaultInstanceStorage : vaultStorageType  = await eveVaultInstance.storage();
             const vaultDepositors         : depositorsType    = eveVaultInstanceStorage.depositors;
+            var depositorsConfigType  = Object.keys(vaultDepositors.depositorsConfig)[0];
 
             // check that initial depositors type is any, and there is no whitelisted depositors
-            assert.equal(vaultDepositors.depositorsConfig , "any");    
+            assert.equal(depositorsConfigType, "any");    
             assert.equal(vaultDepositors.whitelistedDepositors.length , 0);                    
 
-            const eveUpdateDepositorOperation  = await eveVaultInstance.methods.updateDepositor(
-                newDepositorConfigType,        // whitelist 
+            const eveUpdateDepositorOperation  = await eveVaultInstance.methods.updateDepositor(            
                 newDepositorAddress,           // new whitelisted depositor address
-                addOrRemoveBool                // true: add whitelist address
+                addOrRemoveBool,               // true: add whitelist address
+                newDepositorConfigType         // whitelist 
             ).send();
             await eveUpdateDepositorOperation.confirmation();
 
             const updatedEveVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
             const updatedEveVaultInstanceStorage : vaultStorageType  = await updatedEveVaultInstance.storage();
             const updatedVaultDepositors         : depositorsType    = updatedEveVaultInstanceStorage.depositors;
+            depositorsConfigType  = Object.keys(updatedVaultDepositors.depositorsConfig)[0];
 
             // check that depositors type is no longer any and now has alice address
-            assert.equal(updatedVaultDepositors.depositorsConfig , "whitelist");    
+            assert.equal(depositorsConfigType, "whitelist");    
             assert.equal(updatedVaultDepositors.whitelistedDepositors.length, 1);                              
 
         });
@@ -1307,23 +1310,26 @@ describe("Vault tests", async () => {
             const vaultAddress             = vault.address;
             const malloryVaultInstance         = await utils.tezos.contract.at(vaultAddress);
             const malloryVaultInstanceStorage : vaultStorageType  = await malloryVaultInstance.storage();
+            const vaultDepositors             : depositorsType    = malloryVaultInstanceStorage.depositors;
+            var depositorsConfigType  = Object.keys(vaultDepositors.depositorsConfig)[0];
 
             // check that initial depositors type is any
-            assert.equal(malloryVaultInstanceStorage.depositors.depositorsConfig, "whitelist");            
+            assert.equal(depositorsConfigType, "whitelist");            
 
-            const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.updateDepositor(
-                newDepositorConfigType,     // any 
+            const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.updateDepositor(            
                 zeroAddress,                // use placeholder: depositor address 
-                addOrRemoveBool             // use placeholder: add or remove bool    
+                addOrRemoveBool,            // use placeholder: add or remove bool    
+                newDepositorConfigType      // any 
             ).send();
             await malloryUpdateDepositorOperation.confirmation();
 
             const updatedMalloryVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
             const updatedMalloryVaultInstanceStorage : vaultStorageType  = await updatedMalloryVaultInstance.storage();
             const updatedVaultDepositors             : depositorsType    = updatedMalloryVaultInstanceStorage.depositors;
+            depositorsConfigType  = Object.keys(updatedVaultDepositors.depositorsConfig)[0];
 
             // check that depositors type is no longer whitelisted and is now any
-            assert.equal(updatedVaultDepositors.depositorsConfig , "any");    
+            assert.equal(depositorsConfigType, "any");    
 
         });
 
@@ -1433,15 +1439,66 @@ describe("Vault tests", async () => {
             const vaultAddress             = vault.address;
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
+            // get initial balance for Eve and Vault
+            const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+                
+            const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
+    
+            const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
             // get initial vault staked balance on the doorman contract
             doormanStorage                              = await doormanInstance.storage();
-            let vaultOwnerStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
+            const vaultOwnerStakedMvkAccount            = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
             const initialVaultOwnerStakedMvkBalance     = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
 
-            const initialSatelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteAddress);
+            const vaultStakedMvkAccount                 = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const initialVaultStakedMvkBalance          = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
 
+            const initialSatelliteRecord                = await delegationStorage.satelliteLedger.get(satelliteAddress);
+            const initialSatelliteTotalDelegatedAmount  = initialSatelliteRecord.totalDelegatedAmount.toNumber();
+
+            // ----------------------------------------------------------------------------------------------
+            // Eve staked some MVK to Doorman Contract
+            // ----------------------------------------------------------------------------------------------
+
+            // Operator set
+            const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+            {
+                add_operator: {
+                    owner: eve.pkh,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            }])
+            .send()
+            await updateOperatorsOperation.confirmation();
+
+            // Operation
+            const stakeOperation = await doormanInstance.methods.stake(mvkDepositAmount).send();
+            await stakeOperation.confirmation();
+
+            // Update storage
+            doormanStorage = await doormanInstance.storage();
+            mvkTokenStorage = await mvkTokenInstance.storage();
+
+            // Final Values
+            const userMVKBalanceEnd = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const userStakeBalanceEnd = userStakeLedgerEnd.balance.toNumber()
+            const doormanSMVKTotalSupplyEnd = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
+            // Assertion
+            assert.equal(doormanSMVKTotalSupply + mvkDepositAmount, doormanSMVKTotalSupplyEnd);
+            assert.equal(userMVKBalance - mvkDepositAmount, userMVKBalanceEnd);
+            assert.equal(userStakeBalance + mvkDepositAmount, userStakeBalanceEnd);
+
+            // ----------------------------------------------------------------------------------------------
+            // Eve's vault stake some MVK to Doorman Contract
+            // ----------------------------------------------------------------------------------------------
+    
             // eve set doorman as operator for vault
-            const updateOperatorsOperation = await eveVaultInstance.methods.updateTokenOperators(
+            const vaultUpdateOperatorsOperation = await eveVaultInstance.methods.updateTokenOperators(
                 tokenName,
                 [
                     {
@@ -1453,7 +1510,7 @@ describe("Vault tests", async () => {
                     }
             ]
             ).send();
-            await updateOperatorsOperation.confirmation();
+            await vaultUpdateOperatorsOperation.confirmation();
     
             // vault staked mvk operation
             const eveVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
@@ -1465,21 +1522,76 @@ describe("Vault tests", async () => {
 
             // get vault staked balance on the doorman contract
             doormanStorage                           = await doormanInstance.storage();
-            vaultOwnerStakedMvkAccount               = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
-            const updatedVaultOwnerStakedMvkBalance  = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
+            const updatedVaultOwnerStakedMvkAccount  = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
+            const updatedVaultOwnerStakedMvkBalance  = updatedVaultOwnerStakedMvkAccount == undefined ? 0 : updatedVaultOwnerStakedMvkAccount.balance.toNumber();
 
-            // assert increase in staked mvk balance
-            assert.equal(updatedVaultOwnerStakedMvkBalance, initialVaultOwnerStakedMvkBalance + mvkDepositAmount);
+            const updatedVaultStakedMvkAccount       = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const updatedVaultStakedMvkBalance       = updatedVaultStakedMvkAccount == undefined ? 0 : updatedVaultStakedMvkAccount.balance.toNumber();
+
+            // assert decrease in staked mvk balance for vault owner
+            assert.equal(updatedVaultOwnerStakedMvkBalance, initialVaultOwnerStakedMvkBalance);
+
+            // assert increase in staked mvk balance for vault 
+            assert.equal(updatedVaultStakedMvkBalance, initialVaultStakedMvkBalance + mvkDepositAmount);
 
             // delegate vault staked mvk to oscar's satellite
             const delegationOperation   = await eveVaultInstance.methods.delegateMvkToSatellite(satelliteAddress).send();
             await delegationOperation.confirmation();
 
-            const updatedSatelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteAddress);
+            const updatedSatelliteRecord               = await delegationStorage.satelliteLedger.get(satelliteAddress);
+            const updatedSatelliteTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
 
             // assert correct increase in satellite's total delegated amount
-            assert.equal(updatedSatelliteRecord.totalDelegatedAmount.toNumber(), initialSatelliteRecord.totalDelegatedAmount.toNumber() + mvkDepositAmount);
-            assert.equal(updatedSatelliteRecord.totalDelegatedAmount.toNumber(), updatedVaultOwnerStakedMvkBalance.balance.toNumber());
+            assert.equal(updatedSatelliteTotalDelegatedAmount, initialSatelliteTotalDelegatedAmount + mvkDepositAmount);
+
+        });
+
+
+        it('user (eve) can redelegate to bob\'s satellite', async () => {
+
+            // init variables
+            await signerFactory(eve.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+
+            const mvkDepositAmount    = 10000000000;   
+            const satelliteAddress    = oscar.pkh;
+            const newSatelliteAddress = bob.pkh;
+
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultStakedMvkAccount                      = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const vaultStakedMvkBalance                      = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
+
+            const initialOscarSatelliteRecord                = await delegationStorage.satelliteLedger.get(satelliteAddress);
+            const initialOscarSatelliteTotalDelegatedAmount  = initialOscarSatelliteRecord.totalDelegatedAmount.toNumber();
+
+            const initialBobSatelliteRecord                  = await delegationStorage.satelliteLedger.get(newSatelliteAddress);
+            const initialBobSatelliteTotalDelegatedAmount    = initialBobSatelliteRecord.totalDelegatedAmount.toNumber();
+
+            // redelegate from oscar to bob
+            const delegationOperation   = await eveVaultInstance.methods.delegateMvkToSatellite(newSatelliteAddress).send();
+            await delegationOperation.confirmation();
+
+            const updatedOscarSatelliteRecord               = await delegationStorage.satelliteLedger.get(satelliteAddress);
+            const updatedOscarSatelliteTotalDelegatedAmount = updatedOscarSatelliteRecord.totalDelegatedAmount.toNumber();
+
+            const updatedBobSatelliteRecord                 = await delegationStorage.satelliteLedger.get(newSatelliteAddress);
+            const updatedBobSatelliteTotalDelegatedAmount   = updatedBobSatelliteRecord.totalDelegatedAmount.toNumber();
+
+            // assert correct changes in both satellite's total delegated amount
+            assert.equal(updatedBobSatelliteTotalDelegatedAmount, initialBobSatelliteTotalDelegatedAmount + vaultStakedMvkBalance);
+            assert.equal(updatedOscarSatelliteTotalDelegatedAmount, initialOscarSatelliteTotalDelegatedAmount - vaultStakedMvkBalance);
 
         });
 
