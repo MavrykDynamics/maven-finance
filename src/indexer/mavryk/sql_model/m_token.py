@@ -36,6 +36,7 @@ class MTokenAccount(Model):
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='m_token_accounts', index=True)
     balance                                 = fields.FloatField(default=0.0)
     reward_index                            = fields.FloatField(default=0.0)
+    rewards_earned                          = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'm_token_account'
