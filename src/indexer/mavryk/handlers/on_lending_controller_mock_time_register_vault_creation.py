@@ -54,7 +54,8 @@ async def on_lending_controller_mock_time_register_vault_creation(
         
         lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
             lending_controller  = lending_controller,
-            loan_token_address  = loan_token_address
+            loan_token_address  = loan_token_address,
+            loan_token_name     = vault_loan_token_name
         )
         vault, _                                = await models.Vault.get_or_create(
             address = vault_address
