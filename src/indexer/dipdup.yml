@@ -119,6 +119,12 @@ contracts:
   m_token:
     address: KT19h6gP8AYafbaDL6SMbFJwiVBHEhRbgRve
     typename: m_token
+  m_token_fa2:
+    address: KT1AQrvqjzQaCAs4gbrHdmNt1evSHgU7H6Sy
+    typename: m_token
+  m_token_xtz:
+    address: KT1V7phNJEUQL27uUk6cg7DEFdmkKiP6XHH5
+    typename: m_token
   vault:
     address: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
     typename: vault
@@ -347,6 +353,43 @@ templates:
       pattern:
       - destination: <vault_contract>
         entrypoint: setLambda
+  m_token_template:
+    kind: operation
+    datasource: tzkt_ghostnet
+    types:
+    - origination
+    - transaction
+    contracts:
+    - <m_token_contract>
+    handlers:
+    - callback: on_m_token_origination
+      pattern:
+      - type: origination
+        originated_contract: <m_token_contract>
+    - callback: on_m_token_set_admin
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: setAdmin
+    - callback: on_m_token_set_governance
+      pattern:
+      - destination: m_token
+        entrypoint: setGovernance
+    - callback: on_m_token_update_whitelist_contracts
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: on_m_token_transfer
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: transfer
+    - callback: on_m_token_update_operators
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: update_operators
+    - callback: on_m_token_mint_or_burn
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: mintOrBurn
 
 indexes:
   governance_satellite_snapshot:
@@ -1948,39 +1991,14 @@ indexes:
       - destination: lending_controller_mock_time
         entrypoint: setLambda
   m_token:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - m_token
-    handlers:
-    - callback: on_m_token_origination
-      pattern:
-      - type: origination
-        originated_contract: m_token
-    - callback: on_m_token_set_admin
-      pattern:
-      - destination: m_token
-        entrypoint: setAdmin
-    - callback: on_m_token_set_governance
-      pattern:
-      - destination: m_token
-        entrypoint: setGovernance
-    - callback: on_m_token_update_whitelist_contracts
-      pattern:
-      - destination: m_token
-        entrypoint: updateWhitelistContracts
-    - callback: on_m_token_transfer
-      pattern:
-      - destination: m_token
-        entrypoint: transfer
-    - callback: on_m_token_update_operators
-      pattern:
-      - destination: m_token
-        entrypoint: update_operators
-    - callback: on_m_token_mint_or_burn
-      pattern:
-      - destination: m_token
-        entrypoint: mintOrBurn
+    template: m_token_template
+    values:
+      m_token_contract: m_token
+  m_token_fa2:
+    template: m_token_template
+    values:
+      m_token_contract: m_token_fa2
+  m_token_xtz:
+    template: m_token_template
+    values:
+      m_token_contract: m_token_xtz
