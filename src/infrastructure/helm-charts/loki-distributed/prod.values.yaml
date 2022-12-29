@@ -211,8 +211,8 @@ loki-distributed:
     schemaConfig:
       configs:
         - from: 2022-12-29
-          store: aws
-          object_store: s3
+          store: boltdb-shipper
+          object_store: aws
           schema: v11
           index:
             prefix: loki_index_
@@ -241,8 +241,6 @@ loki-distributed:
           response_header_timeout: 0s
           insecure_skip_verify: true
         s3forcepathstyle: false
-        dynamodb:
-          dynamodb_url: dynamodb://${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}@us-east-1
 
     #   boltdb: {}
 
