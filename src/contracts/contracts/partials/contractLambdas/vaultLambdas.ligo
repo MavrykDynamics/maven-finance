@@ -159,7 +159,7 @@ block {
 
                 // verify that sender is either the vault owner or a whitelisted depositor
                 verifyDepositAllowed(isOwner, isWhitelistedDepositor);
-            
+
                 // register deposit in Lending Controller
                 const registerDepositOperation : operation = registerDepositInLendingController(
                     amount,       // amount
@@ -167,20 +167,20 @@ block {
                     s             // storage
                 );
 
+                operations := registerDepositOperation # operations;
+
                 // process deposit from sender to vault
-                const processVaultDepositOperation : operation = processVaultTransfer(
-                    Tezos.get_sender(),         // from_
-                    Tezos.get_self_address(),   // to_
-                    amount,                     // amount
-                    tokenType                   // tokenType
-                );
+                if collateralTokenRecord.tokenName = "xtz" then skip else {
+                    const processVaultDepositOperation : operation = processVaultTransfer(
+                        Tezos.get_sender(),         // from_
+                        Tezos.get_self_address(),   // to_
+                        amount,                     // amount
+                        tokenType                   // tokenType
+                    );
+                    operations := processVaultDepositOperation # operations;
+                };
 
-                operations := list[
-                    registerDepositOperation; 
-                    processVaultDepositOperation
-                ];
-
-            
+                } else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT);
                 
             }   
         |   _ -> skip
