@@ -224,8 +224,7 @@ loki-distributed:
     # -- Uncomment to configure each storage individually
     #   azure: {}
     #   gcs: {}
-      s3:
-        s3forcepathstyle: true
+      aws:
         bucketnames: mavryk-loki
         endpoint: ams3.digitaloceanspaces.com
         region: us-east-1
@@ -237,6 +236,7 @@ loki-distributed:
           idle_conn_timeout: 90s
           response_header_timeout: 0s
           insecure_skip_verify: false
+        s3forcepathstyle: true
 
     #   boltdb: {}
 
