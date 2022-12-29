@@ -529,7 +529,7 @@ block {
 
 
 // helper function to get user staked mvk balance from staking contract (e.g. Doorman)
-function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address; const s : lendingControllerStorageType) : nat is 
+function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address) : nat is 
 block {
 
     // get staked MVK balance of user from Doorman contract

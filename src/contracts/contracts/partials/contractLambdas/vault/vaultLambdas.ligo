@@ -175,18 +175,18 @@ block {
                         s             // storage
                     );
 
-                    // process deposit from sender to vault
-                    const processVaultDepositOperation : operation = processVaultTransfer(
-                        Tezos.get_sender(),         // from_
-                        Tezos.get_self_address(),   // to_
-                        amount,                     // amount
-                        tokenType                   // tokenType
-                    );
+                    operations := registerDepositOperation # operations;
 
-                    operations := list[
-                        registerDepositOperation; 
-                        processVaultDepositOperation
-                    ];
+                    // process deposit from sender to vault
+                    if collateralTokenRecord.tokenName = "xtz" then skip else {
+                        const processVaultDepositOperation : operation = processVaultTransfer(
+                            Tezos.get_sender(),         // from_
+                            Tezos.get_self_address(),   // to_
+                            amount,                     // amount
+                            tokenType                   // tokenType
+                        );
+                        operations := processVaultDepositOperation # operations;
+                    };
 
                 } else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT);
                 
