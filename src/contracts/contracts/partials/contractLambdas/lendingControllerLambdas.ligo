@@ -549,14 +549,20 @@ block {
                 loanTokenRecord.lpTokensTotal    := loanTokenRecord.lpTokensTotal + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
-                // send tokens to token pool (self address) operation
-                const sendTokensToTokenPoolOperation : operation = tokenPoolTransfer(
-                    initiator,                  // from_
-                    Tezos.get_self_address(),   // to_    
-                    amount,                     // amount
-                    loanTokenRecord.tokenType   // token type (e.g. tez, fa12, fa2)
-                );
-                operations := sendTokensToTokenPoolOperation # operations;
+                // send tokens to token pool (self address) operation / skip if loan token name is xtz
+                if loanTokenName =  "xtz" then {
+
+                    if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
+
+                } else {
+                    const sendTokensToTokenPoolOperation : operation = tokenPoolTransfer(
+                        initiator,                  // from_
+                        Tezos.get_self_address(),   // to_    
+                        amount,                     // amount
+                        loanTokenRecord.tokenType   // token type (e.g. tez, fa12, fa2)
+                    );
+                    operations := sendTokensToTokenPoolOperation # operations;
+                };
 
                 // mint LP Tokens and send to sender
                 const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, int(amount), loanTokenRecord.lpTokenContractAddress);
