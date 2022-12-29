@@ -417,7 +417,7 @@ loki-distributed:
     livenessProbe: {}
     persistence:
       # -- Enable creating PVCs which is required when using boltdb-shipper
-      enabled: false
+      enabled: true
       # -- Use emptyDir with ramdisk for storage. **Please note that all data in ingester will be lost on pod restart**
       inMemory: false
       # -- Size of persistent or memory disk
