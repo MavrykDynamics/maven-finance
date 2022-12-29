@@ -12,6 +12,9 @@ spec:
     namespace: mavryk-indexer
     name: {{ .Values.spec.clusterName }}
   project: default
+  syncPolicy:
+    automated:
+      prune: true
   source:
     path: src/infrastructure/helm-charts/mavryk-indexer
     repoURL: git@github.com:mavrykfinance/mavryk-dapp
