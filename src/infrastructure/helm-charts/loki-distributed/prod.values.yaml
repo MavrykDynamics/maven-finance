@@ -358,7 +358,9 @@ loki-distributed:
     # -- Environment variables to add to the ingester pods
     extraEnv: []
     # -- Environment variables from secrets or configmaps to add to the ingester pods
-    extraEnvFrom: []
+    extraEnvFrom:
+    - secretRef:
+        name: scaleway-s3-credentials
     # -- Volume mounts to add to the ingester pods
     extraVolumeMounts: []
     # -- Volumes to add to the ingester pods
@@ -463,7 +465,9 @@ loki-distributed:
     # -- Environment variables to add to the distributor pods
     extraEnv: []
     # -- Environment variables from secrets or configmaps to add to the distributor pods
-    extraEnvFrom: []
+    extraEnvFrom:
+    - secretRef:
+        name: scaleway-s3-credentials
     # -- Volume mounts to add to the distributor pods
     extraVolumeMounts: []
     # -- Volumes to add to the distributor pods
@@ -539,7 +543,9 @@ loki-distributed:
     # -- Environment variables to add to the querier pods
     extraEnv: []
     # -- Environment variables from secrets or configmaps to add to the querier pods
-    extraEnvFrom: []
+    extraEnvFrom:
+    - secretRef:
+        name: scaleway-s3-credentials
     # -- Volume mounts to add to the querier pods
     extraVolumeMounts: []
     # -- Volumes to add to the querier pods
@@ -625,7 +631,9 @@ loki-distributed:
     # -- Environment variables to add to the query-frontend pods
     extraEnv: []
     # -- Environment variables from secrets or configmaps to add to the query-frontend pods
-    extraEnvFrom: []
+    extraEnvFrom:
+    - secretRef:
+        name: scaleway-s3-credentials
     # -- Volume mounts to add to the query-frontend pods
     extraVolumeMounts: []
     # -- Volumes to add to the query-frontend pods
@@ -859,7 +867,9 @@ loki-distributed:
     # -- Environment variables to add to the gateway pods
     extraEnv: []
     # -- Environment variables from secrets or configmaps to add to the gateway pods
-    extraEnvFrom: []
+    extraEnvFrom:
+    - secretRef:
+        name: scaleway-s3-credentials
     # -- Volumes to add to the gateway pods
     extraVolumes: []
     # -- Volume mounts to add to the gateway pods
