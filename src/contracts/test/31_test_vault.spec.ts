@@ -955,7 +955,6 @@ describe("Vault tests", async () => {
                 const whitelistedDepositors = [];
                 const loanTokenName         = "mockFa12";
 
-
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     eve.pkh,                // delegate to
                     loanTokenName,          // loan token type
