@@ -189,7 +189,7 @@ loki-distributed:
 
       compactor:
         working_directory: /data/retention
-        shared_store: s3
+        shared_store: aws
         compaction_interval: 10m
         retention_enabled: true
         retention_delete_delay: 672h
@@ -222,7 +222,7 @@ loki-distributed:
       boltdb_shipper:
         active_index_directory: /var/loki/index
         cache_location: /var/loki/index_cache
-        shared_store: s3
+        shared_store: aws
       # filesystem:
       #   directory: /var/loki/chunks
     # -- Uncomment to configure each storage individually
