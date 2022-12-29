@@ -170,7 +170,9 @@ block {
                 operations := registerDepositOperation # operations;
 
                 // process deposit from sender to vault
-                if collateralTokenRecord.tokenName = "xtz" then skip else {
+                if collateralTokenRecord.tokenName = "xtz" then {
+                    if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                } else {
                     const processVaultDepositOperation : operation = processVaultTransfer(
                         Tezos.get_sender(),         // from_
                         Tezos.get_self_address(),   // to_
@@ -179,8 +181,6 @@ block {
                     );
                     operations := processVaultDepositOperation # operations;
                 };
-
-                } else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT);
                 
             }   
         |   _ -> skip

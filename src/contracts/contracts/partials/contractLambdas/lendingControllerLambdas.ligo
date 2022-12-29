@@ -550,7 +550,7 @@ block {
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
                 // send tokens to token pool (self address) operation / skip if loan token name is xtz
-                if loanTokenName =  "xtz" then {
+                if loanTokenName = "xtz" then {
 
                     if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
 
