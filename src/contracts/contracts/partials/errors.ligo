@@ -1164,6 +1164,7 @@
 [@inline] const error_LOAN_INTEREST_MISCALCULATION                                                                      = 818n;
 [@inline] const error_LOAN_OUTSTANDING_IS_NOT_ZERO                                                                      = 819n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                       = 820n;
+[@inline] const error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT                                                                  = 820n;
 
 // ENTRYPOINTS PAUSED ERRORS
 [@inline] const error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 821n;
