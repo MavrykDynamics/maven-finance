@@ -232,7 +232,7 @@ loki-distributed:
       aws:
         bucketnames: mavryk-loki
         endpoint: ams3.digitaloceanspaces.com
-        region: us-east-1
+        region: ams3
         access_key_id: ${AWS_ACCESS_KEY_ID}
         secret_access_key: ${AWS_SECRET_ACCESS_KEY}
         insecure: false
