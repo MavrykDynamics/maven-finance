@@ -349,9 +349,9 @@ ingress-nginx:
     ## Ideally, there should be no limits.
     ## https://engineering.indeedblog.com/blog/2019/12/cpu-throttling-regression-fix/
     resources:
-      ##  limits:
-      ##    cpu: 100m
-      ##    memory: 90Mi
+      limits:
+        cpu: 100m
+        memory: 90Mi
       requests:
         cpu: 100m
         memory: 90Mi
@@ -611,13 +611,12 @@ ingress-nginx:
 
       createSecretJob:
         resources:
-          {}
-          # limits:
-          #   cpu: 10m
-          #   memory: 20Mi
-          # requests:
-          #   cpu: 10m
-          #   memory: 20Mi
+          limits:
+            cpu: 10m
+            memory: 20Mi
+          requests:
+            cpu: 10m
+            memory: 20Mi
 
       patchWebhookJob:
         resources: {}
@@ -838,13 +837,13 @@ ingress-nginx:
 
     minAvailable: 1
 
-    resources: {}
-    # limits:
-    #   cpu: 10m
-    #   memory: 20Mi
-    # requests:
-    #   cpu: 10m
-    #   memory: 20Mi
+    resources:
+      limits:
+        cpu: 10m
+        memory: 20Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
 
     extraVolumeMounts: []
     ## Additional volumeMounts to the default backend container.

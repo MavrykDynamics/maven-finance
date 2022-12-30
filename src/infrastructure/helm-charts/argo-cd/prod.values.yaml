@@ -616,13 +616,13 @@ argo-cd:
     priorityClassName: ''
 
     # -- Resource limits and requests for the application controller pods
-    resources: {}
-    #  limits:
-    #    cpu: 500m
-    #    memory: 512Mi
-    #  requests:
-    #    cpu: 250m
-    #    memory: 256Mi
+    resources: 
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
 
     serviceAccount:
       # -- Create a service account for the application controller
@@ -961,13 +961,13 @@ argo-cd:
     priorityClassName: ''
 
     # -- Resource limits and requests for dex
-    resources: {}
-    #  limits:
-    #    cpu: 50m
-    #    memory: 64Mi
-    #  requests:
-    #    cpu: 10m
-    #    memory: 32Mi
+    resources:
+      limits:
+        cpu: 50m
+        memory: 64Mi
+      requests:
+        cpu: 10m
+        memory: 32Mi
 
     # -- Additional containers to be added to the dex pod
     extraContainers: []
@@ -1096,13 +1096,13 @@ argo-cd:
       automountServiceAccountToken: false
 
     # -- Resource limits and requests for redis
-    resources: {}
-    #  limits:
-    #    cpu: 200m
-    #    memory: 128Mi
-    #  requests:
-    #    cpu: 100m
-    #    memory: 64Mi
+    resources:
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 64Mi
 
     # -- Additional volumeMounts to the redis container
     volumeMounts: []
@@ -1161,13 +1161,12 @@ argo-cd:
 
       # -- Resource limits and requests for redis-exporter sidecar
       resources:
-        {}
-        # limits:
-        #   cpu: 50m
-        #   memory: 64Mi
-        # requests:
-        #   cpu: 10m
-        #   memory: 32Mi
+        limits:
+          cpu: 50m
+          memory: 64Mi
+        requests:
+          cpu: 10m
+          memory: 32Mi
       service:
         # -- Metrics service type
         type: ClusterIP
@@ -1432,13 +1431,13 @@ argo-cd:
           - ALL
 
     # -- Resource limits and requests for the Argo CD server
-    resources: {}
-    #  limits:
-    #    cpu: 100m
-    #    memory: 128Mi
-    #  requests:
-    #    cpu: 50m
-    #    memory: 64Mi
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
 
     # TLS certificate configuration via cert-manager
     ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/tls/#tls-certificates-used-by-argocd-server
@@ -1824,13 +1823,13 @@ argo-cd:
             - ALL
 
       # -- Resource limits and requests for the argocd-extensions container
-      resources: {}
-      #  limits:
-      #    cpu: 50m
-      #    memory: 128Mi
-      #  requests:
-      #    cpu: 10m
-      #    memory: 64Mi
+      resources:
+        limits:
+          cpu: 50m
+          memory: 128Mi
+        requests:
+          cpu: 10m
+          memory: 64Mi
 
   ## Repo Server
   repoServer:
@@ -1999,13 +1998,13 @@ argo-cd:
           - ALL
 
     # -- Resource limits and requests for the repo server pods
-    resources: {}
-    #  limits:
-    #    cpu: 50m
-    #    memory: 128Mi
-    #  requests:
-    #    cpu: 10m
-    #    memory: 64Mi
+    resources:
+      limits:
+        cpu: 50m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
 
     ## Repo server service configuration
     service:
@@ -2569,13 +2568,12 @@ argo-cd:
 
     # -- Resource limits and requests for the controller
     resources:
-      {}
-      # limits:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
     serviceAccount:
       # -- Specifies whether a service account should be created
@@ -2944,13 +2942,13 @@ argo-cd:
               - ALL
 
         # -- Resource limits and requests for the Slack bot
-        resources: {}
-        # limits:
-        #   cpu: 100m
-        #   memory: 128Mi
-        # requests:
-        #   cpu: 100m
-        #   memory: 128Mi
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
 
         # -- Assign custom [affinity] rules
         affinity: {}
