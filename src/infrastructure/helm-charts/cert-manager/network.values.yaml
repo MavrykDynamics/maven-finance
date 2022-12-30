@@ -120,10 +120,12 @@ cert-manager:
   #   value: 'some value'
 
   resources:
-    {}
-    # requests:
-    #   cpu: 10m
-    #   memory: 32Mi
+    limits:
+      cpu: 50m
+      memory: 50Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
 
   # Pod Security Context
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
@@ -300,10 +302,12 @@ cert-manager:
     # - --config=<path-to-config-file>
 
     resources:
-      {}
-      # requests:
-      #   cpu: 10m
-      #   memory: 32Mi
+      limits:
+        cpu: 50m
+        memory: 50Mi
+      requests:
+        cpu: 10m
+        memory: 32Mi
 
     ## Liveness and readiness probe values
     ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
@@ -459,10 +463,12 @@ cert-manager:
     # - --enable-profiling=true
 
     resources:
-      {}
-      # requests:
-      #   cpu: 10m
-      #   memory: 32Mi
+      limits:
+        cpu: 50m
+        memory: 50Mi
+      requests:
+        cpu: 10m
+        memory: 32Mi
 
     nodeSelector:
       kubernetes.io/os: linux
@@ -554,10 +560,12 @@ cert-manager:
     extraArgs: []
 
     resources:
-      {}
-      # requests:
-      #   cpu: 10m
-      #   memory: 32Mi
+      limits:
+        cpu: 50m
+        memory: 50Mi
+      requests:
+        cpu: 10m
+        memory: 32Mi
 
     nodeSelector:
       kubernetes.io/os: linux

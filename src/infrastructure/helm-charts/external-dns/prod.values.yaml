@@ -829,13 +829,17 @@ external-dns:
     ##    cpu: 50m
     ##    memory: 50Mi
     ##
-    limits: {}
+    limits:
+      cpu: 50m
+      memory: 50Mi
     ## Examples:
     ## requests:
     ##    cpu: 10m
     ##    memory: 50Mi
     ##
-    requests: {}
+    requests:
+      cpu: 10m
+      memory: 50Mi
   ## Configure extra options for liveness probe
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
   ## @param livenessProbe.enabled Enable livenessProbe
