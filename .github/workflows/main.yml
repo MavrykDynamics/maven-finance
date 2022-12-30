@@ -63,7 +63,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          version: 2.5.2
           command: version
+          options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
       - name: update-docker-image
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
