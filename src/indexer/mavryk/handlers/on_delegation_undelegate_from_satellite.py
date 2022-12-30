@@ -22,10 +22,10 @@ async def on_delegation_undelegate_from_satellite(
     delegation                                                      = await models.Delegation.get(
         address = delegation_address
     )
-    satellite_record                                                = await models.Satellite.get(
-        delegation  = delegation,
-        user        = satellite
-    )
+    satellite_record                                                = await models.Satellite.filter(
+        user        = satellite,
+        delegation  = delegation
+    ).first()
     satellite_reward_record, _                                      = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
@@ -34,11 +34,11 @@ async def on_delegation_undelegate_from_satellite(
     satellite_reward_record.paid                                    = float(rewards_record.paid)
     satellite_reward_record.participation_rewards_per_share         = float(rewards_record.participationRewardsPerShare)
     satellite_reward_record.satellite_accumulated_reward_per_share  = float(rewards_record.satelliteAccumulatedRewardsPerShare)
-    delegation_record                                               = await models.DelegationRecord.get(
+    delegation_record                                               = await models.DelegationRecord.filter(
         user        = user,
         delegation  = delegation,
         satellite   = satellite_record
-    )
+    ).first()
     await user.save()
     await delegation_record.delete()
     await satellite_reward_record.save()

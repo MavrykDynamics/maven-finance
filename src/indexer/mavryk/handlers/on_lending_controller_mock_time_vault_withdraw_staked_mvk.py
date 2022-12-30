@@ -43,11 +43,11 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_mvk(
             vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
 
             # Save updated vault
-            lending_controller_vault                = await models.LendingControllerVault.get(
+            lending_controller_vault           = await models.LendingControllerVault.filter(
                 lending_controller  = lending_controller,
                 owner               = vault_owner,
                 internal_id         = vault_internal_id
-            )
+            ).first()
             lending_controller_vault.internal_id                        = vault_internal_id
             lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
             lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -78,11 +78,10 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_mvk(
                 collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
                 collateral_token_storage                    = vault_withdraw_staked_mvk.storage.collateralTokenLedger[collateral_token_name]
                 collateral_token_address                    = collateral_token_storage.tokenContractAddress
-                
-                lending_controller_collateral_token         = await models.LendingControllerCollateralToken.get(
+                lending_controller_collateral_token         = await models.LendingControllerCollateralToken.filter(
                     lending_controller          = lending_controller,
                     token_address               = collateral_token_address
-                )
+                ).first()
                 lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
                     token                       = lending_controller_collateral_token

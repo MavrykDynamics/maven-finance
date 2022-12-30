@@ -33,10 +33,10 @@ async def on_governance_financial_vote_for_request(
     # Create and update records
     governance              = await models.Governance.get(address   = governance_address)
     governance_financial    = await models.GovernanceFinancial.get(address  = financial_address)
-    financial_request       = await models.GovernanceFinancialRequest.get(
+    financial_request       = await models.GovernanceFinancialRequest.filter(
         governance_financial    = governance_financial,
         id                      = request_id
-    )
+    ).first()
     financial_request.executed              = executed
     financial_request.yay_vote_smvk_total   = yay_smvk_total
     financial_request.nay_vote_smvk_total   = nay_smvk_total

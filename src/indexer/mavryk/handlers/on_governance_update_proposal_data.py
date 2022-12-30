@@ -20,10 +20,10 @@ async def on_governance_update_proposal_data(
     
     # Update or create record
     governance      = await models.Governance.get(address   = governance_address)
-    proposal        = await models.GovernanceProposal.get(
+    proposal        = await models.GovernanceProposal.filter(
         id                  = proposal_id,
         governance          = governance
-    )
+    ).first()
 
     # Update proposal data
     for proposal_data_index in proposal_data_storage:

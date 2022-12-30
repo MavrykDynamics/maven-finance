@@ -19,10 +19,10 @@ async def on_aggregator_update_oracle(
     # Create record
     oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
     aggregator              = await models.Aggregator.get(address=aggregator_address)
-    aggregator_oracle       = await models.AggregatorOracle.get(
+    aggregator_oracle       = await models.AggregatorOracle.filter(
         aggregator  = aggregator,
         user        = oracle
-    )
+    ).first()
     aggregator_oracle.peer_id       = oracle_peer_id
     aggregator_oracle.public_key    = oracle_pk
     await aggregator_oracle.save()
