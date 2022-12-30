@@ -26,10 +26,10 @@ async def on_emergency_governance_vote_for_emergency_control(
 
     # Create and update record
     emergency                   = await models.EmergencyGovernance.get(address  = emergency_address)
-    emergency_record            = await models.EmergencyGovernanceRecord.get(
+    emergency_record            = await models.EmergencyGovernanceRecord.filter(
         emergency_governance        = emergency,
         id                          = emergency_id
-    )
+    ).first()
     emergency_record.total_smvk_votes      = total_smvk_votes
     emergency_record.executed              = executed
     emergency_record.execution_datetime    = execution_datetime
