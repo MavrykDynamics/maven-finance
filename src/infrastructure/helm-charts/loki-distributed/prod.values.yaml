@@ -230,7 +230,9 @@ loki-distributed:
     #   azure: {}
     #   gcs: {}
       aws:
-        s3: s3://${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}@ap-southeast-1/mavryk-loki
+        s3: s3://mavryk-loki
+        access_key_id: ${AWS_ACCESS_KEY_ID}
+        secret_access_key: ${AWS_SECRET_ACCESS_KEY}
         region: ap-southeast-1
         s3forcepathstyle: true
 
