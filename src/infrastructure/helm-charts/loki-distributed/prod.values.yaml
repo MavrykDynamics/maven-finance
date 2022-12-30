@@ -234,6 +234,8 @@ loki-distributed:
         access_key_id: ${AWS_ACCESS_KEY_ID}
         secret_access_key: ${AWS_SECRET_ACCESS_KEY}
         s3forcepathstyle: true
+        dynamodb:
+          dynamodb_url: dynamodb://ap-southeast-1
 
     #   boltdb: {}
 
