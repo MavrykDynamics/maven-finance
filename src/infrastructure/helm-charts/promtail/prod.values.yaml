@@ -87,13 +87,13 @@ promtail:
     timeoutSeconds: 1
 
   # -- Resource requests and limits
-  resources: {}
-  #  limits:
-  #    cpu: 200m
-  #    memory: 128Mi
-  #  requests:
-  #    cpu: 100m
-  #    memory: 128Mi
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
   # -- The security context for pods
   podSecurityContext:
