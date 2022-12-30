@@ -79,7 +79,6 @@ loki-distributed:
     # @default -- See values.yaml
     config: |
       auth_enabled: false
-
       server:
         log_level: info
         # Must be set to 3100
@@ -93,7 +92,8 @@ loki-distributed:
       memberlist:
         randomize_node_name: false
         join_members:
-          - {{ include "loki.fullname" . }}-memberlist.{{namespace}}.svc.cluster.local
+          - {{ include "loki.fullname" . }}-memberlist.{{.Release.Namespace}}.svc.cluster.local
+      
       ingester:
         # Disable chunk transfer which is not possible with statefulsets
         # and unnecessary for boltdb-shipper
@@ -101,7 +101,7 @@ loki-distributed:
         chunk_idle_period: 1h
         chunk_target_size: 1536000
         max_chunk_age: 1h
-      # set autoforget_unhealthy to true for troubleshooting purposes
+        # set autoforget_unhealthy to true for troubleshooting purposes
         autoforget_unhealthy: false
         lifecycler:
           join_after: 0s
@@ -1370,7 +1370,7 @@ loki-distributed:
     tolerations: []
     persistence:
       # -- Enable creating PVCs which is required when using boltdb-shipper
-      enabled: true
+      enabled: false
       # -- Use emptyDir with ramdisk for storage. **Please note that all data in indexGateway will be lost on pod restart**
       inMemory: false
       # -- Size of persistent or memory disk
