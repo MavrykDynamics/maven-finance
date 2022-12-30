@@ -23,9 +23,9 @@ async def on_delegation_update_satellite_status(
     # Create or update record
     delegation          = await models.Delegation.get(address   = delegation_address)
     user                = await models.mavryk_user_cache.get(address=satellite_address)
-    satellite           = await models.Satellite.get(
+    satellite           = await models.Satellite.filter(
         delegation  = delegation,
         user        = user
-    )
+    ).first()
     satellite.status    = status_type
     await satellite.save()

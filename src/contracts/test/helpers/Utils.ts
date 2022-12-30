@@ -14,9 +14,11 @@ const network = env.network || defaultNetwork
 export class Utils {
   tezos: TezosToolkit
   network: string
+  production: string
 
   async init(providerSK: string): Promise<void> {
     this.network = process.env.NETWORK_TO_MIGRATE_TO || network
+    this.production = process.env.PRODUCTION || "false"
     const networkConfig = env.networks[this.network]
     this.tezos = new TezosToolkit(networkConfig.rpc)
 

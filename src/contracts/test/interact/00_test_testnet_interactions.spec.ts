@@ -26,7 +26,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import lpTokenPoolMockFa12TokenAddress from '../../deployments/lpTokenPoolMockFa12TokenAddress.json';
+import mTokenAddress from '../../deployments/mTokenAddress.json';
 import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
 import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
 import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
@@ -84,6 +84,7 @@ describe("Testnet interactions helper", async () => {
     let tokenSaleInstance;
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
+    let mTokenInstance;
     let vaultInstance;
     let vaultFactoryInstance;
     let mavrykFa12TokenInstance;
@@ -109,6 +110,7 @@ describe("Testnet interactions helper", async () => {
     let tokenSaleStorage;
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
+    let mTokenStorage;
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
@@ -186,6 +188,7 @@ describe("Testnet interactions helper", async () => {
             tokenSaleInstance                       = await utils.tezos.contract.at(tokenSaleAddress.address);
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
+            mTokenInstance                          = await utils.tezos.contract.at(mTokenAddress.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
             mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
     
@@ -210,6 +213,7 @@ describe("Testnet interactions helper", async () => {
             tokenSaleStorage                        = await tokenSaleInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
+            mTokenStorage                           = await mTokenInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
     
@@ -231,6 +235,7 @@ describe("Testnet interactions helper", async () => {
             console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
+            console.log('MToken Contract deployed at:', mTokenInstance.address);
             console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
             console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
 
@@ -245,7 +250,7 @@ describe("Testnet interactions helper", async () => {
             await signerFactory(bob.sk)
 
             // Admin sends 2000XTZ to treasury contract
-            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
+            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 500});
             await transferOperation.confirmation();
         });
 
@@ -3910,699 +3915,690 @@ describe("Testnet interactions helper", async () => {
         });
     })
 
-    describe("LENDING CONTROLLER", async () => {
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
+    // describe("LENDING CONTROLLER", async () => {
+    //     beforeEach("Set signer to admin", async () => {
+    //         await signerFactory(bob.sk)
+    //     });
 
-        it('Admin sets admin', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin sets admin', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.setAdmin(bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin sets governance', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin sets governance', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.setGovernance(governanceAddress.address).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
         
-        it('Admin updates whitelist token contracts', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateWhitelistTokenContracts("test", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates whitelist token contracts', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateWhitelistTokenContracts("test", bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates collateral ratio', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateConfig(2000, "configCollateralRatio").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates collateral ratio', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateConfig(2000, "configCollateralRatio").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates liquidation ratio', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateConfig(1500, "configLiquidationRatio").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates liquidation ratio', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateConfig(1500, "configLiquidationRatio").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates liquidation fee percent', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateConfig(600, "configLiquidationFeePercent").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates liquidation fee percent', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateConfig(600, "configLiquidationFeePercent").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates admin liquidation fee', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateConfig(600, "configAdminLiquidationFee").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates admin liquidation fee', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateConfig(600, "configAdminLiquidationFee").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates minimum loan fee percent', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateConfig(100, "configMinimumLoanFeePercent").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates minimum loan fee percent', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateConfig(100, "configMinimumLoanFeePercent").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates minimum loan fee treasury share', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateConfig(4000, "configMinLoanFeeTreasuryShare").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates minimum loan fee treasury share', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateConfig(4000, "configMinLoanFeeTreasuryShare").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates interest treasury share', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateConfig(100, "configInterestTreasuryShare").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates interest treasury share', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.updateConfig(100, "configInterestTreasuryShare").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses setLoanToken', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses setLoanToken', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses addLiquidity', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses addLiquidity', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses removeLiquidity', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses removeLiquidity', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses setLoanToken', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses setLoanToken', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses setCollateralToken', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setCollateralToken", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses setCollateralToken', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setCollateralToken", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses addLiquidity', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses addLiquidity', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses removeLiquidity', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses removeLiquidity', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses registerVaultCreation', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerVaultCreation", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses registerVaultCreation', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerVaultCreation", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses closeVault', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("closeVault", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses closeVault', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("closeVault", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses registerDeposit', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerDeposit", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses registerDeposit', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerDeposit", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses registerWithdrawal', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerWithdrawal", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses registerWithdrawal', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerWithdrawal", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses markForLiquidation', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("markForLiquidation", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses markForLiquidation', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("markForLiquidation", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses liquidateVault', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("liquidateVault", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses liquidateVault', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("liquidateVault", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses borrow', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("borrow", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses borrow', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("borrow", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses repay', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("repay", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses repay', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("repay", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses vaultDepositStakedMvk', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDepositStakedMvk", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses vaultDepositStakedMvk', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDepositStakedMvk", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses vaultWithdrawStakedMvk', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedMvk", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses vaultWithdrawStakedMvk', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedMvk", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses vaultWithdraw', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdraw", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses vaultWithdraw', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdraw", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses vaultDeposit', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDeposit", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses vaultDeposit', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDeposit", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses vaultOnLiquidate', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultOnLiquidate", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses vaultOnLiquidate', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultOnLiquidate", true).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses all entrypoints', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.pauseAll().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses all entrypoints', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.pauseAll().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin unpauses all entrypoints', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.unpauseAll().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin unpauses all entrypoints', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.unpauseAll().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin sets loan token', async () => {
-            try{
-                // Initial values
-                const tokenName                             = "mockFa12";
-                const tokenContractAddress                  = mavrykFa12TokenAddress.address;
-                const tokenType                             = "fa12";
-                const tokenDecimals                         = 6;
+    //     it('Admin sets loan token', async () => {
+    //         try{
+    //             // Initial values
+    //             const tokenName                             = "mockFa12";
+    //             const tokenContractAddress                  = mavrykFa12TokenAddress.address;
+    //             const tokenType                             = "fa12";
+    //             const tokenDecimals                         = 6;
 
-                const oracleType                            = "oracle";
-                const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+    //             const oracleType                            = "oracle";
+    //             const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-                const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
-                const lpTokenId                             = 0;
+    //             const lpTokenContractAddress                = mTokenAddress.address;
+    //             const lpTokenId                             = 0;
 
-                const interestRateDecimals                  = 27;
-                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
-                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
-                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
-                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
-                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
-                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+    //             const interestRateDecimals                  = 27;
+    //             const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+    //             const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+    //             const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+    //             const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+    //             const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+    //             const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
-                const minRepaymentAmount                    = 1000;
+    //             const minRepaymentAmount                    = 1000;
 
-                // Operation
-                const operation = await lendingControllerInstance.methods.setLoanToken(
-                    "createLoanToken",
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.setLoanToken(
+    //                 "createLoanToken",
 
-                    tokenName,
-                    tokenDecimals,
+    //                 tokenName,
+    //                 tokenDecimals,
 
-                    oracleAddress,
+    //                 oracleAddress,
 
-                    lpTokenContractAddress,
-                    lpTokenId,
+    //                 lpTokenContractAddress,
+    //                 lpTokenId,
                     
-                    reserveRatio,
-                    optimalUtilisationRate,
-                    baseInterestRate,
-                    maxInterestRate,
-                    interestRateBelowOptimalUtilisation,
-                    interestRateAboveOptimalUtilisation,
+    //                 reserveRatio,
+    //                 optimalUtilisationRate,
+    //                 baseInterestRate,
+    //                 maxInterestRate,
+    //                 interestRateBelowOptimalUtilisation,
+    //                 interestRateAboveOptimalUtilisation,
 
-                    minRepaymentAmount,
+    //                 minRepaymentAmount,
 
-                    // fa12 token type - token contract address
-                    tokenType,
-                    tokenContractAddress,
+    //                 // fa12 token type - token contract address
+    //                 tokenType,
+    //                 tokenContractAddress,
 
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             ).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin adds liquidity', async () => {
-            try{
-                // Initial values
-                const loanTokenName = "mockFa12";
-                const liquidityAmount = 20000; // 0.2 Mock FA12 Tokens
+    //     it('Admin adds liquidity', async () => {
+    //         try{
+    //             // Initial values
+    //             const loanTokenName = "mockFa12";
+    //             const liquidityAmount = 20000; // 0.2 Mock FA12 Tokens
 
-                // Operation
-                const approveOperation = await lpTokenInstance.methods.approve(
-                    lendingControllerAddress.address,
-                    liquidityAmount
-                ).send();
-                await approveOperation.confirmation();
-                const operation = await lendingControllerInstance.methods.addLiquidity(
-                    loanTokenName,
-                    liquidityAmount, 
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const approveOperation = await lpTokenInstance.methods.approve(
+    //                 lendingControllerAddress.address,
+    //                 liquidityAmount
+    //             ).send();
+    //             await approveOperation.confirmation();
+    //             const operation = await lendingControllerInstance.methods.addLiquidity(
+    //                 loanTokenName,
+    //                 liquidityAmount, 
+    //             ).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin removes liquidity', async () => {
-            try{
-                // Initial values
-                const loanTokenName = "mockFa12";
-                const liquidityAmount = 10000; // 0.1 Mock FA12 Tokens
+    //     it('Admin removes liquidity', async () => {
+    //         try{
+    //             // Initial values
+    //             const loanTokenName = "mockFa12";
+    //             const liquidityAmount = 10000; // 0.1 Mock FA12 Tokens
 
-                // Operation
-                const operation = await lendingControllerInstance.methods.removeLiquidity(
-                    loanTokenName,
-                    liquidityAmount, 
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.removeLiquidity(
+    //                 loanTokenName,
+    //                 liquidityAmount, 
+    //             ).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin sets collateral token', async () => {
-            try{
-                // Initial values
-                const tokenName                  = "mockFa12";
-                const tokenContractAddress       = mavrykFa12TokenAddress.address;
-                const tokenType                  = "fa12";
+    //     it('Admin sets collateral token', async () => {
+    //         try{
+    //             // Initial values
+    //             const tokenName                  = "mockFa12";
+    //             const tokenContractAddress       = mavrykFa12TokenAddress.address;
+    //             const tokenType                  = "fa12";
 
-                const tokenDecimals              = 6;
-                const oracleType                 = "oracle";
-                const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
+    //             const tokenDecimals              = 6;
+    //             const oracleType                 = "oracle";
+    //             const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
 
-                // Operation
-                const operation = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.setCollateralToken(
+    //                 "createCollateralToken",
 
-                    tokenName,
-                    tokenContractAddress,
-                    tokenDecimals,
+    //                 tokenName,
+    //                 tokenContractAddress,
+    //                 tokenDecimals,
 
-                    oracleAddress,
-                    false,
-                    false,
+    //                 oracleAddress,
+    //                 false,
+    //                 false,
 
-                    // fa12 token type - token contract address
-                    tokenType,
-                    tokenContractAddress,
+    //                 // fa12 token type - token contract address
+    //                 tokenType,
+    //                 tokenContractAddress,
 
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             ).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin creates a vault', async () => {
-            try{
-                // Initial values
-                const depositors    = "any";
-                const loanTokenName = "mockFa12";
+    //     it('Admin creates a vault', async () => {
+    //         try{
+    //             // Initial values
+    //             const depositors    = "any";
+    //             const loanTokenName = "mockFa12";
 
-                // Operation
-                const operation = await vaultFactoryInstance.methods.createVault(
-                    null,
-                    loanTokenName,          // loan token type
-                    depositors              // depositors type
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const operation = await vaultFactoryInstance.methods.createVault(
+    //                 null,
+    //                 loanTokenName,          // loan token type
+    //                 depositors              // depositors type
+    //             ).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin closes a vault', async () => {
-            try{
-                // Initial values
-                vaultFactoryStorage         = await vaultFactoryInstance.storage();
-                var vaultId                 = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const depositors    = "any";
-                const loanTokenName = "mockFa12";
+    //     it('Admin closes a vault', async () => {
+    //         try{
+    //             // Initial values
+    //             vaultFactoryStorage         = await vaultFactoryInstance.storage();
+    //             var vaultId                 = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+    //             const depositors    = "any";
+    //             const loanTokenName = "mockFa12";
 
-                // Operation
-                const operation = await lendingControllerInstance.methods.closeVault(vaultId).send();
-                await operation.confirmation();
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.closeVault(vaultId).send();
+    //             await operation.confirmation();
 
-                // Recreation of a new vault for further tests
-                const createVaultOperation = await vaultFactoryInstance.methods.createVault(
-                    null,
-                    loanTokenName,          // loan token type
-                    depositors              // depositors type
-                ).send();
-                await createVaultOperation.confirmation();
+    //             // Recreation of a new vault for further tests
+    //             const createVaultOperation = await vaultFactoryInstance.methods.createVault(
+    //                 null,
+    //                 loanTokenName,          // loan token type
+    //                 depositors              // depositors type
+    //             ).send();
+    //             await createVaultOperation.confirmation();
 
-                // Save newly created vault address
-                lendingControllerStorage    = await lendingControllerInstance.storage();
-                vaultFactoryStorage         = await vaultFactoryInstance.storage();
-                var vaultId                     = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const vaultHandle = {
-                    "id"    : vaultId,
-                    "owner" : bob.pkh
-                };
-                const vault                 = await lendingControllerStorage.vaults.get(vaultHandle)
-                createdVaultAddress         = vault.address;
+    //             // Save newly created vault address
+    //             lendingControllerStorage    = await lendingControllerInstance.storage();
+    //             vaultFactoryStorage         = await vaultFactoryInstance.storage();
+    //             var vaultId                     = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+    //             const vaultHandle = {
+    //                 "id"    : vaultId,
+    //                 "owner" : bob.pkh
+    //             };
+    //             const vault                 = await lendingControllerStorage.vaults.get(vaultHandle)
+    //             createdVaultAddress         = vault.address;
 
-                // Adds TEZ as a collateral token
-                const tokenName                             = "tez";
-                const tokenContractAddress                  = zeroAddress;
-                const tokenType                             = "tez";
-                const tokenId                               = 0;
+    //             // Adds TEZ as a collateral token
+    //             const tokenName                             = "tez";
+    //             const tokenContractAddress                  = zeroAddress;
+    //             const tokenType                             = "tez";
+    //             const tokenId                               = 0;
 
-                const tokenDecimals                         = 6;
-                const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+    //             const tokenDecimals                         = 6;
+    //             const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
-                // Operation
-                const updateCollateralOperation = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+    //             // Operation
+    //             const updateCollateralOperation = await lendingControllerInstance.methods.setCollateralToken(
+    //                 "createCollateralToken",
 
-                    tokenName,
-                    tokenContractAddress,
-                    tokenDecimals,
+    //                 tokenName,
+    //                 tokenContractAddress,
+    //                 tokenDecimals,
 
-                    oracleAddress,
-                    false,
-                    false,
+    //                 oracleAddress,
+    //                 false,
+    //                 false,
                     
-                    // fa2 token type - token contract address + token id
-                    tokenType,
-                    tokenContractAddress,
-                    tokenId
+    //                 // fa2 token type - token contract address + token id
+    //                 tokenType,
+    //                 tokenContractAddress,
+    //                 tokenId
 
-                ).send();
-                await updateCollateralOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             ).send();
+    //             await updateCollateralOperation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin deposits into the new vault', async () => {
-            try{
-                // Initial values
-                const depositAmountMutez    = 10000000;
-                const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
+    //     it('Admin deposits into the new vault', async () => {
+    //         try{
+    //             // Initial values
+    //             const depositAmountMutez    = 10000000;
+    //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
-                // Operation
-                const operation = await newVaultInstance.methods.deposit(depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const operation = await newVaultInstance.methods.deposit(depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin withdraws from the new vault', async () => {
-            try{
-                // Initial values
-                const withdrawAmountMutez   = 1000000;
-                const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
+    //     it('Admin withdraws from the new vault', async () => {
+    //         try{
+    //             // Initial values
+    //             const withdrawAmountMutez   = 1000000;
+    //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
-                // Operation
-                const operation = await newVaultInstance.methods.withdraw(withdrawAmountMutez, "tez").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const operation = await newVaultInstance.methods.withdraw(withdrawAmountMutez, "tez").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin borrows from a vault', async () => {
-            try{
-                // Initial values
-                vaultFactoryStorage         = await vaultFactoryInstance.storage();
-                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const borrowAmount          = 1000;
+    //     it('Admin borrows from a vault', async () => {
+    //         try{
+    //             // Initial values
+    //             vaultFactoryStorage         = await vaultFactoryInstance.storage();
+    //             const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+    //             const borrowAmount          = 1000;
 
-                // Operation
-                const operation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const operation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin repays the vault', async () => {
-            try{
-                // Initial values
-                vaultFactoryStorage         = await vaultFactoryInstance.storage();
-                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const repayAmount           = 1000;
+    //     it('Admin repays the vault', async () => {
+    //         try{
+    //             // Initial values
+    //             vaultFactoryStorage         = await vaultFactoryInstance.storage();
+    //             const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+    //             const repayAmount           = 1000;
 
-                // Operation
-                const approveOperation  = await mavrykFa12TokenInstance.methods.approve(lendingControllerAddress.address, repayAmount).send()
-                await approveOperation.confirmation();
-                const operation         = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const approveOperation  = await mavrykFa12TokenInstance.methods.approve(lendingControllerAddress.address, repayAmount).send()
+    //             await approveOperation.confirmation();
+    //             const operation         = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin deposits smvk into the vault', async () => {
-            try{
-                // Initial values
-                vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-                const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const depositAmount                     = 1000;
-                const tokenName                         = "smvk";
-                const tokenContractAddress              = mvkTokenAddress.address;
-                const tokenType                         = "fa2";
-                const tokenId                           = 0;
+    //     it('Admin deposits smvk into the vault', async () => {
+    //         try{
+    //             // Initial values
+    //             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+    //             const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+    //             const depositAmount                     = 1000;
+    //             const tokenName                         = "smvk";
+    //             const tokenContractAddress              = mvkTokenAddress.address;
+    //             const tokenType                         = "fa2";
+    //             const tokenId                           = 0;
 
-                const tokenDecimals                     = 9;
-                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
-                const tokenProtected                    = true; // sMVK is protected
+    //             const tokenDecimals                     = 9;
+    //             const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+    //             const tokenProtected                    = true; // sMVK is protected
 
-                // Add SMVK as collateral
-                const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+    //             // Add SMVK as collateral
+    //             const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
+    //                 "createCollateralToken",
 
-                    tokenName,
-                    tokenContractAddress,
-                    tokenDecimals,
+    //                 tokenName,
+    //                 tokenContractAddress,
+    //                 tokenDecimals,
 
-                    oracleAddress,
-                    tokenProtected,
-                    true,
+    //                 oracleAddress,
+    //                 tokenProtected,
+    //                 true,
 
-                    // fa2 token type - token contract address
-                    tokenType,
-                    tokenContractAddress,
-                    tokenId
+    //                 // fa2 token type - token contract address
+    //                 tokenType,
+    //                 tokenContractAddress,
+    //                 tokenId
 
-                ).send();
-                await setCollateralTokenOperation.confirmation();
+    //             ).send();
+    //             await setCollateralTokenOperation.confirmation();
 
-                // Operation
-                const operation                         = await lendingControllerInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const operation                         = await lendingControllerInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin withdraws smvk from the vault', async () => {
-            try{
-                // Initial values
-                vaultFactoryStorage         = await vaultFactoryInstance.storage();
-                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const withdrawAmount        = 1000;
+    //     it('Admin withdraws smvk from the vault', async () => {
+    //         try{
+    //             // Initial values
+    //             vaultFactoryStorage         = await vaultFactoryInstance.storage();
+    //             const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+    //             const withdrawAmount        = 1000;
 
-                // Operation
-                const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        // it('Admin marks a vault for liquidation', async () => {
-        //     try{
-        //         // Initial values
-        //         lendingControllerStorage    = await lendingControllerInstance.storage();
-        //         const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
+    //     // it('Admin marks a vault for liquidation', async () => {
+    //     //     try{
+    //     //         // Initial values
+    //     //         lendingControllerStorage    = await lendingControllerInstance.storage();
+    //     //         const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
 
-        //         // Operation
-        //         const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
-        //         await operation.confirmation();
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     }
-        // });
+    //     //         // Operation
+    //     //         const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
+    //     //         await operation.confirmation();
+    //     //     } catch(e){
+    //     //         console.dir(e, {depth: 5})
+    //     //     }
+    //     // });
 
-        // it('Admin liquidates a vault', async () => {
-        //     try{
-        //         // Initial values
-        //         lendingControllerStorage    = await lendingControllerInstance.storage();
-        //         const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
+    //     // it('Admin liquidates a vault', async () => {
+    //     //     try{
+    //     //         // Initial values
+    //     //         lendingControllerStorage    = await lendingControllerInstance.storage();
+    //     //         const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
 
-        //         // Operation
-        //         const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
-        //         await operation.confirmation();
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     }
-        // });
-    });
+    //     //         // Operation
+    //     //         const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
+    //     //         await operation.confirmation();
+    //     //     } catch(e){
+    //     //         console.dir(e, {depth: 5})
+    //     //     }
+    //     // });
+    // });
 
     describe("LENDING CONTROLLER MOCK TIME", async () => {
-
-        before("Set lending controller address to mock time in governance", async () => {
-            // Initial values
-            await signerFactory(bob.sk)
-
-            // Operation
-            const operation = await governanceInstance.methods.updateGeneralContracts("lendingController", lendingControllerMockTimeAddress.address).send();
-            await operation.confirmation();
-        });
 
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
@@ -4948,7 +4944,7 @@ describe("Testnet interactions helper", async () => {
 
                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-                const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
+                const lpTokenContractAddress                = mTokenAddress.address;
                 const lpTokenId                             = 0;
 
                 const interestRateDecimals                  = 27;
@@ -5324,6 +5320,94 @@ describe("Testnet interactions helper", async () => {
 
                 // Operation
                 const operation                     = await lendingControllerMockTimeInstance.methods.liquidateVault(vaultId, bob.pkh, 100).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    });
+
+    describe("MToken", async () => {
+
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin transfers MVK', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.transfer([
+                    {
+                        from_: bob.pkh,
+                        txs: [
+                        {
+                            to_: bob.pkh,
+                            token_id: 0,
+                            amount: 100,
+                        },
+                        {
+                            to_: eve.pkh,
+                            token_id: 0,
+                            amount: 100,
+                        },
+                        {
+                            to_: alice.pkh,
+                            token_id: 0,
+                            amount: 0,
+                        },
+                        ],
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates its operators', async () => {
+            try{
+                // Operation
+                const operation = await mTokenInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: alice.pkh,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

@@ -29,10 +29,10 @@ async def on_token_sale_claim_tokens(
         last_claim_timestamp    = parser.parse(buy_record_option.lastClaimTimestamp)
         last_claim_level        = int(buy_record_option.lastClaimLevel)
 
-        buy_option              = await models.TokenSaleBuyOption.get(
+        buy_option              = await models.TokenSaleBuyOption.filter(
             internal_id             = int(buy_option_index),
             token_sale              = token_sale
-        )
+        ).first()
 
         buyer_record, _         = await models.TokenSaleBuyer.get_or_create(
             token_sale  = token_sale,

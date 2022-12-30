@@ -10,11 +10,16 @@ async def on_governance_drop_proposal(
 ) -> None:
 
     # Get operation values
-    proposal_id = int(drop_proposal.parameter.__root__)
+    governance_address  = drop_proposal.data.target_address
+    proposal_id         = int(drop_proposal.parameter.__root__)
 
     # Update record
-    proposal    = await models.GovernanceProposal.get(
-        id      = proposal_id
+    governance  = await models.Governance.get(
+        address     = governance_address
     )
+    proposal    = await models.GovernanceProposal.filter(
+        governance  = governance,
+        id          = proposal_id
+    ).first()
     proposal.status = models.GovernanceActionStatus.DROPPED
     await proposal.save()

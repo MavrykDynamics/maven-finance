@@ -23,9 +23,9 @@ async def on_vesting_toggle_vestee_lock(
         address=vesting_address
     )
     vestee  = await models.mavryk_user_cache.get(address=vestee_address)
-    vesteeRecord    = await models.VestingVestee.get(
+    vesteeRecord    = await models.VestingVestee.filter(
         vestee  = vestee,
         vesting = vesting
-    )
+    ).first()
     vesteeRecord.locked = locked
     await vesteeRecord.save()

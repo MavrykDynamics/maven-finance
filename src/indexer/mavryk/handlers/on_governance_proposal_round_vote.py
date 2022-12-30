@@ -46,10 +46,10 @@ async def on_governance_proposal_round_vote(
         await governance_snapshot.save()
 
     # Update proposal with vote
-    proposal    = await models.GovernanceProposal.get(
+    proposal            = await models.GovernanceProposal.filter(
         id          = proposal_id,
         governance  = governance
-    )
+    ).first()
     proposal.proposal_vote_count        = vote_count
     proposal.proposal_vote_smvk_total   = vote_smvk_total
     await proposal.save()
@@ -66,9 +66,10 @@ async def on_governance_proposal_round_vote(
         storage_past_proposal   = proposal_round_vote.storage.proposalLedger[str(past_proposal_record.id)]
         past_vote_count         = int(storage_past_proposal.proposalVoteCount)
         past_vote_smvk_total    = float(storage_past_proposal.proposalVoteStakedMvkTotal)
-        past_proposal           = await models.GovernanceProposal.get(
-            id  = past_proposal_record.id
-        )
+        past_proposal           = await models.GovernanceProposal.filter(
+            id          = past_proposal_record.id,
+            governance  = governance
+        ).first()
         past_proposal.proposal_vote_count       = past_vote_count
         past_proposal.proposal_vote_smvk_total  = past_vote_smvk_total
         await past_proposal.save()
