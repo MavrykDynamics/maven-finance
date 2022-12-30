@@ -51,12 +51,12 @@ async def on_lending_controller_mock_time_register_vault_creation(
             loan_token_address          = loan_token_type_storage.fa2.tokenContractAddress
         elif type(loan_token_type_storage) == tez:
             loan_token_address          = "XTZ"
-        
-        lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
+
+        lending_controller_loan_token                = await models.LendingControllerLoanToken.filter(
             lending_controller  = lending_controller,
             loan_token_address  = loan_token_address,
             loan_token_name     = vault_loan_token_name
-        )
+        ).first()
         vault, _                                = await models.Vault.get_or_create(
             address = vault_address
         )

@@ -31,10 +31,10 @@ async def on_aggregator_update_data(
     await aggregator.save()
 
     user                            = await models.mavryk_user_cache.get(address=oracle_address)
-    oracle                          = await models.AggregatorOracle.get(
+    oracle                          = await models.AggregatorOracle.filter(
         aggregator  = aggregator,
         user        = user
-    )
+    ).first()
     await oracle.save()
     oracle_reward_xtz, _            = await models.AggregatorOracleReward.get_or_create(
         oracle      = oracle,
@@ -70,10 +70,10 @@ async def on_aggregator_update_data(
 
         # Create observation records
         user                            = await models.mavryk_user_cache.get(address=oracle_address)
-        oracle                          = await models.AggregatorOracle.get(
+        oracle                          = await models.AggregatorOracle.filter(
             aggregator  = aggregator,
             user        = user
-        )
+        ).first()
         await oracle.save()
         observation                     = models.AggregatorOracleObservation(
             oracle          = oracle,
