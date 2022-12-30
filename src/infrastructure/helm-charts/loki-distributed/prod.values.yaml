@@ -124,8 +124,7 @@ loki-distributed:
       storage_config:
         aws:
           bucketnames: mavryk-loki
-          endpoint: https://ams3.digitaloceanspaces.com
-          region: us-east-1
+          region: ap-southeast-1
           access_key_id: ${AWS_ACCESS_KEY_ID}
           secret_access_key: ${AWS_SECRET_ACCESS_KEY}
           insecure: false
@@ -136,7 +135,7 @@ loki-distributed:
             insecure_skip_verify: false
           s3forcepathstyle: true
           dynamodb:
-            dynamodb_url: dynamodb://us-east-1
+            dynamodb_url: dynamodb://ap-southeast-1
 
       chunk_store_config:
         max_look_back_period: 0s
