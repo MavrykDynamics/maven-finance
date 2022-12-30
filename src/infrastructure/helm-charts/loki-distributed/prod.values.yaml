@@ -6,11 +6,11 @@ loki-distributed:
     # -- Overrides the priorityClassName for all pods
     priorityClassName: null
     # -- configures cluster domain ("cluster.local" by default)
-    clusterDomain: 'cluster.local'
+    clusterDomain: "cluster.local"
     # -- configures DNS service name
-    dnsService: 'kube-dns'
+    dnsService: "kube-dns"
     # -- configures DNS service namespace
-    dnsNamespace: 'kube-system'
+    dnsNamespace: "kube-system"
 
   # -- Overrides the chart's name
   nameOverride: null
@@ -70,9 +70,9 @@ loki-distributed:
           - ALL
       allowPrivilegeEscalation: false
     # -- Specify an existing secret containing loki configuration. If non-empty, overrides `loki.config`
-    existingSecretForConfig: ''
+    existingSecretForConfig: ""
     # -- Adds the appProtocol field to the memberlist service. This allows memberlist to work with istio protocol selection. Ex: "http" or "tcp"
-    appProtocol: ''
+    appProtocol: ""
     # -- Common annotations for all loki services
     serviceAnnotations: {}
     # -- Config file contents for Loki
@@ -90,7 +90,7 @@ loki-distributed:
 
       memberlist:
         join_members:
-          - {{ include "loki.fullname" . }}-memberlist.{{.Release.Namespace}}.svc.cluster.local
+        - {{ include "loki.fullname" . }}-memberlist
 
       ingester:
         lifecycler:
@@ -112,15 +112,6 @@ loki-distributed:
         reject_old_samples_max_age: 168h
         max_cache_freshness_per_query: 10m
         split_queries_by_interval: 15m
-
-      common:
-        path_prefix: /var/loki
-        storage:
-          s3:
-            bucketnames: mavryk-loki
-            region: ap-southeast-1
-            access_key_id: ${AWS_ACCESS_KEY_ID}
-            secret_access_key: ${AWS_SECRET_ACCESS_KEY}
 
       {{- if .Values.loki.schemaConfig}}
       schema_config:
@@ -145,7 +136,7 @@ loki-distributed:
         file: /var/{{ include "loki.name" . }}-runtime/runtime.yaml
 
       chunk_store_config:
-        max_look_back_period: 672h
+        max_look_back_period: 7d
         {{- if .Values.memcachedChunks.enabled }}
         chunk_cache_config:
           enable_fifocache: false
@@ -161,9 +152,8 @@ loki-distributed:
         {{- end }}
 
       table_manager:
-        retention_deletes_enabled: true
-        retention_period: 672h
-        poll_interval: 2m
+        retention_deletes_enabled: false
+        retention_period: 0s
 
       query_range:
         align_queries_with_step: true
@@ -198,10 +188,12 @@ loki-distributed:
         tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
 
       compactor:
-        working_directory: /var/loki/compactor
-        shared_store: s3
-        retention_enabled: true
+        working_directory: /var/loki/data/retention
+        shared_store: filesystem
         compaction_interval: 10m
+        retention_enabled: true
+        retention_delete_delay: 7d
+        retention_delete_worker_count: 150
 
       ruler:
         storage:
@@ -218,38 +210,27 @@ loki-distributed:
     # -- Check https://grafana.com/docs/loki/latest/configuration/#schema_config for more info on how to configure schemas
     schemaConfig:
       configs:
-      - from: "2020-07-01"
+      - from: 2020-09-07
         store: boltdb-shipper
-        object_store: aws
+        object_store: filesystem
         schema: v11
         index:
-          prefix: loki_
-          period: 24h
-        chunks:
-          prefix: loki_chunk
+          prefix: loki_index_
           period: 24h
 
     # -- Check https://grafana.com/docs/loki/latest/configuration/#storage_config for more info on how to configure storages
     storageConfig:
       boltdb_shipper:
-          shared_store: s3
+          shared_store: filesystem
           active_index_directory: /var/loki/index
           cache_location: /var/loki/cache
           cache_ttl: 168h
       filesystem:
           directory: /var/loki/chunks
-      aws:
-        s3: s3://mavryk-loki
-        endpoint: https://s3.ap-southeast-1.amazonaws.com
-        region: ap-southeast-1
-        bucketnames: mavryk-loki
-        access_key_id: ${AWS_ACCESS_KEY_ID}
-        secret_access_key: ${AWS_SECRET_ACCESS_KEY}
-        s3forcepathstyle: true
-        insecure: false
-        sse_encryption: false
-        dynamodb:
-          dynamodb_url: dynamodb://ap-southeast-1
+    # -- Uncomment to configure each storage individually
+    #   azure: {}
+    #   gcs: {}
+    #   s3: {}
     #   boltdb: {}
 
     # -- Structured loki configuration, takes precedence over `loki.config`, `loki.schemaConfig`, `loki.storageConfig`
@@ -438,7 +419,7 @@ loki-distributed:
     # -- Adds the appProtocol field to the ingester service. This allows ingester to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
-      grpc: ''
+      grpc: ""
 
   # Configuration for the distributor
   distributor:
@@ -516,7 +497,7 @@ loki-distributed:
       # -- Adds the appProtocol field to the distributor service. This allows distributor to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
-      grpc: ''
+      grpc: ""
 
   # Configuration for the querier
   querier:
@@ -594,7 +575,7 @@ loki-distributed:
       # -- Enable creating PVCs for the querier cache
       enabled: true
       # -- Size of persistent disk
-      size: 2Gi
+      size: 10Gi
       # -- Storage class to be used.
       # If defined, storageClassName: <storageClass>.
       # If set to "-", storageClassName: "", which disables dynamic provisioning.
@@ -604,7 +585,7 @@ loki-distributed:
     # -- Adds the appProtocol field to the querier service. This allows querier to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
-      grpc: ''
+      grpc: ""
 
   # Configuration for the query-frontend
   queryFrontend:
@@ -681,7 +662,7 @@ loki-distributed:
     # -- Adds the appProtocol field to the queryFrontend service. This allows queryFrontend to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
-      grpc: ''
+      grpc: ""
 
   # Configuration for the query-scheduler
   queryScheduler:
@@ -750,7 +731,7 @@ loki-distributed:
   # Configuration for the table-manager
   tableManager:
     # -- Specifies whether the table-manager should be enabled
-    enabled: true
+    enabled: false
     image:
       # -- The Docker registry for the table-manager image. Overrides `loki.image.registry`
       registry: null
@@ -1010,11 +991,11 @@ loki-distributed:
                 '"$request" $body_bytes_sent "$http_referer" '
                 '"$http_user_agent" "$http_x_forwarded_for"';
       # -- Allows appending custom configuration to the server block
-      serverSnippet: ''
+      serverSnippet: ""
       # -- Allows appending custom configuration to the http block
-      httpSnippet: ''
+      httpSnippet: ""
       # -- Allows overriding the DNS resolver address nginx will use.
-      resolver: ''
+      resolver: ""
       # -- Config file contents for Nginx. Passed through the `tpl` function to allow templating
       # @default -- See values.yaml
       file: |
@@ -1186,7 +1167,7 @@ loki-distributed:
       # -- Enable creating PVCs for the compactor
       enabled: true
       # -- Size of persistent disk
-      size: 2Gi
+      size: 10Gi
       # -- Storage class to be used.
       # If defined, storageClassName: <storageClass>.
       # If set to "-", storageClassName: "", which disables dynamic provisioning.
@@ -1468,7 +1449,7 @@ loki-distributed:
     # -- Common annotations for all memcached services
     serviceAnnotations: {}
     # -- Adds the appProtocol field to the memcached services. This allows memcached to work with istio protocol selection. Ex: "http" or "tcp"
-    appProtocol: ''
+    appProtocol: ""
 
   memcachedExporter:
     # -- Specifies whether the Memcached Exporter should be enabled
