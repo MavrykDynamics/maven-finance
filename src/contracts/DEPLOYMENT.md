@@ -56,14 +56,13 @@ cd ../indexer
 - Run Poetry
 
 ```bash
-poetry shell
+yarn shell
 ```
 
 - Perform a poetry update and/or install of all dependencies
 
 ```bash
-poetry install
-poetry update
+yarn setup-env
 ```
 
 - Run the dipdup config update script
