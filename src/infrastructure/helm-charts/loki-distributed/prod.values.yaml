@@ -88,6 +88,9 @@ loki-distributed:
           kvstore:
             store: memberlist
 
+      common:
+        reporting_enabled: false
+
       memberlist:
         join_members:
           - {{ include "loki.fullname" . }}-memberlist
