@@ -17,10 +17,10 @@ async def on_aggregator_remove_oracle(
     # Remove records
     oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
     aggregator              = await models.Aggregator.get(address   = aggregator_address)
-    aggregator_oracle       = await models.AggregatorOracle.get(
+    aggregator_oracle       = await models.AggregatorOracle.filter(
         aggregator  = aggregator,
         user        = oracle
-    )
+    ).first()
 
     oracle_observations     = await models.AggregatorOracleObservation.filter(oracle = aggregator_oracle).all()
 

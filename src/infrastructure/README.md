@@ -1,5 +1,11 @@
 # Mavryk Infrastructure
 
+## Architecture diagrams
+
+### Cloud Architecture
+
+![Cloud Architecture](./docs/cloud-architecture.png)
+
 ## Summary
 
 [1. Connect to the Mavryk Kubernetes Cluster](./helm-charts/README.md)
