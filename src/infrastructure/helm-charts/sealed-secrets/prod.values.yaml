@@ -123,8 +123,12 @@ sealed-secrets:
   ## @param resources.requests [object] The requested resources for the Sealed Secret containers
   ##
   resources:
-    limits: {}
-    requests: {}
+    limits:
+      cpu: 50m
+      memory: 50Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
   ## Configure Pods Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   ## @param podSecurityContext.enabled Enabled Sealed Secret pods' Security Context
