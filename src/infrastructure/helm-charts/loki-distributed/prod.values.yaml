@@ -234,7 +234,9 @@ loki-distributed:
     # -- Uncomment to configure each storage individually
     #   azure: {}
     #   gcs: {}
-
+      aws:
+        dynamodb:
+          dynamodb_url: dynamodb://ap-southeast-1
     #   boltdb: {}
 
     # -- Structured loki configuration, takes precedence over `loki.config`, `loki.schemaConfig`, `loki.storageConfig`
