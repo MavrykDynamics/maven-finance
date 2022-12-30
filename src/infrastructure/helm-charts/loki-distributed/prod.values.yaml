@@ -113,6 +113,15 @@ loki-distributed:
         max_cache_freshness_per_query: 10m
         split_queries_by_interval: 15m
 
+      common:
+        path_prefix: /var/loki
+        storage:
+          s3:
+            bucketnames: mavryk-loki
+            region: ap-southeast-1
+            access_key_id: ${AWS_ACCESS_KEY_ID}
+            secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+
       {{- if .Values.loki.schemaConfig}}
       schema_config:
       {{- toYaml .Values.loki.schemaConfig | nindent 2}}
@@ -188,7 +197,8 @@ loki-distributed:
         tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
 
       compactor:
-        shared_store: aws
+        working_directory: /var/loki/compactor
+        shared_store: s3
 
       ruler:
         storage:
@@ -214,22 +224,16 @@ loki-distributed:
 
     # -- Check https://grafana.com/docs/loki/latest/configuration/#storage_config for more info on how to configure storages
     storageConfig:
-      # boltdb_shipper:
-      #   active_index_directory: /var/loki/index
-      #   cache_location: /var/loki/index_cache
-      #   shared_store: s3
+      boltdb_shipper:
+        active_index_directory: /var/loki/index
+        cache_location: /var/loki/index_cache
+        shared_store: s3
+        cache_ttl: 24h
       # filesystem:
       #   directory: /var/loki/chunks
     # -- Uncomment to configure each storage individually
     #   azure: {}
     #   gcs: {}
-      aws:
-        s3: s3://ap-southeast-1/mavryk-loki
-        access_key_id: ${AWS_ACCESS_KEY_ID}
-        secret_access_key: ${AWS_SECRET_ACCESS_KEY}
-        s3forcepathstyle: true
-        dynamodb:
-          dynamodb_url: dynamodb://ap-southeast-1
 
     #   boltdb: {}
 
@@ -405,7 +409,7 @@ loki-distributed:
     livenessProbe: {}
     persistence:
       # -- Enable creating PVCs which is required when using boltdb-shipper
-      enabled: false
+      enabled: true
       # -- Use emptyDir with ramdisk for storage. **Please note that all data in ingester will be lost on pod restart**
       inMemory: false
       # -- Size of persistent or memory disk
@@ -1115,7 +1119,7 @@ loki-distributed:
   # Configuration for the compactor
   compactor:
     # -- Specifies whether compactor should be enabled
-    enabled: false
+    enabled: true
     image:
       # -- The Docker registry for the compactor image. Overrides `loki.image.registry`
       registry: null
@@ -1161,9 +1165,9 @@ loki-distributed:
     tolerations: []
     persistence:
       # -- Enable creating PVCs for the compactor
-      enabled: false
+      enabled: true
       # -- Size of persistent disk
-      size: 10Gi
+      size: 2Gi
       # -- Storage class to be used.
       # If defined, storageClassName: <storageClass>.
       # If set to "-", storageClassName: "", which disables dynamic provisioning.
