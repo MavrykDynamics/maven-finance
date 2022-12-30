@@ -426,6 +426,7 @@ block {
                             var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
                             collateralTokenRecord.oracleAddress             := updateCollateralTokenParams.oracleAddress;
+                            collateralTokenRecord.isPaused                  := updateCollateralTokenParams.isPaused;
                             collateralTokenRecord.maxDepositAmount          := updateCollateralTokenParams.maxDepositAmount;
                             collateralTokenRecord.stakingContractAddress    := updateCollateralTokenParams.stakingContractAddress;
 
@@ -543,6 +544,9 @@ block {
 
                 // Get loan token record
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
+
+                // verify loan token is not paused
+                verifyLoanTokenIsNotPaused(loanTokenRecord);
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
@@ -1191,6 +1195,9 @@ block {
 
                 // Verify that token name is not protected (e.g. smvk)
                 verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_REGISTER_DEPOSIT_FOR_PROTECTED_COLLATERAL_TOKEN);
+
+                // verify collateral token is not paused
+                verifyCollateralTokenIsNotPaused(collateralTokenRecord);
 
                 // ------------------------------------------------------------------
                 // Update vault state

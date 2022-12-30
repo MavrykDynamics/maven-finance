@@ -427,6 +427,7 @@ block {
                             var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
                             collateralTokenRecord.oracleAddress             := updateCollateralTokenParams.oracleAddress;
+                            collateralTokenRecord.isPaused                  := updateCollateralTokenParams.isPaused;
                             collateralTokenRecord.maxDepositAmount          := updateCollateralTokenParams.maxDepositAmount;
                             collateralTokenRecord.stakingContractAddress    := updateCollateralTokenParams.stakingContractAddress;
 

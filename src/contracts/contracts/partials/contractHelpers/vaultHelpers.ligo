@@ -259,6 +259,16 @@ block {
 
 
 
+// helper function to verify collateral token is not paused
+function verifyCollateralTokenIsNotPaused(const collateralTokenRecord : collateralTokenRecordType) : unit is 
+block {
+
+    if collateralTokenRecord.isPaused then failwith(error_COLLATERAL_TOKEN_IS_PAUSED) else skip;
+
+} with unit
+
+
+
 // helper function to process vault transfer (for deposit/withdrawal)
 function processVaultTransfer(const from_ : address; const to_ : address; const amount : nat; const tokenType : tokenType) : operation is 
 block {

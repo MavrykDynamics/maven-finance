@@ -86,6 +86,8 @@ type collateralTokenRecordType is [@layout:comb] record [
     maxDepositAmount        : option(nat);
 
     tokenType               : tokenType; 
+
+    isPaused                : bool;
 ]
 type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
 
@@ -119,6 +121,8 @@ type loanTokenRecordType is [@layout:comb] record [
     lastUpdatedBlockLevel                   : nat; 
     accumulatedRewardsPerShare              : nat;
     borrowIndex                             : nat;
+
+    isPaused                                : bool;
 ]
 
 type loanTokenLedgerType is map(string, loanTokenRecordType)
@@ -228,7 +232,8 @@ type updateLoanTokenActionType is [@layout:comb] record [
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
     minRepaymentAmount                      : nat; 
-    
+
+    isPaused                                : bool;
 ]
 
 
@@ -263,6 +268,7 @@ type createCollateralTokenActionType is [@layout:comb] record [
 type updateCollateralTokenActionType is [@layout:comb] record [
     tokenName               : string;
     oracleAddress           : address;   
+    isPaused                : bool;
     stakingContractAddress  : option(address);
     maxDepositAmount        : option(nat);
 ]
