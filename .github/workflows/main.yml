@@ -52,7 +52,7 @@ jobs:
           tags: mavrykdynamics/mavryk-indexer:${{ github.event.inputs.imageTag }}
   setup-app:
     runs-on: ubuntu-latest
-    needs: [build-docker-image]
+    needs: build-docker-image
     steps:
       - name: extract-branch-name
         shell: bash
@@ -92,7 +92,7 @@ jobs:
           options: -p instances.${{ github.event.inputs.environment }}.dipdup.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
   sync:
     runs-on: ubuntu-latest
-    needs: dry-run-sync
+    needs: setup-app
     steps:
       - name: extract-branch-name
         shell: bash
