@@ -4,13 +4,54 @@
 
 ### Deployment
 
-- DEV: 0.24
-- PROD: 0.23
-- PROD2: 0.23
+- DEV: 0.27
+- PROD: 0.27
+- PROD2: 0.27
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.27
+
+### What's new
+
+- MTokenAccount
+  - Column RewardsEarned added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.26</summary>
+
+## Version 0.26
+
+### Breaking changes
+
+- MavrykUserOperator:
+  - Table renamed to MVKTokenOperator
+  - Owner column related name renamed from UsersOwner to MvkTokenUserOwners
+  - Operator column related name renamed from UserOperator to MvkTokenUserOperators
+- MVKTransferHistoryData:
+  - Table renamed to MVKTokenTransferHistoryData
+- MVKMintHistoryData:
+  - Table renamed to MVKTokenMintHistoryData
+
+### What's new
+
+- MToken
+  - Table added
+- MTokenWhitelistContracts
+  - Table added
+- MTokenOperator
+  - Table added
+- MTokenAccount
+  - Table added
+- LendingControllerHistoryData
+  - Column LoanToken added
+
+</details>
+
+<details><summary>0.25</summary>
 
 ## Version 0.25
 
@@ -21,7 +62,7 @@
 - LendingControllerCollateralToken:
   - Column IsScaledToken added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.24</summary>
 

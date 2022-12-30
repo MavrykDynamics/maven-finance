@@ -4,7 +4,7 @@ instances:
       initialWipe: false
       image:
         registry: docker.io
-        repository: tezosdynamics/mavryk-indexer
+        repository: mavrykdynamics/mavryk-indexer
         tag: v0.25.1
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
@@ -76,7 +76,7 @@ instances:
       initialWipe: false
       image:
         registry: docker.io
-        repository: tezosdynamics/mavryk-indexer
+        repository: mavrykdynamics/mavryk-indexer
         tag: v0.25.1
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
@@ -175,7 +175,7 @@ instances:
       initialWipe: false
       image:
         registry: docker.io
-        repository: tezosdynamics/mavryk-indexer
+        repository: mavrykdynamics/mavryk-indexer
         tag: v0.25.1
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials

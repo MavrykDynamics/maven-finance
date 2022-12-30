@@ -24,10 +24,10 @@ async def on_lending_controller_repay(
         address             = lending_controller_address,
         mock_time           = False
     )
-    lending_controller_vault                = await models.LendingControllerVault.get(
+    lending_controller_vault                = await models.LendingControllerVault.filter(
         lending_controller  = lending_controller,
         internal_id         = vault_internal_id
-    )
+    ).first()
     loan_token                              = await lending_controller_vault.loan_token
     loan_token_name                         = loan_token.loan_token_name
     loan_token_storage                      = repay.storage.loanTokenLedger[loan_token_name]
@@ -82,6 +82,7 @@ async def on_lending_controller_repay(
             await sender.save()
             history_data                            = models.LendingControllerHistoryData(
                 lending_controller  = lending_controller,
+                loan_token          = loan_token,
                 vault               = lending_controller_vault,
                 sender              = sender,
                 operation_hash      = operation_hash,

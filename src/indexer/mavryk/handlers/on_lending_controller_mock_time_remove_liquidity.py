@@ -42,10 +42,11 @@ async def on_lending_controller_mock_time_remove_liquidity(
         address         = lending_controller_address,
         mock_time       = True
     )
-    lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
+    lending_controller_loan_token           = await models.LendingControllerLoanToken.filter(
         lending_controller  = lending_controller,
-        loan_token_address  = loan_token_address
-    )
+        loan_token_address  = loan_token_address,
+        loan_token_name     = loan_token_name
+    ).first()
     lending_controller_loan_token.token_pool_total          = loan_token_token_pool_total
     lending_controller_loan_token.lp_token_total            = loan_token_lp_tokens_total
     lending_controller_loan_token.total_remaining           = loan_token_total_remaining
@@ -63,6 +64,7 @@ async def on_lending_controller_mock_time_remove_liquidity(
     history_data                            = models.LendingControllerHistoryData(
         lending_controller  = lending_controller,
         sender              = sender,
+        loan_token          = lending_controller_loan_token,
         operation_hash      = operation_hash,
         timestamp           = timestamp,
         level               = level,
