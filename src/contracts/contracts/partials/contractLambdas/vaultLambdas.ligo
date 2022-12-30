@@ -150,6 +150,9 @@ block {
                 // verify that collateral token is not protected (e.g. cannot be staked MVK)
                 verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_DEPOSIT_PROTECTED_COLLATERAL_TOKEN);
 
+                // verify collateral token is not paused
+                verifyCollateralTokenIsNotPaused(collateralTokenRecord);
+
                 // get collateral token's token type
                 const tokenType : tokenType = collateralTokenRecord.tokenType;
 
