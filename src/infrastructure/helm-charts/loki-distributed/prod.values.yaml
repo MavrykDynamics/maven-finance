@@ -81,6 +81,8 @@ loki-distributed:
       auth_enabled: false
 
       server:
+        log_level: info
+        # Must be set to 3100
         http_listen_port: 3100
 
       distributor:
@@ -88,69 +90,61 @@ loki-distributed:
           kvstore:
             store: memberlist
 
-      common:
-        reporting_enabled: false
-
       memberlist:
+        randomize_node_name: false
         join_members:
-          - {{ include "loki.fullname" . }}-memberlist
-
+          - {{ include "loki.fullname" . }}-memberlist.{{namespace}}.svc.cluster.local
       ingester:
+        # Disable chunk transfer which is not possible with statefulsets
+        # and unnecessary for boltdb-shipper
+        max_transfer_retries: 0
+        chunk_idle_period: 1h
+        chunk_target_size: 1536000
+        max_chunk_age: 1h
+      # set autoforget_unhealthy to true for troubleshooting purposes
+        autoforget_unhealthy: false
         lifecycler:
+          join_after: 0s
           ring:
             kvstore:
               store: memberlist
             replication_factor: 1
-        chunk_idle_period: 30m
-        chunk_block_size: 262144
-        chunk_encoding: snappy
-        chunk_retain_period: 1m
-        max_transfer_retries: 0
-        wal:
-          dir: /var/loki/wal
 
       limits_config:
-        enforce_metric_name: false
-        reject_old_samples: true
-        reject_old_samples_max_age: 168h
+        ingestion_rate_mb: 10
+        ingestion_burst_size_mb: 20
+        max_concurrent_tail_requests: 20
         max_cache_freshness_per_query: 10m
 
       schema_config:
         configs:
-        - from: 2020-05-15
-          store: aws
-          object_store: s3
-          schema: v11
-          index:
-            prefix: loki_
+          - from: 2020-09-07
+            store: boltdb-shipper
+            object_store: aws
+            schema: v11
+            index:
+              prefix: loki_index_
+              period: 24h
 
       storage_config:
         aws:
+          s3: s3://ap-southeast-1
           bucketnames: mavryk-loki
-          region: ap-southeast-1
           access_key_id: ${AWS_ACCESS_KEY_ID}
           secret_access_key: ${AWS_SECRET_ACCESS_KEY}
-          insecure: false
-          sse_encryption: false
-          http_config:
-            idle_conn_timeout: 90s
-            response_header_timeout: 0s
-            insecure_skip_verify: false
-          s3forcepathstyle: true
-          dynamodb:
-            dynamodb_url: dynamodb://ap-southeast-1
-
-      chunk_store_config:
-        max_look_back_period: 0s
-
-      table_manager:
-        retention_deletes_enabled: false
-        retention_period: 0s
+        boltdb_shipper:
+          active_index_directory: /var/loki/index
+          shared_store: s3
+          cache_location: /var/loki/cache
 
       query_range:
+        # make queries more cache-able by aligning them with their step intervals
         align_queries_with_step: true
         max_retries: 5
+        # parallelize queries in 15min intervals
+        split_queries_by_interval: 15m
         cache_results: true
+
         results_cache:
           cache:
             enable_fifocache: true
@@ -167,24 +161,8 @@ loki-distributed:
         tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
 
       compactor:
-        working_directory: /data/compactor
-        shared_store: s3
-        compaction_interval: 5m
-        retention_enabled: true
-        retention_delete_delay: 48h
-        retention_delete_worker_count: 150
-
-      ruler:
-        storage:
-          type: local
-          local:
-            directory: /etc/loki/rules
-        ring:
-          kvstore:
-            store: memberlist
-        rule_path: /tmp/loki/scratch
-        alertmanager_url: https://alertmanager.xx
-        external_url: https://alertmanager.xx
+        working_directory: /var/loki/boltdb-shipper-compactor
+        shared_store: aws
 
     # -- Check https://grafana.com/docs/loki/latest/configuration/#schema_config for more info on how to configure schemas
     schemaConfig:
@@ -1392,7 +1370,7 @@ loki-distributed:
     tolerations: []
     persistence:
       # -- Enable creating PVCs which is required when using boltdb-shipper
-      enabled: false
+      enabled: true
       # -- Use emptyDir with ramdisk for storage. **Please note that all data in indexGateway will be lost on pod restart**
       inMemory: false
       # -- Size of persistent or memory disk
