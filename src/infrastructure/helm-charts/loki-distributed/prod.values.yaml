@@ -188,12 +188,7 @@ loki-distributed:
         tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
 
       compactor:
-        working_directory: /data/retention
-        shared_store: aws
-        compaction_interval: 10m
-        retention_enabled: true
-        retention_delete_delay: 672h
-        retention_delete_worker_count: 150
+        shared_store: s3
 
       ruler:
         storage:
@@ -210,20 +205,19 @@ loki-distributed:
     # -- Check https://grafana.com/docs/loki/latest/configuration/#schema_config for more info on how to configure schemas
     schemaConfig:
       configs:
-        - from: 2022-12-29
-          store: boltdb-shipper
-          object_store: s3
-          schema: v11
-          index:
-            prefix: loki_index_
-            period: 24h
+      - from: 2020-05-15
+        store: aws
+        object_store: s3
+        schema: v11
+        index:
+          prefix: loki_
 
     # -- Check https://grafana.com/docs/loki/latest/configuration/#storage_config for more info on how to configure storages
     storageConfig:
-      boltdb_shipper:
-        active_index_directory: /var/loki/index
-        cache_location: /var/loki/index_cache
-        shared_store: s3
+      # boltdb_shipper:
+      #   active_index_directory: /var/loki/index
+      #   cache_location: /var/loki/index_cache
+      #   shared_store: s3
       # filesystem:
       #   directory: /var/loki/chunks
     # -- Uncomment to configure each storage individually
@@ -411,7 +405,7 @@ loki-distributed:
     livenessProbe: {}
     persistence:
       # -- Enable creating PVCs which is required when using boltdb-shipper
-      enabled: true
+      enabled: false
       # -- Use emptyDir with ramdisk for storage. **Please note that all data in ingester will be lost on pod restart**
       inMemory: false
       # -- Size of persistent or memory disk
@@ -1121,7 +1115,7 @@ loki-distributed:
   # Configuration for the compactor
   compactor:
     # -- Specifies whether compactor should be enabled
-    enabled: true
+    enabled: false
     image:
       # -- The Docker registry for the compactor image. Overrides `loki.image.registry`
       registry: null
