@@ -292,6 +292,7 @@ block {
     loanTokenRecord.interestRateBelowOptimalUtilisation  := updateLoanTokenParams.interestRateBelowOptimalUtilisation;
     loanTokenRecord.interestRateAboveOptimalUtilisation  := updateLoanTokenParams.interestRateAboveOptimalUtilisation;
     loanTokenRecord.minRepaymentAmount                   := updateLoanTokenParams.minRepaymentAmount;
+    loanTokenRecord.isPaused                             := updateLoanTokenParams.isPaused;
 
 } with loanTokenRecord
 
@@ -420,6 +421,16 @@ block {
 
 
 
+// helper function to verify collateral token is not paused
+function verifyCollateralTokenIsNotPaused(const collateralTokenRecord : collateralTokenRecordType) : unit is 
+block {
+
+    if collateralTokenRecord.isPaused then failwith(error_COLLATERAL_TOKEN_IS_PAUSED) else skip;
+
+} with unit
+
+
+
 // helper function to check collateral token exists
 function checkCollateralTokenExists(const collateralTokenName : string; const s : lendingControllerStorageType) : unit is 
 block {
@@ -476,6 +487,16 @@ block {
     ];
 
 } with loanTokenRecord
+
+
+
+// helper function to verify loan token is not paused
+function verifyLoanTokenIsNotPaused(const loanTokenRecord : loanTokenRecordType) : unit is 
+block {
+
+    if loanTokenRecord.isPaused then failwith(error_LOAN_TOKEN_IS_PAUSED) else skip;
+
+} with unit
 
 
 
