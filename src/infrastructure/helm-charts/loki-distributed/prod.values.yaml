@@ -230,8 +230,7 @@ loki-distributed:
     #   azure: {}
     #   gcs: {}
       aws:
-        bucketnames: mavryk-loki
-        region: ap-southeast-1
+        s3: s3://ap-southeast-1/mavryk-loki
         access_key_id: ${AWS_ACCESS_KEY_ID}
         secret_access_key: ${AWS_SECRET_ACCESS_KEY}
         s3forcepathstyle: true
