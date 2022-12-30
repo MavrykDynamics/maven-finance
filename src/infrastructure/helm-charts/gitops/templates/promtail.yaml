@@ -15,7 +15,7 @@ spec:
   source:
     path: src/infrastructure/helm-charts/promtail
     repoURL: git@github.com:mavrykfinance/mavryk-dapp
-    targetRevision: private-testnet
+    targetRevision: staging
     helm:
       valueFiles:
         - {{ .Values.promtail.valueFiles }}
