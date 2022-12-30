@@ -30,6 +30,7 @@ class Aggregator(MavrykContract, Model):
         table = 'aggregator'
 
 class AggregatorOracle(Model):
+    id                                      = fields.BigIntField(pk=True)
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles', index=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles', index=True)
     public_key                              = fields.CharField(max_length=54, default="")
@@ -79,6 +80,7 @@ class AggregatorWhitelistContract(LinkedContract, Model):
         table = 'aggregator_whitelist_contract'
 
 class AggregatorHistoryData(Model):
+    id                                      = fields.BigIntField(pk=True)
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='history_data', index=True)
     timestamp                               = fields.DatetimeField(index=True)
     round                                   = fields.BigIntField(default=0, index=True)

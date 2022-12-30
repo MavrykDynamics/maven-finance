@@ -21,10 +21,10 @@ async def on_council_update_council_member_info(
     # Update record
     council                 = await models.Council.get(address   = council_address)
     user                    = await models.mavryk_user_cache.get(address=council_member_address)
-    council_member          = await models.CouncilCouncilMember.get(
+    council_member          = await models.CouncilCouncilMember.filter(
         council     = council,
         user        = user
-    )
+    ).first()
     council_member.name     = name
     council_member.website  = website
     council_member.image    = image
