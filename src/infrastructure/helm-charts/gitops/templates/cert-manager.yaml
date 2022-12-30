@@ -15,7 +15,7 @@ spec:
   source:
     path: src/infrastructure/helm-charts/cert-manager
     repoURL: git@github.com:mavrykfinance/mavryk-dapp
-    targetRevision: private-testnet
+    targetRevision: staging
     helm:
       valueFiles:
         - {{ .Values.certManager.valueFiles }}
