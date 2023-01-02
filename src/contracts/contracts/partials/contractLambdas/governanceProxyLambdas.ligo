@@ -222,6 +222,10 @@ block {
         |   RemoveVestee (_v)                      -> 37n
         |   UpdateVestee (_v)                      -> 38n
         |   ToggleVesteeLock (_v)                  -> 39n
+
+            (* Lending Controller *)
+        |   SetLoanToken (_v)                      -> 40n
+        |   SetCollateralToken (_v)                -> 41n
     ];
 
     // Get entrypoint lambda as bytes
@@ -1672,6 +1676,86 @@ block {
                 );
 
                 operations := toggleVesteeLockOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function setLoanToken(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   SetLoanToken(setLoanTokenParams) -> {
+
+                // Find and get lending controller contract address from the generalContracts map
+                const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+                // Find and get setLoanToken entrypoint of lending controller contract
+                const setLoanTokenEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setLoanToken",
+                    lendingControllerAddress) : option(contract(setLoanTokenActionType))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setLoanTokenActionType))
+                    ];
+
+                // Create operation to set loan token
+                const setLoanTokenOperation : operation = Tezos.transaction(
+                    (setLoanTokenParams),
+                    0tez, 
+                    setLoanTokenEntrypoint
+                );
+
+                operations := setLoanTokenOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function setCollateralToken(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   SetCollateralToken(setCollateralTokenParams) -> {
+
+                // Find and get lending controller contract address from the generalContracts map
+                const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+                // Find and get setCollateralToken entrypoint of lending controller contract
+                const setCollateralTokenEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setCollateralToken",
+                    lendingControllerAddress) : option(contract(setCollateralTokenActionType))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setCollateralTokenActionType))
+                    ];
+
+                // Create operation to set collateral token
+                const setCollateralTokenOperation : operation = Tezos.transaction(
+                    (setCollateralTokenParams),
+                    0tez, 
+                    setCollateralTokenEntrypoint
+                );
+
+                operations := setCollateralTokenOperation # operations;
 
             }
         |   _ -> skip

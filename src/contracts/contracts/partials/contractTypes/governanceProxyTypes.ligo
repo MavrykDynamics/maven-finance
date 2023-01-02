@@ -212,6 +212,9 @@ type executeActionParamsType is
     |   UpdateVestee                       of updateVesteeType
     |   ToggleVesteeLock                   of (address)
 
+    |   SetLoanToken                       of setLoanTokenActionType
+    |   SetCollateralToken                 of setCollateralTokenActionType
+
 type executeActionType is (executeActionParamsType)
 
 
