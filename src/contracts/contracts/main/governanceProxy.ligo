@@ -73,6 +73,9 @@
 // AggregatorFactory Type
 #include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
 
+// LendingController Type
+#include "../partials/contractTypes/lendingControllerTypes.ligo"
+
 // Governance Proxy Types
 #include "../partials/contractTypes/governanceProxyTypes.ligo"
 
