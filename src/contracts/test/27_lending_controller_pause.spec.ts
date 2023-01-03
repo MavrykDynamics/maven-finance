@@ -230,8 +230,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 
                 // init variables
                 await signerFactory(bob.sk);
-
-                const setLoanTokenActionType                = "createLoanToken";
+                
                 const tokenName                             = "mockFa12";
                 const tokenContractAddress                  = mockFa12TokenAddress.address;
                 const tokenType                             = "fa12";
@@ -254,9 +253,12 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 // check if loan token exists
                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                // console.log(lendingControllerStorage.admin);
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkLoanTokenExists === undefined){
+
+                    const setLoanTokenActionType                = "createLoanToken";
 
                     const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
@@ -312,11 +314,35 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
     
                 } else {
 
-                    lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
-                
-                    // other variables will be affected by repeated tests
-                    assert.equal(mockFa12LoanToken.tokenName, tokenName);
+                    const isPaused                                 = false;
+                    const updateLoanTokenActionType                = "updateLoanToken";
+
+                    const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                        updateLoanTokenActionType,
+                        
+                        tokenName,
+
+                        oracleAddress,
+                        
+                        reserveRatio,
+                        optimalUtilisationRate,
+                        baseInterestRate,
+                        maxInterestRate,
+                        interestRateBelowOptimalUtilisation,
+                        interestRateAboveOptimalUtilisation,
+                        minRepaymentAmount,
+
+                        isPaused
+                        
+                    ).send();
+                    await adminUpdateMockFa2LoanTokenOperation.confirmation();
+
+                    lendingControllerStorage = await lendingControllerInstance.storage();
+                    const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                    assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
+                    assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
 
                 }
 
@@ -413,11 +439,35 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 } else {
 
-                    lendingControllerStorage = await lendingControllerInstance.storage();
-                    const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                    const isPaused                                 = false;
+                    const updateLoanTokenActionType                = "updateLoanToken";
 
-                    // other variables will be affected by repeated tests
-                    assert.equal(mockFa2LoanToken.tokenName, tokenName);
+                    const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                        updateLoanTokenActionType,
+                        
+                        tokenName,
+
+                        oracleAddress,
+                        
+                        reserveRatio,
+                        optimalUtilisationRate,
+                        baseInterestRate,
+                        maxInterestRate,
+                        interestRateBelowOptimalUtilisation,
+                        interestRateAboveOptimalUtilisation,
+                        minRepaymentAmount,
+
+                        isPaused
+                        
+                    ).send();
+                    await adminUpdateMockFa2LoanTokenOperation.confirmation();
+
+                    lendingControllerStorage = await lendingControllerInstance.storage();
+                    const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                    assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
+                    assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
 
                 }
                 
@@ -515,11 +565,35 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 } else {
 
-                    lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
-                
-                    // other variables will be affected by repeated tests
-                    assert.equal(tezLoanToken.tokenName, tokenName);
+                    const isPaused                                 = false;
+                    const updateLoanTokenActionType                = "updateLoanToken";
+
+                    const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                        updateLoanTokenActionType,
+                        
+                        tokenName,
+
+                        oracleAddress,
+                        
+                        reserveRatio,
+                        optimalUtilisationRate,
+                        baseInterestRate,
+                        maxInterestRate,
+                        interestRateBelowOptimalUtilisation,
+                        interestRateAboveOptimalUtilisation,
+                        minRepaymentAmount,
+
+                        isPaused
+                        
+                    ).send();
+                    await adminUpdateMockFa2LoanTokenOperation.confirmation();
+
+                    lendingControllerStorage = await lendingControllerInstance.storage();
+                    const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                    assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
+                    assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
                     
                 }
 
@@ -878,6 +952,30 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                     ).send();
                     await adminSetMockFa12CollateralTokenOperation.confirmation();
 
+                } else {
+
+                    const updateCollateralTokenActionType      = "updateCollateralToken";
+                    const isPaused                             = false;
+
+                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        updateCollateralTokenActionType,
+                        
+                        tokenName,
+                        oracleAddress,
+                        isPaused,
+    
+                        stakingContractAddress,
+                        maxDepositAmount
+    
+                    ).send();
+                    await adminSetMockFa2CollateralTokenOperation.confirmation();
+    
+                    lendingControllerStorage               = await lendingControllerInstance.storage();
+                    const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+    
+                    // collateral token should not be paused
+                    assert.equal(updatedMockFa2CollateralToken.isPaused       , isPaused);
                 }
 
                 lendingControllerStorage        = await lendingControllerInstance.storage();
@@ -947,6 +1045,30 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                     ).send();
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
+                } else {
+
+                    const updateCollateralTokenActionType      = "updateCollateralToken";
+                    const isPaused                             = false;
+
+                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        updateCollateralTokenActionType,
+                        
+                        tokenName,
+                        oracleAddress,
+                        isPaused,
+    
+                        stakingContractAddress,
+                        maxDepositAmount
+    
+                    ).send();
+                    await adminSetMockFa2CollateralTokenOperation.confirmation();
+    
+                    lendingControllerStorage               = await lendingControllerInstance.storage();
+                    const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+    
+                    // collateral token should not be paused
+                    assert.equal(updatedMockFa2CollateralToken.isPaused       , isPaused);
                 }
 
                 lendingControllerStorage        = await lendingControllerInstance.storage();
@@ -954,7 +1076,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
                 assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
-                assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
                 assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
 
 
@@ -1017,6 +1138,30 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                     ).send();
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
+                } else {
+
+                    const updateCollateralTokenActionType      = "updateCollateralToken";
+                    const isPaused                             = false;
+
+                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        updateCollateralTokenActionType,
+                        
+                        tokenName,
+                        oracleAddress,
+                        isPaused,
+    
+                        stakingContractAddress,
+                        maxDepositAmount
+    
+                    ).send();
+                    await adminSetMockFa2CollateralTokenOperation.confirmation();
+    
+                    lendingControllerStorage               = await lendingControllerInstance.storage();
+                    const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+    
+                    // collateral token should not be paused
+                    assert.equal(updatedMockFa2CollateralToken.isPaused       , isPaused);
                 }
 
                 lendingControllerStorage        = await lendingControllerInstance.storage();
@@ -1104,110 +1249,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
             } 
         });
 
-
-        it('admin should be able to update collateral token', async () => {
-
-            try{        
-                
-                // init variables
-                await signerFactory(bob.sk);
-
-                const createCollateralTokenActionType       = "createCollateralToken";
-                const tokenName                             = "testUpdateCollateralToken";
-                const tokenContractAddress                  = mockFa2TokenAddress.address;
-                const tokenType                             = "fa2";
-                const tokenId                               = 0;
-
-                const tokenDecimals                         = 6;
-                const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
-                const tokenProtected                        = false;
-                
-                const isScaledToken                         = false;
-                const isStakedToken                         = false;
-                const stakingContractAddress                = null;
-                
-                const maxDepositAmount                      = null;
-                
-                
-                // check if collateral token exists
-                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
-
-                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
-                if(checkCollateralTokenExists === undefined){
-
-                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-
-                        createCollateralTokenActionType,
-                        
-                        tokenName,
-                        tokenContractAddress,
-                        tokenDecimals,
-
-                        oracleAddress,
-                        tokenProtected,
-                        
-                        isScaledToken,
-                        isStakedToken,
-                        stakingContractAddress,
-
-                        maxDepositAmount,
-
-                        // fa2 token type - token contract address + token id
-                        tokenType,
-                        tokenContractAddress,
-                        tokenId
-
-                    ).send();
-                    await adminSetMockFa2CollateralTokenOperation.confirmation();
-
-                    lendingControllerStorage        = await lendingControllerInstance.storage();
-                    const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
-    
-                    assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
-                    assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
-                    assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
-                    assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
-
-                }
-
-                // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
-                if(checkCollateralTokenExists === undefined){
-                        
-                    const updateCollateralTokenActionType       = "updateCollateralToken";
-                    const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
-                    const stakingContractAddress                = null;
-                    const maxDepositAmount                      = null;
-                    const isPaused                              = false;
-                    
-                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-
-                        updateCollateralTokenActionType,
-                        
-                        tokenName,
-                        newOracleAddress,
-                        isPaused,
-
-                        stakingContractAddress,
-                        maxDepositAmount
-
-                    ).send();
-                    await adminSetMockFa2CollateralTokenOperation.confirmation();
-
-                    lendingControllerStorage               = await lendingControllerInstance.storage();
-                    const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
-
-                    // oracle address should be updated, and there should be no changes to other variables
-                    assert.equal(updatedMockFa2CollateralToken.oracleAddress   , newOracleAddress);
-                    assert.equal(updatedMockFa2CollateralToken.tokenName       , tokenName);
-                    assert.equal(updatedMockFa2CollateralToken.tokenDecimals   , tokenDecimals);
-                    assert.equal(updatedMockFa2CollateralToken.protected       , tokenProtected);
-
-                }
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
 
 
         it('non-admin should not be able to set collateral token - create', async () => {
@@ -1321,31 +1362,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
     // Test: Set Lending Controller Admin
     //
     describe('%setAdmin - Lending Controller and Vault Controller', function () {
-    
-        it('admin can set admin for lending controller', async () => {
-            try{        
-        
-                await signerFactory(bob.sk);
-                const previousAdmin = lendingControllerStorage.admin;
-                
-                if(previousAdmin == bob.pkh){
-                    
-                    assert.equal(previousAdmin, bob.pkh);
-                    const setNewAdminOperation = await lendingControllerInstance.methods.setAdmin(governanceProxyAddress.address).send();
-                    await setNewAdminOperation.confirmation();
-
-                    const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-                    const newAdmin = updatedLendingControllerStorage.admin;
-
-                    assert.equal(newAdmin, governanceProxyAddress.address);
-                };
-
-            } catch(e){
-                console.log(e);
-            } 
-
-        });   
-
 
         it('admin can set admin for vault factory', async () => {
             try{        
@@ -1364,25 +1380,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                     assert.equal(newAdmin, governanceProxyAddress.address);
                 };
-
-            } catch(e){
-                console.log(e);
-            } 
-
-        });   
-
-
-        it('non-admin cannot set admin for lending controller', async () => {
-            try{        
-        
-                await signerFactory(mallory.sk);
-        
-                    const failSetNewAdminOperation = await lendingControllerInstance.methods.setAdmin(governanceProxyAddress.address);
-                    await chai.expect(failSetNewAdminOperation.send()).to.be.rejected;    
-
-                    const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-                    const admin = updatedLendingControllerStorage.admin;
-                    assert.equal(admin, governanceProxyAddress.address);
 
             } catch(e){
                 console.log(e);
@@ -1773,7 +1770,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const loanTokenName = "mockFa2";
-            const withdrawAmount = 5000000; // 5 Mock FA2 Tokens
+            const withdrawAmount = 1000000; // 1 Mock FA2 Tokens
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
@@ -2074,450 +2071,464 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
         });
 
-    })
+    });
 
+    // 
+    // Test: Pause Loan Token - cannot add liquidity, can remove liquidity
+    //
+    describe('test paused loan token', function () {
     
-    it('admin should be able to update and pause a loan token', async () => {
+        it('admin should be able to update and pause a loan token', async () => {
 
-        try{        
-            
-            // init variables
-            await signerFactory(bob.sk);
-            
-            const updateLoanTokenActionType                = "updateLoanToken";
-            const tokenName                                = "mockFa2";
-            const interestRateDecimals                     = 27;
-            
-            const newOracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
-
-            const newReserveRatio                          = 2000; // 20% reserves (4 decimals)
-            const newOptimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));   // 50% utilisation rate kink
-            const newBaseInterestRate                      = 10  * (10 ** (interestRateDecimals - 2));  // 5%
-            const newMaxInterestRate                       = 50 * (10 ** (interestRateDecimals - 2));  // 25% 
-            const newInterestRateBelowOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 10% 
-            const newInterestRateAboveOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 20%
-            const newMinRepaymentAmount                    = 20000;
-            const isPaused                                 = true;
-
-            const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
-
-                updateLoanTokenActionType,
+            try{        
                 
-                tokenName,
-
-                newOracleAddress,
+                // init variables
+                await signerFactory(bob.sk);
                 
-                newReserveRatio,
-                newOptimalUtilisationRate,
-                newBaseInterestRate,
-                newMaxInterestRate,
-                newInterestRateBelowOptimalUtilisation,
-                newInterestRateAboveOptimalUtilisation,
-                newMinRepaymentAmount,
-
-                isPaused
+                const updateLoanTokenActionType                = "updateLoanToken";
+                const tokenName                                = "mockFa2";
+                const interestRateDecimals                     = 27;
                 
-            ).send();
-            await adminUpdateMockFa2LoanTokenOperation.confirmation();
+                const newOracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-            lendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                const newReserveRatio                          = 2000; // 20% reserves (4 decimals)
+                const newOptimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));   // 50% utilisation rate kink
+                const newBaseInterestRate                      = 10  * (10 ** (interestRateDecimals - 2));  // 5%
+                const newMaxInterestRate                       = 50 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const newInterestRateBelowOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const newInterestRateAboveOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 20%
+                const newMinRepaymentAmount                    = 20000;
+                const isPaused                                 = true;
 
-            assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
-            assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
-            
-        } catch(e){
-            console.log(e);
-        } 
+                const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                    updateLoanTokenActionType,
+                    
+                    tokenName,
+
+                    newOracleAddress,
+                    
+                    newReserveRatio,
+                    newOptimalUtilisationRate,
+                    newBaseInterestRate,
+                    newMaxInterestRate,
+                    newInterestRateBelowOptimalUtilisation,
+                    newInterestRateAboveOptimalUtilisation,
+                    newMinRepaymentAmount,
+
+                    isPaused
+                    
+                ).send();
+                await adminUpdateMockFa2LoanTokenOperation.confirmation();
+
+                lendingControllerStorage = await lendingControllerInstance.storage();
+                const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
+                assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
+                
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+        it('user (eve) should not be able to add liqudity if loan token is paused', async () => {
+
+            try{        
+
+                // init variables
+                await signerFactory(eve.sk);
+                const loanTokenName = "mockFa2";
+                const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
+
+                // update operators for vault
+                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: eve.pkh,
+                            operator: lendingControllerAddress.address,
+                            token_id: 0,
+                        },
+                    }])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+
+                // eve fail to deposit mock FA2 tokens into lending controller token pool as the loan token is paused
+                const failEveDepositTokenOperation  = lendingControllerInstance.methods.addLiquidity(
+                    loanTokenName,
+                    liquidityAmount
+                );
+                await chai.expect(failEveDepositTokenOperation.send()).to.be.rejected;    
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+        it('user (eve) should still be able to remove liqudity even if loan token is paused', async () => {
+
+            try{       
+
+                // init variables
+                await signerFactory(eve.sk);
+                const loanTokenName = "mockFa2";
+                const withdrawAmount = 1000000; // 1 Mock FA2 Tokens
+
+                lendingControllerStorage = await lendingControllerInstance.storage();
+                
+                // get mock fa12 token storage and lp token pool mock fa2 token storage
+                const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
+                const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+                
+                // get initial eve's Mock FA2 Token balance
+                const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
+                const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
+
+                // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
+                const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+                const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
+
+                // get initial lending controller's Mock FA2 Token balance
+                const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+                const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
+
+                // get initial lending controller token pool total
+                const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+                const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
+
+                // eve withdraws mock FA2 tokens liquidity from lending controller token pool
+                const eveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
+                    loanTokenName,
+                    withdrawAmount, 
+                ).send();
+                await eveWithdrawTokenOperation.confirmation();
+
+                // get updated storages
+                const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
+                const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
+                const updatedLpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+
+                // Summary - Liquidity Removed for Mock FA2 Token
+                // 1) Loan Token Pool Record Balance - decrease
+                // 2) Lending Controller Token Balance - decrease
+                // 3) User LP Token Balance - decrease
+                // 4) User Token Balance - increase
+
+                // 1) check new balance for loan token pool total
+                const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+                assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
+
+                // 2) check Lending Controller's Mock FA2 Token Balance
+                const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+                assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
+
+                // 3) check Eve's LP Token Pool Mock FA2 Token balance
+                const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+
+                console.log(`eveInitialLpTokenPoolMockFa2TokenBalance: ${eveInitialLpTokenPoolMockFa2TokenBalance}`);
+                console.log(`withdrawAmount: ${withdrawAmount}`);
+                console.log(`eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount: ${eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount}`);
+                console.log(`updatedEveLpTokenPoolMockFa2Ledger: ${updatedEveLpTokenPoolMockFa2Ledger}`);
+
+                assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount);        
+
+                // 4) check Eve's Mock FA2 Token balance
+                const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+                assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
+                
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+
+        it('user (eve) should still be able to deposit into vault even if loan token is paused', async () => {
+
+            try{       
+
+                const vaultId            = eveVaultSet[0]; // vault with mockFa2 loan token
+                const vaultOwner         = eve.pkh;
+                const depositAmountTez   = 1;
+                const depositAmountMutez = 1000000;
+
+                const vaultHandle = {
+                    "id"     : vaultId,
+                    "owner"  : vaultOwner
+                };
+
+                const vault                    = await lendingControllerStorage.vaults.get(vaultHandle);
+
+                // get vault contract
+                const vaultAddress             = vault.address;
+                const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+                const eveVaultInstanceStorage  = await eveVaultInstance.storage();
+
+                const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
+
+                const eveDepositTezOperation   = await eveVaultInstance.methods.deposit(
+                    depositAmountMutez,                   // amt
+                    "tez"                                 // token
+                ).send({ mutez : true, amount : depositAmountMutez });
+                await eveDepositTezOperation.confirmation();
+
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+                const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+                
+                assert.equal(tezCollateralBalance, initialTezCollateralBalance + TEZ(depositAmountTez));
+                
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+
+        it('user (eve) should not be able to borrow from vault if loan token is paused', async () => {
+
+            try{        
+
+                const vaultId            = eveVaultSet[0]; // vault with mockFa2 loan token
+                const vaultOwner         = eve.pkh;
+                const borrowAmount       = 100000;
+
+                const vaultHandle = {
+                    "id"     : vaultId,
+                    "owner"  : vaultOwner
+                };
+
+                const vault              = await lendingControllerStorage.vaults.get(vaultHandle);
+
+                // borrow operation
+                const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount);
+                await chai.expect(eveBorrowOperation.send()).to.be.rejected;    
+
+                
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
+
+        it('user (eve) should still be able to withdraw from vault even if loan token is paused', async () => {
+
+            try{        
+
+                await signerFactory(eve.sk);
+                const vaultId              = eveVaultSet[0]; 
+                const vaultOwner           = eve.pkh;
+                const withdrawAmount       = 100000; // 0.1 mockFa2 token
+                const tokenName            = 'mockFa2';
+
+                const vaultHandle = {
+                    "id"     : vaultId,
+                    "owner"  : vaultOwner
+                };
+
+                const lendingControllerStorage      = await lendingControllerInstance.storage();
+                const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+                const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
+
+                // get vault contract
+                const vaultAddress = vault.address;
+
+                // get initial balance for Eve and Vault
+                const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
+                const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
+
+                const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
+                const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
+
+                const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+
+                // withdraw operation
+                const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+                    withdrawAmount,                 
+                    tokenName                            
+                ).send();
+                await eveWithdrawOperation.confirmation();
+
+                // get updated storages for lending controller and vault
+                const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+                const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+                const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
+                const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
+
+                // get updated balance for Eve and Vault
+                const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+                const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
+
+                const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
+                const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
+                
+
+                assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
+                assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
+                assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
+
+                
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
     });
-
-    it('user (eve) should not be able to add liqudity if loan token is paused', async () => {
-
-        try{        
-
-            // init variables
-            await signerFactory(eve.sk);
-            const loanTokenName = "mockFa2";
-            const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
-
-            // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: lendingControllerAddress.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
-            await updateOperatorsOperation.confirmation();
-
-            // eve fail to deposit mock FA2 tokens into lending controller token pool as the loan token is paused
-            const failEveDepositTokenOperation  = lendingControllerInstance.methods.addLiquidity(
-                loanTokenName,
-                liquidityAmount
-            );
-            await chai.expect(failEveDepositTokenOperation.send()).to.be.rejected;    
-
-        } catch(e){
-            console.log(e);
-        } 
-    });
-
-    it('user (eve) should still be able to remove liqudity even if loan token is paused', async () => {
-
-        try{       
-
-            // init variables
-            await signerFactory(eve.sk);
-            const loanTokenName = "mockFa2";
-            const withdrawAmount = 5000000; // 5 Mock FA2 Tokens
-
-            lendingControllerStorage = await lendingControllerInstance.storage();
-            
-            // get mock fa12 token storage and lp token pool mock fa2 token storage
-            const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-            const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
-            
-            // get initial eve's Mock FA2 Token balance
-            const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
-
-            // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-            const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
-
-            // get initial lending controller's Mock FA2 Token balance
-            const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-            const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
-
-            // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
-            const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
-
-            // eve withdraws mock FA2 tokens liquidity from lending controller token pool
-            const eveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
-                loanTokenName,
-                withdrawAmount, 
-            ).send();
-            await eveWithdrawTokenOperation.confirmation();
-
-            // get updated storages
-            const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
-            const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-            const updatedLpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
-
-            // Summary - Liquidity Removed for Mock FA2 Token
-            // 1) Loan Token Pool Record Balance - decrease
-            // 2) Lending Controller Token Balance - decrease
-            // 3) User LP Token Balance - decrease
-            // 4) User Token Balance - increase
-
-            // 1) check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
-            assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
-
-            // 2) check Lending Controller's Mock FA2 Token Balance
-            const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-            assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
-
-            // 3) check Eve's LP Token Pool Mock FA2 Token balance
-            const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-            assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount);        
-
-            // 4) check Eve's Mock FA2 Token balance
-            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
-            
-        } catch(e){
-            console.log(e);
-        } 
-    });
-
-
-    it('user (eve) should still be able to deposit into vault even if loan token is paused', async () => {
-
-        try{       
-
-            const vaultId            = eveVaultSet[1]; // vault with mockFa2 loan token
-            const vaultOwner         = eve.pkh;
-            const depositAmountTez   = 1;
-            const depositAmountMutez = 1000000;
-
-            const vaultHandle = {
-                "id"     : vaultId,
-                "owner"  : vaultOwner
-            };
-
-            const vault                    = await lendingControllerStorage.vaults.get(vaultHandle);
-
-            // get vault contract
-            const vaultAddress             = vault.address;
-            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-            const eveVaultInstanceStorage  = await eveVaultInstance.storage();
-
-            const eveDepositTezOperation   = await eveVaultInstance.methods.deposit(
-                depositAmountMutez,                   // amt
-                "tez"                                 // token
-            ).send({ mutez : true, amount : depositAmountMutez });
-            await eveDepositTezOperation.confirmation();
-
-            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
-            
-            assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
-            
-        } catch(e){
-            console.log(e);
-        } 
-    });
-
-
-    it('user (eve) should not be able to borrow from vault if loan token is paused', async () => {
-
-        try{        
-
-            const vaultId            = eveVaultSet[1]; // vault with mockFa2 loan token
-            const vaultOwner         = eve.pkh;
-            const borrowAmount       = 100000;
-
-            const vaultHandle = {
-                "id"     : vaultId,
-                "owner"  : vaultOwner
-            };
-
-            const vault              = await lendingControllerStorage.vaults.get(vaultHandle);
-
-            // borrow operation
-            const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount);
-            await chai.expect(eveBorrowOperation.send()).to.be.rejected;    
-
-            
-        } catch(e){
-            console.log(e);
-        } 
-    });
-
-
-    it('user (eve) should still be able to withdraw from vault even if loan token is paused', async () => {
-
-        try{        
-
-            await signerFactory(eve.sk);
-            const vaultId              = eveVaultSet[0]; 
-            const vaultOwner           = eve.pkh;
-            const withdrawAmount       = 100000; // 0.1 mockFa2 token
-            const tokenName            = 'mockFa2';
-
-            const vaultHandle = {
-                "id"     : vaultId,
-                "owner"  : vaultOwner
-            };
-
-            const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-
-            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
-
-            // get vault contract
-            const vaultAddress = vault.address;
-
-            // get initial balance for Eve and Vault
-            const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
-
-            const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
-            const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
-
-            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-
-            // withdraw operation
-            const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
-                withdrawAmount,                 
-                tokenName                            
-            ).send();
-            await eveWithdrawOperation.confirmation();
-
-            // get updated storages for lending controller and vault
-            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
-            const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
-
-            // get updated balance for Eve and Vault
-            const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
-
-            const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
-            const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
-            
-
-            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
-            assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
-            assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
-
-            
-        } catch(e){
-            console.log(e);
-        } 
-    });
-
-});
 
 
     // 
-// Test: Pause Loan Token - cannot add liquidity, can remove liquidity
-//
-describe('test paused collateral token', function () {
+    // Test: Pause Loan Token - cannot add liquidity, can remove liquidity
+    //
+    describe('test paused collateral token', function () {
 
-    it('admin should be able to update and pause a collateral token', async () => {
+        it('admin should be able to update and pause a collateral token', async () => {
 
-        try{        
-            
-            // init variables
-            await signerFactory(bob.sk);
-
-            const tokenName                             = "mockFa2";
-
-            const updateCollateralTokenActionType       = "updateCollateralToken";
-            const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
-            const stakingContractAddress                = null;
-            const maxDepositAmount                      = null;
-            const isPaused                              = true;
-            
-            const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-
-                updateCollateralTokenActionType,
+            try{        
                 
-                tokenName,
-                newOracleAddress,
-                isPaused,
+                // init variables
+                await signerFactory(bob.sk);
 
-                stakingContractAddress,
-                maxDepositAmount
+                const tokenName                             = "mockFa2";
 
-            ).send();
-            await adminSetMockFa2CollateralTokenOperation.confirmation();
+                const updateCollateralTokenActionType       = "updateCollateralToken";
+                const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
+                const stakingContractAddress                = null;
+                const maxDepositAmount                      = null;
+                const isPaused                              = true;
+                
+                const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
 
-            lendingControllerStorage               = await lendingControllerInstance.storage();
-            const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+                    updateCollateralTokenActionType,
+                    
+                    tokenName,
+                    newOracleAddress,
+                    isPaused,
 
-            // collateral token should now be paused
-            assert.equal(updatedMockFa2CollateralToken.isPaused       , isPaused);
+                    stakingContractAddress,
+                    maxDepositAmount
 
-        } catch(e){
-            console.log(e);
-        } 
-    });
+                ).send();
+                await adminSetMockFa2CollateralTokenOperation.confirmation();
+
+                lendingControllerStorage               = await lendingControllerInstance.storage();
+                const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+                // collateral token should now be paused
+                assert.equal(updatedMockFa2CollateralToken.isPaused       , isPaused);
+
+            } catch(e){
+                console.log(e);
+            } 
+        });
 
 
-    it('user (eve) should not be able to deposit mock FA2 collateral tokens into her vault', async () => {
+        it('user (eve) should not be able to deposit mock FA2 collateral tokens into her vault', async () => {
 
-        // init variables
-        await signerFactory(eve.sk);
-        const vaultId            = eveVaultSet[1];
-        const vaultOwner         = eve.pkh;
-        const tokenName          = "mockFa2";
-        const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
-
-        lendingControllerStorage = await lendingControllerInstance.storage();
-
-        // create vault handle
-        const vaultHandle = {
-            "id"     : vaultId,
-            "owner"  : vaultOwner
-        };
-
-        // get vault from Lending Controller        
-        const vault = await lendingControllerStorage.vaults.get(vaultHandle);
-
-        // get vault contract
-        const vaultAddress             = vault.address;
-        const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
-
-        // update operators for vault
-        const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-        {
-            add_operator: {
-                owner: eve.pkh,
-                operator: vaultAddress,
-                token_id: 0,
-            },
-        }])
-        .send()
-        await updateOperatorsOperation.confirmation();
-
-        // eve fails to deposit mock FA2 tokens into vault
-        const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-            depositAmount, 
-            tokenName
-        );
-        await chai.expect(eveDepositTokenOperation.send()).to.be.rejected;    
-
-    });
-
-    it('user (eve) should still be able to withdraw from vault even if collateral token is paused', async () => {
-
-        try{        
-
+            // init variables
             await signerFactory(eve.sk);
-            const vaultId              = eveVaultSet[1]; 
-            const vaultOwner           = eve.pkh;
-            const withdrawAmount       = 100000; // 0.1 mockFa2 token
-            const tokenName            = 'mockFa2';
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+            const tokenName          = "mockFa2";
+            const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
+            lendingControllerStorage = await lendingControllerInstance.storage();
+
+            // create vault handle
             const vaultHandle = {
                 "id"     : vaultId,
                 "owner"  : vaultOwner
             };
 
-            const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-
-            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
+            // get vault from Lending Controller        
+            const vault = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
-            const vaultAddress = vault.address;
+            const vaultAddress             = vault.address;
+            const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
 
-            // get initial balance for Eve and Vault
-            const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
+            // update operators for vault
+            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
+            {
+                add_operator: {
+                    owner: eve.pkh,
+                    operator: vaultAddress,
+                    token_id: 0,
+                },
+            }])
+            .send()
+            await updateOperatorsOperation.confirmation();
 
-            const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
-            const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
+            // eve fails to deposit mock FA2 tokens into vault
+            const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
+                depositAmount, 
+                tokenName
+            );
+            await chai.expect(eveDepositTokenOperation.send()).to.be.rejected;    
 
-            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+        });
 
-            // withdraw operation
-            const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
-                withdrawAmount,                 
-                tokenName                            
-            ).send();
-            await eveWithdrawOperation.confirmation();
+        it('user (eve) should still be able to withdraw from vault even if collateral token is paused', async () => {
 
-            // get updated storages for lending controller and vault
-            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
-            const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
+            try{        
 
-            // get updated balance for Eve and Vault
-            const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
+                await signerFactory(eve.sk);
+                const vaultId              = eveVaultSet[0]; 
+                const vaultOwner           = eve.pkh;
+                const withdrawAmount       = 100000; // 0.1 mockFa2 token
+                const tokenName            = 'mockFa2';
 
-            const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
-            const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
-            
+                const vaultHandle = {
+                    "id"     : vaultId,
+                    "owner"  : vaultOwner
+                };
 
-            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
-            assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
-            assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
+                const lendingControllerStorage      = await lendingControllerInstance.storage();
+                const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            
-        } catch(e){
-            console.log(e);
-        } 
+                const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
+
+                // get vault contract
+                const vaultAddress = vault.address;
+
+                // get initial balance for Eve and Vault
+                const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
+                const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
+
+                const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
+                const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
+
+                const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+
+                // withdraw operation
+                const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+                    withdrawAmount,                 
+                    tokenName                            
+                ).send();
+                await eveWithdrawOperation.confirmation();
+
+                // get updated storages for lending controller and vault
+                const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+                const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+                const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
+                const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
+
+                // get updated balance for Eve and Vault
+                const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+                const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
+
+                const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
+                const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
+                
+
+                assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
+                assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
+                assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
+
+                
+            } catch(e){
+                console.log(e);
+            } 
+        });
+
     });
 
 });
