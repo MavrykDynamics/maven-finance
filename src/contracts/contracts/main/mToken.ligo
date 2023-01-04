@@ -2,6 +2,9 @@
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
+// Constants
+#include "../partials/shared/constants.ligo"
+
 // Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
@@ -44,7 +47,7 @@ type action is
 type return is list (operation) * mavrykFa2TokenStorageType
 const noOperations : list (operation) = nil;
 
-const fixedPointAccuracy : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27     - // for use in division
+// const fixedPointAccuracy : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27     - // for use in division
 
 // ------------------------------------------------------------------------------
 //

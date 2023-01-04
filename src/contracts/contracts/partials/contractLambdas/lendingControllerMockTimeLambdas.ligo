@@ -546,6 +546,9 @@ block {
                 // Get loan token record
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
 
+                // verify loan token is not paused
+                verifyLoanTokenIsNotPaused(loanTokenRecord);
+
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
                 loanTokenRecord.lpTokensTotal    := loanTokenRecord.lpTokensTotal + amount;
@@ -1363,6 +1366,9 @@ block {
                 // ------------------------------------------------------------------
                 // Get Loan Token parameters
                 // ------------------------------------------------------------------
+
+                // verify loan token is not paused
+                verifyLoanTokenIsNotPaused(loanTokenRecord);
 
                 // Get loan token parameters
                 const reserveRatio          : nat         = loanTokenRecord.reserveRatio;

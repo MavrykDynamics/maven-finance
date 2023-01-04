@@ -265,13 +265,14 @@ block {
         maxInterestRate                     = maxInterestRate;
         interestRateBelowOptimalUtilisation = interestRateBelowOptimalUtilisation;
         interestRateAboveOptimalUtilisation = interestRateAboveOptimalUtilisation;
+        minRepaymentAmount                  = minRepaymentAmount;
 
         currentInterestRate                 = baseInterestRate;
         lastUpdatedBlockLevel               = Tezos.get_level();
         accumulatedRewardsPerShare          = fixedPointAccuracy;
         borrowIndex                         = fixedPointAccuracy;
 
-        minRepaymentAmount                  = minRepaymentAmount;
+        isPaused                            = False;
     ];
 
 } with newLoanTokenRecord
@@ -335,6 +336,8 @@ block {
         maxDepositAmount        = maxDepositAmount;
 
         tokenType               = tokenType;
+
+        isPaused                = False;
     ];
 
 } with newCollateralTokenRecord
