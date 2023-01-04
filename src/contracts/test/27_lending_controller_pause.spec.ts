@@ -343,7 +343,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                     assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
                     assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
-
                 }
 
             } catch(e){
@@ -1765,8 +1764,23 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
     //
     describe('%removeLiquidity', function () {
 
-        it('user (eve) can remove liquidity for mock FA2 token from Lending Controller token pool (5 MockFA2 Tokens)', async () => {
+        it('user (eve) can remove liquidity for mock FA2 token from Lending Controller token pool (1 MockFA2 Tokens)', async () => {
     
+            // update token reward index for mockFa2 loan token
+            await signerFactory(bob.sk);
+            updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: eve.pkh,
+                        token_id: 0,
+                        amount: 0,
+                    },
+                ]
+            }]).send();
+            await updateTokenRewardIndexOperation.confirmation();
+
             // init variables
             await signerFactory(eve.sk);
             const loanTokenName = "mockFa2";
@@ -2169,6 +2183,21 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
             try{       
 
+                // update token reward index for mockFa2 loan token
+                await signerFactory(bob.sk);
+                updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+                {
+                    from_: bob.pkh,
+                    txs: [
+                        {
+                            to_: eve.pkh,
+                            token_id: 0,
+                            amount: 0,
+                        },
+                    ]
+                }]).send();
+                await updateTokenRewardIndexOperation.confirmation();
+
                 // init variables
                 await signerFactory(eve.sk);
                 const loanTokenName = "mockFa2";
@@ -2208,6 +2237,9 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
                 const updatedLpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
 
+                // lendingControllerStorage = await lendingControllerInstance.storage();
+                const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get('mockFa2'); 
+
                 // Summary - Liquidity Removed for Mock FA2 Token
                 // 1) Loan Token Pool Record Balance - decrease
                 // 2) Lending Controller Token Balance - decrease
@@ -2224,12 +2256,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 // 3) check Eve's LP Token Pool Mock FA2 Token balance
                 const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-
-                console.log(`eveInitialLpTokenPoolMockFa2TokenBalance: ${eveInitialLpTokenPoolMockFa2TokenBalance}`);
-                console.log(`withdrawAmount: ${withdrawAmount}`);
-                console.log(`eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount: ${eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount}`);
-                console.log(`updatedEveLpTokenPoolMockFa2Ledger: ${updatedEveLpTokenPoolMockFa2Ledger}`);
-
                 assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount);        
 
                 // 4) check Eve's Mock FA2 Token balance
@@ -2275,7 +2301,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
                 const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
                 
-                assert.equal(tezCollateralBalance, initialTezCollateralBalance + TEZ(depositAmountTez));
+                assert.equal(tezCollateralBalance, initialTezCollateralBalance.toNumber() + TEZ(depositAmountTez));
                 
             } catch(e){
                 console.log(e);
@@ -2296,7 +2322,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                     "owner"  : vaultOwner
                 };
 
-                const vault              = await lendingControllerStorage.vaults.get(vaultHandle);
+                const vault = await lendingControllerStorage.vaults.get(vaultHandle);
 
                 // borrow operation
                 const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount);
@@ -2361,7 +2387,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
                 const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
                 
-
                 assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
                 assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
                 assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);

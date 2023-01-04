@@ -1359,6 +1359,9 @@ block {
                 // Get Loan Token parameters
                 // ------------------------------------------------------------------
 
+                // verify loan token is not paused
+                verifyLoanTokenIsNotPaused(loanTokenRecord);
+
                 // Get loan token parameters
                 const reserveRatio          : nat         = loanTokenRecord.reserveRatio;
                 const tokenPoolTotal        : nat         = loanTokenRecord.tokenPoolTotal;
