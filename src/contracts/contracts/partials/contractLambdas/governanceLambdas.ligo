@@ -1264,8 +1264,8 @@ block {
                 // Verify that proposal has not been dropped
                 verifyProposalNotDropped(proposal);
 
-                // Verify that proposal has not been executed
-                verifyProposalNotExecuted(proposal);
+                // Verify that proposal has been executed
+                verifyProposalExecuted(proposal);
 
                 // Verify that there is at least one payment metadata to execute
                 verifyAtLeastOnePaymentData(proposal);

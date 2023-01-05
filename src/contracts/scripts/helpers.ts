@@ -256,7 +256,7 @@ export const oldCompileContract = async (
                         fs.mkdirSync(`${env.buildDir}/lambdas`)
                     }
             
-                    fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
+                    fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res, null, 4))
             
             } catch (e) {
 
