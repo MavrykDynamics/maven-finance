@@ -235,6 +235,24 @@
 //             //     string,
 //             //     boolean
 //             //     >
+//             // const oracleMap = MichelsonMap.fromLiteral({
+//             //     [bob.pkh]              : {
+//             //                                 oraclePublicKey: bob.pk,
+//             //                                 oraclePeerId: bob.peerId
+//             //                             },
+//             //     [eve.pkh]              : {
+//             //                                 oraclePublicKey: eve.pk,
+//             //                                 oraclePeerId: eve.peerId
+//             //                             },
+//             //     [mallory.pkh]          : {
+//             //                                 oraclePublicKey: mallory.pk,
+//             //                                 oraclePeerId: mallory.peerId
+//             //                             },
+//             //     [oracleMaintainer.pkh] : {
+//             //                                 oraclePublicKey: oracleMaintainer.pk,
+//             //                                 oraclePeerId: oracleMaintainer.peerId
+//             //                             },
+//             // });
 
 //             const oracleMap = MichelsonMap.fromLiteral({});
 
