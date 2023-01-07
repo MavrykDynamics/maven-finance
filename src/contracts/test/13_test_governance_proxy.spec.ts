@@ -14,28 +14,43 @@ chai.should();
 import env from "../env";
 import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan, oracleMaintainer } from "../scripts/sandbox/accounts";
 
-import doormanAddress from '../deployments/doormanAddress.json';
-import delegationAddress from '../deployments/delegationAddress.json';
-import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-import councilAddress from '../deployments/councilAddress.json';
-import governanceAddress from '../deployments/governanceAddress.json';
-import governanceFinancialAddress from '../deployments/governanceFinancialAddress.json';
-import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
-import emergencyGovernanceAddress from '../deployments/emergencyGovernanceAddress.json';
-import breakGlassAddress from '../deployments/breakGlassAddress.json';
-import vestingAddress from '../deployments/vestingAddress.json';
-import treasuryAddress from '../deployments/treasuryAddress.json';
-import mavrykFa12TokenAddress from '../deployments/mavrykFa12TokenAddress.json';
-import farmFactoryAddress from '../deployments/farmFactoryAddress.json'
-import treasuryFactoryAddress from '../deployments/treasuryFactoryAddress.json'
-import governanceSatelliteAddress from '../deployments/governanceSatelliteAddress.json'
-import aggregatorAddress from '../deployments/aggregatorAddress.json'
-import aggregatorFactoryAddress from '../deployments/aggregatorFactoryAddress.json'
-import farmAddress from '../deployments/farmAddress.json'
-import doormanLambdas from '../build/lambdas/doormanLambdas.json'
-import { MichelsonMap } from "@taquito/taquito";
-import { farmStorageType } from "./types/farmStorageType";
-import { aggregatorStorageType } from "./types/aggregatorStorageType";
+import doormanAddress                           from '../deployments/doormanAddress.json';
+import delegationAddress                        from '../deployments/delegationAddress.json';
+import mvkTokenAddress                          from '../deployments/mvkTokenAddress.json';
+import councilAddress                           from '../deployments/councilAddress.json';
+import governanceAddress                        from '../deployments/governanceAddress.json';
+import governanceFinancialAddress               from '../deployments/governanceFinancialAddress.json';
+import governanceProxyAddress                   from '../deployments/governanceProxyAddress.json';
+import emergencyGovernanceAddress               from '../deployments/emergencyGovernanceAddress.json';
+import breakGlassAddress                        from '../deployments/breakGlassAddress.json';
+import vestingAddress                           from '../deployments/vestingAddress.json';
+import treasuryAddress                          from '../deployments/treasuryAddress.json';
+import mavrykFa12TokenAddress                   from '../deployments/mavrykFa12TokenAddress.json';
+import farmFactoryAddress                       from '../deployments/farmFactoryAddress.json'
+import treasuryFactoryAddress                   from '../deployments/treasuryFactoryAddress.json'
+import governanceSatelliteAddress               from '../deployments/governanceSatelliteAddress.json'
+import aggregatorAddress                        from '../deployments/aggregatorAddress.json'
+import aggregatorFactoryAddress                 from '../deployments/aggregatorFactoryAddress.json'
+import farmAddress                              from '../deployments/farmAddress.json'
+import lendingControllerAddress                 from '../deployments/lendingControllerAddress.json'
+import mockFa12TokenAddress                     from '../deployments/mavrykFa12TokenAddress.json';
+import mockFa2TokenAddress                      from '../deployments/mavrykFa2TokenAddress.json';
+
+import mockUsdMockFa12TokenAggregatorAddress    from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
+import mockUsdMockFa2TokenAggregatorAddress     from "../deployments/mockUsdMockFa2TokenAggregatorAddress.json";
+import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
+import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
+
+import lpTokenPoolMockFa12TokenAddress          from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
+import lpTokenPoolMockFa2TokenAddress           from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
+import lpTokenPoolXtzAddress                    from "../deployments/lpTokenPoolXtzAddress.json";
+
+
+import doormanLambdas               from '../build/lambdas/doormanLambdas.json'
+
+import { MichelsonMap }             from "@taquito/taquito";
+import { farmStorageType }          from "./types/farmStorageType";
+import { aggregatorStorageType }    from "./types/aggregatorStorageType";
 
 describe("Governance proxy lambdas tests", async () => {
     var utils: Utils;
@@ -57,6 +72,7 @@ describe("Governance proxy lambdas tests", async () => {
     let governanceSatelliteInstance;
     let aggregatorInstance;
     let aggregatorFactoryInstance;
+    let lendingControllerInstance;
 
     let doormanStorage;
     let delegationStorage;
@@ -75,6 +91,7 @@ describe("Governance proxy lambdas tests", async () => {
     let governanceSatelliteStorage;
     let aggregatorStorage;
     let aggregatorFactoryStorage;
+    let lendingControllerStorage;
 
     // For testing purposes
     var aTrackedFarm;
@@ -108,6 +125,7 @@ describe("Governance proxy lambdas tests", async () => {
             governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             aggregatorInstance              = await utils.tezos.contract.at(aggregatorAddress.address);
             aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+            lendingControllerInstance       = await utils.tezos.contract.at(lendingControllerAddress.address);
                 
             doormanStorage                  = await doormanInstance.storage();
             delegationStorage               = await delegationInstance.storage();
@@ -128,26 +146,28 @@ describe("Governance proxy lambdas tests", async () => {
             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
     
             console.log('-- -- -- -- -- Governance Proxy Tests -- -- -- --')
-            console.log('Doorman Contract deployed at:', doormanInstance.address);
-            console.log('Delegation Contract deployed at:', delegationInstance.address);
-            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-            console.log('Council Contract deployed at:', councilInstance.address);
-            console.log('Governance Contract deployed at:', governanceInstance.address);
-            console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-            console.log('Break Glass Contract deployed at:', breakGlassInstance.address);
-            console.log('Vesting Contract deployed at:', vestingInstance.address);
-            console.log('Treasury Contract deployed at:', treasuryInstance.address);
-            console.log('Farm Factory Contract deployed at:', farmFactoryAddress.address);
-            console.log('Treasury Factory Contract deployed at:', treasuryFactoryAddress.address);
-            console.log('Farm Contract deployed at:', farmAddress.address);
-            console.log('Governance Satellite Contract deployed at:', farmAddress.address);
-            console.log('Aggregator Contract deployed at:', aggregatorAddress.address);
-            console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryAddress.address);
-            console.log('Bob address: ' + bob.pkh);
-            console.log('Alice address: ' + alice.pkh);
-            console.log('Eve address: ' + eve.pkh);
-            console.log('Mallory address: ' + mallory.pkh);
-            console.log('Oscar address: ' + oscar.pkh);
+            console.log('Doorman Contract deployed at:'                 , doormanInstance.address);
+            console.log('Delegation Contract deployed at:'              , delegationInstance.address);
+            console.log('MVK Token Contract deployed at:'               , mvkTokenInstance.address);
+            console.log('Council Contract deployed at:'                 , councilInstance.address);
+            console.log('Governance Contract deployed at:'              , governanceInstance.address);
+            console.log('Governance Satellite Contract deployed at:'    , governanceSatelliteAddress.address);
+            console.log('Governance Proxy Contract deployed at:'        , governanceProxyInstance.address);
+            console.log('Emergency Governance Contract deployed at:'    , emergencyGovernanceInstance.address);
+            console.log('Break Glass Contract deployed at:'             , breakGlassInstance.address);
+            console.log('Vesting Contract deployed at:'                 , vestingInstance.address);
+            console.log('Treasury Contract deployed at:'                , treasuryInstance.address);
+            console.log('Farm Factory Contract deployed at:'            , farmFactoryAddress.address);
+            console.log('Treasury Factory Contract deployed at:'        , treasuryFactoryAddress.address);
+            console.log('Farm Contract deployed at:'                    , farmAddress.address);
+            console.log('Aggregator Contract deployed at:'              , aggregatorAddress.address);
+            console.log('Aggregator Factory Contract deployed at:'      , aggregatorFactoryAddress.address);
+
+            console.log('Bob address: '         + bob.pkh);
+            console.log('Alice address: '       + alice.pkh);
+            console.log('Eve address: '         + eve.pkh);
+            console.log('Mallory address: '     + mallory.pkh);
+            console.log('Oscar address: '       + oscar.pkh);
             console.log('-- -- -- -- -- -- -- -- --')
     
             // Check if cycle already started (for retest purposes)
@@ -250,10 +270,11 @@ describe("Governance proxy lambdas tests", async () => {
                 for (let entry of generalContracts){
                     // Get contract storage
                     let contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+                    var storage : any   = await contract.storage();
     
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+                    if(storage.hasOwnProperty('admin') && storage.admin !== governanceProxyAddress.address && storage.admin !== breakGlassAddress.address){
+                        console.log(contract.address);
                         setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
                         await setAdminOperation.confirmation()
                     }
@@ -366,18 +387,18 @@ describe("Governance proxy lambdas tests", async () => {
         it('Admin should be able to call this entrypoint', async () => {
             try{
                 
+                // console.log(governanceProxyInstance);
+                console.log(governanceProxyStorage);
+
                 // Operation
                 await signerFactory(bob.sk);
                 const updateWhitelistContractsOperation = await governanceProxyInstance.methods.updateWhitelistContracts("bob",bob.pkh).send();
                 await updateWhitelistContractsOperation.confirmation();
 
-                console.log(governanceProxyStorage);
-                // console.log(updateWhitelistContractsOperation);
-
                 // Final values
                 governanceProxyStorage      = await governanceProxyInstance.storage();            
-                const contract              = await governanceProxyStorage.whitelistContracts.get("bob");
-                console.log(`whitelisted contract address: ${contract}`);
+                console.log(governanceProxyStorage);
+                const contract              = governanceProxyStorage.whitelistContracts.get("bob");
                 assert.equal(contract, bob.pkh);
 
             } catch(e){
@@ -402,17 +423,18 @@ describe("Governance proxy lambdas tests", async () => {
         
         it('Admin should be able to call this entrypoint', async () => {
             try{
+
+                // console.log(governanceProxyInstance);
+                // console.log(governanceProxyStorage);
+
                 // Operation
                 await signerFactory(bob.sk);
                 const updateGeneralContractsOperation = await governanceProxyInstance.methods.updateGeneralContracts("bob",bob.pkh).send();
                 await updateGeneralContractsOperation.confirmation();
 
-                // console.log(updateGeneralContractsOperation);
-
                 // Final values
                 governanceProxyStorage      = await governanceProxyInstance.storage();            
-                const contract              = await governanceProxyStorage.generalContracts.get("bob");
-                console.log(`general contract address: ${contract}`);
+                const contract              = governanceProxyStorage.generalContracts.get("bob");
                 assert.equal(contract, bob.pkh);
 
             } catch(e){
@@ -436,17 +458,18 @@ describe("Governance proxy lambdas tests", async () => {
         
         it('Admin should be able to call this entrypoint', async () => {
             try{
+
+                // console.log(governanceProxyInstance);
+                // console.log(governanceProxyStorage);
+                
                 // Operation
                 await signerFactory(bob.sk);
                 const updateWhitelistTokenContractOperation = await governanceProxyInstance.methods.updateWhitelistTokenContracts("bob",bob.pkh).send();
                 await updateWhitelistTokenContractOperation.confirmation();
 
-                // console.log(updateWhitelistTokenContractOperation);
-
                 // Final values
                 governanceProxyStorage      = await governanceProxyInstance.storage();            
-                const contract              = await governanceProxyStorage.whitelistTokenContracts.get("bob");
-                console.log(`whitelisted token contract address: ${contract}`);
+                const contract              = governanceProxyStorage.whitelistTokenContracts.get("bob");
                 assert.equal(contract, bob.pkh);
 
             } catch(e){
@@ -502,7 +525,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var firstPackedParam;
                 if (firstReferenceDataPacked) {
                     firstPackedParam = firstReferenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -524,7 +547,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var secondPackedParam;
                 if (secondReferenceDataPacked) {
                     secondPackedParam = secondReferenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -730,7 +753,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var firstPackedParam;
                 if (firstReferenceDataPacked) {
                     firstPackedParam = firstReferenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -751,7 +774,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var secondPackedParam;
                 if (secondReferenceDataPacked) {
                     secondPackedParam = secondReferenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -913,7 +936,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + packedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -1020,7 +1043,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + packedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -1097,7 +1120,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + packedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -1217,7 +1240,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + packedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -1352,7 +1375,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + packedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -1478,7 +1501,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + packedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -1699,7 +1722,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %createFarm param: ' + packedParam);
+                    // console.log('packed %createFarm param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -1752,7 +1775,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
                 
                 // Assertions
-                console.log("TRACKED FARMS: ", endTrackedFarms);
+                // console.log("TRACKED FARMS: ", endTrackedFarms);
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
                 aTrackedFarm    = endTrackedFarms[0]
@@ -1820,7 +1843,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %createFarm param: ' + packedParam);
+                    // console.log('packed %createFarm param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -1867,7 +1890,7 @@ describe("Governance proxy lambdas tests", async () => {
 
                 const nextRoundParam        = await governanceInstance.methods.startNextRound(true).toTransferParams();
                 const estimate              = await utils.tezos.estimate.transfer(nextRoundParam);
-                console.log("ESTIMATION: ", estimate)
+                // console.log("ESTIMATION: ", estimate)
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
                 await nextRoundOperation.confirmation();
@@ -1879,7 +1902,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
 
                 // Assertions
-                console.log("TRACKED FARMS: ", endTrackedFarms);
+                // console.log("TRACKED FARMS: ", endTrackedFarms);
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
             } catch(e) {
@@ -1905,8 +1928,8 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
                 
-                console.log("INIT TRACKED FARMS: ", initTrackedFarms);
-                console.log(initTrackedFarms.length)
+                // console.log("INIT TRACKED FARMS: ", initTrackedFarms);
+                // console.log(initTrackedFarms.length)
 
                 // Untrack a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
@@ -1924,7 +1947,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %untrackFarm param: ' + packedParam);
+                    // console.log('packed %untrackFarm param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -1977,8 +2000,8 @@ describe("Governance proxy lambdas tests", async () => {
                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
                 
                 // Assertions
-                console.log("TRACKED FARMS: ", endTrackedFarms);
-                console.log(endTrackedFarms.length)
+                // console.log("TRACKED FARMS: ", endTrackedFarms);
+                // console.log(endTrackedFarms.length)
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
                 assert.equal(endTrackedFarms.includes(aTrackedFarm), false);
@@ -2021,7 +2044,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %trackFarm param: ' + packedParam);
+                    // console.log('packed %trackFarm param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -2074,7 +2097,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
                 
                 // Assertions
-                console.log("TRACKED FARMS: ", endTrackedFarms);
+                // console.log("TRACKED FARMS: ", endTrackedFarms);
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
                 assert.equal(endTrackedFarms.includes(aTrackedFarm), true);
@@ -2126,7 +2149,7 @@ describe("Governance proxy lambdas tests", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createTreasury',
-                    "testTreasuryPropo",
+                    "testTreasuryPropoposal",
                     false,
                     treasuryMetadataBase
                 ).toTransferParams();
@@ -2141,7 +2164,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %createTreasury param: ' + packedParam);
+                    // console.log('packed %createTreasury param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -2194,10 +2217,11 @@ describe("Governance proxy lambdas tests", async () => {
                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
                 // Assertions
-                console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+                // console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
-                aTrackedTreasury    = endtrackedTreasuries[0]
+                aTrackedTreasury    = endtrackedTreasuries[0];
+
             } catch(e) {
                 console.dir(e, {depth:5})
             }
@@ -2255,7 +2279,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %createTreasury param: ' + packedParam);
+                    // console.log('packed %createTreasury param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -2308,7 +2332,7 @@ describe("Governance proxy lambdas tests", async () => {
 
                 const nextRoundParam        = await governanceInstance.methods.startNextRound(true).toTransferParams();
                 const estimate              = await utils.tezos.estimate.transfer(nextRoundParam);
-                console.log("ESTIMATION: ", estimate)
+                // console.log("ESTIMATION: ", estimate)
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
                 await nextRoundOperation.confirmation();
@@ -2320,7 +2344,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
                 // Assertions
-                console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+                // console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
             } catch(e) {
@@ -2346,8 +2370,8 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
                 
-                console.log("INIT TRACKED TREASURIES: ", inittrackedTreasuries);
-                console.log(inittrackedTreasuries.length)
+                // console.log("INIT TRACKED TREASURIES: ", inittrackedTreasuries);
+                // console.log(inittrackedTreasuries.length)
 
                 // Untrack a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
@@ -2365,7 +2389,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %untrackFarm param: ' + packedParam);
+                    // console.log('packed %untrackFarm param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -2418,8 +2442,8 @@ describe("Governance proxy lambdas tests", async () => {
                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
                 // Assertions
-                console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
-                console.log(endtrackedTreasuries.length)
+                // console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+                // console.log(endtrackedTreasuries.length)
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
                 assert.equal(endtrackedTreasuries.includes(aTrackedTreasury), false);
@@ -2462,7 +2486,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %trackFarm param: ' + packedParam);
+                    // console.log('packed %trackFarm param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -2515,7 +2539,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
                 // Assertions
-                console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+                // console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
                 assert.equal(endtrackedTreasuries.includes(aTrackedTreasury), true);
@@ -2543,12 +2567,26 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalIpfs              = "ipfs://QM123456789";
                 const proposalSourceCode        = "Proposal Source Code";
 
+                console.log(aggregatorFactoryStorage);
+
                 const oracleMap = MichelsonMap.fromLiteral({
-                    [bob.pkh]              : true,
-                    [eve.pkh]              : true,
-                    [mallory.pkh]          : true,
-                    [oracleMaintainer.pkh] : true,
-                  });
+                    [bob.pkh]              : {
+                                                oraclePublicKey: bob.pk,
+                                                oraclePeerId: bob.peerId
+                                            },
+                    [eve.pkh]              : {
+                                                oraclePublicKey: eve.pk,
+                                                oraclePeerId: eve.peerId
+                                            },
+                    [mallory.pkh]          : {
+                                                oraclePublicKey: mallory.pk,
+                                                oraclePeerId: mallory.peerId
+                                            },
+                    [oracleMaintainer.pkh] : {
+                                                oraclePublicKey: oracleMaintainer.pk,
+                                                oraclePeerId: oracleMaintainer.peerId
+                                            },
+                });
                   
                 const aggregatorMetadataBase = Buffer.from(
                     JSON.stringify({
@@ -2590,7 +2628,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %createAggregator param: ' + packedParam);
+                    // console.log('packed %createAggregator param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -2667,14 +2705,15 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalIpfs              = "ipfs://QM123456789";
                 const proposalSourceCode        = "Proposal Source Code";
                 
-                console.log("INIT TRACKED FARMS: ", inittrackedAggregators);
-                console.log(inittrackedAggregators.size)
+                // console.log("INIT TRACKED AGGREGATORS: ", inittrackedAggregators);
+                // console.log(inittrackedAggregators.size)
+
+                const sampleAggregator          = inittrackedAggregators[0];
 
                 // Untrack a aggregator compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'untrackAggregator',
-                    'USD',
-                    'DOGE'
+                    sampleAggregator
                 ).toTransferParams();
                 const lambdaParamsValue = lambdaParams.parameter.value;
                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -2687,7 +2726,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %untrackAggregator param: ' + packedParam);
+                    // console.log('packed %untrackAggregator param: ' + packedParam);
                 } else {
                 throw `packing failed`
                 };
@@ -2740,8 +2779,8 @@ describe("Governance proxy lambdas tests", async () => {
                 const endTrackedAggregators = await aggregatorFactoryStorage.trackedAggregators;
                 
                 // Assertions
-                console.log("TRACKED AGGREGATORS: ", endTrackedAggregators);
-                console.log(endTrackedAggregators.size)
+                // console.log("TRACKED AGGREGATORS: ", endTrackedAggregators);
+                // console.log(endTrackedAggregators.size)
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endTrackedAggregators.length, inittrackedAggregators.length);
             } catch(e) {
@@ -2767,12 +2806,12 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalIpfs              = "ipfs://QM123456789";
                 const proposalSourceCode        = "Proposal Source Code";
 
+                const sampleAggregator          = initTrackedAggregators[0];
+
                 // Untrack a aggregator compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'trackAggregator',
-                    'USD',
-                    'DOGE',
-                    aTrackedAggregator
+                    sampleAggregator
                 ).toTransferParams();
                 const lambdaParamsValue = lambdaParams.parameter.value;
                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -2785,7 +2824,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %trackAggregator param: ' + packedParam);
+                    // console.log('packed %trackAggregator param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -2838,7 +2877,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const endTrackedAggregators = await aggregatorFactoryStorage.trackedAggregators;
 
                 // Assertions
-                console.log("TRACKED AGGREGATORS: ", endTrackedAggregators);
+                // console.log("TRACKED AGGREGATORS: ", endTrackedAggregators);
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endTrackedAggregators.length, initTrackedAggregators.length);
             } catch(e) {
@@ -2880,7 +2919,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateMvkInflationRate param: ' + packedParam);
+                    // console.log('packed %updateMvkInflationRate param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -2976,7 +3015,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %setContractAdmin param: ' + packedParam);
+                    // console.log('packed %setContractAdmin param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3070,9 +3109,9 @@ describe("Governance proxy lambdas tests", async () => {
 
                     var entryName       = "Governance#"+generalCounter
 
-                    console.log("CONTRACT:", contract)
-                    console.log("STORAGE:", storage)
-                    console.log("ADDRESS:", entry[1])
+                    // console.log("CONTRACT:", contract)
+                    // console.log("STORAGE:", storage)
+                    // console.log("ADDRESS:", entry[1])
 
                     // Check admin
                     if(storage.hasOwnProperty('governanceAddress')){
@@ -3092,7 +3131,7 @@ describe("Governance proxy lambdas tests", async () => {
                         var packedParam;
                         if (referenceDataPacked) {
                             packedParam = referenceDataPacked.packed
-                            console.log('packed %setContractGovernance param: ' + packedParam);
+                            // console.log('packed %setContractGovernance param: ' + packedParam);
                         } else {
                             throw `packing failed`
                         };
@@ -3208,7 +3247,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateContractMetadata param: ' + packedParam);
+                    // console.log('packed %updateContractMetadata param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3303,7 +3342,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateContractWhitelistMap param: ' + packedParam);
+                    // console.log('packed %updateContractWhitelistMap param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3400,7 +3439,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateContractGeneralMap param: ' + packedParam);
+                    // console.log('packed %updateContractGeneralMap param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3497,7 +3536,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateContractWhitelistTokenMap param: ' + packedParam);
+                    // console.log('packed %updateContractWhitelistTokenMap param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3594,7 +3633,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %setContractName param: ' + packedParam);
+                    // console.log('packed %setContractName param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3688,7 +3727,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateContractWhitelistTokenMap param: ' + packedParam);
+                    // console.log('packed %updateContractWhitelistTokenMap param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3784,7 +3823,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateGovernanceConfig param: ' + packedParam);
+                    // console.log('packed %updateGovernanceConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3879,7 +3918,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateGovernanceFinancialConfig param: ' + packedParam);
+                    // console.log('packed %updateGovernanceFinancialConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -3975,7 +4014,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateGovernanceSatelliteConfig param: ' + packedParam);
+                    // console.log('packed %updateGovernanceSatelliteConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4071,7 +4110,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDelegationConfig param: ' + packedParam);
+                    // console.log('packed %updateDelegationConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4167,7 +4206,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateBreakGlassConfig param: ' + packedParam);
+                    // console.log('packed %updateBreakGlassConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4263,7 +4302,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateEmergencyConfig param: ' + packedParam);
+                    // console.log('packed %updateEmergencyConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4359,7 +4398,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateCouncilConfig param: ' + packedParam);
+                    // console.log('packed %updateCouncilConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4455,7 +4494,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateFarmFactoryConfig param: ' + packedParam);
+                    // console.log('packed %updateFarmFactoryConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4522,24 +4561,26 @@ describe("Governance proxy lambdas tests", async () => {
             await signerFactory(bob.sk)
         })
 
-        it("Scenario - Update an aggregator numberBlocksDelay", async() => {
+        it("Scenario - Update an aggregator percentOracleThreshold", async() => {
             try{
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 aggregatorStorage           = await aggregatorInstance.storage();
-                const initBlocksDelay       = aggregatorStorage.config.numberBlocksDelay.toNumber();
+                
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Update numberBlocksDelay";
+                const proposalName          = "Update percentOracleThreshold";
                 const proposalDesc          = "Details about new proposal";
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
+
+                const initPercentOracleThreshold  = aggregatorStorage.config.percentOracleThreshold.toNumber();
 
                 // Update general map compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'updateAggregatorConfig',
                     aggregatorAddress.address,
-                    3,
-                    'configNumberBlocksDelay'
+                    30,
+                    'ConfigPercentOracleThreshold'
                 ).toTransferParams();
                 const lambdaParamsValue = lambdaParams.parameter.value;
                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -4552,7 +4593,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateAggregatorConfig param: ' + packedParam);
+                    // console.log('packed %updateAggregatorConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4560,7 +4601,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalData      = [
                     {
                         addOrSetProposalData: {
-                            title: "NumberBlocksDelay#1",
+                            title: "PercentOracleThresholdEdit",
                             encodedCode: packedParam,
 						    codeDescription: ""
                         }
@@ -4601,13 +4642,14 @@ describe("Governance proxy lambdas tests", async () => {
                 // Final values
                 governanceStorage           = await governanceInstance.storage();
                 aggregatorStorage           = await aggregatorInstance.storage();
-                const endBlocksDelay        = aggregatorStorage.config.numberBlocksDelay.toNumber();
+                const percentOracleThreshold = aggregatorStorage.config.percentOracleThreshold.toNumber();
                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
                 // Assertions
                 assert.strictEqual(proposal.executed, true);
-                assert.notEqual(endBlocksDelay, initBlocksDelay);
-                assert.equal(endBlocksDelay, 3);
+                assert.notEqual(percentOracleThreshold, initPercentOracleThreshold);
+                assert.equal(percentOracleThreshold, 30);
+
             } catch(e) {
                 console.dir(e, {depth:5})
             }
@@ -4648,7 +4690,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateAggregatorFactoryConfig param: ' + packedParam);
+                    // console.log('packed %updateAggregatorFactoryConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4744,7 +4786,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateTreasuryFactoryConfig param: ' + packedParam);
+                    // console.log('packed %updateTreasuryFactoryConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4840,7 +4882,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateDoormanConfig param: ' + packedParam);
+                    // console.log('packed %updateDoormanConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -4938,7 +4980,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateFarmConfig param: ' + packedParam);
+                    // console.log('packed %updateFarmConfig param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5037,7 +5079,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %initFarm param: ' + packedParam);
+                    // console.log('packed %initFarm param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5137,7 +5179,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %closeFarm param: ' + packedParam);
+                    // console.log('packed %closeFarm param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5246,7 +5288,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %transferTreasury param: ' + packedParam);
+                    // console.log('packed %transferTreasury param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5347,7 +5389,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %mintMvkAndTransferTreasury param: ' + packedParam);
+                    // console.log('packed %mintMvkAndTransferTreasury param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5452,7 +5494,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %updateMvkOperatorsTreasury param: ' + packedParam);
+                    // console.log('packed %updateMvkOperatorsTreasury param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5548,7 +5590,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %stakeMvkTreasury param: ' + packedParam);
+                    // console.log('packed %stakeMvkTreasury param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5651,7 +5693,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %unstakeMvkTreasury param: ' + packedParam);
+                    // console.log('packed %unstakeMvkTreasury param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5754,13 +5796,13 @@ describe("Governance proxy lambdas tests", async () => {
                 const firstRefreshedSMVKTotalSupply         = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
                 const firstRefreshedUserMvkBalance          = await mvkTokenStorage.ledger.get(bob.pkh);
                 const firstExitFee                          = Math.abs(firstUserMvkBalance.toNumber() + unstakeAmount - firstRefreshedUserMvkBalance.toNumber())
-                console.log("OLD UNSTAKE EXIT FEE: ", firstExitFee);
-                console.log("INIT SMVK: ", initSMVKTotalSupply);
-                console.log("NEW SMVK: ", firstRefreshedSMVKTotalSupply);
+                // console.log("OLD UNSTAKE EXIT FEE: ", firstExitFee);
+                // console.log("INIT SMVK: ", initSMVKTotalSupply);
+                // console.log("NEW SMVK: ", firstRefreshedSMVKTotalSupply);
 
                 // Stake MVK for later use (calculate next exit fee)
                 const restakeAmount             = Math.abs(firstRefreshedSMVKTotalSupply - initSMVKTotalSupply);
-                console.log("NEW STAKE AMOUNT: ", restakeAmount);
+                // console.log("NEW STAKE AMOUNT: ", restakeAmount);
 
                 var stakeOperation              = await doormanInstance.methods.stake(restakeAmount).send()
                 await stakeOperation.confirmation();
@@ -5793,7 +5835,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %setContractLambda param: ' + packedParam);
+                    // console.log('packed %setContractLambda param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -5864,7 +5906,7 @@ describe("Governance proxy lambdas tests", async () => {
                 doormanStorage                              = await doormanInstance.storage();
                 const finalRefreshedUserMvkBalance          = await mvkTokenStorage.ledger.get(bob.pkh);
                 const finalExitFee                          = Math.abs(preUnstakeUserMVKBalance.toNumber() + unstakeAmount - finalRefreshedUserMvkBalance.toNumber())
-                console.log("FINAL EXIT FEE: ", finalExitFee)
+                // console.log("FINAL EXIT FEE: ", finalExitFee)
                 assert.notEqual(finalExitFee, firstExitFee)
             } catch(e) {
                 console.dir(e, {depth:5})
@@ -5906,7 +5948,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %setFactoryProductLambda param: ' + packedParam);
+                    // console.log('packed %setFactoryProductLambda param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6005,7 +6047,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %addVestee param: ' + packedParam);
+                    // console.log('packed %addVestee param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6107,7 +6149,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %addVestee param: ' + packedParam);
+                    // console.log('packed %addVestee param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6203,7 +6245,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleVesteeLock param: ' + packedParam);
+                    // console.log('packed %toggleVesteeLock param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6297,7 +6339,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %removeVestee param: ' + packedParam);
+                    // console.log('packed %removeVestee param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6393,7 +6435,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleAggregatorEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleAggregatorEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6489,7 +6531,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleAggregatorFacEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleAggregatorFacEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6586,7 +6628,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleFarmEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleFarmEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6682,7 +6724,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleFarmFacEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleFarmFacEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6779,7 +6821,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleTreasuryEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleTreasuryEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6875,7 +6917,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleTreasuryFacEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleTreasuryFacEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -6971,7 +7013,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleDoormanEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleDoormanEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -7067,7 +7109,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %toggleDelegationEntrypoint param: ' + packedParam);
+                    // console.log('packed %toggleDelegationEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -7146,7 +7188,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
 
-                console.log("BREAK GLASS CONFIG BEFORE: ", initBreakGlass)
+                // console.log("BREAK GLASS CONFIG BEFORE: ", initBreakGlass)
 
                 // Update general map compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
@@ -7164,7 +7206,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %pauseAllContractEntrypoint param: ' + packedParam);
+                    // console.log('packed %pauseAllContractEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -7219,7 +7261,7 @@ describe("Governance proxy lambdas tests", async () => {
                 // Assertions
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endBreakGlass, initBreakGlass);
-                console.log("BREAK GLASS CONFIG AFTER: ", endBreakGlass)
+                // console.log("BREAK GLASS CONFIG AFTER: ", endBreakGlass)
             } catch(e) {
                 console.dir(e, {depth:5})
             }
@@ -7243,7 +7285,7 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
 
-                console.log("BREAK GLASS CONFIG BEFORE: ", initBreakGlass)
+                // console.log("BREAK GLASS CONFIG BEFORE: ", initBreakGlass)
 
                 // Update general map compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
@@ -7261,7 +7303,7 @@ describe("Governance proxy lambdas tests", async () => {
                 var packedParam;
                 if (referenceDataPacked) {
                     packedParam = referenceDataPacked.packed
-                    console.log('packed %unpauseAllContractEntrypoint param: ' + packedParam);
+                    // console.log('packed %unpauseAllContractEntrypoint param: ' + packedParam);
                 } else {
                     throw `packing failed`
                 };
@@ -7316,7 +7358,147 @@ describe("Governance proxy lambdas tests", async () => {
                 // Assertions
                 assert.strictEqual(proposal.executed, true);
                 assert.notEqual(endBreakGlass, initBreakGlass);
-                console.log("BREAK GLASS CONFIG AFTER: ", endBreakGlass)
+                // console.log("BREAK GLASS CONFIG AFTER: ", endBreakGlass)
+            } catch(e) {
+                console.dir(e, {depth:5})
+            }
+        })
+    })
+
+
+    describe("%setLoanToken", async() => {
+        beforeEach("Set signer to admin", async() => {
+            await signerFactory(bob.sk)
+        })
+
+        it("Scenario - Set Loan Token on the Lending Controller", async() => {
+            try{
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                treasuryStorage             = await treasuryInstance.storage();
+                
+                const proposalId            = governanceStorage.nextProposalId.toNumber();
+                const proposalName          = "Lending Controller %setLoanToken";
+                const proposalDesc          = "Details about new proposal";
+                const proposalIpfs          = "ipfs://QM123456789";
+                const proposalSourceCode    = "Proposal Source Code";
+
+                const setLoanTokenActionType                = "createLoanToken";
+                const tokenName                             = "mockFa12";
+                const tokenContractAddress                  = mockFa12TokenAddress.address;
+                const tokenType                             = "fa12";
+                const tokenDecimals                         = 6;
+
+                const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+
+                const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
+                const lpTokenId                             = 0;
+
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+                const minRepaymentAmount                    = 10000;
+
+                // Update general map compiled params
+                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                    'setLoanToken',
+                    
+                    setLoanTokenActionType,
+
+                    tokenName,
+                    tokenDecimals,
+
+                    oracleAddress,
+
+                    lpTokenContractAddress,
+                    lpTokenId,
+                    
+                    reserveRatio,
+                    optimalUtilisationRate,
+                    baseInterestRate,
+                    maxInterestRate,
+                    interestRateBelowOptimalUtilisation,
+                    interestRateAboveOptimalUtilisation,
+
+                    minRepaymentAmount,
+
+                    // fa12 token type - token contract address
+                    tokenType,
+                    tokenContractAddress,
+                ).toTransferParams();
+                const lambdaParamsValue = lambdaParams.parameter.value;
+                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                const referenceDataPacked = await utils.tezos.rpc.packData({
+                    data: lambdaParamsValue,
+                    type: proxyDataPackingHelperType
+                }).catch(e => console.error('error:', e));
+
+                var packedParam;
+                if (referenceDataPacked) {
+                    packedParam = referenceDataPacked.packed
+                    // console.log('packed %setLoanToken param: ' + packedParam);
+                } else {
+                    throw `packing failed`
+                };
+
+                const proposalData      = [
+                    {
+                        addOrSetProposalData: {
+                            title: "SetLoanToken#1",
+                            encodedCode: packedParam,
+						    codeDescription: ""
+                        }
+                    }
+                ];
+
+                // Start governance rounds
+                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+                await proposeOperation.confirmation();
+                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                await lockOperation.confirmation();
+                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                await voteOperation.confirmation();
+                await signerFactory(alice.sk);
+                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                await voteOperation.confirmation();
+                await signerFactory(bob.sk);
+                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+
+                // Votes operation -> both satellites vote
+                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+                await votingRoundVoteOperation.confirmation();
+                await signerFactory(alice.sk);
+                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+                await votingRoundVoteOperation.confirmation();
+                await signerFactory(bob.sk);
+
+                // Execute proposal
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+
+                // Final values
+                governanceStorage           = await governanceInstance.storage();
+                
+                lendingControllerStorage    = await lendingControllerInstance.storage();
+                const endPaused             = treasuryStorage.breakGlassConfig.mintMvkAndTransferIsPaused;
+                const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+                // Assertions
+                assert.strictEqual(proposal.executed, true);
+
+
             } catch(e) {
                 console.dir(e, {depth:5})
             }
