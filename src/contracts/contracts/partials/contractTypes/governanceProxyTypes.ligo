@@ -163,6 +163,24 @@ type toggleContractEntrypointType is
     |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
 
 
+type manageVesteeType is 
+        AddVestee                          of addVesteeType
+    |   RemoveVestee                       of (address)
+    |   UpdateVestee                       of updateVesteeType
+    |   ToggleVesteeLock                   of (address)
+
+
+type trackContractType is 
+        TrackFarm                          of (address)
+    |   TrackTreasury                      of (address)
+    |   TrackAggregator                    of (address)
+
+
+type untrackContractType is 
+        UntrackFarm                          of (address)
+    |   UntrackTreasury                      of (address)
+    |   UntrackAggregator                    of (address)
+
 type executeActionParamsType is 
 
         UpdateProxyLambda                  of setProxyLambdaType
@@ -186,14 +204,10 @@ type executeActionParamsType is
     |   SetGovernanceProxy                 of (address)
 
     |   CreateFarm                         of createFarmType
-    |   TrackFarm                          of (address)
-    |   UntrackFarm                        of (address)
     |   InitFarm                           of (targetFarmInitType)
     |   CloseFarm                          of (address)
 
     |   CreateTreasury                     of createTreasuryType
-    |   TrackTreasury                      of (address)
-    |   UntrackTreasury                    of (address)
     |   TransferTreasury                   of targetTreasuryTransferType
     |   MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
     |   UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
@@ -201,19 +215,17 @@ type executeActionParamsType is
     |   UnstakeMvkTreasury                 of unstakeTreasuryType
 
     |   CreateAggregator                   of createAggregatorParamsType
-    |   TrackAggregator                    of (address)
-    |   UntrackAggregator                  of (address)
 
     |   UpdateMvkInflationRate             of (nat)
     |   TriggerMvkInflation                of (unit)
 
-    |   AddVestee                          of addVesteeType
-    |   RemoveVestee                       of (address)
-    |   UpdateVestee                       of updateVesteeType
-    |   ToggleVesteeLock                   of (address)
+    |   TrackContract                      of trackContractType
+    |   UntrackContract                    of untrackContractType
 
-    |   SetLoanToken                       of setLoanTokenActionType
-    |   SetCollateralToken                 of setCollateralTokenActionType
+    |   ManageVestee                       of manageVesteeType
+    
+    // |   SetLoanToken                       of setLoanTokenActionType
+    // |   SetCollateralToken                 of setCollateralTokenActionType
 
 type executeActionType is (executeActionParamsType)
 
