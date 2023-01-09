@@ -384,23 +384,37 @@ describe("Governance proxy lambdas tests", async () => {
 
     describe('%updateWhitelistContracts', function() {
         
-        it('Admin should be able to call this entrypoint', async () => {
+        it('Admin should be able to call this entrypoint (to add or remove a contract address)', async () => {
             try{
                 
-                // console.log(governanceProxyInstance);
-                console.log(governanceProxyStorage);
-
-                // Operation
                 await signerFactory(bob.sk);
-                const updateWhitelistContractsOperation = await governanceProxyInstance.methods.updateWhitelistContracts("bob",bob.pkh).send();
-                await updateWhitelistContractsOperation.confirmation();
+                const inStorageCheck = governanceProxyStorage.whitelistContracts.get("bob");
 
-                // Final values
-                governanceProxyStorage      = await governanceProxyInstance.storage();            
-                console.log(governanceProxyStorage);
-                const contract              = governanceProxyStorage.whitelistContracts.get("bob");
-                assert.equal(contract, bob.pkh);
+                if(inStorageCheck == undefined){
+                    
+                    // add to whitelist contracts operation
+                    const updateWhitelistContractsOperation = await governanceProxyInstance.methods.updateWhitelistContracts("bob",bob.pkh).send();
+                    await updateWhitelistContractsOperation.confirmation();
 
+                    // Final values
+                    governanceProxyStorage      = await governanceProxyInstance.storage();            
+                    const contract              = governanceProxyStorage.whitelistContracts.get("bob");
+                    assert.equal(contract, bob.pkh);
+
+                } else {
+
+                    // remove from whitelist contracts operation
+                    const updateWhitelistContractsOperation = await governanceProxyInstance.methods.updateWhitelistContracts("bob",bob.pkh).send();
+                    await updateWhitelistContractsOperation.confirmation();
+
+                    // Final values
+                    governanceProxyStorage      = await governanceProxyInstance.storage();            
+                    const contract              = governanceProxyStorage.whitelistContracts.get("bob");
+                    assert.equal(contract, undefined);
+
+                }
+
+                
             } catch(e){
                 console.log(e);
             } 
@@ -424,18 +438,33 @@ describe("Governance proxy lambdas tests", async () => {
         it('Admin should be able to call this entrypoint', async () => {
             try{
 
-                // console.log(governanceProxyInstance);
-                // console.log(governanceProxyStorage);
-
-                // Operation
                 await signerFactory(bob.sk);
-                const updateGeneralContractsOperation = await governanceProxyInstance.methods.updateGeneralContracts("bob",bob.pkh).send();
-                await updateGeneralContractsOperation.confirmation();
 
-                // Final values
-                governanceProxyStorage      = await governanceProxyInstance.storage();            
-                const contract              = governanceProxyStorage.generalContracts.get("bob");
-                assert.equal(contract, bob.pkh);
+                const inStorageCheck = governanceProxyStorage.generalContracts.get("bob");
+
+                if(inStorageCheck == undefined){
+
+                    // add to general contracts operation
+                    const updateGeneralContractsOperation = await governanceProxyInstance.methods.updateGeneralContracts("bob",bob.pkh).send();
+                    await updateGeneralContractsOperation.confirmation();
+
+                    // Final values
+                    governanceProxyStorage      = await governanceProxyInstance.storage();            
+                    const contract              = governanceProxyStorage.generalContracts.get("bob");
+                    assert.equal(contract, bob.pkh);
+                    
+                } else {
+
+                    // add to whitelist contracts operation
+                    const updateGeneralContractsOperation = await governanceProxyInstance.methods.updateGeneralContracts("bob",bob.pkh).send();
+                    await updateGeneralContractsOperation.confirmation();
+
+                    // Final values
+                    governanceProxyStorage      = await governanceProxyInstance.storage();            
+                    const contract              = governanceProxyStorage.generalContracts.get("bob");
+                    assert.equal(contract, undefined);
+                
+                }
 
             } catch(e){
                 console.log(e);
@@ -458,19 +487,31 @@ describe("Governance proxy lambdas tests", async () => {
         
         it('Admin should be able to call this entrypoint', async () => {
             try{
-
-                // console.log(governanceProxyInstance);
-                // console.log(governanceProxyStorage);
                 
-                // Operation
                 await signerFactory(bob.sk);
-                const updateWhitelistTokenContractOperation = await governanceProxyInstance.methods.updateWhitelistTokenContracts("bob",bob.pkh).send();
-                await updateWhitelistTokenContractOperation.confirmation();
+                const inStorageCheck = governanceProxyStorage.whitelistTokenContracts.get("bob");
 
-                // Final values
-                governanceProxyStorage      = await governanceProxyInstance.storage();            
-                const contract              = governanceProxyStorage.whitelistTokenContracts.get("bob");
-                assert.equal(contract, bob.pkh);
+                if(inStorageCheck == undefined){
+
+                    const updateWhitelistTokenContractOperation = await governanceProxyInstance.methods.updateWhitelistTokenContracts("bob",bob.pkh).send();
+                    await updateWhitelistTokenContractOperation.confirmation();
+
+                    // Final values
+                    governanceProxyStorage      = await governanceProxyInstance.storage();            
+                    const contract              = governanceProxyStorage.whitelistTokenContracts.get("bob");
+                    assert.equal(contract, bob.pkh);
+                    
+                } else {
+
+                    const updateWhitelistTokenContractOperation = await governanceProxyInstance.methods.updateWhitelistTokenContracts("bob",bob.pkh).send();
+                    await updateWhitelistTokenContractOperation.confirmation();
+
+                    // Final values
+                    governanceProxyStorage      = await governanceProxyInstance.storage();            
+                    const contract              = governanceProxyStorage.whitelistTokenContracts.get("bob");
+                    assert.equal(contract, undefined);
+
+                }
 
             } catch(e){
                 console.log(e);

@@ -1,6 +1,7 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-import { bob } from '../scripts/sandbox/accounts'
 import { BigNumber } from "bignumber.js";
+
+import { bob } from '../scripts/sandbox/accounts'
 import { governanceProxyStorageType } from "../test/types/governanceProxyStorageType";
 
 const metadata = MichelsonMap.fromLiteral({
@@ -18,10 +19,11 @@ const metadata = MichelsonMap.fromLiteral({
 export const governanceProxyStorage: governanceProxyStorageType = {
 
     admin                     : bob.pkh,
-    governanceAddress         : bob.pkh,
     metadata                  : metadata,
     
     mvkTokenAddress           : "",
+    governanceAddress         : bob.pkh,
+    
     whitelistContracts        : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),
     whitelistTokenContracts   : MichelsonMap.fromLiteral({}),

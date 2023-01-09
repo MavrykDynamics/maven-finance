@@ -780,7 +780,293 @@ block {
 } with (operations)
 
 // ------------------------------------------------------------------------------
-// Toggle Entrypoint Helper Functions Begin
+// Toggle Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Track / Untrack Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function trackFarm(const trackFarmParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get farmFactory contract address from the generalContracts map
+    const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get trackFarm entrypoint of farmFactory contract
+    const trackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%trackFarm",
+        farmFactoryAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to track a farm
+    const trackFarmOperation : operation = Tezos.transaction(
+        (trackFarmParams),
+        0tez, 
+        trackFarmEntrypoint
+    );
+
+    operations := trackFarmOperation # operations;
+
+} with (operations)
+
+
+
+function untrackFarm(const untrackFarmParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get farmFactory contract address from the generalContracts map
+    const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get untrack entrypoint of farmFactory contract
+    const untrackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%untrackFarm",
+        farmFactoryAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to untrack a farm
+    const untrackFarmOperation : operation = Tezos.transaction(
+        (untrackFarmParams),
+        0tez, 
+        untrackFarmEntrypoint
+    );
+
+    operations := untrackFarmOperation # operations;
+
+} with (operations)
+
+
+
+function trackTreasury(const trackTreasuryParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get treasuryFactory contract address from the generalContracts map
+    const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get trackTreasury entrypoint of treasuryFactory contract
+    const trackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%trackTreasury",
+        treasuryFactoryAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to track a treasury
+    const trackTreasuryOperation : operation = Tezos.transaction(
+        (trackTreasuryParams),
+        0tez, 
+        trackTreasuryEntrypoint
+    );
+
+    operations := trackTreasuryOperation # operations;
+
+} with (operations)
+
+
+
+function untrackTreasury(const untrackTreasuryParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get treasuryFactory contract address from the generalContracts map
+    const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get untrackTreasury entrypoint of treasuryFactory contract
+    const untrackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%untrackTreasury",
+        treasuryFactoryAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to untrack a treasury
+    const untrackTreasuryOperation : operation = Tezos.transaction(
+        (untrackTreasuryParams),
+        0tez, 
+        untrackTreasuryEntrypoint
+    );
+
+    operations := untrackTreasuryOperation # operations;
+
+} with (operations)
+
+
+
+function trackAggregator(const trackAggregatorParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get aggregatorFactory contract address
+    const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get trackAggregator entrypoint of aggregatorFactory contract
+    const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%trackAggregator",
+        aggregatorFactoryAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to track aggregator
+    const trackAggregatorOperation : operation = Tezos.transaction(
+        (trackAggregatorParams),
+        0tez, 
+        trackAggregatorEntrypoint
+    );
+
+    operations := trackAggregatorOperation # operations;
+
+} with (operations)
+
+
+
+function untrackAggregator(const untrackAggregatorParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get aggregatorFactory contract address
+    const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get trackAggregator entrypoint of aggregatorFactory contract
+    const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%untrackAggregator",
+        aggregatorFactoryAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to untrack aggregator
+    const untrackAggregatorOperation : operation = Tezos.transaction(
+        (untrackAggregatorParams),
+        0tez, 
+        untrackAggregatorEntrypoint
+    );
+
+    operations := untrackAggregatorOperation # operations;
+    
+} with (operations)
+
+// ------------------------------------------------------------------------------
+// Track / Untrack Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Vestee Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function addVestee(const addVesteeParams : addVesteeType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get vesting contract address from the generalContracts map
+    const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    // Find and get addVestee entrypoint of Vesting contract
+    const addVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%addVestee",
+        vestingAddress) : option(contract(addVesteeType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(addVesteeType))
+        ];
+
+    // Create operation to add a new vestee
+    const addVesteeOperation : operation = Tezos.transaction(
+        (addVesteeParams),
+        0tez, 
+        addVesteeEntrypoint
+    );
+
+    operations := addVesteeOperation # operations;
+
+} with (operations)
+
+
+
+function removeVestee(const vesteeAddress : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get vesting contract address from the generalContracts map
+    const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    // Find and get removeVestee entrypoint of Vesting contract
+    const removeVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%removeVestee",
+        vestingAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to remove a vestee
+    const removeVesteeOperation : operation = Tezos.transaction(
+        (vesteeAddress),
+        0tez, 
+        removeVesteeEntrypoint
+    );
+
+    operations := removeVesteeOperation # operations;
+    
+} with (operations)
+
+
+
+function updateVestee(const updateVesteeParams : updateVesteeType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get vesting contract address from the generalContracts map
+    const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    // Find and get removeVestee entrypoint of Vesting contract
+    const updateVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%updateVestee",
+        vestingAddress) : option(contract(updateVesteeType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(updateVesteeType))
+        ];
+
+    // Create operation to update a vestee
+    const updateVesteeOperation : operation = Tezos.transaction(
+        (updateVesteeParams),
+        0tez, 
+        updateVesteeEntrypoint
+    );
+
+    operations := updateVesteeOperation # operations;
+
+} with (operations)
+
+
+
+function toggleVesteeLock(const vesteeAddress : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get vesting contract address from the generalContracts map
+    const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    // Find and get removeVestee entrypoint of Vesting contract
+    const toggleVesteeLockEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%toggleVesteeLock",
+        vestingAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
+        ];
+
+    // Create operation to lock or unlock a vestee
+    const toggleVesteeLockOperation : operation = Tezos.transaction(
+        (vesteeAddress),
+        0tez, 
+        toggleVesteeLockEntrypoint
+    );
+
+    operations := toggleVesteeLockOperation # operations;
+
+} with (operations)
+
+// ------------------------------------------------------------------------------
+// Vestee Helper Functions End
 // ------------------------------------------------------------------------------
 
 
