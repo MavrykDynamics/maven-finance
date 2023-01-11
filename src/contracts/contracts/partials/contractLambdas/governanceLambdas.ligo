@@ -246,8 +246,8 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update general contracts map
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint
+    verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
+    verifyNoAmountSent(Unit);            // check that no tez is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
