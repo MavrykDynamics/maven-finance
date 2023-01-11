@@ -68,7 +68,7 @@ export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolk
 
 export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, startIndex : number) => {
 
-    const lambdasPerBatch = 5;
+    const lambdasPerBatch = 10;
 
     const lambdasCount = Object.keys(governanceProxyLambdas).length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
@@ -139,7 +139,7 @@ export class GovernanceProxy {
             });
     
         await confirmOperation(tezos, operation.hash);
-        console.log(operation);
+        // console.log(operation);
     
         return new GovernanceProxy(
             await tezos.contract.at(operation.contractAddress),

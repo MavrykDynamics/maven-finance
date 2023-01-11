@@ -369,6 +369,7 @@
     "lambdaUpdateConfig",
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
+    "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
     "lambdaPauseAll",
