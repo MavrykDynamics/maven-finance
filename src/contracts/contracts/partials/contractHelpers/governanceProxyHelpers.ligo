@@ -107,7 +107,7 @@ function getUpdateWhitelistTokenContractsEntrypoint(const contractAddress : addr
 // governance proxy lamba helper function to get %updateWhitelistDevelopers entrypoint
 function getUpdateWhitelistDevelopersEntrypoint(const contractAddress : address) : contract(address) is
     case (Tezos.get_entrypoint_opt(
-        "%updateWhitelistTokenContracts",
+        "%updateWhitelistDevelopers",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
             |   None        -> (failwith(error_UPDATE_WHITELIST_DEVELOPERS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(address))

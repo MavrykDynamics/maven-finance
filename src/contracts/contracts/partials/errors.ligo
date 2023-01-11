@@ -387,6 +387,7 @@
 [@inline] const error_FARM_CONTRACT_NOT_FOUND                                                                           = 273n;
 [@inline] const error_ONLY_FARM_CONTRACT_ALLOWED                                                                        = 274n;
 [@inline] const error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED                                                     = 275n;
+[@inline] const error_ONLY_ADMIN_OR_GOVERNANCE_OR_FARM_FACTORY_CONTRACT_ALLOWED                                         = 275n;
 
 // CONTRACT SPECIFIC ERRORS
 [@inline] const error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION                                                        = 276n;
