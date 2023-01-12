@@ -19,8 +19,8 @@ deku:
       tag: rc-v0.1.1-6
       pullPolicy: Always
   config:
-    defaultBlockSize: 500
-    tezosConsensusAddress: KT1VGg5VgH4hzATrttN9cGqK2Nvf3fGg7hoS
+    defaultBlockSize: 100
+    tezosConsensusAddress: KT1C4gCLD1vSXpWFBEMwarYLvZhvPPATk2gH
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
@@ -107,26 +107,6 @@ deku:
       validator: #ISAAC
         publicKeyHash: tz1SDg2Wah3wBHFwCK5gYV591BhpLWZTWX42
         secretKey: edsk3ahGaSWjzjHuS7mK5Bsy7LxH8iTRXpGcMvzjgSypKHKw2wrq1u
-    deku-on-baking-archive-4:
-      tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
-      image:
-        registry: docker.io
-        repository: mavrykdynamics/deku
-        tag: rc-v0.1.1-6
-        pullPolicy: Always
-        pullSecret: docker-pull-credentials
-      tolerations:
-        - key: 'mavryk-node'
-          operator: 'Equal'
-          value: '0'
-          effect: 'NoSchedule'
-        - key: 'mavryk-node'
-          operator: 'Equal'
-          value: '1'
-          effect: 'NoSchedule'
-      validator: #DAVID
-        publicKeyHash: tz1PPLFcQyechtAm9XRZWRnMEXJ8NsXUNGdS
-        secretKey: edsk3hwth6tL9hppsUT6sZQ5687DDY9GPgKiZgjg9DDcMjJxoRUsGc
 
 tezos-faucet:
   images:
