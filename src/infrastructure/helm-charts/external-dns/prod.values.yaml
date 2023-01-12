@@ -920,16 +920,16 @@ external-dns:
     ##    memory: 50Mi
     ##
     limits:
-      cpu: 50m
-      memory: 50Mi
+      cpu: 100m
+      memory: 256Mi
     ## Examples:
     ## requests:
     ##    cpu: 10m
     ##    memory: 50Mi
     ##
     requests:
-      cpu: 10m
-      memory: 50Mi
+      cpu: 50m
+      memory: 128Mi
   ## Configure extra options for liveness probe
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
   ## @param livenessProbe.enabled Enable livenessProbe
