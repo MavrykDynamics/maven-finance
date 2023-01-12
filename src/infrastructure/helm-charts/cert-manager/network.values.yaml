@@ -464,11 +464,11 @@ cert-manager:
 
     resources:
       limits:
-        cpu: 50m
-        memory: 50Mi
+        cpu: 200m
+        memory: 256Mi
       requests:
-        cpu: 10m
-        memory: 32Mi
+        cpu: 100m
+        memory: 128Mi
 
     nodeSelector:
       kubernetes.io/os: linux
