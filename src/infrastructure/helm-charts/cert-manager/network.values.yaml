@@ -458,7 +458,8 @@ cert-manager:
 
     # Additional command line flags to pass to cert-manager cainjector binary.
     # To see all available flags run docker run quay.io/jetstack/cert-manager-cainjector:<version> --help
-    extraArgs: []
+    extraArgs:
+    - --leader-elect=false
     # Enable profiling for cainjector
     # - --enable-profiling=true
 
