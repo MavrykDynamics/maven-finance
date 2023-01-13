@@ -173,7 +173,7 @@ block {
 
 
 (* dataDataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataDataPackingHelper(const _governanceAction : executeActionType; var s : governanceProxyStorageType) : return is 
+function dataDataPackingHelper(const _governanceAction : executeActionType; const s : governanceProxyStorageType) : return is 
     (noOperations, s)
 
 
