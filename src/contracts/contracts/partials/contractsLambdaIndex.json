@@ -240,7 +240,9 @@
 
     "lambdaOnVaultDepositStake",
     "lambdaOnVaultWithdrawStake",
-    "lambdaOnVaultLiquidateStake"
+    "lambdaOnVaultLiquidateStake",
+
+    "lambdaNewUnstake"
   ],
   "emergencyGovernance": [
     "lambdaSetAdmin",
