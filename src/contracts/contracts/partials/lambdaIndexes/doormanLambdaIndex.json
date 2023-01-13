@@ -70,5 +70,9 @@
   {
     "index": 17,
     "name": "lambdaOnVaultLiquidateStake"
+  },
+  {
+    "index": 18,
+    "name": "lambdaNewUnstake"
   }
 ]
