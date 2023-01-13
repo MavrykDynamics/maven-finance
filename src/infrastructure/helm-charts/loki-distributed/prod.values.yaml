@@ -112,6 +112,7 @@ loki-distributed:
           dir: /var/loki/wal
 
       limits_config:
+        retention_period: 744h
         enforce_metric_name: false
         reject_old_samples: true
         reject_old_samples_max_age: 168h
@@ -193,7 +194,12 @@ loki-distributed:
         tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
 
       compactor:
-        shared_store: filesystem
+        working_directory: /data/retention
+        shared_store: s3
+        compaction_interval: 10m
+        retention_enabled: true
+        retention_delete_delay: 2h
+        retention_delete_worker_count: 150
 
       ruler:
         storage:
@@ -1125,7 +1131,7 @@ loki-distributed:
   # Configuration for the compactor
   compactor:
     # -- Specifies whether compactor should be enabled
-    enabled: false
+    enabled: true
     image:
       # -- The Docker registry for the compactor image. Overrides `loki.image.registry`
       registry: null
