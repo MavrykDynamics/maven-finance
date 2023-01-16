@@ -69,6 +69,7 @@ describe('Aggregator Factory', async () => {
           const aggregatorMetadataBase = Buffer.from(
               JSON.stringify({
                   name: 'MAVRYK Aggregator Contract',
+                  icon: 'https://logo.chainbit.xyz/xtz',
                   version: 'v1.0.0',
                   authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
               }),
@@ -79,31 +80,12 @@ describe('Aggregator Factory', async () => {
               .batch()
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
 
-                  'USDBTC',
+                  'USD/BTC',
                   true,
                   
                   oracleMap,
   
-                  new BigNumber(16),            // decimals
-                  new BigNumber(2),             // alphaPercentPerThousand
-                  
-                  new BigNumber(60),            // percentOracleThreshold
-                  new BigNumber(30),            // heartBeatSeconds
-
-                  new BigNumber(10000000),      // rewardAmountStakedMvk
-                  new BigNumber(1300),          // rewardAmountXtz
-                  
-                  aggregatorMetadataBase       // metadata bytes
-
-              ))
-              .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-  
-                  'USDXTZ',
-                  true,
-  
-                  oracleMap,
-  
-                  new BigNumber(16),            // decimals
+                  new BigNumber(8),             // decimals
                   new BigNumber(2),             // alphaPercentPerThousand
                   
                   new BigNumber(60),            // percentOracleThreshold
@@ -117,7 +99,26 @@ describe('Aggregator Factory', async () => {
               ))
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
   
-                  'USDDOGE',
+                  'USD/XTZ',
+                  true,
+  
+                  oracleMap,
+  
+                  new BigNumber(6),             // decimals
+                  new BigNumber(2),             // alphaPercentPerThousand
+                  
+                  new BigNumber(60),            // percentOracleThreshold
+                  new BigNumber(30),            // heartBeatSeconds
+
+                  new BigNumber(10000000),      // rewardAmountStakedMvk
+                  new BigNumber(1300),          // rewardAmountXtz
+                  
+                  aggregatorMetadataBase        // metadata bytes
+
+              ))
+              .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+  
+                  'USD/DOGE',
                   true,
   
                   oracleMap,

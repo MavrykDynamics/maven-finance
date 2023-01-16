@@ -57,6 +57,7 @@ async def on_lending_controller_origination(
     await governance.save()
     lending_controller  = models.LendingController(
         address                                 = lending_controller_address,
+        mock_time                               = False,
         admin                                   = admin,
         last_updated_at                         = timestamp,
         governance                              = governance,

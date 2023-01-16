@@ -27,13 +27,11 @@ async def on_vesting_claim(
     vesting = await models.Vesting.get(
         address = vesting_address
     )
-    vestee = await models.MavrykUser.get(
-        address = vestee_address
-    )
-    vesteeRecord    = await models.VestingVestee.get(
+    vestee  = await models.mavryk_user_cache.get(address=vestee_address)
+    vesteeRecord    = await models.VestingVestee.filter(
         vestee  = vestee,
         vesting = vesting
-    )
+    ).first()
     vesteeRecord.months_remaining               = months_remaining
     vesteeRecord.months_claimed                 = months_claimed
     vesteeRecord.next_redemption_timestamp      = next_redemption_timestamp

@@ -4,14 +4,209 @@
 
 ### Deployment
 
-- DEV: 0.17
-- PROD: 0.17
+- DEV: 0.27
+- PROD: 0.27
+- PROD2: 0.27
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
-## Version 0.17
+## Version 0.27
+
+### What's new
+
+- MTokenAccount
+  - Column RewardsEarned added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.26</summary>
+
+## Version 0.26
+
+### Breaking changes
+
+- MavrykUserOperator:
+  - Table renamed to MVKTokenOperator
+  - Owner column related name renamed from UsersOwner to MvkTokenUserOwners
+  - Operator column related name renamed from UserOperator to MvkTokenUserOperators
+- MVKTransferHistoryData:
+  - Table renamed to MVKTokenTransferHistoryData
+- MVKMintHistoryData:
+  - Table renamed to MVKTokenMintHistoryData
+
+### What's new
+
+- MToken
+  - Table added
+- MTokenWhitelistContracts
+  - Table added
+- MTokenOperator
+  - Table added
+- MTokenAccount
+  - Table added
+- LendingControllerHistoryData
+  - Column LoanToken added
+
+</details>
+
+<details><summary>0.25</summary>
+
+## Version 0.25
+
+### What's new
+
+- Satellite:
+  - Colmuns PublicKey and PeerId added
+- LendingControllerCollateralToken:
+  - Column IsScaledToken added
+
+</details>
+
+<details><summary>0.24</summary>
+
+## Version 0.24
+
+### What's new
+
+- LendingControllerHistoryData:
+  - Table added: tracks all operations made to vault contracts and to the lending controller contract
+
+</details>
+
+<details><summary>0.23</summary>
+
+## Version 0.23
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+
+  - Values in the TokenPriceUSD column are now fetched asynchronously to speed up the initial indexing process. While the data is not sync, a null value will appear.
+
+- LiquidityBaking:
+
+  - Column SharePriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with the formula: `SharePriceUSD = SharePrice * XTZUSDPrice`)
+
+- LiquidityBakingPosition:
+  - Column AvgPriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with the formula: `AvgPriceUSD = AvgPriceq * XTZUSDPrice`)
+
+</details>
+
+<details><summary>0.22</summary>
+
+## Version 0.22
+
+### What's new
+
+- MavrykUser:
+
+  - Table is now cached (no impact on queries)
+
+- GovernanceProposalData:
+
+  - Table now shows null values
+
+- GovernancePaymentData:
+
+  - Table now shows null values
+
+- LiquidityBaking:
+
+  - Column SharePriceUSD added
+
+- LiquidityBakingPosition:
+
+  - Column AvgSharePriceUSD added
+
+- LiquidityBakingHistoryData:
+  - Column TokenPriceUSD added
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+  - Column Price renamed to TokenPrice
+
+</details>
+
+<details><summary>0.21</summary>
+
+## Version 0.21
+
+### What's new
+
+- AggregatorOracle:
+  - Column InitEpoch added: always equal to the epoch that was currently set when the oracle joined an Aggregator
+  - Column InitRound added: always equal to the round that was currently set when the oracle joined an Aggregator
+- AggregatorOracleObservation:
+  - Table added: tracks all observations made by an AggregatorOracle for each round/epoch it participated
+- LiquidityBaking:
+  - Column SharePrice added
+- LiquidityBakingPosition:
+  - Table added
+- LiquidityBakingHistoryData:
+  - Column Trader added: you can now fetch all operations made by a trader through this foreign key
+  - Column Level added
+  - Column XTZQty added
+  - Column TokenQty added
+  - Column LqtQty added
+  - Column Slippage added
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+  - Column XTZTokenPrice and TokenXTZPrice replaced by Price (BTC price in XTZ)
+
+</details>
+
+<details><summary>0.20</summary>
+
+## Version 0.20
+
+### What's new
+
+- LendingControllerMockTime contract indexed
+- TokenPoolReward contract removed
+
+## Version 0.19
+
+### What's new
+
+- GovernanceProposalData
+  - Column CodeDescription added
+- GovernancePaymentData
+  - Column TokenId added
+- GovernanceSatelliteOracleAggregator
+  - Table added
+
+### Breaking changes
+
+- Aggregator
+  - Token0Symbol and Token1Symbol columns removed
+- GovernanceProposalData
+  - RecordInternalId column renamed to InternalId
+  - Bytes column renamed to EncodedCode
+- GovernancePaymentData
+  - RecordInternalId column renamed to InternalId
+- GovernanceSatelliteAggregator
+  - Table removed entirely
+- GovernanceSatelliteAggregatorOracle
+  - Table removed entirely
+- GovernanceSatelliteSatelliteOracle
+  - Table renamed to GovernanceSatelliteOracle
+  - AggregatorsSubscribed column removed
+  - Oracle column related name renamed from governance_satellite_satellite_oracles to governance_satellite_oracles (relation GovernanceSatelliteOracle->MavrykUser)
+- GovernanceSatelliteSatelliteOracleAggregatorPair
+  - Table removed entirely
+- TokenSaleBuyOption
+  - BuyOptionInternalId column renamed to InternalId
+
+</details>
+
+<details><summary>0.17/0.18</summary>
+
+## Version 0.17/0.18
 
 ### What's new
 
@@ -43,6 +238,10 @@
 - LendingControllerCollateralToken
   - OracleType removed
 
+</details>
+
+<details><summary>0.16</summary>
+
 ## Version 0.16
 
 ### What's new
@@ -63,6 +262,10 @@
 - LendingController/Vault/VaultFactory/TokenPoolReward tables
 - dipdup_token_metadata: Metadata of all tokens in the system
 - dipdup_contract_metadata: Metadata of all contracts in the system (due to a BCD bug, some contracts don't have their metadata)
+
+</details>
+
+<details><summary>0.13</summary>
 
 ## Version 0.13
 
@@ -185,3 +388,7 @@
   | VaultDepositor &rarr; MavrykUser | vault_depositor_records | vault_depositors |
   | VestingVestee &rarr; Vesting | vestee_records | vestees |
   | VestingVestee &rarr; MavrykUser | vesting_vestee_records | vesting_vestees |
+
+</details>
+
+</details>

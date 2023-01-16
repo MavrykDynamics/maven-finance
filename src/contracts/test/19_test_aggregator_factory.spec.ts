@@ -39,6 +39,7 @@
 //     const aggregatorMetadataBase = Buffer.from(
 //         JSON.stringify({
 //             name: 'MAVRYK Aggregator Contract',
+//             icon: 'https://logo.chainbit.xyz/xtz',
 //             version: 'v1.0.0',
 //             authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
 //         }),
@@ -91,8 +92,8 @@
 //                 // Operation
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
         
-//                     'USDBTC',
-//                     true,
+                    // 'USD/BTC',
+                    // true,
                     
 //                     oracleMap,
         
@@ -122,8 +123,8 @@
 //                 // Operation
 //                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
         
-//                     'USDBTC',
-//                     true,
+                    // 'USD/BTC',
+                    // true,
                     
 //                     oracleMap,
         
@@ -328,8 +329,8 @@
 //                 // Test operations
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
             
-//                     'USDBTC',
-//                     true,
+                    // 'USD/BTC',
+                    // true,
                     
 //                     oracleMap,
             
@@ -498,8 +499,8 @@
 //                 // Test operations
 //                 const testCreateAggregatorOp    = await aggregatorFactoryInstance.methods.createAggregator(
             
-//                     'USDTestv2',
-//                     true,
+                    // 'USD/Testv2',
+                    // true,
                     
 //                     oracleMap,
             
