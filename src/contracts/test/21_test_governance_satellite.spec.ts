@@ -259,6 +259,7 @@
 //             const aggregatorMetadataBase = Buffer.from(
 //                 JSON.stringify({
 //                     name: 'MAVRYK Aggregator Contract',
+//                     icon: 'https://logo.chainbit.xyz/xtz',
 //                     version: 'v1.0.0',
 //                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
 //                 }),
@@ -269,7 +270,7 @@
 //             const createAggregatorsBatch = await utils.tezos.wallet
 //             .batch()
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDBTC',
+//                 'USD/BTC',
 //                 true,
 
 //                 oracleMap,
@@ -286,12 +287,12 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDXTZ',
+//                 'USD/XTZ',
 //                 true,
 
 //                 oracleMap,
 
-//                 new BigNumber(8),             // decimals
+//                 new BigNumber(6),             // decimals
 //                 new BigNumber(2),             // alphaPercentPerThousand
 
 //                 new BigNumber(60),            // percentOracleThreshold
@@ -303,7 +304,7 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDDOGE',
+//                 'USD/DOGE',
 //                 true,
 
 //                 oracleMap,

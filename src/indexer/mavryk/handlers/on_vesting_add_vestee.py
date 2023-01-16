@@ -34,10 +34,7 @@ async def on_vesting_add_vestee(
         locked    = True
 
     # Create and update records
-    user, _ = await models.MavrykUser.get_or_create(
-        address = vestee_address
-    )
-    await user.save()
+    user    = await models.mavryk_user_cache.get(address=vestee_address)
     vesting = await models.Vesting.get(
         address = vesting_address
     )

@@ -19,11 +19,7 @@ async def on_token_sale_remove_from_whitelist(
         address = token_sale_address
     )
     for user_address in removed_addresses:
-        user, _             = await models.MavrykUser.get_or_create(
-            address             = user_address
-        )
-        await user.save()
-
+        user                = await models.mavryk_user_cache.get(address=user_address)
         whitelisted_user    = await models.TokenSaleWhitelistedUser.get_or_none(
             token_sale          = token_sale,
             whitelisted_user    = user
