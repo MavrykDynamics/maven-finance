@@ -651,7 +651,7 @@
 [@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                        = 476n;
 [@inline] const error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                               = 477n;
 [@inline] const error_SET_PROXY_LAMBDA_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                = 478n;
-[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                       = 479n;
+[@inline] const error_PROCESS_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                       = 479n;
 [@inline] const error_DATA_PACKING_HELPER_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                             = 480n;
 
 // VIEWS NOT FOUND ERRORS
@@ -660,6 +660,19 @@
 [@inline] const error_GET_WHITELIST_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                               = 483n;
 [@inline] const error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                 = 484n;
 [@inline] const error_GET_PROXY_LAMBDA_OPT_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                  = 485n;
+
+
+// ------------------------------------------------------------------------------
+//
+// Governance Proxy Node Errors
+//
+// ------------------------------------------------------------------------------
+
+
+[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_NODE_CONTRACT_NOT_FOUND                  = 485n;
+[@inline] const error_LAMBDA_POINTER_ALREADY_EXISTS                                                                     = 485n;
+[@inline] const error_LAMBDA_POINTER_DOES_NOT_EXIST                                                                     = 485n;
+
 
 // ------------------------------------------------------------------------------
 //

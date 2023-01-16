@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : governanceProxyStorageType) : return is
+function setAdmin(const newAdminAddress : address; var s : governanceProxyNodeStorageType) : return is
 block {
     
     // get lambda bytes
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : governanceProxyStorageType) : return is
+function setGovernance(const newGovernanceAddress : address; var s : governanceProxyNodeStorageType) : return is
 block {
     
     // get lambda bytes
@@ -43,7 +43,7 @@ block {
 
 
 (*  updateMetadata entrypoint: update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceProxyStorageType) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceProxyNodeStorageType) : return is
 block {
 
     // get lambda bytes
@@ -60,7 +60,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : governanceProxyStorageType) : return is
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : governanceProxyNodeStorageType) : return is
 block {
 
     // get lambda bytes
@@ -77,7 +77,7 @@ block {
 
 
 (*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : governanceProxyStorageType) : return is
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : governanceProxyNodeStorageType) : return is
 block {
 
     // get lambda bytes
@@ -94,7 +94,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceProxyStorageType) : return is
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceProxyNodeStorageType) : return is
 block {
 
     // get lambda bytes
@@ -111,7 +111,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams : transferActionType; var s : governanceProxyStorageType) : return is
+function mistakenTransfer(const destinationParams : transferActionType; var s : governanceProxyNodeStorageType) : return is
 block {
 
     // get lambda bytes
@@ -129,55 +129,52 @@ block {
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
 
-(* setLambdaPointer entrypoint *)
-function setLambdaPointer(const setLambdaPointerParams : setLambdaPointerActionType; var s : governanceProxyStorageType) : return is 
+(* setProxyLambda entrypoint *)
+function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceProxyNodeStorageType) : return is 
 block {
     
-    // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetLambdaPointer", s.lambdaLedger);
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
+    
+    // assign params to constants for better code readability
+    const lambdaId      = setProxyLambdaParams.id;
+    const lambdaBytes   = setProxyLambdaParams.func_bytes;
 
-    // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaSetLambdaPointer(setLambdaPointerParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    // set lambda in lambdaLedger - allow override of lambdas
+    s.proxyLambdaLedger[lambdaId] := lambdaBytes;
 
 } with (noOperations, s)
 
 
 
-(* processGovernanceAction entrypoint *)
-function processGovernanceAction(const processGovernanceActionParams : processGovernanceActionType; var s : governanceProxyStorageType) : return is 
+(* executeGovernanceAction entrypoint *)
+function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceProxyNodeStorageType) : return is 
 block {
     
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
 
-    // const governanceAction : executeActionType = case (Bytes.unpack(governanceActionBytes) : option(executeActionType)) of [
-    //         Some(_action) -> _action
-    //     |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    // ];
+    const governanceAction : executeActionType = case (Bytes.unpack(governanceActionBytes) : option(executeActionType)) of [
+            Some(_action) -> _action
+        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
+    ];
 
-    // const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger[0n] of [
-    //         Some(_v) -> _v
-    //     |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    // ];
+    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger[0n] of [
+            Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    // // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorageType) -> return
-    // const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
-    //         Some(f) -> f(governanceAction, s)
-    //     |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    // ];
-
-    // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaProcessGovernanceAction", s.lambdaLedger);
-
-    // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaProcessGovernanceAction(processGovernanceActionParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorageType) -> return
+    const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
+            Some(f) -> f(governanceAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
 
 } with response
+
+
+
+(* dataDataPackingHelper entrypoint - to simulate calling an entrypoint *)
+function dataDataPackingHelper(const _governanceAction : executeActionType; const s : governanceProxyNodeStorageType) : return is 
+    (noOperations, s)
 
 
 // ------------------------------------------------------------------------------
@@ -185,7 +182,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : governanceProxyStorageType) : return is
+function setLambda(const setLambdaParams : setLambdaType; var s : governanceProxyNodeStorageType) : return is
 block{
     
     // verify that sender is admin

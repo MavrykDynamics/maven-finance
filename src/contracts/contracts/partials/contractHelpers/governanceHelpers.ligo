@@ -440,13 +440,13 @@ function getSetGovernanceEntrypoint(const contractAddress : address) : contract(
 
 
       
-// helper function to %executeGovernanceAction entrypoint on the Governance Proxy Contract
-function getExecuteGovernanceActionEntrypoint(const contractAddress : address) : contract(bytes) is
+// helper function to %processGovernanceAction entrypoint on the Governance Proxy Contract
+function getProcessGovernanceActionEntrypoint(const contractAddress : address) : contract(processGovernanceActionType) is
     case (Tezos.get_entrypoint_opt(
-        "%executeGovernanceAction",
-        contractAddress) : option(contract(bytes))) of [
+        "%processGovernanceAction",
+        contractAddress) : option(contract(processGovernanceActionType))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND) : contract(bytes))
+            |   None        -> (failwith(error_PROCESS_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND) : contract(processGovernanceActionType))
         ];
 
 
@@ -575,17 +575,22 @@ block {
 
 
 
-// helper function to create execute governance action operation to the governance proxy contract
-function executeGovernanceActionOperation(const dataBytes : bytes; const s : governanceStorageType) : operation is
+// helper function to create process governance action operation to the governance proxy contract
+function processGovernanceActionOperation(const entrypointName : string; const encodedCode : bytes; const s : governanceStorageType) : operation is
 block {
 
-    const executeGovernanceActionOperation : operation = Tezos.transaction(
-        dataBytes, 
+    const processGovernanceActionParams : processGovernanceActionType = record [
+        entrypointName  = entrypointName;
+        encodedCode     = encodedCode;
+    ];
+
+    const processGovernanceActionOperation : operation = Tezos.transaction(
+        processGovernanceActionParams, 
         0tez, 
-        getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
+        getProcessGovernanceActionEntrypoint(s.governanceProxyAddress)
     );
 
-} with executeGovernanceActionOperation
+} with processGovernanceActionOperation
 
 
 
@@ -1276,12 +1281,14 @@ block {
 
     // init params
     const title             : string   = proposalData.title;
+    const entrypointName    : string   = proposalData.entrypointName;
     const proposalBytes     : bytes    = proposalData.encodedCode;
     const codeDescription   : string   = case proposalData.codeDescription of [
             Some (_c)   -> _c
         |   None        -> ""
     ];
-    const index          : nat      = case proposalData.index of [
+
+    const index : nat = case proposalData.index of [
             Some (_index)   -> if _index < Map.size(proposalDataMap) then _index else failwith(error_INDEX_OUT_OF_BOUNDS)
         |   None            -> Map.size(proposalDataMap)
     ];
@@ -1289,6 +1296,7 @@ block {
     // Create the new proposalData
     const newProposalData : proposalDataType = record[
         title           = title;
+        entrypointName  = entrypointName;
         encodedCode     = proposalBytes;
         codeDescription = codeDescription;
     ];
