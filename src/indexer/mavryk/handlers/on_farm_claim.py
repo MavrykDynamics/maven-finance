@@ -45,10 +45,7 @@ async def on_farm_claim(
     farm.paid_rewards               = paid_rewards
     await farm.save()
 
-    user, _                         = await models.MavrykUser.get_or_create(
-        address = depositor_address
-    )
-    await user.save()
+    user                            = await models.mavryk_user_cache.get(address=depositor_address)
 
     farm_account, _                 = await models.FarmAccount.get_or_create(
         user = user,

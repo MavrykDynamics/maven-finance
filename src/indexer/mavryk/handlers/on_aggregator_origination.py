@@ -76,12 +76,13 @@ async def on_aggregator_origination(
         oracle_peer_id          = oracle_storage_record.oraclePeerId
 
         # Create record
-        oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
-        await oracle.save()
+        oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
         aggregator_oracle       = models.AggregatorOracle(
             aggregator  = aggregator,
             user        = oracle,
             public_key  = oracle_pk,
-            peer_id     = oracle_peer_id
+            peer_id     = oracle_peer_id,
+            init_round  = last_completed_data_round,
+            init_epoch  = last_completed_data_epoch
         )
         await aggregator_oracle.save()

@@ -32,10 +32,7 @@ async def on_governance_snapshot_ledger_update(
         )
         await governance.save()
         
-        user, _                 = await models.MavrykUser.get_or_create(
-            address = satellite_address
-        )
-        await user.save()
+        user                    = await models.mavryk_user_cache.get(address=satellite_address)
 
         snapshot_record, _      = await models.GovernanceSatelliteSnapshot.get_or_create(
             governance              = governance,

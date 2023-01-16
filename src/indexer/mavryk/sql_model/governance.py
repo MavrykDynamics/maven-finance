@@ -110,22 +110,24 @@ class GovernanceProposal(Model):
 
 class GovernanceProposalData(Model):
     id                                      = fields.BigIntField(pk=True)
-    record_internal_id                      = fields.SmallIntField(default=0, index=True)
     governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='data', index=True)
-    title                                   = fields.TextField(default="")
-    bytes                                   = fields.TextField(default="")
+    internal_id                             = fields.SmallIntField(default=0, index=True)
+    title                                   = fields.TextField(default="", null=True)
+    code_description                        = fields.TextField(default="", null=True)
+    encoded_code                            = fields.TextField(default="", null=True)
 
     class Meta:
         table = 'governance_proposal_data'
 
 class GovernanceProposalPayment(Model):
     id                                      = fields.BigIntField(pk=True)
-    record_internal_id                      = fields.SmallIntField(default=0, index=True)
     governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='payments', index=True)
-    token_address                           = fields.CharField(max_length=36, default="", index=True)
-    title                                   = fields.TextField(default="")
+    internal_id                             = fields.SmallIntField(default=0, index=True)
+    token_address                           = fields.CharField(max_length=36, default="", index=True, null=True)
+    token_id                                = fields.SmallIntField(default=0, null=True)
+    title                                   = fields.TextField(default="", null=True)
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_payments', null=True)
-    token_amount                            = fields.FloatField(default=0.0)
+    token_amount                            = fields.FloatField(default=0.0, null=True)
 
     class Meta:
         table = 'governance_proposal_payment'

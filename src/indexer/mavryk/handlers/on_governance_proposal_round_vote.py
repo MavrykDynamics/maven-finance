@@ -24,8 +24,7 @@ async def on_governance_proposal_round_vote(
 
     # Create and update records
     governance  = await models.Governance.get(address   = governance_address)
-    voter, _    = await models.MavrykUser.get_or_create(address = voter_address)
-    await voter.save()
+    voter       = await models.mavryk_user_cache.get(address=voter_address)
 
     # Update or a satellite snapshot record
     governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(
@@ -47,10 +46,10 @@ async def on_governance_proposal_round_vote(
         await governance_snapshot.save()
 
     # Update proposal with vote
-    proposal    = await models.GovernanceProposal.get(
+    proposal            = await models.GovernanceProposal.filter(
         id          = proposal_id,
         governance  = governance
-    )
+    ).first()
     proposal.proposal_vote_count        = vote_count
     proposal.proposal_vote_smvk_total   = vote_smvk_total
     await proposal.save()
@@ -63,14 +62,15 @@ async def on_governance_proposal_round_vote(
     )
     if proposal_vote:
         # Get past voted proposal and remove vote from it
-        past_proposal_record    = await proposal_vote.governance_proposal_record
+        past_proposal_record    = await proposal_vote.governance_proposal
         storage_past_proposal   = proposal_round_vote.storage.proposalLedger[str(past_proposal_record.id)]
         past_vote_count         = int(storage_past_proposal.proposalVoteCount)
         past_vote_smvk_total    = float(storage_past_proposal.proposalVoteStakedMvkTotal)
-        past_proposal           = await models.GovernanceProposal.get(
-            id  = past_proposal_record.id
-        )
-        past_proposal.pass_vote_count           = past_vote_count
+        past_proposal           = await models.GovernanceProposal.filter(
+            id          = past_proposal_record.id,
+            governance  = governance
+        ).first()
+        past_proposal.proposal_vote_count       = past_vote_count
         past_proposal.proposal_vote_smvk_total  = past_vote_smvk_total
         await past_proposal.save()
         await proposal_vote.delete()

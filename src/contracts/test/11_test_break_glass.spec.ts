@@ -2039,6 +2039,11 @@
 //                         }
 //                     }
 
+//                     // check admin for governance contract
+//                     if(governanceStorage.hasOwnProperty('admin')){
+//                         assert.equal(governanceStorage.admin, newAdmin)
+//                     }
+
 //                     // reset all contracts admin to breakGlass for future tests
 //                     await signerFactory(bob.sk)
 //                     governanceStorage       = await governanceInstance.storage();
@@ -2106,6 +2111,12 @@
 
 //             it('removeBreakGlassControl --> should set the glassBroken variable to false and unpause all the entrypoints in all the contracts in the generalContracts map in the storage', async () => {
 //                 try{
+                    
+//                     // Bob (whitelisted developer) has to reset the admin of the governance contract back to the break glass contract
+//                     await signerFactory(bob.sk)
+//                     const resetGovernanceAdminOperation = await governanceInstance.methods.setAdmin(breakGlassAddress.address).send();
+//                     await resetGovernanceAdminOperation.confirmation();
+
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     governanceStorage       = await governanceInstance.storage();
@@ -2178,6 +2189,12 @@
 //                             assert.equal(storage.admin, governanceProxyAddress.address)
 //                         }
 //                     }
+
+//                     // check admin for governance contract
+//                     if(governanceStorage.hasOwnProperty('admin')){
+//                         assert.equal(governanceStorage.admin, governanceProxyAddress.address)
+//                     }
+
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }

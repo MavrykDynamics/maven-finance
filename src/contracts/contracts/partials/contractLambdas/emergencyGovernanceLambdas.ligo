@@ -219,6 +219,7 @@ block {
                 validateStringLength(description    , s.config.proposalDescMaxLength   , error_WRONG_INPUT_PROVIDED);
 
                 // Create new emergency governance record
+<<<<<<< HEAD:src/contracts/contracts/partials/contractLambdas/emergencyGovernanceLambdas.ligo
                 const newEmergencyGovernanceRecord : emergencyGovernanceRecordType = createEmergencyGovernance(
                     userAddress,
                     title,
@@ -226,6 +227,26 @@ block {
                     stakedMvkRequiredForBreakGlass,
                     s    
                 );
+=======
+                var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
+                    proposerAddress                  = userAddress;
+                    executed                         = False;
+                    dropped                          = False;
+
+                    title                            = title;
+                    description                      = description; 
+                    voters                           = emptyVotersMap;
+                    totalStakedMvkVotes              = 0n;
+                    stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
+                    stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
+
+                    startDateTime                    = Tezos.get_now();
+                    startLevel                       = Tezos.get_level();             
+                    executedDateTime                 = zeroTimestamp;
+                    executedLevel                    = 0n;
+                    expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
+                ];
+>>>>>>> c279e98684957e2c51070d8c5dda02608b3e6f99:src/contracts/contracts/partials/contractLambdas/emergencyGovernance/emergencyGovernanceLambdas.ligo
 
                 // Update storage (counters and new emergency governance)
                 s.emergencyGovernanceLedger[s.nextEmergencyGovernanceId] := newEmergencyGovernanceRecord;

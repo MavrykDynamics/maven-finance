@@ -18,10 +18,10 @@ variable "size" {
     description = "Droplet size to use"
 }
 
-variable "import_ssh_keys" {
-    type        = bool
-    default     = false
-    description = "Whether or not import the ssh keys into the created droplet"
+variable "ssh_keys_names" {
+    type        = list(string)
+    default     = []
+    description = "List of SSH keys names to import to the droplet"
 }
 
 variable "vpc_id" {
