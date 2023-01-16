@@ -10,6 +10,10 @@ terraform {
       source = "digitalocean/digitalocean"
       version = "2.17.1"
     }
+    aws = {
+      source = "hashicorp/aws"
+      version = "4.50.0"
+    }
   }
 }
 
