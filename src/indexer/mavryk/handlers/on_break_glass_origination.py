@@ -52,11 +52,7 @@ async def on_break_glass_origination(
     await break_glass.save()
 
     for member_address in council_members:
-        user, _             = await models.MavrykUser.get_or_create(
-            address = member_address
-        )
-        await user.save()
-
+        user                = await models.mavryk_user_cache.get(address=member_address)
         memberInfo          = council_members[member_address]
         council_member      = await models.BreakGlassCouncilMember(
             user        = user,

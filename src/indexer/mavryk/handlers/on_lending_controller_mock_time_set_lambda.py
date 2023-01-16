@@ -1,0 +1,15 @@
+
+from mavryk.utils.persisters import persist_lambda
+from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
+from dipdup.models import Transaction
+from dipdup.context import HandlerContext
+from mavryk.types.lending_controller_mock_time.parameter.set_lambda import SetLambdaParameter
+import mavryk.models as models
+
+async def on_lending_controller_mock_time_set_lambda(
+    ctx: HandlerContext,
+    set_lambda: Transaction[SetLambdaParameter, LendingControllerMockTimeStorage],
+) -> None:
+
+    # Persist lambda
+    await persist_lambda(models.LendingController, models.LendingControllerLambda, set_lambda)

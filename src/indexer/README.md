@@ -5,12 +5,14 @@
 - [Python 3.10.4](https://www.python.org/downloads/): required to install dipdup.
 - [Poetry 1.1.13](https://python-poetry.org/): NPM/Yarn equivalent for Python
 - [Docker](https://www.docker.com/get-started/): Container manager
+- [Node/NPM](https://nodejs.org/): Package manager
+- [Yarn](https://yarnpkg.com/): Package manager
 
 # Install Python dependencies
 
-1. When Python and poetry are both installed, run `poetry shell` to init your **virtualenv** (Poetry comes with a preconfigured Python **virtualenv**).
-2. Run `poetry install` to install all the Python dependencies like **dipdup**.
-3. Every time you'll need to run `poetry shell` to start working with dipdup (the dipdup cli will only be installed on this **virtualenv** and not with your others Python packages).
+1. When Python, poetry, npm and yarn are all installed, run `yarn shell` to init your **virtualenv** (Poetry comes with a preconfigured Python **virtualenv**).
+2. Run `yarn setup-env` to install all the Python dependencies like **dipdup**.
+3. Every time you'll need to run `yarn shell` to start working with dipdup (the dipdup cli will only be installed on this **virtualenv** and not with your others Python packages).
 
 # Project structure explanation
 
@@ -26,48 +28,57 @@
 │   └── utils
 ├── .gitignore
 ├── dipdup.yml
+├── local.dipdup.yml
+├── no-hasura.dipdup.yml
 ├── docker-compose.yml
 ├── Dockerfile
-├── env.sh
+├── package.json
 ├── poetry.lock
 ├── pyproject.toml
 └── README.md
 ```
 
 - _pyproject.toml/poetry.lock_: these two files were generated when Poetry was initialized for the first time.
-- _env.sh_: contains all the environment variables needed for dipdup to work. This file needs to be sourced with the `source ./env.sh` command before starting the indexer.
+- _package.json_: contains all the scripts you can run using npm/yarn during the indexer development.
 - _Dockerfile_: contains the Docker image definition of the Indexer for its build (see section)
 - _docker-compose.yml_: contains the definition of a local test environment for the indexer. Starts a test instance of **Hasura** and a test instance of **TimescaleDB**.
 - _.gitignore_: ignored files for the git repo.
 - _README.md_: yes, that's this file.
-- _dipdup.yml_: configuration file needed for dipdup to the project file structure and what to index. ([See documentation here](https://dipdup.net/docs/getting-started/creating-config.html))
+- _\*.dipdup.yml_: configuration file needed for dipdup to the project file structure and what to index. ([See documentation here](https://dipdup.net/docs/getting-started/creating-config.html)):
+  - _local.dipdup.yml_: You should only edit this file when implementing updates for the indexer. After all your tests are done, simply run `yarn replicate-config` to replicate the changes you made to this file to the other two config files.
+  - _dipdup.yml_: Configuration file used by the indexer when deployed
+  - _no-hasura.dipdup.yml_: Same as above but without the hasura configuration in it. Used in the Github CI when wiping one indexer's database before running a full sync.
 - _mavryk_: folder containing all the indexer code. It was generated with the `dipdup init` command and it follows the _dipdup.yml_ configuration file. ([See documentation here](https://dipdup.net/docs/getting-started/project-structure.html))
 
 # Run the indexer locally
 
-1. `poetry shell`: starts the virtual environment
-2. `source ./env.sh`: source the environment variables needed for **dipdup**
-3. `docker-compose up -d`: run test instances of **Hasura** and **TimescaleDB**.
-4. `dipdup run`: start to index
-5. Go to https://localhost:42000/ to log to **Hasura** admin console (password: **_hasura12345_**)
+1. `yarn shell`: starts the virtual environment
+2. `yarn up`: run test instances of **Hasura** and **TimescaleDB**.
+3. `yarn start`: start to index
+4. Go to https://localhost:42000/ to log to **Hasura** admin console (password: **_hasura12345_**)
 
-# Build and Push an indexer image on Dockerhub
+# Build, Push and Deploy an indexer (CI/CD)
 
-1. Get the latest **_mavryk-indexer_** image tag on dockerhub: https://hub.docker.com/repository/docker/tezosdynamics/mavryk-indexer
-2. Setup a new tag based on the previous one and respecting the `vX.Y.Z` nomenclature:
-   - _X_: Major version (in our case **0** for now)
-     - Major indexer upgrade (example: first ever mainnet version etc.)
-     - Contains breaking changes
-   - _Y_: Minor version
-     - Can contains breaking changes
-     - Minor indexer upgrade (example: a new contract is indexed, an index is refactored)
-   - _Z_: Bugfix
-     - A bug is fixed
-3. _(Do once)_ Login on Dockerhub with the TezosDynamics account with `docker login`
-4. Build the image with `docker build . -t tezosdynamics/mavryk-indexer:TAG`. Don't forget to replace `TAG` by your tag.
-5. Push the image on Dockerhub with `docker push tezosdynamics/mavryk-indexer:TAG`. Don't forget to replace `TAG` by your tag.
+1. Commit and push all your changes
 
-# Deploy the indexer on Kubernetes
+```bash
+git add .
+git commit -m "[YOUR COMMIT MESSAGE]"
+git push
+```
+
+2. Go to the indexer updater workflow on [github](https://github.com/mavrykfinance/mavryk-dapp/actions/workflows/main.yml)
+
+3. Start a new workflow:
+
+- Click on **Run workflow** and fill the form
+- _Use workflow from_: select the branch where you just pushed your commit
+- _Environment to update_: select **dev**
+- _Dipdup image tag_: go check the [indexer Grafana dashboard](https://grafana.mavryk.io/d/J1QevDF4k/mavryk-indexer). Switch between all three environments and look at the **Docker image** panel. The tag should be like this **vX.Y.Z**. You should take the most updated one and increment it (e.g. if the current tag is v0.25.10, your tag could be v0.25.11. See [this page](../indexer/README.md#build-and-push-an-indexer-image-on-dockerhub) for more details on tags)
+- _Service to link to api.mavryk.io_: go check the [indexer Grafana dashboard](https://grafana.mavryk.io/d/J1QevDF4k/mavryk-indexer). Scroll down and look at **Prod Ingress Redirection** panel. Since you're only updated **dev**, you should use the same in the form. If you want to update **prod** you should select **hasura-prod2**. If you want to update **prod2** you should select **hasura-prod**.
+- _(optional) Wipe database_: since you're working with an entire new set of contracts, you should tick this box.
+
+# Deploy the indexer on Kubernetes manually (advanced)
 
 The documentation about the deployment is inside de **Infrastructure** subfolder [here](../infrastructure/helm-charts/mavryk-indexer/README.md).
 

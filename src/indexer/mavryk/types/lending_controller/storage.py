@@ -54,22 +54,6 @@ class Key(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    address: str
-    string: str
-
-
-class TokenPoolDepositorLedgerItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Key
-    value: str
-
-
-class Key1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     id: str
     owner: str
 
@@ -96,7 +80,7 @@ class Vault(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    key: Key1
+    key: Key
     value: Value
 
 
@@ -138,6 +122,7 @@ class CollateralTokenLedger(BaseModel):
     tokenDecimals: str
     oracleAddress: str
     protected: bool
+    isScaledToken: bool
     tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
 
 
@@ -211,7 +196,6 @@ class LendingControllerStorage(BaseModel):
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     whitelistTokenContracts: Dict[str, str]
-    tokenPoolDepositorLedger: List[TokenPoolDepositorLedgerItem]
     vaults: List[Vault]
     ownerLedger: Dict[str, List[str]]
     collateralTokenLedger: Dict[str, CollateralTokenLedger]

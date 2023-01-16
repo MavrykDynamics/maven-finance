@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 from pydantic import BaseModel, Extra
 
 
@@ -15,3 +17,5 @@ class RegisterAsSatelliteParameter(BaseModel):
     image: str
     website: str
     satelliteFee: str
+    oraclePublicKey: Optional[str]
+    oraclePeerId: Optional[str]

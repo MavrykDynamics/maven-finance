@@ -41,9 +41,7 @@ async def on_treasury_transfer(
             token_id=str(token_id)
         )
 
-        receiver, _             = await models.MavrykUser.get_or_create(address = receiver_address)
-        await receiver.save()
-
+        receiver                = await models.mavryk_user_cache.get(address=receiver_address)
         treasury_transfer_data  = models.TreasuryTransferHistoryData(
             timestamp                       = timestamp,
             treasury                        = treasury,

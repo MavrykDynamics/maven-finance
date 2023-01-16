@@ -14,12 +14,17 @@ async def on_aggregator_remove_oracle(
     aggregator_address      = remove_oracle.data.target_address
     oracle_address          = remove_oracle.parameter.__root__
 
-    # Create record
-    oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
-    await oracle.save()
+    # Remove records
+    oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
     aggregator              = await models.Aggregator.get(address   = aggregator_address)
-    aggregator_oracle       = await models.AggregatorOracle.get(
+    aggregator_oracle       = await models.AggregatorOracle.filter(
         aggregator  = aggregator,
         user        = oracle
-    )
+    ).first()
+
+    oracle_observations     = await models.AggregatorOracleObservation.filter(oracle = aggregator_oracle).all()
+
+    for oracle_observation in oracle_observations:
+        await oracle_observation.delete()
+
     await aggregator_oracle.delete()

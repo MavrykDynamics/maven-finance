@@ -19,11 +19,7 @@ async def on_delegation_distribute_reward(
     # Get and update records
     delegation  = await models.Delegation.get(address = delegation_address)
     for satellite_address in elligible_satellites:
-        user, _         = await models.MavrykUser.get_or_create(
-            address = satellite_address
-        )
-        await user.save()
-        
+        user                    = await models.mavryk_user_cache.get(address=satellite_address)
         rewards_record          = distribute_reward.storage.satelliteRewardsLedger[satellite_address]
         satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
             user        = user,

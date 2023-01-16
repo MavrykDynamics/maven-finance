@@ -27,15 +27,16 @@ class MVKTokenWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'mvk_token_whitelist_contract'
 
-class MavrykUserOperator(Model):
+class MVKTokenOperator(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    owner                                   = fields.ForeignKeyField('models.MavrykUser', related_name='users_owner', index=True)
-    operator                                = fields.ForeignKeyField('models.MavrykUser', related_name='user_operators', index=True)
+    mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='operators')
+    owner                                   = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_token_user_owners', index=True)
+    operator                                = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_token_user_operators', index=True)
 
     class Meta:
-        table = 'mavryk_user_operator'
+        table = 'mvk_token_operator'
 
-class MVKTransferHistoryData(Model):
+class MVKTokenTransferHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     timestamp                               = fields.DatetimeField(index=True)
     mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='transfer_history_data')
@@ -46,7 +47,7 @@ class MVKTransferHistoryData(Model):
     class Meta:
         table = 'mvk_transfer_history_data'
 
-class MVKMintHistoryData(Model):
+class MVKTokenMintHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='mint_history_data')
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='mint_history_data', index=True)

@@ -12,8 +12,8 @@ async def on_doorman_compound(
 
     # Get operation info
     doorman_address                 = compound.data.target_address
-    sender_address                  = compound.data.sender_address
-    sender_stake_balance_ledger     = compound.storage.userStakeBalanceLedger[sender_address]
+    user_address                    = compound.parameter.__root__
+    sender_stake_balance_ledger     = compound.storage.userStakeBalanceLedger[user_address]
     smvk_balance                    = float(sender_stake_balance_ledger.balance)
     participation_fees_per_share    = sender_stake_balance_ledger.participationFeesPerShare
     timestamp                       = compound.data.timestamp
@@ -22,9 +22,7 @@ async def on_doorman_compound(
     accumulated_fees_per_share      = float(compound.storage.accumulatedFeesPerShare)
 
     # Get or create the interacting user
-    user, _             = await models.MavrykUser.get_or_create(
-        address=sender_address
-    )
+    user                            = await models.mavryk_user_cache.get(address=user_address)
     amount                          = smvk_balance - user.smvk_balance
     user.smvk_balance               = smvk_balance
     await user.save()
@@ -38,12 +36,10 @@ async def on_doorman_compound(
     await stake_account.save()
     
     # Get doorman info
-    doorman_user, _     = await models.MavrykUser.get_or_create(
-        address = doorman_address
-    )
+    doorman_user        = await models.mavryk_user_cache.get(address=doorman_address)
     smvk_total_supply   = doorman_user.mvk_balance
     smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
-    avg_smvk_per_user   = smvk_total_supply / smvk_users
+    avg_smvk_per_user   = float(smvk_total_supply) / float(smvk_users)
     await doorman_user.save()
 
     # Create a stake record
