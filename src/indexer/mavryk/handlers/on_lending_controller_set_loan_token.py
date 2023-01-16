@@ -52,28 +52,27 @@ async def on_lending_controller_set_loan_token(
     elif type(loan_token_type_storage) == tez:
         loan_token_address  = "XTZ"
 
-    # Persist loan Token Metadata
-    await persist_token_metadata(
-        ctx=ctx,
-        token_address=loan_token_address,
-        token_id=str(loan_token_id)
-    )
+    if loan_token_address != "XTZ":
+        # Persist loan Token Metadata
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=loan_token_address,
+            token_id=str(loan_token_id)
+        )
 
-    # Persist LP Token Metadata
-    await persist_token_metadata(
-        ctx=ctx,
-        token_address=loan_token_lp_token_address,
-        token_id=str(loan_token_lp_token_id)
-    )
+        # Persist LP Token Metadata
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=loan_token_lp_token_address,
+            token_id=str(loan_token_lp_token_id)
+        )
 
     # Create / Update record
     lending_controller                  = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
-    oracle, _                           = await models.MavrykUser.get_or_create(
-        address = loan_token_oracle_address
-    )
-    await oracle.save()
+    oracle                              = await models.mavryk_user_cache.get(address=loan_token_oracle_address)
     lending_controller_loan_token, _    = await models.LendingControllerLoanToken.get_or_create(
         lending_controller  = lending_controller,
         loan_token_name     = loan_token_name,

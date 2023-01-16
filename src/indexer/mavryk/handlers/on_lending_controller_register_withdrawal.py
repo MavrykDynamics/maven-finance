@@ -14,18 +14,21 @@ async def on_lending_controller_register_withdrawal(
 
     # Get operation info
     lending_controller_address  = register_withdrawal.data.target_address
+    timestamp                   = register_withdrawal.data.timestamp
+    level                       = register_withdrawal.data.level
+    operation_hash              = register_withdrawal.data.hash
+    sender_address              = register_withdrawal.data.initiator_address
     vault_owner_address         = register_withdrawal.parameter.handle.owner
+    vault_withdraw_amount       = float(register_withdrawal.parameter.amount)
     vault_internal_id           = int(register_withdrawal.parameter.handle.id)
     vaults_storage              = register_withdrawal.storage.vaults
 
     # Update record
     lending_controller          = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
-    vault_owner, _              = await models.MavrykUser.get_or_create(
-        address = vault_owner_address
-    )
-    await vault_owner.save()
+    vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
 
     for vault_storage in vaults_storage:
         if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -41,11 +44,11 @@ async def on_lending_controller_register_withdrawal(
             vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
 
             # Save updated vault
-            lending_controller_vault                = await models.LendingControllerVault.get(
+            lending_controller_vault                = await models.LendingControllerVault.filter(
                 lending_controller  = lending_controller,
                 owner               = vault_owner,
                 internal_id         = vault_internal_id
-            )
+            ).first()
             lending_controller_vault.internal_id                        = vault_internal_id
             lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
             lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -75,15 +78,32 @@ async def on_lending_controller_register_withdrawal(
             for collateral_token_name in vault_collateral_balance_ledger:
                 collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
                 collateral_token_storage                    = register_withdrawal.storage.collateralTokenLedger[collateral_token_name]
-                collateral_token_address                    = collateral_token_storage.tokenContractAddress
-                
-                lending_controller_collateral_token         = await models.LendingControllerCollateralToken.get(
+                collateral_token_address                    = collateral_token_storage.tokenContractAddress 
+                lending_controller_collateral_token         = await models.LendingControllerCollateralToken.filter(
                     lending_controller          = lending_controller,
                     token_address               = collateral_token_address
-                )
+                ).first()
                 lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
                     token                       = lending_controller_collateral_token
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                loan_token          = loan_token,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.WITHDRAW,
+                amount              = vault_withdraw_amount
+            )
+            await history_data.save()

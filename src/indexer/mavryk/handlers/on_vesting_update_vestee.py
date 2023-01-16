@@ -34,17 +34,14 @@ async def on_vesting_update_vestee(
         locked    = True
 
     # Create and update records
-    user, _ = await models.MavrykUser.get_or_create(
-        address = vestee_address
-    )
-    await user.save()
+    user    = await models.mavryk_user_cache.get(address=vestee_address)
     vesting = await models.Vesting.get(
         address = vesting_address
     )
-    vestee_record    = await models.VestingVestee.get(
+    vestee_record    = await models.VestingVestee.filter(
         vesting                         = vesting,
         vestee                          = user
-    )
+    ).first()
     vestee_record.total_allocated_amount          = total_allocated_amount
     vestee_record.claim_amount_per_month          = claim_amount_per_month
     vestee_record.start_timestamp                 = start_timestamp

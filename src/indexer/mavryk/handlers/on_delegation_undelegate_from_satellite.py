@@ -11,29 +11,34 @@ async def on_delegation_undelegate_from_satellite(
 ) -> None:
 
     # Get operation values
-    delegation_address      = undelegate_from_satellite.data.target_address
-    user_address            = undelegate_from_satellite.parameter.__root__
-    rewards_record          = undelegate_from_satellite.storage.satelliteRewardsLedger[user_address]
+    delegation_address          = undelegate_from_satellite.data.target_address
+    user_address                = undelegate_from_satellite.parameter.__root__
+    rewards_record              = undelegate_from_satellite.storage.satelliteRewardsLedger[user_address]
+    satellite_address           = rewards_record.satelliteReferenceAddress
 
     # Create and/or update record
-    user, _ = await models.MavrykUser.get_or_create(
-        address = user_address
-    )
-    delegation = await models.Delegation.get(
+    user                                                            = await models.mavryk_user_cache.get(address=user_address)
+    satellite                                                       = await models.mavryk_user_cache.get(address=satellite_address)
+    delegation                                                      = await models.Delegation.get(
         address = delegation_address
     )
-    satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
+    satellite_record                                                = await models.Satellite.filter(
+        user        = satellite,
+        delegation  = delegation
+    ).first()
+    satellite_reward_record, _                                      = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
     )
-    satelliteRewardRecord.unpaid                                        = float(rewards_record.unpaid)
-    satelliteRewardRecord.paid                                          = float(rewards_record.paid)
-    satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
-    satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
-    delegationRecord = await models.DelegationRecord.get(
+    satellite_reward_record.unpaid                                  = float(rewards_record.unpaid)
+    satellite_reward_record.paid                                    = float(rewards_record.paid)
+    satellite_reward_record.participation_rewards_per_share         = float(rewards_record.participationRewardsPerShare)
+    satellite_reward_record.satellite_accumulated_reward_per_share  = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+    delegation_record                                               = await models.DelegationRecord.filter(
         user        = user,
-        delegation  = delegation
-    )
+        delegation  = delegation,
+        satellite   = satellite_record
+    ).first()
     await user.save()
-    await delegationRecord.delete()
-    await satelliteRewardRecord.save()
+    await delegation_record.delete()
+    await satellite_reward_record.save()

@@ -22,9 +22,7 @@ async def on_doorman_farm_claim(
     accumulated_fees_per_share      = float(farm_claim.storage.accumulatedFeesPerShare)
 
     # Get or create the interacting user
-    user, _             = await models.MavrykUser.get_or_create(
-        address=sender_address
-    )
+    user                = await models.mavryk_user_cache.get(address=sender_address)
     amount                          = smvk_balance - user.smvk_balance
     user.smvk_balance               = smvk_balance
     await user.save()

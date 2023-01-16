@@ -60,6 +60,8 @@ class Satellite(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellites', index=True)
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellites')
+    public_key                              = fields.CharField(max_length=54, null=True)
+    peer_id                                 = fields.CharField(max_length=36, null=True)
     status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE, index=True)
     fee                                     = fields.SmallIntField(default=0)
     name                                    = fields.TextField(default="")

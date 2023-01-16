@@ -11,11 +11,16 @@ async def on_governance_lock_proposal(
 ) -> None:
 
     # Get operation values
-    proposalID  = int(lock_proposal.parameter.__root__)
+    governance_address  = lock_proposal.data.target_address
+    proposalID          = int(lock_proposal.parameter.__root__)
 
     # Update record
-    proposal    = await models.GovernanceProposal.get(
-        id      = proposalID
+    governance          = await models.Governance.get(
+        address = governance_address
     )
+    proposal    = await models.GovernanceProposal.filter(
+        governance  = governance,
+        id          = proposalID
+    ).first()
     proposal.locked = True
     await proposal.save()
