@@ -8,11 +8,10 @@ locals {
 }
 
 terraform {
-  source = "../../modules//space"
+  source = "../../modules//s3"
 }
 
 inputs = {
   name                  = "mavryk-loki"
-  region                = "ams3"
   versioning_enabled    = false
 }
