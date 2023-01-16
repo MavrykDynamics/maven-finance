@@ -1198,7 +1198,10 @@ block {
 
                     // Execute the data or skip if this entry has no data to execute
                     case metadata of [
-                            Some (_dataBytes)   -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
+                            Some (_dataBytes)   -> operations := processGovernanceActionOperation(
+                                _dataBytes.entrypointName,
+                                _dataBytes.encodedCode
+                                s) # operations
                         |   None                -> skip
                     ];
 
@@ -1392,7 +1395,10 @@ block {
 
                 // Check if there is data to execute (even at the last entry where index = 0)
                 case optionData of [
-                        Some (_dataBytes) -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
+                        Some (_dataBytes) -> operations := processGovernanceActionOperation(
+                            _dataBytes.entrypointName, 
+                            _dataBytes.encodedCode, 
+                            s) # operations
                     |   None              -> skip
                 ];
 

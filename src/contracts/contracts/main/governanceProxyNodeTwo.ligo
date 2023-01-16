@@ -80,11 +80,12 @@
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
 // Governance Proxy Types
-#include "../partials/contractTypes/governanceProxyTypes.ligo"
+// - Use Node Two Types
+#include "../partials/contractTypes/governanceProxyNodeTwoTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
-type governanceProxyAction is 
+type governanceProxyNodeAction is 
         
         // Housekeeping Entrypoints
         SetAdmin                        of (address)
@@ -96,56 +97,59 @@ type governanceProxyAction is
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
-    |   SetLambdaPointer                of setLambdaPointerActionType
-    |   ProcessGovernanceAction         of processGovernanceActionType
+    |   SetProxyLambda                  of setProxyLambdaType
+    |   ExecuteGovernanceAction         of (bytes)
+    |   DataPackingHelper               of executeActionType
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * governanceProxyStorageType
+type return is list (operation) * governanceProxyNodeStorageType
 
 // proxy lambdas -> executing proposals to external contracts within MAVRYK system
-type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorageType) -> return
+type governanceProxyNodeProxyLambdaFunctionType is (executeActionType * governanceProxyNodeStorageType) -> return
 
 // governance proxy contract methods lambdas
-type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyStorageType) -> return
+type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyNodeStorageType) -> return
 
 
 // ------------------------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Helpers:
-#include "../partials/contractHelpers/governanceProxyHelpers.ligo"
+// GovernanceProxyNode Helpers:
+// - Use Node Two Helpers
+#include "../partials/contractHelpers/governanceProxyNodeHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Views:
-#include "../partials/contractViews/governanceProxyViews.ligo"
+// GovernanceProxyNode Views:
+#include "../partials/contractViews/governanceProxyNodeViews.ligo"
 
 // ------------------------------------------------------------------------------
 // Lambdas
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Lambdas :
-#include "../partials/contractLambdas/governanceProxyLambdas.ligo"
+// GovernanceProxyNode Lambdas :
+// - Use Node Two Lambdas
+#include "../partials/contractLambdas/governanceProxyNodeLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Entrypoints:
-#include "../partials/contractEntrypoints/governanceProxyEntrypoints.ligo"
+// GovernanceProxyNode Entrypoints:
+#include "../partials/contractEntrypoints/governanceProxyNodeEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
-function main (const action : governanceProxyAction; const s : governanceProxyStorageType) : return is 
+function main (const action : governanceProxyNodeAction; const s : governanceProxyNodeStorageType) : return is 
 block {
 
     verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
@@ -164,8 +168,9 @@ block {
         |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Main entrypoints
-        |   SetLambdaPointer(parameters)              -> setLambdaPointer(parameters, s)
-        |   ProcessGovernanceAction(parameters)       -> processGovernanceAction(parameters, s)
+        |   SetProxyLambda(parameters)                -> setProxyLambda(parameters, s)
+        |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)             -> dataDataPackingHelper(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                     -> setLambda(parameters, s)

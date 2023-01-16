@@ -50,6 +50,7 @@ type votingRoundVoteType is [@layout:comb] record [
 
 type proposalDataType is [@layout:comb] record [
     title                   : string;
+    entrypointName          : string;
     encodedCode             : bytes;
     codeDescription         : string;
 ]
