@@ -17,8 +17,7 @@ async def on_governance_update_whitelist_developers(
 
     # Create/Update records
     governance              = await models.Governance.get(address   = governance_address)
-    user, _                 = await models.MavrykUser.get_or_create(address = developer)
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=developer)
     whitelist_developer, _  = await models.WhitelistDeveloper.get_or_create(
         governance  = governance,
         developer   = user

@@ -440,96 +440,121 @@ block {
                 // Get current round variables
                 const currentRoundHighestVotedProposal: option(proposalRecordType) = Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger);
 
-                // Evaluate conditions to start next round given the current round
-                case s.currentCycleInfo.round of [
+                // ------------------------------------------------------------------
+                // Check if full cycles have passed since the previous round, to account for instances where a new round has not started for a long time
+                // ------------------------------------------------------------------
 
-                        Proposal -> case currentRoundHighestVotedProposal of [
-                                
-                                // Current Round is a Proposal Round 
-                                //  -   Get the highest voted proposal (if any) and check conditions if it has reached the minProposalRoundVotesRequired to move on to the Voting Round
-                                //  -   If conditions are fulfilled, start voting round with highest voted proposal from proposal round
-                                //  -   If conditions are not fulfilled, start a new proposal round
+                const currentCycleEndLevel  : nat = s.currentCycleInfo.cycleEndLevel;
+                const currentBlockLevel     : nat = Tezos.get_level();
+                const blocksPerFullCycle    : nat = s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
 
-                                Some (proposal) -> if s.cycleHighestVotedProposalId =/= 0n and proposal.proposalVoteStakedMvkTotal >= proposal.minProposalRoundVotesRequired 
+                // calculate number of cycles that have passed if any
+                var cyclesPassed : nat := 0n;
+                if currentBlockLevel > currentCycleEndLevel then {
+                    if blocksPerFullCycle = 0n then cyclesPassed := 0n else {
+                        cyclesPassed := (abs(currentBlockLevel - currentCycleEndLevel) / blocksPerFullCycle) 
+                    };
+                } else skip;
+
+                if cyclesPassed > 0n then block {
+
+                    // if at least one full cycle has passed, reset to a new proposal round
+                    s := setupProposalRound(s);
+
+                } else block {
+
+                    // Evaluate conditions to start next round given the current round
+                    case s.currentCycleInfo.round of [
+
+                            Proposal -> case currentRoundHighestVotedProposal of [
                                     
-                                    then
+                                    // Current Round is a Proposal Round 
+                                    //  -   Get the highest voted proposal (if any) and check conditions if it has reached the minProposalRoundVotesRequired to move on to the Voting Round
+                                    //  -   If conditions are fulfilled, start voting round with highest voted proposal from proposal round
+                                    //  -   If conditions are not fulfilled, start a new proposal round
 
-                                        // Start voting round with highest voted proposal from proposal round
-                                        s := setupVotingRound(s)
+                                    Some (proposal) -> if s.cycleHighestVotedProposalId =/= 0n and proposal.proposalVoteStakedMvkTotal >= proposal.minProposalRoundVotesRequired 
+                                        
+                                        then
 
-                                    else
+                                            // Start voting round with highest voted proposal from proposal round
+                                            s := setupVotingRound(s)
 
-                                        // Conditions not fulfilled - Restart a new proposal round
-                                        s := setupProposalRound(s)
+                                        else
 
-                            |   None -> s := setupProposalRound(s)
-                        ]
-                    
-                    |   Voting -> case currentRoundHighestVotedProposal of [
+                                            // Conditions not fulfilled - Restart a new proposal round
+                                            s := setupProposalRound(s)
 
-                            // Current Round is a Voting Round 
-                            //  -   Send governance rewards to all satellite voters (if there is at least one)
-                            //  -   Calculate YAY votes required for proposal to be successful and move on to the Timelock round
-                            //  -   Calculate if quorum and vote conditions fulfilled for proposal to be successful
-                            //          -   N.B. Quorum votes is the equivalent to total number of votes (YAY, NAY, PASS)
-                            //          -   Success conditions: Quorum threshold reached, YAY votes threshold reached, YAY votes greater than NAY votes
-                            //  -   If conditions are fulfilled, start timelock round 
-                            //  -   If conditions are not fulfilled, start a new proposal round
+                                |   None -> s := setupProposalRound(s)
+                            ]
                         
-                            Some (proposal) -> block{
+                        |   Voting -> case currentRoundHighestVotedProposal of [
 
-                                // Enable the claim for the satellite who voted
-                                var highestVotedProposal                        := proposal;
-                                highestVotedProposal.rewardClaimReady           := True;
-                                s.proposalLedger[s.cycleHighestVotedProposalId] := highestVotedProposal;
+                                // Current Round is a Voting Round 
+                                //  -   Send governance rewards to all satellite voters (if there is at least one)
+                                //  -   Calculate YAY votes required for proposal to be successful and move on to the Timelock round
+                                //  -   Calculate if quorum and vote conditions fulfilled for proposal to be successful
+                                //          -   N.B. Quorum votes is the equivalent to total number of votes (YAY, NAY, PASS)
+                                //          -   Success conditions: Quorum threshold reached, YAY votes threshold reached, YAY votes greater than NAY votes
+                                //  -   If conditions are fulfilled, start timelock round 
+                                //  -   If conditions are not fulfilled, start a new proposal round
+                            
+                                Some (proposal) -> block{
 
-                                // Calculate YAY votes required for proposal to be successful and move on to the Timelock round
-                                const yayVotesRequired: nat = (proposal.quorumStakedMvkTotal * proposal.minYayVotePercentage) / 10000n;
+                                    // Enable the claim for the satellite who voted
+                                    var highestVotedProposal                        := proposal;
+                                    highestVotedProposal.rewardClaimReady           := True;
+                                    s.proposalLedger[s.cycleHighestVotedProposalId] := highestVotedProposal;
 
-                                // Calculate if quorum and vote conditions fulfilled for proposal to be successful
-                                if proposal.quorumStakedMvkTotal < proposal.minQuorumStakedMvkTotal or proposal.yayVoteStakedMvkTotal < yayVotesRequired or proposal.yayVoteStakedMvkTotal < proposal.nayVoteStakedMvkTotal then {
-                                
-                                    // Conditions not fulfilled - restart a new proposal round
-                                    s := setupProposalRound(s);
+                                    // Calculate YAY votes required for proposal to be successful and move on to the Timelock round
+                                    const yayVotesRequired: nat = (proposal.quorumStakedMvkTotal * proposal.minYayVotePercentage) / 10000n;
 
-                                } else block {
+                                    // Calculate if quorum and vote conditions fulfilled for proposal to be successful
+                                    if proposal.quorumStakedMvkTotal < proposal.minQuorumStakedMvkTotal or proposal.yayVoteStakedMvkTotal < yayVotesRequired or proposal.yayVoteStakedMvkTotal < proposal.nayVoteStakedMvkTotal then {
+                                    
+                                        // Conditions not fulfilled - restart a new proposal round
+                                        s := setupProposalRound(s);
 
-                                    // Conditions fulfilled - start timelock round
-                                    s := setupTimelockRound(s);
-                                };
+                                    } else block {
+
+                                        // Conditions fulfilled - start timelock round
+                                        s := setupTimelockRound(s);
+                                    };
+                                }
+
+                            |   None -> failwith(error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND)
+                        ]
+
+                        |   Timelock -> block {
+
+                                // Current Round is a Timelock Round 
+                                //  -   Mark the timelock proposal as ready to execute
+                                //  -   Execute timelocked proposal if boolean input is True
+                                //          - If proposal is too large for execution (e.g. gas cost exceed limits), set boolean to False 
+                                //            and execute proposal manually through the %processProposalSingleData entrypoint
+                                //  -   Start a new proposal round
+
+                                // Execute timelocked proposal if boolean input is True
+                                if s.timelockProposalId =/= 0n then {
+                                    // Mark the proposal as ready to execute even if it's not executed during this cycle
+                                    var proposalToExecute                           := case Big_map.find_opt(s.timelockProposalId, s.proposalLedger) of [
+                                            Some (_proposal)    -> _proposal
+                                        |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
+                                    ];
+                                    proposalToExecute.executionReady                := True;
+                                    s.proposalLedger[s.timelockProposalId]          := proposalToExecute;
+
+                                    // Execute the timelock proposal if the boolean was set to true
+                                    if executePastProposal then operations := Tezos.transaction((s.timelockProposalId), 0tez, getExecuteProposalEntrypoint(Tezos.get_self_address())) # operations 
+                                    else skip;
+                                } else skip;
+
+                                // Start proposal round 
+                                s := setupProposalRound(s);
                             }
+                    ];
 
-                        |   None -> failwith(error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND)
-                    ]
-
-                    |   Timelock -> block {
-
-                            // Current Round is a Timelock Round 
-                            //  -   Mark the timelock proposal as ready to execute
-                            //  -   Execute timelocked proposal if boolean input is True
-                            //          - If proposal is too large for execution (e.g. gas cost exceed limits), set boolean to False 
-                            //            and execute proposal manually through the %processProposalSingleData entrypoint
-                            //  -   Start a new proposal round
-
-                            // Execute timelocked proposal if boolean input is True
-                            if s.timelockProposalId =/= 0n then {
-                                
-                                // Mark the proposal as ready to execute even if it's not executed during this cycle
-                                var proposalToExecute : proposalRecordType := getProposalRecord(s.timelockProposalId, s);
-
-                                proposalToExecute.executionReady                := True;
-                                s.proposalLedger[s.timelockProposalId]          := proposalToExecute;
-
-                                // Execute the timelock proposal if the boolean was set to true
-                                if executePastProposal then operations := Tezos.transaction((s.timelockProposalId), 0tez, getExecuteProposalEntrypoint(Tezos.get_self_address())) # operations 
-                                else skip;
-
-                            } else skip;
-
-                            // Start proposal round 
-                            s := setupProposalRound(s);
-                        }
-                ];
+                };
 
             }
         |   _ -> skip

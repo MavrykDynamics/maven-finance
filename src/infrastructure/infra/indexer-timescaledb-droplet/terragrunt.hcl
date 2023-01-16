@@ -18,7 +18,7 @@ terraform {
 inputs = {
   name                        = "mavryk-indexer-timescale-db-droplet"
   region                      = local.do_region
-  import_ssh_keys             = true
+  ssh_keys_names              = ["Tristan", "Sylvain"]
   vpc_id                      = dependency.vpc.outputs.vpc_id
   image                       = "ubuntu-20-04-x64"
   size                        = "s-1vcpu-2gb-intel"

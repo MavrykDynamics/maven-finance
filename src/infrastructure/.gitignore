@@ -5,3 +5,4 @@ charts/
 *.lock
 temp.yaml
 *secret.yaml
+nix

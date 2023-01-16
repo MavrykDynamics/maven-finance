@@ -1,6 +1,6 @@
 from pickle import TRUE
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
 
 ###
 # Treasury Tables
@@ -37,7 +37,7 @@ class TreasuryWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'treasury_whitelist_contract'
 
-class TreasuryWhitelistTokenContract(LinkedContract, Model):
+class TreasuryWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
     contract                                 = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
 
     class Meta:

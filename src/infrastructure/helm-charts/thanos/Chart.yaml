@@ -1,0 +1,8 @@
+apiVersion: v2
+name: thanos-mavryk
+version: 0.0.1
+appVersion: 11.6.2
+dependencies:
+  - name: thanos
+    version: 11.6.2
+    repository: https://charts.bitnami.com/bitnami

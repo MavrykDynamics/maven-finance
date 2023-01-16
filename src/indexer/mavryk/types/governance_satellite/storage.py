@@ -8,24 +8,6 @@ from typing import Any, Dict, List, Union
 from pydantic import BaseModel, Extra, Field
 
 
-class AggregatorPair(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    string_0: str
-    string_1: str
-
-
-class AggregatorLedger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    aggregatorPair: AggregatorPair
-    status: str
-    createdTimestamp: str
-    oracles: List[str]
-
-
 class Config(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -125,7 +107,7 @@ class GovernanceSatelliteStorage(BaseModel):
 
     actionsInitiators: Dict[str, List[str]]
     admin: str
-    aggregatorLedger: Dict[str, AggregatorLedger]
+    aggregatorLedger: Dict[str, str]
     config: Config
     generalContracts: Dict[str, str]
     governanceAddress: str

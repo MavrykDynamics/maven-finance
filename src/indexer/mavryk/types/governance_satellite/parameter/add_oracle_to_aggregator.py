@@ -11,7 +11,5 @@ class AddOracleToAggregatorParameter(BaseModel):
         extra = Extra.forbid
 
     oracleAddress: str
-    oraclePublicKey: str
-    oraclePeerId: str
     aggregatorAddress: str
     purpose: str

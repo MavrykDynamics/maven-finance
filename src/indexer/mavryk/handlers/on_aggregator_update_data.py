@@ -13,9 +13,11 @@ async def on_aggregator_update_data(
     # Get operation info
     aggregator_address              = update_data.data.target_address
     oracle_address                  = update_data.data.sender_address
+    timestamp                       = update_data.data.timestamp
     last_completed_data             = update_data.storage.lastCompletedData
     oracle_reward_xtz_amount        = float(update_data.storage.oracleRewardXtz[oracle_address])
     oracle_reward_smvk_amount       = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
+    oracle_observations             = update_data.parameter.oracleObservations
 
     # Update / create record
     aggregator                      = await models.Aggregator.get(
@@ -28,14 +30,11 @@ async def on_aggregator_update_data(
     aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
     await aggregator.save()
 
-    user, _                         = await models.MavrykUser.get_or_create(
-        address     = oracle_address
-    )
-    await user.save()
-    oracle, _                       = await models.AggregatorOracle.get_or_create(
+    user                            = await models.mavryk_user_cache.get(address=oracle_address)
+    oracle                          = await models.AggregatorOracle.filter(
         aggregator  = aggregator,
         user        = user
-    )
+    ).first()
     await oracle.save()
     oracle_reward_xtz, _            = await models.AggregatorOracleReward.get_or_create(
         oracle      = oracle,
@@ -60,3 +59,27 @@ async def on_aggregator_update_data(
         pct_oracle_resp = aggregator.last_completed_data_pct_oracle_resp
     )
     await aggregator_history_data.save()
+
+    # Save oracle stats
+    for oracle_address in oracle_observations:
+        # Get observation data
+        oracle_observation              = oracle_observations[oracle_address]
+        data                            = float(oracle_observation.data)
+        epoch                           = int(oracle_observation.epoch)
+        round                           = int(oracle_observation.round)
+
+        # Create observation records
+        user                            = await models.mavryk_user_cache.get(address=oracle_address)
+        oracle                          = await models.AggregatorOracle.filter(
+            aggregator  = aggregator,
+            user        = user
+        ).first()
+        await oracle.save()
+        observation                     = models.AggregatorOracleObservation(
+            oracle          = oracle,
+            timestamp       = timestamp,
+            data            = data,
+            epoch           = epoch,
+            round           = round
+        )
+        await observation.save()

@@ -120,7 +120,7 @@
 //                 await updateOperators.confirmation();
 //                 stakeOperation = await doormanInstance.methods.stake(MVK(1)).send();
 //                 await stakeOperation.confirmation();
-//                 console.log(await delegationStorage.lambdaLedger.get("lambdaRegisterAsSatellite"))
+                
 //                 var registerAsSatellite = await delegationInstance.methods
 //                 .registerAsSatellite(
 //                     "Alice Satellite", 
@@ -2259,7 +2259,7 @@
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                     }
-//                     // // await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
 
 //                     // Reset config
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(0,"configBlocksPerProposalRound").send();

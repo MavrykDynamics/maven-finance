@@ -18,8 +18,6 @@ async def on_aggregator_factory_create_aggregator(
     # Get operation info
     aggregator_address                          = aggregator_origination.data.originated_contract_address
     aggregator_factory_address                  = create_aggregator.data.target_address
-    token_0_symbol                              = create_aggregator.parameter.string_0
-    token_1_symbol                              = create_aggregator.parameter.string_1
     admin                                       = aggregator_origination.storage.admin
     governance_address                          = aggregator_origination.storage.governanceAddress
     creation_timestamp                          = aggregator_origination.data.timestamp
@@ -74,9 +72,8 @@ async def on_aggregator_factory_create_aggregator(
             address     = governance_address
         )
         existing_aggregator         = await models.Aggregator.get_or_none(
-            token_0_symbol      = token_0_symbol,
-            token_1_symbol      = token_1_symbol,
-            factory             = aggregator_factory
+            factory             = aggregator_factory,
+            address             = aggregator_address
         )
         if existing_aggregator:
             existing_aggregator.factory  = None
@@ -86,8 +83,6 @@ async def on_aggregator_factory_create_aggregator(
         )
         aggregator.governance                                   = governance
         aggregator.admin                                        = admin
-        aggregator.token_0_symbol                               = token_0_symbol
-        aggregator.token_1_symbol                               = token_1_symbol
         aggregator.factory                                      = aggregator_factory
         aggregator.creation_timestamp                           = creation_timestamp
         aggregator.name                                         = name
@@ -114,12 +109,13 @@ async def on_aggregator_factory_create_aggregator(
             oracle_peer_id          = oracle_storage_record.oraclePeerId
 
             # Create record
-            oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
-            await oracle.save()
+            oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
             aggregator_oracle       = models.AggregatorOracle(
                 aggregator  = aggregator,
                 user        = oracle,
                 public_key  = oracle_pk,
-                peer_id     = oracle_peer_id
+                peer_id     = oracle_peer_id,
+                init_round  = last_completed_data_round,
+                init_epoch  = last_completed_data_epoch
             )
             await aggregator_oracle.save()

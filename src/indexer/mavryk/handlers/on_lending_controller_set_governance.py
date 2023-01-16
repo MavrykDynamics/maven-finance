@@ -13,7 +13,10 @@ async def on_lending_controller_set_governance(
     
     # Get operation info
     target_contract = set_governance.data.target_address
-    contract        = await models.LendingController.get(address = target_contract)
+    contract        = await models.LendingController.get(
+        address     = target_contract,
+        mock_time   = False
+    )
 
     # Persist new admin
     await persist_governance(set_governance, contract)

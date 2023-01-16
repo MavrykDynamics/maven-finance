@@ -10,8 +10,6 @@ class Aggregator(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
     factory                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True, index=True)
-    token_0_symbol                          = fields.CharField(default='', max_length=36, index=True)
-    token_1_symbol                          = fields.CharField(default='', max_length=36, index=True)
     name                                    = fields.TextField(default='')
     decimals                                = fields.SmallIntField(default=0)
     alpha_pct_per_thousand                  = fields.SmallIntField(default=0)
@@ -31,16 +29,30 @@ class Aggregator(MavrykContract, Model):
     class Meta:
         table = 'aggregator'
 
-class AggregatorOracle(ContractLambda, Model):
+class AggregatorOracle(Model):
+    id                                      = fields.BigIntField(pk=True)
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles', index=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles', index=True)
     public_key                              = fields.CharField(max_length=54, default="")
     peer_id                                 = fields.CharField(max_length=36, default="")
+    init_round                              = fields.BigIntField(index=True)
+    init_epoch                              = fields.BigIntField(index=True)
 
     class Meta:
         table = 'aggregator_oracle'
 
-class AggregatorOracleReward(ContractLambda, Model):
+class AggregatorOracleObservation(Model):
+    id                                      = fields.BigIntField(pk=True)
+    oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='observations', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
+    data                                    = fields.FloatField(default=0.0)
+    epoch                                   = fields.BigIntField(default=0, index=True)
+    round                                   = fields.BigIntField(default=0, index=True)
+
+    class Meta:
+        table = 'aggregator_oracle_observation'
+
+class AggregatorOracleReward(Model):
     id                                      = fields.BigIntField(pk=True)
     oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='rewards', index=True)
     type                                    = fields.IntEnumField(enum_type=RewardType, index=True)
@@ -67,7 +79,8 @@ class AggregatorWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'aggregator_whitelist_contract'
 
-class AggregatorHistoryData(ContractLambda, Model):
+class AggregatorHistoryData(Model):
+    id                                      = fields.BigIntField(pk=True)
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='history_data', index=True)
     timestamp                               = fields.DatetimeField(index=True)
     round                                   = fields.BigIntField(default=0, index=True)

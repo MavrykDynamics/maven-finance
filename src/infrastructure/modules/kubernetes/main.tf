@@ -17,3 +17,21 @@ resource "digitalocean_kubernetes_cluster" "this" {
         labels      = var.default_node_pool_labels
     }
 }
+
+resource "digitalocean_kubernetes_node_pool" "this" {
+    count           = length(var.additional_node_pools)
+    cluster_id      = digitalocean_kubernetes_cluster.this.id
+
+    name            = var.additional_node_pools[count.index].name
+    size            = var.additional_node_pools[count.index].size
+    node_count      = var.additional_node_pools[count.index].node_count
+    tags            = var.additional_node_pools[count.index].tags
+
+    labels          = var.additional_node_pools[count.index].labels
+    
+    taint {
+        key    = var.additional_node_pools[count.index].taint.key
+        value  = var.additional_node_pools[count.index].taint.value
+        effect = var.additional_node_pools[count.index].taint.effect
+    }
+}
