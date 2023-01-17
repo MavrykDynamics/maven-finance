@@ -42,15 +42,19 @@ async def on_lending_controller_set_loan_token(
     loan_token_type_storage                             = loan_token_storage.tokenType
     loan_token_address                                  = ""
     loan_token_id                                       = 0
-    
+    loan_token_contract_standard                        = ""
+
     # Loan Token attributes
     if type(loan_token_type_storage) == fa12:
-        loan_token_address  = loan_token_type_storage.fa12
+        loan_token_address              = loan_token_type_storage.fa12
+        loan_token_contract_standard    = "fa12"
     elif type(loan_token_type_storage) == fa2:
-        loan_token_address  = loan_token_type_storage.fa2.tokenContractAddress
-        loan_token_id       = loan_token_type_storage.fa2.tokenId
+        loan_token_address              = loan_token_type_storage.fa2.tokenContractAddress
+        loan_token_id                   = loan_token_type_storage.fa2.tokenId
+        loan_token_contract_standard    = "fa2"
     elif type(loan_token_type_storage) == tez:
-        loan_token_address  = "XTZ"
+        loan_token_address              = "XTZ"
+        loan_token_contract_standard    = "tez"
 
     if loan_token_address != "XTZ":
         # Persist loan Token Metadata
@@ -96,4 +100,5 @@ async def on_lending_controller_set_loan_token(
     lending_controller_loan_token.accumulated_rewards_per_share             = loan_token_accumulated_rewards_per_share
     lending_controller_loan_token.borrow_index                              = loan_token_borrow_index
     lending_controller_loan_token.min_repayment_amount                      = loan_token_min_repayment_amount
+    lending_controller_loan_token.loan_token_contract_standard              = loan_token_contract_standard
     await lending_controller_loan_token.save()
