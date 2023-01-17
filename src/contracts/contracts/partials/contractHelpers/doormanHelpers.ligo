@@ -29,6 +29,7 @@ block{
 } with unit
 
 
+
 // helper function to verify all entrypoints are paused
 function verifyAllEntrypointsPaused(const s : doormanStorageType) : unit is 
 block {

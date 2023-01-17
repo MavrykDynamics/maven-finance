@@ -59,7 +59,7 @@ type doormanAction is
     |   Compound                    of (address)
     |   FarmClaim                   of farmClaimType
 
-        // Vault Entrypoints - callable only by USDM Token Controller
+        // Vault Entrypoints - callable only by Lending Controller
     |   OnVaultDepositStake         of onVaultDepositStakeType
     |   OnVaultWithdrawStake        of onVaultWithdrawStakeType
     |   OnVaultLiquidateStake       of onVaultLiquidateStakeType
