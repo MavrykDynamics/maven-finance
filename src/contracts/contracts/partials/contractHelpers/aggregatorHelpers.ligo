@@ -103,7 +103,7 @@ block {
 function verifyEpochIsEqualOrGreaterThanPreviousEpoch(const currentEpoch : nat; const s : aggregatorStorageType) : unit is
 block {
     
-    verifyGreaterThan(currentEpoch, s.lastCompletedData.epoch, error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
+    verifyGreaterThanOrEqual(currentEpoch, s.lastCompletedData.epoch, error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
 
 } with unit
 

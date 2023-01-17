@@ -67,19 +67,6 @@ block {
 function checkSenderIsWhitelistedDepositor(const s : vaultStorageType) : bool is
 block {
 
-    // check if sender is a whitelisted depositor
-    // const isWhitelistedDepositorCheck : bool = case s.depositors of [
-    //         Any                    -> True
-    //     |   Whitelist(_depositors) -> _depositors contains Tezos.get_sender()
-    // ];
-
-    // const isAllowedToDeposit : bool = 
-    // if s.depositors.depositorsConfig = "any" then True 
-    // else if s.depositors.depositorsConfig = "whitelist" then {
-    //     const isWhitelistedDepositor : bool = s.depositors.whitelistedDepositors contains Tezos.get_sender();
-    // } with isWhitelistedDepositor
-    // else False;
-
     const isAllowedToDeposit : bool = case s.depositors.depositorsConfig of [
             Any       -> True
         |   Whitelist -> s.depositors.whitelistedDepositors contains Tezos.get_sender()

@@ -288,6 +288,7 @@ describe('Linked contracts updates for Tests', async () => {
       // whitelist contracts
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts('governanceProxy', governanceProxyAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactoryAddress.address))
+      .withContractCall(treasuryInstance.methods.updateWhitelistContracts("treasuryFactory", treasuryFactoryAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("tokenSale", tokenSaleAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", doormanAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", delegationAddress.address))
@@ -302,7 +303,7 @@ describe('Linked contracts updates for Tests', async () => {
       const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
       await treasuryContractsBatchOperation.confirmation();
       
-      console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory]')
+      console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory, treasuryFactory]')
       console.log('Treasury Contract - set whitelist token contract addresses map [MavrykFA12, MavrykFA2, MVK]')
   
       // Vesting Contract - set whitelist contract addresses map [council]
