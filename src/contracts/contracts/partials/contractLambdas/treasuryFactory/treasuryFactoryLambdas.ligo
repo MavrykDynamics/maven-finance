@@ -363,9 +363,9 @@ block{
 
                 // Prepare Treasury Metadata
                 const treasuryMetadata: metadataType = Big_map.literal (list [
-                    ("", ("74657a6f732d73746f726167653a64617461": bytes));
-                    ("data", createTreasuryParams.metadata)
-                ]);
+                    ("", ("74657a6f732d73746f726167653a64617461" : bytes));
+                    ("data", createTreasuryParams.metadata);
+                ]); 
 
                 // Init Treasury lambdas (stored on Treasury Factory)
                 const treasuryLambdaLedger : lambdaLedgerType = s.treasuryLambdaLedger;

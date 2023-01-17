@@ -13,10 +13,17 @@ type userStakeBalanceRecordType is [@layout:comb] record[
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
 type doormanBreakGlassConfigType is [@layout:comb] record [
+    
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
     compoundIsPaused        : bool;
     farmClaimIsPaused       : bool;
+
+    // vault entrypoints
+    onVaultDepositStakedMvkIsPaused    : bool;
+    onVaultWithdrawStakedMvkIsPaused   : bool;
+    onVaultLiquidateStakedMvkIsPaused  : bool;
+
 ]
 
 type doormanConfigType is [@layout:comb] record [
@@ -44,11 +51,30 @@ type doormanUpdateConfigParamsType is [@layout:comb] record [
     updateConfigAction      : doormanUpdateConfigActionType;
 ]
 
+type onVaultDepositStakedMvkType is [@layout:comb] record [
+    vaultOwner       : address;
+    vaultAddress     : address;
+    depositAmount    : nat;
+]
+type onVaultWithdrawStakedMvkType is [@layout:comb] record [
+    vaultOwner       : address;
+    vaultAddress     : address;
+    withdrawAmount   : nat;
+]
+type onVaultLiquidateStakedMvkType is [@layout:comb] record [
+    vaultAddress      : address;
+    liquidator        : address; 
+    liquidatedAmount  : nat; 
+]
+
 type doormanPausableEntrypointType is
-        Stake             of bool
-    |   Unstake           of bool
-    |   Compound          of bool
-    |   FarmClaim         of bool
+        Stake                         of bool
+    |   Unstake                       of bool
+    |   Compound                      of bool
+    |   FarmClaim                     of bool
+    |   OnVaultDepositStakedMvk       of bool
+    |   OnVaultWithdrawStakedMvk      of bool
+    |   OnVaultLiquidateStakedMvk     of bool
 
 type doormanTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : doormanPausableEntrypointType;
@@ -84,6 +110,10 @@ type doormanLambdaActionType is
     |   LambdaCompound                    of (address)
     |   LambdaFarmClaim                   of farmClaimType
 
+        // Vault Lambdas
+    |   LambdaOnVaultDepositStakedMvk       of onVaultDepositStakedMvkType
+    |   LambdaOnVaultWithdrawStakedMvk      of onVaultWithdrawStakedMvkType
+    |   LambdaOnVaultLiquidateStakedMvk     of onVaultLiquidateStakedMvkType
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -91,23 +121,23 @@ type doormanLambdaActionType is
 
 
 type doormanStorageType is [@layout:comb] record [
-  admin                     : address;
-  metadata                  : metadataType;
-  config                    : doormanConfigType;
+    admin                     : address;
+    metadata                  : metadataType;
+    config                    : doormanConfigType;
 
-  mvkTokenAddress           : address;
-  governanceAddress         : address;
-  
-  whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-  generalContracts          : generalContractsType;
-  
-  breakGlassConfig          : doormanBreakGlassConfigType;
-  
-  userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
+    mvkTokenAddress           : address;
+    governanceAddress         : address;
+    
+    whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+    generalContracts          : generalContractsType;
+    
+    breakGlassConfig          : doormanBreakGlassConfigType;
+    
+    userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
 
-  unclaimedRewards          : nat; // current exit fee pool rewards
-  accumulatedFeesPerShare   : nat;
+    unclaimedRewards          : nat; // current exit fee pool rewards
+    accumulatedFeesPerShare   : nat;
 
-  lambdaLedger              : lambdaLedgerType;
+    lambdaLedger              : lambdaLedgerType;
 ]
 

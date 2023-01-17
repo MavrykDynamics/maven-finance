@@ -247,3 +247,4 @@ type governanceProxyStorageType is record [
 
     lambdaLedger                : lambdaLedgerType;             
 ]
+
