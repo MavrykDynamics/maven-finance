@@ -103,6 +103,8 @@ class LendingControllerCollateralToken(Model):
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_collateral_token_oracles', null=True, index=True)
     protected                               = fields.BooleanField(default=False, index=True)
     is_scaled_token                         = fields.BooleanField(default=False, index=True)
+    token_name                              = fields.CharField(max_length=36, default="")
+    token_contract_standard                 = fields.CharField(max_length=4, default="")
 
     class Meta:
         table = 'lending_controller_collateral_token'
@@ -130,6 +132,7 @@ class LendingControllerLoanToken(Model):
     accumulated_rewards_per_share           = fields.FloatField(default=0.0)
     borrow_index                            = fields.FloatField(default=0)
     min_repayment_amount                    = fields.FloatField(default=0.0)
+    loan_token_contract_standard            = fields.CharField(max_length=4, default="")
 
     class Meta:
         table = 'lending_controller_loan_token'

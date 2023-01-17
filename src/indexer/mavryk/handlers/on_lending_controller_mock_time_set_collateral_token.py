@@ -26,6 +26,7 @@ async def on_lending_controller_mock_time_set_collateral_token(
         collateral_token_protected      = collateral_token_storage.protected
         collateral_token_scaled         = collateral_token_storage.isScaledToken
         collateral_token_id             = 0
+        collateral_token_standard      = ""
 
         # Persist collateral Token Metadata
         await persist_token_metadata(
@@ -33,6 +34,22 @@ async def on_lending_controller_mock_time_set_collateral_token(
             token_address=collateral_token_address,
             token_id=str(collateral_token_id)
         )
+
+        # Save token contract token standard
+        if collateral_token_address[0:3] == 'KT1' and len(collateral_token_address) == 36:
+            contract_summary    = await ctx.datasource.get_contract_summary(address = collateral_token_address,)
+
+            if contract_summary:
+                if 'tzips' in contract_summary:
+                    tzips   = contract_summary['tzips']
+                    if 'fa2' in tzips:
+                        collateral_token_standard       = 'fa2'
+                    else:
+                        if 'fa12' in tzips:
+                            collateral_token_standard   = 'fa12'
+
+        if collateral_token_name == 'XTZ' or collateral_token_name == 'tez':
+            collateral_token_standard = 'tez'
 
         # Create / Update record
         lending_controller          = await models.LendingController.get(
@@ -45,6 +62,8 @@ async def on_lending_controller_mock_time_set_collateral_token(
             token_address       = collateral_token_address,
             oracle              = oracle
         )
-        lending_controller_collateral_token.protected           = collateral_token_protected
-        lending_controller_collateral_token.is_scaled_token     = collateral_token_scaled
+        lending_controller_collateral_token.protected                   = collateral_token_protected
+        lending_controller_collateral_token.is_scaled_token             = collateral_token_scaled
+        lending_controller_collateral_token.token_name                  = collateral_token_name
+        lending_controller_collateral_token.token_contract_standard     = collateral_token_standard
         await lending_controller_collateral_token.save()
