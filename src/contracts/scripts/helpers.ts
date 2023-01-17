@@ -242,9 +242,9 @@ export const oldCompileContract = async (
                         },
                     ).toString()
 
-                    console.log(lambda.name);
-                    console.log(JSON.parse(michelson).bytes);
-                    console.log(`${lambda.name} : ${JSON.parse(michelson).bytes}`);
+                    // console.log(lambda.name);
+                    // console.log(JSON.parse(michelson).bytes);
+                    // console.log(`${lambda.name} : ${JSON.parse(michelson).bytes}`);
             
                     // res.push(`${lambda.name} : ${JSON.parse(michelson).bytes}`)
                     res[lambda.name] = JSON.parse(michelson).bytes;

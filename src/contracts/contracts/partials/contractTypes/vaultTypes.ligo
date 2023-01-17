@@ -16,7 +16,6 @@ type depositorsConfigType is
     |   Whitelist of unit
 
 type depositorsType is [@layout:comb] record [
-    // depositorsConfig        : depositorsConfigType; 
     whitelistedDepositors   : set(address);
     depositorsConfig        : depositorsConfigType; 
 ]
