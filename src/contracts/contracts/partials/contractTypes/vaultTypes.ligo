@@ -32,15 +32,6 @@ type vaultHandleType is [@layout:comb] record [
 type delegateTezToBakerType is option(key_hash)
 type satelliteAddressType is address
 
-// type updateDepositorAllowanceType is
-//     |   AllowAny        of bool
-//     |   AllowAccount    of bool * address
-
-// type updateDepositorType is [@layout:comb] record [
-//     allowance       : updateDepositorAllowanceType;
-//     empty           : unit;
-// ]
-
 type updateDepositorType is [@layout:comb] record [
     depositorAddress        : address;
     addOrRemoveBool         : bool;

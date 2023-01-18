@@ -27,7 +27,7 @@ type mintOrBurnType is [@layout:comb] record [
 // Storage
 // ------------------------------------------------------------------------------
 
-type mavrykFa2TokenStorageType is [@layout:comb] record [
+type mTokenStorageType is [@layout:comb] record [
     admin                   : address;
     metadata                : metadataType;
     
