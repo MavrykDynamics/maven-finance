@@ -81,21 +81,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Misc Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper functions - conversions
-function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
-function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
-function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
-
-// ------------------------------------------------------------------------------
-// Misc Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
