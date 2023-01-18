@@ -13,7 +13,7 @@ export const mvkTokenDecimals = 9
 
 const totalSupply       = MVK(1400000)
 const maximumSupply     = MVK(10**9)
-const initialSupply     = new BigNumber(totalSupply)        // 1,200,000 MVK Tokens (1e9)
+const initialSupply     = new BigNumber(totalSupply)        // 1,400,000 MVK Tokens (1e9)
 const singleUserSupply  = new BigNumber(totalSupply / 7)    // 200,000 MVK Tokens (1e9)
 
 const metadata = MichelsonMap.fromLiteral({
