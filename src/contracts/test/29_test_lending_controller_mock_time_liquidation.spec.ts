@@ -3429,7 +3429,7 @@
     
 //             // interest will be in the loan token type (i.e. mock FA2)
 //             interestSentToTreasury                          = lendingHelper.calculateInterestSentToTreasury(interestTreasuryShare, totalInterestPaid)
-//             interestRewards                        = lendingHelper.calculateInterestRewards(interestSentToTreasury, totalInterestPaid);
+//             interestRewards                                 = lendingHelper.calculateInterestRewards(interestSentToTreasury, totalInterestPaid);
 
             
 //             // ----------------------------------------------------------------------------------------------
