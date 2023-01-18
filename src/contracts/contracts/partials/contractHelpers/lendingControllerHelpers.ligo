@@ -53,25 +53,6 @@ block {
 // ------------------------------------------------------------------------------
 
 
-// ------------------------------------------------------------------------------
-// Misc Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper functions - conversions
-function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
-function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
-
-
-// helper function to check no loan outstanding on vault
-function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
-    if vault.loanOutstandingTotal = 0n then unit
-    else failwith(error_LOAN_OUTSTANDING_IS_NOT_ZERO)
-
-// ------------------------------------------------------------------------------
-// Misc Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
@@ -150,6 +131,13 @@ function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : 
 // ------------------------------------------------------------------------------
 // Contract Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// helper function to check no loan outstanding on vault
+function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
+    if vault.loanOutstandingTotal = 0n then unit
+    else failwith(error_LOAN_OUTSTANDING_IS_NOT_ZERO)
+
+
 
 // helper function to get user staked mvk balance from staking contract (e.g. Doorman)
 function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address) : nat is 

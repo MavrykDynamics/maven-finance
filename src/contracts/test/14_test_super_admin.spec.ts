@@ -395,6 +395,8 @@
 //                         const proposal      = await governanceStorage.proposalLedger.get(proposalId);
 //                         const whitelistedDevelopersEnd = await governanceStorage.whitelistDevelopers;
 
+//                         console.log(newAdmin);
+//                         console.log(whitelistedDevelopers);
 //                         console.log(whitelistedDevelopersEnd);
 
 //                         // Assertions
