@@ -95,7 +95,6 @@ describe("Execute Lambda tests", async () => {
                 const packedDataValue = lambdaParams.parameter.value;
                 const packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
 
-
                 // pack data
                 const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
 

@@ -418,36 +418,6 @@ block{
 
 
     // // Fourth Way
-    // const executeGovernanceAction : doormanLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(doormanLambdaActionType)) of [
-    //         Some(_action) -> _action
-    //     |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    // ];
-
-    // const response : return = case executeGovernanceAction of [
-      
-    //         // Housekeeping
-    //     |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
-    //     |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
-    //     |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-    //     |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
-    //     |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-    //     |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-    //     |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-    //     |   LambdaMigrateFunds(parameters)              -> migrateFunds(parameters, s)
-
-    //         // Pause / Break Glass Entrypoints
-    //     |   LambdaPauseAll(_parameters)                 -> pauseAll(s)
-    //     |   LambdaUnpauseAll(_parameters)               -> unpauseAll(s)
-    //     |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
-
-    //         // Doorman Entrypoints
-    //     |   LambdaCompound(parameters)                  -> compound(parameters, s)
-        
-    //     |   _                                           -> (nil, s)
-    // ];
-
-
-    // Fifth Way
     const executeGovernanceAction : doormanLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(doormanLambdaActionType)) of [
             Some(_action) -> _action
         |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
@@ -456,25 +426,55 @@ block{
     const response : return = case executeGovernanceAction of [
       
             // Housekeeping
-        |   LambdaSetAdmin (parameters)                 -> _setAdmin(parameters, s)
-        |   LambdaSetGovernance(parameters)             -> _setGovernance(parameters, s)
-        |   LambdaUpdateMetadata(parameters)            -> _updateMetadata(parameters, s)
-        |   LambdaUpdateConfig(parameters)              -> _updateConfig(parameters, s)
-        |   LambdaUpdateWhitelistContracts(parameters)  -> _updateWhitelistContracts(parameters, s)
-        |   LambdaUpdateGeneralContracts(parameters)    -> _updateGeneralContracts(parameters, s)
-        |   LambdaMistakenTransfer(parameters)          -> _mistakenTransfer(parameters, s)
-        |   LambdaMigrateFunds(parameters)              -> _migrateFunds(parameters, s)
+        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
+        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
+        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
+        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
+        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+        |   LambdaMigrateFunds(parameters)              -> migrateFunds(parameters, s)
 
             // Pause / Break Glass Entrypoints
-        |   LambdaPauseAll(_parameters)                 -> _pauseAll(_parameters, s)
-        |   LambdaUnpauseAll(_parameters)               -> _unpauseAll(_parameters, s)
-        |   LambdaTogglePauseEntrypoint(parameters)     -> _togglePauseEntrypoint(parameters, s)
+        |   LambdaPauseAll(_parameters)                 -> pauseAll(s)
+        |   LambdaUnpauseAll(_parameters)               -> unpauseAll(s)
+        |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
 
             // Doorman Entrypoints
-        |   LambdaCompound(parameters)                  -> _compound(parameters, s)
+        |   LambdaCompound(parameters)                  -> compound(parameters, s)
         
         |   _                                           -> (nil, s)
     ];
+
+
+    // Fifth Way
+    // const executeGovernanceAction : doormanLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(doormanLambdaActionType)) of [
+    //         Some(_action) -> _action
+    //     |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
+    // ];
+
+    // const response : return = case executeGovernanceAction of [
+      
+    //         // Housekeeping
+    //     |   LambdaSetAdmin (parameters)                 -> _setAdmin(parameters, s)
+    //     |   LambdaSetGovernance(parameters)             -> _setGovernance(parameters, s)
+    //     |   LambdaUpdateMetadata(parameters)            -> _updateMetadata(parameters, s)
+    //     |   LambdaUpdateConfig(parameters)              -> _updateConfig(parameters, s)
+    //     |   LambdaUpdateWhitelistContracts(parameters)  -> _updateWhitelistContracts(parameters, s)
+    //     |   LambdaUpdateGeneralContracts(parameters)    -> _updateGeneralContracts(parameters, s)
+    //     |   LambdaMistakenTransfer(parameters)          -> _mistakenTransfer(parameters, s)
+    //     |   LambdaMigrateFunds(parameters)              -> _migrateFunds(parameters, s)
+
+    //         // Pause / Break Glass Entrypoints
+    //     |   LambdaPauseAll(_parameters)                 -> _pauseAll(_parameters, s)
+    //     |   LambdaUnpauseAll(_parameters)               -> _unpauseAll(_parameters, s)
+    //     |   LambdaTogglePauseEntrypoint(parameters)     -> _togglePauseEntrypoint(parameters, s)
+
+    //         // Doorman Entrypoints
+    //     |   LambdaCompound(parameters)                  -> _compound(parameters, s)
+        
+    //     |   _                                           -> (nil, s)
+    // ];
 
 } with (response)
 

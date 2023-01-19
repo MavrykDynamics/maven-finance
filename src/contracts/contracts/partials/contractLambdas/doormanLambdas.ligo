@@ -12,33 +12,35 @@
 function lambdaSetAdmin(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    var response : return := (nil, s);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
     
     case doormanLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
-                response := _setAdmin(newAdminAddress, s);
+                s.admin := newAdminAddress;
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (noOperations, s)
 
 
 
 (*  setGovernance lambda *)
 function lambdaSetGovernance(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
-
-    var response : return := (nil, s);
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case doormanLambdaAction of [
         |   LambdaSetGovernance(newGovernanceAddress) -> {
-                response := _setGovernance(newGovernanceAddress, s);
+                s.governanceAddress := newGovernanceAddress;
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -46,16 +48,21 @@ block {
 function lambdaUpdateMetadata(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
     
-    var response : return := (nil, s);
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
-                response := _updateMetadata(updateMetadataParams, s);
+                
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
+                
+                s.metadata[metadataKey] := metadataHash;
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -63,16 +70,24 @@ block {
 function lambdaUpdateConfig(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 
 block {
 
-    var response : return := (nil, s);
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
-                response := _updateConfig(updateConfigParams, s);
+                
+                const updateConfigAction    : doormanUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : doormanUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                    |   ConfigMinMvkAmount (_v)  -> s.config.minMvkAmount         := updateConfigNewValue
+                    |   Empty (_v)               -> skip
+                ];
             }
         |   _ -> skip
     ];
   
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -80,16 +95,17 @@ block {
 function lambdaUpdateWhitelistContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
-    var response : return := (nil, s);
+    // verify that sender is admin
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-                response := _updateWhitelistContracts(updateWhitelistContractsParams, s);
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -97,16 +113,17 @@ block {
 function lambdaUpdateGeneralContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
-    var response : return := (nil, s);
+    // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdmin(s.admin); 
 
     case doormanLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-                response := _updateGeneralContracts(updateGeneralContractsParams, s);
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -119,16 +136,30 @@ block {
     // 2. Check that token is not MVK (it would break staked MVK in the Doorman Contract) before creating the transfer operation
     // 3. Create and execute transfer operations based on the params sent
 
-    var response : return := (nil, s);
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         |   LambdaMistakenTransfer(destinationParams) -> {
-                response := _mistakenTransfer(destinationParams, s);
+
+                // Verify that the sender is admin or the Governance Satellite Contract
+                verifySenderIsAdminOrGovernanceSatelliteContract(s);
+
+                // Get MVK Token address
+                const mvkTokenAddress : address  = s.mvkTokenAddress;
+
+                // verify token is allowed to be transferred
+                verifyTokenAllowedForOperationFold(mvkTokenAddress, destinationParams, error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER);
+
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+
+                response := _mistakenTransfer(destinationParams, operations, s);
+                
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 
 
@@ -143,16 +174,26 @@ block {
     // 4. Get Doorman MVK balance from MVK Token Contract - equivalent to total staked MVK supply
     // 5. Create a transfer to transfer all funds to an upgraded Doorman Contract
     
-    var response : return := (nil, s);
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin); // check that sender is admin 
+
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         |   LambdaMigrateFunds(destinationAddress) -> {
-                response := _migrateFunds(destinationAddress, s);
+                
+                // Verify that all entrypoints are paused
+                verifyAllEntrypointsPaused(s);
+
+                // Migrate funds operation to transfer all funds to an upgraded Doorman Contract
+                const migrateFundsOperation : operation = migrateFundsOperation(destinationAddress, s);
+                operations := migrateFundsOperation # operations;
+
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
@@ -168,16 +209,20 @@ block {
 function lambdaPauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    var response : return := (nil, s);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case doormanLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
-                response := _pauseAll(_parameters, s);
+              
+                // set all pause configs to True
+                s := pauseAllDoormanEntrypoints(s);
+              
             }
         |   _ -> skip
     ];  
 
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -185,16 +230,20 @@ block {
 function lambdaUnpauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    var response : return := (nil, s);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     case doormanLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
-                response := _pauseAll(_parameters, s);
+                
+                // set all pause configs to False
+                s := unpauseAllDoormanEntrypoints(s);
+              
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -202,16 +251,29 @@ block {
 function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    var response : return := (nil, s);
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     case doormanLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
-                response := _togglePauseEntrypoint(params, s);
+
+                case params.targetEntrypoint of [
+                        Stake (_v)            -> s.breakGlassConfig.stakeIsPaused       := _v
+                    |   Unstake (_v)          -> s.breakGlassConfig.unstakeIsPaused     := _v
+                    |   Compound (_v)         -> s.breakGlassConfig.compoundIsPaused    := _v
+                    |   FarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused   := _v
+
+                        // Vault Entrypoints
+                    |   OnVaultDepositStake (_v)    -> s.breakGlassConfig.onVaultDepositStakeIsPaused    := _v
+                    |   OnVaultWithdrawStake (_v)   -> s.breakGlassConfig.onVaultWithdrawStakeIsPaused   := _v
+                    |   OnVaultLiquidateStake (_v)  -> s.breakGlassConfig.onVaultLiquidateStakeIsPaused  := _v
+                ]
+                
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (noOperations, s)
 
 
 
@@ -237,16 +299,56 @@ block {
     // 5. Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     // 6. Update user's staked MVK balance in storage
 
-    var response : return := (nil, s);
-    
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeIsPaused, error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
+
     case doormanLambdaAction of [
         |   LambdaStake(stakeAmount) -> {
-                response := _stake(stakeAmount, s);
+
+                // Get params - userAddress
+                const userAddress : address = Tezos.get_sender();
+                    
+                // Compound user rewards
+                s := compoundUserRewards(userAddress, s);
+
+                // Verify that user is staking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvkAmountReached(stakeAmount, s);
+
+                // -------------------------------------------
+                // Transfer MVK from user to the Doorman Contract
+                // -------------------------------------------
+
+                const transferOperation : operation = transferFa2Token(
+                    userAddress,                // from_
+                    Tezos.get_self_address(),   // to_
+                    stakeAmount,                // amount
+                    0n,                         // tokenId
+                    s.mvkTokenAddress           // tokenContractAddress
+                );
+
+                // -------------------------------------------
+                // Update Delegation contract since user staked MVK balance has changed
+                // -------------------------------------------
+
+                // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);                                
+                operations := list [transferOperation; delegationOnStakeChangeOperation];
+
+                // -------------------------------------------
+                // Update Storage
+                // -------------------------------------------
+
+                var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(userAddress, s);
+                userStakeBalanceRecord.balance  := userStakeBalanceRecord.balance + stakeAmount; 
+
+                s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
+                
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 
 
@@ -279,16 +381,108 @@ block {
     //      -   Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     
-    var response : return := (nil, s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         |   LambdaUnstake(unstakeAmount) -> {
-                response := _unstake(unstakeAmount, s);
+
+                // Get params - userAddress
+                const userAddress : address = Tezos.get_sender();
+                
+                // Verify that user is unstaking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvkAmountReached(unstakeAmount, s);
+
+                // Compound user rewards
+                s := compoundUserRewards(userAddress, s);
+
+                // -------------------------------------------
+                // Compute MLI (MVK Loyalty Index) and Exit Fee 
+                // -------------------------------------------
+
+                // Calculate Exit Fee
+                const exitFee : nat = calculateExitFee(s);        
+
+                // Calculate final unstake amount and increment unclaimed rewards
+                const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
+                const finalUnstakeAmount  : nat  = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
+                s.unclaimedRewards               := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
+
+                // Verify unstake amount is less than staked total supply
+                const stakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
+                verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvkTotalSupply);
+
+                // Update accumulated fees per share 
+                s := incrementAccumulatedFeesPerShare(
+                    paidFee,
+                    unstakeAmount,
+                    stakedMvkTotalSupply,
+                    s 
+                );
+
+                // Get user's stake balance record
+                var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
+                
+                // Verify that unstake amount is not greater than user's staked MVK balance
+                verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
+
+                // Update user's stake balance record
+                userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
+
+                // -------------------------------------------
+                // Transfer MVK Operation
+                // -------------------------------------------
+
+                const transferOperation : operation = transferFa2Token(
+                    Tezos.get_self_address(),   // from_
+                    userAddress,                // to_
+                    finalUnstakeAmount,         // amount
+                    0n,                         // tokenId
+                    s.mvkTokenAddress           // tokenContractAddress
+                );
+
+                // -------------------------------------------
+                // Compound Exit Fee and Update Participation Fees Per Share
+                // -------------------------------------------
+
+                // Compound only the exit fee rewards
+                // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
+                if userStakeBalanceRecord.balance > 0n then {
+
+                    // Calculate user rewards
+                    const exitFeeRewards : nat = calculateExitFeeRewards(userStakeBalanceRecord, s);
+
+                    // Increase the user balance with exit fee rewards
+                    userStakeBalanceRecord.balance := userStakeBalanceRecord.balance + exitFeeRewards;
+
+                    // Update storage unclaimed rewards (decrement by exit fee rewards given to user)
+                    s.unclaimedRewards := abs(s.unclaimedRewards - exitFeeRewards);
+
+                }
+                else skip;
+                
+                // Set the user's new participationFeesPerShare to storage's accumulatedFeesPerShare
+                userStakeBalanceRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
+
+                // Update user's stake balance record in storage
+                s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
+
+                // -------------------------------------------
+                // Update Delegation contract since user staked MVK balance has changed
+                // -------------------------------------------
+
+                // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+
+                // Execute operations list
+                operations := list[transferOperation; delegationOnStakeChangeOperation]
+
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 
 
@@ -302,16 +496,24 @@ block{
     // 3. Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     // 4. Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     
-    var response : return := (nil, s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.compoundIsPaused, error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         |   LambdaCompound(userAddress) -> {
-                response := _compound(userAddress, s);
+                
+                // Compound rewards
+                s := compoundUserRewards(userAddress, s);
+
+                // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+                operations := list [delegationOnStakeChangeOperation]
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 
 
@@ -336,16 +538,101 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
     // 6. Update Delegation contract since user staked MVK balance has changed
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
 
-    var response : return := (nil, s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.farmClaimIsPaused, error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         |   LambdaFarmClaim(farmClaim) -> {
-                response := _farmClaim(farmClaim, s);
+                
+                // Init parameter values from input
+                const delegator      : address   = farmClaim.0;
+                var claimAmount      : nat      := farmClaim.1;
+                var transferAmount   : nat      := 0n;
+                const forceTransfer  : bool      = farmClaim.2;
+
+                // Get farm address
+                const farmAddress : address = Tezos.get_sender();
+
+                // ------------------------------------------------------------------
+                // Validation Checks
+                // ------------------------------------------------------------------
+            
+                // Verify farm exists (i.e. farm address is known to the farmFactory)
+                verifyFarmExists(farmAddress, s);
+
+                // ------------------------------------------------------------------
+                // Compound and update user's staked balance record
+                // ------------------------------------------------------------------
+
+                // Compound user rewards
+                s := compoundUserRewards(delegator, s);
+
+                // Get user's staked balance record
+                var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(delegator, s);
+
+                // Update user's stake balance record
+                userStakeBalanceRecord.balance                 := userStakeBalanceRecord.balance + claimAmount; 
+                userStakeBalanceRecord.totalFarmRewardsClaimed := userStakeBalanceRecord.totalFarmRewardsClaimed + claimAmount;
+                s.userStakeBalanceLedger[delegator] := userStakeBalanceRecord;
+
+                // ------------------------------------------------------------------
+                // Check if MVK Tokens should be minted or transferred from Treasury
+                // ------------------------------------------------------------------
+
+                // Check if MVK Force Transfer is enabled (no minting new MVK Tokens)
+                if forceTransfer then {
+
+                    transferAmount   := claimAmount;
+                    claimAmount      := 0n;
+
+                }
+                else {
+
+                    // get MVK Total Supply, and MVK Maximum Total Supply
+                    const mvkTotalSupply    : nat = getMvkTotalSupply(s);
+                    const mvkMaximumSupply  : nat = getMvkMaximumTotalSupply(s);
+
+                    // Check if the desired minted amount will surpass the maximum total supply
+                    const tempTotalSupply : nat = mvkTotalSupply + claimAmount;
+                    if tempTotalSupply > mvkMaximumSupply then {
+                        
+                        transferAmount   := abs(tempTotalSupply - mvkMaximumSupply);
+                        claimAmount      := abs(claimAmount - transferAmount);
+
+                    } else skip;
+
+                };
+
+                // Mint MVK Tokens if claimAmount is greater than 0
+                if claimAmount > 0n then {
+
+                  const mintMvkAndTransferOperation : operation = mintMvkAndTransferOperation(claimAmount, s);
+                  operations := mintMvkAndTransferOperation # operations;
+
+                } else skip;
+
+                // Transfer MVK Tokens from treasury if transferredToken is greater than 0
+                if transferAmount > 0n then {
+                    
+                    const transferFromTreasuryOperation : operation = transferFromTreasuryOperation(transferAmount, s);
+                    operations := transferFromTreasuryOperation # operations;
+
+                } else skip;
+
+                // -------------------------------------------
+                // Update Delegation contract since user staked MVK balance has changed
+                // -------------------------------------------
+                
+                // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(delegator, s);
+                operations := delegationOnStakeChangeOperation # operations;
+
             }
         |   _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 
 
@@ -353,16 +640,69 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 function lambdaOnVaultDepositStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
 
-    var response : return := (nil, s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultDepositStakeIsPaused, error_ON_VAULT_DEPOSIT_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         | LambdaOnVaultDepositStake(onVaultDepositStakeParams) -> {
-                response := _onVaultDepositStake(onVaultDepositStakeParams, s);
+
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
+
+                // init parameters
+                const vaultOwner     : address  = onVaultDepositStakeParams.vaultOwner;
+                const vaultAddress   : address  = onVaultDepositStakeParams.vaultAddress;
+                const depositAmount  : nat      = onVaultDepositStakeParams.depositAmount;
+                
+                // Get Delegation Address from the General Contracts map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+                // Compound rewards for user and vault before any changes in balance takes place
+                s := compoundUserRewards(vaultOwner, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // check that user (vault owner) has a record in stake balance ledger and sufficient balance
+                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
+                        Some(_v) -> _v
+                    |   None     -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // calculate new user staked balance
+                const userStakedBalance : nat = userBalanceInStakeBalanceLedger.balance; 
+                if depositAmount > userStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
+                const newUserStakedBalance : nat = abs(userStakedBalance - depositAmount);
+
+                // find or create vault record in stake balance ledger
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                        Some(_val) -> _val
+                    |   None -> record[
+                            balance                        = 0n;
+                            totalExitFeeRewardsClaimed     = 0n;
+                            totalSatelliteRewardsClaimed   = 0n;
+                            totalFarmRewardsClaimed        = 0n;
+                            participationFeesPerShare      = s.accumulatedFeesPerShare;
+                        ]
+                ];
+
+                // update vault stake balance in stake balance ledger
+                vaultStakeBalanceRecord.balance           := vaultStakeBalanceRecord.balance + depositAmount; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
+
+                // update user stake balance in stake balance ledger
+                userBalanceInStakeBalanceLedger.balance   := newUserStakedBalance;
+                s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const ownerOnStakeChangeOperation : operation = Tezos.transaction((vaultOwner)  , 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+
+                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 
 
@@ -370,16 +710,63 @@ block{
 function lambdaOnVaultWithdrawStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
 
-    var response : return := (nil, s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultWithdrawStakeIsPaused, error_ON_VAULT_WITHDRAW_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         | LambdaOnVaultWithdrawStake(onVaultWithdrawStakeParams) -> {
-                response := _onVaultWithdrawStake(onVaultWithdrawStakeParams, s);
+
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
+
+                // init parameters
+                const vaultOwner      : address = onVaultWithdrawStakeParams.vaultOwner;
+                const vaultAddress    : address = onVaultWithdrawStakeParams.vaultAddress;
+                const withdrawAmount  : nat     = onVaultWithdrawStakeParams.withdrawAmount;
+
+                // Get Delegation Address from the General Contracts map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+                // Compound rewards for user and vault before any changes in balance takes place
+                s := compoundUserRewards(vaultOwner, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // check that user (vault owner) has a record in stake balance ledger and sufficient balance
+                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // find vault record in stake balance ledger
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // calculate new vault staked balance (check if vault has enough staked MVK to be withdrawn)
+                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
+                if withdrawAmount > vaultStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
+                const newVaultStakedBalance : nat = abs(vaultStakedBalance - withdrawAmount);
+
+                // update vault stake balance in stake balance ledger
+                vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
+
+                // update user stake balance in stake balance ledger
+                userBalanceInStakeBalanceLedger.balance   := userBalanceInStakeBalanceLedger.balance + withdrawAmount;
+                s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const ownerOnStakeChangeOperation : operation = Tezos.transaction((vaultOwner)  , 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+
+                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 
 
@@ -387,16 +774,69 @@ block{
 function lambdaOnVaultLiquidateStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
     
-    var response : return := (nil, s);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultLiquidateStakeIsPaused, error_ON_VAULT_LIQUIDATE_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
         | LambdaOnVaultLiquidateStake(onVaultLiquidateStakeParams) -> {
-                response := _onVaultLiquidateStake(onVaultLiquidateStakeParams, s);
+
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
+
+                // init parameters
+                const vaultAddress      : address  = onVaultLiquidateStakeParams.vaultAddress;
+                const liquidator        : address  = onVaultLiquidateStakeParams.liquidator;
+                const liquidatedAmount  : nat      = onVaultLiquidateStakeParams.liquidatedAmount;
+
+                // Get Delegation Address from the General Contracts map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+                // Compound rewards for liquidator, and vault before any changes in balance takes place
+                s := compoundUserRewards(liquidator, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // find vault record in stake balance ledger
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                        Some(_val)  -> _val
+                    |   None        -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // find or create liquidator record in stake balance ledger 
+                var liquidatorStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
+                        Some(_v) -> _v
+                    |   None -> record[
+                            balance                        = 0n;
+                            totalExitFeeRewardsClaimed     = 0n;
+                            totalSatelliteRewardsClaimed   = 0n;
+                            totalFarmRewardsClaimed        = 0n;
+                            participationFeesPerShare      = s.accumulatedFeesPerShare;
+                        ]
+                ];
+
+                // calculate new vault staked balance (check if vault has enough staked MVK to be liquidated)
+                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
+                if liquidatedAmount > vaultStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
+                const newVaultStakedBalance : nat = abs(vaultStakedBalance - liquidatedAmount);
+
+                // update vault stake balance in stake balance ledger
+                vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
+
+                // update liquidator stake balance in stake balance ledger
+                liquidatorStakeBalanceRecord.balance      := liquidatorStakeBalanceRecord.balance + liquidatedAmount;
+                s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const liquidatorOnStakeChangeOperation    : operation = Tezos.transaction((liquidator)  , 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation         : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+
+                operations  := list [liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
 
-} with (response)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Doorman Lambdas End
