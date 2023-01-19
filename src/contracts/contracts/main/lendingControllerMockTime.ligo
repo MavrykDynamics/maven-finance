@@ -37,9 +37,6 @@
 // Lending Controller Mock Time Types
 #include "../partials/contractTypes/lendingControllerMockTimeTypes.ligo"
 
-// Token Pool Reward Types 
-#include "../partials/contractTypes/tokenPoolRewardTypes.ligo"
-
 // ------------------------------------------------------------------------------
 
 type lendingControllerAction is 

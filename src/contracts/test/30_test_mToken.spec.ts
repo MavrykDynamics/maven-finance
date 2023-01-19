@@ -81,7 +81,6 @@
 //     let delegationInstance
 //     let mvkTokenInstance
 //     let treasuryInstance
-//     // let tokenPoolRewardInstance
     
 //     let mockFa12TokenInstance
 //     let mockFa2TokenInstance
@@ -109,7 +108,6 @@
 //     let delegationStorage
 //     let mvkTokenStorage
 //     let treasuryStorage
-//     // let tokenPoolRewardStorage
 
 //     let mockFa12TokenStorage
 //     let mockFa2TokenStorage
