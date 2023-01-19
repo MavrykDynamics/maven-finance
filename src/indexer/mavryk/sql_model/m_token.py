@@ -1,5 +1,6 @@
 from mavryk.sql_model.parents import MavrykContract
 from dipdup.models import Model, fields
+from .enums import MTokenOperationType
 from mavryk.sql_model.parents import LinkedContract
 
 ###
@@ -40,3 +41,17 @@ class MTokenAccount(Model):
 
     class Meta:
         table = 'm_token_account'
+
+class MTokenAccountHistoryData(Model):
+    id                                      = fields.BigIntField(pk=True, default=0)
+    m_token_account                         = fields.ForeignKeyField('models.MTokenAccount', related_name='history_data', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
+    level                                   = fields.BigIntField()
+    operation_hash                          = fields.CharField(max_length=51)
+    type                                    = fields.IntEnumField(enum_type=MTokenOperationType, index=True)
+    balance                                 = fields.FloatField(default=0.0)
+    reward_index                            = fields.FloatField(default=0.0)
+    rewards_earned                          = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'm_token_account_history_data'
