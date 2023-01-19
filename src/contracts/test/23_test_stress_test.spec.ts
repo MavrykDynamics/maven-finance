@@ -38,14 +38,13 @@ import { config } from "yargs";
 import { aggregatorStorageType } from "./types/aggregatorStorageType";
 import { mvkStorage } from "storage/mvkTokenStorage";
 
-// function wait(ms: number) {
-//   return new Promise((resolve) => setTimeout(resolve, ms));
-// }
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 describe("Stress tests", async () => {
     
     var utils: Utils
-    var tezos;
 
     let doormanInstance;
     let delegationInstance;
@@ -113,8 +112,6 @@ describe("Stress tests", async () => {
             farmFactoryStorage              = await farmFactoryInstance.storage();
             farmStorage                     = await farmInstance.storage();
             lpTokenStorage                  = await lpTokenInstance.storage();
-
-            tezos = doormanInstance.tezos;
             
             console.log('-- -- -- -- -- Stress Tests -- -- -- --')
             console.log('Doorman Contract deployed at:'                 , doormanInstance.address);

@@ -7,9 +7,9 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "baseUrl": "./",
-    "typeRoots": ["./node_modules/@types", "./test/types", "./test", "./test/types/usdm"],
-    "types": ["node", "@types/mocha", "@types/chai", "@types/expect", "./test/types", "./test/types/usdm"],
+    "typeRoots": ["./node_modules/@types", "./test/types", "./test"],
+    "types": ["node", "@types/mocha", "@types/chai", "@types/expect", "./test/types"],
   },
   "exclude": ["node_modules", "build", "cache", "artifacts"],
-  "include": ["./*.ts", "./test/*.ts", "test/contractHelpers/*.tss/*.ts", "test/deploy/00_test_deployments.spec.ts", "test/contractHelpers/mavrykLendingLpTokenTestHelper.ts", "test/contractHelpers/tokenPoolRewardTestHelper.ts", "test/contractHelpers/mTokenTestHelper.ts", "test/contractHelpers/lendingControllerMockTimeTestHelper.ts", "test/contractHelpers/vaultFactoryTestHelper.ts", "test/contractHelpers/vaultTestHelper.ts", "test/contractHelpers/lendingControllerHelper.ts"]
+  "include": ["./*.ts", "./test/*.ts", "test/contractHelpers/*.tss/*.ts", "test/deploy/00_test_deployments.spec.ts"]
 }

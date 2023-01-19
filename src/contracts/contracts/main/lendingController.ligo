@@ -37,9 +37,6 @@
 // Lending Controller Types
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
-// Token Pool Reward Types 
-#include "../partials/contractTypes/tokenPoolRewardTypes.ligo"
-
 // ------------------------------------------------------------------------------
 
 type lendingControllerAction is 
