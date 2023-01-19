@@ -65,6 +65,8 @@ type doormanAction is
     |   OnVaultLiquidateStake       of onVaultLiquidateStakeType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction     of (bytes)
+    |   DataPackingHelper           of doormanLambdaActionType
     |   SetLambda                   of setLambdaType
 
 
@@ -88,6 +90,13 @@ type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorag
 
 // Doorman Views:
 #include "../partials/contractViews/doormanViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Sub Lambdas
+// ------------------------------------------------------------------------------
+
+// Doorman Sub Lambdas:
+#include "../partials/contractLambdas/doormanSubLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Lambdas
@@ -143,6 +152,8 @@ block {
         |   OnVaultLiquidateStake(parameters)     -> onVaultLiquidateStake(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)   -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)         -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
     ]
     
