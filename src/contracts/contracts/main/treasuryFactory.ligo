@@ -69,6 +69,8 @@ type treasuryFactoryAction is
     |   UntrackTreasury                     of address
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction             of (bytes)
+    |   DataPackingHelper                   of treasuryFactoryLambdaActionType
     |   SetLambda                           of setLambdaType
     |   SetProductLambda                    of setLambdaType
 
@@ -142,6 +144,8 @@ block{
         |   UntrackTreasury (params)                    -> untrackTreasury(params, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)               -> dataPackingHelper(parameters, s)
         |   SetLambda (params)                          -> setLambda(params, s)
         |   SetProductLambda (params)                   -> setProductLambda(params, s)
     ]

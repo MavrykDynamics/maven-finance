@@ -78,6 +78,8 @@ type councilAction is
     |   SignAction                                  of actionIdType                
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction                     of (bytes)
+    |   DataPackingHelper                           of councilLambdaActionType
     |   SetLambda                                   of setLambdaType
 
 
@@ -160,5 +162,7 @@ function main (const action : councilAction; const s : councilStorageType) : ret
         |   SignAction(parameters)                        -> signAction(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)
     ]

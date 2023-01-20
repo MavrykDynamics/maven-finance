@@ -63,6 +63,8 @@ type breakGlassAction is
     |   SignAction                    of actionIdType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction       of (bytes)
+    |   DataPackingHelper             of breakGlassLambdaActionType
     |   SetLambda                     of setLambdaType
 
 
@@ -145,6 +147,8 @@ block {
         |   SignAction(parameters)                -> signAction(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)   -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)         -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
     ]
 )

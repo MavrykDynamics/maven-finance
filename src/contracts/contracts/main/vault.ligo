@@ -49,6 +49,8 @@ type vaultActionType is
     |   UpdateTokenOperators            of updateTokenOperatorsType
   
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction         of (bytes)
+    |   DataPackingHelper               of vaultLambdaActionType
     |   SetLambda                       of setLambdaType
 
 const noOperations : list (operation) = nil;
@@ -111,6 +113,8 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
         |   UpdateTokenOperators(parameters)             -> updateTokenOperators(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)          -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)                -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                        -> setLambda(parameters, s)    
 
     ]

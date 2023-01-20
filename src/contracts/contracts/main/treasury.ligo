@@ -59,6 +59,8 @@ type treasuryAction is
     |   UnstakeMvk                     of (nat)
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction        of (bytes)
+    |   DataPackingHelper              of treasuryLambdaActionType
     |   SetLambda                      of setLambdaType
 
 
@@ -132,5 +134,7 @@ function main (const action : treasuryAction; const s : treasuryStorageType) : r
         |   UnstakeMvk(parameters)                        -> unstakeMvk(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)
     ]

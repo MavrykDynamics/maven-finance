@@ -77,6 +77,8 @@ type lendingControllerAction is
     |   VaultWithdrawStakedToken        of vaultWithdrawStakedTokenActionType   
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction         of (bytes)
+    |   DataPackingHelper               of lendingControllerLambdaActionType
     |   SetLambda                       of setLambdaType
 
 const noOperations : list (operation) = nil;
@@ -158,6 +160,8 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   VaultWithdrawStakedToken(parameters)          -> vaultWithdrawStakedToken(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
 
     ]

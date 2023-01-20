@@ -72,6 +72,8 @@ type aggregatorFactoryAction is
     |   DistributeRewardStakedMvk       of distributeRewardStakedMvkType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction         of (bytes)
+    |   DataPackingHelper               of aggregatorFactoryLambdaActionType
     |   SetLambda                       of setLambdaType
     |   SetProductLambda                of setLambdaType
     
@@ -147,6 +149,8 @@ block{
         |   DistributeRewardStakedMvk (parameters)        -> distributeRewardStakedMvk(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                        -> setLambda(parameters, s)
         |   SetProductLambda (parameters)                 -> setProductLambda(parameters, s)
     ]

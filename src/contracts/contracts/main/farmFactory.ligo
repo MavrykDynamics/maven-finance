@@ -65,6 +65,8 @@ type farmFactoryAction is
     |   UntrackFarm                 of (address)
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction     of (bytes)
+    |   DataPackingHelper           of farmFactoryLambdaActionType
     |   SetLambda                   of setLambdaType
     |   SetProductLambda            of setLambdaType
 
@@ -137,6 +139,8 @@ block{
         |   UntrackFarm (params)                    -> untrackFarm(params, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)           -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                  -> setLambda(parameters, s)
         |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
     ]

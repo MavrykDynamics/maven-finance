@@ -70,6 +70,8 @@ type delegationAction is
     |   UpdateSatelliteStatus             of updateSatelliteStatusParamsType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction           of (bytes)
+    |   DataPackingHelper                 of delegationLambdaActionType
     |   SetLambda                         of setLambdaType
 
 
@@ -149,6 +151,8 @@ block{
         |   UpdateSatelliteStatus(parameters)             -> updateSatelliteStatus(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
     ]
 )

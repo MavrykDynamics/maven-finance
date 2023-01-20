@@ -64,6 +64,8 @@ type governanceAction is
     |   DropProposal                    of actionIdType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction         of (bytes)
+    |   DataPackingHelper               of governanceLambdaActionType
     |   SetLambda                       of setLambdaType
 
 
@@ -139,6 +141,8 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   DropProposal(parameters)                    -> dropProposal(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)               -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                       -> setLambda(parameters, s)
 
     ]

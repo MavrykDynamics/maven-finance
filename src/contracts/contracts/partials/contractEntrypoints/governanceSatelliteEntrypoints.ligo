@@ -362,6 +362,43 @@ block {
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(* executeGovernanceAction entrypoint *)
+function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceSatelliteStorageType) : return is
+block{
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    // // Fourth Way
+    const executeGovernanceAction : governanceSatelliteLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(governanceSatelliteLambdaActionType)) of [
+            Some(_action) -> _action
+        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
+    ];
+
+    const response : return = case executeGovernanceAction of [
+      
+            // Housekeeping
+        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
+        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
+        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
+        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
+        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+
+        |   _                                           -> (nil, s)
+    ];
+
+} with (response)
+
+
+
+(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
+function dataPackingHelper(const _executeGovernanceAction : governanceSatelliteLambdaActionType; const s : governanceSatelliteStorageType) : return is 
+    (noOperations, s)
+
+
+
 (* setLambda entrypoint *)
 function setLambda(const setLambdaParams : setLambdaType; var s : governanceSatelliteStorageType) : return is
 block{

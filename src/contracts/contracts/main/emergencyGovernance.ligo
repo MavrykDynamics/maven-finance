@@ -44,6 +44,8 @@ type emergencyGovernanceAction is
     |   DropEmergencyGovernance   of (unit)
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction   of (bytes)
+    |   DataPackingHelper         of emergencyGovernanceLambdaActionType
     |   SetLambda                 of setLambdaType
 
 
@@ -104,5 +106,7 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
         |   DropEmergencyGovernance(_parameters)  -> dropEmergencyGovernance(s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)   -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)         -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
     ]

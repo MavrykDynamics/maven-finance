@@ -75,6 +75,8 @@ type aggregatorAction is
     |   WithdrawRewardStakedMvk              of withdrawRewardStakedMvkType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction              of (bytes)
+    |   DataPackingHelper                    of aggregatorLambdaActionType
     |   SetLambda                            of setLambdaType
   
 
@@ -153,6 +155,8 @@ block {
         |   WithdrawRewardStakedMvk (parameters)            -> withdrawRewardStakedMvk(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)             -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)                   -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                          -> setLambda(parameters, s)
     ]
 );

@@ -65,6 +65,8 @@ type governanceFinancialAction is
     |   VoteForRequest                  of voteForRequestType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction         of (bytes)
+    |   DataPackingHelper               of governanceFinancialLambdaActionType
     |   SetLambda                       of setLambdaType
 
 
@@ -129,6 +131,8 @@ function main (const action : governanceFinancialAction; const s : governanceFin
         |   VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)               -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                       -> setLambda(parameters, s)
 
     ]

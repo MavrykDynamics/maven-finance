@@ -29,8 +29,9 @@
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
 // ------------------------------------------------------------------------------
+// Factory Create Model (Vault) Type
+// ------------------------------------------------------------------------------
 
-// helper function to create vault 
 type createVaultFuncType is (option(key_hash) * tez * vaultStorageType) -> (operation * address)
 const createVaultFunc : createVaultFuncType =
 [%Michelson ( {| { UNPPAIIR ;
@@ -39,6 +40,8 @@ const createVaultFunc : createVaultFuncType =
         ;
           PAIR } |}
 : createVaultFuncType)];
+
+// ------------------------------------------------------------------------------
 
 type vaultFactoryAction is
 
@@ -60,6 +63,8 @@ type vaultFactoryAction is
     |   CreateVault                  of createVaultType
     
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction     of (bytes)
+    |   DataPackingHelper           of vaultFactoryLambdaActionType
     |   SetLambda                   of setLambdaType
     |   SetProductLambda            of setLambdaType
 
@@ -130,6 +135,8 @@ block{
         |   CreateVault (params)                    -> createVault(params, s)
     
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)           -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                  -> setLambda(parameters, s)
         |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
     ]

@@ -297,6 +297,51 @@ block {
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(* executeGovernanceAction entrypoint *)
+function executeGovernanceAction(const governanceActionBytes : bytes; var s : aggregatorFactoryStorageType) : return is
+block{
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    // // Fourth Way
+    const executeGovernanceAction : aggregatorFactoryLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(aggregatorFactoryLambdaActionType)) of [
+            Some(_action) -> _action
+        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
+    ];
+
+    const response : return = case executeGovernanceAction of [
+      
+            // Housekeeping
+        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
+        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
+        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
+        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
+        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+
+            // Pause / Break Glass Entrypoints
+        |   LambdaPauseAll(_parameters)                 -> pauseAll(s)
+        |   LambdaUnpauseAll(_parameters)               -> unpauseAll(s)
+        |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
+
+            // Aggregator Factory Entrypoints
+        |   LambdaCreateAggregator(parameters)          -> createAggregator(parameters, s)
+        |   LambdaTrackAggregator(parameters)           -> trackAggregator(parameters, s)
+        |   LambdaUntrackAggregator(parameters)         -> untrackAggregator(parameters, s)
+    ];
+
+} with (response)
+
+
+
+(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
+function dataPackingHelper(const _executeGovernanceAction : aggregatorFactoryLambdaActionType; const s : aggregatorFactoryStorageType) : return is 
+    (noOperations, s)
+
+
+
 (* setLambda entrypoint *)
 function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorFactoryStorageType) : return is
 block{

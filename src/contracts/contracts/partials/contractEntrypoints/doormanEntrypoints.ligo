@@ -343,80 +343,6 @@ block{
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    // First way
-    // const executeGovernanceAction : executeGovernanceActionType = case (Bytes.unpack(governanceActionBytes) : option(executeGovernanceActionType)) of [
-    //         Some(_action) -> _action
-    //     |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    // ];
-
-    // const response : return = case executeGovernanceAction of [
-      
-    //         // Housekeeping
-    //     |   GovSetAdmin (parameters)                 -> setAdmin(parameters, s)
-    //     |   GovSetGovernance(parameters)             -> setGovernance(parameters, s)
-    //     |   GovUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-    //     |   GovUpdateConfig(parameters)              -> updateConfig(parameters, s)
-    //     |   GovUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-    //     |   GovUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-    //     |   GovMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-    //     |   GovMigrateFunds(parameters)              -> migrateFunds(parameters, s)
-
-    //         // Pause / Break Glass Entrypoints
-    //     |   GovPauseAll(_parameters)                 -> pauseAll(s)
-    //     |   GovUnpauseAll(_parameters)               -> unpauseAll(s)
-    //     |   GovTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
-
-    //         // Doorman Entrypoints
-    //     |   GovCompound(parameters)                  -> compound(parameters, s)
-    // ];
-
-    
-    
-    // Second Way
-    // const executeGovernanceAction : doormanAction = case (Bytes.unpack(governanceActionBytes) : option(doormanAction)) of [
-    //         Some(_action) -> _action
-    //     |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    // ];
-
-    // const response : return = case executeGovernanceAction of [
-      
-    //         // Housekeeping
-    //     |   SetAdmin (parameters)                 -> setAdmin(parameters, s)
-    //     |   SetGovernance(parameters)             -> setGovernance(parameters, s)
-    //     |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-    //     |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
-    //     |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-    //     |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-    //     |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-    //     |   MigrateFunds(parameters)              -> migrateFunds(parameters, s)
-
-    //         // Pause / Break Glass Entrypoints
-    //     |   PauseAll(_parameters)                 -> pauseAll(s)
-    //     |   UnpauseAll(_parameters)               -> unpauseAll(s)
-    //     |   TogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
-
-    //         // Doorman Entrypoints
-    //     |   Compound(parameters)                  -> compound(parameters, s)
-
-    //     |   _                                     -> (nil, s)
-    // ];
-
-
-    // Third Way
-    // const governanceActionBytes  : bytes  = executeGovernanceActionParams.data;
-    // const entrypointName         : string = executeGovernanceActionParams.entrypointName;
-
-    // if entrypointName = "setAdmin" then {
-
-    //     const unpackedData : address = case (Bytes.unpack(governanceActionBytes) : option(address)) of [
-    //             Some(_address) -> _address
-    //         |   None           -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    //     ];
-
-    // }
-
-
-
     // // Fourth Way
     const executeGovernanceAction : doormanLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(doormanLambdaActionType)) of [
             Some(_action) -> _action
@@ -445,36 +371,6 @@ block{
         
         |   _                                           -> (nil, s)
     ];
-
-
-    // Fifth Way
-    // const executeGovernanceAction : doormanLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(doormanLambdaActionType)) of [
-    //         Some(_action) -> _action
-    //     |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    // ];
-
-    // const response : return = case executeGovernanceAction of [
-      
-    //         // Housekeeping
-    //     |   LambdaSetAdmin (parameters)                 -> _setAdmin(parameters, s)
-    //     |   LambdaSetGovernance(parameters)             -> _setGovernance(parameters, s)
-    //     |   LambdaUpdateMetadata(parameters)            -> _updateMetadata(parameters, s)
-    //     |   LambdaUpdateConfig(parameters)              -> _updateConfig(parameters, s)
-    //     |   LambdaUpdateWhitelistContracts(parameters)  -> _updateWhitelistContracts(parameters, s)
-    //     |   LambdaUpdateGeneralContracts(parameters)    -> _updateGeneralContracts(parameters, s)
-    //     |   LambdaMistakenTransfer(parameters)          -> _mistakenTransfer(parameters, s)
-    //     |   LambdaMigrateFunds(parameters)              -> _migrateFunds(parameters, s)
-
-    //         // Pause / Break Glass Entrypoints
-    //     |   LambdaPauseAll(_parameters)                 -> _pauseAll(_parameters, s)
-    //     |   LambdaUnpauseAll(_parameters)               -> _unpauseAll(_parameters, s)
-    //     |   LambdaTogglePauseEntrypoint(parameters)     -> _togglePauseEntrypoint(parameters, s)
-
-    //         // Doorman Entrypoints
-    //     |   LambdaCompound(parameters)                  -> _compound(parameters, s)
-        
-    //     |   _                                           -> (nil, s)
-    // ];
 
 } with (response)
 

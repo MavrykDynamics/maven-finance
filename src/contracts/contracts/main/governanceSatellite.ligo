@@ -73,6 +73,8 @@ type governanceSatelliteAction is
     |   VoteForAction                 of voteForActionType
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction       of (bytes)
+    |   DataPackingHelper             of governanceSatelliteLambdaActionType
     |   SetLambda                     of setLambdaType
 
 
@@ -155,6 +157,8 @@ block{
         |   VoteForAction(parameters)                 -> voteForAction(parameters, s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)             -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                     -> setLambda(parameters, s)
     ]
 )

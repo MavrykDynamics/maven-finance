@@ -246,6 +246,44 @@ block {
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(* executeGovernanceAction entrypoint *)
+function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceFinancialStorageType) : return is
+block{
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    // // Fourth Way
+    const executeGovernanceAction : governanceFinancialLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(governanceFinancialLambdaActionType)) of [
+            Some(_action) -> _action
+        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
+    ];
+
+    const response : return = case executeGovernanceAction of [
+      
+            // Housekeeping
+        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
+        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
+        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
+        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
+        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+        |   LambdaUpdateWhitelistTokens(parameters)     -> updateWhitelistTokenContracts(parameters, s)
+        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+
+        |   _                                           -> (nil, s)
+    ];
+
+} with (response)
+
+
+
+(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
+function dataPackingHelper(const _executeGovernanceAction : governanceFinancialLambdaActionType; const s : governanceFinancialStorageType) : return is 
+    (noOperations, s)
+
+
+
 (* setLambda entrypoint *)
 function setLambda(const setLambdaParams : setLambdaType; var s : governanceFinancialStorageType) : return is
 block{

@@ -50,6 +50,8 @@ type vestingAction is
     |   Claim                         of (unit)
 
         // Lambda Entrypoints
+    |   ExecuteGovernanceAction       of (bytes)
+    |   DataPackingHelper             of vestingLambdaActionType
     |   SetLambda                     of setLambdaType
 
 
@@ -117,6 +119,8 @@ block{
         |   Claim(_parameters)                      -> claim(s)
 
             // Lambda Entrypoints
+        |   ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
+        |   DataPackingHelper(parameters)           -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                   -> setLambda(parameters, s)
     ]
 )
