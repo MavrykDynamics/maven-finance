@@ -16,7 +16,6 @@ const breakGlassConfig = {
 }
 
 const config = {
-    nameMaxLength                       : new BigNumber(200),
     decimals                            : new BigNumber(8),
     alphaPercentPerThousand             : new BigNumber(2),
     
@@ -39,11 +38,11 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
 })
 
-const oraclesMap = {};
+// const oraclesMap = {};
 
-for (const oracle of oracles) {
-    oraclesMap[oracle.pkh] = true
-}
+// for (const oracle of oracles) {
+//     oraclesMap[oracle.pkh] = true
+// }
 
 const oracleAddresses = MichelsonMap.fromLiteral({});
 
@@ -72,8 +71,7 @@ export const aggregatorStorage: aggregatorStorageType = {
 
     oracleAddresses           : oracleAddresses,
     
-    lastCompletedData        : lastCompletedData,
-    
+    lastCompletedData         : lastCompletedData,
 
     oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
     oracleRewardXtz           : MichelsonMap.fromLiteral({}),

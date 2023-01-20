@@ -242,9 +242,9 @@ export const oldCompileContract = async (
                         },
                     ).toString()
 
-                    console.log(lambda.name);
-                    console.log(JSON.parse(michelson).bytes);
-                    console.log(`${lambda.name} : ${JSON.parse(michelson).bytes}`);
+                    // console.log(lambda.name);
+                    // console.log(JSON.parse(michelson).bytes);
+                    // console.log(`${lambda.name} : ${JSON.parse(michelson).bytes}`);
             
                     // res.push(`${lambda.name} : ${JSON.parse(michelson).bytes}`)
                     res[lambda.name] = JSON.parse(michelson).bytes;
@@ -256,7 +256,7 @@ export const oldCompileContract = async (
                         fs.mkdirSync(`${env.buildDir}/lambdas`)
                     }
             
-                    fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
+                    fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res, null, 4))
             
             } catch (e) {
 

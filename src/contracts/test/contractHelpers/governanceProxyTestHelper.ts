@@ -139,6 +139,7 @@ export class GovernanceProxy {
             });
     
         await confirmOperation(tezos, operation.hash);
+        // console.log(operation);
     
         return new GovernanceProxy(
             await tezos.contract.at(operation.contractAddress),

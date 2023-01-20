@@ -91,15 +91,15 @@ block {
 
 
 
-(*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceFinancialLambdaAction of [
-        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
         |   _ -> skip
     ];
@@ -108,15 +108,15 @@ block {
 
 
 
-(*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
+(*  updateGeneralContracts lambda *)
+function lambdaUpdateGeneralContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
     verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceFinancialLambdaAction of [
-        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
         |   _ -> skip
     ];

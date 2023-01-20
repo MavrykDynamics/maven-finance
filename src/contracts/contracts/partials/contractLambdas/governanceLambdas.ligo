@@ -214,6 +214,29 @@ block {
 
 
 
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
+block {
+
+    // Steps Overview:
+    // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
+    // 2. Check that no tez is sent to the entrypoint
+    // 3. Update whitelist contracts map
+
+    verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
+    verifyNoAmountSent(Unit);            // verify that no tez is sent to the entrypoint
+    
+    case governanceLambdaAction of [
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateGeneralContracts lambda *)
 function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
@@ -224,34 +247,11 @@ block {
     // 3. Update general contracts map
 
     verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
-    verifyNoAmountSent(Unit);            // verify that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);            // check that no tez is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
-block {
-
-    // Steps Overview:
-    // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
-    // 3. Update whitelist contracts map
-
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint
-    
-    case governanceLambdaAction of [
-        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
         |   _ -> skip
     ];
@@ -276,9 +276,19 @@ block {
     case governanceLambdaAction of [
             LambdaUpdateWhitelistDevelopers(developer) -> 
 
-                if checkWhitelistDeveloperExists(developer, s) 
-                then s := removeWhitelistDeveloper(developer, s)
-                else s := addWhitelistDeveloper(developer, s)
+                // if checkWhitelistDeveloperExists(developer, s) 
+                // then s := removeWhitelistDeveloper(developer, s)
+                // else s := addWhitelistDeveloper(developer, s)
+
+            if Set.mem(developer, s.whitelistDevelopers) then 
+                
+                if Set.cardinal(s.whitelistDevelopers) > 1n then 
+                    s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
+                else failwith(error_AT_LEAST_ONE_WHITELISTED_DEVELOPER_REQUIRED)
+
+            else
+
+                s.whitelistDevelopers := Set.add(developer, s.whitelistDevelopers)
 
         |   _ -> skip
     ];
@@ -536,17 +546,16 @@ block {
 
                                 // Execute timelocked proposal if boolean input is True
                                 if s.timelockProposalId =/= 0n then {
+                                    
                                     // Mark the proposal as ready to execute even if it's not executed during this cycle
-                                    var proposalToExecute                           := case Big_map.find_opt(s.timelockProposalId, s.proposalLedger) of [
-                                            Some (_proposal)    -> _proposal
-                                        |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
-                                    ];
+                                    var proposalToExecute : proposalRecordType := getProposalRecord(s.timelockProposalId, s);
                                     proposalToExecute.executionReady                := True;
                                     s.proposalLedger[s.timelockProposalId]          := proposalToExecute;
 
                                     // Execute the timelock proposal if the boolean was set to true
                                     if executePastProposal then operations := Tezos.transaction((s.timelockProposalId), 0tez, getExecuteProposalEntrypoint(Tezos.get_self_address())) # operations 
                                     else skip;
+                                    
                                 } else skip;
 
                                 // Start proposal round 
@@ -1265,8 +1274,8 @@ block {
                 // Verify that proposal has not been dropped
                 verifyProposalNotDropped(proposal);
 
-                // Verify that proposal has not been executed
-                verifyProposalNotExecuted(proposal);
+                // Verify that proposal has been executed
+                verifyProposalExecuted(proposal);
 
                 // Verify that there is at least one payment metadata to execute
                 verifyAtLeastOnePaymentData(proposal);

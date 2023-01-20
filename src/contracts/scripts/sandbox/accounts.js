@@ -57,7 +57,7 @@ module.exports = {
         pkh: "tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ",
         sk: "edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf",
         pk: "edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL",
-        peerId: "ivanePeerId"
+        peerId: "ivanPeerId"
     },
     //
     // Local oracle adresses
