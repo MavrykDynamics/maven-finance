@@ -262,8 +262,8 @@ type governanceLambdaActionType is
     |   LambdaSetGovernanceProxy                    of address
     |   LambdaUpdateMetadata                        of updateMetadataType
     |   LambdaUpdateConfig                          of governanceUpdateConfigParamsType
-    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
     |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType    
     |   LambdaUpdateWhitelistDevelopers             of (address)
     |   LambdaMistakenTransfer                      of transferActionType
     |   LambdaSetContractAdmin                      of setContractAdminType

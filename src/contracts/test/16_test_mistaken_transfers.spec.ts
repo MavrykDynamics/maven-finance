@@ -290,7 +290,7 @@
 
 //                 // Initial values
 //                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-//                 var contractAccount         = await mavrykFa2TokenStorage.ledger.get(aggregatorAddress.address)
+//                 var contractAccount         = await mavrykFa2TokenStorage.ledger.get(farmAddress.address)
 //                 var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
 //                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
 //                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
@@ -313,7 +313,7 @@
 
 //                 // Mid values
 //                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-//                 contractAccount             = await mavrykFa2TokenStorage.ledger.get(aggregatorAddress.address)
+//                 contractAccount             = await mavrykFa2TokenStorage.ledger.get(farmAddress.address)
 //                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
 //                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
@@ -336,7 +336,7 @@
 
 //                 // Final values
 //                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-//                 contractAccount             = await mavrykFa2TokenStorage.ledger.get(aggregatorAddress.address)
+//                 contractAccount             = await mavrykFa2TokenStorage.ledger.get(farmAddress.address)
 //                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
 //                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
 //                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;

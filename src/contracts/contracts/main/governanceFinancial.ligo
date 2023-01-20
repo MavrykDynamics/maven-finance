@@ -52,8 +52,8 @@ type governanceFinancialAction is
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
     |   UpdateConfig                    of governanceFinancialUpdateConfigParamsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
     |   UpdateWhitelistContracts        of updateWhitelistContractsType
+    |   UpdateGeneralContracts          of updateGeneralContractsType    
     |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     |   MistakenTransfer                of transferActionType
 
@@ -116,8 +116,8 @@ function main (const action : governanceFinancialAction; const s : governanceFin
         |   SetGovernance(parameters)                   -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)                    -> updateConfig(parameters, s)
-        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)        
         |   UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
         |   MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
 
