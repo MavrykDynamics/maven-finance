@@ -86,8 +86,8 @@ type governanceFinancialLambdaActionType is
     |   LambdaSetGovernance                         of address
     |   LambdaUpdateMetadata                        of updateMetadataType
     |   LambdaUpdateConfig                          of governanceFinancialUpdateConfigParamsType
-    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
     |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType    
     |   LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsType
     |   LambdaMistakenTransfer                      of transferActionType
 

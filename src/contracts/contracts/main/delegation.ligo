@@ -132,7 +132,7 @@ block{
             // Pause / Break Glass Entrypoints
         |   PauseAll(_parameters)                         -> pauseAll(s)
         |   UnpauseAll(_parameters)                       -> unpauseAll(s)
-        |   TogglePauseEntrypoint(parameters)            -> togglePauseEntrypoint(parameters, s)
+        |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
         
             // Delegation Entrypoints
         |   DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)

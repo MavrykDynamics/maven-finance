@@ -47,9 +47,9 @@ type mintOrBurnType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 type mavrykFa12TokenStorageType is [@layout:comb] record [
+    
     admin                   : address;
     metadata                : big_map (string, bytes);
-
     governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;   // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract

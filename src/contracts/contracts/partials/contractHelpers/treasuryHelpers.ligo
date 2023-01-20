@@ -99,6 +99,27 @@ block {
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to %stake entrypoint on the Doorman contract
+function getStakeEntrypointOnDoorman(const contractAddress : address) : contract(nat) is
+    case (Tezos.get_entrypoint_opt(
+        "%stake",
+        contractAddress) : option(contract(nat))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+        ];
+
+
+
+// helper function to %unstake entrypoint on the Doorman contract
+function getUnstakeEntrypointOnDoorman(const contractAddress : address) : contract(nat) is
+    case (Tezos.get_entrypoint_opt(
+        "%unstake",
+        contractAddress) : option(contract(nat))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+        ];
+
+
 // helper function to %update_operators entrypoint on the MVK token contract
 function getUpdateMvkOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
     case (Tezos.get_entrypoint_opt(
@@ -129,7 +150,7 @@ block {
     const stakeMvkOperation : operation = Tezos.transaction(
         (stakeAmount),
         0tez, 
-        getEntrypointNatType("%stake", doormanAddress, error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND)
+        getStakeEntrypointOnDoorman(doormanAddress)
     );
 
 } with stakeMvkOperation
@@ -147,7 +168,7 @@ block {
     const unstakeMvkOperation : operation = Tezos.transaction(
         (unstakeAmount),
         0tez, 
-        getEntrypointNatType("%unstake", doormanAddress, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND)
+        getUnstakeEntrypointOnDoorman(doormanAddress)
     );
 
 } with unstakeMvkOperation

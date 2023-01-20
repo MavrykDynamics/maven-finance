@@ -9,8 +9,8 @@ import { zeroAddress } from "../test/helpers/Utils";
 
 import { mavrykFa12TokenStorageType } from "../test/types/mavrykFa12TokenStorageType";
 
-const totalSupply   = 2000000000;
-const initialSupply = new BigNumber(totalSupply); // 2,000 MAVRYK FA12 Tokens in mu (10^6)
+const totalSupply   = 20000000000;
+const initialSupply = new BigNumber(totalSupply); // 20,000 MOCK FA12 Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4);
 
 const metadata = MichelsonMap.fromLiteral({
@@ -76,7 +76,6 @@ const token_metadata = MichelsonMap.fromLiteral({
   })
 
 export const mavrykFa12TokenStorage: mavrykFa12TokenStorageType = {
-
     admin:                  bob.pkh,
     metadata:               metadata,
     governanceAddress:      zeroAddress,
@@ -86,5 +85,4 @@ export const mavrykFa12TokenStorage: mavrykFa12TokenStorageType = {
     token_metadata:         token_metadata,
     totalSupply:            initialSupply,
     ledger:                 ledger,
-
 };
