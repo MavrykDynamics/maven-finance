@@ -42,7 +42,6 @@
 // import lendingControllerAddress         from '../deployments/lendingControllerMockTimeAddress.json';
 // import lendingControllerMockTimeAddress from '../deployments/lendingControllerMockTimeAddress.json';
 
-// // import tokenPoolRewardAddress           from '../deployments/tokenPoolRewardAddress.json';
 // import vaultFactoryAddress              from '../deployments/vaultFactoryAddress.json';
 
 // import { vaultStorageType }             from "./types/vaultStorageType"
@@ -100,7 +99,6 @@
 //     let delegationInstance
 //     let mvkTokenInstance
 //     let treasuryInstance
-//     // let tokenPoolRewardInstance
     
 //     let mockFa12TokenInstance
 //     let mockFa2TokenInstance
@@ -128,7 +126,6 @@
 //     let delegationStorage
 //     let mvkTokenStorage
 //     let treasuryStorage
-//     // let tokenPoolRewardStorage
 
 //     let mockFa12TokenStorage
 //     let mockFa2TokenStorage

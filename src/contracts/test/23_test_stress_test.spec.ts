@@ -45,7 +45,6 @@
 // describe("Stress tests", async () => {
     
 //     var utils: Utils
-//     var tezos;
 
 //     let doormanInstance;
 //     let delegationInstance;
@@ -113,8 +112,6 @@
 //             farmFactoryStorage              = await farmFactoryInstance.storage();
 //             farmStorage                     = await farmInstance.storage();
 //             lpTokenStorage                  = await lpTokenInstance.storage();
-
-//             tezos = doormanInstance.tezos;
             
 //             console.log('-- -- -- -- -- Stress Tests -- -- -- --')
 //             console.log('Doorman Contract deployed at:'                 , doormanInstance.address);

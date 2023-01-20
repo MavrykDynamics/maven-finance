@@ -83,21 +83,6 @@
 
     "lambdaCreateVault"
   ],
-  "tokenPoolReward": [
-    "lambdaSetAdmin",
-    "lambdaSetGovernance",
-    "lambdaUpdateMetadata",
-    "lambdaUpdateWhitelistContracts",
-    "lambdaUpdateGeneralContracts",
-    "lambdaUpdateWhitelistTokenContracts",
-
-    "lambdaPauseAll",
-    "lambdaUnpauseAll",
-    "lambdaTogglePauseEntrypoint",
-
-    "lambdaUpdateRewards",
-    "lambdaClaimRewards"
-  ],
   "aggregatorFactory": [
     "lambdaSetAdmin",
     "lambdaSetGovernance",
