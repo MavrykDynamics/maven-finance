@@ -37,7 +37,6 @@ import tokenSaleAddress from '../../deployments/tokenSaleAddress.json'
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json'
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json'
 import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json'
-import tokenPoolRewardAddress from '../../deployments/tokenPoolRewardAddress.json'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -80,7 +79,6 @@ describe('Linked contracts updates for Tests', async () => {
       const lendingControllerInstance: any            = await utils.tezos.contract.at(lendingControllerAddress.address);
       const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
       const vaultFactoryInstance: any                 = await utils.tezos.contract.at(vaultFactoryAddress.address);
-      // const tokenPoolRewardInstance: any              = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
       
       //----------------------------
       // Set remaining contract addresses - post-deployment
@@ -240,7 +238,6 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , governanceFinancialAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , vaultFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
-      // .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
 
       // uncomment if lending controller mock time contract is used
       // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
