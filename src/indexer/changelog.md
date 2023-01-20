@@ -4,25 +4,36 @@
 
 ### Deployment
 
-- DEV: 0.28
-- PROD: 0.28
-- PROD2: 0.28
+- DEV: 0.29
+- PROD: 0.29
+- PROD2: 0.29
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.29
+
+### What's new
+
+- MTokenAccountHistoryData
+  - Table added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.28</summary>
 
 ## Version 0.28
 
 ### What's new
 
 - LendingControllerCollateralToken
-    - Column token_name added
-    - Column token_contract_standard added
+  - Column token_name added
+  - Column token_contract_standard added
 - LendingControllerLoanToken
-    - Column loan_token_contract_standard added
+  - Column loan_token_contract_standard added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.27</summary>
 
@@ -31,7 +42,7 @@
 ### What's new
 
 - MTokenAccount
-    - Column RewardsEarned added
+  - Column RewardsEarned added
 
 </details>
 
@@ -42,33 +53,33 @@
 ### What's new
 
 - MTokenAccount
-    - Column RewardsEarned added
+  - Column RewardsEarned added
 
 ## Version 0.26
 
 ### Breaking changes
 
 - MavrykUserOperator:
-    - Table renamed to MVKTokenOperator
-    - Owner column related name renamed from UsersOwner to MvkTokenUserOwners
-    - Operator column related name renamed from UserOperator to MvkTokenUserOperators
+  - Table renamed to MVKTokenOperator
+  - Owner column related name renamed from UsersOwner to MvkTokenUserOwners
+  - Operator column related name renamed from UserOperator to MvkTokenUserOperators
 - MVKTransferHistoryData:
-    - Table renamed to MVKTokenTransferHistoryData
+  - Table renamed to MVKTokenTransferHistoryData
 - MVKMintHistoryData:
-    - Table renamed to MVKTokenMintHistoryData
+  - Table renamed to MVKTokenMintHistoryData
 
 ### What's new
 
 - MToken
-    - Table added
+  - Table added
 - MTokenWhitelistContracts
-    - Table added
+  - Table added
 - MTokenOperator
-    - Table added
+  - Table added
 - MTokenAccount
-    - Table added
+  - Table added
 - LendingControllerHistoryData
-    - Column LoanToken added
+  - Column LoanToken added
 
 </details>
 
@@ -79,9 +90,9 @@
 ### What's new
 
 - Satellite:
-    - Colmuns PublicKey and PeerId added
+  - Colmuns PublicKey and PeerId added
 - LendingControllerCollateralToken:
-    - Column IsScaledToken added
+  - Column IsScaledToken added
 
 </details>
 
@@ -92,7 +103,7 @@
 ### What's new
 
 - LendingControllerHistoryData:
-    - Table added: tracks all operations made to vault contracts and to the lending controller contract
+  - Table added: tracks all operations made to vault contracts and to the lending controller contract
 
 </details>
 
@@ -104,17 +115,17 @@
 
 - LiquidityBakingHistoryData:
 
-    - Values in the TokenPriceUSD column are now fetched asynchronously to speed up the initial indexing process. While
-      the data is not sync, a null value will appear.
+  - Values in the TokenPriceUSD column are now fetched asynchronously to speed up the initial indexing process. While
+    the data is not sync, a null value will appear.
 
 - LiquidityBaking:
 
-    - Column SharePriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with
-      the formula: `SharePriceUSD = SharePrice * XTZUSDPrice`)
+  - Column SharePriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with
+    the formula: `SharePriceUSD = SharePrice * XTZUSDPrice`)
 
 - LiquidityBakingPosition:
-    - Column AvgPriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with
-      the formula: `AvgPriceUSD = AvgPriceq * XTZUSDPrice`)
+  - Column AvgPriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with
+    the formula: `AvgPriceUSD = AvgPriceq * XTZUSDPrice`)
 
 </details>
 
@@ -126,31 +137,31 @@
 
 - MavrykUser:
 
-    - Table is now cached (no impact on queries)
+  - Table is now cached (no impact on queries)
 
 - GovernanceProposalData:
 
-    - Table now shows null values
+  - Table now shows null values
 
 - GovernancePaymentData:
 
-    - Table now shows null values
+  - Table now shows null values
 
 - LiquidityBaking:
 
-    - Column SharePriceUSD added
+  - Column SharePriceUSD added
 
 - LiquidityBakingPosition:
 
-    - Column AvgSharePriceUSD added
+  - Column AvgSharePriceUSD added
 
 - LiquidityBakingHistoryData:
-    - Column TokenPriceUSD added
+  - Column TokenPriceUSD added
 
 ### Breaking changes
 
 - LiquidityBakingHistoryData:
-    - Column Price renamed to TokenPrice
+  - Column Price renamed to TokenPrice
 
 </details>
 
@@ -161,26 +172,26 @@
 ### What's new
 
 - AggregatorOracle:
-    - Column InitEpoch added: always equal to the epoch that was currently set when the oracle joined an Aggregator
-    - Column InitRound added: always equal to the round that was currently set when the oracle joined an Aggregator
+  - Column InitEpoch added: always equal to the epoch that was currently set when the oracle joined an Aggregator
+  - Column InitRound added: always equal to the round that was currently set when the oracle joined an Aggregator
 - AggregatorOracleObservation:
-    - Table added: tracks all observations made by an AggregatorOracle for each round/epoch it participated
+  - Table added: tracks all observations made by an AggregatorOracle for each round/epoch it participated
 - LiquidityBaking:
-    - Column SharePrice added
+  - Column SharePrice added
 - LiquidityBakingPosition:
-    - Table added
+  - Table added
 - LiquidityBakingHistoryData:
-    - Column Trader added: you can now fetch all operations made by a trader through this foreign key
-    - Column Level added
-    - Column XTZQty added
-    - Column TokenQty added
-    - Column LqtQty added
-    - Column Slippage added
+  - Column Trader added: you can now fetch all operations made by a trader through this foreign key
+  - Column Level added
+  - Column XTZQty added
+  - Column TokenQty added
+  - Column LqtQty added
+  - Column Slippage added
 
 ### Breaking changes
 
 - LiquidityBakingHistoryData:
-    - Column XTZTokenPrice and TokenXTZPrice replaced by Price (BTC price in XTZ)
+  - Column XTZTokenPrice and TokenXTZPrice replaced by Price (BTC price in XTZ)
 
 </details>
 
@@ -198,34 +209,34 @@
 ### What's new
 
 - GovernanceProposalData
-    - Column CodeDescription added
+  - Column CodeDescription added
 - GovernancePaymentData
-    - Column TokenId added
+  - Column TokenId added
 - GovernanceSatelliteOracleAggregator
-    - Table added
+  - Table added
 
 ### Breaking changes
 
 - Aggregator
-    - Token0Symbol and Token1Symbol columns removed
+  - Token0Symbol and Token1Symbol columns removed
 - GovernanceProposalData
-    - RecordInternalId column renamed to InternalId
-    - Bytes column renamed to EncodedCode
+  - RecordInternalId column renamed to InternalId
+  - Bytes column renamed to EncodedCode
 - GovernancePaymentData
-    - RecordInternalId column renamed to InternalId
+  - RecordInternalId column renamed to InternalId
 - GovernanceSatelliteAggregator
-    - Table removed entirely
+  - Table removed entirely
 - GovernanceSatelliteAggregatorOracle
-    - Table removed entirely
+  - Table removed entirely
 - GovernanceSatelliteSatelliteOracle
-    - Table renamed to GovernanceSatelliteOracle
-    - AggregatorsSubscribed column removed
-    - Oracle column related name renamed from governance_satellite_satellite_oracles to governance_satellite_oracles (
-      relation GovernanceSatelliteOracle->MavrykUser)
+  - Table renamed to GovernanceSatelliteOracle
+  - AggregatorsSubscribed column removed
+  - Oracle column related name renamed from governance_satellite_satellite_oracles to governance_satellite_oracles (
+    relation GovernanceSatelliteOracle->MavrykUser)
 - GovernanceSatelliteSatelliteOracleAggregatorPair
-    - Table removed entirely
+  - Table removed entirely
 - TokenSaleBuyOption
-    - BuyOptionInternalId column renamed to InternalId
+  - BuyOptionInternalId column renamed to InternalId
 
 </details>
 
@@ -236,32 +247,32 @@
 ### What's new
 
 - Doorman
-    - OnVaultDepositSMvkPaused
-    - OnVaultWithdrawSMvkPaused
-    - OnVaultLiquidateSMvkPaused
+  - OnVaultDepositSMvkPaused
+  - OnVaultWithdrawSMvkPaused
+  - OnVaultLiquidateSMvkPaused
 - StakeHistoryData
-    - VAULT_DEPOSIT_SMVK = 5
-    - VAULT_WITHDRAW_SMVK = 6
-    - VAULT_LIQUIDATE_SMVK = 6
+  - VAULT_DEPOSIT_SMVK = 5
+  - VAULT_WITHDRAW_SMVK = 6
+  - VAULT_LIQUIDATE_SMVK = 6
 - LendingControllerVault
-    - LiquidationEndLevel
+  - LiquidationEndLevel
 - LendingControllerCollateralToken
-    - Protected
+  - Protected
 
 ### Breaking changes
 
 - Aggregator
-    - LastCompletedPrice* columns refactored to LastCompletedData*
+  - LastCompletedPrice* columns refactored to LastCompletedData*
 - LendingController
-    - UpdateCollateralTokenPaused renamed to SetCollateralTokenPaused
-    - VaultLiquidateSMvkPaused renamed to VaultOnLiquidateSMvkPaused
+  - UpdateCollateralTokenPaused renamed to SetCollateralTokenPaused
+  - VaultLiquidateSMvkPaused renamed to VaultOnLiquidateSMvkPaused
 - LendingControllerVault
-    - MarkedForLiquidationTimestamp renamed to MarkedForLiquidationLevel
+  - MarkedForLiquidationTimestamp renamed to MarkedForLiquidationLevel
 - LendingControllerLoanToken
-    - OracleType removed
-    - IsPaused removed
+  - OracleType removed
+  - IsPaused removed
 - LendingControllerCollateralToken
-    - OracleType removed
+  - OracleType removed
 
 </details>
 
@@ -273,7 +284,7 @@
 
 - Oracle V2 Indexed
 - Lending Indexed
-    - Liquidation on vault not tracked yet
+  - Liquidation on vault not tracked yet
 
 ### Breaking changes
 
@@ -344,13 +355,13 @@
 
 - Contains info about tokens for the entire system
 - Table refactored accordingly (attributes removed and replaced by a single foreign key | the Token table):
-    - Farm
-    - GovernanceProposalPayment
-    - GovernanceFinancialRequest
-    - GovernanceSatelliteActionTransfer
-    - LendingControllerCollateralToken
-    - LendingControllerLoanToken
-    - TreasuryTransferHistoryData
+  - Farm
+  - GovernanceProposalPayment
+  - GovernanceFinancialRequest
+  - GovernanceSatelliteActionTransfer
+  - LendingControllerCollateralToken
+  - LendingControllerLoanToken
+  - TreasuryTransferHistoryData
 
 ### GovernanceFinancialRequestVote/GovernanceSatelliteActionVote:
 
