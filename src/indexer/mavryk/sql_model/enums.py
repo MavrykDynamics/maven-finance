@@ -72,3 +72,7 @@ class LendingControllerOperationType(IntEnum):
     MARK_FOR_LIQUIDATION    = 9
     LIQUIDATE_VAULT         = 10
     CLOSE_VAULT             = 11
+
+class MTokenOperationType(IntEnum):
+    TRANSFER                = 0
+    MINT_OR_BURN            = 1
