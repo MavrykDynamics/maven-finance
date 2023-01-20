@@ -464,7 +464,7 @@ nodes:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
         kubernetes.io/ingress.class: nginx
-  rolling-node:
+  tezos-rolling-node:
     node_selector:
       type: mavryk-node
     tolerations:
