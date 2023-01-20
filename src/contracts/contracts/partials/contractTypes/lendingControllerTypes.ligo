@@ -100,9 +100,8 @@ type loanTokenRecordType is [@layout:comb] record [
 
     oracleAddress                           : address;   
 
-    lpTokensTotal                           : nat;
-    lpTokenContractAddress                  : address;
-    lpTokenId                               : nat;
+    mTokenContractAddress                   : address;
+    mTokenId                                : nat;
 
     tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
     totalBorrowed                           : nat; 
@@ -203,8 +202,8 @@ type createLoanTokenActionType is [@layout:comb] record [
 
     oracleAddress                           : address;
 
-    lpTokenContractAddress                  : address;
-    lpTokenId                               : nat;
+    mTokenContractAddress                   : address;
+    mTokenId                                : nat;
 
     reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
     optimalUtilisationRate                  : nat;  // kink point
@@ -402,6 +401,7 @@ type lendingControllerLambdaActionType is
     |   LambdaSetLoanToken                    of setLoanTokenActionType  
     |   LambdaSetCollateralToken              of setCollateralTokenActionType  
     |   LambdaRegisterVaultCreation           of registerVaultCreationActionType
+    |   LambdaReceiveXtz                      of (unit)
 
         // Token Pool Entrypoints
     |   LambdaAddLiquidity                    of addLiquidityActionType

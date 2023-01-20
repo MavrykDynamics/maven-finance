@@ -4,6 +4,23 @@
 //
 // ------------------------------------------------------------------------------
 
+
+(* receiveXtz entrypoint *)
+function receiveXtz(var s : lendingControllerStorageType) : return is 
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaReceiveXtz", s.lambdaLedger);
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaReceiveXtz(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints Begin
 // ------------------------------------------------------------------------------

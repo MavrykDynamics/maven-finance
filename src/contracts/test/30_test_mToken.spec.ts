@@ -518,8 +518,8 @@
 
 //                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                 = lpTokenPoolMockFa12TokenAddress.address;
+//                 const mTokenId                              = 0;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -549,8 +549,8 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
+//                         mTokenId,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -573,9 +573,8 @@
 
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
     
-//                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(mockFa12LoanToken.lpTokenId              , 0);
+//                     assert.equal(mockFa12LoanToken.mTokenContractAddress  , mTokenContractAddress);
+//                     assert.equal(mockFa12LoanToken.mTokenId               , 0);
     
 //                     assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
@@ -621,8 +620,8 @@
 
 //                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                 = lpTokenPoolMockFa2TokenAddress.address;
+//                 const mTokenId                              = 0;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -651,8 +650,8 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
+//                         mTokenId,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -676,9 +675,8 @@
 
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-//                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(mockFa2LoanToken.lpTokenId              , 0);
+//                     assert.equal(mockFa2LoanToken.mTokenContractAddress  , mTokenContractAddress);
+//                     assert.equal(mockFa2LoanToken.mTokenId               , 0);
 
 //                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(mockFa2LoanToken.tokenPoolTotal         , 0);
@@ -724,8 +722,8 @@
 
 //                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                 = lpTokenPoolXtzAddress.address;
+//                 const mTokenId                              = 0;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -755,8 +753,8 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
+//                         mTokenId,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -779,9 +777,8 @@
 //                     assert.equal(tezLoanToken.tokenName              , tokenName);
 //                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
-//                     assert.equal(tezLoanToken.lpTokensTotal          , 0);
-//                     assert.equal(tezLoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(tezLoanToken.lpTokenId              , 0);
+//                     assert.equal(tezLoanToken.mTokenContractAddress  , mTokenContractAddress);
+//                     assert.equal(tezLoanToken.mTokenId               , 0);
     
 //                     assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(tezLoanToken.tokenPoolTotal         , 0);
@@ -829,8 +826,8 @@
 
 //                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                 = lpTokenPoolMockFa2TokenAddress.address;
+//                 const mTokenId                              = 0;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -851,8 +848,8 @@
 
 //                     oracleAddress,
 
-//                     lpTokenContractAddress,
-//                     lpTokenId,
+//                     mTokenContractAddress,
+//                     mTokenId,
                     
 //                     reserveRatio,
 //                     optimalUtilisationRate,

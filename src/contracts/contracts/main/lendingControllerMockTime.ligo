@@ -41,7 +41,8 @@
 
 type lendingControllerAction is 
 
-    |   Default of unit
+    |   Default                         of unit
+    |   ReceiveXtz                      of (unit)
         
         // Housekeeping Entrypoints
     |   SetAdmin                        of (address)
@@ -123,6 +124,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
     case action of [
 
         |   Default(_params)                              -> ((nil : list(operation)), s)
+        |   ReceiveXtz(_parameters)                       -> receiveXtz(s)
         
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                          -> setAdmin(parameters, s) 

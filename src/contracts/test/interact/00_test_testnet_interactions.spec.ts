@@ -4251,8 +4251,8 @@ describe("Testnet interactions helper", async () => {
     //             const oracleType                            = "oracle";
     //             const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-    //             const lpTokenContractAddress                = mTokenAddress.address;
-    //             const lpTokenId                             = 0;
+    //             const mTokenContractAddress                = mTokenAddress.address;
+    //             const mTokenId                             = 0;
 
     //             const interestRateDecimals                  = 27;
     //             const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -4273,8 +4273,8 @@ describe("Testnet interactions helper", async () => {
 
     //                 oracleAddress,
 
-    //                 lpTokenContractAddress,
-    //                 lpTokenId,
+    //                 mTokenContractAddress,
+    //                 mTokenId,
                     
     //                 reserveRatio,
     //                 optimalUtilisationRate,
@@ -4944,8 +4944,8 @@ describe("Testnet interactions helper", async () => {
 
                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-                const lpTokenContractAddress                = mTokenAddress.address;
-                const lpTokenId                             = 0;
+                const mTokenContractAddress                 = mTokenAddress.address;
+                const mTokenId                              = 0;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -4966,8 +4966,8 @@ describe("Testnet interactions helper", async () => {
 
                     oracleAddress,
 
-                    lpTokenContractAddress,
-                    lpTokenId,
+                    mTokenContractAddress,
+                    mTokenId,
                     
                     reserveRatio,
                     optimalUtilisationRate,

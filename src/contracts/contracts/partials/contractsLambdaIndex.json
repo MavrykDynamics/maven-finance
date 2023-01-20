@@ -12,6 +12,7 @@
     "lambdaSetLoanToken",
     "lambdaSetCollateralToken",
     "lambdaRegisterVaultCreation",
+    "lambdaReceiveXtz",
 
     "lambdaAddLiquidity",
     "lambdaRemoveLiquidity",

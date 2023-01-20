@@ -4,6 +4,59 @@
 //
 // ------------------------------------------------------------------------------
 
+
+(* receiveXtz lambda *)
+function lambdaReceiveXtz(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+    
+    // Steps Overview: 
+    //
+    //
+
+    // verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted
+
+    case lendingControllerLambdaAction of [
+        |   LambdaReceiveXtz(_parameters) -> {
+
+                // init variables
+                const xtzAmountReceived : nat = mutezToNatural(Tezos.get_amount());
+                const loanTokenName : string = "tez";
+
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
+
+                // init loan token variables
+                const tokenPoolTotal      : nat         = loanTokenRecord.tokenPoolTotal;
+                const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
+                const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
+
+                // verify loan token is not paused
+                verifyLoanTokenIsNotPaused(loanTokenRecord);
+
+                // Calculate loan token accumulated rewards per share increment (1e6 * 1e27 / 1e6 -> 1e27)
+                // - N.B. divide by token pool total before it is updated
+                const accRewardsPerShareIncrement  : nat = (xtzAmountReceived * fixedPointAccuracy) / tokenPoolTotal;
+                const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
+
+                // update pool totals
+                loanTokenRecord.tokenPoolTotal              := tokenPoolTotal + xtzAmountReceived;
+                loanTokenRecord.totalRemaining              := totalRemaining + xtzAmountReceived;
+                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare
+
+                // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+
+                // Update Token Ledger
+                s.loanTokenLedger[loanTokenName] := loanTokenRecord;
+
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas Begin
 // ------------------------------------------------------------------------------
@@ -550,7 +603,6 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
-                loanTokenRecord.lpTokensTotal    := loanTokenRecord.lpTokensTotal + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
                 // send tokens to token pool (self address) operation / skip if loan token name is xtz
@@ -568,9 +620,9 @@ block {
                     operations := sendTokensToTokenPoolOperation # operations;
                 };
 
-                // mint LP Tokens and send to sender
-                const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, int(amount), loanTokenRecord.lpTokenContractAddress);
-                operations := mintLpTokensTokensOperation # operations;
+                // mint mTokens and send to sender
+                const mintMTokensTokensOperation : operation = mintOrBurnMToken(initiator, int(amount), loanTokenRecord.mTokenContractAddress);
+                operations := mintMTokensTokensOperation # operations;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -624,13 +676,7 @@ block {
                 const loanTokenPoolTotal        : nat         = loanTokenRecord.tokenPoolTotal;
                 const loanTotalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 
-                const lpTokenContractAddress    : address     = loanTokenRecord.lpTokenContractAddress;
-                const lpTokensTotal             : nat         = loanTokenRecord.lpTokensTotal;
-                const lpTokensBurned            : nat         = amount;
-
-                // Calculate new total of LP Tokens - verify that lpTokensBurned is less than lpTokensTotal
-                verifyLessThanOrEqual(lpTokensBurned, lpTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
-                const newLpTokensTotal : nat = abs(lpTokensTotal - lpTokensBurned);
+                const mTokenContractAddress    : address      = loanTokenRecord.mTokenContractAddress;
 
                 // Calculate new token pool amount - verify that amount is less than loan token pool total
                 verifyLessThanOrEqual(amount, loanTokenPoolTotal, error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE);
@@ -640,9 +686,9 @@ block {
                 verifyLessThanOrEqual(amount, loanTotalRemaining, error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE);
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
-                // burn LP Tokens and send to sender
-                const burnLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, 0n - amount, lpTokenContractAddress);
-                operations := burnLpTokensTokensOperation # operations;
+                // burn mTokens and send to sender
+                const burnMTokensTokensOperation : operation = mintOrBurnMToken(initiator, 0n - amount, mTokenContractAddress);
+                operations := burnMTokensTokensOperation # operations;
 
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(
@@ -655,7 +701,6 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := newTokenPoolTotal;
-                loanTokenRecord.lpTokensTotal    := newLpTokensTotal;
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
