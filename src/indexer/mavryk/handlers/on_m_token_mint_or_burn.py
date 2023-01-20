@@ -11,6 +11,9 @@ async def on_m_token_mint_or_burn(
 ) -> None:
     
     # Get operation info
+    timestamp                   = mint_or_burn.data.timestamp
+    level                       = int(mint_or_burn.data.level)
+    operation_hash              = mint_or_burn.data.hash
     m_token_address             = mint_or_burn.data.target_address
     user_address                = mint_or_burn.parameter.target
     token_reward_index          = float(mint_or_burn.storage.tokenRewardIndex)
@@ -33,3 +36,15 @@ async def on_m_token_mint_or_burn(
     user_account.balance        = user_balance
     user_account.reward_index   = user_reward_index
     await user_account.save()
+
+    user_account_history_data   = models.MTokenAccountHistoryData(
+        timestamp       = timestamp,
+        level           = level,
+        operation_hash  = operation_hash,
+        type            = models.MTokenOperationType.MINT_OR_BURN,
+        m_token_account = user_account,
+        balance         = user_account.balance,
+        reward_index    = user_account.reward_index,
+        rewards_earned  = user_account.rewards_earned
+    )
+    await user_account_history_data.save()
