@@ -44,7 +44,7 @@ bcd:
     pullPolicy: Always
     dockerPullSecret: docker-pull-credentials
     repository: mavrykdynamics/bcd
-    tag: 'v4.4.2'
+    tag: 'v4.3.2'
   env:
     - name: NODE_ENV
       value: production
