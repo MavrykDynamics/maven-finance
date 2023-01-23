@@ -11,7 +11,7 @@ variable "region" {
 variable "k8s_version" {
     type        = string
     description = "Kubernetes version to use"
-    default     = "1.24.4-do.0"
+    default     = "1.25.4-do.0"
 }
 
 variable "vpc_id" {

@@ -8,7 +8,7 @@ terraform {
   required_providers {
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "2.17.1"
+      version = "2.25.2"
     }
     aws = {
       source = "hashicorp/aws"
@@ -26,13 +26,11 @@ EOF
 remote_state {
   backend = "s3"
   config = {
-    skip_region_validation      = true
-    skip_credentials_validation = true
-    skip_metadata_api_check     = true
-    endpoint                    = "https://ams3.digitaloceanspaces.com"
     key                         = "${path_relative_to_include()}/terraform.tfstate"
-    region                      = "us-east-1" // needed
-    bucket                      = "mavryk-infra" // name of your space
+    region                      = "ap-southeast-1" // needed
+    bucket                      = "mavryk-dynamics-infra" // name of your space
+    encrypt                     = true
+    kms_key_id                  = "610eca57-ee83-43ec-b7eb-7a8e915df96b"
   }
   generate = {
     path      = "backend.tf"
