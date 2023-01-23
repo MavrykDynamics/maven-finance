@@ -28,10 +28,10 @@ module.exports = {
       port: 8732,
     },
     basenet: {
-      rpc: "http://159.223.200.157:32578",
+      rpc: "https://basenet-baking-full-node.mavryk.network",
       network_id: "*",
       secretKey: bob.sk,
-      port: 32578,
+      port: 443,
     },
     ghostnet: {
       rpc: "https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev",
