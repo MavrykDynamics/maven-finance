@@ -18,3 +18,14 @@ variable "name" {
     type        = string
     description = "Name of the bucket"
 }
+
+variable "acl" {
+    type        = string
+    description = "Canned ACL applied on bucket creation (private or public-read)"
+    default     = "private"
+}
+
+variable "versioning_enabled" {
+    type        = bool
+    description = "Enable versioning"
+}
