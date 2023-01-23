@@ -16,14 +16,14 @@ bcdHub:
       pullPolicy: Always
       pullSecret: docker-pull-credentials
       repository: mavrykdynamics/bcdhub-api
-      tag: v4.3.0
+      tag: v4.4.0
   indexer:
     image:
       registry: docker.io
       pullPolicy: Always
       pullSecret: docker-pull-credentials
       repository: mavrykdynamics/bcdhub-indexer
-      tag: v4.3.0
+      tag: v4.4.0
   ingress:
     host: api-better-call.mavryk.io
     tls:
@@ -44,7 +44,7 @@ bcd:
     pullPolicy: Always
     dockerPullSecret: docker-pull-credentials
     repository: mavrykdynamics/bcd
-    tag: 'v4.3.2'
+    tag: 'v4.4.2'
   env:
     - name: NODE_ENV
       value: production
