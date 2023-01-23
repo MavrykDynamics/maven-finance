@@ -435,9 +435,6 @@ nodes:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-        nginx.ingress.kubernetes.io/cors-allow-headers: 'Content-Type'
         kubernetes.io/ingress.class: nginx
   tezos-baking-archive-node:
     node_selector:
@@ -472,9 +469,6 @@ nodes:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-        nginx.ingress.kubernetes.io/cors-allow-headers: 'Content-Type'
         kubernetes.io/ingress.class: nginx
   tezos-rolling-node:
     node_selector:
@@ -505,9 +499,6 @@ nodes:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-        nginx.ingress.kubernetes.io/cors-allow-headers: 'Content-Type'
         kubernetes.io/ingress.class: nginx
 # End nodes
 
