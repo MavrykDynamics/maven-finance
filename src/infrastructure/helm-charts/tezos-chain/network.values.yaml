@@ -418,6 +418,9 @@ nodes:
             history_mode: full
           metrics_addr:
             - :9932
+          rpc:
+            cors-headers: ['content-type']
+            cors-origin: ['*']
         is_bootstrap_node: true
     runs:
       - octez_node
@@ -432,6 +435,9 @@ nodes:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+        nginx.ingress.kubernetes.io/enable-cors: "true"
+        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+        nginx.ingress.kubernetes.io/cors-allow-headers: 'Content-Type'
         kubernetes.io/ingress.class: nginx
   tezos-baking-archive-node:
     node_selector:
@@ -449,6 +455,9 @@ nodes:
             history_mode: archive
           metrics_addr:
             - :9932
+          rpc:
+            cors-headers: ['content-type']
+            cors-origin: ['*']
         is_bootstrap_node: true
     runs:
       - octez_node
@@ -463,6 +472,9 @@ nodes:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+        nginx.ingress.kubernetes.io/enable-cors: "true"
+        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+        nginx.ingress.kubernetes.io/cors-allow-headers: 'Content-Type'
         kubernetes.io/ingress.class: nginx
   tezos-rolling-node:
     node_selector:
@@ -478,6 +490,9 @@ nodes:
             history_mode: rolling
           metrics_addr:
             - :9932
+          rpc:
+            cors-headers: ['content-type']
+            cors-origin: ['*']
     runs:
       - octez_node
     storage_size: 15Gi
@@ -490,6 +505,9 @@ nodes:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+        nginx.ingress.kubernetes.io/enable-cors: "true"
+        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+        nginx.ingress.kubernetes.io/cors-allow-headers: 'Content-Type'
         kubernetes.io/ingress.class: nginx
 # End nodes
 
