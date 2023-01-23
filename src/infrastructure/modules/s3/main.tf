@@ -8,6 +8,14 @@ resource "aws_s3_bucket" "this" {
   bucket                    = var.name
 }
 
+resource "aws_s3_bucket_versioning" "this" {
+  count     = var.versioning_enabled ? 1 : 0
+  bucket    = aws_s3_bucket.this.id
+  versioning_configuration {
+    status  = "Enabled"
+  }
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 
@@ -22,6 +30,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 
 resource "aws_s3_bucket_acl" "this" {
   bucket                    = aws_s3_bucket.this.id
+  acl                       = var.acl
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {

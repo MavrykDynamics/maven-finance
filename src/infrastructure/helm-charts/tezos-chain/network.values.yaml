@@ -110,7 +110,7 @@ deku:
 
 tezos-faucet:
   images:
-    tezos_faucet: mavrykdynamics/tezos-faucet:v1.0.2
+    tezos_faucet: mavrykdynamics/tezos-faucet:v1.0.3
     tezos_faucet_backend: ghcr.io/oxheadalpha/tezos-faucet-backend:latest
   authorizedHost: "'*'"
 
