@@ -1,0 +1,127 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle
+  labels:
+    app: oracle
+spec:
+  ports:
+    - name: signatory
+      port: 6732
+      protocol: TCP
+      targetPort: signatory
+  selector:
+    app: oracle
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oracle-config
+data:
+  secret.json: |
+    [
+      {
+        "name": "bobPeerId",
+        "value": "edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq"
+      }
+    ]
+  signatory.yaml: |
+    server:
+      # Address/Port that Signatory listens on
+      address: :6732
+      # Address/Port that Signatory serves prometheus metrics on
+      utility_address: :9583
+
+    vaults:
+      # Name of vault
+      # THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key storage for testing/development only.
+      local_file_keys:
+        driver: file
+        config:
+          file: /etc/secret.json
+
+    # List enabled public keys hashes here
+    tezos:
+      tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD: # Your tezos address
+        log_payloads: true
+        allowed_operations:
+          # List of [generic, block, endorsement]
+          - generic
+          - block
+          - endorsement
+          - failing_noop
+        allowed_kinds:
+          # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
+          - transaction
+          - endorsement
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oracle
+  labels:
+    app: oracle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oracle
+  template:
+    metadata:
+      labels:
+        app: oracle
+    spec:
+      imagePullSecrets:
+        - name: 'docker-pull-credentials'
+      volumes:
+        - name: oracle-config
+          projected:
+            sources:
+              - configMap:
+                  name: oracle-config
+      containers:
+        - name: oracle
+          env:
+            - name: RPC_URL
+              value: 'https://basenet-baking-full-node.mavryk.network'
+            - name: SIGNER_URL
+              value: 'http://oracle.mavryk-oracles.svc.cluster.local:6732'
+            - name: P2P_BOOTSTRAP_PEERS
+              value: '/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97'
+            - name: P2P_PEER_ID
+              value: 'bobPeerId'
+            - name: P2P_PEER_PUBLIC_KEY
+              value: 'edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D'
+            - name: P2P_PEER_PRIVATE_KEY
+              value: 'edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq'
+            - name: TEZOS_ADDRESS
+              value: 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'
+            - name: TEZOS_PUBLIC_KEY
+              value: 'edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D'
+            - name: ALPHAVANTAGE_API_KEY
+              value: ''
+            - name: MESSARI_API_KEY
+              value: ''
+            - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
+              value: '2000'
+            - name: AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS
+              value: 'KT198U4vWNSUfnbv8jtnJME5oAM2MaXBtGSn'
+            - name: LOG_LEVEL
+              value: 'verbose'
+            - name: USE_FAKE_PRICES
+              value: 'true'
+          image: 'mavrykdynamics/mavryk-oracle:latest'
+          imagePullPolicy: 'Always'
+        - name: signatory
+          image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
+          imagePullPolicy: 'Always'
+          volumeMounts:
+            - name: oracle-config
+              mountPath: /etc
+              readOnly: true
+          ports:
+            - name: signatory
+              containerPort: 6732
+              protocol: TCP
