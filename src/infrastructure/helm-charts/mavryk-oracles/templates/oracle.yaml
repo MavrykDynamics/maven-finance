@@ -11,6 +11,10 @@ spec:
       port: 6732
       protocol: TCP
       targetPort: signatory
+    - name: p2p
+      port: 23456
+      protocol: TCP
+      targetPort: p2p
   selector:
     app: oracle
   type: ClusterIP
@@ -85,35 +89,47 @@ spec:
         - name: oracle
           env:
             - name: RPC_URL
-              value: 'https://basenet-baking-full-node.mavryk.network'
+              value: 'https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev'
             - name: SIGNER_URL
               value: 'http://oracle.mavryk-oracles.svc.cluster.local:6732'
             - name: P2P_BOOTSTRAP_PEERS
-              value: '/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97'
+              value: ''
             - name: P2P_PEER_ID
-              value: 'bobPeerId'
+              value: '12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1'
             - name: P2P_PEER_PUBLIC_KEY
-              value: 'edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D'
+              value: 'CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2'
             - name: P2P_PEER_PRIVATE_KEY
-              value: 'edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq'
+              value: 'CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY='
             - name: TEZOS_ADDRESS
               value: 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'
             - name: TEZOS_PUBLIC_KEY
               value: 'edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D'
             - name: ALPHAVANTAGE_API_KEY
-              value: ''
+              secretKeyRef:
+                name: api-keys
+                key: ALPHAVANTAGE_API_KEY
             - name: MESSARI_API_KEY
-              value: ''
+              secretKeyRef:
+                name: api-keys
+                key: MESSARI_API_KEY
             - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
               value: '2000'
-            - name: AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS
-              value: 'KT198U4vWNSUfnbv8jtnJME5oAM2MaXBtGSn'
+            - name: AGGREGATOR_SMART_CONTRACT_ADDRESS
+              value: 'KT1JgBX8LRJ7AmVhTk64niDZxfXH8UBXyiDv'
+            - name: AGGREGATOR_PAIR_1
+              value: 'USD'
+            - name: AGGREGATOR_PAIR_2
+              value: 'BTC'
             - name: LOG_LEVEL
               value: 'verbose'
-            - name: USE_FAKE_PRICES
-              value: 'true'
-          image: 'mavrykdynamics/mavryk-oracle:latest'
+            - name: USE_FAKE_DATA
+              value: 'false'
+          image: 'mavrykdynamics/mavryk-oracle:v0.0.1'
           imagePullPolicy: 'Always'
+          ports:
+            - name: p2p
+              containerPort: 23456
+              protocol: TCP
         - name: signatory
           image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
           imagePullPolicy: 'Always'

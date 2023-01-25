@@ -23,6 +23,9 @@ mavrykApi:
 mavrykIndexer:
   valueFiles: prod.values.yaml
 
+mavrykOracles:
+  valueFiles: prod.values.yaml
+
 metricsServer:
   valueFiles: prod.values.yaml
 
