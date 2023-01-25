@@ -44,7 +44,7 @@ data:
       local_file_keys:
         driver: file
         config:
-          file: /etc/oracle/secret.json
+          file: /etc/signatory/secret.json
 
     # List enabled public keys hashes here
     tezos:
@@ -131,11 +131,11 @@ spec:
               containerPort: 23456
               protocol: TCP
         - name: signatory
-          image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
+          image: 'ecadlabs/signatory:v1.0.0-beta2-arm64'
           imagePullPolicy: 'Always'
           volumeMounts:
             - name: oracle-config
-              mountPath: /etc/oracle
+              mountPath: /etc/signatory
           ports:
             - name: signatory
               containerPort: 6732
