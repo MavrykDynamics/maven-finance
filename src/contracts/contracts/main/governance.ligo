@@ -31,6 +31,11 @@
 // Governance Type
 #include "../partials/contractTypes/governanceTypes.ligo"
 
+// Governance Proxy Type
+#include "../partials/contractTypes/governanceProxyTypes.ligo"
+
+// ------------------------------------------------------------------------------
+
 type governanceAction is 
 
         // Break Glass Entrypoint
@@ -119,8 +124,10 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   SetGovernanceProxy(parameters)              -> setGovernanceProxy(parameters, s)
         |   UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)                    -> updateConfig(parameters, s)
+        
         |   UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)        
+        
         |   UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
         |   MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
         |   SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)

@@ -368,6 +368,9 @@ block{
 
             // Doorman Entrypoints
         |   LambdaCompound(parameters)                  -> compound(parameters, s)
+
+            // Lambda Entrypoints
+        |   LambdaSetLambda(parameters)                 -> setLambda(parameters, s)
         
         |   _                                           -> (nil, s)
     ];

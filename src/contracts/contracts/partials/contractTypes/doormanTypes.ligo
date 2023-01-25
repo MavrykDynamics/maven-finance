@@ -139,6 +139,9 @@ type doormanLambdaActionType is
     |   LambdaOnVaultWithdrawStake        of onVaultWithdrawStakeType
     |   LambdaOnVaultLiquidateStake       of onVaultLiquidateStakeType
 
+        // Lambda
+    |   LambdaSetLambda                   of setLambdaType
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------

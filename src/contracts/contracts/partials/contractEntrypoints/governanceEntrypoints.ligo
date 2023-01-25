@@ -446,7 +446,7 @@ function executeGovernanceAction(const governanceActionBytes : bytes; var s : go
 block{
     
     // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    verifySenderIsAdminOrGovernance(s.admin, Tezos.get_self_address());
 
     // // Fourth Way
     const executeGovernanceAction : governanceLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(governanceLambdaActionType)) of [
@@ -457,16 +457,18 @@ block{
     const response : return = case executeGovernanceAction of [
       
             // Break Glass
-        |   LambdaPropagateBreakGlass (parameters)      -> propagateBreakGlass(parameters, s)
+        |   LambdaPropagateBreakGlass (_parameters)     -> propagateBreakGlass(s)
         
             // Housekeeping
         |   LambdaSetAdmin(parameters)                  -> setAdmin(parameters, s)
         |   LambdaSetGovernanceProxy(parameters)        -> setGovernanceProxy(parameters, s)
         |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
         |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
+        
         |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
         |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-        |   LambdaUpdateGeneralDevelopers(parameters)   -> updateWhitelistDevelopers(parameters, s)
+        
+        |   LambdaUpdateWhitelistDevelopers(parameters) -> updateWhitelistDevelopers(parameters, s)
         |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
         |   LambdaSetContractAdmin(parameters)          -> setContractAdmin(parameters, s)
         |   LambdaSetContractGovernance(parameters)     -> setContractGovernance(parameters, s)

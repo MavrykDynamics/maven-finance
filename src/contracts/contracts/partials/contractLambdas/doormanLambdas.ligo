@@ -151,9 +151,7 @@ block {
                 verifyTokenAllowedForOperationFold(mvkTokenAddress, destinationParams, error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-
-                response := _mistakenTransfer(destinationParams, operations, s);
+                operations := List.fold_right(transferOperationFold, destinationParams, operations);
                 
             }
         |   _ -> skip
@@ -832,6 +830,24 @@ block{
                 const vaultOnStakeChangeOperation         : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  setLambda lambda *)
+function lambdaSetLambda(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
+block{
+    
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaSetLambda(_setLambdaParams) -> {
+
+                skip
             }
         | _ -> skip
     ];

@@ -129,21 +129,52 @@ block {
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
 
-
-(* processGovernanceAction entrypoint *)
-function processGovernanceAction(const processGovernanceActionParams : processGovernanceActionType; var s : governanceProxyStorageType) : return is 
+(* setProxyLambda entrypoint *)
+function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceProxyStorageType) : return is 
 block {
+    
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
+    
+    // assign params to constants for better code readability
+    const lambdaId      = setProxyLambdaParams.id;
+    const lambdaBytes   = setProxyLambdaParams.func_bytes;
 
-    // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaProcessGovernanceAction", s.lambdaLedger);
+    // set lambda in lambdaLedger - allow override of lambdas
+    s.proxyLambdaLedger[lambdaId] := lambdaBytes;
 
-    // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaProcessGovernanceAction(processGovernanceActionParams);
+} with (noOperations, s)
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+
+(* executeGovernanceAction entrypoint *)
+function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceProxyStorageType) : return is 
+block {
+    
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
+
+    const governanceAction : executeActionType = case (Bytes.unpack(governanceActionBytes) : option(executeActionType)) of [
+            Some(_action) -> _action
+        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
+    ];
+
+    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger[0n] of [
+            Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorageType) -> return
+    const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
+            Some(f) -> f(governanceAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
 
 } with response
+
+
+
+(* dataDataPackingHelper entrypoint - to simulate calling an entrypoint *)
+function dataDataPackingHelper(const _governanceAction : executeActionType; const s : governanceProxyStorageType) : return is 
+    (noOperations, s)
 
 
 // ------------------------------------------------------------------------------

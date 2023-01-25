@@ -641,6 +641,10 @@
 
 // CONTRACT SPECIFIC ERRORS
 [@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA                                                         = 470n;
+[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND                                                    = 470n;
+[@inline] const error_TARGET_CONTRACT_FOR_PROCESS_GOVERNANCE_ACTION_NOT_FOUND                                           = 470n;
+[@inline] const error_PROCESS_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                       = 470n;
+
 
 // ENTRYPOINTS NOT FOUND ERRORS
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                       = 471n;

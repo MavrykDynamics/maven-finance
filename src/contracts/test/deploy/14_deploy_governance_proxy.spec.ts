@@ -73,8 +73,8 @@ describe('Governance Proxy', async () => {
       console.log("Governance Proxy Contract - Lambdas Setup")
 
       // Governance Proxy Setup Lambdas - Proxy Lambdas
-      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 8) // 8 is the starting index (inclusive)
-      console.log("Governance Proxy Contract - Proxy Lambdas Setup")
+      // await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 8) // 8 is the starting index (inclusive)
+      // console.log("Governance Proxy Contract - Proxy Lambdas Setup")
 
     } catch(e){
       console.dir(e, {depth: 5})

@@ -200,10 +200,10 @@ block {
                     |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
                     |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
                     |   ConfigProposalDatTitleMaxLength (_v)              -> s.config.proposalDataTitleMaxLength              := updateConfigNewValue
-                    // |   ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
-                    // |   ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
-                    // |   ConfigProposalInvoiceMaxLength (_v)               -> s.config.proposalInvoiceMaxLength                := updateConfigNewValue
-                    // |   ConfigProposalCodeMaxLength (_v)                  -> s.config.proposalSourceCodeMaxLength             := updateConfigNewValue
+                    |   ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
+                    |   ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
+                    |   ConfigProposalInvoiceMaxLength (_v)               -> s.config.proposalInvoiceMaxLength                := updateConfigNewValue
+                    |   ConfigProposalCodeMaxLength (_v)                  -> s.config.proposalSourceCodeMaxLength             := updateConfigNewValue
                 ];
 
             }
@@ -1208,7 +1208,7 @@ block {
 
                     // Execute the data or skip if this entry has no data to execute
                     case metadata of [
-                            Some (_dataBytes)   -> operations := processGovernanceActionOperation(_dataBytes.contractName, _dataBytes.encodedCode, s) # operations
+                            Some (_dataBytes)   -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
                         |   None                -> skip
                     ];
 
@@ -1402,7 +1402,7 @@ block {
 
                 // Check if there is data to execute (even at the last entry where index = 0)
                 case optionData of [
-                        Some (_dataBytes) -> operations := processGovernanceActionOperation(_dataBytes.contractName, _dataBytes.encodedCode, s) # operations
+                        Some (_dataBytes) -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
                     |   None              -> skip
                 ];
 

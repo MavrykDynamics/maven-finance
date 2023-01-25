@@ -411,48 +411,6 @@
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
-    "executeGovernanceLambdaProxy",
-
-    "updateProxyLambda",
-    "setContractAdmin",
-    "setContractGovernance",
-    "setContractName",
-    "setContractLambda",
-    "setFactoryProductLambda",
-    "updateContractMetadata",
-    "updateContractWhitelistMap",
-    "updateContractGeneralMap",
-    "updateContractWhitelistTokenMap",
-
-    "updateContractConfig",
-
-    "pauseAllContractEntrypoint",
-    "unpauseAllContractEntrypoint",
-    "toggleContractEntrypoint",
-
-    "updateWhitelistDevelopersSet",
-    "setGovernanceProxy",
-
-    "createFarm",
-    "initFarm",
-    "closeFarm",
-
-    "createTreasury",
-    "transferTreasury",
-    "mintMvkAndTransferTreasury",
-    "updateMvkOperatorsTreasury",
-    "stakeMvkTreasury",
-    "unstakeMvkTreasury",
-
-    "createAggregator",
-
-    "updateMvkInflationRate",
-    "triggerMvkInflation",
-
-    "trackContract",
-    "untrackContract",
-
-    "manageVestee",
-    "toggleVesteeLock"
+    "processGovernanceAction"
   ]
 }

@@ -50,6 +50,7 @@ type votingRoundVoteType is [@layout:comb] record [
 
 type proposalDataType is [@layout:comb] record [
     title                   : string;
+    contractName            : string;
     encodedCode             : bytes;
     codeDescription         : string;
 ]
@@ -144,10 +145,10 @@ type governanceConfigType is [@layout:comb] record [
     blocksPerTimelockRound              : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
 
     proposalDataTitleMaxLength          : nat;
-    proposalTitleMaxLength              : nat;
-    proposalDescriptionMaxLength        : nat;
-    proposalInvoiceMaxLength            : nat;
-    proposalSourceCodeMaxLength         : nat;
+    // proposalTitleMaxLength              : nat;
+    // proposalDescriptionMaxLength        : nat;
+    // proposalInvoiceMaxLength            : nat;
+    // proposalSourceCodeMaxLength         : nat;
     
 ]
 
@@ -172,10 +173,10 @@ type governanceUpdateConfigActionType is
     |   ConfigBlocksPerVotingRound        of unit
     |   ConfigBlocksPerTimelockRound      of unit
     |   ConfigProposalDatTitleMaxLength   of unit
-    |   ConfigProposalTitleMaxLength      of unit
-    |   ConfigProposalDescMaxLength       of unit
-    |   ConfigProposalInvoiceMaxLength    of unit
-    |   ConfigProposalCodeMaxLength       of unit
+    // |   ConfigProposalTitleMaxLength      of unit
+    // |   ConfigProposalDescMaxLength       of unit
+    // |   ConfigProposalInvoiceMaxLength    of unit
+    // |   ConfigProposalCodeMaxLength       of unit
 
 type governanceUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue    : governanceUpdateConfigNewValueType; 
@@ -184,6 +185,7 @@ type governanceUpdateConfigParamsType is [@layout:comb] record [
 
 type updateProposalDataSetType is [@layout:comb] record [
     title                   : string;
+    contractName            : string;
     encodedCode             : bytes;
     codeDescription         : option(string);
     index                   : option(nat);
@@ -262,8 +264,10 @@ type governanceLambdaActionType is
     |   LambdaSetGovernanceProxy                    of address
     |   LambdaUpdateMetadata                        of updateMetadataType
     |   LambdaUpdateConfig                          of governanceUpdateConfigParamsType
+    
     |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts                of updateGeneralContractsType    
+    
     |   LambdaUpdateWhitelistDevelopers             of (address)
     |   LambdaMistakenTransfer                      of transferActionType
     |   LambdaSetContractAdmin                      of setContractAdminType
@@ -303,7 +307,7 @@ type governanceStorageType is [@layout:comb] record [
     whitelistDevelopers               : whitelistDevelopersType;  
 
     proposalLedger                    : proposalLedgerType;
-    proposalRewards                   : big_map((actionIdType*address), unit);  // proposalId*Satellite address
+    proposalRewards                   : big_map((actionIdType * address), unit);  // proposalId*Satellite address
     snapshotLedger                    : snapshotLedgerType;
     
     currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically

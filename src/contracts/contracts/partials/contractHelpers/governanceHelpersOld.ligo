@@ -439,14 +439,14 @@ function getSetGovernanceEntrypoint(const contractAddress : address) : contract(
         ];
 
 
-
-// helper function to %processGovernanceAction entrypoint on the Governance Proxy Contract
-function getProcessGovernanceActionEntrypoint(const contractAddress : address) : contract(processGovernanceActionType) is
+      
+// helper function to %executeGovernanceAction entrypoint on the Governance Proxy Contract
+function getExecuteGovernanceActionEntrypoint(const contractAddress : address) : contract(bytes) is
     case (Tezos.get_entrypoint_opt(
-        "%processGovernanceAction",
-        contractAddress) : option(contract(processGovernanceActionType))) of [
+        "%executeGovernanceAction",
+        contractAddress) : option(contract(bytes))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_PROCESS_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND) : contract(processGovernanceActionType))
+            |   None        -> (failwith(error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND) : contract(bytes))
         ];
 
 
@@ -575,22 +575,17 @@ block {
 
 
 
-// helper function to create process governance action operation to the governance proxy contract
-function processGovernanceActionOperation(const contractName : string; const encodedCode : bytes; const s : governanceStorageType) : operation is
+// helper function to create execute governance action operation to the governance proxy contract
+function executeGovernanceActionOperation(const dataBytes : bytes; const s : governanceStorageType) : operation is
 block {
 
-    const processGovernanceActionParams : processGovernanceActionType = record [
-        contractName = contractName;
-        encodedCode  = encodedCode;
-    ];
-
-    const processGovernanceActionOperation : operation = Tezos.transaction(
-        processGovernanceActionParams, 
+    const executeGovernanceActionOperation : operation = Tezos.transaction(
+        dataBytes, 
         0tez, 
-        getProcessGovernanceActionEntrypoint(s.governanceProxyAddress)
+        getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
     );
 
-} with processGovernanceActionOperation
+} with executeGovernanceActionOperation
 
 
 
@@ -773,10 +768,10 @@ function createNewProposal(const newProposal : newProposalType; const s : govern
 block {
 
     // Validate inputs (max length not exceeded)    
-    // validateStringLength(newProposal.title          , s.config.proposalTitleMaxLength           , error_WRONG_INPUT_PROVIDED);
-    // validateStringLength(newProposal.description    , s.config.proposalDescriptionMaxLength     , error_WRONG_INPUT_PROVIDED);
-    // validateStringLength(newProposal.invoice        , s.config.proposalInvoiceMaxLength         , error_WRONG_INPUT_PROVIDED);
-    // validateStringLength(newProposal.sourceCode     , s.config.proposalSourceCodeMaxLength      , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(newProposal.title          , s.config.proposalTitleMaxLength           , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(newProposal.description    , s.config.proposalDescriptionMaxLength     , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(newProposal.invoice        , s.config.proposalInvoiceMaxLength         , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(newProposal.sourceCode     , s.config.proposalSourceCodeMaxLength      , error_WRONG_INPUT_PROVIDED);
 
     // init new proposal params
     const emptyVotersSet  : set(address)                         = set [];
@@ -1281,7 +1276,6 @@ block {
 
     // init params
     const title             : string   = proposalData.title;
-    const contractName      : string   = proposalData.contractName;
     const proposalBytes     : bytes    = proposalData.encodedCode;
     const codeDescription   : string   = case proposalData.codeDescription of [
             Some (_c)   -> _c
@@ -1295,7 +1289,6 @@ block {
     // Create the new proposalData
     const newProposalData : proposalDataType = record[
         title           = title;
-        contractName    = contractName;
         encodedCode     = proposalBytes;
         codeDescription = codeDescription;
     ];
