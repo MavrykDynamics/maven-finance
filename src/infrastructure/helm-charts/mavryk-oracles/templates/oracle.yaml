@@ -131,8 +131,11 @@ spec:
               containerPort: 23456
               protocol: TCP
         - name: signatory
-          image: 'ecadlabs/signatory:v1.0.0-beta2-arm64'
+          image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
           imagePullPolicy: 'Always'
+          args:
+            - -c
+            - /etc/signatory/signatory.yaml
           volumeMounts:
             - name: oracle-config
               mountPath: /etc/signatory
