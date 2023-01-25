@@ -34,7 +34,7 @@ class AggregatorOracle(Model):
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles', index=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles', index=True)
     public_key                              = fields.CharField(max_length=54, default="")
-    peer_id                                 = fields.CharField(max_length=36, default="")
+    peer_id                                 = fields.TextField(default="")
     init_round                              = fields.BigIntField(index=True)
     init_epoch                              = fields.BigIntField(index=True)
 
