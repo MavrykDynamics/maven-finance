@@ -44,7 +44,7 @@ data:
       local_file_keys:
         driver: file
         config:
-          file: /etc/secret.json
+          file: /etc/oracle/secret.json
 
     # List enabled public keys hashes here
     tezos:
@@ -135,8 +135,7 @@ spec:
           imagePullPolicy: 'Always'
           volumeMounts:
             - name: oracle-config
-              mountPath: /etc
-              readOnly: true
+              mountPath: /etc/oracle
           ports:
             - name: signatory
               containerPort: 6732
