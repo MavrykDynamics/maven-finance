@@ -2,14 +2,14 @@
 from importlib.metadata import metadata
 from dipdup.context import HandlerContext
 from ..utils.persisters import persist_token_metadata
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 from dipdup.models import Origination
 from dateutil import parser 
 import mavryk.models as models
 
 async def on_mvk_origination(
     ctx: HandlerContext,
-    mvk_origination: Origination[MvkStorage],
+    mvk_origination: Origination[MvkTokenStorage],
 ) -> None:
     
     # Get operation info
