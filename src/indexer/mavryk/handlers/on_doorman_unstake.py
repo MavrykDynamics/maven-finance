@@ -1,16 +1,16 @@
 
-from mavryk.types.mvk.parameter.transfer import TransferParameter
+from mavryk.types.mvk_token.parameter.transfer import TransferParameter
 from mavryk.types.doorman.storage import DoormanStorage
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
 from mavryk.types.doorman.parameter.unstake import UnstakeParameter
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 import mavryk.models as models
 
 async def on_doorman_unstake(
     ctx: HandlerContext,
     unstake: Transaction[UnstakeParameter, DoormanStorage],
-    transfer: Transaction[TransferParameter, MvkStorage],
+    transfer: Transaction[TransferParameter, MvkTokenStorage],
 ) -> None:
 
     # Get operation info

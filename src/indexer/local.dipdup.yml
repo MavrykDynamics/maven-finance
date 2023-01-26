@@ -72,7 +72,7 @@ contracts:
     address: KT1LTGz73oWVZa42hZJjLoc9zadkobYtn5eW
     typename: doorman
   farm:
-    address: KT1VErmLQrDVzixrxWHxcQyoaYULQPNJMmbW
+    code_hash: KT1VErmLQrDVzixrxWHxcQyoaYULQPNJMmbW
     typename: farm
   farm_factory:
     address: KT1K9JNLif6acx2Rjn5VGVdsTidxfAJUDkt1
@@ -99,13 +99,13 @@ contracts:
     address: KT1Avf9S1v7XPGYKzfTbzLXUL29BqAe9Y3mF
     typename: governance_satellite
   aggregator:
-    address: KT1JgBX8LRJ7AmVhTk64niDZxfXH8UBXyiDv
+    code_hash: KT1N7vwVSiv91QPk1MTgvXLGZ7NuANDEFoXJ
     typename: aggregator
   aggregator_factory:
     address: KT198U4vWNSUfnbv8jtnJME5oAM2MaXBtGSn
     typename: aggregator_factory
   treasury:
-    address: KT1JeqQnM5SECPSuVU3dF6NJNxLwmgX8nqhm
+    code_hash: KT1JeqQnM5SECPSuVU3dF6NJNxLwmgX8nqhm
     typename: treasury
   treasury_factory:
     address: KT1VrHhxvUsr1LPC3UFcwgv6QSHPW8bypG2h
@@ -129,7 +129,7 @@ contracts:
     address: KT1V7phNJEUQL27uUk6cg7DEFdmkKiP6XHH5
     typename: m_token
   vault:
-    address: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
+    code_hash: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
     typename: vault
   vault_factory:
     address: KT1E5LueY6pvvQtg3Lo3ujp2TwYLN26djvZe
@@ -720,75 +720,75 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: setLambda
-  farm:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - farm
-    handlers:
-    - callback: on_farm_origination
-      pattern:
-      - type: origination
-        originated_contract: farm
-    - callback: on_farm_set_admin
-      pattern:
-      - destination: farm
-        entrypoint: setAdmin
-    - callback: on_farm_set_governance
-      pattern:
-      - destination: farm
-        entrypoint: setGovernance
-    - callback: on_farm_update_config
-      pattern:
-      - destination: farm
-        entrypoint: updateConfig
-    - callback: on_farm_update_whitelist_contracts
-      pattern:
-      - destination: farm
-        entrypoint: updateWhitelistContracts
-    - callback: on_farm_update_general_contracts
-      pattern:
-      - destination: farm
-        entrypoint: updateGeneralContracts
-    - callback: on_farm_init_farm
-      pattern:
-      - destination: farm
-        entrypoint: initFarm
-    - callback: on_farm_close_farm
-      pattern:
-      - destination: farm
-        entrypoint: closeFarm
-    - callback: on_farm_pause_all
-      pattern:
-      - destination: farm
-        entrypoint: pauseAll
-    - callback: on_farm_unpause_all
-      pattern:
-      - destination: farm
-        entrypoint: unpauseAll
-    - callback: on_farm_toggle_pause_entrypoint
-      pattern:
-      - destination: farm
-        entrypoint: togglePauseEntrypoint
-    - callback: on_farm_deposit
-      pattern:
-      - destination: farm
-        entrypoint: deposit
-    - callback: on_farm_withdraw
-      pattern:
-      - destination: farm
-        entrypoint: withdraw
-    - callback: on_farm_claim
-      pattern:
-      - destination: farm
-        entrypoint: claim
-    - callback: on_farm_set_lambda
-      pattern:
-      - destination: farm
-        entrypoint: setLambda
+  # farm:
+  #   kind: operation
+  #   datasource: tzkt_ghostnet
+  #   types:
+  #   - origination
+  #   - transaction
+  #   contracts:
+  #   - farm
+  #   handlers:
+  #   - callback: on_farm_origination
+  #     pattern:
+  #     - type: origination
+  #       originated_contract: farm
+  #   - callback: on_farm_set_admin
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: setAdmin
+  #   - callback: on_farm_set_governance
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: setGovernance
+  #   - callback: on_farm_update_config
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: updateConfig
+  #   - callback: on_farm_update_whitelist_contracts
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: updateWhitelistContracts
+  #   - callback: on_farm_update_general_contracts
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: updateGeneralContracts
+  #   - callback: on_farm_init_farm
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: initFarm
+  #   - callback: on_farm_close_farm
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: closeFarm
+  #   - callback: on_farm_pause_all
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: pauseAll
+  #   - callback: on_farm_unpause_all
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: unpauseAll
+  #   - callback: on_farm_toggle_pause_entrypoint
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: togglePauseEntrypoint
+  #   - callback: on_farm_deposit
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: deposit
+  #   - callback: on_farm_withdraw
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: withdraw
+  #   - callback: on_farm_claim
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: claim
+  #   - callback: on_farm_set_lambda
+  #     pattern:
+  #     - destination: farm
+  #       entrypoint: setLambda
   farm_factory:
     kind: operation
     datasource: tzkt_ghostnet
@@ -841,7 +841,7 @@ indexes:
         entrypoint: createFarm
       - source: farm_factory
         type: origination
-        similar_to: farm
+        originated_contract: farm
     - callback: on_farm_factory_track_farm
       pattern:
       - destination: farm_factory
@@ -1369,87 +1369,87 @@ indexes:
       pattern:
       - destination: governance_satellite
         entrypoint: setLambda
-  aggregator:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - aggregator
-    handlers:
-    - callback: on_aggregator_origination
-      pattern:
-      - type: origination
-        originated_contract: aggregator
-    - callback: on_aggregator_set_admin
-      pattern:
-      - destination: aggregator
-        entrypoint: setAdmin
-    - callback: on_aggregator_set_governance
-      pattern:
-      - destination: aggregator
-        entrypoint: setGovernance
-    - callback: on_aggregator_set_name
-      pattern:
-      - destination: aggregator
-        entrypoint: setName
-    - callback: on_aggregator_update_metadata
-      pattern:
-      - destination: aggregator
-        entrypoint: updateMetadata
-    - callback: on_aggregator_update_config
-      pattern:
-      - destination: aggregator
-        entrypoint: updateConfig
-    - callback: on_aggregator_update_whitelist_contracts
-      pattern:
-      - destination: aggregator
-        entrypoint: updateWhitelistContracts
-    - callback: on_aggregator_update_general_contracts
-      pattern:
-      - destination: aggregator
-        entrypoint: updateGeneralContracts
-    - callback: on_aggregator_add_oracle
-      pattern:
-      - destination: aggregator
-        entrypoint: addOracle
-    - callback: on_aggregator_update_oracle
-      pattern:
-      - destination: aggregator
-        entrypoint: updateOracle
-    - callback: on_aggregator_remove_oracle
-      pattern:
-      - destination: aggregator
-        entrypoint: removeOracle
-    - callback: on_aggregator_pause_all
-      pattern:
-      - destination: aggregator
-        entrypoint: pauseAll
-    - callback: on_aggregator_unpause_all
-      pattern:
-      - destination: aggregator
-        entrypoint: unpauseAll
-    - callback: on_aggregator_toggle_pause_entrypoint
-      pattern:
-      - destination: aggregator
-        entrypoint: togglePauseEntrypoint
-    - callback: on_aggregator_update_data
-      pattern:
-      - destination: aggregator
-        entrypoint: updateData
-    - callback: on_aggregator_withdraw_reward_xtz
-      pattern:
-      - destination: aggregator
-        entrypoint: withdrawRewardXtz
-    - callback: on_aggregator_withdraw_reward_staked_mvk
-      pattern:
-      - destination: aggregator
-        entrypoint: withdrawRewardStakedMvk
-    - callback: on_aggregator_set_lambda
-      pattern:
-      - destination: aggregator
-        entrypoint: setLambda
+  # aggregator:
+  #   kind: operation
+  #   datasource: tzkt_ghostnet
+  #   types:
+  #   - origination
+  #   - transaction
+  #   contracts:
+  #   - aggregator
+  #   handlers:
+  #   - callback: on_aggregator_origination
+  #     pattern:
+  #     - type: origination
+  #       originated_contract: aggregator
+  #   - callback: on_aggregator_set_admin
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: setAdmin
+  #   - callback: on_aggregator_set_governance
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: setGovernance
+  #   - callback: on_aggregator_set_name
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: setName
+  #   - callback: on_aggregator_update_metadata
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: updateMetadata
+  #   - callback: on_aggregator_update_config
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: updateConfig
+  #   - callback: on_aggregator_update_whitelist_contracts
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: updateWhitelistContracts
+  #   - callback: on_aggregator_update_general_contracts
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: updateGeneralContracts
+  #   - callback: on_aggregator_add_oracle
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: addOracle
+  #   - callback: on_aggregator_update_oracle
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: updateOracle
+  #   - callback: on_aggregator_remove_oracle
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: removeOracle
+  #   - callback: on_aggregator_pause_all
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: pauseAll
+  #   - callback: on_aggregator_unpause_all
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: unpauseAll
+  #   - callback: on_aggregator_toggle_pause_entrypoint
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: togglePauseEntrypoint
+  #   - callback: on_aggregator_update_data
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: updateData
+  #   - callback: on_aggregator_withdraw_reward_xtz
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: withdrawRewardXtz
+  #   - callback: on_aggregator_withdraw_reward_staked_mvk
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: withdrawRewardStakedMvk
+  #   - callback: on_aggregator_set_lambda
+  #     pattern:
+  #     - destination: aggregator
+  #       entrypoint: setLambda
   aggregator_factory:
     kind: operation
     datasource: tzkt_ghostnet
@@ -1501,7 +1501,7 @@ indexes:
         entrypoint: createAggregator
       - source: aggregator_factory
         type: origination
-        similar_to: aggregator
+        originated_contract: aggregator
     - callback: on_aggregator_factory_track_aggregator
       pattern:
       - destination: aggregator_factory
@@ -1518,59 +1518,59 @@ indexes:
       pattern:
       - destination: aggregator_factory
         entrypoint: setProductLambda
-  treasury:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - treasury
-    handlers:
-    - callback: on_treasury_origination
-      pattern:
-      - type: origination
-        originated_contract: treasury
-    - callback: on_treasury_set_admin
-      pattern:
-      - destination: treasury
-        entrypoint: setAdmin
-    - callback: on_treasury_set_governance
-      pattern:
-      - destination: treasury
-        entrypoint: setGovernance
-    - callback: on_treasury_update_general_contracts
-      pattern:
-      - destination: treasury
-        entrypoint: updateGeneralContracts
-    - callback: on_treasury_update_whitelist_contracts
-      pattern:
-      - destination: treasury
-        entrypoint: updateWhitelistContracts
-    - callback: on_treasury_update_whitelist_token_contracts
-      pattern:
-      - destination: treasury
-        entrypoint: updateWhitelistTokenContracts
-    - callback: on_treasury_pause_all
-      pattern:
-      - destination: treasury
-        entrypoint: pauseAll
-    - callback: on_treasury_unpause_all
-      pattern:
-      - destination: treasury
-        entrypoint: unpauseAll
-    - callback: on_treasury_toggle_pause_entrypoint
-      pattern:
-      - destination: treasury
-        entrypoint: togglePauseEntrypoint
-    - callback: on_treasury_transfer
-      pattern:
-      - destination: treasury
-        entrypoint: transfer
-    - callback: on_treasury_set_lambda
-      pattern:
-      - destination: treasury
-        entrypoint: setLambda
+  # treasury:
+  #   kind: operation
+  #   datasource: tzkt_ghostnet
+  #   types:
+  #   - origination
+  #   - transaction
+  #   contracts:
+  #   - treasury
+  #   handlers:
+  #   - callback: on_treasury_origination
+  #     pattern:
+  #     - type: origination
+  #       originated_contract: treasury
+  #   - callback: on_treasury_set_admin
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: setAdmin
+  #   - callback: on_treasury_set_governance
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: setGovernance
+  #   - callback: on_treasury_update_general_contracts
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: updateGeneralContracts
+  #   - callback: on_treasury_update_whitelist_contracts
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: updateWhitelistContracts
+  #   - callback: on_treasury_update_whitelist_token_contracts
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: updateWhitelistTokenContracts
+  #   - callback: on_treasury_pause_all
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: pauseAll
+  #   - callback: on_treasury_unpause_all
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: unpauseAll
+  #   - callback: on_treasury_toggle_pause_entrypoint
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: togglePauseEntrypoint
+  #   - callback: on_treasury_transfer
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: transfer
+  #   - callback: on_treasury_set_lambda
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: setLambda
   treasury_factory:
     kind: operation
     datasource: tzkt_ghostnet
@@ -1627,7 +1627,7 @@ indexes:
         entrypoint: createTreasury
       - source: treasury_factory
         type: origination
-        similar_to: treasury
+        originated_contract: treasury
     - callback: on_treasury_factory_track_treasury
       pattern:
       - destination: treasury_factory
@@ -1701,35 +1701,35 @@ indexes:
       pattern:
       - destination: token_sale
         entrypoint: claimTokens
-  vault:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - vault
-    handlers:
-    - callback: on_vault_origination
-      pattern:
-      - type: origination
-        originated_contract: vault
-    - callback: on_vault_set_admin
-      pattern:
-      - destination: vault
-        entrypoint: setAdmin
-    - callback: on_vault_set_governance
-      pattern:
-      - destination: vault
-        entrypoint: setGovernance
-    - callback: on_vault_update_depositor
-      pattern:
-      - destination: vault
-        entrypoint: updateDepositor
-    - callback: on_vault_set_lambda
-      pattern:
-      - destination: vault
-        entrypoint: setLambda
+  # vault:
+  #   kind: operation
+  #   datasource: tzkt_ghostnet
+  #   types:
+  #   - origination
+  #   - transaction
+  #   contracts:
+  #   - vault
+  #   handlers:
+  #   - callback: on_vault_origination
+  #     pattern:
+  #     - type: origination
+  #       originated_contract: vault
+  #   - callback: on_vault_set_admin
+  #     pattern:
+  #     - destination: vault
+  #       entrypoint: setAdmin
+  #   - callback: on_vault_set_governance
+  #     pattern:
+  #     - destination: vault
+  #       entrypoint: setGovernance
+  #   - callback: on_vault_update_depositor
+  #     pattern:
+  #     - destination: vault
+  #       entrypoint: updateDepositor
+  #   - callback: on_vault_set_lambda
+  #     pattern:
+  #     - destination: vault
+  #       entrypoint: setLambda
   vault_factory:
     kind: operation
     datasource: tzkt_ghostnet
@@ -1782,7 +1782,7 @@ indexes:
         entrypoint: createVault
       - source: vault_factory
         type: origination
-        similar_to: vault
+        originated_contract: vault
     - callback: on_vault_factory_set_lambda
       pattern:
       - destination: vault_factory

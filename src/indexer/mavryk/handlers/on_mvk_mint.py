@@ -1,13 +1,13 @@
 
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 from dipdup.context import HandlerContext
-from mavryk.types.mvk.parameter.mint import MintParameter
+from mavryk.types.mvk_token.parameter.mint import MintParameter
 from dipdup.models import Transaction
 import mavryk.models as models
 
 async def on_mvk_mint(
     ctx: HandlerContext,
-    mint: Transaction[MintParameter, MvkStorage],
+    mint: Transaction[MintParameter, MvkTokenStorage],
 ) -> None:
 
     # Get operation values

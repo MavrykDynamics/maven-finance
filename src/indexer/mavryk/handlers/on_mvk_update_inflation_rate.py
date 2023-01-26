@@ -1,13 +1,13 @@
 
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.types.mvk.storage import MvkStorage
-from mavryk.types.mvk.parameter.update_inflation_rate import UpdateInflationRateParameter
+from mavryk.types.mvk_token.storage import MvkTokenStorage
+from mavryk.types.mvk_token.parameter.update_inflation_rate import UpdateInflationRateParameter
 import mavryk.models as models
 
 async def on_mvk_update_inflation_rate(
     ctx: HandlerContext,
-    update_inflation_rate: Transaction[UpdateInflationRateParameter, MvkStorage],
+    update_inflation_rate: Transaction[UpdateInflationRateParameter, MvkTokenStorage],
 ) -> None:
     
     # Get operation info
