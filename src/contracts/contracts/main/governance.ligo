@@ -70,7 +70,7 @@ type governanceAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction         of (bytes)
-    |   DataPackingHelper               of governanceLambdaActionType
+    // |   DataPackingHelper               of governanceLambdaActionType
     |   SetLambda                       of setLambdaType
 
 
@@ -96,18 +96,18 @@ type governanceUnpackLambdaFunctionType is (governanceLambdaActionType * governa
 #include "../partials/contractViews/governanceViews.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Governance Lambdas:
-#include "../partials/contractLambdas/governanceLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
 // Governance Entrypoints:
 #include "../partials/contractEntrypoints/governanceEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Governance Lambdas:
+#include "../partials/contractLambdas/governanceLambdas.ligo"
 
 
 (* main entrypoint *)
@@ -149,7 +149,7 @@ function main (const action : governanceAction; const s : governanceStorageType)
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)               -> dataPackingHelper(parameters, s)
+        // |   DataPackingHelper(parameters)               -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                       -> setLambda(parameters, s)
 
     ]

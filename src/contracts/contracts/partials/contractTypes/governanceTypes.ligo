@@ -264,10 +264,8 @@ type governanceLambdaActionType is
     |   LambdaSetGovernanceProxy                    of address
     |   LambdaUpdateMetadata                        of updateMetadataType
     |   LambdaUpdateConfig                          of governanceUpdateConfigParamsType
-    
     |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts                of updateGeneralContractsType    
-    
     |   LambdaUpdateWhitelistDevelopers             of (address)
     |   LambdaMistakenTransfer                      of transferActionType
     |   LambdaSetContractAdmin                      of setContractAdminType
@@ -286,6 +284,9 @@ type governanceLambdaActionType is
     |   LambdaProcessProposalSingleData             of actionIdType
     |   LambdaDistributeProposalRewards             of distributeProposalRewardsType
     |   LambdaDropProposal                          of actionIdType
+
+        // Governance Lambdas
+    |   LambdaExecuteGovernanceAction               of (bytes)
 
 
 // ------------------------------------------------------------------------------

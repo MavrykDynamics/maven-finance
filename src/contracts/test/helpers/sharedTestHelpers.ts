@@ -8,7 +8,6 @@ export const packData = async (rpc, packedDataValue, packedDataType) => {
     let packedData;
     if (referenceDataPacked) {
         packedData = referenceDataPacked.packed
-        console.log('packedData: ' + packedData);
         return packedData;
     } else {
         throw `Pack data failed`

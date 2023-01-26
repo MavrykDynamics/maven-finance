@@ -347,7 +347,9 @@
     "lambdaProcessProposalPayment",
     "lambdaProcessProposalSingleData",
     "lambdaDistributeProposalRewards",
-    "lambdaDropProposal"
+    "lambdaDropProposal",
+
+    "lambdaExecuteGovernanceAction"
   ],
   "treasuryFactory": [
     "lambdaSetAdmin",

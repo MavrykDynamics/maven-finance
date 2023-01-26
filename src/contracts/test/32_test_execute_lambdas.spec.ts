@@ -2,7 +2,7 @@ const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperati
 import { BigNumber } from 'bignumber.js'
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+import { Utils, MVK, TEZ } from "./helpers/Utils";
 import fs from "fs";
 import { confirmOperation } from "../scripts/confirmation";
 
@@ -17,6 +17,8 @@ import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
+import mavrykFa12TokenAddress from '../deployments/mavrykFa12TokenAddress.json';
+import mavrykFa2TokenAddress from '../deployments/mavrykFa2TokenAddress.json';
 
 import * as sharedTestHelper from "./helpers/sharedTestHelpers"
 
@@ -28,10 +30,18 @@ describe("Execute Lambda tests", async () => {
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
+    let mavrykFa12TokenInstance;
+    let mavrykFa2TokenInstance;
 
     let doormanStorage;
     let delegationStorage;
     let mvkTokenStorage;
+    let mavrykFa12TokenStorage;
+    let mavrykFa2TokenStorage;
+
+    let doormanXtzLedger
+    let doormanMavrykFa12TokenLedger
+    let doormanMavrykFa2TokenLedger
 
     let lambdaParams
     let packedData
@@ -57,18 +67,24 @@ describe("Execute Lambda tests", async () => {
         
         rpc = utils.tezos.rpc;
         
-        doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
-        delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
-        mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
+        doormanInstance             = await utils.tezos.contract.at(doormanAddress.address);
+        delegationInstance          = await utils.tezos.contract.at(delegationAddress.address);
+        mvkTokenInstance            = await utils.tezos.contract.at(mvkTokenAddress.address);
+        mavrykFa12TokenInstance     = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+        mavrykFa2TokenInstance      = await utils.tezos.contract.at(mavrykFa2TokenAddress.address);
             
-        doormanStorage    = await doormanInstance.storage();
-        delegationStorage = await delegationInstance.storage();
-        mvkTokenStorage   = await mvkTokenInstance.storage();
+        doormanStorage           = await doormanInstance.storage();
+        delegationStorage        = await delegationInstance.storage();
+        mvkTokenStorage          = await mvkTokenInstance.storage();
+        mavrykFa12TokenStorage   = await mavrykFa12TokenInstance.storage();
+        mavrykFa2TokenStorage    = await mavrykFa2TokenInstance.storage();
 
         console.log('-- -- -- -- -- Execute Lambda Tests -- -- -- --')
         console.log('Doorman Contract deployed at:', doormanInstance.address);
         console.log('Delegation Contract deployed at:', delegationInstance.address);
         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+        console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+        console.log('Mavryk FA2 Token Contract deployed at:', mavrykFa2TokenInstance.address);
         console.log('Bob address: ' + bob.pkh);
         console.log('Alice address: ' + alice.pkh);
 
@@ -284,6 +300,189 @@ describe("Execute Lambda tests", async () => {
                 // Assertion
                 assert.equal(resetWhitelistCheck, undefined);
                 // --------------------------------------------------------
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+
+        it("%updateGeneralContracts - admin should be able to call %updateGeneralContracts through %executeGovernanceAction", async() => {
+            try{
+
+                doormanStorage = await doormanInstance.storage();
+
+                const initialGeneralCheck = doormanStorage.generalContracts.get("testUpdateGeneralContracts");
+                const newGeneralAddress   = mallory.pkh;
+
+                assert.notEqual(initialGeneralCheck, newGeneralAddress);
+
+                // add general contract address
+                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                    "lambdaUpdateGeneralContracts", 'testUpdateGeneralContracts', newGeneralAddress
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const updatedGeneralCheck = doormanStorage.generalContracts.get("testUpdateGeneralContracts");
+
+                // Assertion
+                assert.equal(updatedGeneralCheck, newGeneralAddress);
+
+                // --------------------------------------------------------
+                // Reset test (for re-testability)
+                // ------------------------------
+                
+                // remove general contract address by calling entrypoint with same values again
+                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                    "lambdaUpdateGeneralContracts", 'testUpdateGeneralContracts', newGeneralAddress
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const resetGeneralCheck = doormanStorage.generalContracts.get("testUpdateGeneralContracts");
+
+                // Assertion
+                assert.equal(resetGeneralCheck, undefined);
+                // --------------------------------------------------------
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+
+        it("%mistakenTransfer - admin should be able to call %mistakenTransfer through %executeGovernanceAction", async() => {
+            try{
+
+                doormanStorage = await doormanInstance.storage();
+
+                // doormanXtzLedger                            = await utils.tezos.tz.getBalance(doormanAddress.address);
+                // const doormanInitialXtzBalance              = doormanXtzLedger.toNumber();
+
+                doormanMavrykFa12TokenLedger                = await mavrykFa12TokenStorage.ledger.get(doormanAddress.address);            
+                const doormanInitialMavrykFa12TokenBalance  = doormanMavrykFa12TokenLedger == undefined ? 0 : doormanMavrykFa12TokenLedger.balance.toNumber();
+
+                doormanMavrykFa2TokenLedger                 = await mavrykFa2TokenStorage.ledger.get(doormanAddress.address);            
+                const doormanInitialMavrykFa2TokenBalance   = doormanMavrykFa2TokenLedger == undefined ? 0 : doormanMavrykFa2TokenLedger.toNumber();
+
+                const mistakenTezAmountSent                 = 7;
+                const mistakenTokenAmountSent               = 3000000;
+
+                // assert.equal(doormanInitialXtzBalance,              0);
+                assert.equal(doormanInitialMavrykFa12TokenBalance,  0);
+                assert.equal(doormanInitialMavrykFa2TokenBalance,   0);
+
+                // assert.notEqual(doormanInitialXtzBalance,               mistakenTezAmountSent);
+                assert.notEqual(doormanInitialMavrykFa12TokenBalance,   mistakenTokenAmountSent);
+                assert.notEqual(doormanInitialMavrykFa2TokenBalance,    mistakenTokenAmountSent);
+
+                // mistaken transfers by different users:
+                // - Eve (MavrykFa12Token), Mallory (MavrykFa2Token) 
+                // - Note: no XTZ as Doorman contract has no default entrypoint
+
+                await signerFactory(eve.sk)
+                const eveMistakenTransferFa12TokenOperation = await mavrykFa12TokenInstance.methods.transfer(eve.pkh, doormanAddress.address, mistakenTokenAmountSent).send();
+                await eveMistakenTransferFa12TokenOperation.confirmation();
+
+                await signerFactory(mallory.sk)
+                const malloryMistakenTransferFa2TokenOperation = await mavrykFa2TokenInstance.methods.transfer([
+                    {
+                        from_: mallory.pkh,
+                        txs: [
+                            {
+                                to_: doormanAddress.address,
+                                token_id: 0,
+                                amount: mistakenTokenAmountSent
+                            }
+                        ]
+                    }
+                ]).send();
+                await malloryMistakenTransferFa2TokenOperation.confirmation();
+
+                // check balances after mistaken transfers
+
+                // doormanXtzLedger                        = await utils.tezos.tz.getBalance(doormanAddress.address);
+                // const doormanXtzBalance                 = doormanXtzLedger.toNumber();
+
+                doormanMavrykFa12TokenLedger            = await mavrykFa12TokenStorage.ledger.get(doormanAddress.address);            
+                const doormanMavrykFa12TokenBalance     = doormanMavrykFa12TokenLedger == undefined ? 0 : doormanMavrykFa12TokenLedger.balance.toNumber();
+
+                doormanMavrykFa2TokenLedger             = await mavrykFa2TokenStorage.ledger.get(doormanAddress.address);            
+                const doormanMavrykFa2TokenBalance      = doormanMavrykFa2TokenLedger == undefined ? 0 : doormanMavrykFa2TokenLedger.toNumber();
+
+                // assert.equal(doormanXtzBalance,             mistakenTezAmountSent);
+                assert.equal(doormanMavrykFa12TokenBalance, mistakenTokenAmountSent);
+                assert.equal(doormanMavrykFa2TokenBalance,  mistakenTokenAmountSent);
+
+                // mistaken transfers params for admin
+                await signerFactory(bob.sk)
+                
+                const mistakenTransferParams = [
+                    {
+                        "to_"    : eve.pkh,
+                        "token"  : {
+                            "fa12" : mavrykFa12TokenAddress.address
+                        },
+                        "amount" : mistakenTokenAmountSent
+                    },
+                    {
+                        "to_"    : mallory.pkh,
+                        "token"  : {
+                            "fa2" : {
+                                "tokenContractAddress": mavrykFa2TokenAddress.address,
+                                "tokenId" : 0
+                            }
+                        },
+                        "amount" : mistakenTokenAmountSent
+                    }
+                ];
+
+                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                    "lambdaMistakenTransfer", mistakenTransferParams
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                // doormanXtzLedger                                = await utils.tezos.tz.getBalance(doormanAddress.address);
+                // const doormanUpdatedXtzBalance                  = doormanXtzLedger.toNumber();
+
+                doormanMavrykFa12TokenLedger                    = await mavrykFa12TokenStorage.ledger.get(doormanAddress.address);            
+                const doormanUpdatedMavrykFa12TokenBalance      = doormanMavrykFa12TokenLedger == undefined ? 0 : doormanMavrykFa12TokenLedger.balance.toNumber();
+
+                doormanMavrykFa2TokenLedger                     = await mavrykFa2TokenStorage.ledger.get(doormanAddress.address);            
+                const doormanUpdatedMavrykFa2TokenBalance       = doormanMavrykFa2TokenLedger == undefined ? 0 : doormanMavrykFa2TokenLedger.toNumber();
+
+                // assert.equal(doormanUpdatedXtzBalance,              0);
+                assert.equal(doormanUpdatedMavrykFa12TokenBalance,  0);
+                assert.equal(doormanUpdatedMavrykFa2TokenBalance,   0);
+
+                // assert.notEqual(doormanUpdatedXtzBalance,             mistakenTezAmountSent);
+                assert.notEqual(doormanUpdatedMavrykFa12TokenBalance, mistakenTokenAmountSent);
+                assert.notEqual(doormanUpdatedMavrykFa2TokenBalance,  mistakenTokenAmountSent);
 
             } catch(e) {
                 console.dir(e, {depth: 5})
