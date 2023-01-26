@@ -1,0 +1,141 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle-3
+  labels:
+    app: oracle-3
+spec:
+  ports:
+    - name: signatory
+      port: 6732
+      protocol: TCP
+      targetPort: signatory
+    - name: p2p
+      port: 23456
+      protocol: TCP
+      targetPort: p2p
+  selector:
+    app: oracle
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oracle-3-config
+data:
+  secret.json: |
+    [
+      {
+        "name": "12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3",
+        "value": "edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB"
+      }
+    ]
+  signatory.yaml: |
+    server:
+      # Address/Port that Signatory listens on
+      address: :6732
+      # Address/Port that Signatory serves prometheus metrics on
+      utility_address: :9583
+
+    vaults:
+      # Name of vault
+      # THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key storage for testing/development only.
+      local_file_keys:
+        driver: file
+        config:
+          file: /etc/signatory/secret.json
+
+    # List enabled public keys hashes here
+    tezos:
+      tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n: # Your tezos address
+        log_payloads: true
+        allowed_operations:
+          # List of [generic, block, endorsement]
+          - generic
+          - block
+          - endorsement
+          - failing_noop
+        allowed_kinds:
+          # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
+          - transaction
+          - endorsement
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oracle-3
+  labels:
+    app: oracle-3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oracle-3
+  template:
+    metadata:
+      labels:
+        app: oracle-3
+    spec:
+      imagePullSecrets:
+        - name: 'docker-pull-credentials'
+      volumes:
+        - name: oracle-3-config
+          projected:
+            sources:
+              - configMap:
+                  name: oracle-3-config
+      containers:
+        - name: oracle
+          env:
+            - name: RPC_URL
+              value: 'https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev'
+            - name: SIGNER_URL
+              value: 'http://oracle-3.mavryk-oracles.svc.cluster.local:6732'
+            - name: P2P_BOOTSTRAP_PEERS
+              value: '/ip4/oracle-2.mavryk-oracles.svc.cluster.local/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/oracle-2.mavryk-oracles.svc.cluster.local/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2'
+            - name: P2P_PEER_ID
+              value: '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3'
+            - name: P2P_PEER_PUBLIC_KEY
+              value: 'CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno'
+            - name: P2P_PEER_PRIVATE_KEY
+              value: 'CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg='
+            - name: TEZOS_ADDRESS
+              value: 'tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n'
+            - name: TEZOS_PUBLIC_KEY
+              value: 'edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ'
+            - name: ALPHAVANTAGE_API_KEY
+              secretKeyRef:
+                name: api-keys
+                key: ALPHAVANTAGE_API_KEY
+            - name: MESSARI_API_KEY_3
+              secretKeyRef:
+                name: api-keys
+                key: MESSARI_API_KEY
+            - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
+              value: '2000'
+            - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
+              value: 'KT1GFjeSj2iBtqW8S1iSfLNhLkJKTWYSBhAP,KT1CjRdWNttthPGSTtJEj8Se8DtdTjrAR7Wh,KT1N7vwVSiv91QPk1MTgvXLGZ7NuANDEFoXJ,KT1AaSbk1oqkf4HEigVp3KXzsN9Zh41VMvUn'
+            - name: LOG_LEVEL
+              value: 'verbose'
+            - name: USE_FAKE_DATA
+              value: 'false'
+          image: 'mavrykdynamics/mavryk-oracle:v0.1.0'
+          imagePullPolicy: 'Always'
+          ports:
+            - name: p2p
+              containerPort: 23456
+              protocol: TCP
+        - name: signatory
+          image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
+          imagePullPolicy: 'Always'
+          args:
+            - -c
+            - /etc/signatory/signatory.yaml
+          volumeMounts:
+            - name: oracle-config
+              mountPath: /etc/signatory
+          ports:
+            - name: signatory
+              containerPort: 6732
+              protocol: TCP
