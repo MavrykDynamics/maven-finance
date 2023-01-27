@@ -118,13 +118,15 @@ spec:
                   key: MESSARI_API_KEY_1
             - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
               value: '2000'
+            - name: TIMER_ROUND_DURATION_SECONDS
+              value: '300'
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
               value: 'KT1GFjeSj2iBtqW8S1iSfLNhLkJKTWYSBhAP,KT1CjRdWNttthPGSTtJEj8Se8DtdTjrAR7Wh,KT1N7vwVSiv91QPk1MTgvXLGZ7NuANDEFoXJ,KT1AaSbk1oqkf4HEigVp3KXzsN9Zh41VMvUn'
             - name: LOG_LEVEL
               value: 'verbose'
             - name: USE_FAKE_DATA
               value: 'false'
-          image: 'mavrykdynamics/mavryk-oracle:v0.1.1-rc2'
+          image: 'mavrykdynamics/mavryk-oracle:v0.1.2'
           imagePullPolicy: 'Always'
           ports:
             - name: p2p
