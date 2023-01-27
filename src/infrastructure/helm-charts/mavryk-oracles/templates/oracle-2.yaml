@@ -28,7 +28,7 @@ data:
     [
       {
         "name": "12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-        "value": "edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH"
+        "value": "unencrypted:edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH"
       }
     ]
   signatory.yaml: |
@@ -131,9 +131,6 @@ spec:
         - name: signatory
           image: 'ecadlabs/signatory:v1.0.0-beta2-arm64'
           imagePullPolicy: 'Always'
-          args:
-            - -c
-            - /etc/signatory/signatory.yaml
           volumeMounts:
             - name: oracle-2-config
               mountPath: /etc/signatory
