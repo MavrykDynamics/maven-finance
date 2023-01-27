@@ -104,6 +104,8 @@ spec:
               value: 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'
             - name: TEZOS_PUBLIC_KEY
               value: 'edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D'
+            - name: TEZOS_SECRET_KEY
+              value: 'edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq'
             - name: ALPHAVANTAGE_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -122,22 +124,22 @@ spec:
               value: 'verbose'
             - name: USE_FAKE_DATA
               value: 'false'
-          image: 'mavrykdynamics/mavryk-oracle:v0.1.0'
+          image: 'mavrykdynamics/mavryk-oracle:v0.1.1'
           imagePullPolicy: 'Always'
           ports:
             - name: p2p
               containerPort: 23456
               protocol: TCP
-        - name: signatory
-          image: 'ecadlabs/signatory:v1.0.0-beta2-amd64'
-          imagePullPolicy: 'Always'
-          args:
-            - -c
-            - /etc/signatory/signatory.yaml
-          volumeMounts:
-            - name: oracle-1-config
-              mountPath: /etc/signatory
-          ports:
-            - name: signatory
-              containerPort: 6732
-              protocol: TCP
+        # - name: signatory
+        #   image: 'ecadlabs/signatory:v1.0.0-beta2-amd64'
+        #   imagePullPolicy: 'Always'
+        #   args:
+        #     - -c
+        #     - /etc/signatory/signatory.yaml
+        #   volumeMounts:
+        #     - name: oracle-1-config
+        #       mountPath: /etc/signatory
+        #   ports:
+        #     - name: signatory
+        #       containerPort: 6732
+        #       protocol: TCP
