@@ -133,7 +133,7 @@ spec:
             - -c
             - /etc/signatory/signatory.yaml
           volumeMounts:
-            - name: oracle-config-3
+            - name: oracle-3-config
               mountPath: /etc/signatory
           ports:
             - name: signatory
