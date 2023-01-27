@@ -105,15 +105,15 @@ spec:
             - name: TEZOS_PUBLIC_KEY
               value: 'edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D'
             - name: ALPHAVANTAGE_API_KEY
-              secretKeyRef:
-                name: api-keys
-                key: ALPHAVANTAGE_API_KEY
-                optional: false
+              valueFrom:
+                secretKeyRef:
+                  name: api-keys
+                  key: ALPHAVANTAGE_API_KEY
             - name: MESSARI_API_KEY
-              secretKeyRef:
-                name: api-keys
-                key: MESSARI_API_KEY_1
-                optional: false
+              valueFrom:
+                secretKeyRef:
+                  name: api-keys
+                  key: MESSARI_API_KEY_1
             - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
               value: '2000'
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
