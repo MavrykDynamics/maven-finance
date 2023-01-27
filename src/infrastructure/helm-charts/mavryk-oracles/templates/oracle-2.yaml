@@ -108,14 +108,17 @@ spec:
               secretKeyRef:
                 name: api-keys
                 key: ALPHAVANTAGE_API_KEY
+                optional: false
             - name: MESSARI_API_KEY
               secretKeyRef:
                 name: api-keys
                 key: MESSARI_API_KEY_2
+                optional: false
             - name: MESSARI_API_KEY_2
               secretKeyRef:
                 name: api-keys
                 key: MESSARI_API_KEY_2
+                optional: false
             - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
               value: '2000'
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
