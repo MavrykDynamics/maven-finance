@@ -179,6 +179,10 @@ type delegationLambdaActionType is
     |   LambdaOnStakeChange                         of onStakeChangeType
     |   LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction               of (bytes)
+    |   LambdaSetLambda                             of setLambdaType
+
 
 // ------------------------------------------------------------------------------
 // Storage

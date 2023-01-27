@@ -151,6 +151,544 @@ block {
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Proxy Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(* executeGovernanceAction lambda *)
+function lambdaExecuteGovernanceAction(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
+    const id : nat = case executeGovernanceAction of [
+      
+            (* Update Lambda Function *)
+        |   UpdateProxyLambda (_v)                 -> 1n
+
+            (* General Controls *)
+        |   SetContractAdmin (_v)                  -> 2n
+        |   SetContractGovernance (_v)             -> 3n
+        |   SetContractName (_v)                   -> 4n
+        |   SetContractLambda (_v)                 -> 5n
+        |   UpdateContractMetadata (_v)            -> 6n
+        |   UpdateContractWhitelistMap (_v)        -> 7n
+        |   UpdateContractGeneralMap (_v)          -> 8n
+        |   UpdateContractWhitelistTokenMap (_v)   -> 9n
+
+            (* BreakGlass Configs *)
+        |   PauseAllContractEntrypoint (_v)        -> 10n
+        |   UnpauseAllContractEntrypoint (_v)      -> 11n
+        |   ToggleContractEntrypoint (_v)          -> 12n
+
+            (* Governance Control *)
+        |   UpdateWhitelistDevelopersSet (_v)      -> 13n
+        |   SetGovernanceProxy (_v)                -> 14n
+
+            (* MVK Token Control *)
+        |   UpdateMvkInflationRate (_v)            -> 15n
+        |   TriggerMvkInflation (_v)               -> 16n
+    ];
+
+    // Get entrypoint lambda as bytes
+    const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // Reference: type governanceProxyProxyLambdaFunctionType is (executeGovernanceActionType * governanceProxyStorageType) -> return
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
+        |   Some(f) -> f(executeGovernanceAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+  
+} with (res.0, s)
+
+
+
+(* updateProxyLambda lambda *)
+function updateProxyLambda(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    case executeGovernanceAction of [
+        |   UpdateProxyLambda(params) -> {
+
+                // Assign params to constants for better code readability
+                const lambdaId     : nat   = params.id;
+                const lambdaBytes  : bytes = params.func_bytes;
+
+                // Allow override of lambdas
+                s.proxyLambdaLedger[lambdaId] := lambdaBytes
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* setContractAdmin lambda *)
+function setContractAdmin(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   SetContractAdmin(setContractAdminParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress  : address   = setContractAdminParams.targetContractAddress;
+                const newAdminAddress        : address   = setContractAdminParams.newContractAdmin;
+
+                // Create operation to set new admin on specified contract
+                const setNewAdminOperation : operation = Tezos.transaction(
+                    newAdminAddress,
+                    0tez, 
+                    getSetAdminEntrypoint(targetContractAddress)
+                );
+
+                operations := setNewAdminOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* setContractGovernance lambda *)
+function setContractGovernance(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   SetContractGovernance(setContractGovernanceParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress  : address   = setContractGovernanceParams.targetContractAddress;
+                const newGovernanceAddress   : address   = setContractGovernanceParams.newContractGovernance;
+
+                //  Create operation to set new governance address on specified contract
+                const setNewGovernanceOperation : operation = Tezos.transaction(
+                    newGovernanceAddress,
+                    0tez, 
+                    getSetGovernanceEntrypoint(targetContractAddress)
+                );
+
+                operations := setNewGovernanceOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* setContractLambda lambda *)
+function setContractLambda(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   SetContractLambda(setContractLambdaParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress   : address   = setContractLambdaParams.targetContractAddress;
+                const targetLambdaName        : string    = setContractLambdaParams.name;
+                const lambdaBytes             : bytes     = setContractLambdaParams.func_bytes;
+
+                // Create setLambdaParam
+                const setLambdaParams : setLambdaType      = record[
+                    name        = targetLambdaName;
+                    func_bytes  = lambdaBytes
+                ];
+
+                // Create operation to set new lambda on a specified contract
+                const setLambdaOperation : operation = Tezos.transaction(
+                    setLambdaParams,
+                    0tez, 
+                    getSetLambdaEntrypoint(targetContractAddress)
+                );
+
+                operations := setLambdaOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* updateContractMetadata lambda *)
+function updateContractMetadata(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   UpdateContractMetadata(updateContractMetadataParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress  : address   = updateContractMetadataParams.targetContractAddress;
+                const metadataKey            : string    = updateContractMetadataParams.metadataKey;
+                const metadataHash           : bytes     = updateContractMetadataParams.metadataHash;
+
+                const updateMetadataRecord : updateMetadataType = record [
+                    metadataKey  = metadataKey;
+                    metadataHash = metadataHash;
+                ];
+
+                // Create operation to update contract metadata on a specified Contract
+                const updateContractMetadataOperation : operation = Tezos.transaction(
+                    updateMetadataRecord,
+                    0tez, 
+                    getUpdateMetadataEntrypoint(targetContractAddress)
+                );
+
+                operations := updateContractMetadataOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* updateContractWhitelistMap lambda *)
+function updateContractWhitelistMap(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   UpdateContractWhitelistMap(updateContractWhitelistMapParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress     : address   = updateContractWhitelistMapParams.targetContractAddress;
+                const whitelistContractName     : string    = updateContractWhitelistMapParams.whitelistContractName;
+                const whitelistContractAddress  : address   = updateContractWhitelistMapParams.whitelistContractAddress;
+
+                const updateWhitelistMapRecord : updateWhitelistContractsType = record [
+                    whitelistContractName    = whitelistContractName;
+                    whitelistContractAddress = whitelistContractAddress;
+                ];
+
+                // Create operation to update contract whitelist map on a specified contract
+                const updateContractWhitelistMapOperation : operation = Tezos.transaction(
+                    updateWhitelistMapRecord,
+                    0tez, 
+                    getUpdateWhitelistContractsEntrypoint(targetContractAddress)
+                );
+
+                operations := updateContractWhitelistMapOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* updateContractGeneralMap lambda *)
+function updateContractGeneralMap(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   UpdateContractGeneralMap(updateContractGeneralMapParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress     : address   = updateContractGeneralMapParams.targetContractAddress;
+                const generalContractName       : string    = updateContractGeneralMapParams.generalContractName;
+                const generalContractAddress    : address   = updateContractGeneralMapParams.generalContractAddress;
+
+                const updateGeneralMapRecord : updateGeneralContractsType = record [
+                    generalContractName    = generalContractName;
+                    generalContractAddress = generalContractAddress;
+                ];
+
+                // Create operation to update contract general map on a specified contract
+                const updateContractGeneralMapOperation : operation = Tezos.transaction(
+                    updateGeneralMapRecord,
+                    0tez, 
+                    getUpdateGeneralContractsEntrypoint(targetContractAddress)
+                );
+
+                operations := updateContractGeneralMapOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* updateContractWhitelistTokenMap lambda *)
+function updateContractWhitelistTokenMap(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+ 
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   UpdateContractWhitelistTokenMap(updateContractWhitelistTokenMapParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress     : address   = updateContractWhitelistTokenMapParams.targetContractAddress;
+                const tokenContractName         : string    = updateContractWhitelistTokenMapParams.tokenContractName;
+                const tokenContractAddress      : address   = updateContractWhitelistTokenMapParams.tokenContractAddress;
+
+                const updateWhitelistTokenMapRecord : updateWhitelistTokenContractsType = record [
+                    tokenContractName    = tokenContractName;
+                    tokenContractAddress = tokenContractAddress;
+                ];
+
+                // Create operation to update contract whitelist token map on a specified contract
+                const updateContractWhitelistTokenMapOperation : operation = Tezos.transaction(
+                    updateWhitelistTokenMapRecord,
+                    0tez, 
+                    getUpdateWhitelistTokenContractsEntrypoint(targetContractAddress)
+                );
+
+                operations := updateContractWhitelistTokenMapOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* setContractName lambda *)
+function setContractName(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+        |   SetContractName(updateContractNameParams) -> {
+
+                // assign params to constants for better code readability
+                const targetContractAddress     : address   = updateContractNameParams.targetContractAddress;
+                const updatedName               : string    = updateContractNameParams.contractName;
+
+                // Create operation to set contract name on a specified contract
+                const setNameOperation : operation = Tezos.transaction(
+                    updatedName,
+                    0tez, 
+                    getSetContractNameEntrypoint(targetContractAddress)
+                );
+
+                operations := setNameOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+function pauseAllContractEntrypoint(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+      
+        |   PauseAllContractEntrypoint(targetContractAddress) -> {
+
+                // Create operation to pause all entrypoints in a specified contract
+                const pauseAllEntrypointOperation : operation = Tezos.transaction(
+                    unit,
+                    0tez, 
+                    getPauseAllEntrypoint(targetContractAddress)
+                );
+
+                operations := pauseAllEntrypointOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function unpauseAllContractEntrypoint(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+      
+        |   UnpauseAllContractEntrypoint(targetContractAddress) -> {
+
+                // Create operation to unpause all entrypoints in a specified contract
+                const unpauseAllEntrypointOperation : operation = Tezos.transaction(
+                    unit,
+                    0tez, 
+                    getUnpauseAllEntrypoint(targetContractAddress)
+                );
+
+                operations := unpauseAllEntrypointOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleContractEntrypoint(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+      
+        |   ToggleContractEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := case toggleContractEntrypointParams of [
+                        ToggleAggregatorEntrypoint (_v)     -> toggleAggregatorEntrypoint(_v, operations)
+                    |   ToggleAggregatorFacEntrypoint (_v)  -> toggleAggregatorFacEntrypoint(_v, operations, s)
+                    |   ToggleDelegationEntrypoint (_v)     -> toggleDelegationEntrypoint(_v, operations, s)
+                    |   ToggleDoormanEntrypoint (_v)        -> toggleDoormanEntrypoint(_v, operations, s)
+                    |   ToggleFarmEntrypoint (_v)           -> toggleFarmEntrypoint(_v, operations)
+                    |   ToggleFarmFacEntrypoint (_v)        -> toggleFarmFacEntrypoint(_v, operations, s)
+                    |   ToggleTreasuryEntrypoint (_v)       -> toggleTreasuryEntrypoint(_v, operations)
+                    |   ToggleTreasuryFacEntrypoint (_v)    -> toggleTreasuryFacEntrypoint(_v, operations, s)
+                ]
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateWhitelistDevelopersSet(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+      
+        |   UpdateWhitelistDevelopersSet(developer) -> {
+
+                // Create operation to update whitelist developers set in the Governance contract
+                const updateWhitelistDevelopersSetOperation : operation = Tezos.transaction(
+                    (developer),
+                    0tez, 
+                    getUpdateWhitelistDevelopersEntrypoint(s.governanceAddress)
+                );
+
+                operations := updateWhitelistDevelopersSetOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function setGovernanceProxy(const executeGovernanceAction : executeGovernanceActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeGovernanceAction of [
+      
+        |   SetGovernanceProxy(newGovernanceProxyAddress) -> {
+
+                // Find and get setGovernanceProxy entrypoint of governance contract
+                const setGovernanceProxyEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setGovernanceProxy",
+                    s.governanceAddress) : option(contract(address))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_SET_GOVERNANCE_PROXY_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
+
+                // Create operation to set a new Governance Proxy Address in the Governance contract
+                const setGovernanceProxyOperation : operation = Tezos.transaction(
+                    (newGovernanceProxyAddress),
+                    0tez, 
+                    setGovernanceProxyEntrypoint
+                );
+
+                operations := setGovernanceProxyOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+// ------------------------------------------------------------------------------
+// Proxy Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
 // ------------------------------------------------------------------------------
 // Gov Proxy Lambdas Begin
 // ------------------------------------------------------------------------------
@@ -188,10 +726,10 @@ block {
 
 } with (operations, s)
 
-
 // ------------------------------------------------------------------------------
 // Gov Proxy Lambdas End
 // ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 //

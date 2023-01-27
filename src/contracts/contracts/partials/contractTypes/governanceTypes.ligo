@@ -287,7 +287,7 @@ type governanceLambdaActionType is
 
         // Governance Lambdas
     |   LambdaExecuteGovernanceAction               of (bytes)
-
+    |   LambdaSetLambda                             of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -66,7 +66,6 @@ type doormanAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction     of (bytes)
-    |   DataPackingHelper           of doormanLambdaActionType
     |   SetLambda                   of setLambdaType
 
 
@@ -104,6 +103,13 @@ type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorag
 
 // Doorman Entrypoints:
 #include "../partials/contractEntrypoints/doormanEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Doorman Meta Lambdas:
+#include "../partials/contractMetaLambdas/doormanMetaLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -146,7 +152,6 @@ block {
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)   -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)         -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
     ]
     

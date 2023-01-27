@@ -25,7 +25,10 @@
     "lambdaRepay",
 
     "lambdaVaultDepositStakedToken",
-    "lambdaVaultWithdrawStakedToken"
+    "lambdaVaultWithdrawStakedToken",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "lendingControllerMockTime": [
     "lambdaSetAdmin",
@@ -202,7 +205,10 @@
     "lambdaDistributeReward",
 
     "lambdaOnStakeChange",
-    "lambdaUpdateSatelliteStatus"
+    "lambdaUpdateSatelliteStatus",
+    
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "doorman": [
     "lambdaSetAdmin",
@@ -226,6 +232,9 @@
     "lambdaOnVaultDepositStake",
     "lambdaOnVaultWithdrawStake",
     "lambdaOnVaultLiquidateStake",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda",
 
     "lambdaNewUnstake"
   ],

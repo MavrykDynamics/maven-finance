@@ -78,7 +78,6 @@ type lendingControllerAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction         of (bytes)
-    |   DataPackingHelper               of lendingControllerLambdaActionType
     |   SetLambda                       of setLambdaType
 
 const noOperations : list (operation) = nil;
@@ -104,18 +103,18 @@ type lendingControllerUnpackLambdaFunctionType is (lendingControllerLambdaAction
 #include "../partials/contractHelpers/lendingControllerHelpers.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Lending Controller Lambdas :
-#include "../partials/contractLambdas/lendingControllerLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
 // Lending Controller Entrypoints:
 #include "../partials/contractEntrypoints/lendingControllerEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Lending Controller Lambdas :
+#include "../partials/contractLambdas/lendingControllerLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -161,7 +160,6 @@ function main (const action : lendingControllerAction; const s : lendingControll
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
 
     ]

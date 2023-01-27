@@ -419,6 +419,10 @@ type lendingControllerLambdaActionType is
         // Vault Staked Token Entrypoints   
     |   LambdaVaultDepositStakedToken         of vaultDepositStakedTokenActionType
     |   LambdaVaultWithdrawStakedToken        of vaultWithdrawStakedTokenActionType
+    
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction         of (bytes)
+    |   LambdaSetLambda                       of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage

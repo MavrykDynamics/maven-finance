@@ -101,7 +101,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   DoormanHelper                   of doormanLambdaActionType
-    |   DelegationHelper                of delegationLambdaActionType
+    // |   DelegationHelper                of delegationLambdaActionType
     // |   CouncilHelper                   of councilLambdaActionType
     // |   VestingHelper                   of vestingLambdaActionType
     // |   BreakGlassHelper                of breakGlassLambdaActionType
@@ -247,7 +247,7 @@ block {
             
             // Main entrypoints
         |   DoormanHelper(parameters)               -> doormanHelper(parameters, s)
-        |   DelegationHelper(parameters)            -> delegationHelper(parameters, s)
+        // |   DelegationHelper(parameters)            -> delegationHelper(parameters, s)
         // |   CouncilHelper(parameters)               -> councilHelper(parameters, s)
         // |   VestingHelper(parameters)               -> vestingHelper(parameters, s)
         // |   BreakGlassHelper(parameters)            -> breakGlassHelper(parameters, s)

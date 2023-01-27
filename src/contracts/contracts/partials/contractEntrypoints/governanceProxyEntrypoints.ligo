@@ -129,6 +129,22 @@ block {
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
 
+(* executeGovernanceAction entrypoint *)
+function executeGovernanceAction(const executeGovernanceActionParams : executeGovernanceActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaExecuteGovernanceAction(executeGovernanceActionParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+} with response
+
+
 
 (* processGovernanceAction entrypoint *)
 function processGovernanceAction(const processGovernanceActionParams : processGovernanceActionType; var s : governanceProxyStorageType) : return is 
@@ -149,6 +165,23 @@ block {
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
+
+(* setProxyLambda entrypoint *)
+function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceProxyStorageType) : return is 
+block {
+    
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
+    
+    // assign params to constants for better code readability
+    const lambdaId      = setProxyLambdaParams.id;
+    const lambdaBytes   = setProxyLambdaParams.func_bytes;
+
+    // set lambda in lambdaLedger - allow override of lambdas
+    s.proxyLambdaLedger[lambdaId] := lambdaBytes;
+
+} with (noOperations, s)
+
+
 
 (* setLambda entrypoint *)
 function setLambda(const setLambdaParams : setLambdaType; var s : governanceProxyStorageType) : return is

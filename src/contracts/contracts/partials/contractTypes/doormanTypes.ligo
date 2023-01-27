@@ -140,6 +140,7 @@ type doormanLambdaActionType is
     |   LambdaOnVaultLiquidateStake       of onVaultLiquidateStakeType
 
         // Lambda
+    |   LambdaExecuteGovernanceAction     of (bytes)
     |   LambdaSetLambda                   of setLambdaType
 
 // ------------------------------------------------------------------------------

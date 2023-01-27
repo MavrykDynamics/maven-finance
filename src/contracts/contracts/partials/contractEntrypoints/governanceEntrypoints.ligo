@@ -453,46 +453,8 @@ block{
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-    
-
-    // verify that sender is admin or the Governance Contract address
-    // verifySenderIsAdminOrGovernance(s.admin, Tezos.get_self_address());
-
-    // // Fourth Way
-    // const executeGovernanceAction : governanceLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(governanceLambdaActionType)) of [
-    //         Some(_action) -> _action
-    //     |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    // ];
-
-    // const response : return = case executeGovernanceAction of [
-      
-    //         // Break Glass
-    //     |   LambdaPropagateBreakGlass (_parameters)     -> propagateBreakGlass(s)
-        
-    //         // Housekeeping
-    //     |   LambdaSetAdmin(parameters)                  -> setAdmin(parameters, s)
-    //     |   LambdaSetGovernanceProxy(parameters)        -> setGovernanceProxy(parameters, s)
-    //     |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-    //     |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
-        
-    //     |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-    //     |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-        
-    //     |   LambdaUpdateWhitelistDevelopers(parameters) -> updateWhitelistDevelopers(parameters, s)
-    //     |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-    //     |   LambdaSetContractAdmin(parameters)          -> setContractAdmin(parameters, s)
-    //     |   LambdaSetContractGovernance(parameters)     -> setContractGovernance(parameters, s)
-
-    //     |   _                                           -> (nil, s)
-    // ];
 
 } with (response)
-
-
-
-(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataPackingHelper(const _executeGovernanceAction : governanceLambdaActionType; const s : governanceStorageType) : return is 
-    (noOperations, s)
 
 
 

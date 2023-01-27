@@ -39,6 +39,7 @@ type governanceProxyAction is
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
+    |   ExecuteGovernanceAction         of executeGovernanceActionType
     |   ProcessGovernanceAction         of processGovernanceActionType
 
         // Lambda Entrypoints
@@ -47,6 +48,9 @@ type governanceProxyAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * governanceProxyStorageType
+
+// proxy lambdas -> executing proposals to external contracts within MAVRYK system
+type governanceProxyProxyLambdaFunctionType is (executeGovernanceActionType * governanceProxyStorageType) -> return
 
 // governance proxy contract methods lambdas
 type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyStorageType) -> return

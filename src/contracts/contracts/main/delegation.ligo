@@ -71,7 +71,6 @@ type delegationAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction           of (bytes)
-    |   DataPackingHelper                 of delegationLambdaActionType
     |   SetLambda                         of setLambdaType
 
 
@@ -109,6 +108,13 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 
 // Delegation Entrypoints:
 #include "../partials/contractEntrypoints/delegationEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Delegation Meta Lambdas:
+#include "../partials/contractMetaLambdas/delegationMetaLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -152,7 +158,6 @@ block{
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
     ]
 )

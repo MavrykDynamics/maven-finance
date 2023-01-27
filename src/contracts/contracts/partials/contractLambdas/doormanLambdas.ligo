@@ -836,27 +836,11 @@ block{
 
 } with (operations, s)
 
-
-
-(*  setLambda lambda *)
-function lambdaSetLambda(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
-block{
-    
-    var operations : list(operation) := nil;
-
-    case doormanLambdaAction of [
-        | LambdaSetLambda(_setLambdaParams) -> {
-
-                skip
-            }
-        | _ -> skip
-    ];
-
-} with (operations, s)
-
 // ------------------------------------------------------------------------------
 // Doorman Lambdas End
 // ------------------------------------------------------------------------------
+
+
 
 // ------------------------------------------------------------------------------
 //

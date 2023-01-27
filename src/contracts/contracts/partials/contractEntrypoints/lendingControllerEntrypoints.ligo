@@ -417,43 +417,17 @@ block {
 (* executeGovernanceAction entrypoint *)
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : lendingControllerStorageType) : return is
 block{
-    
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    // // Fourth Way
-    const executeGovernanceAction : lendingControllerLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(lendingControllerLambdaActionType)) of [
-            Some(_action) -> _action
-        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    ];
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
 
-    const response : return = case executeGovernanceAction of [
-      
-            // Housekeeping
-        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
-        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
-        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
-        |   LambdaUpdateWhitelistTokens(parameters)     -> updateWhitelistTokenContracts(parameters, s)
+    // init lending controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
 
-            // Pause / Break Glass Entrypoints
-        |   LambdaPauseAll(_parameters)                 -> pauseAll(s)
-        |   LambdaUnpauseAll(_parameters)               -> unpauseAll(s)
-        |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
-
-            // Admin Entrypoints
-        |   LambdaSetLoanToken(parameters)              -> setLoanToken(parameters, s)
-        |   LambdaSetCollateralToken(parameters)        -> setCollateralToken(parameters, s)
-        
-        |   _                                           -> (nil, s)
-    ];
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
 
 } with (response)
-
-
-
-(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataPackingHelper(const _executeGovernanceAction : lendingControllerLambdaActionType; const s : lendingControllerStorageType) : return is 
-    (noOperations, s)
 
 
 
