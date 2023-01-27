@@ -122,7 +122,7 @@ spec:
               value: 'verbose'
             - name: USE_FAKE_DATA
               value: 'false'
-          image: 'mavrykdynamics/mavryk-oracle:v0.1.0-mock'
+          image: 'mavrykdynamics/mavryk-oracle:v0.1.0'
           imagePullPolicy: 'Always'
           ports:
             - name: p2p
