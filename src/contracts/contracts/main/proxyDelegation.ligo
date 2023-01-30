@@ -22,6 +22,12 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// MvkToken Types
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
+
+// Doorman Types
+#include "../partials/contractTypes/doormanTypes.ligo"
+
 // Delegation Types
 #include "../partials/contractTypes/delegationTypes.ligo"
 

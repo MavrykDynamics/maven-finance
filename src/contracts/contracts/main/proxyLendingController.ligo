@@ -22,8 +22,20 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Mavryk FA2 Token Types 
+#include "../partials/contractTypes/mavrykFa2TokenTypes.ligo"
+
 // Doorman Types
 #include "../partials/contractTypes/doormanTypes.ligo"
+
+// Aggregator Types - for lastCompletedRoundPriceReturnType
+#include "../partials/contractTypes/aggregatorTypes.ligo"
+
+// Vault Types 
+#include "../partials/contractTypes/vaultTypes.ligo"
+
+// LendingController Type
+#include "../partials/contractTypes/lendingControllerTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -35,8 +47,9 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   DoormanHelper                   of doormanLambdaActionType
-    
+    |   LendingControllerHelper         of lendingControllerLambdaActionType
+
+
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
 
@@ -47,12 +60,10 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-function doormanHelper(const _governanceAction : doormanLambdaActionType; const s : proxyHelperStorageType) : return is 
+
+function lendingControllerHelper(const _governanceAction : lendingControllerLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
-
-function empty(const s : proxyHelperStorageType) : return is 
-    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -72,7 +83,7 @@ block {
     case action of [
             
             // Main entrypoints
-        |   DoormanHelper(parameters)        -> doormanHelper(parameters, s)
-        
+        |   LendingControllerHelper(parameters)     -> lendingControllerHelper(parameters, s)  
+
     ]
 )

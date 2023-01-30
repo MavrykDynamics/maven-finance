@@ -88,71 +88,43 @@
 
 // Governance Proxy Types
 #include "../partials/contractTypes/governanceProxyTypes.ligo"
-
 // ------------------------------------------------------------------------------
 
-type governanceProxyAction is 
+type proxyHelperStorageType is [@layout:comb] record [
+    admin : address;
+]
+
+
+type proxyHelperAction is 
         
-        // Housekeeping Entrypoints
-        SetAdmin                        of (address)
-    |   SetGovernance                   of (address)
-    |   UpdateMetadata                  of updateMetadataType
-    |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
-    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
-    |   MistakenTransfer                of transferActionType
-
         // Main entrypoints
-    |   ExecuteGovernanceAction         of executeGovernanceActionType
-    |   ProcessGovernanceAction         of processGovernanceActionType
-
-        // Lambda Entrypoints
-    |   SetLambda                       of setLambdaType
+    |   GovernanceProxyHelper           of governanceProxyLambdaActionType
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * governanceProxyStorageType
-
-// proxy lambdas -> executing proposals to external contracts within MAVRYK system
-type governanceProxyProxyLambdaFunctionType is (executeGovernanceActionType * governanceProxyStorageType) -> return
-
-// governance proxy contract methods lambdas
-type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyStorageType) -> return
+type return is list (operation) * proxyHelperStorageType
 
 
 // ------------------------------------------------------------------------------
-// Helpers
+//
+// Entrypoints Begin
+//
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Helpers:
-#include "../partials/contractHelpers/governanceProxyHelpers.ligo"
+
+function governanceProxyHelper(const _governanceAction : governanceProxyLambdaActionType; const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
+
 
 // ------------------------------------------------------------------------------
-// Views
-// ------------------------------------------------------------------------------
-
-// GovernanceProxy Views:
-#include "../partials/contractViews/governanceProxyViews.ligo"
-
-// ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// GovernanceProxy Lambdas :
-#include "../partials/contractLambdas/governanceProxyLambdas.ligo"
-
-// ------------------------------------------------------------------------------
-// Entrypoints
-// ------------------------------------------------------------------------------
-
-// GovernanceProxy Entrypoints:
-#include "../partials/contractEntrypoints/governanceProxyEntrypoints.ligo"
-
+//
+// Entrypoints End
+//
 // ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
-function main (const action : governanceProxyAction; const s : governanceProxyStorageType) : return is 
+function main (const action : proxyHelperAction; const s : proxyHelperStorageType) : return is 
 block {
 
     verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
@@ -161,20 +133,8 @@ block {
 
     case action of [
             
-            // Housekeeping entrypoints
-            SetAdmin(parameters)                      -> setAdmin(parameters, s)
-        |   SetGovernance(parameters)                 -> setGovernance(parameters, s)
-        |   UpdateMetadata(parameters)                -> updateMetadata(parameters, s)
-        |   UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
-        |   UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
-        |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
-
             // Main entrypoints
-        |   ProcessGovernanceAction(parameters)       -> processGovernanceAction(parameters, s)
-
-            // Lambda Entrypoints
-        |   SetLambda(parameters)                     -> setLambda(parameters, s)
+        |   GovernanceProxyHelper(parameters)       -> governanceProxyHelper(parameters, s)   
 
     ]
 )

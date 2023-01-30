@@ -22,8 +22,12 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Doorman Types
-#include "../partials/contractTypes/doormanTypes.ligo"
+// Farm Types
+#include "../partials/contractTypes/farmTypes.ligo"
+
+// Farm Factory Type
+#include "../partials/contractTypes/farmFactoryTypes.ligo"
+
 
 // ------------------------------------------------------------------------------
 
@@ -35,7 +39,8 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   DoormanHelper                   of doormanLambdaActionType
+    |   FarmFactoryHelper               of farmFactoryLambdaActionType
+
     
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -47,12 +52,10 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-function doormanHelper(const _governanceAction : doormanLambdaActionType; const s : proxyHelperStorageType) : return is 
+
+function farmFactoryHelper(const _governanceAction : farmFactoryLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
-
-function empty(const s : proxyHelperStorageType) : return is 
-    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -72,7 +75,7 @@ block {
     case action of [
             
             // Main entrypoints
-        |   DoormanHelper(parameters)        -> doormanHelper(parameters, s)
-        
+        |   FarmFactoryHelper(parameters)           -> farmFactoryHelper(parameters, s)   
+
     ]
 )

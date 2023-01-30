@@ -56,6 +56,57 @@ type setContractNameType is [@layout:comb] record [
     contractName              : string;
 ]
 
+type toggleAggregatorEntrypointType is [@layout:comb] record [
+    targetAggregatorAddress   : address;
+    targetEntrypoint          : aggregatorTogglePauseEntrypointType;
+]
+
+type toggleAggregatorFacEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : aggregatorFactoryTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+type toggleFarmEntrypointType is [@layout:comb] record [
+    targetFarmAddress         : address;
+    targetEntrypoint          : farmTogglePauseEntrypointType;
+]
+
+type toggleFarmFacEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : farmFactoryTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+type toggleTreasuryEntrypointType is [@layout:comb] record [
+    targetTreasuryAddress     : address;
+    targetEntrypoint          : treasuryTogglePauseEntrypointType;
+]
+
+type toggleTreasuryFacEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : treasuryFactoryTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+type toggleDoormanEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : doormanTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+type toggleDelegationEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : delegationTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+
+type toggleContractEntrypointType is
+        ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
+    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
+    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
+    |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
+    |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
+    |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
+    |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
+    |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
+
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types

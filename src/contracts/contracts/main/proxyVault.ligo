@@ -22,8 +22,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Doorman Types
-#include "../partials/contractTypes/doormanTypes.ligo"
+// Vault Types 
+#include "../partials/contractTypes/vaultTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -35,8 +35,9 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   DoormanHelper                   of doormanLambdaActionType
+    |   VaultHelper                     of vaultLambdaActionType
     
+
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
 
@@ -47,12 +48,10 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-function doormanHelper(const _governanceAction : doormanLambdaActionType; const s : proxyHelperStorageType) : return is 
+
+function vaultHelper(const _governanceAction : vaultLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
-
-function empty(const s : proxyHelperStorageType) : return is 
-    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -72,7 +71,7 @@ block {
     case action of [
             
             // Main entrypoints
-        |   DoormanHelper(parameters)        -> doormanHelper(parameters, s)
-        
+        |   VaultHelper(parameters)                 -> vaultHelper(parameters, s)   
+
     ]
 )

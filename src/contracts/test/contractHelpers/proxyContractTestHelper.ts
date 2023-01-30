@@ -16,16 +16,20 @@ import { confirmOperation } from "../../scripts/confirmation";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {BigNumber} from "bignumber.js";
 
-type proxyContractStorageType = {
-    admin : string;
-}
+// type proxyContractStorageType = {
+//     admin : string;
+// }
 
-type ProxyContractMethods<T extends ContractProvider | Wallet> = {};
+type proxyContractStorageType = string
+
+type ProxyContractMethods<T extends ContractProvider | Wallet> = {
+    dataPackingHelper: (any) => ContractMethod<T>;
+};
 
 type ProxyContractMethodObject<T extends ContractProvider | Wallet> =
-    Record<string, (...args: any[]) => ContractMethodObject<T>>;
+    Record<proxyContractStorageType, (...args: any[]) => ContractMethodObject<T>>;
 
-type ProxyContractViews = Record<string, (...args: any[]) => ContractView>;
+type ProxyContractViews = Record<proxyContractStorageType, (...args: any[]) => ContractView>;
 
 type ProxyContractOnChainViews = {
     decimals: () => OnChainView;
@@ -51,7 +55,7 @@ export class ProxyContract {
     }
   
     static async init(
-        proxyContractAddress : string,
+        proxyContractAddress : proxyContractStorageType,
         tezos: TezosToolkit
     ): Promise<ProxyContract> {
         return new ProxyContract(
@@ -69,17 +73,19 @@ export class ProxyContract {
         const artifacts: any = JSON.parse(
             fs.readFileSync(`${env.buildDir}/${contractName}.json`).toString()
         );
+        
         const operation: OriginationOperation = await tezos.contract
             .originate({
                 code: artifacts.michelson,
                 storage: storage,
             })
+
             .catch((e) => {
                 console.error(e);
                 console.log('error no hash')
                 return null;
             });
-    
+
         await confirmOperation(tezos, operation.hash);
     
         return new ProxyContract(

@@ -22,8 +22,11 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Doorman Types
-#include "../partials/contractTypes/doormanTypes.ligo"
+// MvkToken Types
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
+
+// Treasury Types
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -35,7 +38,7 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   DoormanHelper                   of doormanLambdaActionType
+    |   TreasuryHelper                  of treasuryLambdaActionType
     
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -47,12 +50,10 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-function doormanHelper(const _governanceAction : doormanLambdaActionType; const s : proxyHelperStorageType) : return is 
+
+function treasuryHelper(const _governanceAction : treasuryLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
-
-function empty(const s : proxyHelperStorageType) : return is 
-    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -72,7 +73,7 @@ block {
     case action of [
             
             // Main entrypoints
-        |   DoormanHelper(parameters)        -> doormanHelper(parameters, s)
+        |   TreasuryHelper(parameters)              -> treasuryHelper(parameters, s)   
         
     ]
 )

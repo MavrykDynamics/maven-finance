@@ -22,8 +22,23 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Doorman Types
-#include "../partials/contractTypes/doormanTypes.ligo"
+// MvkToken Types
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
+
+// Treasury Type for mint and transfers
+#include "../partials/contractTypes/treasuryTypes.ligo"
+
+// Council Type for financial requests
+#include "../partials/contractTypes/councilTypes.ligo"
+
+// Delegation Types
+#include "../partials/contractTypes/delegationTypes.ligo"
+
+// Governance Types
+#include "../partials/contractTypes/governanceTypes.ligo"
+    
+// Governance Financial Type
+#include "../partials/contractTypes/governanceFinancialTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -35,8 +50,9 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   DoormanHelper                   of doormanLambdaActionType
+    |   GovernanceFinancialHelper       of governanceFinancialLambdaActionType
     
+
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
 
@@ -47,12 +63,10 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-function doormanHelper(const _governanceAction : doormanLambdaActionType; const s : proxyHelperStorageType) : return is 
+
+function governanceFinancialHelper(const _governanceAction : governanceFinancialLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
-
-function empty(const s : proxyHelperStorageType) : return is 
-    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -72,7 +86,7 @@ block {
     case action of [
             
             // Main entrypoints
-        |   DoormanHelper(parameters)        -> doormanHelper(parameters, s)
-        
+        |   GovernanceFinancialHelper(parameters)   -> governanceFinancialHelper(parameters, s)  
+
     ]
 )

@@ -106,6 +106,7 @@ export class VaultFactory {
         const artifacts: any = JSON.parse(
             fs.readFileSync(`${env.buildDir}/vaultFactory.json`).toString()
         );
+        console.log(`${JSON.stringify(artifacts, null, 4)}`);
         const operation: OriginationOperation = await tezos.contract
             .originate({
                 code: artifacts.michelson,
