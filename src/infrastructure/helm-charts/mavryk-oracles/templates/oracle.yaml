@@ -59,7 +59,7 @@ spec:
             - name: P2P_PEER_PRIVATE_KEY
               value: {{ $value.p2p.peerPrivateKey }}
             - name: TEZOS_ADDRESS
-              value: {{ $key }}
+              value: {{ $value.tezos.address }}
             - name: TEZOS_PUBLIC_KEY
               value: {{ $value.tezos.publicKey }}
             - name: TEZOS_SECRET_KEY

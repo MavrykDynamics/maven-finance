@@ -1,7 +1,8 @@
 oracles:
-  tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD:
+  bob:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
+      address: tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
       publicKey: edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D
       secretKey: edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
     p2p:
@@ -14,9 +15,10 @@ oracles:
     messari:
       secretName: api-keys
       key: MESSARI_API_KEY_1
-  tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1:
+  eve:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
+      address: tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
       publicKey: edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis
       secretKey: edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
     p2p:
@@ -29,9 +31,10 @@ oracles:
     messari:
       secretName: api-keys
       key: MESSARI_API_KEY_2
-  tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n:
+  mallory:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
+      address: tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
       publicKey: edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ
       secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
     p2p:
