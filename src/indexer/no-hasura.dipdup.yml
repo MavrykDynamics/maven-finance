@@ -38,79 +38,82 @@ contracts:
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1PZciWRMWzJX7FWEoWGU9wJBnDjWWmVUcU
+    address: KT1VvRUBsqVMBNuLuLuhtMGdNdcNC35ukZ3Z
     typename: mvk_token
   governance_proxy:
-    address: KT1Fwcr5zEg1199VoamF6XpsVn4Qfd9osXGi
+    address: KT1WJjzWKEBUdmLUPU2LgnE87USomB5zXpWB
     typename: governance_proxy
   governance:
-    address: KT1BWBd9y6ezNLfSp1FYHoomLGq9W11sPTau
+    address: KT1L3ittNHDoLsVytMtPigPDduVUapGgoToP
     typename: governance
   doorman:
-    address: KT1LTGz73oWVZa42hZJjLoc9zadkobYtn5eW
+    address: KT1CnMvZcBPsMFGdS795SjG8pXsbgT9jQhcK
     typename: doorman
   farm:
-    code_hash: KT1VErmLQrDVzixrxWHxcQyoaYULQPNJMmbW
+    code_hash: KT18mwPoLWRYt45XotYsLBKniJbawxdH21hX
     typename: farm
   farm_factory:
-    address: KT1K9JNLif6acx2Rjn5VGVdsTidxfAJUDkt1
+    address: KT1RGsgWgDTDe5Lg5w1R9DhWXPTNk9mawnZ5
     typename: farm_factory
   delegation:
-    address: KT1VKe8Ca4Q23Ni2DgwQgqiZuho65EY5bPBC
+    address: KT1EbVw3scAhxg8p5y2QSWmGKagozvkeQGdu
     typename: delegation
   vesting:
-    address: KT1F3VRTUEZnMpvc8Mzd7dYWuUFsaVwJ426m
+    address: KT1Vt6Lwhh9ujitSuq6Ai1vecQV8BHu478fE
     typename: vesting
   emergency_governance:
-    address: KT1HPuixN9nTdrDA63R8bCrRCz88B5YxKv8b
+    address: KT1EthCCQbSwh5RE6FMRWdns6CywSoN3En5e
     typename: emergency_governance
   council:
-    address: KT1S9Djte7XDVn866AJMopVpMJBxjduNBfc1
+    address: KT1JGnrYtvmmWeYtpbci68nvPeqHNfFJWpqi
     typename: council
   break_glass:
-    address: KT1QMwk4VinfCvxLCDVpRXvjSQJomU4LPPLd
+    address: KT1LaNRv55r2Qzkz4W88S4d6EwX1Gj5kB6GT
     typename: break_glass
   governance_financial:
-    address: KT1KFbfwSb3CV7XfWNbpynHnVrykX3QbHyPf
+    address: KT1LHQpBUF4eKU5gmitcULvY2t8cKyQucUDj
     typename: governance_financial
   governance_satellite:
-    address: KT1Avf9S1v7XPGYKzfTbzLXUL29BqAe9Y3mF
+    address: KT1E373BHCksSkfvqvkLdHYjqSn9oisQhU2Z
     typename: governance_satellite
   aggregator:
-    code_hash: KT1N7vwVSiv91QPk1MTgvXLGZ7NuANDEFoXJ
+    code_hash: KT1DWyRMd8tXVd3bJRjzw7v6jz85EiSnow8h
     typename: aggregator
   aggregator_factory:
-    address: KT198U4vWNSUfnbv8jtnJME5oAM2MaXBtGSn
+    address: KT1WjvGRHqqoibrVDWLYdwYmffW9kbyTWv5K
     typename: aggregator_factory
   treasury:
-    code_hash: KT1JeqQnM5SECPSuVU3dF6NJNxLwmgX8nqhm
+    code_hash: KT1LEZxqCuYLTurTEZy4qktAkJMykwvrQEe8
     typename: treasury
   treasury_factory:
-    address: KT1VrHhxvUsr1LPC3UFcwgv6QSHPW8bypG2h
+    address: KT1Fb5L5hTjvs1pmmH29WDS3S8hk2McoerRn
     typename: treasury_factory
   token_sale:
-    address: KT1FrT3KBNtpxuVksjFw3hA2E2iBByHMsboS
+    address: KT1BJDTFVQPAewVjDbCgLDP4M6E4WZUERYQL
     typename: token_sale
   lending_controller:
-    address: KT1MNA6Ya2CLDUnJX8d1LoRx6Bx7yoZpHV4N
+    address: KT1PzVZRPPFvduMar1PFQvtJUVYEi2Nqdbaj
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1DC8F98WDPL2Z5nvJjMr9qs3VqQcfEo7oP
+    address: KT1NN3mnjgqbDPaD7rDiBo2pvS5y8ju4vL4S
     typename: lending_controller_mock_time
-  m_token:
-    address: KT19h6gP8AYafbaDL6SMbFJwiVBHEhRbgRve
-    typename: m_token
-  m_token_fa2:
-    address: KT1AQrvqjzQaCAs4gbrHdmNt1evSHgU7H6Sy
-    typename: m_token
   m_token_xtz:
-    address: KT1V7phNJEUQL27uUk6cg7DEFdmkKiP6XHH5
+    address: KT1Mwrn8qQHGrtKrZG7RNcKxdmaBDwEwmT23
+    typename: m_token
+  m_token_eurl:
+    address: KT1FD4Kjs5cCipKpk6u9fWiaAMjAy9KEFc1W
+    typename: m_token
+  m_token_tzbtc:
+    address: KT1RJJn2kYQAjKc2cWqW9xAS1ewjvKZhoQWG
+    typename: m_token
+  m_token_usdt:
+    address: KT1VdhsVVoAeFkDJYzJruzVX4jaDqbvLhHuf
     typename: m_token
   vault:
     code_hash: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
     typename: vault
   vault_factory:
-    address: KT1E5LueY6pvvQtg3Lo3ujp2TwYLN26djvZe
+    address: KT1PAb6jadTRsnE4p6vt7pzSv7ipGStmsVLn
     typename: vault_factory
 
 hooks:
@@ -353,7 +356,7 @@ templates:
         entrypoint: setAdmin
     - callback: on_m_token_set_governance
       pattern:
-      - destination: m_token
+      - destination: <m_token_contract>
         entrypoint: setGovernance
     - callback: on_m_token_update_whitelist_contracts
       pattern:
@@ -682,18 +685,18 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: farmClaim
-    - callback: on_doorman_on_vault_deposit_staked_mvk
+    - callback: on_doorman_on_vault_deposit_stake
       pattern:
       - destination: doorman
-        entrypoint: onVaultDepositStakedMvk
-    - callback: on_doorman_on_vault_withdraw_staked_mvk
+        entrypoint: onVaultDepositStake
+    - callback: on_doorman_on_vault_withdraw_stake
       pattern:
       - destination: doorman
-        entrypoint: onVaultWithdrawStakedMvk
-    - callback: on_doorman_on_vault_liquidate_staked_mvk
+        entrypoint: onVaultWithdrawStake
+    - callback: on_doorman_on_vault_liquidate_stake
       pattern:
       - destination: doorman
-        entrypoint: onVaultLiquidateStakedMvk
+        entrypoint: onVaultLiquidateStake
     - callback: on_doorman_set_lambda
       pattern:
       - destination: doorman
@@ -1626,14 +1629,14 @@ indexes:
       pattern:
       - destination: lending_controller
         entrypoint: repay
-    - callback: on_lending_controller_vault_deposit_staked_mvk
+    - callback: on_lending_controller_vault_deposit_staked_token
       pattern:
       - destination: lending_controller
-        entrypoint: vaultDepositStakedMvk
-    - callback: on_lending_controller_vault_withdraw_staked_mvk
+        entrypoint: vaultDepositStakedToken
+    - callback: on_lending_controller_vault_withdraw_staked_token
       pattern:
       - destination: lending_controller
-        entrypoint: vaultWithdrawStakedMvk
+        entrypoint: vaultWithdrawStakedToken
     - callback: on_lending_controller_set_lambda
       pattern:
       - destination: lending_controller
@@ -1727,27 +1730,31 @@ indexes:
       pattern:
       - destination: lending_controller_mock_time
         entrypoint: repay
-    - callback: on_lending_controller_mock_time_vault_deposit_staked_mvk
+    - callback: on_lending_controller_mock_time_vault_deposit_staked_token
       pattern:
       - destination: lending_controller_mock_time
-        entrypoint: vaultDepositStakedMvk
-    - callback: on_lending_controller_mock_time_vault_withdraw_staked_mvk
+        entrypoint: vaultDepositStakedToken
+    - callback: on_lending_controller_mock_time_vault_withdraw_staked_token
       pattern:
       - destination: lending_controller_mock_time
-        entrypoint: vaultWithdrawStakedMvk
+        entrypoint: vaultWithdrawStakedToken
     - callback: on_lending_controller_mock_time_set_lambda
       pattern:
       - destination: lending_controller_mock_time
         entrypoint: setLambda
-  m_token:
-    template: m_token_template
-    values:
-      m_token_contract: m_token
-  m_token_fa2:
-    template: m_token_template
-    values:
-      m_token_contract: m_token_fa2
   m_token_xtz:
     template: m_token_template
     values:
       m_token_contract: m_token_xtz
+  m_token_eurl:
+    template: m_token_template
+    values:
+      m_token_contract: m_token_eurl
+  m_token_tzbtc:
+    template: m_token_template
+    values:
+      m_token_contract: m_token_tzbtc
+  m_token_usdt:
+    template: m_token_template
+    values:
+      m_token_contract: m_token_usdt

@@ -33,8 +33,8 @@ class LendingController(MavrykContract, Model):
     repay_paused                            = fields.BooleanField(default=False)
     set_loan_token_paused                   = fields.BooleanField(default=False)
     set_collateral_token_paused             = fields.BooleanField(default=False)
-    vault_deposit_smvk_paused               = fields.BooleanField(default=False)
-    vault_withdraw_smvk_paused              = fields.BooleanField(default=False)
+    vault_deposit_staked_token_paused       = fields.BooleanField(default=False)
+    vault_withdraw_staked_token_paused      = fields.BooleanField(default=False)
     vault_on_liquidate_paused               = fields.BooleanField(default=False)
     vault_deposit_paused                    = fields.BooleanField(default=False)
     vault_withdraw_paused                   = fields.BooleanField(default=False)
@@ -103,8 +103,13 @@ class LendingControllerCollateralToken(Model):
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_collateral_token_oracles', null=True, index=True)
     protected                               = fields.BooleanField(default=False, index=True)
     is_scaled_token                         = fields.BooleanField(default=False, index=True)
+    is_staked_token                         = fields.BooleanField(default=False, index=True)
+    staking_contract_address                = fields.CharField(max_length=36, null=True)
+    total_deposited                         = fields.FloatField(default=0.0)
+    max_deposited_amount                    = fields.FloatField(null=True)
     token_name                              = fields.CharField(max_length=36, default="")
     token_contract_standard                 = fields.CharField(max_length=4, default="")
+    paused                                  = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_collateral_token'
@@ -133,6 +138,7 @@ class LendingControllerLoanToken(Model):
     borrow_index                            = fields.FloatField(default=0)
     min_repayment_amount                    = fields.FloatField(default=0.0)
     loan_token_contract_standard            = fields.CharField(max_length=4, default="")
+    paused                                  = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_loan_token'

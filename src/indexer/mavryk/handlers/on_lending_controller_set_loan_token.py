@@ -39,6 +39,7 @@ async def on_lending_controller_set_loan_token(
     loan_token_accumulated_rewards_per_share            = float(loan_token_storage.accumulatedRewardsPerShare)
     loan_token_borrow_index                             = float(loan_token_storage.borrowIndex)
     loan_token_min_repayment_amount                     = float(loan_token_storage.minRepaymentAmount)
+    loan_token_paused                                   = loan_token_storage.isPaused
     loan_token_type_storage                             = loan_token_storage.tokenType
     loan_token_address                                  = ""
     loan_token_id                                       = 0
@@ -101,4 +102,5 @@ async def on_lending_controller_set_loan_token(
     lending_controller_loan_token.borrow_index                              = loan_token_borrow_index
     lending_controller_loan_token.min_repayment_amount                      = loan_token_min_repayment_amount
     lending_controller_loan_token.loan_token_contract_standard              = loan_token_contract_standard
+    lending_controller_loan_token.paused                                    = loan_token_paused
     await lending_controller_loan_token.save()
