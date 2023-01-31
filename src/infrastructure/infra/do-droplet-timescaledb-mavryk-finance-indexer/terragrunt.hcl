@@ -12,7 +12,7 @@ dependency "vpc" {
 }
 
 terraform {
-  source = "../../modules//droplet"
+  source = "../../modules//do-droplet"
 }
 
 inputs = {

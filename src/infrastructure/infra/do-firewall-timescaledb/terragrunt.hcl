@@ -15,7 +15,7 @@ dependency "timescaledb-mavryk-finance-indexer-2" {
 }
 
 terraform {
-  source = "../../modules//firewall"
+  source = "../../modules//do-firewall"
 }
 
 inputs = {

@@ -12,7 +12,7 @@ dependency "vpc" {
 }
 
 terraform {
-  source = "../../modules//kubernetes"
+  source = "../../modules//do-kubernetes"
 }
 
 inputs = {
