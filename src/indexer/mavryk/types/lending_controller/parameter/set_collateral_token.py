@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from pydantic import BaseModel, Extra
 
@@ -47,6 +47,9 @@ class CreateCollateralToken(BaseModel):
     oracleAddress: str
     protected: bool
     isScaledToken: bool
+    isStakedToken: bool
+    stakingContractAddress: Optional[str]
+    maxDepositAmount: Optional[str]
     tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
 
 
@@ -63,6 +66,9 @@ class UpdateCollateralToken(BaseModel):
 
     tokenName: str
     oracleAddress: str
+    isPaused: bool
+    stakingContractAddress: Optional[str]
+    maxDepositAmount: Optional[str]
 
 
 class ActionItem1(BaseModel):

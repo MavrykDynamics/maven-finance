@@ -18,7 +18,7 @@ async def on_doorman_pause_all(
     doorman.unstake_paused                  = pause_all.storage.breakGlassConfig.unstakeIsPaused
     doorman.compound_paused                 = pause_all.storage.breakGlassConfig.compoundIsPaused
     doorman.farm_claim_paused               = pause_all.storage.breakGlassConfig.farmClaimIsPaused
-    doorman.on_vault_deposit_smvk_paused    = pause_all.storage.breakGlassConfig.onVaultDepositStakedMvkIsPaused
-    doorman.on_vault_withdraw_smvk_paused   = pause_all.storage.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused
-    doorman.on_vault_liquidate_smvk_paused  = pause_all.storage.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused
+    doorman.on_vault_deposit_stake_paused    = pause_all.storage.breakGlassConfig.onVaultDepositStakeIsPaused
+    doorman.on_vault_withdraw_stake_paused   = pause_all.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused
+    doorman.on_vault_liquidate_stake_paused  = pause_all.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
     await doorman.save()

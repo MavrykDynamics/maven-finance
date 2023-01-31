@@ -1,31 +1,31 @@
-
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
-from mavryk.types.lending_controller_mock_time.parameter.vault_withdraw_staked_mvk import VaultWithdrawStakedMvkParameter
-from dipdup.models import Transaction
 from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+from mavryk.types.lending_controller.parameter.vault_deposit_staked_token import VaultDepositStakedTokenParameter
+from mavryk.types.lending_controller.storage import LendingControllerStorage
 import mavryk.models as models
 from dateutil import parser
 
-async def on_lending_controller_mock_time_vault_withdraw_staked_mvk(
+async def on_lending_controller_vault_deposit_staked_token(
     ctx: HandlerContext,
-    vault_withdraw_staked_mvk: Transaction[VaultWithdrawStakedMvkParameter, LendingControllerMockTimeStorage],
+    vault_deposit_staked_token: Transaction[VaultDepositStakedTokenParameter, LendingControllerStorage],
 ) -> None:
 
     # Get operation info
-    lending_controller_address  = vault_withdraw_staked_mvk.data.target_address
-    timestamp                   = vault_withdraw_staked_mvk.data.timestamp
-    level                       = vault_withdraw_staked_mvk.data.level
-    operation_hash              = vault_withdraw_staked_mvk.data.hash
-    sender_address              = vault_withdraw_staked_mvk.data.sender_address
-    vault_withdraw_amount       = float(vault_withdraw_staked_mvk.parameter.withdrawAmount)
-    vault_internal_id           = int(vault_withdraw_staked_mvk.parameter.vaultId)
-    vault_owner_address         = vault_withdraw_staked_mvk.data.sender_address
-    vaults_storage              = vault_withdraw_staked_mvk.storage.vaults
+    lending_controller_address  = vault_deposit_staked_token.data.target_address
+    timestamp                   = vault_deposit_staked_token.data.timestamp
+    level                       = vault_deposit_staked_token.data.level
+    operation_hash              = vault_deposit_staked_token.data.hash
+    sender_address              = vault_deposit_staked_token.data.sender_address
+    vault_deposit_amount        = float(vault_deposit_staked_token.parameter.depositAmount)
+    vault_internal_id           = int(vault_deposit_staked_token.parameter.vaultId)
+    vault_owner_address         = vault_deposit_staked_token.data.sender_address
+    vaults_storage              = vault_deposit_staked_token.storage.vaults
+
 
     # Update record
     lending_controller          = await models.LendingController.get(
-        address         = lending_controller_address,
-        mock_time       = True
+        address             = lending_controller_address,
+        mock_time           = False
     )
     vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
 
@@ -43,7 +43,7 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_mvk(
             vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
 
             # Save updated vault
-            lending_controller_vault           = await models.LendingControllerVault.filter(
+            lending_controller_vault                = await models.LendingControllerVault.filter(
                 lending_controller  = lending_controller,
                 owner               = vault_owner,
                 internal_id         = vault_internal_id
@@ -63,7 +63,7 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_mvk(
             # Save loan token
             loan_token                              = await lending_controller_vault.loan_token
             loan_token_name                         = loan_token.loan_token_name
-            loan_token_storage                      = vault_withdraw_staked_mvk.storage.loanTokenLedger[loan_token_name]
+            loan_token_storage                      = vault_deposit_staked_token.storage.loanTokenLedger[loan_token_name]
             loan_token.token_pool_total             = float(loan_token_storage.tokenPoolTotal)
             loan_token.lp_token_total               = float(loan_token_storage.lpTokensTotal)
             loan_token.total_remaining              = float(loan_token_storage.totalRemaining)
@@ -76,8 +76,9 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_mvk(
             # Save collateral balance ledger
             for collateral_token_name in vault_collateral_balance_ledger:
                 collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
-                collateral_token_storage                    = vault_withdraw_staked_mvk.storage.collateralTokenLedger[collateral_token_name]
+                collateral_token_storage                    = vault_deposit_staked_token.storage.collateralTokenLedger[collateral_token_name]
                 collateral_token_address                    = collateral_token_storage.tokenContractAddress
+
                 lending_controller_collateral_token         = await models.LendingControllerCollateralToken.filter(
                     lending_controller          = lending_controller,
                     token_address               = collateral_token_address
@@ -102,7 +103,7 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_mvk(
                 operation_hash      = operation_hash,
                 timestamp           = timestamp,
                 level               = level,
-                type                = models.LendingControllerOperationType.WITHDRAW_SMVK,
-                amount              = vault_withdraw_amount
+                type                = models.LendingControllerOperationType.DEPOSIT_STAKED_TOKEN,
+                amount              = vault_deposit_amount
             )
             await history_data.save()

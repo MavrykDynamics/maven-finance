@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Extra
 
@@ -44,10 +44,10 @@ class BreakGlassConfig(BaseModel):
     setCollateralTokenIsPaused: bool
     setLoanTokenIsPaused: bool
     vaultDepositIsPaused: bool
-    vaultDepositStakedMvkIsPaused: bool
+    vaultDepositStakedTokenIsPaused: bool
     vaultOnLiquidateIsPaused: bool
     vaultWithdrawIsPaused: bool
-    vaultWithdrawStakedMvkIsPaused: bool
+    vaultWithdrawStakedTokenIsPaused: bool
 
 
 class Key(BaseModel):
@@ -123,7 +123,12 @@ class CollateralTokenLedger(BaseModel):
     oracleAddress: str
     protected: bool
     isScaledToken: bool
+    isStakedToken: bool
+    stakingContractAddress: Optional[str]
+    totalDeposited: str
+    maxDepositAmount: Optional[str]
     tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
+    isPaused: bool
 
 
 class TokenTypeItem3(BaseModel):
@@ -181,6 +186,7 @@ class LoanTokenLedger(BaseModel):
     lastUpdatedBlockLevel: str
     accumulatedRewardsPerShare: str
     borrowIndex: str
+    isPaused: bool
 
 
 class LendingControllerStorage(BaseModel):

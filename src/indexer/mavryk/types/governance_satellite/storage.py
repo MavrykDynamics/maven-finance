@@ -76,31 +76,6 @@ class GovernanceSatelliteVoter(BaseModel):
     value: Union[ValueItem, ValueItem1, ValueItem2]
 
 
-class AggregatorPair1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    string_0: str
-    string_1: str
-
-
-class AggregatorPairs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    aggregatorPair: AggregatorPair1
-    aggregatorAddress: str
-    startDateTime: str
-
-
-class SatelliteAggregatorLedger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    aggregatorsSubscribed: str
-    aggregatorPairs: Dict[str, AggregatorPairs]
-
-
 class GovernanceSatelliteStorage(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -117,5 +92,5 @@ class GovernanceSatelliteStorage(BaseModel):
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
     mvkTokenAddress: str
-    satelliteAggregatorLedger: Dict[str, SatelliteAggregatorLedger]
+    satelliteAggregatorLedger: Dict[str, Dict[str, str]]
     whitelistContracts: Dict[str, str]
