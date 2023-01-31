@@ -1,28 +1,27 @@
-
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.types.doorman.parameter.on_vault_deposit_staked_mvk import OnVaultDepositStakedMvkParameter
+from mavryk.types.doorman.parameter.on_vault_withdraw_stake import OnVaultWithdrawStakeParameter
 from mavryk.types.doorman.storage import DoormanStorage
 import mavryk.models as models
 
-async def on_doorman_on_vault_deposit_staked_mvk(
+async def on_doorman_on_vault_withdraw_stake(
     ctx: HandlerContext,
-    on_vault_deposit_staked_mvk: Transaction[OnVaultDepositStakedMvkParameter, DoormanStorage],
+    on_vault_withdraw_stake: Transaction[OnVaultWithdrawStakeParameter, DoormanStorage],
 ) -> None:
 
     # Get operation info
-    timestamp                                   = on_vault_deposit_staked_mvk.data.timestamp
-    doorman_address                             = on_vault_deposit_staked_mvk.data.target_address
-    vault_owner_address                         = on_vault_deposit_staked_mvk.parameter.vaultOwner
-    vault_owner_stake_balance_ledger            = on_vault_deposit_staked_mvk.storage.userStakeBalanceLedger[vault_owner_address]
+    timestamp                                   = on_vault_withdraw_stake.data.timestamp
+    doorman_address                             = on_vault_withdraw_stake.data.target_address
+    vault_owner_address                         = on_vault_withdraw_stake.parameter.vaultOwner
+    vault_owner_stake_balance_ledger            = on_vault_withdraw_stake.storage.userStakeBalanceLedger[vault_owner_address]
     vault_owner_smvk_balance                    = float(vault_owner_stake_balance_ledger.balance)
     vault_owner_participation_fees_per_share    = float(vault_owner_stake_balance_ledger.participationFeesPerShare)
-    vault_address                               = on_vault_deposit_staked_mvk.parameter.vaultAddress
-    vault_stake_balance_ledger                  = on_vault_deposit_staked_mvk.storage.userStakeBalanceLedger[vault_address]
+    vault_address                               = on_vault_withdraw_stake.parameter.vaultAddress
+    vault_stake_balance_ledger                  = on_vault_withdraw_stake.storage.userStakeBalanceLedger[vault_address]
     vault_smvk_balance                          = float(vault_stake_balance_ledger.balance)
     vault_participation_fees_per_share          = float(vault_stake_balance_ledger.participationFeesPerShare)
-    unclaimed_rewards                           = float(on_vault_deposit_staked_mvk.storage.unclaimedRewards)
-    accumulated_fees_per_share                  = float(on_vault_deposit_staked_mvk.storage.accumulatedFeesPerShare)
+    unclaimed_rewards                           = float(on_vault_withdraw_stake.storage.unclaimedRewards)
+    accumulated_fees_per_share                  = float(on_vault_withdraw_stake.storage.accumulatedFeesPerShare)
 
     # Update records
     doorman                                     = await models.Doorman.get(
@@ -67,7 +66,7 @@ async def on_doorman_on_vault_deposit_staked_mvk(
     # Create two stake records
     vault_owner_stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
-        type                = models.StakeType.VAULT_DEPOSIT_SMVK,
+        type                = models.StakeType.VAULT_WITHDRAW_STAKED_TOKEN,
         desired_amount      = vault_owner_smvk_amount,
         final_amount        = vault_owner_smvk_amount,
         doorman             = doorman,
@@ -79,7 +78,7 @@ async def on_doorman_on_vault_deposit_staked_mvk(
 
     vault_stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
-        type                = models.StakeType.VAULT_DEPOSIT_SMVK,
+        type                = models.StakeType.VAULT_WITHDRAW_STAKED_TOKEN,
         desired_amount      = vault_smvk_amount,
         final_amount        = vault_smvk_amount,
         doorman             = doorman,

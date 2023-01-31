@@ -76,6 +76,7 @@ class UpdateLoanToken(BaseModel):
     interestRateBelowOptimalUtilisation: str
     interestRateAboveOptimalUtilisation: str
     minRepaymentAmount: str
+    isPaused: bool
 
 
 class ActionItem1(BaseModel):

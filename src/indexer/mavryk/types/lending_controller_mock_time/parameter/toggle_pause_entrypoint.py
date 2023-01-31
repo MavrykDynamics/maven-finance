@@ -103,7 +103,7 @@ class TargetEntrypointItem13(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDepositStakedMvk: bool
+    vaultDepositStakedToken: bool
 
 
 class TargetEntrypointItem14(BaseModel):
@@ -124,7 +124,7 @@ class TargetEntrypointItem16(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultWithdrawStakedMvk: bool
+    vaultWithdrawStakedToken: bool
 
 
 class TogglePauseEntrypointParameter(BaseModel):
