@@ -1,8 +1,8 @@
 apiVersion: v2
 name: loki-distributed-mavryk
 version: 0.0.1
-appVersion: 2.6.1
+appVersion: 2.7.1
 dependencies:
   - name: loki-distributed
-    version: 0.65.3
+    version: 0.69.0
     repository: https://grafana.github.io/helm-charts

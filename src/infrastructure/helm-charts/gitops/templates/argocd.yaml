@@ -4,12 +4,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ .Values.spec.environment }}-argocd
-  namespace: argo-cd
+  namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: argo-cd
+    namespace: argocd
     name: {{ .Values.spec.clusterName }}
   project: default
   source:
