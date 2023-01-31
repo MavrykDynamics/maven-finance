@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-  source = "../../modules//s3"
+  source = "../../modules//aws-s3"
 }
 
 inputs = {
