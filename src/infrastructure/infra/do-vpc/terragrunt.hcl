@@ -8,7 +8,7 @@ locals {
 }
 
 terraform {
-  source = "../../modules//vpc"
+  source = "../../modules//do-vpc"
 }
 
 inputs = {
