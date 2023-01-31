@@ -19,8 +19,8 @@ deku:
       tag: rc-v0.1.1-6
       pullPolicy: Always
   config:
-    defaultBlockSize: 500
-    tezosConsensusAddress: KT1VGg5VgH4hzATrttN9cGqK2Nvf3fGg7hoS
+    defaultBlockSize: 100
+    tezosConsensusAddress: KT1C4gCLD1vSXpWFBEMwarYLvZhvPPATk2gH
     dummyTicketAddress: KT1QeSWvEhkBJuJE929PGm9wdsimtxCQUMEA
     tezosSecret: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs #OSCAR
     databaseUri: sqlite3:/var/deku/database.sqlite
@@ -107,30 +107,10 @@ deku:
       validator: #ISAAC
         publicKeyHash: tz1SDg2Wah3wBHFwCK5gYV591BhpLWZTWX42
         secretKey: edsk3ahGaSWjzjHuS7mK5Bsy7LxH8iTRXpGcMvzjgSypKHKw2wrq1u
-    deku-on-baking-archive-4:
-      tezosRpcUrl: https://basenet-baking-archive-node.mavryk.network
-      image:
-        registry: docker.io
-        repository: mavrykdynamics/deku
-        tag: rc-v0.1.1-6
-        pullPolicy: Always
-        pullSecret: docker-pull-credentials
-      tolerations:
-        - key: 'mavryk-node'
-          operator: 'Equal'
-          value: '0'
-          effect: 'NoSchedule'
-        - key: 'mavryk-node'
-          operator: 'Equal'
-          value: '1'
-          effect: 'NoSchedule'
-      validator: #DAVID
-        publicKeyHash: tz1PPLFcQyechtAm9XRZWRnMEXJ8NsXUNGdS
-        secretKey: edsk3hwth6tL9hppsUT6sZQ5687DDY9GPgKiZgjg9DDcMjJxoRUsGc
 
 tezos-faucet:
   images:
-    tezos_faucet: ghcr.io/oxheadalpha/tezos-faucet:latest
+    tezos_faucet: mavrykdynamics/tezos-faucet:v1.0.3
     tezos_faucet_backend: ghcr.io/oxheadalpha/tezos-faucet-backend:latest
   authorizedHost: "'*'"
 
@@ -151,10 +131,10 @@ tezos-faucet:
           profile: BAKER
           amount: 6001
     network:
-      name: Kathmandunet #Jakartanet
+      name: Basenet #Jakartanet
       rpcUrl: https://basenet-baking-full-node.mavryk.network/ #https://jakartanet.tezos.marigold.dev/
-      faucetAddress: tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
-      viewer: https://kathmandu.tzstats.com
+      faucetAddress: tz1ME2GFTQVkoKJCPVZA9xUFbPSbvJw3DvHS
+      viewer: https://lima.tzstats.com
       allowSendButton: true
   service:
     type: ClusterIP
@@ -174,7 +154,7 @@ tezos-faucet:
 
   # Secrets
   googleCaptchaSecretKey: secret_key_goes_here
-  faucetPrivateKey: edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz
+  faucetPrivateKey: edskRukBjjWyurxkuRHi6vnYReB4QKjunGE115tVRpSZ6H9iCXsLsYLaTMy1FYH3UCju4KoKRPWiPphEEZb8mFXsdrcedFnaGe
 
 ###
 # tezos-chain values
@@ -183,18 +163,18 @@ tezos-faucet:
 # Is the values file an invitation for a private chain
 is_invitation: false
 # A chain using Zerotier would be a private chain
-# zerotier_config:
-#   zerotier_network: YOUR_NETWORK_ID_HERE
-#   zerotier_token: YOUR_ZEROTIER_TOKEN_HERE
+zerotier_config:
+  zerotier_network: null
+  zerotier_token: null
+snapshot_source: null
 
 # Images not part of the tezos-k8s repo go here
 images:
-  octez: tezos/tezos:v14-release
-  tezedge: tezedge/tezedge:v1.6.8
+  octez: tezos/tezos:v15-release
 # Images that are part of the tezos-k8s repo go here with 'dev' tag
 tezos_k8s_images:
-  utils: ghcr.io/oxheadalpha/tezos-k8s-utils:6.11.1
-  zerotier: ghcr.io/oxheadalpha/tezos-k8s-zerotier:6.11.1
+  utils: ghcr.io/oxheadalpha/tezos-k8s-utils:6.13.0
+  zerotier: ghcr.io/oxheadalpha/tezos-k8s-zerotier:6.13.0
 ## Properties that are templated for some k8s resources. There are container
 ## scripts that will look up some of these values. They should not be modified.
 tzkt_indexer_statefulset:
@@ -207,27 +187,27 @@ chain_initiator_job:
   pod_type: activating
 # For non-public chains the default mutez given to an account if the
 # account is not explicitly set below.
-bootstrap_mutez: '4000000000000'
+bootstrap_mutez: "4000000000000"
 # # Accounts
 #
 # The `accounts` object of values.yaml defines Tezos accounts used in the chart.
 # By default no account is configured:
 accounts:
   mavryk:
-    # tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
-    key: edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
+    # tz1ghDkVBgWi4k6WHsMaWVLtPb4muPzRV12c
+    key: edskS1oSBMgeLzU7dHxizjswEJipSXMoa1yA668v5bSZwPYAADC71qSwsdXXGSbBtA8eej5XJHCTxD96w9KG36FyrhVdxbNenw
     is_bootstrap_baker_account: true
     bootstrap_balance: '9700000000000'
   astronaut:
-    # tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
-    key: edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
+    # tz1Z7SUKZ9H5WeD36UByUKZ3RsqWwkcUEapY
+    key: edskRyt7Apw9uFzW2hVSSaPsnigxt4PvUkV1sH4Yrpmm5ZB95hHcHEAeBMx5Nh8cerLLGoCcQAeVh3a9Ek59y27dp1qLgxPzby
     bootstrap_balance: '1000000000000'
     is_bootstrap_baker_account: true
     # key injected by pulumi
   comet:
     # an account with a lot of money in it
-    # tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
-    key: edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd
+    # tz1ME2GFTQVkoKJCPVZA9xUFbPSbvJw3DvHS
+    key: edskRukBjjWyurxkuRHi6vnYReB4QKjunGE115tVRpSZ6H9iCXsLsYLaTMy1FYH3UCju4KoKRPWiPphEEZb8mFXsdrcedFnaGe
     bootstrap_balance: '50000000000000000'
     is_bootstrap_baker_account: false
 #
@@ -297,7 +277,7 @@ should_generate_unsafe_deterministic_data: false
 #
 # Params at the statefulset level:
 # - "config": The "config" property should mimic the structure of a node's
-#             config.json. Run `tezos-node config --help` for more info.
+#             config.json. Run `octez-node config --help` for more info.
 #             If present at the statefulset level, it overrides it in
 #             node_globals.
 # - "env": a dictionary of containers mapped to a dictionary of env
@@ -309,14 +289,15 @@ should_generate_unsafe_deterministic_data: false
 #          bakers and accusers, so "baker-011-pthangz2" is configured
 #          using just "baker".
 # - "storage_size": the size of the PV
+# - "resources": resources specifications for the node.
+#                Optionally set resources and limits for octez node
+#                See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 # - "images": Optional specification of images to use for the tezos node and
-#           baker. Options are "octez" with a tezos/tezos image or
-#           "tezedge" with a tezedge/tezedge image. If no images are provided,
-#           the containers will default to the images defined in the "images"
-#           field up above.
-# - "runs": A list of containers to run. A tezos node implementation is required.
-#         Options being "octez_node" or "tezedge_node". Other optional
-#         containers are "accuser", "baker", "logger" and "vdf".
+#           baker. Options are "octez" with a tezos/tezos image.
+#           If no images are provided, the containers will default to the images
+#           defined in the "images" field up above.
+# - "runs": A list of containers to run.
+#         Options being "octez_node", "accuser", "baker", "logger" and "vdf".
 # - "local_storage": use local storage instead of a volume. The storage will be
 #                  wiped when the node restarts for any reason. Useful when
 #                  faster IO is desired. Defaults to false.
@@ -381,12 +362,15 @@ should_generate_unsafe_deterministic_data: false
 #     storage_size: 15Gi
 #     images: # (optional field)
 #       octez: tezos/tezos:v...
-#     # tezedge: tezedge/tezedg:v...
 #     local_storage: false
 #     runs:
 #       - octez_node
-#     # - tezedge_node
 #       - baker
+#     resources:
+#       requests:
+#         memory: 16192Mi
+#       limits:
+#         memory: 16192Mi
 #     instances:
 #       - bake_using_account: baker0
 #         is_bootstrap_node: true
@@ -406,20 +390,19 @@ should_generate_unsafe_deterministic_data: false
 #       peer_node: "true"
 #       rpc_node: "true"
 #     images: # (optional field)
-#       tezedge: tezedge/tezedge:v...
-#     runs: ["tezedge_node"]
+#       octez: tezos/tezos:v...
+#     runs: ["octez_node"]
 #     instances:
 #       - {}
 #       - {}
 # ```
 # The default configuration is:
 node_globals:
-  env: {}
+  env:
+    all:
+      TEZOS_CLIENT_UNSAFE_DISABLE_DISCLAIMER: "Y"
 nodes:
   tezos-baking-full-node:
-    labels:
-      peer_node: 'true'
-      rpc_node: 'true'
     node_selector:
       type: mavryk-node
     tolerations:
@@ -433,7 +416,8 @@ nodes:
         config:
           shell:
             history_mode: full
-          metrics_addr: ['0.0.0.0:9932']
+          metrics_addr:
+            - :9932
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
@@ -441,7 +425,6 @@ nodes:
     runs:
       - octez_node
       - baker
-    readiness_probe: false
     storage_size: 15Gi
     service:
       type: ClusterIP
@@ -454,9 +437,6 @@ nodes:
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
         kubernetes.io/ingress.class: nginx
   tezos-baking-archive-node:
-    labels:
-      peer_node: 'true'
-      rpc_node: 'true'
     node_selector:
       type: mavryk-node
     tolerations:
@@ -470,7 +450,8 @@ nodes:
         config:
           shell:
             history_mode: archive
-          metrics_addr: ['0.0.0.0:9932']
+          metrics_addr:
+            - :9932
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
@@ -478,9 +459,6 @@ nodes:
     runs:
       - octez_node
       - baker
-      - accuser
-      # - vdf
-    readiness_probe: false
     storage_size: 50Gi
     service:
       type: ClusterIP
@@ -493,9 +471,6 @@ nodes:
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'
         kubernetes.io/ingress.class: nginx
   tezos-rolling-node:
-    labels:
-      peer_node: 'true'
-      rpc_node: 'true'
     node_selector:
       type: mavryk-node
     tolerations:
@@ -507,13 +482,13 @@ nodes:
       - config:
           shell:
             history_mode: rolling
-          metrics_addr: ['0.0.0.0:9932']
+          metrics_addr:
+            - :9932
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
     runs:
       - octez_node
-    readiness_probe: false
     storage_size: 15Gi
     service:
       type: ClusterIP
@@ -554,7 +529,10 @@ serviceMonitor:
 # that are configured to sign for the accounts they are baking for.
 #
 # By default no signer is configured:
-signers: {}
+signers:
+  tezos-signer-0:
+    sign_for_accounts:
+      - mavryk
 # Here is an example of octez signer config. When set, the
 # ```
 # signers:
@@ -578,9 +556,9 @@ rolling_tarball_url: ''
 # List of peers for nodes to connect to. Gets set under config.json `p2p` field
 bootstrap_peers: []
 # Identity generation difficulty.
-expected_proof_of_work: 26
+expected_proof_of_work: 0
 ## Create a custom network using a config structure that is similar to a node's
-## config.json. Run `tezos-node config --help` for more info.
+## config.json. Run `octez-node config --help` for more info.
 ## Note that the genesis block hash will be deterministically generated from
 ## the chain name if omitted.
 ##
@@ -596,7 +574,7 @@ expected_proof_of_work: 26
 #
 ## To join a public network you may set `chain_name` in one of two ways:
 ## - Specify the name of the network which must be recognized by the
-##   tezos-node binary of the Octez image being used.
+##   octez-node binary of the Octez image being used.
 ## - Pass a url that returns the config.json of the network. Example:
 ##   "https://teztnets.xyz/mondaynet". It is helpful for running
 ##   testnets and shouldn't be needed in general.
@@ -604,8 +582,8 @@ node_config_network:
   chain_name: basenet
   activation_account_name: mavryk
   genesis:
-    timestamp: '2022-11-11T00:00:00Z'
     protocol: Ps9mPmXaRzmzk35gbAYNCAw6UXdE2qoABTHbN2oEEc1qM7CwT9P
+    timestamp: '2023-01-20T07:32:57.215065+00:00'
   ## When joining a public network, a tezos node will by default
   ## connect to the boot-nodes of the selected chain. This may not
   ## always be desired. For example, you may want to run a mainnet
@@ -626,9 +604,9 @@ protocols:
   ##   "on" and "off" must be between quotes.
   ## Note that we are not providing default votes since every baker needs
   ## to make an explicit educated choice on every toggle.
-  - command: 014-PtKathma
+  - command: PtLimaPt
     vote:
-      liquidity_baking_toggle_vote: 'pass'
+      liquidity_baking_toggle_vote: pass
 # - command: alpha
 #   vote:
 #     liquidity_baking_toggle_vote: "pass"
@@ -639,17 +617,17 @@ protocols:
 ## after chain activation.
 ##
 activation:
-  protocol_hash: PtKathmankSpLLDALzWw7CGD2j2MtyveTwboEYokqUCP4a1LxMg
+  protocol_hash: PtLimaPtLMwfNinJi9rCfDPWea8dFgTZ1MeJ9f1m2SRic6ayiwW
   protocol_parameters:
     preserved_cycles: 3
-    blocks_per_cycle: 4096
-    blocks_per_commitment: 32
-    blocks_per_stake_snapshot: 256
+    blocks_per_cycle: 8
+    blocks_per_commitment: 4
+    blocks_per_stake_snapshot: 4
     cycles_per_voting_period: 1
     hard_gas_limit_per_operation: '1040000'
     hard_gas_limit_per_block: '5200000'
     proof_of_work_threshold: '-1'
-    tokens_per_roll: '6000000000'
+    minimal_stake: '6000000000'
     seed_nonce_revelation_tip: '125000'
     baking_reward_fixed_portion: '10000000'
     baking_reward_bonus_per_slot: '4286'
@@ -661,10 +639,9 @@ activation:
     quorum_min: 2000
     min_proposal_quorum: 500
     liquidity_baking_subsidy: '2500000'
-    liquidity_baking_sunset_level: 10000000
-    liquidity_baking_toggle_ema_threshold: 1000000000
+    liquidity_baking_toggle_ema_threshold: 100000
     max_operations_time_to_live: 120
-    minimal_block_delay: '15'
+    minimal_block_delay: '5'
     delay_increment_per_round: '5'
     consensus_committee_size: 7000
     consensus_threshold: 4667
@@ -680,38 +657,47 @@ activation:
     cache_script_size: 100000000
     cache_stake_distribution_cycles: 8
     cache_sampler_state_cycles: 8
-    nonce_revelation_threshold: 256
-    vdf_difficulty: '2000000000'
+    nonce_revelation_threshold: 4
+    vdf_difficulty: '100000'
     tx_rollup_enable: true
     tx_rollup_origination_size: 4000
     tx_rollup_hard_size_limit_per_inbox: 500000
     tx_rollup_hard_size_limit_per_message: 5000
     tx_rollup_commitment_bond: '10000000000'
-    tx_rollup_finality_period: 40000
-    tx_rollup_max_inboxes_count: 40100
-    tx_rollup_withdraw_period: 40000
+    tx_rollup_finality_period: 10
+    tx_rollup_max_inboxes_count: 15
+    tx_rollup_withdraw_period: 10
     tx_rollup_max_messages_per_inbox: 1010
-    tx_rollup_max_commitments_count: 80100
+    tx_rollup_max_commitments_count: 30
     tx_rollup_cost_per_byte_ema_factor: 120
     tx_rollup_max_withdrawals_per_batch: 15
     tx_rollup_max_ticket_payload_size: 2048
     tx_rollup_rejection_max_proof_size: 30000
     tx_rollup_sunset_level: 10000000
     dal_parametric:
-      feature_enable: false
+      feature_enable: true
       number_of_slots: 256
       number_of_shards: 2048
-      endorsement_lag: 1
+      endorsement_lag: 2
       availability_threshold: 50
-    sc_rollup_enable: false
+      slot_size: 1048576
+      redundancy_factor: 16
+      page_size: 4096
+    sc_rollup_enable: true
     sc_rollup_origination_size: 6314
-    sc_rollup_challenge_window_in_blocks: 20160
-    sc_rollup_max_available_messages: 1000000
+    sc_rollup_challenge_window_in_blocks: 40
     sc_rollup_stake_amount: '32000000'
-    sc_rollup_commitment_period_in_blocks: 30
+    sc_rollup_commitment_period_in_blocks: 20
     sc_rollup_max_lookahead_in_blocks: 30000
     sc_rollup_max_active_outbox_levels: 20160
     sc_rollup_max_outbox_messages_per_level: 100
+    sc_rollup_max_number_of_cemented_commitments: 5
+    sc_rollup_max_number_of_messages_per_commitment_period: 32765
+    sc_rollup_number_of_sections_in_dissection: 32
+    sc_rollup_timeout_period_in_blocks: 500
+    zk_rollup_enable: true
+    zk_rollup_origination_size: 4000
+    zk_rollup_min_pending_to_process: 10
 #
 #   # Pass url pointing to additional contracts that you want injected at activation.
 #   # This data is typically too large to pass it directly inside helm chart.
@@ -727,9 +713,9 @@ activation:
 indexers:
   tzkt:
     api_image: 'bakingbad/tzkt-api'
-    api_image_tag: '1.10.3'
+    api_image_tag: '1.11.1'
     indexer_image: 'bakingbad/tzkt-sync'
-    indexer_image_tag: '1.10.3'
+    indexer_image_tag: '1.11.1'
 
     # Ingress configuration
     ingress:

@@ -17,5 +17,5 @@ spec:
     - {{ .Release.Namespace }}
   selector:
     matchLabels:
-      appType: tezos-node
+      appType: octez-node
 {{- end }}

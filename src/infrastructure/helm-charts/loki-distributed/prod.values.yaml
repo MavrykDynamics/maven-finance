@@ -83,6 +83,9 @@ loki-distributed:
       server:
         http_listen_port: 3100
 
+      common:
+        compactor_address: {{ include "loki.compactorFullname" . }}:3100
+
       distributor:
         ring:
           kvstore:
@@ -98,15 +101,18 @@ loki-distributed:
             kvstore:
               store: memberlist
             replication_factor: 1
-        chunk_idle_period: 30m
+        chunk_idle_period: 1h
         chunk_block_size: 262144
+        chunk_target_size: 1536000
         chunk_encoding: snappy
+        max_chunk_age: 1h
         chunk_retain_period: 1m
         max_transfer_retries: 0
         wal:
           dir: /var/loki/wal
 
       limits_config:
+        retention_period: 744h
         enforce_metric_name: false
         reject_old_samples: true
         reject_old_samples_max_age: 168h
@@ -136,10 +142,11 @@ loki-distributed:
         file: /var/{{ include "loki.name" . }}-runtime/runtime.yaml
 
       chunk_store_config:
-        max_look_back_period: 168h
+        max_look_back_period: 0s
         {{- if .Values.memcachedChunks.enabled }}
         chunk_cache_config:
-          enable_fifocache: false
+          embedded_cache:
+            enabled: false
           memcached_client:
             consistent_hash: true
             addresses: dnssrv+_memcached-client._tcp.{{ include "loki.memcachedChunksFullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }}
@@ -166,9 +173,8 @@ loki-distributed:
               addresses: dnssrv+_memcached-client._tcp.{{ include "loki.memcachedFrontendFullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }}
               consistent_hash: true
             {{- else }}
-            enable_fifocache: true
-            fifocache:
-              max_size_items: 1024
+            embedded_cache:
+              enabled: true
               ttl: 24h
             {{- end }}
 
@@ -188,11 +194,11 @@ loki-distributed:
         tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
 
       compactor:
-        working_directory: /var/loki/data/retention
-        shared_store: filesystem
+        working_directory: /data/retention
+        shared_store: s3
         compaction_interval: 10m
         retention_enabled: true
-        retention_delete_delay: 168h
+        retention_delete_delay: 2h
         retention_delete_worker_count: 150
 
       ruler:
@@ -212,7 +218,7 @@ loki-distributed:
       configs:
       - from: 2020-09-07
         store: boltdb-shipper
-        object_store: filesystem
+        object_store: aws
         schema: v11
         index:
           prefix: loki_index_
@@ -220,13 +226,15 @@ loki-distributed:
 
     # -- Check https://grafana.com/docs/loki/latest/configuration/#storage_config for more info on how to configure storages
     storageConfig:
+      aws:
+        s3: s3://ap-southeast-1/mavryk-loki
+        s3forcepathstyle: true
+        bucketnames: mavryk-loki
+        region: ap-southeast-1
+        sse_encryption: false
+        insecure: false
       boltdb_shipper:
-          shared_store: filesystem
-          active_index_directory: /var/loki/index
-          cache_location: /var/loki/cache
-          cache_ttl: 168h
-      filesystem:
-          directory: /var/loki/chunks
+        shared_store: s3
     # -- Uncomment to configure each storage individually
     #   azure: {}
     #   gcs: {}
@@ -372,7 +380,7 @@ loki-distributed:
     # @default -- Defaults to allow skew no more then 1 node per AZ
     topologySpreadConstraints: |
       - maxSkew: 1
-        topologyKey: failure-domain.beta.kubernetes.io/zone
+        topologyKey: kubernetes.io/hostname
         whenUnsatisfiable: ScheduleAnyway
         labelSelector:
           matchLabels:
@@ -405,7 +413,7 @@ loki-distributed:
     livenessProbe: {}
     persistence:
       # -- Enable creating PVCs which is required when using boltdb-shipper
-      enabled: true
+      enabled: false
       # -- Use emptyDir with ramdisk for storage. **Please note that all data in ingester will be lost on pod restart**
       inMemory: false
       # -- Size of persistent or memory disk
@@ -416,6 +424,8 @@ loki-distributed:
       # If empty or set to null, no storageClassName spec is
       # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
       storageClass: do-block-storage
+      # -- Annotations for ingester PVCs
+      annotations: {}
     # -- Adds the appProtocol field to the ingester service. This allows ingester to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
@@ -492,8 +502,7 @@ loki-distributed:
     # -- Node selector for distributor pods
     nodeSelector: {}
     # -- Tolerations for distributor pods
-    tolerations:
-      []
+    tolerations: []
       # -- Adds the appProtocol field to the distributor service. This allows distributor to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
@@ -573,7 +582,7 @@ loki-distributed:
     dnsConfig: {}
     persistence:
       # -- Enable creating PVCs for the querier cache
-      enabled: true
+      enabled: false
       # -- Size of persistent disk
       size: 10Gi
       # -- Storage class to be used.
@@ -582,6 +591,8 @@ loki-distributed:
       # If empty or set to null, no storageClassName spec is
       # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
       storageClass: do-block-storage
+      # -- Annotations for querier PVCs
+      annotations: {}
     # -- Adds the appProtocol field to the querier service. This allows querier to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
@@ -850,7 +861,7 @@ loki-distributed:
       # -- The gateway image repository
       repository: nginxinc/nginx-unprivileged
       # -- The gateway image tag
-      tag: 1.19-alpine
+      tag: 1.20.2-alpine
       # -- The gateway image pull policy
       pullPolicy: IfNotPresent
     # -- The name of the PriorityClass for gateway pods
@@ -1054,6 +1065,7 @@ loki-distributed:
             location = / {
               return 200 'OK';
               auth_basic off;
+              access_log off;
             }
 
             location = /api/prom/push {
@@ -1085,7 +1097,7 @@ loki-distributed:
             }
 
             location ~ /api/prom/.* {
-              set $api_prom_backend http://{{ include "loki.queryFrontendFullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }};
+              set $api_prom_backend http://{{ include "loki.queryFrontendFullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }};
               proxy_pass       $api_prom_backend:3100$request_uri;
               proxy_http_version 1.1;
             }
@@ -1105,7 +1117,7 @@ loki-distributed:
             }
 
             location ~ /loki/api/.* {
-              set $loki_api_backend http://{{ include "loki.queryFrontendFullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }};
+              set $loki_api_backend http://{{ include "loki.queryFrontendFullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }};
               proxy_pass       $loki_api_backend:3100$request_uri;
               proxy_http_version 1.1;
             }
@@ -1165,7 +1177,7 @@ loki-distributed:
     tolerations: []
     persistence:
       # -- Enable creating PVCs for the compactor
-      enabled: true
+      enabled: false
       # -- Size of persistent disk
       size: 10Gi
       # -- Storage class to be used.
@@ -1174,6 +1186,8 @@ loki-distributed:
       # If empty or set to null, no storageClassName spec is
       # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
       storageClass: null
+      # -- Annotations for compactor PVCs
+      annotations: {}
     serviceAccount:
       create: false
       # -- The name of the ServiceAccount to use for the compactor.
@@ -1267,9 +1281,10 @@ loki-distributed:
       # If empty or set to null, no storageClassName spec is
       # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
       storageClass: null
+      # -- Annotations for ruler PVCs
+      annotations: {}
     # -- Directories containing rules files
-    directories:
-      {}
+    directories: {}
       # tenant_foo:
       #   rules1.txt: |
       #     groups:
@@ -1411,6 +1426,8 @@ loki-distributed:
       # If empty or set to null, no storageClassName spec is
       # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
       storageClass: null
+      # -- Annotations for index gateway PVCs
+      annotations: {}
 
   memcached:
     readinessProbe:
@@ -1428,7 +1445,7 @@ loki-distributed:
       # -- Memcached Docker image repository
       repository: memcached
       # -- Memcached Docker image tag
-      tag: 1.6.7-alpine
+      tag: 1.6.17-alpine
       # -- Memcached Docker image pull policy
       pullPolicy: IfNotPresent
     # -- Labels for memcached pods
