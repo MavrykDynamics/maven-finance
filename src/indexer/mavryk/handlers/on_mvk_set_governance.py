@@ -1,14 +1,14 @@
 
 from mavryk.utils.persisters import persist_governance
-from mavryk.types.mvk.parameter.set_governance import SetGovernanceParameter
+from mavryk.types.mvk_token.parameter.set_governance import SetGovernanceParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 import mavryk.models as models
 
 async def on_mvk_set_governance(
     ctx: HandlerContext,
-    set_governance: Transaction[SetGovernanceParameter, MvkStorage],
+    set_governance: Transaction[SetGovernanceParameter, MvkTokenStorage],
 ) -> None:
     
     # Get operation info

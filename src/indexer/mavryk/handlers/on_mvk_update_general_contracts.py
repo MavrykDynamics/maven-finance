@@ -2,13 +2,13 @@
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_linked_contract
-from mavryk.types.mvk.storage import MvkStorage
-from mavryk.types.mvk.parameter.update_general_contracts import UpdateGeneralContractsParameter
+from mavryk.types.mvk_token.storage import MvkTokenStorage
+from mavryk.types.mvk_token.parameter.update_general_contracts import UpdateGeneralContractsParameter
 import mavryk.models as models
 
 async def on_mvk_update_general_contracts(
     ctx: HandlerContext,
-    update_general_contracts: Transaction[UpdateGeneralContractsParameter, MvkStorage],
+    update_general_contracts: Transaction[UpdateGeneralContractsParameter, MvkTokenStorage],
 ) -> None:
 
     # Perists general contract
