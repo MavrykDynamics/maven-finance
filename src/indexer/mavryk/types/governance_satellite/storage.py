@@ -92,5 +92,5 @@ class GovernanceSatelliteStorage(BaseModel):
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
     mvkTokenAddress: str
-    satelliteOracleLedger: Dict[str, Dict[str, str]]
+    satelliteAggregatorLedger: Dict[str, Dict[str, str]]
     whitelistContracts: Dict[str, str]

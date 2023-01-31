@@ -8,18 +8,26 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Extra
 
 
-class Depositor(BaseModel):
+class DepositorsConfigItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
     any: Dict[str, Any]
 
 
-class Depositor1(BaseModel):
+class DepositorsConfigItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    whitelist: List[str]
+    whitelist: Dict[str, Any]
+
+
+class Depositors(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    whitelistedDepositors: List[str]
+    depositorsConfig: Union[DepositorsConfigItem, DepositorsConfigItem1]
 
 
 class CreateVaultParameter(BaseModel):
@@ -28,4 +36,4 @@ class CreateVaultParameter(BaseModel):
 
     delegate: Optional[str]
     loanTokenName: str
-    depositors: Union[Depositor, Depositor1]
+    depositors: Depositors

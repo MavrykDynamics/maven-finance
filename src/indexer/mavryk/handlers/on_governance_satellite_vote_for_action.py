@@ -30,7 +30,7 @@ async def on_governance_satellite_vote_for_action(
         vote_type   = models.GovernanceVoteType.PASS
 
     # Votes execution results
-    satellite_oracle_ledger         = vote_for_action.storage.satelliteOracleLedger
+    satellite_aggregator_ledger     = vote_for_action.storage.satelliteAggregatorLedger
 
     # Create or update vote record
     governance              = await models.Governance.get(address   = governance_address)
@@ -66,9 +66,9 @@ async def on_governance_satellite_vote_for_action(
     await vote_record.save()
 
     # Save other personal executions
-    for oracle_address in satellite_oracle_ledger:
+    for oracle_address in satellite_aggregator_ledger:
         oracle                      = await models.mavryk_user_cache.get(address=oracle_address)
-        satellite_oracle_storage    = satellite_oracle_ledger[oracle_address]
+        satellite_oracle_storage    = satellite_aggregator_ledger[oracle_address]
         aggregators                 = satellite_oracle_storage
         satellite_oracle_record, _  = await models.GovernanceSatelliteOracle.get_or_create(
             governance_satellite    = governance_satellite,
