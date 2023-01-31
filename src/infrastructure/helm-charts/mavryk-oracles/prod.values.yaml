@@ -52,11 +52,11 @@ image:
   pullSecret: docker-pull-credentials
   registry: docker.io
   repository: mavrykdynamics/mavryk-oracle
-  tag: v0.1.4
+  tag: v0.1.5
   pullPolicy: Always
 
 aggregatorsAddresses:
-- KT1GFjeSj2iBtqW8S1iSfLNhLkJKTWYSBhAP
-- KT1CjRdWNttthPGSTtJEj8Se8DtdTjrAR7Wh
-- KT1N7vwVSiv91QPk1MTgvXLGZ7NuANDEFoXJ
-- KT1AaSbk1oqkf4HEigVp3KXzsN9Zh41VMvUn
+  - KT19YSL9nPCiKFMfFnQD54X6yQF89Awzqyqg
+  - KT1CqqzaopWu4CWAXfV61ZNhKR7A1ysCwMgo
+  - KT1EBBZPVJLzeiTd2rm8Qb9o7GzbEV3Y3d8h
+  - KT1TNxevgVDnVifCguTEVqsj8cDP9wLUoF4g
