@@ -1,13 +1,13 @@
 
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
-from mavryk.types.mvk.storage import MvkStorage
-from mavryk.types.mvk.parameter.update_operators import UpdateOperatorsParameter
+from mavryk.types.mvk_token.storage import MvkTokenStorage
+from mavryk.types.mvk_token.parameter.update_operators import UpdateOperatorsParameter
 import mavryk.models as models
 
 async def on_mvk_update_operators(
     ctx: HandlerContext,
-    update_operators: Transaction[UpdateOperatorsParameter, MvkStorage],
+    update_operators: Transaction[UpdateOperatorsParameter, MvkTokenStorage],
 ) -> None:
 
     # Get operation values
