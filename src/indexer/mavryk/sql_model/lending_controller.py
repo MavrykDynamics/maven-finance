@@ -106,7 +106,7 @@ class LendingControllerCollateralToken(Model):
     is_staked_token                         = fields.BooleanField(default=False, index=True)
     staking_contract_address                = fields.CharField(max_length=36, null=True)
     total_deposited                         = fields.FloatField(default=0.0)
-    max_deposited_amount                    = fields.FloatField(null=True)
+    max_deposit_amount                      = fields.FloatField(null=True)
     token_name                              = fields.CharField(max_length=36, default="")
     token_contract_standard                 = fields.CharField(max_length=4, default="")
     paused                                  = fields.BooleanField(default=False, index=True)

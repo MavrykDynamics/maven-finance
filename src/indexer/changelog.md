@@ -30,7 +30,7 @@
   - Column is_staked_token added
   - Column staking_contract_address added
   - Column total_deposited added
-  - Column max_deposited_amount added
+  - Column max_deposit_amount added
   - Column paused added
 - LendingControllerLoanToken
   - Column paused added
