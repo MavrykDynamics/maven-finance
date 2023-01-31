@@ -5,7 +5,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.25.1
+        tag: v0.28.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -53,7 +53,7 @@ instances:
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.13.2
+        tag: v2.15.2
       hpa:
         enabled: false
       resources:
@@ -77,7 +77,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.25.1
+        tag: v0.28.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -152,7 +152,7 @@ instances:
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.13.2
+        tag: v2.15.2
       hpa:
         enabled: true
       resources:
@@ -176,7 +176,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.25.1
+        tag: v0.28.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -251,7 +251,7 @@ instances:
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.13.2
+        tag: v2.15.2
       hpa:
         enabled: true
       resources:

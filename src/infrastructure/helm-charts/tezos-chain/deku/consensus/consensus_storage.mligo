@@ -8,7 +8,6 @@
       ("tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n": key_hash);
       ("tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq": key_hash);
       ("tz1SDg2Wah3wBHFwCK5gYV591BhpLWZTWX42": key_hash);
-      ("tz1PPLFcQyechtAm9XRZWRnMEXJ8NsXUNGdS": key_hash);
     ];
   };
   vault = {
