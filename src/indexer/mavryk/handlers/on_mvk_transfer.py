@@ -1,13 +1,13 @@
 
-from mavryk.types.mvk.parameter.transfer import TransferParameter
+from mavryk.types.mvk_token.parameter.transfer import TransferParameter
 from dipdup.context import HandlerContext
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 from dipdup.models import Transaction
 import mavryk.models as models
 
 async def on_mvk_transfer(
     ctx: HandlerContext,
-    transfer: Transaction[TransferParameter, MvkStorage],
+    transfer: Transaction[TransferParameter, MvkTokenStorage],
 ) -> None:
 
     # Get transfer batch
