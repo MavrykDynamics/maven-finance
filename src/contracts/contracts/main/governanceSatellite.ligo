@@ -74,7 +74,6 @@ type governanceSatelliteAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction       of (bytes)
-    |   DataPackingHelper             of governanceSatelliteLambdaActionType
     |   SetLambda                     of setLambdaType
 
 
@@ -112,6 +111,13 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 
 // GovernanceSatellite Entrypoints:
 #include "../partials/contractEntrypoints/governanceSatelliteEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// GovernanceSatellite Meta Lambdas :
+#include "../partials/contractMetaLambdas/governanceSatelliteMetaLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -158,7 +164,6 @@ block{
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)             -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                     -> setLambda(parameters, s)
     ]
 )

@@ -42,5 +42,17 @@
 	{
 		"index": 10,
 		"name": "lambdaCreateVault"
+	},
+	{
+		"index": 11,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 12,
+		"name": "lambdaSetLambda"
+	},
+	{
+		"index": 13,
+		"name": "lambdaSetProductLambda"
 	}
 ]

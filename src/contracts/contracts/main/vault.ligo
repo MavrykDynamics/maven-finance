@@ -50,7 +50,6 @@ type vaultActionType is
   
         // Lambda Entrypoints
     |   ExecuteGovernanceAction         of (bytes)
-    |   DataPackingHelper               of vaultLambdaActionType
     |   SetLambda                       of setLambdaType
 
 const noOperations : list (operation) = nil;
@@ -89,6 +88,13 @@ type vaultUnpackLambdaFunctionType is (vaultLambdaActionType * vaultStorageType)
 #include "../partials/contractEntrypoints/vaultEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Vault Meta Lambdas :
+#include "../partials/contractMetaLambdas/vaultMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -114,7 +120,6 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)          -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)                -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                        -> setLambda(parameters, s)    
 
     ]

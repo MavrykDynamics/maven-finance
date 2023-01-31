@@ -259,44 +259,17 @@ block{
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : farmFactoryStorageType) : return is
 block{
     
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
 
-    // // Fourth Way
-    const executeGovernanceAction : farmFactoryLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(farmFactoryLambdaActionType)) of [
-            Some(_action) -> _action
-        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    ];
+    // init farm factory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
 
-    const response : return = case executeGovernanceAction of [
-      
-            // Housekeeping
-        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
-        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
-        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
-        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
 
-            // Pause / Break Glass Entrypoints
-        |   LambdaPauseAll(_parameters)                 -> pauseAll(s)
-        |   LambdaUnpauseAll(_parameters)               -> unpauseAll(s)
-        |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
-
-            // Farm Factory Entrypoints
-        |   LambdaCreateFarm(parameters)                 -> createFarm(parameters, s)
-        |   LambdaTrackFarm(parameters)                  -> trackFarm(parameters, s)
-        |   LambdaUntrackFarm(parameters)                -> untrackFarm(parameters, s)
-    ];
 
 } with (response)
-
-
-
-(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataPackingHelper(const _executeGovernanceAction : farmFactoryLambdaActionType; const s : farmFactoryStorageType) : return is 
-    (noOperations, s)
 
 
 

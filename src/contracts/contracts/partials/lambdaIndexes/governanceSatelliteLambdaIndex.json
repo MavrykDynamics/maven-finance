@@ -70,5 +70,13 @@
 	{
 		"index": 17,
 		"name": "lambdaDropAction"
+	},
+	{
+		"index": 18,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 19,
+		"name": "lambdaSetLambda"
 	}
 ]

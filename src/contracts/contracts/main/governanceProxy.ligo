@@ -171,6 +171,7 @@ block {
         |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Main entrypoints
+        |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)
         |   ProcessGovernanceAction(parameters)       -> processGovernanceAction(parameters, s)
 
             // Lambda Entrypoints

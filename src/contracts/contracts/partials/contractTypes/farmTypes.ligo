@@ -115,6 +115,9 @@ type farmLambdaActionType is
     |   LambdaWithdraw                    of nat
     |   LambdaClaim                       of address
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction     of (bytes)
+    |   LambdaSetLambda                   of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage

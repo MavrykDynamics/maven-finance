@@ -36,6 +36,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   VaultHelper                     of vaultLambdaActionType
+    |   Empty                           of (unit)
     
 
 const noOperations : list (operation) = nil;
@@ -48,10 +49,12 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-
 function vaultHelper(const _governanceAction : vaultLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -72,6 +75,7 @@ block {
             
             // Main entrypoints
         |   VaultHelper(parameters)                 -> vaultHelper(parameters, s)   
+        |   Empty(_parameters)                      -> empty(s)
 
     ]
 )

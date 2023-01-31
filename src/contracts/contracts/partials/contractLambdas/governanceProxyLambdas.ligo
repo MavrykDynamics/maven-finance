@@ -192,6 +192,10 @@ block {
             (* MVK Token Control *)
         |   UpdateMvkInflationRate (_v)            -> 15n
         |   TriggerMvkInflation (_v)               -> 16n
+
+            (* Meta Lambda Control *)
+        |   SetLambda (_v)                         -> 17n
+        |   SetProductLambda (_v)                  -> 18n
     ];
 
     // Get entrypoint lambda as bytes

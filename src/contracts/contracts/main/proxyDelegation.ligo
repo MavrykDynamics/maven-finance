@@ -41,7 +41,8 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   DelegationHelper                of delegationLambdaActionType
+    |   DelegationHelper            of delegationLambdaActionType
+    |   Empty                       of (unit)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -54,6 +55,10 @@ type return is list (operation) * proxyHelperStorageType
 // ------------------------------------------------------------------------------
 
 function delegationHelper(const _governanceAction : delegationLambdaActionType; const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
+
+
+function empty(const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
 // ------------------------------------------------------------------------------
@@ -74,6 +79,7 @@ block {
     case action of [
             
             // Main entrypoints
-        |   DelegationHelper(parameters)            -> delegationHelper(parameters, s)
+        |   DelegationHelper(parameters)     -> delegationHelper(parameters, s)
+        |   Empty(_parameters)               -> empty(s)
     ]
 )

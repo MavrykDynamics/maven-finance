@@ -71,6 +71,10 @@ type treasuryLambdaActionType is
     |   LambdaStakeMvk                       of (nat)
     |   LambdaUnstakeMvk                     of (nat)
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction        of (bytes)
+    |   LambdaSetLambda                      of setLambdaType
+
 
 // ------------------------------------------------------------------------------
 // Storage

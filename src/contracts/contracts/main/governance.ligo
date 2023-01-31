@@ -31,9 +31,6 @@
 // Governance Type
 #include "../partials/contractTypes/governanceTypes.ligo"
 
-// Governance Proxy Type
-#include "../partials/contractTypes/governanceProxyTypes.ligo"
-
 // ------------------------------------------------------------------------------
 
 type governanceAction is 

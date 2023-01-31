@@ -70,7 +70,6 @@ type treasuryFactoryAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction             of (bytes)
-    |   DataPackingHelper                   of treasuryFactoryLambdaActionType
     |   SetLambda                           of setLambdaType
     |   SetProductLambda                    of setLambdaType
 
@@ -111,6 +110,13 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 #include "../partials/contractEntrypoints/treasuryFactoryEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// TreasuryFactory Meta Lambdas :
+#include "../partials/contractMetaLambdas/treasuryFactoryMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -145,7 +151,6 @@ block{
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)               -> dataPackingHelper(parameters, s)
         |   SetLambda (params)                          -> setLambda(params, s)
         |   SetProductLambda (params)                   -> setProductLambda(params, s)
     ]

@@ -35,7 +35,8 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   CouncilHelper                   of councilLambdaActionType
+    |   CouncilHelper               of councilLambdaActionType
+    |   Empty                       of (unit)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -48,6 +49,10 @@ type return is list (operation) * proxyHelperStorageType
 // ------------------------------------------------------------------------------
 
 function councilHelper(const _governanceAction : councilLambdaActionType; const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
+
+
+function empty(const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
 // ------------------------------------------------------------------------------
@@ -68,7 +73,8 @@ block {
     case action of [
             
             // Main entrypoints
-        |   CouncilHelper(parameters)               -> councilHelper(parameters, s)
+        |   CouncilHelper(parameters)        -> councilHelper(parameters, s)
+        |   Empty(_parameters)               -> empty(s)
         
     ]
 )

@@ -198,32 +198,16 @@ block {
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : vaultStorageType) : return is
 block{
     
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
 
-    // // Fourth Way
-    const executeGovernanceAction : vaultLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(vaultLambdaActionType)) of [
-            Some(_action) -> _action
-        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    ];
+    // init vault lambda action
+    const vaultLambdaAction : vaultLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
 
-    const response : return = case executeGovernanceAction of [
-      
-            // Housekeeping
-        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
-        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
-        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-
-        |   _                                           -> (nil, s)
-    ];
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
 
 } with (response)
-
-
-
-(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataPackingHelper(const _executeGovernanceAction : vaultLambdaActionType; const s : vaultStorageType) : return is 
-    (noOperations, s)
 
 
 

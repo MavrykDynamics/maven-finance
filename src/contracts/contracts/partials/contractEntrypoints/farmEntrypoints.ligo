@@ -320,46 +320,16 @@ block{
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : farmStorageType) : return is
 block{
     
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
 
-    // // Fourth Way
-    const executeGovernanceAction : farmLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(farmLambdaActionType)) of [
-            Some(_action) -> _action
-        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
 
-    const response : return = case executeGovernanceAction of [
-      
-            // Housekeeping
-        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
-        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
-        |   LambdaSetName(parameters)                   -> setName(parameters, s)
-        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
-        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-
-            // Farm
-        |   LambdaInitFarm (parameters)                 -> initFarm(parameters, s)
-        |   LambdaCloseFarm(parameters)                 -> closeFarm(parameters, s)
-
-            // Pause / Break Glass Entrypoints
-        |   LambdaPauseAll(_parameters)                 -> pauseAll(s)
-        |   LambdaUnpauseAll(_parameters)               -> unpauseAll(s)
-        |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
-
-        |   _                                           -> (nil, s)
-    ];
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);
 
 } with (response)
-
-
-
-(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataPackingHelper(const _executeGovernanceAction : farmLambdaActionType; const s : farmStorageType) : return is 
-    (noOperations, s)
 
 
 

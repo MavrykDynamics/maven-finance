@@ -38,5 +38,13 @@
 	{
 		"index": 9,
 		"name": "lambdaDropEmergencyGovernance"
+	},
+	{
+		"index": 10,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 11,
+		"name": "lambdaSetLambda"
 	}
 ]

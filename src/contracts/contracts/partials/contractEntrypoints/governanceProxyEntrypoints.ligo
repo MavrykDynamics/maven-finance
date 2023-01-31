@@ -167,19 +167,19 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setProxyLambda entrypoint *)
-function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceProxyStorageType) : return is 
-block {
+// function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceProxyStorageType) : return is 
+// block {
     
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
     
-    // assign params to constants for better code readability
-    const lambdaId      = setProxyLambdaParams.id;
-    const lambdaBytes   = setProxyLambdaParams.func_bytes;
+//     // assign params to constants for better code readability
+//     const lambdaId      = setProxyLambdaParams.id;
+//     const lambdaBytes   = setProxyLambdaParams.func_bytes;
 
-    // set lambda in lambdaLedger - allow override of lambdas
-    s.proxyLambdaLedger[lambdaId] := lambdaBytes;
+//     // set lambda in lambdaLedger - allow override of lambdas
+//     s.proxyLambdaLedger[lambdaId] := lambdaBytes;
 
-} with (noOperations, s)
+// } with (noOperations, s)
 
 
 

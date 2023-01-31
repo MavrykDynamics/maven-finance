@@ -86,6 +86,10 @@ type emergencyGovernanceLambdaActionType is
     |   LambdaVoteForEmergencyControl   of (unit)
     |   LambdaDropEmergencyGovernance   of (unit)
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction     of (bytes)
+    |   LambdaSetLambda                   of setLambdaType
+
 
 // ------------------------------------------------------------------------------
 // Storage

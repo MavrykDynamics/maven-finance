@@ -47,16 +47,29 @@ type EmergencyGovernanceContractAbstraction<T extends ContractProvider | Wallet 
 
 
 export const setEmergencyGovernanceLambdas = async (tezosToolkit: TezosToolkit, contract: EmergencyGovernanceContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in emergencyGovernanceLambdas) {
-        let bytes   = emergencyGovernanceLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(emergencyGovernanceLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in emergencyGovernanceLambdas) {
+            let bytes   = emergencyGovernanceLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupDelegationLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
+
     }
-
-    const setupEmergencyGovernanceLambdasOperation = await batch.send()
-    await confirmOperation(tezosToolkit, setupEmergencyGovernanceLambdasOperation.opHash);
 };
 
 

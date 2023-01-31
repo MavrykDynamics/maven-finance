@@ -80,6 +80,7 @@ type lendingControllerAction is
     |   ExecuteGovernanceAction         of (bytes)
     |   SetLambda                       of setLambdaType
 
+
 const noOperations : list (operation) = nil;
 type return is list (operation) * lendingControllerStorageType
 
@@ -103,6 +104,13 @@ type lendingControllerUnpackLambdaFunctionType is (lendingControllerLambdaAction
 #include "../partials/contractHelpers/lendingControllerHelpers.ligo"
 
 // ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Lending Controller Lambdas :
+#include "../partials/contractLambdas/lendingControllerLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
@@ -110,11 +118,11 @@ type lendingControllerUnpackLambdaFunctionType is (lendingControllerLambdaAction
 #include "../partials/contractEntrypoints/lendingControllerEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
+// Meta Lambdas
 // ------------------------------------------------------------------------------
 
-// Lending Controller Lambdas :
-#include "../partials/contractLambdas/lendingControllerLambdas.ligo"
+// Lending Controller Meta Lambdas :
+#include "../partials/contractMetaLambdas/lendingControllerMetaLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 

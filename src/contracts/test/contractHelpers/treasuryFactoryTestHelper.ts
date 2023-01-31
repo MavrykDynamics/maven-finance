@@ -52,29 +52,55 @@ type TreasuryFactoryContractAbstraction<T extends ContractProvider | Wallet = an
 
 
 export const setTreasuryFactoryLambdas = async (tezosToolkit: TezosToolkit, contract: TreasuryFactoryContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in treasuryFactoryLambdas) {
-        let bytes   = treasuryFactoryLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(treasuryFactoryLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in treasuryFactoryLambdas) {
+            let bytes   = treasuryFactoryLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupDelegationLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
+
     }
-
-    const op = await batch.send()
-    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export const setTreasuryFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: TreasuryFactoryContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in treasuryLambdas) {
-        let bytes   = treasuryLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(treasuryLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in treasuryLambdas) {
+            let bytes   = treasuryLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
-
-    const op = await batch.send()
-    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export class TreasuryFactory {

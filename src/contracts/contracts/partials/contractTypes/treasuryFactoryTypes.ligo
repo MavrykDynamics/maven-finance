@@ -57,6 +57,7 @@ type treasuryFactoryLambdaActionType is
     |   LambdaSetGovernance                       of (address)
     |   LambdaUpdateMetadata                      of updateMetadataType
     |   LambdaUpdateConfig                        of treasuryFactoryUpdateConfigParamsType
+    
     |   LambdaUpdateWhitelistContracts            of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts              of updateGeneralContractsType
     |   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsType
@@ -71,6 +72,11 @@ type treasuryFactoryLambdaActionType is
     |   LambdaCreateTreasury                      of createTreasuryType
     |   LambdaTrackTreasury                       of address
     |   LambdaUntrackTreasury                     of address
+
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction             of (bytes)
+    |   LambdaSetLambda                           of setLambdaType
+    |   LambdaSetProductLambda                    of setLambdaType
 
 
 // ------------------------------------------------------------------------------

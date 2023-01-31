@@ -50,5 +50,17 @@
 	{
 		"index": 12,
 		"name": "lambdaUntrackFarm"
+	},
+	{
+		"index": 13,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 14,
+		"name": "lambdaSetLambda"
+	},
+	{
+		"index": 15,
+		"name": "lambdaSetProductLambda"
 	}
 ]

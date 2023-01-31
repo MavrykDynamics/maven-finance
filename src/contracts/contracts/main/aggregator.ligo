@@ -76,7 +76,6 @@ type aggregatorAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction              of (bytes)
-    |   DataPackingHelper                    of aggregatorLambdaActionType
     |   SetLambda                            of setLambdaType
   
 
@@ -114,6 +113,13 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 
 // Aggregator Entrypoints:
 #include "../partials/contractEntrypoints/aggregatorEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Aggregator Meta Lambdas :
+#include "../partials/contractMetaLambdas/aggregatorMetaLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -156,7 +162,6 @@ block {
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)             -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)                   -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                          -> setLambda(parameters, s)
     ]
 );

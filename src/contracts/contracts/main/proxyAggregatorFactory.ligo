@@ -42,6 +42,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   AggregatorFactoryHelper         of aggregatorFactoryLambdaActionType
+    |   Empty                           of (unit)
 
 
 const noOperations : list (operation) = nil;
@@ -57,6 +58,9 @@ type return is list (operation) * proxyHelperStorageType
 function aggregatorFactoryHelper(const _governanceAction : aggregatorFactoryLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -77,5 +81,6 @@ block {
             
             // Main entrypoints
         |   AggregatorFactoryHelper(parameters)     -> aggregatorFactoryHelper(parameters, s)   
+        |   Empty(_parameters)                      -> empty(s)
     ]
 )

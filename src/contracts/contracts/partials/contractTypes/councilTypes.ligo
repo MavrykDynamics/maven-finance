@@ -133,6 +133,9 @@ type councilLambdaActionType is
     |   LambdaFlushAction                           of actionIdType
     |   LambdaSignAction                            of actionIdType 
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction               of (bytes)
+    |   LambdaSetLambda                             of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage

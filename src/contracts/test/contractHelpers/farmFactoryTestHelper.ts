@@ -70,29 +70,56 @@ type FarmFactoryContractAbstraction<T extends ContractProvider | Wallet = any> =
 
 
 export const setFarmFactoryLambdas = async (tezosToolkit: TezosToolkit, contract: FarmFactoryContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in farmFactoryLambdas) {
-        let bytes   = farmFactoryLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(farmFactoryLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in farmFactoryLambdas) {
+            let bytes   = farmFactoryLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupDelegationLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
+
     }
-
-  const op = await batch.send()
-  await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export const setFarmFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: FarmFactoryContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in farmLambdas) {
-        let bytes   = farmLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(farmLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in farmLambdas) {
+            let bytes   = farmLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
 
-    const op = await batch.send()
-    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 

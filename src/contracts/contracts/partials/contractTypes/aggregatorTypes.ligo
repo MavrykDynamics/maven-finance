@@ -136,6 +136,10 @@ type aggregatorLambdaActionType is
     |   LambdaWithdrawRewardXtz             of withdrawRewardXtzType
     |   LambdaWithdrawRewardStakedMvk       of withdrawRewardStakedMvkType
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction       of (bytes)
+    |   LambdaSetLambda                     of setLambdaType
+
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -223,41 +223,16 @@ block {
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : vestingStorageType) : return is
 block{
     
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
 
-    // // Fourth Way
-    const executeGovernanceAction : vestingLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(vestingLambdaActionType)) of [
-            Some(_action) -> _action
-        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
 
-    const response : return = case executeGovernanceAction of [
-      
-            // Housekeeping
-        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
-        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
-        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-
-            // Internal Vestee Control Entrypoints
-        |   LambdaAddVestee(parameters)                 -> addVestee(parameters, s)
-        |   LambdaRemoveVestee(parameters)              -> removeVestee(parameters, s)
-        |   LambdaUpdateVestee(parameters)              -> updateVestee(parameters, s)
-        |   LambdaToggleVesteeLock(parameters)          -> toggleVesteeLock(parameters, s)
-        
-        |   _                                           -> (nil, s)
-    ];
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);
 
 } with (response)
-
-
-
-(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataPackingHelper(const _executeGovernanceAction : vestingLambdaActionType; const s : vestingStorageType) : return is 
-    (noOperations, s)
 
 
 

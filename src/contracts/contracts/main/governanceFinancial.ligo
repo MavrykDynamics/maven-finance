@@ -66,7 +66,6 @@ type governanceFinancialAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction         of (bytes)
-    |   DataPackingHelper               of governanceFinancialLambdaActionType
     |   SetLambda                       of setLambdaType
 
 
@@ -106,6 +105,13 @@ type governanceUnpackLambdaFunctionType is (governanceFinancialLambdaActionType 
 #include "../partials/contractEntrypoints/governanceFinancialEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// GovernanceFinancial Contract Meta Lambdas :
+#include "../partials/contractMetaLambdas/governanceFinancialMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -132,7 +138,6 @@ function main (const action : governanceFinancialAction; const s : governanceFin
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)               -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                       -> setLambda(parameters, s)
 
     ]

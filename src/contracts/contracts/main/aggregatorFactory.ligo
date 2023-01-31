@@ -73,7 +73,6 @@ type aggregatorFactoryAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction         of (bytes)
-    |   DataPackingHelper               of aggregatorFactoryLambdaActionType
     |   SetLambda                       of setLambdaType
     |   SetProductLambda                of setLambdaType
     
@@ -114,6 +113,13 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 #include "../partials/contractEntrypoints/aggregatorFactoryEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// AggregatorFactory Meta Lambdas:
+#include "../partials/contractMetaLambdas/aggregatorFactoryMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -150,7 +156,6 @@ block{
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                        -> setLambda(parameters, s)
         |   SetProductLambda (parameters)                 -> setProductLambda(parameters, s)
     ]

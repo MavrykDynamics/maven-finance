@@ -36,7 +36,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   GovernanceSatelliteHelper       of governanceSatelliteLambdaActionType
-    
+    |   Empty                           of (unit)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -49,6 +49,10 @@ type return is list (operation) * proxyHelperStorageType
 // ------------------------------------------------------------------------------
 
 function governanceSatelliteHelper(const _governanceAction : governanceSatelliteLambdaActionType; const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
+
+
+function empty(const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
 // ------------------------------------------------------------------------------
@@ -70,6 +74,7 @@ block {
             
             // Main entrypoints
         |   GovernanceSatelliteHelper(parameters)   -> governanceSatelliteHelper(parameters, s)   
+        |   Empty(_parameters)                      -> empty(s)
 
     ]
 )

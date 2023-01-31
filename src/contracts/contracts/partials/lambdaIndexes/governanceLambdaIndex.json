@@ -94,5 +94,13 @@
 	{
 		"index": 23,
 		"name": "lambdaDropProposal"
+	},
+	{
+		"index": 24,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 25,
+		"name": "lambdaSetLambda"
 	}
 ]

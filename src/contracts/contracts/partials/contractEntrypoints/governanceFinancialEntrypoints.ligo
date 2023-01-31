@@ -250,37 +250,16 @@ block {
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceFinancialStorageType) : return is
 block{
     
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
 
-    // // Fourth Way
-    const executeGovernanceAction : governanceFinancialLambdaActionType = case (Bytes.unpack(governanceActionBytes) : option(governanceFinancialLambdaActionType)) of [
-            Some(_action) -> _action
-        |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
-    ];
+    // init governanceFinancial lambda action
+    const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
 
-    const response : return = case executeGovernanceAction of [
-      
-            // Housekeeping
-        |   LambdaSetAdmin (parameters)                 -> setAdmin(parameters, s)
-        |   LambdaSetGovernance(parameters)             -> setGovernance(parameters, s)
-        |   LambdaUpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-        |   LambdaUpdateConfig(parameters)              -> updateConfig(parameters, s)
-        |   LambdaUpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-        |   LambdaUpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-        |   LambdaUpdateWhitelistTokens(parameters)     -> updateWhitelistTokenContracts(parameters, s)
-        |   LambdaMistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-
-        |   _                                           -> (nil, s)
-    ];
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);
 
 } with (response)
-
-
-
-(* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
-function dataPackingHelper(const _executeGovernanceAction : governanceFinancialLambdaActionType; const s : governanceFinancialStorageType) : return is 
-    (noOperations, s)
 
 
 

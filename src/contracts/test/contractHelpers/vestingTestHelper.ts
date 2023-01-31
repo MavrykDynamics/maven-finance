@@ -47,16 +47,29 @@ type VestingContractAbstraction<T extends ContractProvider | Wallet = any> = Con
 
 
 export const setVestingLambdas = async (tezosToolkit: TezosToolkit, contract: VestingContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in vestingLambdas) {
-        let bytes   = vestingLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(vestingLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in vestingLambdas) {
+            let bytes   = vestingLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupDelegationLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
+
     }
-
-    const setupVestingLambdasOperation = await batch.send()
-    await confirmOperation(tezosToolkit, setupVestingLambdasOperation.opHash);
 };
 
 

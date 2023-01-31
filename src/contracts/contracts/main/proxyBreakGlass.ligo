@@ -38,7 +38,8 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   BreakGlassHelper                of breakGlassLambdaActionType
+    |   BreakGlassHelper            of breakGlassLambdaActionType
+    |   Empty                       of (unit)
 
 
 const noOperations : list (operation) = nil;
@@ -55,6 +56,9 @@ type return is list (operation) * proxyHelperStorageType
 function breakGlassHelper(const _governanceAction : breakGlassLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -74,7 +78,8 @@ block {
     case action of [
             
             // Main entrypoints
-        |   BreakGlassHelper(parameters)            -> breakGlassHelper(parameters, s)
+        |   BreakGlassHelper(parameters)     -> breakGlassHelper(parameters, s)
+        |   Empty(_parameters)               -> empty(s)
 
     ]
 )

@@ -52,29 +52,55 @@ type VaultFactoryContractAbstraction<T extends ContractProvider | Wallet = any> 
 
 
 export const setVaultFactoryLambdas = async (tezosToolkit: TezosToolkit, contract: VaultFactoryContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in vaultFactoryLambdas) {
-        let bytes   = vaultFactoryLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(vaultFactoryLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in vaultFactoryLambdas) {
+            let bytes   = vaultFactoryLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupDelegationLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
+
     }
-
-  const op = await batch.send()
-  await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export const setVaultFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: VaultFactoryContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in vaultLambdas) {
-        let bytes   = vaultLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(vaultLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in vaultLambdas) {
+            let bytes   = vaultLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
-
-    const op = await batch.send()
-    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 
@@ -106,7 +132,7 @@ export class VaultFactory {
         const artifacts: any = JSON.parse(
             fs.readFileSync(`${env.buildDir}/vaultFactory.json`).toString()
         );
-        console.log(`${JSON.stringify(artifacts, null, 4)}`);
+        
         const operation: OriginationOperation = await tezos.contract
             .originate({
                 code: artifacts.michelson,

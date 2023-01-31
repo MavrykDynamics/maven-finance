@@ -47,17 +47,29 @@ type AggregatorContractAbstraction<T extends ContractProvider | Wallet = any> = 
 
 
 export const setAggregatorLambdas = async (tezosToolkit: TezosToolkit, contract: AggregatorContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in aggregatorLambdas) {
-        let bytes   = aggregatorLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(aggregatorLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in aggregatorLambdas) {
+            let bytes   = aggregatorLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
-
-    const setupAggregatorLambdasOperation = await batch.send()
-
-    await confirmOperation(tezosToolkit, setupAggregatorLambdasOperation.opHash);
 };
 
 export class Aggregator {

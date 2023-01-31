@@ -47,16 +47,29 @@ type BreakGlassContractAbstraction<T extends ContractProvider | Wallet = any> = 
 
 
 export const setBreakGlassLambdas = async (tezosToolkit: TezosToolkit, contract: BreakGlassContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in breakGlassLambdas) {
-        let bytes   = breakGlassLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(breakGlassLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in breakGlassLambdas) {
+            let bytes   = breakGlassLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
-
-    const setupBreakGlassLambdasOperation = await batch.send()
-    await confirmOperation(tezosToolkit, setupBreakGlassLambdasOperation.opHash);
 };
 
 export class BreakGlass {

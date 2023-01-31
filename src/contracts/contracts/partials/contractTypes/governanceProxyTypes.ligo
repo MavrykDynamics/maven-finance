@@ -134,6 +134,9 @@ type executeGovernanceActionType is
     |   UpdateMvkInflationRate             of (nat)
     |   TriggerMvkInflation                of (unit)
 
+    // |   SetLambda                          of setLambdaType
+    // |   SetProductLambda                   of setLambdaType
+
 
 type governanceProxyLambdaActionType is 
 
@@ -150,6 +153,7 @@ type governanceProxyLambdaActionType is
     |   LambdaExecuteGovernanceAction         of (bytes)
     |   LambdaProcessGovernanceAction         of processGovernanceActionType
 
+    |   LambdaSetLambda                       of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage

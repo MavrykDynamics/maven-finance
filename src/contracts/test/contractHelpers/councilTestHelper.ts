@@ -47,16 +47,29 @@ type CouncilContractAbstraction<T extends ContractProvider | Wallet = any> = Con
 
 
 export const setCouncilLambdas = async (tezosToolkit: TezosToolkit, contract: CouncilContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in councilLambdas) {
-        let bytes   = councilLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(councilLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in councilLambdas) {
+            let bytes   = councilLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
-
-    const setupCouncilLambdasOperation = await batch.send()
-    await confirmOperation(tezosToolkit, setupCouncilLambdasOperation.opHash);
 };
 
 export class Council {

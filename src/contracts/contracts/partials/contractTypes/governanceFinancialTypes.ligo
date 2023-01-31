@@ -98,6 +98,9 @@ type governanceFinancialLambdaActionType is
     |   LambdaDropFinancialRequest                  of (nat)
     |   LambdaVoteForRequest                        of voteForRequestType
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction               of (bytes)
+    |   LambdaSetLambda                             of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -71,6 +71,11 @@ type vaultFactoryLambdaActionType is
         // Vault Factory Entrypoints
     |   LambdaCreateVault                 of createVaultType
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction     of (bytes)
+    |   LambdaSetLambda                   of setLambdaType
+    |   LambdaSetProductLambda            of setLambdaType
+
 
 // ------------------------------------------------------------------------------
 // Storage

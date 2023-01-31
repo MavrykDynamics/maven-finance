@@ -36,6 +36,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   VestingHelper                   of vestingLambdaActionType
+    |   Empty                           of (unit)
     
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -49,7 +50,11 @@ type return is list (operation) * proxyHelperStorageType
 
 function vestingHelper(const _governanceAction : vestingLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
-    
+
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
+
 // ------------------------------------------------------------------------------
 //
 // Entrypoints End
@@ -69,6 +74,6 @@ block {
             
             // Main entrypoints
         |   VestingHelper(parameters)               -> vestingHelper(parameters, s)
-        
+        |   Empty(_parameters)                      -> empty(s)
     ]
 )

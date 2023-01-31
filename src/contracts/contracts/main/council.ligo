@@ -79,7 +79,6 @@ type councilAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction                     of (bytes)
-    |   DataPackingHelper                           of councilLambdaActionType
     |   SetLambda                                   of setLambdaType
 
 
@@ -117,6 +116,13 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 
 // Council Entrypoints:
 #include "../partials/contractEntrypoints/councilEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Council Meta Lambdas:
+#include "../partials/contractMetaLambdas/councilMetaLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -163,6 +169,5 @@ function main (const action : councilAction; const s : councilStorageType) : ret
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)
     ]

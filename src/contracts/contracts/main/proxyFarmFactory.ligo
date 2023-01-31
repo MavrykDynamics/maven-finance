@@ -40,6 +40,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   FarmFactoryHelper               of farmFactoryLambdaActionType
+    |   Empty                           of (unit)
 
     
 const noOperations : list (operation) = nil;
@@ -56,6 +57,9 @@ type return is list (operation) * proxyHelperStorageType
 function farmFactoryHelper(const _governanceAction : farmFactoryLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -76,6 +80,6 @@ block {
             
             // Main entrypoints
         |   FarmFactoryHelper(parameters)           -> farmFactoryHelper(parameters, s)   
-
+        |   Empty(_parameters)                      -> empty(s)
     ]
 )

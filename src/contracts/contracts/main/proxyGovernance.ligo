@@ -36,6 +36,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   GovernanceHelper                of governanceLambdaActionType
+    |   Empty                           of (unit)
     
 
 const noOperations : list (operation) = nil;
@@ -49,6 +50,10 @@ type return is list (operation) * proxyHelperStorageType
 // ------------------------------------------------------------------------------
 
 function governanceHelper(const _governanceAction : governanceLambdaActionType; const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
+
+
+function empty(const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
 // ------------------------------------------------------------------------------
@@ -70,6 +75,7 @@ block {
             
             // Main entrypoints
         |   GovernanceHelper(parameters)            -> governanceHelper(parameters, s)   
+        |   Empty(_parameters)                      -> empty(s)
     
     ]
 )

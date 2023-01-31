@@ -39,6 +39,9 @@ block {
                     |   LambdaSetContractAdmin(parameters)          -> setContractAdmin(parameters, s)
                     |   LambdaSetContractGovernance(parameters)     -> setContractGovernance(parameters, s)
 
+                        // Meta Lambda
+                    |   LambdaSetLambda(parameters)                 -> setLambda(parameters, s)
+
                     |   _                                           -> (nil, s)
                 ];
 

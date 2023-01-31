@@ -66,7 +66,6 @@ type farmFactoryAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction     of (bytes)
-    |   DataPackingHelper           of farmFactoryLambdaActionType
     |   SetLambda                   of setLambdaType
     |   SetProductLambda            of setLambdaType
 
@@ -107,6 +106,13 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 #include "../partials/contractEntrypoints/farmFactoryEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// FarmFactory Meta Lambdas:
+#include "../partials/contractMetaLambdas/farmFactoryMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -140,7 +146,6 @@ block{
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)           -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                  -> setLambda(parameters, s)
         |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
     ]

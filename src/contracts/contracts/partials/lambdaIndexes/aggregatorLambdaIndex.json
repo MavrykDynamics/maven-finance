@@ -66,5 +66,13 @@
 	{
 		"index": 16,
 		"name": "lambdaWithdrawRewardStakedMvk"
+	},
+	{
+		"index": 17,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 18,
+		"name": "lambdaSetLambda"
 	}
 ]

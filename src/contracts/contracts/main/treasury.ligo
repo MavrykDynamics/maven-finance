@@ -60,7 +60,6 @@ type treasuryAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction        of (bytes)
-    |   DataPackingHelper              of treasuryLambdaActionType
     |   SetLambda                      of setLambdaType
 
 
@@ -100,6 +99,13 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 #include "../partials/contractEntrypoints/treasuryEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Treasury Meta Lambdas :
+#include "../partials/contractMetaLambdas/treasuryMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -135,6 +141,5 @@ function main (const action : treasuryAction; const s : treasuryStorageType) : r
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)           -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)                 -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                         -> setLambda(parameters, s)
     ]

@@ -78,5 +78,13 @@
 	{
 		"index": 19,
 		"name": "lambdaSignAction"
+	},
+	{
+		"index": 20,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 21,
+		"name": "lambdaSetLambda"
 	}
 ]

@@ -94,6 +94,10 @@ type aggregatorFactoryLambdaActionType is
     |   LambdaDistributeRewardXtz           of distributeRewardXtzType
     |   LambdaDistributeRewardStakedMvk     of distributeRewardStakedMvkType
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction       of (bytes)
+    |   LambdaSetLambda                     of setLambdaType
+    |   LambdaSetProductLambda              of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage

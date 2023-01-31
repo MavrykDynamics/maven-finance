@@ -39,6 +39,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   TreasuryHelper                  of treasuryLambdaActionType
+    |   Empty                           of (unit)
     
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -50,10 +51,12 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-
 function treasuryHelper(const _governanceAction : treasuryLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -74,6 +77,6 @@ block {
             
             // Main entrypoints
         |   TreasuryHelper(parameters)              -> treasuryHelper(parameters, s)   
-        
+        |   Empty(_parameters)                      -> empty(s)
     ]
 )

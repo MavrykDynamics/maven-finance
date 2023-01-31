@@ -45,7 +45,6 @@ type emergencyGovernanceAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction   of (bytes)
-    |   DataPackingHelper         of emergencyGovernanceLambdaActionType
     |   SetLambda                 of setLambdaType
 
 
@@ -85,6 +84,13 @@ type emergencyGovernanceUnpackLambdaFunctionType is (emergencyGovernanceLambdaAc
 #include "../partials/contractEntrypoints/emergencyGovernanceEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// EmergencyGovernance Meta Lambdas:
+#include "../partials/contractMetaLambdas/emergencyGovernanceMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 function main (const action : emergencyGovernanceAction; const s : emergencyGovernanceStorageType) : return is 
@@ -107,6 +113,5 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)   -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)         -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
     ]

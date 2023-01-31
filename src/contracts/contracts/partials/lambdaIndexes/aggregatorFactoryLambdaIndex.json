@@ -58,5 +58,17 @@
 	{
 		"index": 14,
 		"name": "lambdaDistributeRewardStakedMvk"
+	},
+	{
+		"index": 15,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 16,
+		"name": "lambdaSetLambda"
+	},
+	{
+		"index": 17,
+		"name": "lambdaSetProductLambda"
 	}
 ]

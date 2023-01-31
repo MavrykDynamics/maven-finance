@@ -86,31 +86,6 @@ type doormanTogglePauseEntrypointType is [@layout:comb] record [
 // Lambda Action Types
 // ------------------------------------------------------------------------------
 
-// type executeGovernanceActionType is
-
-//         // Housekeeping Lambdas
-//         GovSetAdmin                            of (address)
-//     |   GovSetGovernance                       of (address)
-//     |   GovUpdateMetadata                      of updateMetadataType
-//     |   GovUpdateConfig                        of doormanUpdateConfigParamsType
-//     |   GovUpdateWhitelistContracts            of updateWhitelistContractsType
-//     |   GovUpdateGeneralContracts              of updateGeneralContractsType
-//     |   GovMistakenTransfer                    of transferActionType
-//     |   GovMigrateFunds                        of (address)
-
-//         // Pause / Break Glass Lambdas
-//     |   GovPauseAll                            of (unit)
-//     |   GovUnpauseAll                          of (unit)
-//     |   GovTogglePauseEntrypoint               of doormanTogglePauseEntrypointType
-
-//         // Doorman Lambdas
-//     |   GovCompound                            of (address)
-
-// type executeGovernanceActionType is [@layout:comb] record [
-//     data            : bytes;
-//     entrypointName  : string;
-// ]
-
 type doormanLambdaActionType is 
 
         // Housekeeping Lambdas
@@ -139,7 +114,7 @@ type doormanLambdaActionType is
     |   LambdaOnVaultWithdrawStake        of onVaultWithdrawStakeType
     |   LambdaOnVaultLiquidateStake       of onVaultLiquidateStakeType
 
-        // Lambda
+        // Meta Lambdas
     |   LambdaExecuteGovernanceAction     of (bytes)
     |   LambdaSetLambda                   of setLambdaType
 

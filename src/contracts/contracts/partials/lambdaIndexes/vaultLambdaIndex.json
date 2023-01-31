@@ -37,6 +37,14 @@
 	},
 	{
 		"index": 9,
-		"name": "lambdaUpdateMvkOperators"
+		"name": "lambdaUpdateTokenOperators"
+	},
+	{
+		"index": 10,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 11,
+		"name": "lambdaSetLambda"
 	}
 ]

@@ -51,17 +51,29 @@ export type DoormanContractAbstraction<T extends ContractProvider | Wallet = any
 
 
 export const setDoormanLambdas = async (tezosToolkit: TezosToolkit, contract: DoormanContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
+    
+    const lambdasPerBatch = 7;
 
-    for (let lambdaName in doormanLambdas) {
-        let bytes   = doormanLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasCount = Object.keys(doormanLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in doormanLambdas) {
+            let bytes   = doormanLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupDoormanLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupDoormanLambdasOperation.opHash);
+
     }
-
-    const setupDoormanLambdasOperation = await batch.send()
-
-    await confirmOperation(tezosToolkit, setupDoormanLambdasOperation.opHash);
 };
 
 export class Doorman {

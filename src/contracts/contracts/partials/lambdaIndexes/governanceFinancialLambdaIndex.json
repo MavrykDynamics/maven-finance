@@ -50,5 +50,13 @@
 	{
 		"index": 12,
 		"name": "lambdaVoteForRequest"
+	},
+	{
+		"index": 13,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 14,
+		"name": "lambdaSetLambda"
 	}
 ]

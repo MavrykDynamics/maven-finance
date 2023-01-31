@@ -80,6 +80,9 @@ type vaultLambdaActionType is
     |   LambdaUpdateDepositor            of updateDepositorType
     |   LambdaUpdateTokenOperators       of updateTokenOperatorsType
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction    of (bytes)
+    |   LambdaSetLambda                  of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage Type

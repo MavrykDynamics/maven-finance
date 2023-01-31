@@ -14,6 +14,9 @@ chai.should();
 import env from "../env";
 import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
+import proxyDoormanAddress from '../deployments/proxyDoormanAddress.json';
+import proxyDelegationAddress from '../deployments/proxyDelegationAddress.json';
+
 import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
@@ -22,7 +25,7 @@ import mavrykFa2TokenAddress from '../deployments/mavrykFa2TokenAddress.json';
 
 import * as sharedTestHelper from "./helpers/sharedTestHelpers"
 
-describe("Execute Lambda tests", async () => {
+describe("Execute Governance Action Lambda tests", async () => {
 
     var utils : Utils;
     let rpc;
@@ -42,6 +45,9 @@ describe("Execute Lambda tests", async () => {
     let doormanXtzLedger
     let doormanMavrykFa12TokenLedger
     let doormanMavrykFa2TokenLedger
+
+    let proxyDoormanInstance;
+    let proxyDelegationInstance;
 
     let lambdaParams
     let packedData
@@ -67,6 +73,9 @@ describe("Execute Lambda tests", async () => {
         
         rpc = utils.tezos.rpc;
         
+        proxyDoormanInstance        = await utils.tezos.contract.at(proxyDoormanAddress.address);
+        proxyDelegationInstance     = await utils.tezos.contract.at(proxyDelegationAddress.address);
+
         doormanInstance             = await utils.tezos.contract.at(doormanAddress.address);
         delegationInstance          = await utils.tezos.contract.at(delegationAddress.address);
         mvkTokenInstance            = await utils.tezos.contract.at(mvkTokenAddress.address);
@@ -79,7 +88,7 @@ describe("Execute Lambda tests", async () => {
         mavrykFa12TokenStorage   = await mavrykFa12TokenInstance.storage();
         mavrykFa2TokenStorage    = await mavrykFa2TokenInstance.storage();
 
-        console.log('-- -- -- -- -- Execute Lambda Tests -- -- -- --')
+        console.log('-- -- -- -- -- Execute Governance Action Lambda Tests -- -- -- --')
         console.log('Doorman Contract deployed at:', doormanInstance.address);
         console.log('Delegation Contract deployed at:', delegationInstance.address);
         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
@@ -100,12 +109,26 @@ describe("Execute Lambda tests", async () => {
     
             // init variables
             await signerFactory(mallory.sk);
+
+            // const proxyDoormanContractParameterSchema = proxyDoormanInstance.parameterSchema.ExtractSchema();
+            // console.log(JSON.stringify(proxyDoormanContractParameterSchema,null,2));
+            // console.log(proxyDoormanInstance);
+
+            // console.log('------------')
+            // console.log('------------')
+            // console.log('------------')
+            // console.log('------------')
+            // console.log('------------')
+
+            // const contractParameterSchema = proxyDelegationInstance.parameterSchema.ExtractSchema();
+            // console.log(JSON.stringify(contractParameterSchema,null,2));
+            // console.log(proxyDelegationInstance);
             
-            const lambdaParams = doormanInstance.methods.dataPackingHelper(
+            const lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                 "lambdaSetAdmin", mallory.pkh
             ).toTransferParams();
             const packedDataValue = lambdaParams.parameter.value;
-            const packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+            const packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
             // pack data
             const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -138,11 +161,11 @@ describe("Execute Lambda tests", async () => {
                 ).toString('hex');
                 assert.notEqual(initialMetadata, newMetadata);
 
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateMetadata", key, newMetadata
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -161,11 +184,11 @@ describe("Execute Lambda tests", async () => {
                 // Reset test (for re-testability)
                 // ------------------------------
 
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateMetadata", key, initialMetadata
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -197,11 +220,11 @@ describe("Execute Lambda tests", async () => {
 
                 assert.notEqual(initialConfigValue, newConfigValue);
 
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateConfig", newConfigValue, 'configMinMvkAmount'
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -220,11 +243,11 @@ describe("Execute Lambda tests", async () => {
                 // Reset test (for re-testability)
                 // ------------------------------
                 
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateConfig", initialConfigValue, 'configMinMvkAmount'
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -257,11 +280,11 @@ describe("Execute Lambda tests", async () => {
                 assert.notEqual(initialWhitelistCheck, newWhitelistAddress);
 
                 // add whitelist address
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateWhitelistContracts", 'testUpdateWhitelistContracts', newWhitelistAddress
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -281,11 +304,11 @@ describe("Execute Lambda tests", async () => {
                 // ------------------------------
                 
                 // remove whitelist address by calling entrypoint with same values again
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateWhitelistContracts", 'testUpdateWhitelistContracts', newWhitelistAddress
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -318,11 +341,11 @@ describe("Execute Lambda tests", async () => {
                 assert.notEqual(initialGeneralCheck, newGeneralAddress);
 
                 // add general contract address
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateGeneralContracts", 'testUpdateGeneralContracts', newGeneralAddress
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -342,11 +365,11 @@ describe("Execute Lambda tests", async () => {
                 // ------------------------------
                 
                 // remove general contract address by calling entrypoint with same values again
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaUpdateGeneralContracts", 'testUpdateGeneralContracts', newGeneralAddress
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -454,11 +477,11 @@ describe("Execute Lambda tests", async () => {
                     }
                 ];
 
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaMistakenTransfer", mistakenTransferParams
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -489,6 +512,155 @@ describe("Execute Lambda tests", async () => {
             }
         })
 
+
+        it("%pauseAll and %unpauseAll - admin should be able to call %pauseAll and %unpauseAll through %executeGovernanceAction", async() => {
+            try{
+
+                doormanStorage = await doormanInstance.storage();
+                const initialBreakGlassConfig = doormanStorage.breakGlassConfig;
+
+                assert.equal(initialBreakGlassConfig.stakeIsPaused                  , false);
+                assert.equal(initialBreakGlassConfig.unstakeIsPaused                , false);
+                assert.equal(initialBreakGlassConfig.compoundIsPaused               , false);
+                assert.equal(initialBreakGlassConfig.farmClaimIsPaused              , false);
+                assert.equal(initialBreakGlassConfig.onVaultDepositStakeIsPaused    , false);
+                assert.equal(initialBreakGlassConfig.onVaultWithdrawStakeIsPaused   , false);
+                assert.equal(initialBreakGlassConfig.onVaultLiquidateStakeIsPaused  , false);
+
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
+                    "lambdaPauseAll", null
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const updatedBreakGlassConfig = doormanStorage.breakGlassConfig;
+
+                // Assertion
+                assert.equal(updatedBreakGlassConfig.stakeIsPaused                  , true);
+                assert.equal(updatedBreakGlassConfig.unstakeIsPaused                , true);
+                assert.equal(updatedBreakGlassConfig.compoundIsPaused               , true);
+                assert.equal(updatedBreakGlassConfig.farmClaimIsPaused              , true);
+                assert.equal(updatedBreakGlassConfig.onVaultDepositStakeIsPaused    , true);
+                assert.equal(updatedBreakGlassConfig.onVaultWithdrawStakeIsPaused   , true);
+                assert.equal(updatedBreakGlassConfig.onVaultLiquidateStakeIsPaused  , true);
+
+                // --------------------------------------------------------
+                // Reset test (for re-testability)
+                // ------------------------------
+                
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
+                    "lambdaUnpauseAll", null
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const resetBreakGlassConfig = doormanStorage.breakGlassConfig;
+
+                // Assertion
+                assert.equal(resetBreakGlassConfig.stakeIsPaused                  , false);
+                assert.equal(resetBreakGlassConfig.unstakeIsPaused                , false);
+                assert.equal(resetBreakGlassConfig.compoundIsPaused               , false);
+                assert.equal(resetBreakGlassConfig.farmClaimIsPaused              , false);
+                assert.equal(resetBreakGlassConfig.onVaultDepositStakeIsPaused    , false);
+                assert.equal(resetBreakGlassConfig.onVaultWithdrawStakeIsPaused   , false);
+                assert.equal(resetBreakGlassConfig.onVaultLiquidateStakeIsPaused  , false);
+                // --------------------------------------------------------
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%togglePauseEntrypoint - admin should be able to call %togglePauseEntrypoint through %executeGovernanceAction", async() => {
+            try{
+
+                doormanStorage = await doormanInstance.storage();
+                const initialBreakGlassConfig = doormanStorage.breakGlassConfig;
+
+                assert.equal(initialBreakGlassConfig.stakeIsPaused                  , false);
+                assert.equal(initialBreakGlassConfig.unstakeIsPaused                , false);
+                assert.equal(initialBreakGlassConfig.compoundIsPaused               , false);
+                assert.equal(initialBreakGlassConfig.farmClaimIsPaused              , false);
+                assert.equal(initialBreakGlassConfig.onVaultDepositStakeIsPaused    , false);
+                assert.equal(initialBreakGlassConfig.onVaultWithdrawStakeIsPaused   , false);
+                assert.equal(initialBreakGlassConfig.onVaultLiquidateStakeIsPaused  , false);
+
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
+                    "lambdaTogglePauseEntrypoint", "stake", true 
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const updatedBreakGlassConfig = doormanStorage.breakGlassConfig;
+
+                // Assertion
+                assert.equal(updatedBreakGlassConfig.stakeIsPaused                  , true);
+                assert.equal(initialBreakGlassConfig.unstakeIsPaused                , false);
+                assert.equal(initialBreakGlassConfig.compoundIsPaused               , false);
+                assert.equal(initialBreakGlassConfig.farmClaimIsPaused              , false);
+                assert.equal(initialBreakGlassConfig.onVaultDepositStakeIsPaused    , false);
+                assert.equal(initialBreakGlassConfig.onVaultWithdrawStakeIsPaused   , false);
+                assert.equal(initialBreakGlassConfig.onVaultLiquidateStakeIsPaused  , false);
+
+                // --------------------------------------------------------
+                // Reset test (for re-testability)
+                // ------------------------------
+                
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
+                    "lambdaTogglePauseEntrypoint", "stake", false
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const resetBreakGlassConfig = doormanStorage.breakGlassConfig;
+
+                // Assertion
+                assert.equal(resetBreakGlassConfig.stakeIsPaused                  , false);
+                assert.equal(resetBreakGlassConfig.unstakeIsPaused                , false);
+                assert.equal(resetBreakGlassConfig.compoundIsPaused               , false);
+                assert.equal(resetBreakGlassConfig.farmClaimIsPaused              , false);
+                assert.equal(resetBreakGlassConfig.onVaultDepositStakeIsPaused    , false);
+                assert.equal(resetBreakGlassConfig.onVaultWithdrawStakeIsPaused   , false);
+                assert.equal(resetBreakGlassConfig.onVaultLiquidateStakeIsPaused  , false);
+                // --------------------------------------------------------
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
         it("%setAdmin - admin should be able to call %setAdmin through %executeGovernanceAction", async() => {
             try{
 
@@ -496,11 +668,11 @@ describe("Execute Lambda tests", async () => {
                 const initialAdmin = doormanStorage.admin;
                 const newAdmin     = eve.pkh;
 
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaSetAdmin", newAdmin
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -520,11 +692,11 @@ describe("Execute Lambda tests", async () => {
                 // ------------------------------
                 
                 await signerFactory(eve.sk);
-                lambdaParams = doormanInstance.methods.dataPackingHelper(
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
                     "lambdaSetAdmin", initialAdmin
                 ).toTransferParams();
                 packedDataValue = lambdaParams.parameter.value;
-                packedDataType  = await doormanInstance.entrypoints.entrypoints.dataPackingHelper;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
 
                 // pack data
                 packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
@@ -538,6 +710,7 @@ describe("Execute Lambda tests", async () => {
 
                 // Assertion
                 assert.equal(resetAdmin, initialAdmin);
+                await signerFactory(bob.sk);
                 // --------------------------------------------------------
 
 
@@ -547,8 +720,67 @@ describe("Execute Lambda tests", async () => {
         })
 
 
+        it("%setGovernance - admin should be able to call %setGovernance through %executeGovernanceAction", async() => {
+            try{
+
+                doormanStorage = await doormanInstance.storage();
+                const initialGovAddress = doormanStorage.governanceAddress;
+                const newGovAddress     = eve.pkh;
+
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
+                    "lambdaSetGovernance", newGovAddress
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const updatedGovAddress = doormanStorage.governanceAddress;
+
+                // Assertion
+                assert.equal(updatedGovAddress, newGovAddress);
+
+                // --------------------------------------------------------
+                // Reset test (for re-testability)
+                // ------------------------------
+                
+                lambdaParams = proxyDoormanInstance.methods.doormanHelper(
+                    "lambdaSetGovernance", initialGovAddress
+                ).toTransferParams();
+                packedDataValue = lambdaParams.parameter.value;
+                packedDataType  = await proxyDoormanInstance.entrypoints.entrypoints.doormanHelper;
+
+                // pack data
+                packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+
+                // Operation
+                executeGovernanceActionOperation  = await doormanInstance.methods.executeGovernanceAction(packedData).send();
+                await executeGovernanceActionOperation.confirmation();
+
+                doormanStorage = await doormanInstance.storage();
+                const resetGovAddress = doormanStorage.governanceAddress;
+
+                // Assertion
+                assert.equal(resetGovAddress, initialGovAddress);
+                // --------------------------------------------------------
+
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+
+
+
+        
     })
 
-    
 
 });

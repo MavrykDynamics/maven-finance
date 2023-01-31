@@ -36,7 +36,7 @@
 
 // Governance Types
 #include "../partials/contractTypes/governanceTypes.ligo"
-    
+
 // Governance Financial Type
 #include "../partials/contractTypes/governanceFinancialTypes.ligo"
 
@@ -51,7 +51,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   GovernanceFinancialHelper       of governanceFinancialLambdaActionType
-    
+    |   Empty                           of (unit)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -63,10 +63,12 @@ type return is list (operation) * proxyHelperStorageType
 //
 // ------------------------------------------------------------------------------
 
-
 function governanceFinancialHelper(const _governanceAction : governanceFinancialLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -87,6 +89,6 @@ block {
             
             // Main entrypoints
         |   GovernanceFinancialHelper(parameters)   -> governanceFinancialHelper(parameters, s)  
-
+        |   Empty(_parameters)                      -> empty(s)
     ]
 )

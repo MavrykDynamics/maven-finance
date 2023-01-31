@@ -48,7 +48,7 @@ type proxyHelperAction is
         
         // Main entrypoints
     |   LendingControllerHelper         of lendingControllerLambdaActionType
-
+    |   Empty                           of (unit)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -64,6 +64,9 @@ type return is list (operation) * proxyHelperStorageType
 function lendingControllerHelper(const _governanceAction : lendingControllerLambdaActionType; const s : proxyHelperStorageType) : return is 
     (noOperations, s)
 
+
+function empty(const s : proxyHelperStorageType) : return is 
+    (noOperations, s)
 
 // ------------------------------------------------------------------------------
 //
@@ -84,6 +87,6 @@ block {
             
             // Main entrypoints
         |   LendingControllerHelper(parameters)     -> lendingControllerHelper(parameters, s)  
-
+        |   Empty(_parameters)                      -> empty(s)
     ]
 )

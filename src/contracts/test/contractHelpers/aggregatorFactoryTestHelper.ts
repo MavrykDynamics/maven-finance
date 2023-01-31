@@ -74,30 +74,55 @@ export type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wa
 
 
 export const setAggregatorFactoryLambdas = async (tezosToolkit: TezosToolkit, contract: AggregatorFactoryContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
+    
+    const lambdasPerBatch = 7;
 
-    for (let lambdaName in aggregatorFactoryLambdas) {
-        let bytes   = aggregatorFactoryLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasCount = Object.keys(aggregatorFactoryLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in aggregatorFactoryLambdas) {
+            let bytes   = aggregatorFactoryLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
-
-    const op = await batch.send()
-    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export const setAggregatorFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: AggregatorFactoryContractAbstraction) => {
 
-    const batch = tezosToolkit.wallet
-        .batch();
+    const lambdasPerBatch = 7;
 
-    for (let lambdaName in aggregatorLambdas) {
-        let bytes   = aggregatorLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+    const lambdasCount = Object.keys(aggregatorLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in aggregatorLambdas) {
+            let bytes   = aggregatorLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+
     }
-
-    const op = await batch.send()
-    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 

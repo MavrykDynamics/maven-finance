@@ -56,7 +56,10 @@
     "lambdaRepay",
 
     "lambdaVaultDepositStakedToken",
-    "lambdaVaultWithdrawStakedToken"
+    "lambdaVaultWithdrawStakedToken",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "vault": [
     "lambdaSetAdmin",
@@ -69,7 +72,10 @@
     "lambdaWithdraw",
     "lambdaOnLiquidate",
     "lambdaUpdateDepositor",
-    "lambdaUpdateTokenOperators"
+    "lambdaUpdateTokenOperators",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "vaultFactory": [
     "lambdaSetAdmin",
@@ -84,7 +90,11 @@
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
 
-    "lambdaCreateVault"
+    "lambdaCreateVault",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda",
+    "lambdaSetProductLambda"
   ],
   "aggregatorFactory": [
     "lambdaSetAdmin",
@@ -104,7 +114,11 @@
     "lambdaUntrackAggregator",
 
     "lambdaDistributeRewardXtz",
-    "lambdaDistributeRewardStakedMvk"
+    "lambdaDistributeRewardStakedMvk",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda",
+    "lambdaSetProductLambda"
   ],
   "aggregator": [
     "lambdaSetAdmin",
@@ -127,7 +141,10 @@
     "lambdaUpdateData",
 
     "lambdaWithdrawRewardXtz",
-    "lambdaWithdrawRewardStakedMvk"
+    "lambdaWithdrawRewardStakedMvk",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "breakGlass": [
     "lambdaBreakGlass",
@@ -153,7 +170,10 @@
     "lambdaRemoveBreakGlassControl",
 
     "lambdaFlushAction",
-    "lambdaSignAction"
+    "lambdaSignAction",
+    
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "council": [
     "lambdaSetAdmin",
@@ -181,7 +201,10 @@
     "lambdaCouncilDropFinancialReq",
 
     "lambdaFlushAction",
-    "lambdaSignAction"
+    "lambdaSignAction",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "delegation": [
     "lambdaSetAdmin",
@@ -206,7 +229,7 @@
 
     "lambdaOnStakeChange",
     "lambdaUpdateSatelliteStatus",
-    
+
     "lambdaExecuteGovernanceAction",
     "lambdaSetLambda"
   ],
@@ -249,7 +272,10 @@
 
     "lambdaTriggerEmergencyControl",
     "lambdaVoteForEmergencyControl",
-    "lambdaDropEmergencyGovernance"
+    "lambdaDropEmergencyGovernance",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "farmFactory": [
     "lambdaSetAdmin",
@@ -266,7 +292,11 @@
 
     "lambdaCreateFarm",
     "lambdaTrackFarm",
-    "lambdaUntrackFarm"
+    "lambdaUntrackFarm",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda",
+    "lambdaSetProductLambda"
   ],
   "farm": [
     "lambdaSetAdmin",
@@ -287,7 +317,10 @@
 
     "lambdaDeposit",
     "lambdaWithdraw",
-    "lambdaClaim"
+    "lambdaClaim",
+    
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "governanceFinancial": [
     "lambdaSetAdmin",
@@ -303,7 +336,10 @@
     "lambdaRequestMint",
     "lambdaSetContractBaker",
     "lambdaDropFinancialRequest",
-    "lambdaVoteForRequest"
+    "lambdaVoteForRequest",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "governanceSatellite": [
     "lambdaSetAdmin",
@@ -328,7 +364,10 @@
     "lambdaFixMistakenTransfer",
 
     "lambdaVoteForAction",
-    "lambdaDropAction"
+    "lambdaDropAction",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "governance": [
     "lambdaBreakGlass",
@@ -358,7 +397,8 @@
     "lambdaDistributeProposalRewards",
     "lambdaDropProposal",
 
-    "lambdaExecuteGovernanceAction"
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "treasuryFactory": [
     "lambdaSetAdmin",
@@ -376,7 +416,11 @@
 
     "lambdaCreateTreasury",
     "lambdaTrackTreasury",
-    "lambdaUntrackTreasury"
+    "lambdaUntrackTreasury",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda",
+    "lambdaSetProductLambda"
   ],
   "treasury": [
     "lambdaSetAdmin",
@@ -396,7 +440,10 @@
     "lambdaMintMvkAndTransfer",
     "lambdaUpdateMvkOperators",
     "lambdaStakeMvk",
-    "lambdaUnstakeMvk"
+    "lambdaUnstakeMvk",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "vesting": [
     "lambdaSetAdmin",
@@ -411,7 +458,10 @@
     "lambdaUpdateVestee",
     "lambdaToggleVesteeLock",
 
-    "lambdaClaim"
+    "lambdaClaim",
+
+    "lambdaExecuteGovernanceAction",
+    "lambdaSetLambda"
   ],
   "governanceProxy": [
     "lambdaSetAdmin",
@@ -422,6 +472,7 @@
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
+    "executeGovernanceAction",
     "processGovernanceAction"
   ]
 }

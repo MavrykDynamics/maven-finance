@@ -157,6 +157,10 @@ type governanceConfigType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
+type processGovernanceActionType is [@layout:comb] record [
+    contractName    : string;
+    encodedCode     : bytes;
+]
 
 type governanceUpdateConfigNewValueType is nat
 
@@ -285,7 +289,7 @@ type governanceLambdaActionType is
     |   LambdaDistributeProposalRewards             of distributeProposalRewardsType
     |   LambdaDropProposal                          of actionIdType
 
-        // Governance Lambdas
+        // Meta Lambdas
     |   LambdaExecuteGovernanceAction               of (bytes)
     |   LambdaSetLambda                             of setLambdaType
 

@@ -64,7 +64,6 @@ type vaultFactoryAction is
     
         // Lambda Entrypoints
     |   ExecuteGovernanceAction     of (bytes)
-    |   DataPackingHelper           of vaultFactoryLambdaActionType
     |   SetLambda                   of setLambdaType
     |   SetProductLambda            of setLambdaType
 
@@ -105,6 +104,13 @@ type vaultFactoryUnpackLambdaFunctionType is (vaultFactoryLambdaActionType * vau
 #include "../partials/contractEntrypoints/vaultFactoryEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Vault Factory Meta Lambdas:
+#include "../partials/contractMetaLambdas/vaultFactoryMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -136,7 +142,6 @@ block{
     
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)           -> dataPackingHelper(parameters, s)
         |   SetLambda (parameters)                  -> setLambda(parameters, s)
         |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
     ]

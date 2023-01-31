@@ -42,5 +42,13 @@
 	{
 		"index": 10,
 		"name": "lambdaClaim"
+	},
+	{
+		"index": 11,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 12,
+		"name": "lambdaSetLambda"
 	}
 ]

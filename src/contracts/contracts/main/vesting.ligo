@@ -51,7 +51,6 @@ type vestingAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction       of (bytes)
-    |   DataPackingHelper             of vestingLambdaActionType
     |   SetLambda                     of setLambdaType
 
 
@@ -91,6 +90,13 @@ type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorag
 #include "../partials/contractEntrypoints/vestingEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// Vesting Meta Lambdas :
+#include "../partials/contractMetaLambdas/vestingMetaLambdas.ligo"
+
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
@@ -120,7 +126,6 @@ block{
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)           -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                   -> setLambda(parameters, s)
     ]
 )

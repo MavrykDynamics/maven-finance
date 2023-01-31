@@ -178,6 +178,10 @@ type governanceSatelliteLambdaActionType is
     |   LambdaVoteForAction                 of voteForActionType
     |   LambdaDropAction                    of dropActionType
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction       of (bytes)
+    |   LambdaSetLambda                     of setLambdaType
+
 
 // ------------------------------------------------------------------------------
 // Storage

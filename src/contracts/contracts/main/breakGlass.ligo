@@ -64,7 +64,6 @@ type breakGlassAction is
 
         // Lambda Entrypoints
     |   ExecuteGovernanceAction       of (bytes)
-    |   DataPackingHelper             of breakGlassLambdaActionType
     |   SetLambda                     of setLambdaType
 
 
@@ -102,6 +101,13 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 
 // BreakGlass Entrypoints:
 #include "../partials/contractEntrypoints/breakGlassEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+// Meta Lambdas
+// ------------------------------------------------------------------------------
+
+// BreakGlass Meta Lambdas:
+#include "../partials/contractMetaLambdas/breakGlassMetaLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -148,7 +154,6 @@ block {
 
             // Lambda Entrypoints
         |   ExecuteGovernanceAction(parameters)   -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)         -> dataPackingHelper(parameters, s)
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
     ]
 )

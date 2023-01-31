@@ -47,16 +47,29 @@ type FarmContractAbstraction<T extends ContractProvider | Wallet = any> = Contra
 
 
 export const setFarmLambdas = async (tezosToolkit: TezosToolkit, contract: FarmContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    for (let lambdaName in farmLambdas) {
-        let bytes   = farmLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    const lambdasPerBatch = 7;
+
+    const lambdasCount = Object.keys(farmLambdas).length;
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+    
+        const batch = tezosToolkit.wallet.batch();
+        var index   = 0
+
+        for (let lambdaName in farmLambdas) {
+            let bytes   = farmLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index++;
+        }
+
+        const setupDelegationLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
+
     }
-
-    const setupFarmLambdasOperation = await batch.send()
-    await confirmOperation(tezosToolkit, setupFarmLambdasOperation.opHash);
 };
 
 export class Farm {

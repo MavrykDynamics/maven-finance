@@ -62,5 +62,13 @@
 	{
 		"index": 15,
 		"name": "lambdaUnstakeMvk"
+	},
+	{
+		"index": 16,
+		"name": "lambdaExecuteGovernanceAction"
+	},
+	{
+		"index": 17,
+		"name": "lambdaSetLambda"
 	}
 ]

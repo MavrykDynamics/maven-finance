@@ -35,7 +35,8 @@ type proxyHelperStorageType is [@layout:comb] record [
 type proxyHelperAction is 
         
         // Main entrypoints
-    |   DoormanHelper                   of doormanLambdaActionType
+    |   DoormanHelper               of doormanLambdaActionType
+    |   Empty                       of (unit)
     
 const noOperations : list (operation) = nil;
 type return is list (operation) * proxyHelperStorageType
@@ -73,6 +74,7 @@ block {
             
             // Main entrypoints
         |   DoormanHelper(parameters)        -> doormanHelper(parameters, s)
+        |   Empty(_parameters)               -> empty(s)
         
     ]
 )

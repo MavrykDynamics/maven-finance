@@ -7,8 +7,8 @@ function ctrl_c() {
 
 # ts-mocha --paths test/deploy/00*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/01*.spec.ts --bail --timeout 9000000 && \
-# ts-mocha --paths test/deploy/02*.spec.ts --bail --timeout 9000000 && \
-# ts-mocha --paths test/deploy/03*.spec.ts --bail --timeout 9000000 && \
+ts-mocha --paths test/deploy/02*.spec.ts --bail --timeout 9000000 && \
+ts-mocha --paths test/deploy/03*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/04*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/05*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/06*.spec.ts --bail --timeout 9000000 && \
@@ -22,7 +22,7 @@ function ctrl_c() {
 # ts-mocha --paths test/deploy/14*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/15*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/16*.spec.ts --bail --timeout 9000000 && \
-# ts-mocha --paths test/deploy/17*.spec.ts --bail --timeout 9000000 && \
+ts-mocha --paths test/deploy/17*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/18*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/19*.spec.ts --bail --timeout 9000000 && \
 # ts-mocha --paths test/deploy/20*.spec.ts --bail --timeout 9000000 && \

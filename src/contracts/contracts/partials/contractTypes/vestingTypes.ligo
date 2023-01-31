@@ -80,6 +80,9 @@ type vestingLambdaActionType is
         // Vestee Entrypoints
     |   LambdaClaim                         of (unit)
 
+        // Meta Lambdas
+    |   LambdaExecuteGovernanceAction       of (bytes)
+    |   LambdaSetLambda                     of setLambdaType
 
 // ------------------------------------------------------------------------------
 // Storage
