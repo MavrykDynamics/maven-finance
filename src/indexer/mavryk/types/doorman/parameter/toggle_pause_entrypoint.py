@@ -26,21 +26,21 @@ class TargetEntrypointItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    onVaultDepositStakedMvk: bool
+    onVaultDepositStake: bool
 
 
 class TargetEntrypointItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    onVaultLiquidateStakedMvk: bool
+    onVaultLiquidateStake: bool
 
 
 class TargetEntrypointItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    onVaultWithdrawStakedMvk: bool
+    onVaultWithdrawStake: bool
 
 
 class TargetEntrypointItem5(BaseModel):

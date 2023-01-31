@@ -38,8 +38,8 @@ async def on_lending_controller_mock_time_origination(
     repay_paused                            = lending_controller_mock_time_origination.storage.breakGlassConfig.repayIsPaused
     set_loan_token_paused                   = lending_controller_mock_time_origination.storage.breakGlassConfig.setLoanTokenIsPaused
     set_collateral_token_paused             = lending_controller_mock_time_origination.storage.breakGlassConfig.setCollateralTokenIsPaused
-    vault_deposit_smvk_paused               = lending_controller_mock_time_origination.storage.breakGlassConfig.vaultDepositStakedMvkIsPaused
-    vault_withdraw_smvk_paused              = lending_controller_mock_time_origination.storage.breakGlassConfig.vaultWithdrawStakedMvkIsPaused
+    vault_deposit_staked_token_paused               = lending_controller_mock_time_origination.storage.breakGlassConfig.vaultDepositStakedTokenIsPaused
+    vault_withdraw_staked_token_paused              = lending_controller_mock_time_origination.storage.breakGlassConfig.vaultWithdrawStakedTokenIsPaused
     vault_deposit_paused                    = lending_controller_mock_time_origination.storage.breakGlassConfig.vaultDepositIsPaused
     vault_withdraw_paused                   = lending_controller_mock_time_origination.storage.breakGlassConfig.vaultWithdrawIsPaused
 
@@ -84,8 +84,8 @@ async def on_lending_controller_mock_time_origination(
         repay_paused                            = repay_paused,
         set_loan_token_paused                   = set_loan_token_paused,
         set_collateral_token_paused             = set_collateral_token_paused,
-        vault_deposit_smvk_paused               = vault_deposit_smvk_paused,
-        vault_withdraw_smvk_paused              = vault_withdraw_smvk_paused,
+        vault_deposit_staked_token_paused               = vault_deposit_staked_token_paused,
+        vault_withdraw_staked_token_paused              = vault_withdraw_staked_token_paused,
         vault_deposit_paused                    = vault_deposit_paused,
         vault_withdraw_paused                   = vault_withdraw_paused
     )

@@ -4,13 +4,40 @@
 
 ### Deployment
 
-- DEV: 0.29
+- DEV: 0.30
 - PROD: 0.29
 - PROD2: 0.29
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.30
+
+### Breaking changes
+
+- Doorman
+  - Column on_vault_deposit_smvk_paused renamed to on_vault_deposit_stake_paused
+  - Column on_vault_withdraw_smvk_paused renamed to on_vault_withdraw_stake_paused
+  - Column on_vault_liquidate_smvk_paused renamed to on_vault_liquidate_stake_paused
+- LendingController
+  - Column vault_deposit_smvk_paused renamed to vault_deposit_staked_token_paused
+  - Column vault_withdraw_smvk_paused renamed to vault_withdraw_staked_token_paused
+
+### What's new
+
+- LendingControllerCollateralToken
+  - Column is_staked_token added
+  - Column staking_contract_address added
+  - Column total_deposited added
+  - Column max_deposited_amount added
+  - Column paused added
+- LendingControllerLoanToken
+  - Column paused added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.29</summary>
 
 ## Version 0.29
 
@@ -19,7 +46,7 @@
 - MTokenAccountHistoryData
   - Table added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.28</summary>
 
