@@ -28,10 +28,12 @@ async def on_lending_controller_mock_time_set_collateral_token(
         collateral_token_staked                     = collateral_token_storage.isStakedToken
         collateral_token_staking_contract_address   = collateral_token_storage.stakingContractAddress
         collateral_token_total_deposited            = float(collateral_token_storage.totalDeposited)
-        collateral_token_max_deposit_amount       = float(collateral_token_storage.maxDepositAmount)
         collateral_token_paused                     = collateral_token_storage.isPaused
         collateral_token_id                         = 0
         collateral_token_standard                   = ""
+        collateral_token_max_deposit_amount         = collateral_token_storage.maxDepositAmount
+        if collateral_token_storage.maxDepositAmount:
+            collateral_token_max_deposit_amount         = float(collateral_token_max_deposit_amount)
 
         # Persist collateral Token Metadata
         await persist_token_metadata(
