@@ -99,7 +99,7 @@ block {
 
 
 
-// helper function to verify epoch is greater than previous epoch
+// helper function to verify epoch is equal or greater than previous epoch
 function verifyEpochIsEqualOrGreaterThanPreviousEpoch(const currentEpoch : nat; const s : aggregatorStorageType) : unit is
 block {
     
@@ -547,26 +547,6 @@ function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) 
 // ------------------------------------------------------------------------------
 // Reward Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get satellite record view from the delegation contract
-function getSatelliteRecord(const satelliteAddress : address; const s : aggregatorStorageType) : satelliteRecordType is 
-block {
-
-    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-    const satelliteRecord : satelliteRecordType = case satelliteOptView of [
-            Some (optionView) -> case optionView of [
-                    Some(_satelliteRecord)      -> _satelliteRecord
-                |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
-            ]
-        |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-} with satelliteRecord
-
-
 
 // helper function to get delegation ratio from the delegation contract
 function getDelegationRatio(const s : aggregatorStorageType) : nat is 
