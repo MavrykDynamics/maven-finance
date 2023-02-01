@@ -273,19 +273,19 @@ block{
 // ------------------------------------------------------------------------------
 
 (* executeGovernanceAction entrypoint *)
-function executeGovernanceAction(const governanceActionBytes : bytes; var s : treasuryFactoryStorageType) : return is
-block{
+// function executeGovernanceAction(const governanceActionBytes : bytes; var s : treasuryFactoryStorageType) : return is
+// block{
     
-    // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
+//     // get lambda bytes
+//     const lambdaBytes : bytes = getLambdaBytes("lambdaExecuteGovernanceAction", s.lambdaLedger);
 
-    // init treasury factory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
+//     // init treasury factory lambda action
+//     const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaExecuteGovernanceAction(governanceActionBytes);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
 
-} with (response)
+// } with (response)
 
 
 

@@ -38,10 +38,10 @@ block {
                     |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
 
                         // Vault Factory Entrypoints
-                    |   LambdaCreateVault(parameters)               -> createVault(parameters, s)
+                    // |   LambdaCreateVault(parameters)               -> createVault(parameters, s)
                     
                         // Meta Lambda
-                    |   LambdaSetLambda(parameters)                 -> setLambda(parameters, s)
+                    // |   LambdaSetLambda(parameters)                 -> setLambda(parameters, s)
                     |   LambdaSetProductLambda(parameters)          -> setProductLambda(parameters, s)
 
                     |   _                                           -> (nil, s)
@@ -56,7 +56,7 @@ block {
 
 
 (*  setLambda lambda *)
-function lambdaSetLambda(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s: vaultFactoryStorageType) : return is
+function lambdaSetLambda(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block{
     
     var operations : list(operation) := nil;
@@ -74,7 +74,7 @@ block{
 
 
 (*  setProductLambda lambda *)
-function lambdaSetProductLambda(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s: vaultFactoryStorageType) : return is
+function lambdaSetProductLambda(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block{
     
     var operations : list(operation) := nil;

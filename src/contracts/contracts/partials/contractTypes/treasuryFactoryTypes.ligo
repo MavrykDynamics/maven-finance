@@ -74,7 +74,7 @@ type treasuryFactoryLambdaActionType is
     |   LambdaUntrackTreasury                     of address
 
         // Meta Lambdas
-    |   LambdaExecuteGovernanceAction             of (bytes)
+    // |   LambdaExecuteGovernanceAction             of (bytes)
     |   LambdaSetLambda                           of setLambdaType
     |   LambdaSetProductLambda                    of setLambdaType
 

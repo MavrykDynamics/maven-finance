@@ -69,7 +69,7 @@ type treasuryFactoryAction is
     |   UntrackTreasury                     of address
 
         // Lambda Entrypoints
-    |   ExecuteGovernanceAction             of (bytes)
+    // |   ExecuteGovernanceAction             of (bytes)
     |   SetLambda                           of setLambdaType
     |   SetProductLambda                    of setLambdaType
 
@@ -150,7 +150,7 @@ block{
         |   UntrackTreasury (params)                    -> untrackTreasury(params, s)
 
             // Lambda Entrypoints
-        |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
+        // |   ExecuteGovernanceAction(parameters)         -> executeGovernanceAction(parameters, s)
         |   SetLambda (params)                          -> setLambda(params, s)
         |   SetProductLambda (params)                   -> setProductLambda(params, s)
     ]
