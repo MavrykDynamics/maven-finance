@@ -1421,13 +1421,11 @@
 //                 const vaultOwner                = eve.pkh;
 //                 const loanTokenName             = "mockFa2";
 
-//                 const whitelistedDepositors     = [eve.pkh];
 //                 const depositorsConfig          = "whitelist";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,  
 //                     loanTokenName,
-//                     whitelistedDepositors,
 //                     depositorsConfig,
 //                     ).send();
 //                 await userCreatesNewVaultOperation.confirmation();

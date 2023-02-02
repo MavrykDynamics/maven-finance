@@ -1835,13 +1835,11 @@
 //             const liquidator    = mallory.pkh;
 //             const loanTokenName = "mockFa12";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2356,13 +2354,11 @@
 //             const liquidator    = mallory.pkh;
 //             const loanTokenName = "mockFa2";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2926,13 +2922,11 @@
 //             const liquidator    = mallory.pkh;
 //             const loanTokenName = "mockFa2";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";    
     
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3723,13 +3717,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa12";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";    
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
