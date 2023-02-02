@@ -71,10 +71,10 @@ function setAdminInContract(const contractAddress : address) : contract(address)
 function validateAction(const actionRecord : councilActionRecordType) : unit is
 block {
 
-    // Check if governance satellite action has been flushed
-    if actionRecord.status    = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)  else skip;
+    // Check if break glass action has been flushed
+    if actionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED) else skip;
 
-    // Check if governance satellite action has already been executed
+    // Check if break glass action has already been executed
     if actionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED) else skip;
 
     // check that break glass action has not expired

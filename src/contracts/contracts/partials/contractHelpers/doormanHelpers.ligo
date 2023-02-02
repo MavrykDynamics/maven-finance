@@ -482,14 +482,6 @@ block {
         |   None            -> failwith (error_SATELLITE_REWARDS_NOT_FOUND)
     ];
         
-    // const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOptView of [
-    //         Some (optionView) -> case optionView of [
-    //                 Some(_rewardsRecord)      -> _rewardsRecord
-    //             |   None                      -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
-    //         ]
-    //     |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-    // ];
-
 } with userRewardsRecord
 
 // ------------------------------------------------------------------------------

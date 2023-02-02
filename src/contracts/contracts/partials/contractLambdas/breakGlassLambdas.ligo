@@ -259,7 +259,7 @@ block {
                 // Verify that new council member does not exist in the council
                 verifyCouncilMemberDoesNotExist(newCouncilMember.memberAddress, s);
 
-                const dataMap : dataMapType     = map [
+                const dataMap : dataMapType = map [
                     ("councilMemberAddress"  : string) -> Bytes.pack(newCouncilMember.memberAddress);
                     ("councilMemberName"     : string) -> Bytes.pack(newCouncilMember.memberName);
                     ("councilMemberImage"    : string) -> Bytes.pack(newCouncilMember.memberImage);
