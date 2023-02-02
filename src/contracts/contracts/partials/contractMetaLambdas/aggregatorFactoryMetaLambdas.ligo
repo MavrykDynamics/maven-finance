@@ -44,7 +44,7 @@ block {
 
                         // Meta Lambda
                     |   LambdaSetLambda(parameters)                 -> setLambda(parameters, s)
-                    |   LambdaSetProductLambda(parameters)          -> setProductLambda(parameters, s)
+                    |   LambdaSetProductLambda(_parameters)         -> setProductLambda(_parameters, s)
 
                     |   _                                           -> (nil, s)
                 ];

@@ -38,7 +38,7 @@ block {
                     |   LambdaTogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
 
                         // Vault Factory Entrypoints
-                    // |   LambdaCreateVault(parameters)               -> createVault(parameters, s)
+                    |   LambdaCreateVault(parameters)               -> createVault(parameters, s)
                     
                         // Meta Lambda
                     // |   LambdaSetLambda(parameters)                 -> setLambda(parameters, s)
