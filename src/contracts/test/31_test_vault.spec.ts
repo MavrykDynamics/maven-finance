@@ -952,13 +952,11 @@
 //                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner            = eve.pkh;
 //                 const depositorsConfig      = "any";
-//                 const whitelistedDepositors = [];
 //                 const loanTokenName         = "mockFa12";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,                // delegate to
 //                     loanTokenName,          // loan token type
-//                     whitelistedDepositors,  // whitelisted depositors
 //                     depositorsConfig        // depositors config type - any / whitelist
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -999,13 +997,11 @@
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = mallory.pkh;
 //                 const depositorsConfig          = "whitelist";
-//                 const whitelistedDepositors     = [alice.pkh];
 //                 const loanTokenName             = "mockFa12";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     mallory.pkh,  
 //                     loanTokenName,
-//                     whitelistedDepositors,
 //                     depositorsConfig
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -1016,6 +1012,7 @@
 //                     "owner" : vaultOwner
 //                 }
 //                 const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//                 const vaultAddress = vaultRecord.address;
 
 //                 assert.equal(vaultRecord.loanToken              , loanTokenName);
 //                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
@@ -1029,6 +1026,29 @@
 
 //                 // push new vault id to vault set
 //                 malloryVaultSet.push(vaultId);
+
+//                 // add alice to whitelist depositor
+
+//                 const newDepositorConfigType   = "whitelist";
+//                 const newDepositorAddress      = alice.pkh;
+//                 const addOrRemoveBool          = true;
+
+//                 const malloryVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+//                 const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.updateDepositor(            
+//                     newDepositorAddress,           // new whitelisted depositor address
+//                     addOrRemoveBool,               // true: add whitelist address
+//                     newDepositorConfigType         // whitelist 
+//                 ).send();
+//                 await malloryUpdateDepositorOperation.confirmation();
+
+//                 const updatedMalloryVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
+//                 const updatedMalloryVaultInstanceStorage : vaultStorageType  = await updatedMalloryVaultInstance.storage();
+//                 const updatedVaultDepositors         : depositorsType    = updatedMalloryVaultInstanceStorage.depositors;
+//                 const depositorsConfigType  = Object.keys(updatedVaultDepositors.depositorsConfig)[0];
+
+//                 // check that depositors type is no longer any and now has alice address
+//                 assert.equal(depositorsConfigType, "whitelist");    
+//                 assert.equal(updatedVaultDepositors.whitelistedDepositors.length, 1);      
 
 //             } catch(e){
 //                 console.log(e);
