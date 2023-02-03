@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------
 
 
-type lambdaPointerLedgerType is big_map(string, address)
+type lambdaPointerLedgerType is map(string, address)
 
 
 // ------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ type governanceProxyStorageType is record [
     metadata                    : metadataType;
 
     mvkTokenAddress             : address;
-    governanceAddress           : address;    // separate admin from governance address in event of break glass
+    governanceAddress           : address; 
     
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType; 

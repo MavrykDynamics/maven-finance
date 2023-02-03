@@ -112,7 +112,7 @@ type return is list (operation) * governanceProxyNodeStorageType
 type governanceProxyNodeProxyLambdaFunctionType is (executeActionType * governanceProxyNodeStorageType) -> return
 
 // governance proxy contract methods lambdas
-type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyNodeStorageType) -> return
+type governanceProxyUnpackLambdaFunctionType is (governanceProxyNodeLambdaActionType * governanceProxyNodeStorageType) -> return
 
 
 // ------------------------------------------------------------------------------

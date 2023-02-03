@@ -419,7 +419,7 @@ block {
     var sufficientYayVotesGatheredBool : bool := False;
     
     // set bool to true if yayVotes are sufficient (greater than staked MVK required)
-    if financialRequestRecord.yayVoteStakedMvkTotal > financialRequestRecord.stakedMvkRequiredForApproval 
+    if financialRequestRecord.yayVoteStakedMvkTotal >= financialRequestRecord.stakedMvkRequiredForApproval 
     then sufficientYayVotesGatheredBool := True 
     else sufficientYayVotesGatheredBool := False;
 
@@ -590,17 +590,17 @@ block {
 
 
 // helper function to calculate voting power
-function calculateVotingPower(const satelliteAddress : address; const s : governanceFinancialStorageType) : nat is
+function calculateSatelliteVotingPower(const satelliteAddress : address; const s : governanceFinancialStorageType) : nat is
 block {
 
     // Get satellite record and delgation ratio
     const satelliteRecord       : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
     const delegationRatio       : nat                 = getDelegationRatio(s);
 
-    var totalVotingPower : nat := 0n;
+    var totalSatelliteVotingPower : nat := 0n;
     if (satelliteRecord.status = "ACTIVE") then {
         
-        totalVotingPower := voteHelperCalculateVotingPower(
+        totalSatelliteVotingPower := voteHelperCalculateVotingPower(
             delegationRatio,                        // delegation ratio
             satelliteRecord.stakedMvkBalance,       // staked MVK balance
             satelliteRecord.totalDelegatedAmount    // total delegated amount
@@ -608,7 +608,7 @@ block {
 
     } else skip;
 
-} with totalVotingPower
+} with totalSatelliteVotingPower
 
 
 
@@ -633,7 +633,7 @@ block{
         operations := updateSatelliteSnapshotOperation # operations;
 
         // Calculate and set the total voting power of the satellite
-        totalVotingPower := calculateVotingPower(satelliteAddress, s);
+        totalVotingPower := calculateSatelliteVotingPower(satelliteAddress, s);
 
     } 
     // Check if satellite is ready to vote

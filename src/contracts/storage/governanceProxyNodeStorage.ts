@@ -2,7 +2,7 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 import { bob } from '../scripts/sandbox/accounts'
-import { governanceProxyStorageType } from "../test/types/governanceProxyStorageType";
+import { governanceProxyNodeStorageType } from "../test/types/governanceProxyNodeStorageType";
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -16,7 +16,7 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
 })
 
-export const governanceProxyStorage: governanceProxyStorageType = {
+export const governanceProxyNodeStorage: governanceProxyNodeStorageType = {
 
     admin                     : bob.pkh,
     metadata                  : metadata,
@@ -28,7 +28,7 @@ export const governanceProxyStorage: governanceProxyStorageType = {
     generalContracts          : MichelsonMap.fromLiteral({}),
     whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
 
-    lambdaPointerLedger       : MichelsonMap.fromLiteral({}),
+    proxyLambdaLedger         : MichelsonMap.fromLiteral({}),
 
     lambdaLedger              : MichelsonMap.fromLiteral({})
 
