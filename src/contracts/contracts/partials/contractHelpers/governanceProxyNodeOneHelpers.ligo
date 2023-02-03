@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 
 // Allowed Senders : Admin, Governance Satellite Contract
-function verifySenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorageType) : unit is
+function verifySenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyNodeStorageType) : unit is
 block{
 
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
@@ -157,7 +157,7 @@ function getUnpauseAllEntrypoint(const contractAddress : address) : contract(uni
 // Update Config Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function updateGovernanceConfig(const updateConfigParams : governanceUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateGovernanceConfig(const updateConfigParams : governanceUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get updateConfig entrypoint of governance contract
@@ -185,7 +185,7 @@ block {
 
 
 
-function updateGovernanceFinancialConfig(const updateConfigParams : governanceFinancialUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateGovernanceFinancialConfig(const updateConfigParams : governanceFinancialUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get governanceFinancial contract address from the generalContracts big map
@@ -216,7 +216,7 @@ block {
 
 
 
-function updateGovernanceSatelliteConfig(const updateConfigParams : governanceSatelliteUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateGovernanceSatelliteConfig(const updateConfigParams : governanceSatelliteUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get governanceSatellite contract address from the generalContracts big map
@@ -248,7 +248,7 @@ block {
 
 
 
-function updateDelegationConfig(const updateConfigParams : delegationUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateDelegationConfig(const updateConfigParams : delegationUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
     
     // Find and get delegation contract address from the generalContracts big map
@@ -279,7 +279,7 @@ block {
 
 
 
-function updateEmergencyConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateEmergencyConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
     
     // Find and get emergency governance contract address from the generalContracts big map
@@ -310,7 +310,7 @@ block {
 
 
 
-function updateCouncilConfig(const updateConfigParams : councilUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateCouncilConfig(const updateConfigParams : councilUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
     
     // Find and get council contract address from the generalContracts big map
@@ -370,7 +370,7 @@ block {
 
 
 
-function updateFarmFactoryConfig(const updateConfigParams : farmFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateFarmFactoryConfig(const updateConfigParams : farmFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
     
     // Find and get farm factory contract address from the generalContracts big map
@@ -430,7 +430,7 @@ block {
 
 
 
-function updateAggregatorFactoryConfig(const updateConfigParams : aggregatorFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateAggregatorFactoryConfig(const updateConfigParams : aggregatorFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get aggregator factory contract address from the generalContracts big map
@@ -461,7 +461,7 @@ block {
 
 
 
-function updateTreasuryFactoryConfig(const updateConfigParams : treasuryFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateTreasuryFactoryConfig(const updateConfigParams : treasuryFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get treasury factory contract address from the generalContracts big map
@@ -492,7 +492,7 @@ block {
 
 
 
-function updateBreakGlassConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateBreakGlassConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get break glass contract address from the generalContracts big map
@@ -523,7 +523,7 @@ block {
 
 
 
-function updateDoormanConfig(const updateConfigParams : doormanUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateDoormanConfig(const updateConfigParams : doormanUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get doorman contract address from the generalContracts big map
@@ -590,7 +590,7 @@ block {
 
 
 
-function toggleAggregatorFacEntrypoint(const toggleEntrypointParams : toggleAggregatorFacEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function toggleAggregatorFacEntrypoint(const toggleEntrypointParams : toggleAggregatorFacEntrypointType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get the aggregator factory contract address from the generalContracts big map
@@ -617,7 +617,7 @@ block {
 
 
 
-function toggleDelegationEntrypoint(const toggleEntrypointParams : toggleDelegationEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function toggleDelegationEntrypoint(const toggleEntrypointParams : toggleDelegationEntrypointType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get the delegation contract address from the generalContracts big map
@@ -644,7 +644,7 @@ block {
 
 
 
-function toggleDoormanEntrypoint(const toggleEntrypointParams : toggleDoormanEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function toggleDoormanEntrypoint(const toggleEntrypointParams : toggleDoormanEntrypointType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get the contract address from the generalContracts big map
@@ -699,7 +699,7 @@ block {
 
 
 
-function toggleFarmFacEntrypoint(const toggleEntrypointParams : toggleFarmFacEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function toggleFarmFacEntrypoint(const toggleEntrypointParams : toggleFarmFacEntrypointType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get the contract address from the generalContracts big map
@@ -754,7 +754,7 @@ block {
 
 
 
-function toggleTreasuryFacEntrypoint(const toggleEntrypointParams : toggleTreasuryFacEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function toggleTreasuryFacEntrypoint(const toggleEntrypointParams : toggleTreasuryFacEntrypointType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get the contract address from the generalContracts big map
@@ -789,7 +789,7 @@ block {
 // Track / Untrack Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function trackFarm(const trackFarmParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function trackFarm(const trackFarmParams : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get farmFactory contract address from the generalContracts map
@@ -816,7 +816,7 @@ block {
 
 
 
-function untrackFarm(const untrackFarmParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function untrackFarm(const untrackFarmParams : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get farmFactory contract address from the generalContracts map
@@ -843,7 +843,7 @@ block {
 
 
 
-function trackTreasury(const trackTreasuryParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function trackTreasury(const trackTreasuryParams : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get treasuryFactory contract address from the generalContracts map
@@ -870,7 +870,7 @@ block {
 
 
 
-function untrackTreasury(const untrackTreasuryParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function untrackTreasury(const untrackTreasuryParams : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get treasuryFactory contract address from the generalContracts map
@@ -897,7 +897,7 @@ block {
 
 
 
-function trackAggregator(const trackAggregatorParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function trackAggregator(const trackAggregatorParams : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get aggregatorFactory contract address
@@ -924,7 +924,7 @@ block {
 
 
 
-function untrackAggregator(const untrackAggregatorParams : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function untrackAggregator(const untrackAggregatorParams : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get aggregatorFactory contract address
@@ -959,7 +959,7 @@ block {
 // Vestee Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function addVestee(const addVesteeParams : addVesteeType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function addVestee(const addVesteeParams : addVesteeType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get vesting contract address from the generalContracts map
@@ -986,7 +986,7 @@ block {
 
 
 
-function removeVestee(const vesteeAddress : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function removeVestee(const vesteeAddress : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get vesting contract address from the generalContracts map
@@ -1013,7 +1013,7 @@ block {
 
 
 
-function updateVestee(const updateVesteeParams : updateVesteeType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateVestee(const updateVesteeParams : updateVesteeType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get vesting contract address from the generalContracts map
@@ -1040,7 +1040,7 @@ block {
 
 
 
-function toggleVesteeLock(const vesteeAddress : address; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function toggleVesteeLock(const vesteeAddress : address; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
 block {
 
     // Find and get vesting contract address from the generalContracts map
@@ -1076,11 +1076,11 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
-function unpackLambda(const lambdaBytes : bytes; const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is 
+function unpackLambda(const lambdaBytes : bytes; const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType; var s : governanceProxyNodeStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyUnpackLambdaFunctionType)) of [
-            Some(f) -> f(governanceProxyLambdaAction, s)
+            Some(f) -> f(governanceProxyNodeLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

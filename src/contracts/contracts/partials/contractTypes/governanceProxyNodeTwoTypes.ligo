@@ -170,38 +170,9 @@ type manageVesteeType is
     |   ToggleVesteeLock                   of (address)
 
 
-type trackContractType is 
-        TrackFarm                          of (address)
-    |   TrackTreasury                      of (address)
-    |   TrackAggregator                    of (address)
-
-
-type untrackContractType is 
-        UntrackFarm                          of (address)
-    |   UntrackTreasury                      of (address)
-    |   UntrackAggregator                    of (address)
-
 type executeActionParamsType is 
 
         UpdateProxyLambda                  of setProxyLambdaType
-    |   SetContractAdmin                   of setContractAdminType
-    |   SetContractGovernance              of setContractGovernanceType
-    |   SetContractName                    of setContractNameType
-    |   SetContractLambda                  of setContractLambdaType
-    |   SetFactoryProductLambda            of setContractLambdaType
-    |   UpdateContractMetadata             of updateContractMetadataType
-    |   UpdateContractWhitelistMap         of updateContractWhitelistMapType
-    |   UpdateContractGeneralMap           of updateContractGeneralMapType
-    |   UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
-
-    |   UpdateContractConfig               of updateContractConfigType
-
-    |   PauseAllContractEntrypoint         of (address)
-    |   UnpauseAllContractEntrypoint       of (address)
-    |   ToggleContractEntrypoint           of toggleContractEntrypointType
-
-    |   UpdateWhitelistDevelopersSet       of (address)
-    |   SetGovernanceProxy                 of (address)
 
     |   CreateFarm                         of createFarmType
     |   InitFarm                           of (targetFarmInitType)
@@ -219,13 +190,10 @@ type executeActionParamsType is
     |   UpdateMvkInflationRate             of (nat)
     |   TriggerMvkInflation                of (unit)
 
-    |   TrackContract                      of trackContractType
-    |   UntrackContract                    of untrackContractType
-
     |   ManageVestee                       of manageVesteeType
     
-    // |   SetLoanToken                       of setLoanTokenActionType
-    // |   SetCollateralToken                 of setCollateralTokenActionType
+    |   SetLoanToken                       of setLoanTokenActionType
+    |   SetCollateralToken                 of setCollateralTokenActionType
 
 type executeActionType is (executeActionParamsType)
 

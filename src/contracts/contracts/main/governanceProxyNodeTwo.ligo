@@ -112,7 +112,7 @@ type return is list (operation) * governanceProxyNodeStorageType
 type governanceProxyNodeProxyLambdaFunctionType is (executeActionType * governanceProxyNodeStorageType) -> return
 
 // governance proxy contract methods lambdas
-type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyNodeStorageType) -> return
+type governanceProxyUnpackLambdaFunctionType is (governanceProxyNodeLambdaActionType * governanceProxyNodeStorageType) -> return
 
 
 // ------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType
 
 // GovernanceProxyNode Helpers:
 // - Use Node Two Helpers
-#include "../partials/contractHelpers/governanceProxyNodeHelpers.ligo"
+#include "../partials/contractHelpers/governanceProxyNodeTwoHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Views
@@ -136,7 +136,7 @@ type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType
 
 // GovernanceProxyNode Lambdas :
 // - Use Node Two Lambdas
-#include "../partials/contractLambdas/governanceProxyNodeLambdas.ligo"
+#include "../partials/contractLambdas/governanceProxyNodeTwoLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

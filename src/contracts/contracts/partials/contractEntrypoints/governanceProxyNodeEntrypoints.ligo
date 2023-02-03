@@ -16,10 +16,10 @@ block {
     const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaSetAdmin(newAdminAddress);
+    const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, governanceProxyNodeLambdaAction, s);  
     
 } with response
 
@@ -33,10 +33,10 @@ block {
     const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+    const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);
+    const response : return = unpackLambda(lambdaBytes, governanceProxyNodeLambdaAction, s);
 
 } with response
 
@@ -50,10 +50,10 @@ block {
     const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+    const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, governanceProxyNodeLambdaAction, s);  
 
 } with response
 
@@ -67,10 +67,10 @@ block {
     const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+    const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, governanceProxyNodeLambdaAction, s);  
 
 } with response
 
@@ -84,10 +84,10 @@ block {
     const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistTokenContracts", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
+    const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, governanceProxyNodeLambdaAction, s);  
 
 } with response
 
@@ -101,10 +101,10 @@ block {
     const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+    const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, governanceProxyNodeLambdaAction, s);  
 
 } with response
 
@@ -118,10 +118,10 @@ block {
     const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaMistakenTransfer(destinationParams);
+    const governanceProxyNodeLambdaAction : governanceProxyNodeLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, governanceProxyNodeLambdaAction, s);  
 
 } with response
 
@@ -162,8 +162,8 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorageType) -> return
-    const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
+    // reference: type governanceProxyNodeProxyLambdaFunctionType is (executeActionType * governanceProxyNodeStorageType) -> return
+    const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyNodeProxyLambdaFunctionType)) of [
             Some(f) -> f(governanceAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];

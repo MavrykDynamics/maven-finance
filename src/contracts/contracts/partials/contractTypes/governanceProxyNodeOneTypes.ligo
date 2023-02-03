@@ -203,29 +203,8 @@ type executeActionParamsType is
     |   UpdateWhitelistDevelopersSet       of (address)
     |   SetGovernanceProxy                 of (address)
 
-    |   CreateFarm                         of createFarmType
-    |   InitFarm                           of (targetFarmInitType)
-    |   CloseFarm                          of (address)
-
-    |   CreateTreasury                     of createTreasuryType
-    |   TransferTreasury                   of targetTreasuryTransferType
-    |   MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
-    |   UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
-    |   StakeMvkTreasury                   of stakeTreasuryType
-    |   UnstakeMvkTreasury                 of unstakeTreasuryType
-
-    |   CreateAggregator                   of createAggregatorParamsType
-
-    |   UpdateMvkInflationRate             of (nat)
-    |   TriggerMvkInflation                of (unit)
-
     |   TrackContract                      of trackContractType
     |   UntrackContract                    of untrackContractType
-
-    |   ManageVestee                       of manageVesteeType
-    
-    // |   SetLoanToken                       of setLoanTokenActionType
-    // |   SetCollateralToken                 of setCollateralTokenActionType
 
 type executeActionType is (executeActionParamsType)
 
