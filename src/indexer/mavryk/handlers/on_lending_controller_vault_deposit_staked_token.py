@@ -21,7 +21,6 @@ async def on_lending_controller_vault_deposit_staked_token(
     vault_owner_address         = vault_deposit_staked_token.data.sender_address
     vaults_storage              = vault_deposit_staked_token.storage.vaults
 
-
     # Update record
     lending_controller          = await models.LendingController.get(
         address             = lending_controller_address,
@@ -77,12 +76,16 @@ async def on_lending_controller_vault_deposit_staked_token(
             for collateral_token_name in vault_collateral_balance_ledger:
                 collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
                 collateral_token_storage                    = vault_deposit_staked_token.storage.collateralTokenLedger[collateral_token_name]
+                collateral_token_total_deposited            = float(collateral_token_storage.totalDeposited)
                 collateral_token_address                    = collateral_token_storage.tokenContractAddress
 
                 lending_controller_collateral_token         = await models.LendingControllerCollateralToken.filter(
                     lending_controller          = lending_controller,
                     token_address               = collateral_token_address
                 ).first()
+                lending_controller_collateral_token.total_deposited = collateral_token_total_deposited
+                await lending_controller_collateral_token.save()
+
                 lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
                     token                       = lending_controller_collateral_token
