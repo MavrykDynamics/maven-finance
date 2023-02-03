@@ -132,7 +132,7 @@ contracts:
     address: KT1VdhsVVoAeFkDJYzJruzVX4jaDqbvLhHuf
     typename: m_token
   vault:
-    code_hash: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
+    code_hash: KT1RcBhqWF2ibaEx9pVe2bxvGd9daApwooVv
     typename: vault
   vault_factory:
     address: KT1PAb6jadTRsnE4p6vt7pzSv7ipGStmsVLn
