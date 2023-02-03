@@ -1,11 +1,11 @@
 
 from dipdup.models import Origination
 from mavryk.utils.persisters import persist_contract_metadata
-from mavryk.types.vault_factory.parameter.create_vault import CreateVaultParameter, DepositorsConfigItem as Any, DepositorsConfigItem1 as Whitelist
+from mavryk.types.vault_factory.parameter.create_vault import CreateVaultParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.vault_factory.storage import VaultFactoryStorage
-from mavryk.types.vault.storage import VaultStorage
+from mavryk.types.vault.storage import VaultStorage, DepositorsConfigItem as Any, DepositorsConfigItem1 as Whitelist
 import mavryk.models as models
 
 async def on_vault_factory_create_vault(
@@ -74,11 +74,10 @@ async def on_vault_factory_create_vault(
         await vault.save()
 
         # Register depositors
-        if type(depositors.depositorsConfig) == Whitelist:
-            for depositor_address in depositors.whitelistedDepositors:
-                depositor           = await models.mavryk_user_cache.get(address=depositor_address)
-                vault_depositor, _  = await models.VaultDepositor.get_or_create(
-                    vault       = vault,
-                    depositor   = depositor
-                )
-                await vault_depositor.save()
+        for depositor_address in depositors.whitelistedDepositors:
+            depositor           = await models.mavryk_user_cache.get(address=depositor_address)
+            vault_depositor, _  = await models.VaultDepositor.get_or_create(
+                vault       = vault,
+                depositor   = depositor
+            )
+            await vault_depositor.save()
