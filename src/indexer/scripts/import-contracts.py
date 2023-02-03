@@ -26,7 +26,10 @@ def update_dipdup_config(dipdup_config_filename):
             new_address = json_data['address']
 
             # Save new address in dipdup config
-            data['contracts'][contract]['address']  = new_address
+            if 'code_hash' in data['contracts'][contract]:
+                data['contracts'][contract]['code_hash']  = new_address
+            else:
+                data['contracts'][contract]['address']  = new_address
 
     with open(dipdup_config_filename, 'w') as f:
             yaml.dump(data, f, Dumper=NewLineDumper, default_flow_style=False, sort_keys=False)
