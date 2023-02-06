@@ -318,7 +318,7 @@ block {
 function verifySatelliteHasSufficientStakedMvk(const totalStakedMvkBalance : nat; const minimumStakedMvkRequirement : nat) : unit is
 block {
 
-    if totalStakedMvkBalance < minimumStakedMvkRequirement 
+    if totalStakedMvkBalance <= minimumStakedMvkRequirement 
     then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
     else skip;                 
 

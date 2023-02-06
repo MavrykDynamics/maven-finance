@@ -127,12 +127,13 @@ export class GovernanceProxyNode {
     }
 
     static async originate(
+        proxyNode: string,
         tezos: TezosToolkit,
         storage: governanceProxyNodeStorageType
     ): Promise<GovernanceProxyNode> {       
 
         const artifacts: any = JSON.parse(
-            fs.readFileSync(`${env.buildDir}/governanceProxyNode.json`).toString()
+            fs.readFileSync(`${env.buildDir}/${proxyNode}.json`).toString()
         );
         const operation: OriginationOperation = await tezos.contract
             .originate({

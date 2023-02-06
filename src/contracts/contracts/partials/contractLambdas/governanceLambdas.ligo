@@ -1199,9 +1199,10 @@ block {
                     // Execute the data or skip if this entry has no data to execute
                     case metadata of [
                             Some (_dataBytes)   -> operations := processGovernanceActionOperation(
-                                _dataBytes.entrypointName,
-                                _dataBytes.encodedCode
-                                s) # operations
+                                    _dataBytes.entrypointName,
+                                    _dataBytes.encodedCode,
+                                    s
+                                ) # operations
                         |   None                -> skip
                     ];
 
@@ -1538,6 +1539,9 @@ block {
                     s := dropProposal(proposal.proposerAddress, proposalId, s);
 
                     // If current round is a timelock or voting round (where there is only one proposal), restart the cycle
+                    
+                    // todo: add check that proposal is not the highest voted proposal 
+
                     s := restartCycleIfVotingOrTimelockRound(s);
 
                 } else failwith(error_ONLY_PROPOSER_ALLOWED)
