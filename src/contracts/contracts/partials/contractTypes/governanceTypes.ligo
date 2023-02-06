@@ -157,6 +157,11 @@ type governanceConfigType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
+type processGovernanceActionType is [@layout:comb] record [
+    entrypointName      : string;
+    encodedCode         : bytes;
+]
+
 
 type governanceUpdateConfigNewValueType is nat
 
@@ -185,6 +190,7 @@ type governanceUpdateConfigParamsType is [@layout:comb] record [
 
 type updateProposalDataSetType is [@layout:comb] record [
     title                   : string;
+    entrypointName          : string;
     encodedCode             : bytes;
     codeDescription         : option(string);
     index                   : option(nat);

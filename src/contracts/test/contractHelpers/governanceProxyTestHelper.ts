@@ -48,17 +48,13 @@ type GovernanceProxyContractAbstraction<T extends ContractProvider | Wallet = an
     governanceProxyStorageType>;
 
 
-export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, lastIndex : number) => {
+export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction) => {
 
     const batch = tezosToolkit.wallet.batch();
-    var index   = 0
 
     for (let lambdaName in governanceProxyLambdas) {
-        let bytes   = governanceProxyLambdas[lambdaName]
-        if(index < lastIndex){
-            batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
-        }
-        index++;
+        let bytes = governanceProxyLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
     }
 
     const setupGovernanceProxyLambdasOperation = await batch.send()

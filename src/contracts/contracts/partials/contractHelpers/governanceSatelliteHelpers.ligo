@@ -247,24 +247,8 @@ block {
 
 
 
-// helper function to unpack nat from dataMap
-function unpackNat(const governanceSatelliteActionRecord : governanceSatelliteActionRecordType; const key : string; const errorCode : nat) : nat is 
-block {
-
-    const unpackedNat : nat = case governanceSatelliteActionRecord.dataMap[key] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None -> failwith(errorCode)
-    ];
-
-} with unpackedNat
-
-
-
 // helper function to unpack transfer actions from dataMap
-function upackTransferActions(const governanceSatelliteActionRecord : governanceSatelliteActionRecordType; const key : string; const errorCode : nat) : transferActionType is 
+function unpackTransferActions(const governanceSatelliteActionRecord : governanceSatelliteActionRecordType; const key : string; const errorCode : nat) : transferActionType is 
 block {
 
     const transferActionsList : transferActionType = case governanceSatelliteActionRecord.dataMap[key] of [
@@ -832,7 +816,7 @@ block {
 
     // get parameters
     const targetContractAddress : address = unpackAddress(actionRecord, "targetContractAddress", error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND);
-    const transferActionsList : transferActionType = upackTransferActions(actionRecord, "transfer", error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND);
+    const transferActionsList : transferActionType = unpackTransferActions(actionRecord, "transfer", error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND);
 
     // call mistaken transfer entrypoint
     const mistakenTransferOperation : operation = Tezos.transaction(
@@ -852,44 +836,44 @@ function executeGovernanceSatelliteAction(var actionRecord : governanceSatellite
 block {
 
     // Governance: Suspend Satellite
-    if actionRecord.governanceType = "SUSPEND" then operations                       := triggerSuspendSatelliteAction(actionRecord, operations, s) else skip;
+    if actionRecord.governanceType = "SUSPEND"  then operations                       := triggerSuspendSatelliteAction(actionRecord, operations, s) else skip;
 
     // Governance: Ban Satellite
-    if actionRecord.governanceType = "BAN" then operations                           := triggerBanSatelliteAction(actionRecord, operations, s) else skip;
+    if actionRecord.governanceType = "BAN"      then operations                       := triggerBanSatelliteAction(actionRecord, operations, s) else skip;
 
     // Governance: Restore Satellite
-    if actionRecord.governanceType = "RESTORE" then operations                       := triggerRestoreSatelliteAction(actionRecord, operations, s) else skip;
+    if actionRecord.governanceType = "RESTORE"  then operations                       := triggerRestoreSatelliteAction(actionRecord, operations, s) else skip;
 
     // Governance: Add Oracle To Aggregator
     if actionRecord.governanceType = "ADD_ORACLE_TO_AGGREGATOR" then block {
-        const addOracleToAggregatorActionTrigger : return                               = triggerAddOracleToAggregatorSatelliteAction(actionRecord, operations, s);
+        const addOracleToAggregatorActionTrigger : return                              = triggerAddOracleToAggregatorSatelliteAction(actionRecord, operations, s);
         s           := addOracleToAggregatorActionTrigger.1;
         operations := addOracleToAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove Oracle In Aggregator
     if actionRecord.governanceType = "REMOVE_ORACLE_IN_AGGREGATOR" then block {
-        const removeOracleInAggregatorActionTrigger : return                            = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, operations, s);
+        const removeOracleInAggregatorActionTrigger : return                           = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, operations, s);
         s           := removeOracleInAggregatorActionTrigger.1;
         operations := removeOracleInAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove All Satellite Oracles (in aggregators)
     if actionRecord.governanceType = "REMOVE_ALL_SATELLITE_ORACLES" then block {
-        const removeAllSatelliteOraclesActionTrigger : return                           = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, operations, s);
+        const removeAllSatelliteOraclesActionTrigger : return                          = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, operations, s);
         s           := removeAllSatelliteOraclesActionTrigger.1;
         operations := removeAllSatelliteOraclesActionTrigger.0;
     } else skip;
 
     // Governance: Update Aggregator Status
     if actionRecord.governanceType = "TOGGLE_PAUSE_AGGREGATOR" then block {
-        const togglePauseAggregatorActionTrigger : return                               = triggerTogglePauseAggregatorSatelliteAction(actionRecord, operations, s);
+        const togglePauseAggregatorActionTrigger : return                              = triggerTogglePauseAggregatorSatelliteAction(actionRecord, operations, s);
         s           := togglePauseAggregatorActionTrigger.1;
         operations := togglePauseAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Mistaken Transfer Fix
-    if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then operations         := triggerFixMistakenTransferSatelliteAction(actionRecord, operations);
+    if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then operations          := triggerFixMistakenTransferSatelliteAction(actionRecord, operations);
 
     actionRecord.executed                       := True;
     s.governanceSatelliteActionLedger[actionId] := actionRecord;

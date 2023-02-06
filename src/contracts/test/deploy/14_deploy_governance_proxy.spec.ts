@@ -77,7 +77,7 @@ describe('Governance Proxy', async () => {
 
       governanceProxyNodeStorage.governanceAddress  = governanceAddress.address;
       governanceProxyNodeStorage.mvkTokenAddress    = mvkTokenAddress.address;
-      governanceProxyNodeOne = await GovernanceProxyNode.originate(utils.tezos, governanceProxyNodeStorage);
+      governanceProxyNodeOne = await GovernanceProxyNode.originate("governanceProxyNodeOne", utils.tezos, governanceProxyNodeStorage);
   
       await saveContractAddress('governanceProxyNodeOneAddress', governanceProxyNodeOne.contract.address)
       console.log('Governance Proxy Node One Contract deployed at:', governanceProxyNodeOne.contract.address)
@@ -86,7 +86,7 @@ describe('Governance Proxy', async () => {
 
       governanceProxyNodeStorage.governanceAddress  = governanceAddress.address;
       governanceProxyNodeStorage.mvkTokenAddress    = mvkTokenAddress.address;
-      governanceProxyNodeTwo = await GovernanceProxyNode.originate(utils.tezos, governanceProxyNodeStorage);
+      governanceProxyNodeTwo = await GovernanceProxyNode.originate("governanceProxyNodeTwo", utils.tezos, governanceProxyNodeStorage);
   
       await saveContractAddress('governanceProxyNodeTwoAddress', governanceProxyNodeTwo.contract.address)
       console.log('Governance Proxy Node Two Contract deployed at:', governanceProxyNodeTwo.contract.address)
@@ -100,20 +100,26 @@ describe('Governance Proxy', async () => {
       await signerFactory(bob.sk);
   
       // Governance Proxy Setup Lambdas - Contract Lambdas
-      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 8) // 8 is the last index + 1 (exclusive)
+      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract)
       console.log("Governance Proxy Contract - Lambdas Setup")
 
-      // Governance Proxy Setup Lambdas - Proxy Lambdas
-      // await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 8) // 8 is the starting index (inclusive)
-      // console.log("Governance Proxy Contract - Proxy Lambdas Setup")
+      console.log("---")
 
       // Governance Proxy Node One Setup Lambdas - Contract Lambdas
-      await setGovernanceProxyNodeContractLambdas(tezos, governanceProxyNodeOne.contract, "one", 8) // 8 is the last index + 1 (exclusive)
+      await setGovernanceProxyNodeContractLambdas(tezos, governanceProxyNodeOne.contract, "one", 7) // 8 is the last index + 1 (exclusive)
       console.log("Governance Proxy Node One Contract - Lambdas Setup")
 
+      await setGovernanceProxyNodeContractProxyLambdas(tezos, governanceProxyNodeOne.contract, "one", 7)
+      console.log("Governance Proxy Node One Contract - Proxy Lambdas Setup")
+
+      console.log("---")
+
       // Governance Proxy Node Two Setup Lambdas - Contract Lambdas
-      await setGovernanceProxyNodeContractLambdas(tezos, governanceProxyNodeTwo.contract, "two", 8) // 8 is the last index + 1 (exclusive)
+      await setGovernanceProxyNodeContractLambdas(tezos, governanceProxyNodeTwo.contract, "two", 7) // 8 is the last index + 1 (exclusive)
       console.log("Governance Proxy Node Two Contract - Lambdas Setup")
+
+      await setGovernanceProxyNodeContractProxyLambdas(tezos, governanceProxyNodeTwo.contract, "one", 7)
+      console.log("Governance Proxy Node Two Contract - Proxy Lambdas Setup")
 
     } catch(e){
       console.dir(e, {depth: 5})
