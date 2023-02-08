@@ -237,7 +237,7 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite'   , governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , governanceFinancialAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , vaultFactoryAddress.address))
-      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerMockTimeAddress.address))
 
       // uncomment if lending controller mock time contract is used
       // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))

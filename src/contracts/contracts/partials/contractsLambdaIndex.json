@@ -411,8 +411,6 @@
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
-    "executeGovernanceLambdaProxy",
-
     "updateProxyLambda",
     "setContractAdmin",
     "setContractGovernance",
@@ -452,7 +450,6 @@
     "trackContract",
     "untrackContract",
 
-    "manageVestee",
-    "toggleVesteeLock"
+    "manageVestee"
   ]
 }

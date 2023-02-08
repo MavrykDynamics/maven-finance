@@ -143,13 +143,13 @@ function getOnVaultLiquidateStakeEntrypoint(const contractAddress : address) : c
 
 
 
-// helper function to get mintOrBurn entrypoint from LP Token contract (FA2 Token Standard)
-function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnType) is
+// helper function to get mintOrBurn entrypoint from MToken contract (FA2 Token Standard)
+function getMTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnType) is
     case (Tezos.get_entrypoint_opt(
         "%mintOrBurn",
         tokenContractAddress) : option(contract(mintOrBurnType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_MINT_OR_BURN_ENTRYPOINT_IN_LP_TOKEN_NOT_FOUND) : contract(mintOrBurnType))
+            |   None -> (failwith(error_MINT_OR_BURN_ENTRYPOINT_IN_M_TOKEN_NOT_FOUND) : contract(mintOrBurnType))
         ]
 
 // ------------------------------------------------------------------------------
@@ -192,8 +192,8 @@ block {
 
 
 
-// helper function to mint or burn LP Token
-function mintOrBurnLpToken(const target : address; const quantity : int; const lpTokenAddress : address) : operation is 
+// helper function to mint or burn M Token
+function mintOrBurnMToken(const target : address; const quantity : int; const mTokenAddress : address) : operation is 
 block {
 
     const mintOrBurnParams : mintOrBurnType = record [
@@ -202,7 +202,7 @@ block {
         target   = target;
     ];
 
-} with (Tezos.transaction(mintOrBurnParams, 0mutez, getLpTokenMintOrBurnEntrypoint(lpTokenAddress) ) )
+} with (Tezos.transaction(mintOrBurnParams, 0mutez, getMTokenMintOrBurnEntrypoint(mTokenAddress) ) )
 
 
 
@@ -230,8 +230,7 @@ block {
 
     const oracleAddress                         : address       = createLoanTokenParams.oracleAddress;
 
-    const lpTokenContractAddress                : address       = createLoanTokenParams.lpTokenContractAddress;
-    const lpTokenId                             : nat           = createLoanTokenParams.lpTokenId;
+    const mTokenAddress                         : address       = createLoanTokenParams.mTokenAddress;
     const reserveRatio                          : nat           = createLoanTokenParams.reserveRatio;
 
     const optimalUtilisationRate                : nat           = createLoanTokenParams.optimalUtilisationRate;
@@ -250,9 +249,8 @@ block {
 
         oracleAddress                       = oracleAddress;
 
-        lpTokensTotal                       = 0n;
-        lpTokenContractAddress              = lpTokenContractAddress;
-        lpTokenId                           = lpTokenId;
+        mTokensTotal                        = 0n;
+        mTokenAddress                       = mTokenAddress;
 
         reserveRatio                        = reserveRatio;
         tokenPoolTotal                      = 0n;
