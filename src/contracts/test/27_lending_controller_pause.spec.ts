@@ -27,9 +27,9 @@
 // import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
 // import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
 
-// import lpTokenPoolMockFa12TokenAddress          from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
-// import lpTokenPoolMockFa2TokenAddress           from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
-// import lpTokenPoolXtzAddress                    from "../deployments/lpTokenPoolXtzAddress.json";
+// import mTokenUsdtAddress          from "../deployments/mTokenUsdtAddress.json";
+// import mTokenEurlAddress           from "../deployments/mTokenEurlAddress.json";
+// import mTokenXtzAddress                    from "../deployments/mTokenXtzAddress.json";
 
 // import lendingControllerAddress from '../deployments/lendingControllerAddress.json';
 // import vaultFactoryAddress      from '../deployments/vaultFactoryAddress.json';
@@ -59,9 +59,9 @@
 //     let mockUsdXtzAggregatorInstance
 //     let mockUsdMvkAggregatorInstance
 
-//     let lpTokenPoolMockFa12TokenInstance
-//     let lpTokenPoolMockFa2TokenInstance
-//     let lpTokenPoolXtzInstance
+//     let mTokenUsdtInstance
+//     let mTokenEurlInstance
+//     let mTokenXtzInstance
 
 //     let governanceInstance
 //     let governanceProxyInstance
@@ -107,9 +107,9 @@
 //         governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
 //         governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
 
-//         lpTokenPoolMockFa12TokenInstance        = await utils.tezos.contract.at(lpTokenPoolMockFa12TokenAddress.address);
-//         lpTokenPoolMockFa2TokenInstance         = await utils.tezos.contract.at(lpTokenPoolMockFa2TokenAddress.address);
-//         lpTokenPoolXtzInstance                  = await utils.tezos.contract.at(lpTokenPoolXtzAddress.address);
+//         mTokenUsdtInstance        = await utils.tezos.contract.at(mTokenUsdtAddress.address);
+//         mTokenEurlInstance         = await utils.tezos.contract.at(mTokenEurlAddress.address);
+//         mTokenXtzInstance                  = await utils.tezos.contract.at(mTokenXtzAddress.address);
 
 //         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
 //         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
@@ -139,9 +139,9 @@
 //         console.log('Governance Contract deployed at:',         governanceInstance.address);
 //         console.log('Governance Proxy Contract deployed at:',   governanceProxyInstance.address);
 
-//         console.log('LP Token Pool - Mock FA12 Token - deployed at:',   lpTokenPoolMockFa12TokenInstance.address);
-//         console.log('LP Token Pool - Mock FA2 Token - deployed at:',    lpTokenPoolMockFa2TokenInstance.address);
-//         console.log('LP Token Pool - XTZ - deployed at:',               lpTokenPoolXtzInstance.address);
+//         console.log('mTokenUsdt - deployed at:',   mTokenUsdtInstance.address);
+//         console.log('mTokenEurl - deployed at:',    mTokenEurlInstance.address);
+//         console.log('mTokenXtz - deployed at:',               mTokenXtzInstance.address);
 
 //         console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:',   mockUsdMockFa12TokenAggregatorInstance.address);
 //         console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:',    mockUsdMockFa2TokenAggregatorInstance.address);
@@ -163,12 +163,12 @@
 //         // ------------------------------------------------------------------
 //         await signerFactory(bob.sk);
 
-//         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
-//         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
+//         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
+//         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurl"); 
 //         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
 
 //         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
-//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
+//             updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
 //                 txs: [
@@ -184,7 +184,7 @@
 //         }
 
 //         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
-//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+//             updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
 //                 txs: [
@@ -200,7 +200,7 @@
 //         }
 
 //         if(!(tezLoanToken == undefined || tezLoanToken == null)){
-//             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
+//             updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
 //                 txs: [
@@ -231,15 +231,14 @@
 //                 // init variables
 //                 await signerFactory(bob.sk);
                 
-//                 const tokenName                             = "mockFa12";
+//                 const tokenName                             = "usdt";
 //                 const tokenContractAddress                  = mockFa12TokenAddress.address;
 //                 const tokenType                             = "fa12";
 //                 const tokenDecimals                         = 6;
 
 //                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenUsdtAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -269,8 +268,7 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -294,9 +292,8 @@
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
 //                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
     
-//                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(mockFa12LoanToken.lpTokenId              , 0);
+//                     assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
+//                     assert.equal(mockFa12LoanToken.mTokenAddress , mTokenContractAddress);
     
 //                     assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
@@ -358,7 +355,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setLoanTokenActionType                = "createLoanToken";
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -366,8 +363,7 @@
 
 //                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenEurlAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -393,8 +389,7 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -418,9 +413,8 @@
 
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-//                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(mockFa2LoanToken.lpTokenId              , 0);
+//                     assert.equal(mockFa2LoanToken.mTokensTotal          , 0);
+//                     assert.equal(mockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
 //                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(mockFa2LoanToken.tokenPoolTotal         , 0);
@@ -491,8 +485,7 @@
 
 //                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenXtzAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -519,8 +512,7 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -543,9 +535,8 @@
 //                     assert.equal(tezLoanToken.tokenName              , tokenName);
 //                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
-//                     assert.equal(tezLoanToken.lpTokensTotal          , 0);
-//                     assert.equal(tezLoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(tezLoanToken.lpTokenId              , 0);
+//                     assert.equal(tezLoanToken.mTokensTotal          , 0);
+//                     assert.equal(tezLoanToken.mTokenAddress , mTokenContractAddress);
     
 //                     assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(tezLoanToken.tokenPoolTotal         , 0);
@@ -618,8 +609,7 @@
 
 //                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                 = mTokenEurlAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -645,8 +635,7 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -670,9 +659,8 @@
 
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-//                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(mockFa2LoanToken.lpTokenId              , 0);
+//                     assert.equal(mockFa2LoanToken.mTokensTotal          , 0);
+//                     assert.equal(mockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
 //                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(mockFa2LoanToken.tokenPoolTotal         , 0);
@@ -741,9 +729,8 @@
 
 //                     assert.equal(updatedMockFa2LoanToken.tokenName              , tokenName);
 
-//                     assert.equal(updatedMockFa2LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(updatedMockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(updatedMockFa2LoanToken.lpTokenId              , 0);
+//                     assert.equal(updatedMockFa2LoanToken.mTokensTotal          , 0);
+//                     assert.equal(updatedMockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
 //                     assert.equal(updatedMockFa2LoanToken.reserveRatio           , newReserveRatio);
 //                     assert.equal(updatedMockFa2LoanToken.tokenPoolTotal         , 0);
@@ -783,8 +770,7 @@
 
 //                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenEurlAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -805,8 +791,7 @@
 
 //                     oracleAddress,
 
-//                     lpTokenContractAddress,
-//                     lpTokenId,
+//                     mTokenContractAddress,
                     
 //                     reserveRatio,
 //                     optimalUtilisationRate,
@@ -1419,7 +1404,7 @@
 //                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = eve.pkh;
-//                 const loanTokenName             = "mockFa2";
+//                 const loanTokenName             = "eurl";
 
 //                 const depositorsConfig          = "whitelist";
 
@@ -1685,21 +1670,21 @@
     
 //             // init variables
 //             await signerFactory(eve.sk);
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 //             const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
 //             // get mock fa2 token storage and lp token pool mock fa2 token storage
 //             const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//             const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+//             const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
             
 //             // get initial eve's Mock FA2 Token balance
 //             const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
 //             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//             const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//             const eveLpTokenPoolMockFa2Ledger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
@@ -1733,7 +1718,7 @@
 //             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
 //             const updatedMockFa2TokenStorage       = await mockFa2TokenInstance.storage();
             
-//             const updatedLpTokenPoolMockFa2TokenStorage     = await lpTokenPoolMockFa2TokenInstance.storage();
+//             const updatedLpTokenPoolMockFa2TokenStorage     = await mTokenEurlInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1766,7 +1751,7 @@
     
 //             // update token reward index for mockFa2 loan token
 //             await signerFactory(bob.sk);
-//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+//             updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
 //                 txs: [
@@ -1781,21 +1766,21 @@
 
 //             // init variables
 //             await signerFactory(eve.sk);
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 //             const withdrawAmount = 1000000; // 1 Mock FA2 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
 //             // get mock fa12 token storage and lp token pool mock fa2 token storage
 //             const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//             const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+//             const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
             
 //             // get initial eve's Mock FA2 Token balance
 //             const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
 //             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//             const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//             const eveLpTokenPoolMockFa2Ledger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
@@ -1816,7 +1801,7 @@
 //             // get updated storages
 //             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
 //             const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//             const updatedLpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+//             const updatedLpTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
 
 //             // Summary - Liquidity Removed for Mock FA2 Token
 //             // 1) Loan Token Pool Record Balance - decrease
@@ -2098,7 +2083,7 @@
 //                 await signerFactory(bob.sk);
                 
 //                 const updateLoanTokenActionType                = "updateLoanToken";
-//                 const tokenName                                = "mockFa2";
+//                 const tokenName                                = "eurl";
 //                 const interestRateDecimals                     = 27;
                 
 //                 const newOracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
@@ -2150,7 +2135,7 @@
 
 //                 // init variables
 //                 await signerFactory(eve.sk);
-//                 const loanTokenName = "mockFa2";
+//                 const loanTokenName = "eurl";
 //                 const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
 
 //                 // update operators for vault
@@ -2183,7 +2168,7 @@
 
 //                 // update token reward index for mockFa2 loan token
 //                 await signerFactory(bob.sk);
-//                 updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+//                 updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.transfer([
 //                 {
 //                     from_: bob.pkh,
 //                     txs: [
@@ -2198,21 +2183,21 @@
 
 //                 // init variables
 //                 await signerFactory(eve.sk);
-//                 const loanTokenName = "mockFa2";
+//                 const loanTokenName = "eurl";
 //                 const withdrawAmount = 1000000; // 1 Mock FA2 Tokens
 
 //                 lendingControllerStorage = await lendingControllerInstance.storage();
                 
 //                 // get mock fa12 token storage and lp token pool mock fa2 token storage
 //                 const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//                 const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+//                 const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
                 
 //                 // get initial eve's Mock FA2 Token balance
 //                 const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
 //                 const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
 //                 // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//                 const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//                 const eveLpTokenPoolMockFa2Ledger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
 //                 const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
 
 //                 // get initial lending controller's Mock FA2 Token balance
@@ -2233,7 +2218,7 @@
 //                 // get updated storages
 //                 const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
 //                 const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//                 const updatedLpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+//                 const updatedLpTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
 
 //                 // lendingControllerStorage = await lendingControllerInstance.storage();
 //                 const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get('mockFa2'); 
@@ -2450,7 +2435,7 @@
 //             await signerFactory(eve.sk);
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();

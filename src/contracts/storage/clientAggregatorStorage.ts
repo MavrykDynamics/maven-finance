@@ -5,7 +5,7 @@ import { clientAggregatorStorageType } from '../test/types/clientAggregatorStora
 const currentTimestamp  = new Date();
 const lastUpdatedAt     = Math.round(currentTimestamp.getTime() / 1000);
 
-const lastCompletedRoundData = {
+const lastCompletedData = {
     round                   : new BigNumber(0),
     data                    : new BigNumber(0),
     percentOracleResponse   : new BigNumber(0),
@@ -14,4 +14,4 @@ const lastCompletedRoundData = {
 }
 
 export const clientAggregatorStorage: clientAggregatorStorageType = 
-    lastCompletedRoundData;
+    lastCompletedData;

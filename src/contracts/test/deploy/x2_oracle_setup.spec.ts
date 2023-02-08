@@ -10,8 +10,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import {bob, eve, mallory, oracleMaintainer} from '../../scripts/sandbox/accounts'
-import {oracles} from '../../scripts/sandbox/oracles'
+import {bob, eve, mallory} from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -48,91 +47,140 @@ describe('Oracle Setup', async () => {
           console.log("Setup Oracles")
 
           const oracleMap = MichelsonMap.fromLiteral({
-                [bob.pkh]              : {
-                                              oraclePublicKey: bob.pk,
-                                              oraclePeerId: bob.peerId
-                                          },
-                [eve.pkh]              : {
-                                              oraclePublicKey: eve.pk,
-                                              oraclePeerId: eve.peerId
-                                          },
-                [mallory.pkh]          : {
-                                              oraclePublicKey: mallory.pk,
-                                              oraclePeerId: mallory.peerId
-                                          },
-                [oracleMaintainer.pkh] : {
-                                              oraclePublicKey: oracleMaintainer.pk,
-                                              oraclePeerId: oracleMaintainer.peerId
-                                          },
-              });
+            [bob.pkh]              : {
+                                        oraclePublicKey: bob.pk,
+                                        oraclePeerId: bob.peerId
+                                    },
+            [eve.pkh]              : {
+                                        oraclePublicKey: eve.pk,
+                                        oraclePeerId: eve.peerId
+                                    },
+            [mallory.pkh]          : {
+                                        oraclePublicKey: mallory.pk,
+                                        oraclePeerId: eve.peerId
+                                    }
+          });
 
-          const aggregatorMetadataBase = Buffer.from(
+          const btcUsdMetadata = Buffer.from(
+            JSON.stringify({
+                name: 'BTC/USD Aggregator Contract',
+                icon: 'https://infura-ipfs.io/ipfs/QmNyMFPuh43K9wkYHV6shtLYMusqXf3YCkes9aWAgird6u',
+                version: 'v1.0.0',
+                authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                            category: 'cryptocurrency'
+            }),
+            'ascii',
+          ).toString('hex')
+
+          const xtzUsdMetadata = Buffer.from(
               JSON.stringify({
-                  name: 'MAVRYK Aggregator Contract',
-                  icon: 'https://logo.chainbit.xyz/xtz',
+                  name: 'XTZ/USD Aggregator Contract',
+                  icon: 'https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW',
                   version: 'v1.0.0',
-                  authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                  authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                  category: 'cryptocurrency'
               }),
               'ascii',
-              ).toString('hex')
+          ).toString('hex')
+
+          const usdtUsdMetadata = Buffer.from(
+            JSON.stringify({
+                name: 'USDT/USD Aggregator Contract',
+                icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
+                version: 'v1.0.0',
+                authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                            category: 'stablecoin'
+            }),
+            'ascii',
+          ).toString('hex')
+
+          const eurocUsdMetadata = Buffer.from(
+            JSON.stringify({
+                name: 'EUROC/USD Aggregator Contract',
+                icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
+                version: 'v1.0.0',
+                authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                            category: 'stablecoin'
+            }),
+            'ascii',
+        ).toString('hex')
   
           const createAggregatorsBatch = await utils.tezos.wallet
               .batch()
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
 
-                  'USD/BTC',
+                  'BTC/USD',
                   true,
                   
                   oracleMap,
-  
+
                   new BigNumber(8),             // decimals
                   new BigNumber(2),             // alphaPercentPerThousand
                   
                   new BigNumber(60),            // percentOracleThreshold
-                  new BigNumber(30),            // heartBeatSeconds
+                  new BigNumber(300),            // heartBeatSeconds
 
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  aggregatorMetadataBase        // metadata bytes
+                  btcUsdMetadata                // metadata
 
               ))
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
   
-                  'USD/XTZ',
+                  'XTZ/USD',
                   true,
+                  
+                  oracleMap,
+
+                  new BigNumber(6),             // decimals
+                  new BigNumber(2),             // alphaPercentPerThousand
+                  
+                  new BigNumber(60),            // percentOracleThreshold
+                  new BigNumber(300),           // heartBeatSeconds
+
+                  new BigNumber(10000000),      // rewardAmountStakedMvk
+                  new BigNumber(1300),          // rewardAmountXtz
+                  
+                  xtzUsdMetadata                // metadata
+
+              ))
+              .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
   
+                  'USDT/USD',
+                  true,
+                  
+                  oracleMap,
+
+                  new BigNumber(6),             // decimals
+                  new BigNumber(2),             // alphaPercentPerThousand
+                  
+                  new BigNumber(60),            // percentOracleThreshold
+                  new BigNumber(300),           // heartBeatSeconds
+
+                  new BigNumber(10000000),      // rewardAmountStakedMvk
+                  new BigNumber(1300),          // rewardAmountXtz
+                  
+                  usdtUsdMetadata               // metadata bytes
+                  
+              ))
+              .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+  
+                  'EUROC/USD',
+                  true,
+                  
                   oracleMap,
   
                   new BigNumber(6),             // decimals
                   new BigNumber(2),             // alphaPercentPerThousand
                   
                   new BigNumber(60),            // percentOracleThreshold
-                  new BigNumber(30),            // heartBeatSeconds
+                  new BigNumber(300),           // heartBeatSeconds
 
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  aggregatorMetadataBase        // metadata bytes
-
-              ))
-              .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-  
-                  'USD/DOGE',
-                  true,
-  
-                  oracleMap,
-  
-                  new BigNumber(16),            // decimals
-                  new BigNumber(2),             // alphaPercentPerThousand
-                  
-                  new BigNumber(60),            // percentOracleThreshold
-                  new BigNumber(30),            // heartBeatSeconds
-
-                  new BigNumber(10000000),      // rewardAmountStakedMvk
-                  new BigNumber(1300),          // rewardAmountXtz
-                  
-                  aggregatorMetadataBase        // metadata bytes
+                  eurocUsdMetadata              // metadata
                   
               ))
   
