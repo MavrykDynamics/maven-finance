@@ -49,10 +49,9 @@ const breakGlassConfig = {
     borrowIsPaused                      : false,
     repayIsPaused                       : false,
 
-    // Vault Staked MVK Entrypoints
-    vaultDepositStakedMvkIsPaused       : false,
-    vaultWithdrawStakedMvkIsPaused      : false,
-    vaultLiquidateStakedMvkIsPaused     : false
+    // Vault Staked Token Entrypoints
+    vaultDepositStakedTokenIsPaused     : false,
+    vaultWithdrawStakedTokenIsPaused    : false
 }
 
 const metadata = MichelsonMap.fromLiteral({
