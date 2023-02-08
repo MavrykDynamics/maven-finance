@@ -9,7 +9,7 @@
 // import { MVK, Utils, zeroAddress } from "./helpers/Utils";
 // import BigNumber from 'bignumber.js';
 // import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
-// import { bob, alice, eve, mallory, david, trudy, susie, oracleMaintainer} from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, david, trudy, susie } from "../scripts/sandbox/accounts";
 // import doormanAddress               from '../deployments/doormanAddress.json';
 // import aggregatorAddress            from '../deployments/aggregatorAddress.json';
 // import delegationAddress            from '../deployments/delegationAddress.json';
@@ -106,7 +106,6 @@
 //         console.log('Alice address: '             + alice.pkh);
 //         console.log('Eve address: '               + eve.pkh);
 //         console.log('Mallory address: '           + mallory.pkh);
-//         console.log('Oracle Maintainer address: ' + oracleMaintainer.pkh);
 
 //         // Setup governance satellites for action snapshot later
 //         // ------------------------------------------------------------------
@@ -117,7 +116,6 @@
 //         const mallorySatellite  = await delegationStorage.satelliteLedger.get(mallory.pkh);
 //         const eveSatellite      = await delegationStorage.satelliteLedger.get(eve.pkh);
 //         const susieSatellite    = await delegationStorage.satelliteLedger.get(susie.pkh);
-//         const oracleSatellite   = await delegationStorage.satelliteLedger.get(oracleMaintainer.pkh);
 
 //         if(bobSatellite === undefined){
 
@@ -147,21 +145,6 @@
 //                 bob.peerId
 //             ).send();
 //             await bobRegisterAsSatelliteOperation.confirmation();
-
-//             // Bob transfers 150 MVK tokens to Oracle Maintainer
-//             const bobTransferMvkToOracleMaintainerOperation = await mvkTokenInstance.methods.transfer([
-//                 {
-//                     from_: bob.pkh,
-//                     txs: [
-//                         {
-//                             to_: oracleMaintainer.pkh,
-//                             token_id: 0,
-//                             amount: MVK(150)
-//                         }
-//                     ]
-//                 }
-//             ]).send();
-//             await bobTransferMvkToOracleMaintainerOperation.confirmation();
 
 //         }
 
@@ -289,37 +272,6 @@
 //             await susieRegisterAsSatelliteOperation.confirmation();
 //         }
 
-//         if(oracleSatellite === undefined){
-
-//             // Oracle Maintainer stakes 100 MVK tokens and registers as a satellite 
-//             await signerFactory(oracleMaintainer.sk);
-//             updateOperators = await mvkTokenInstance.methods
-//                 .update_operators([
-//                 {
-//                     add_operator: {
-//                         owner: oracleMaintainer.pkh,
-//                         operator: doormanAddress.address,
-//                         token_id: 0,
-//                     },
-//                 },
-//                 ])
-//                 .send()
-//             await updateOperators.confirmation(); 
-//             const oracleMaintainerStakeAmount                  = MVK(100);
-//             const oracleMaintainerStakeAmountOperation         = await doormanInstance.methods.stake(oracleMaintainerStakeAmount).send();
-//             await oracleMaintainerStakeAmountOperation.confirmation();                        
-//             const oracleMaintainerRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-//                 "New Satellite by Oracle Maintainer", 
-//                 "New Satellite Description - Oracle Maintainer", 
-//                 "https://image.url", 
-//                 "https://image.url", 
-//                 "1000",
-//                 oracleMaintainer.pk,
-//                 oracleMaintainer.peerId
-//             ).send();
-//             await oracleMaintainerRegisterAsSatelliteOperation.confirmation();
-//         }
-
 //         // ------------------------------------------------------------------
 //         // Setup oracles for test
 //         // ------------------------------------------------------------------
@@ -347,14 +299,6 @@
 //             ).send();
 //             await addMalloryOracle.confirmation();
 //         }
-
-//         if(aggregatorStorage.oracleAddresses.get(oracleMaintainer.pkh) === undefined){
-//             const addMaintainerOracle = await aggregatorInstance.methods.addOracle(
-//                 oracleMaintainer.pkh
-//             ).send();
-//             await addMaintainerOracle.confirmation();
-//         }
-
 
 //         // ------------------------------------------------------------------
 //         // Setup rounds and epoch
@@ -568,11 +512,7 @@
 //             {
 //                 "oracle": mallory.pkh,
 //                 "data": new BigNumber(10142857900)
-//             },
-//             {
-//                 "oracle": oracleMaintainer.pkh,
-//                 "data": new BigNumber(10144537815)
-//             },
+//             }
 //         ];
 
 //         it('Non-oracle should not be able to call this entrypoint', async () => {
@@ -596,8 +536,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
         
 //                 // Operation
 //                 await signerFactory(trudy.sk);
@@ -632,11 +570,11 @@
 
 //                 };
 //                 const signatures                        = new MichelsonMap<string, string>();
-//                 const startOracleMaintainerSMvkRewards  = await aggregatorStorage.oracleRewardStakedMvk.get(oracleMaintainer.pkh);
-//                 const startOracleMaintainerXtzRewards   = await aggregatorStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
+//                 const startMallorySMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
+//                 const startMalloryXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
 //                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
 //                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-//                 const rewardRatio                       = oracleVotingPowers.get(oracleMaintainer.pkh) / totalVotingPower;
+//                 const rewardRatio                       = oracleVotingPowers.get(mallory.pkh) / totalVotingPower;
     
 //                 // Sign observations
 //                 await signerFactory(bob.sk);
@@ -645,8 +583,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
@@ -654,19 +590,19 @@
 
 //                 // Final values
 //                 aggregatorStorage                       = await aggregatorInstance.storage();
-//                 const endOracleMaintainerSMvkRewards    = await aggregatorStorage.oracleRewardStakedMvk.get(oracleMaintainer.pkh);
-//                 const endOracleMaintainerXtzRewards     = await aggregatorStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
+//                 const endMallorySMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
+//                 const endMalloryXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
 //                 const expectedMaintainerSMvkReward      = Math.trunc(rewardRatio * smvkReward);
 
 //                 // Assertions
-//                 assert.strictEqual(startOracleMaintainerSMvkRewards, undefined);
-//                 assert.strictEqual(startOracleMaintainerXtzRewards, undefined);
-//                 assert.equal(endOracleMaintainerSMvkRewards.toNumber(), expectedMaintainerSMvkReward);
-//                 assert.equal(endOracleMaintainerXtzRewards.toNumber(), xtzReward);
+//                 assert.strictEqual(startMallorySMvkRewards, undefined);
+//                 assert.strictEqual(startMalloryXtzRewards, undefined);
+//                 assert.equal(endMallorySMvkRewards.toNumber(), expectedMaintainerSMvkReward);
+//                 assert.equal(endMalloryXtzRewards.toNumber(), xtzReward);
 //                 assert.deepEqual(aggregatorStorage.lastCompletedData.round,new BigNumber(round));
 //                 assert.deepEqual(aggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-//                 assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857521));
-//                 assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+//                 assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857143));
+//                 assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(3));
 //                 round++;
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
@@ -677,7 +613,7 @@
 //             try {
 //                 // Pre-operations
 //                 // Increase oracle maintainer stake
-//                 await signerFactory(oracleMaintainer.sk);
+//                 await signerFactory(mallory.sk);
 //                 const additionalStakeAmount             = MVK(10);
 //                 var stakeOperation                      = await doormanInstance.methods.stake(additionalStakeAmount).send();
 //                 await stakeOperation.confirmation();
@@ -724,11 +660,11 @@
 
 //                 };
 //                 const signatures                        = new MichelsonMap<string, string>();
-//                 const startOracleMaintainerSMvkRewards  = await aggregatorStorage.oracleRewardStakedMvk.get(oracleMaintainer.pkh);
-//                 const startOracleMaintainerXtzRewards   = await aggregatorStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
+//                 const startMallorySMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
+//                 const startMalloryXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
 //                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
 //                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-//                 const rewardRatio                       = oracleVotingPowers.get(oracleMaintainer.pkh) / totalVotingPower;
+//                 const rewardRatio                       = oracleVotingPowers.get(mallory.pkh) / totalVotingPower;
     
 //                 // Sign observations
 //                 await signerFactory(bob.sk);
@@ -737,8 +673,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
@@ -746,21 +680,22 @@
 
 //                 // Final values
 //                 aggregatorStorage                       = await aggregatorInstance.storage();
-//                 const endOracleMaintainerSMvkRewards    = await aggregatorStorage.oracleRewardStakedMvk.get(oracleMaintainer.pkh);
-//                 const endOracleMaintainerXtzRewards     = await aggregatorStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
-//                 const expectedMaintainerSMvkReward      = Math.trunc(startOracleMaintainerSMvkRewards.toNumber() + rewardRatio * smvkReward);
-//                 const expectedMaintainerXtzReward       = startOracleMaintainerXtzRewards.toNumber() + xtzReward;
+//                 const endMallorySMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
+//                 const endMalloryXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
+//                 const expectedMaintainerSMvkReward      = Math.trunc(startMallorySMvkRewards.toNumber() + rewardRatio * smvkReward);
+//                 const expectedMaintainerXtzReward       = startMalloryXtzRewards.toNumber() + xtzReward;
 
 //                 // Assertions
-//                 assert.notStrictEqual(startOracleMaintainerSMvkRewards, undefined);
-//                 assert.notStrictEqual(startOracleMaintainerXtzRewards, undefined);
-//                 assert.equal(endOracleMaintainerSMvkRewards.toNumber(), expectedMaintainerSMvkReward);
-//                 assert.equal(endOracleMaintainerXtzRewards.toNumber(), expectedMaintainerXtzReward);
+//                 assert.notStrictEqual(startMallorySMvkRewards, undefined);
+//                 assert.notStrictEqual(startMalloryXtzRewards, undefined);
+//                 assert.equal(endMallorySMvkRewards.toNumber(), expectedMaintainerSMvkReward);
+//                 assert.equal(endMalloryXtzRewards.toNumber(), expectedMaintainerXtzReward);
 //                 assert.deepEqual(aggregatorStorage.lastCompletedData.round,new BigNumber(round));
 //                 assert.deepEqual(aggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-//                 assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857521));
-//                 assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+//                 assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857143));
+//                 assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(3));
 //                 round++;
+
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }
@@ -803,8 +738,8 @@
 
 //                 };
 //                 const signatures                        = new MichelsonMap<string, string>();
-//                 const startOracleMaintainerSMvkRewards  = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
-//                 const startOracleMaintainerXtzRewards   = await aggregatorStorage.oracleRewardXtz.get(bob.pkh);
+//                 const startMallorySMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
+//                 const startMalloryXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(bob.pkh);
 //                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
 //                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
 //                 const rewardRatio                       = oracleVotingPowers.get(bob.pkh) / totalVotingPower;
@@ -816,8 +751,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await signerFactory(bob.sk);
@@ -826,20 +759,20 @@
 
 //                 // Final values
 //                 aggregatorStorage                       = await aggregatorInstance.storage();
-//                 const endOracleMaintainerSMvkRewards    = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
-//                 const endOracleMaintainerXtzRewards     = await aggregatorStorage.oracleRewardXtz.get(bob.pkh);
-//                 const expectedMaintainerSMvkReward      = Math.trunc(startOracleMaintainerSMvkRewards.toNumber() + rewardRatio * smvkReward);
+//                 const endMallorySMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
+//                 const endMalloryXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(bob.pkh);
+//                 const expectedMaintainerSMvkReward      = Math.trunc(startMallorySMvkRewards.toNumber() + rewardRatio * smvkReward);
 //                 const expectedMaintainerXtzReward       = xtzReward;
 
 //                 // Assertions
-//                 assert.notStrictEqual(startOracleMaintainerSMvkRewards, undefined);
-//                 assert.strictEqual(startOracleMaintainerXtzRewards, undefined);
-//                 assert.equal(endOracleMaintainerSMvkRewards.toNumber(), expectedMaintainerSMvkReward);
-//                 assert.equal(endOracleMaintainerXtzRewards.toNumber(), expectedMaintainerXtzReward);
+//                 assert.notStrictEqual(startMallorySMvkRewards, undefined);
+//                 assert.strictEqual(startMalloryXtzRewards, undefined);
+//                 assert.equal(endMallorySMvkRewards.toNumber(), expectedMaintainerSMvkReward);
+//                 assert.equal(endMalloryXtzRewards.toNumber(), expectedMaintainerXtzReward);
 //                 assert.deepEqual(aggregatorStorage.lastCompletedData.round,new BigNumber(round));
 //                 assert.deepEqual(aggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-//                 assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857521));
-//                 assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+//                 assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857143));
+//                 assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(3));
 //                 round++;
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
@@ -865,8 +798,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -918,8 +849,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -967,8 +896,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -1020,8 +947,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -1073,8 +998,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
       
 //                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -1104,8 +1027,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -1135,8 +1056,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -1170,11 +1089,7 @@
 //                     {
 //                         "oracle": mallory.pkh,
 //                         "data": new BigNumber(10142857900)
-//                     },
-//                     {
-//                         "oracle": oracleMaintainer.pkh,
-//                         "data": new BigNumber(10144537815)
-//                     },
+//                     }
 //                 ];
 //                 var totalVotingPower                        = 0;
 //                 for (const { oracle, data } of observations) {
@@ -1242,31 +1157,31 @@
 //             try {
 //                 // Initial values
 //                 aggregatorStorage                           = await aggregatorInstance.storage();
-//                 const oraclePendingRewards                  = await aggregatorStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
-//                 const beforeOracleMaintainerTezBalance      = await utils.tezos.tz.getBalance(oracleMaintainer.pkh);
+//                 const oraclePendingRewards                  = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
+//                 const beforeMalloryTezBalance               = await utils.tezos.tz.getBalance(mallory.pkh);
 //                 const beforeEveTezBalance                   = await utils.tezos.tz.getBalance(eve.pkh);
     
 //                 // Operation
 //                 // use alice to withdraw reward to the oracles and pay the gas cost for easier testing
 //                 await signerFactory(alice.sk);
                 
-//                 const oracleMaintainerWithdrawRewardXtzOp   = await aggregatorInstance.methods.withdrawRewardXtz(oracleMaintainer.pkh).send();
-//                 await oracleMaintainerWithdrawRewardXtzOp.confirmation();
+//                 const malloryWithdrawRewardXtzOp            = await aggregatorInstance.methods.withdrawRewardXtz(mallory.pkh).send();
+//                 await malloryWithdrawRewardXtzOp.confirmation();
                 
 //                 const eveWithdrawRewardXtzOp                = await aggregatorInstance.methods.withdrawRewardXtz(eve.pkh).send();
 //                 await eveWithdrawRewardXtzOp.confirmation();
     
 //                 // Final values
 //                 aggregatorStorage                           = await aggregatorInstance.storage();
-//                 const resetOracleMaintainerRewardXtz        = await aggregatorStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
+//                 const resetMalloryRewardXtz                 = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
 //                 const resetEveRewardXtz                     = await aggregatorStorage.oracleRewardXtz.get(eve.pkh);
-//                 const oracleMaintainerTezBalance            = await utils.tezos.tz.getBalance(oracleMaintainer.pkh);
+//                 const malloryTezBalance                     = await utils.tezos.tz.getBalance(mallory.pkh);
 //                 const eveTezBalance                         = await utils.tezos.tz.getBalance(eve.pkh);
     
 //                 // Assertions
-//                 assert.equal(resetOracleMaintainerRewardXtz, 0);
+//                 assert.equal(resetMalloryRewardXtz, 0);
 //                 assert.equal(resetEveRewardXtz, undefined);
-//                 assert.equal(oracleMaintainerTezBalance.toNumber(), beforeOracleMaintainerTezBalance.plus(oraclePendingRewards).toNumber());
+//                 assert.equal(malloryTezBalance.toNumber(), beforeMalloryTezBalance.plus(oraclePendingRewards).toNumber());
 //                 assert.equal(eveTezBalance.toNumber(), beforeEveTezBalance.toNumber());  
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
@@ -1664,11 +1579,7 @@
 //                     {
 //                         "oracle": mallory.pkh,
 //                         "data": new BigNumber(10142857900)
-//                     },
-//                     {
-//                         "oracle": oracleMaintainer.pkh,
-//                         "data": new BigNumber(10144537815)
-//                     },
+//                     }
 //                 ];
 
 //                 let epoch: number           = 2;
@@ -1691,8 +1602,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
     
 //                 // Operation
 //                 await signerFactory(bob.sk)

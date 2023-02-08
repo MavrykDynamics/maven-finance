@@ -15,7 +15,7 @@ chai.use(chaiAsPromised)
 chai.should()
 
 import env from '../../env'
-import { bob, alice, eve, mallory, oscar, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
+import { bob, alice, eve, mallory, oscar } from '../../scripts/sandbox/accounts'
 
 
 // ------------------------------------------------------------------------------
@@ -74,9 +74,9 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
 
     var mockFa12Token                   : MavrykFa12Token
     var mockFa2Token                    : MavrykFa2Token
-    var lpTokenPoolMockFa12Token        : MToken;
-    var lpTokenPoolMockFa2Token         : MToken;
-    var lpTokenPoolXtz                  : MToken;
+    var mTokenUsdt                      : MToken;
+    var mTokenEurl                      : MToken;
+    var mTokenXtz                       : MToken;
 
     var lendingControllerMockTime       : LendingControllerMockTime
     var vaultFactory                    : VaultFactory
@@ -144,47 +144,46 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
         
 
             //----------------------------
-            // LP Token for Mock FA12 Token in Lending Controller Token Pool 
-            // Note: LP Tokens follow the FA2 Token Standard
+            // mUsdt mToken
             //----------------------------
             mTokenStorage.governanceAddress = governanceAddress.address;
             mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
                 "lendingController"     : lendingControllerMockTime.contract.address
             });
-            mTokenStorage.loanToken = "mockFa12";  // should correspond to loan token record in lending controller
-            lpTokenPoolMockFa12Token = await MToken.originate(
+            mTokenStorage.loanToken = "usdt";  // should correspond to loan token record in lending controller
+            mTokenUsdt = await MToken.originate(
                 utils.tezos,
                 mTokenStorage
             );
 
-            await saveContractAddress("lpTokenPoolMockFa12TokenAddress", lpTokenPoolMockFa12Token.contract.address)
-            console.log("LP Token Pool Mock Fa12 Token Contract deployed at:", lpTokenPoolMockFa12Token.contract.address);
+            await saveContractAddress("mTokenUsdtAddress", mTokenUsdt.contract.address)
+            console.log("mTokenUsdt Contract deployed at:", mTokenUsdt.contract.address);
 
 
             //----------------------------
-            // LP Token for Mock FA2 Token in Lending Controller Token Pool 
+            // mEurl mToken
             //----------------------------
-            mTokenStorage.loanToken = "mockFa2";  // should correspond to loan token record in lending controller
-            lpTokenPoolMockFa2Token = await MToken.originate(
+            mTokenStorage.loanToken = "eurl";  // should correspond to loan token record in lending controller
+            mTokenEurl = await MToken.originate(
                 utils.tezos,
                 mTokenStorage
             );
         
-            await saveContractAddress("lpTokenPoolMockFa2TokenAddress", lpTokenPoolMockFa2Token.contract.address)
-            console.log("LP Token Pool Mock Fa2 Token Contract deployed at:", lpTokenPoolMockFa2Token.contract.address);
+            await saveContractAddress("mTokenEurlAddress", mTokenEurl.contract.address)
+            console.log("mTokenEurl Contract deployed at:", mTokenEurl.contract.address);
 
 
             //----------------------------
-            // LP Token for XTZ in Lending Controller Token Pool 
+            // mXtz mToken
             //----------------------------
             mTokenStorage.loanToken = "tez";  // should correspond to loan token record in lending controller
-            lpTokenPoolXtz= await MToken.originate(
+            mTokenXtz= await MToken.originate(
                 utils.tezos,
                 mTokenStorage
             );
 
-            await saveContractAddress("lpTokenPoolXtzAddress", lpTokenPoolXtz.contract.address)
-            console.log("LP Token Pool XTZ Contract deployed at:", lpTokenPoolXtz.contract.address);
+            await saveContractAddress("mTokenXtzAddress", mTokenXtz.contract.address)
+            console.log("mTokenXtz Contract deployed at:", mTokenXtz.contract.address);
         
 
             //----------------------------
@@ -202,10 +201,6 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
                 [mallory.pkh]          : {
                     oraclePublicKey : mallory.pk,
                     oraclePeerId : mallory.peerId
-                },
-                [oscar.pkh] : {
-                    oraclePublicKey : oscar.pk,
-                    oraclePeerId : oscar.peerId
                 }
             });
 

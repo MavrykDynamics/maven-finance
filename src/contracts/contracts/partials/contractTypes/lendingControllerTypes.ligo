@@ -100,9 +100,8 @@ type loanTokenRecordType is [@layout:comb] record [
 
     oracleAddress                           : address;   
 
-    lpTokensTotal                           : nat;
-    lpTokenContractAddress                  : address;
-    lpTokenId                               : nat;
+    mTokensTotal                            : nat;
+    mTokenAddress                           : address;
 
     tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
     totalBorrowed                           : nat; 
@@ -203,8 +202,7 @@ type createLoanTokenActionType is [@layout:comb] record [
 
     oracleAddress                           : address;
 
-    lpTokenContractAddress                  : address;
-    lpTokenId                               : nat;
+    mTokenAddress                           : address;
 
     reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
     optimalUtilisationRate                  : nat;  // kink point
