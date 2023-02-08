@@ -427,10 +427,92 @@
     "lambdaMistakenTransfer",
 
     "lambdaSetLambdaPointer",
-    "lambdaProcessGovernanceAction"
+    "lambdaProcessGovernanceAction",
+
+    "executeGovernanceLambdaProxy",
+
+    "updateProxyLambda",
+
+    "setContractAdmin",
+    "setContractGovernance",
+    "setContractLambda",
+    "setFactoryProductLambda",
+    "updateContractWhitelistMap",
+    "updateContractWhitelistTokenMap",
+
+    "pauseAllContractEntrypoint",
+    "unpauseAllContractEntrypoint",
+
+    "toggleAggregatorEntrypoint",
+    "toggleAggregatorFacEntrypoint",
+    "toggleDelegationEntrypoint",
+    "toggleDoormanEntrypoint",
+    "toggleFarmEntrypoint",
+    "toggleFarmFacEntrypoint",
+    "toggleTreasuryEntrypoint",
+    "toggleTreasuryFacEntrypoint",
+    "toggleVaultFacEntrypoint",
+    "toggleLendingContEntrypoint",
+
+    "updateWhitelistDevelopersSet",
+    "setGovernanceProxy",
+
+    "createFarm",
+    "createAggregator",
+    "createTreasury",
+
+    "transferTreasury",
+    "mintMvkAndTransferTreasury",
+
+    "updateMvkInflationRate",
+    "triggerMvkInflation",
+
+    "addVestee",
+    "removeVestee",
+    "updateVestee",
+    "toggleVesteeLock",
+
+    "setLoanToken",
+    "setCollateralToken"
+  ],
+  "governanceProxyNodeThree": [
+    "lambdaSetAdmin",
+    "lambdaSetGovernance",
+    "lambdaUpdateMetadata",
+    "lambdaUpdateWhitelistContracts",
+    "lambdaUpdateGeneralContracts",
+    "lambdaUpdateWhitelistTokenContracts",
+    "lambdaMistakenTransfer",
+
+    "executeGovernanceLambdaProxy",
+
+    "updateProxyLambda",
+
+    "updateGovernanceConfig",
+    "updateGovernanceFinancialConfig",
+    "updateGovernanceSatelliteConfig",
+    "updateDoormanConfig",
+    "updateDelegationConfig",
+    "updateEmergencyConfig",
+    "updateBreakGlassConfig",
+    "updateCouncilConfig",
+    "updateFarmConfig",
+    "updateFarmFactoryConfig",
+    "updateAggregatorConfig",
+    "updateAggregatorFactoryConfig",
+    "updateTreasuryFactoryConfig",
+    "updateVaultFactoryConfig",
+    "updateLendingControllerConfig",
+
+    "initFarm",
+    "trackFarm",
+    "untrackFarm",
+    "closeFarm",
+
+    "trackTreasury",
+    "untrackTreasury"
   ],
   "governanceProxyNodeOne": [
-    "UpdateProxyLambda",
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateMetadata",
@@ -465,7 +547,6 @@
     "untrackContract"
   ],
   "governanceProxyNodeTwo": [
-    "UpdateProxyLambda",
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateMetadata",

@@ -170,7 +170,7 @@ block {
             // Main entrypoints
         |   SetProxyLambda(parameters)                -> setProxyLambda(parameters, s)
         |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)
-        |   DataPackingHelper(parameters)             -> dataDataPackingHelper(parameters, s)
+        |   DataPackingHelper(parameters)             -> dataPackingHelper(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                     -> setLambda(parameters, s)
