@@ -80,11 +80,12 @@
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
 // Governance Proxy Types
-#include "../partials/contractTypes/governanceProxyTypes.ligo"
+// - Use Node Three Types
+#include "../partials/contractTypes/governanceProxyNodeThreeTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
-type governanceProxyAction is 
+type governanceProxyNodeAction is 
         
         // Housekeeping Entrypoints
         SetAdmin                        of (address)
@@ -96,61 +97,59 @@ type governanceProxyAction is
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
-    |   ExecuteGovernanceAction         of (bytes)
-    |   ProcessGovernanceAction         of processGovernanceActionType
-
-        // Helper Entrypoints    
-    |   DataPackingHelper               of executeActionType
-        
-        // Lambda Entrypoints    
-    |   SetLambdaPointer                of setLambdaPointerActionType
     |   SetProxyLambda                  of setProxyLambdaType
+    |   ExecuteGovernanceAction         of (bytes)
+    |   DataPackingHelper               of executeActionType
+
+        // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * governanceProxyStorageType
+type return is list (operation) * governanceProxyNodeStorageType
 
 // proxy lambdas -> executing proposals to external contracts within MAVRYK system
-type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorageType) -> return
+type governanceProxyNodeProxyLambdaFunctionType is (executeActionType * governanceProxyNodeStorageType) -> return
 
 // governance proxy contract methods lambdas
-type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyStorageType) -> return
+type governanceProxyUnpackLambdaFunctionType is (governanceProxyNodeLambdaActionType * governanceProxyNodeStorageType) -> return
 
 
 // ------------------------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Helpers:
-#include "../partials/contractHelpers/governanceProxyHelpers.ligo"
+// GovernanceProxyNode Helpers:
+// - Use Node Three Helpers
+#include "../partials/contractHelpers/governanceProxyNodeThreeHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Views:
-#include "../partials/contractViews/governanceProxyViews.ligo"
+// GovernanceProxyNode Views:
+#include "../partials/contractViews/governanceProxyNodeViews.ligo"
 
 // ------------------------------------------------------------------------------
 // Lambdas
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Lambdas :
-#include "../partials/contractLambdas/governanceProxyLambdas.ligo"
+// GovernanceProxyNode Lambdas :
+// - Use Node Three Lambdas
+#include "../partials/contractLambdas/governanceProxyNodeThreeLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
-// GovernanceProxy Entrypoints:
-#include "../partials/contractEntrypoints/governanceProxyEntrypoints.ligo"
+// GovernanceProxyNode Entrypoints:
+#include "../partials/contractEntrypoints/governanceProxyNodeEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
-function main (const action : governanceProxyAction; const s : governanceProxyStorageType) : return is 
+function main (const action : governanceProxyNodeAction; const s : governanceProxyNodeStorageType) : return is 
 block {
 
     verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
@@ -169,16 +168,11 @@ block {
         |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Main entrypoints
-        |   SetProxyNodeAddresses(parameters)         -> setProxyNodeAddresses(parameters, s)
-        |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)        
-        |   ProcessGovernanceAction(parameters)       -> processGovernanceAction(parameters, s)
-
-            // Helper entrypoints
+        |   SetProxyLambda(parameters)                -> setProxyLambda(parameters, s)
+        |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)
         |   DataPackingHelper(parameters)             -> dataPackingHelper(parameters, s)
 
             // Lambda Entrypoints
-        |   SetLambdaPointer(parameters)              -> setLambdaPointer(parameters, s)
-        |   SetProxyLambda(parameters)                -> setProxyLambda(parameters, s)
         |   SetLambda(parameters)                     -> setLambda(parameters, s)
 
     ]

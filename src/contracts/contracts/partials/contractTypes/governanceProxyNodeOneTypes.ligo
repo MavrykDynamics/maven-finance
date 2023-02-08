@@ -238,7 +238,6 @@ type governanceProxyNodeStorageType is record [
     whitelistTokenContracts     : whitelistTokenContractsType;      
 
     proxyLambdaLedger           : proxyLambdaLedgerType;
-
     lambdaLedger                : lambdaLedgerType;             
 ]
 
