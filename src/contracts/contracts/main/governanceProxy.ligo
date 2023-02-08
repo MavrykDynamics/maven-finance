@@ -76,6 +76,9 @@
 // Vault Types 
 #include "../partials/contractTypes/vaultTypes.ligo"
 
+// VaultFactory Types 
+#include "../partials/contractTypes/vaultFactoryTypes.ligo"
+
 // LendingController Type
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
@@ -90,9 +93,6 @@ type governanceProxyAction is
         SetAdmin                        of (address)
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
-    |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
-    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
@@ -159,9 +159,6 @@ block {
             SetAdmin(parameters)                      -> setAdmin(parameters, s)
         |   SetGovernance(parameters)                 -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)                -> updateMetadata(parameters, s)
-        |   UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
-        |   UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Main entrypoints

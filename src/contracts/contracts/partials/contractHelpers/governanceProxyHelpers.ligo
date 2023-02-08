@@ -248,6 +248,37 @@ block {
 
 
 
+function updateDoormanConfig(const updateConfigParams : doormanUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get doorman contract address from the generalContracts big map
+    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+
+    // Find and get updateConfig entrypoint of break glass contract
+    const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%updateConfig",
+        doormanAddress) : option(contract(nat * doormanUpdateConfigActionType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat * doormanUpdateConfigActionType))
+        ];
+
+    // assign params to constants for better code readability
+    const updateConfigAction   = updateConfigParams.updateConfigAction;
+    const updateConfigNewValue = updateConfigParams.updateConfigNewValue;
+
+    // Create operation to update doorman contract config
+    const updateDoormanConfigOperation : operation = Tezos.transaction(
+        (updateConfigNewValue, updateConfigAction),
+        0tez, 
+        updateConfigEntrypoint
+    );
+
+    operations := updateDoormanConfigOperation # operations;
+
+} with (operations)
+
+
+
 function updateDelegationConfig(const updateConfigParams : delegationUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
 block {
     
@@ -523,32 +554,63 @@ block {
 
 
 
-function updateDoormanConfig(const updateConfigParams : doormanUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+function updateVaultFactoryConfig(const updateConfigParams : vaultFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
 block {
 
-    // Find and get doorman contract address from the generalContracts big map
-    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-    // Find and get updateConfig entrypoint of break glass contract
-    const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
-        "%updateConfig",
-        doormanAddress) : option(contract(nat * doormanUpdateConfigActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat * doormanUpdateConfigActionType))
-        ];
+    // Find and get vault factory contract address from the generalContracts big map
+    const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
 
     // assign params to constants for better code readability
-    const updateConfigAction   = updateConfigParams.updateConfigAction;
-    const updateConfigNewValue = updateConfigParams.updateConfigNewValue;
+    const updateConfigAction    = updateConfigParams.updateConfigAction;
+    const updateConfigNewValue  = updateConfigParams.updateConfigNewValue;
 
-    // Create operation to update doorman contract config
-    const updateDoormanConfigOperation : operation = Tezos.transaction(
+    // Find and get updateConfig entrypoint of vault factory contract
+    const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%updateConfig",
+        vaultFactoryAddress) : option(contract(nat * vaultFactoryUpdateConfigActionType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND) : contract(nat * vaultFactoryUpdateConfigActionType))
+        ];
+
+    // Create operation to update vault factory contract config
+    const updateVaultFactoryConfigOperation : operation = Tezos.transaction(
         (updateConfigNewValue, updateConfigAction),
         0tez, 
         updateConfigEntrypoint
     );
 
-    operations := updateDoormanConfigOperation # operations;
+    operations := updateVaultFactoryConfigOperation # operations;
+
+} with (operations)
+
+
+
+function updateLendingControllerConfig(const updateConfigParams : lendingControllerUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get lending controller contract address from the generalContracts big map
+    const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    // assign params to constants for better code readability
+    const updateConfigAction    = updateConfigParams.updateConfigAction;
+    const updateConfigNewValue  = updateConfigParams.updateConfigNewValue;
+
+    // Find and get updateConfig entrypoint of lending controller contract
+    const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%updateConfig",
+        lendingControllerAddress) : option(contract(nat * lendingControllerUpdateConfigActionType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(nat * lendingControllerUpdateConfigActionType))
+        ];
+
+    // Create operation to update lending controller contract config
+    const updateLendingControllerConfigOperation : operation = Tezos.transaction(
+        (updateConfigNewValue, updateConfigAction),
+        0tez, 
+        updateConfigEntrypoint
+    );
+
+    operations := updateLendingControllerConfigOperation # operations;
 
 } with (operations)
 
@@ -769,6 +831,60 @@ block {
         ];
 
     // Create operation to pause an entrypoint in the Treasury Factory contract
+    const togglePauseEntrypointOperation : operation = Tezos.transaction(
+        toggleEntrypointParams.targetEntrypoint,
+        0tez, 
+        togglePauseEntrypoint
+    );
+
+    operations := togglePauseEntrypointOperation # operations;
+
+} with (operations)
+
+
+
+function toggleVaultFacEntrypoint(const toggleEntrypointParams : toggleVaultFacEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get the contract address from the generalContracts big map
+    const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get togglePauseEntrypoint entrypoint
+    const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%togglePauseEntrypoint",
+        vaultFactoryAddress) : option(contract(vaultFactoryTogglePauseEntrypointType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND) : contract(vaultFactoryTogglePauseEntrypointType))
+        ];
+
+    // Create operation to pause an entrypoint in the Vault Factory contract
+    const togglePauseEntrypointOperation : operation = Tezos.transaction(
+        toggleEntrypointParams.targetEntrypoint,
+        0tez, 
+        togglePauseEntrypoint
+    );
+
+    operations := togglePauseEntrypointOperation # operations;
+
+} with (operations)
+
+
+
+function toggleLendingContEntrypoint(const toggleEntrypointParams : toggleLendingContEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get the contract address from the generalContracts big map
+    const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get togglePauseEntrypoint entrypoint
+    const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%togglePauseEntrypoint",
+        lendingControllerAddress) : option(contract(lendingControllerTogglePauseEntrypointType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(lendingControllerTogglePauseEntrypointType))
+        ];
+
+    // Create operation to pause an entrypoint in the Lending Controller contract
     const togglePauseEntrypointOperation : operation = Tezos.transaction(
         toggleEntrypointParams.targetEntrypoint,
         0tez, 

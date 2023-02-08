@@ -67,57 +67,57 @@ block {
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
-block {
+// function lambdaUpdateWhitelistContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
+// block {
     
-    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin);  // verify that sender is admin
+//     verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+//     verifySenderIsAdmin(s.admin);  // verify that sender is admin
     
-    case governanceProxyLambdaAction of [
-        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-            }
-        |   _ -> skip
-    ];
+//     case governanceProxyLambdaAction of [
+//         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+//                 s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+//             }
+//         |   _ -> skip
+//     ];
 
-} with (noOperations, s)
+// } with (noOperations, s)
 
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
-block {
+// function lambdaUpdateGeneralContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
+// block {
 
-    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin);  // verify that sender is admin
+//     verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+//     verifySenderIsAdmin(s.admin);  // verify that sender is admin
     
-    case governanceProxyLambdaAction of [
-        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-            }
-        |   _ -> skip
-    ];
+//     case governanceProxyLambdaAction of [
+//         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+//                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+//             }
+//         |   _ -> skip
+//     ];
 
-} with (noOperations, s)
+// } with (noOperations, s)
 
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
-block {
+// function lambdaUpdateWhitelistTokenContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
+// block {
 
-    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin);  // verify that sender is admin
+//     verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+//     verifySenderIsAdmin(s.admin);  // verify that sender is admin
 
-    case governanceProxyLambdaAction of [
-        |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
-                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-            }
-        |   _ -> skip
-    ];
+//     case governanceProxyLambdaAction of [
+//         |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
+//                 s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+//             }
+//         |   _ -> skip
+//     ];
 
 
-} with (noOperations, s)
+// } with (noOperations, s)
 
 
 
@@ -180,47 +180,75 @@ block {
         |   UpdateContractWhitelistTokenMap (_v)   -> 10n
         
             (* Update Configs *)
-        |   UpdateContractConfig (_v)              -> 11n
+        |   UpdateGovernanceConfig (_v)            -> 11n
+        |   UpdateGovernanceFinancialConfig (_v)   -> 12n 
+        |   UpdateGovernanceSatelliteConfig (_v)   -> 13n
+        |   UpdateDoormanConfig (_v)               -> 23n
+        |   UpdateDelegationConfig (_v)            -> 14n
+        |   UpdateEmergencyConfig (_v)             -> 15n
+        |   UpdateBreakGlassConfig (_v)            -> 16n
+        |   UpdateCouncilConfig (_v)               -> 17n
+        |   UpdateFarmConfig (_v)                  -> 18n
+        |   UpdateFarmFactoryConfig (_v)           -> 19n
+        |   UpdateAggregatorConfig (_v)            -> 20n
+        |   UpdateAggregatorFactoryConfig (_v)     -> 21n
+        |   UpdateTreasuryFactoryConfig (_v)       -> 22n
+        |   UpdateVaultFactoryConfig (_v)          -> 23n
+        |   UpdateLendingControllerConfig (_v)     -> 23n
 
             (* BreakGlass Configs *)
-        |   PauseAllContractEntrypoint (_v)        -> 12n
-        |   UnpauseAllContractEntrypoint (_v)      -> 13n
-        |   ToggleContractEntrypoint (_v)          -> 14n
+        |   PauseAllContractEntrypoint (_v)        -> 24n
+        |   UnpauseAllContractEntrypoint (_v)      -> 25n
+        |   ToggleAggregatorEntrypoint (_v)        -> 26n
+        |   ToggleAggregatorFacEntrypoint (_v)     -> 27n
+        |   ToggleDelegationEntrypoint (_v)        -> 28n
+        |   ToggleDoormanEntrypoint (_v)           -> 29n
+        |   ToggleFarmEntrypoint (_v)              -> 30n
+        |   ToggleFarmFacEntrypoint (_v)           -> 31n
+        |   ToggleTreasuryEntrypoint (_v)          -> 32n
+        |   ToggleTreasuryFacEntrypoint (_v)       -> 33n
+        |   ToggleVaultFacEntrypoint (_v)          -> 33n
+        |   ToggleLendingContEntrypoint (_v)       -> 33n
 
             (* Governance Control *)
-        |   UpdateWhitelistDevelopersSet (_v)      -> 15n
-        |   SetGovernanceProxy (_v)                -> 16n
+        |   UpdateWhitelistDevelopersSet (_v)      -> 34n
+        |   SetGovernanceProxy (_v)                -> 35n
 
             (* Farm Control *)
-        |   CreateFarm (_v)                        -> 17n
-        |   InitFarm (_v)                          -> 18n
-        |   CloseFarm (_v)                         -> 19n
+        |   CreateFarm (_v)                        -> 36n
+        |   TrackFarm (_v)                         -> 37n
+        |   UntrackFarm (_v)                       -> 38n
+        |   InitFarm (_v)                          -> 39n
+        |   CloseFarm (_v)                         -> 40n
 
             (* Treasury Control *)
-        |   CreateTreasury (_v)                    -> 20n
-        |   TransferTreasury (_v)                  -> 21n
-        |   MintMvkAndTransferTreasury (_v)        -> 22n
-        |   UpdateMvkOperatorsTreasury (_v)        -> 23n
-        |   StakeMvkTreasury (_v)                  -> 24n
-        |   UnstakeMvkTreasury (_v)                -> 25n
+        |   CreateTreasury (_v)                    -> 41n
+        |   TrackTreasury (_v)                     -> 42n
+        |   UntrackTreasury (_v)                   -> 43n
+        |   TransferTreasury (_v)                  -> 44n
+        |   MintMvkAndTransferTreasury (_v)        -> 45n
+        |   UpdateMvkOperatorsTreasury (_v)        -> 46n
+        |   StakeMvkTreasury (_v)                  -> 47n
+        |   UnstakeMvkTreasury (_v)                -> 48n
 
             (* Aggregator Control *)
-        |   CreateAggregator (_v)                  -> 26n
+        |   CreateAggregator (_v)                  -> 49n
+        |   TrackAggregator (_v)                   -> 50n
+        |   UntrackAggregator (_v)                 -> 51n
 
             (* MVK Token Control *)
-        |   UpdateMvkInflationRate (_v)            -> 27n
-        |   TriggerMvkInflation (_v)               -> 28n
-
-            (* Track / Untrack Control *)
-        |   TrackContract (_v)                     -> 29n
-        |   UntrackContract (_v)                   -> 30n
+        |   UpdateMvkInflationRate (_v)            -> 52n
+        |   TriggerMvkInflation (_v)               -> 53n
 
             (* Vesting Control *)
-        |   ManageVestee (_v)                      -> 31n
+        |   AddVestee (_v)                         -> 54n
+        |   RemoveVestee (_v)                      -> 55n
+        |   UpdateVestee (_v)                      -> 56n
+        |   ToggleVesteeLock (_v)                  -> 57n
 
             (* Lending Controller *)
-        // |   SetLoanToken (_v)                      -> 32n
-        // |   SetCollateralToken (_v)                -> 33n
+        |   SetLoanToken (_v)                      -> 58n
+        |   SetCollateralToken (_v)                -> 59n
     ];
 
     // Get entrypoint lambda as bytes
@@ -609,7 +637,41 @@ block {
 // General Control Lambdas End
 // ------------------------------------------------------------------------------
 
-function updateContractConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// function updateContractConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
+
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+//     var operations : list(operation) := nil;
+
+//     case executeAction of [
+//         |   UpdateContractConfig(updateContractConfigParams) -> {
+
+//                 operations := case updateContractConfigParams of [
+//                         UpdateGovernanceConfig (_v)             -> updateGovernanceConfig(_v, operations, s)
+//                     |   UpdateGovernanceFinancialConfig (_v)    -> updateGovernanceFinancialConfig(_v, operations, s)
+//                     |   UpdateGovernanceSatelliteConfig (_v)    -> updateGovernanceSatelliteConfig(_v, operations, s)
+//                     |   UpdateDelegationConfig (_v)             -> updateDelegationConfig(_v, operations, s)
+//                     |   UpdateEmergencyConfig (_v)              -> updateEmergencyConfig(_v, operations, s)
+//                     |   UpdateBreakGlassConfig (_v)             -> updateBreakGlassConfig(_v, operations, s)
+//                     |   UpdateCouncilConfig (_v)                -> updateCouncilConfig(_v, operations, s)
+//                     |   UpdateFarmConfig (_v)                   -> updateFarmConfig(_v, operations)
+//                     |   UpdateFarmFactoryConfig (_v)            -> updateFarmFactoryConfig(_v, operations, s)
+//                     |   UpdateAggregatorConfig (_v)             -> updateAggregatorConfig(_v, operations)
+//                     |   UpdateAggregatorFactoryConfig (_v)      -> updateAggregatorFactoryConfig(_v, operations, s)
+//                     |   UpdateTreasuryFactoryConfig (_v)        -> updateTreasuryFactoryConfig(_v, operations, s)
+//                     |   UpdateDoormanConfig (_v)                -> updateDoormanConfig(_v, operations, s)
+//                 ]
+
+//             }
+//         |   _ -> skip
+//     ]
+
+// } with (operations, s)
+
+
+function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     // verify that sender is admin or the Governance Contract address
@@ -618,23 +680,303 @@ block {
     var operations : list(operation) := nil;
 
     case executeAction of [
-        |   UpdateContractConfig(updateContractConfigParams) -> {
+        |   UpdateGovernanceConfig(updateContractConfigParams) -> {
 
-                operations := case updateContractConfigParams of [
-                        UpdateGovernanceConfig (_v)             -> updateGovernanceConfig(_v, operations, s)
-                    |   UpdateGovernanceFinancialConfig (_v)    -> updateGovernanceFinancialConfig(_v, operations, s)
-                    |   UpdateGovernanceSatelliteConfig (_v)    -> updateGovernanceSatelliteConfig(_v, operations, s)
-                    |   UpdateDelegationConfig (_v)             -> updateDelegationConfig(_v, operations, s)
-                    |   UpdateEmergencyConfig (_v)              -> updateEmergencyConfig(_v, operations, s)
-                    |   UpdateBreakGlassConfig (_v)             -> updateBreakGlassConfig(_v, operations, s)
-                    |   UpdateCouncilConfig (_v)                -> updateCouncilConfig(_v, operations, s)
-                    |   UpdateFarmConfig (_v)                   -> updateFarmConfig(_v, operations)
-                    |   UpdateFarmFactoryConfig (_v)            -> updateFarmFactoryConfig(_v, operations, s)
-                    |   UpdateAggregatorConfig (_v)             -> updateAggregatorConfig(_v, operations)
-                    |   UpdateAggregatorFactoryConfig (_v)      -> updateAggregatorFactoryConfig(_v, operations, s)
-                    |   UpdateTreasuryFactoryConfig (_v)        -> updateTreasuryFactoryConfig(_v, operations, s)
-                    |   UpdateDoormanConfig (_v)                -> updateDoormanConfig(_v, operations, s)
-                ]
+                operations := updateGovernanceConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateGovernanceFinancialConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateGovernanceFinancialConfig(updateContractConfigParams) -> {
+
+                operations := updateGovernanceFinancialConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateGovernanceSatelliteConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateGovernanceSatelliteConfig(updateContractConfigParams) -> {
+
+                operations := updateGovernanceSatelliteConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateDoormanConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateDoormanConfig(updateContractConfigParams) -> {
+
+                operations := updateDoormanConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateDelegationConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateDelegationConfig(updateContractConfigParams) -> {
+
+                operations := updateDelegationConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateEmergencyConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateEmergencyConfig(updateContractConfigParams) -> {
+
+                operations := updateEmergencyConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateBreakGlassConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateBreakGlassConfig(updateContractConfigParams) -> {
+
+                operations := updateBreakGlassConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateCouncilConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateCouncilConfig(updateContractConfigParams) -> {
+
+                operations := updateCouncilConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateFarmConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateFarmConfig(updateContractConfigParams) -> {
+
+                operations := updateFarmConfig(updateContractConfigParams, operations);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateFarmFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateFarmFactoryConfig(updateContractConfigParams) -> {
+
+                operations := updateFarmFactoryConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateAggregatorConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateAggregatorConfig(updateContractConfigParams) -> {
+
+                operations := updateAggregatorConfig(updateContractConfigParams, operations);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateAggregatorFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateAggregatorFactoryConfig(updateContractConfigParams) -> {
+
+                operations := updateAggregatorFactoryConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateTreasuryFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateTreasuryFactoryConfig(updateContractConfigParams) -> {
+
+                operations := updateTreasuryFactoryConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateVaultFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateVaultFactoryConfig(updateContractConfigParams) -> {
+
+                operations := updateVaultFactoryConfig(updateContractConfigParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateLendingControllerConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   UpdateLendingControllerConfig(updateContractConfigParams) -> {
+
+                operations := updateLendingControllerConfig(updateContractConfigParams, operations, s);
 
             }
         |   _ -> skip
@@ -702,7 +1044,38 @@ block {
 
 
 
-function toggleContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// function toggleContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
+
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+//     var operations : list(operation) := nil;
+
+//     case executeAction of [
+      
+//         |   ToggleContractEntrypoint(toggleContractEntrypointParams) -> {
+
+//                 operations := case toggleContractEntrypointParams of [
+//                         ToggleAggregatorEntrypoint (_v)     -> toggleAggregatorEntrypoint(_v, operations)
+//                     |   ToggleAggregatorFacEntrypoint (_v)  -> toggleAggregatorFacEntrypoint(_v, operations, s)
+//                     |   ToggleDelegationEntrypoint (_v)     -> toggleDelegationEntrypoint(_v, operations, s)
+//                     |   ToggleDoormanEntrypoint (_v)        -> toggleDoormanEntrypoint(_v, operations, s)
+//                     |   ToggleFarmEntrypoint (_v)           -> toggleFarmEntrypoint(_v, operations)
+//                     |   ToggleFarmFacEntrypoint (_v)        -> toggleFarmFacEntrypoint(_v, operations, s)
+//                     |   ToggleTreasuryEntrypoint (_v)       -> toggleTreasuryEntrypoint(_v, operations)
+//                     |   ToggleTreasuryFacEntrypoint (_v)    -> toggleTreasuryFacEntrypoint(_v, operations, s)
+//                 ]
+
+//             }
+//         |   _ -> skip
+//     ]
+
+// } with (operations, s)
+
+
+
+function toggleAggregatorEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     // verify that sender is admin or the Governance Contract address
@@ -712,24 +1085,192 @@ block {
 
     case executeAction of [
       
-        |   ToggleContractEntrypoint(toggleContractEntrypointParams) -> {
+        |   ToggleAggregatorEntrypoint(toggleContractEntrypointParams) -> {
 
-                operations := case toggleContractEntrypointParams of [
-                        ToggleAggregatorEntrypoint (_v)     -> toggleAggregatorEntrypoint(_v, operations)
-                    |   ToggleAggregatorFacEntrypoint (_v)  -> toggleAggregatorFacEntrypoint(_v, operations, s)
-                    |   ToggleDelegationEntrypoint (_v)     -> toggleDelegationEntrypoint(_v, operations, s)
-                    |   ToggleDoormanEntrypoint (_v)        -> toggleDoormanEntrypoint(_v, operations, s)
-                    |   ToggleFarmEntrypoint (_v)           -> toggleFarmEntrypoint(_v, operations)
-                    |   ToggleFarmFacEntrypoint (_v)        -> toggleFarmFacEntrypoint(_v, operations, s)
-                    |   ToggleTreasuryEntrypoint (_v)       -> toggleTreasuryEntrypoint(_v, operations)
-                    |   ToggleTreasuryFacEntrypoint (_v)    -> toggleTreasuryFacEntrypoint(_v, operations, s)
-                ]
+                operations := toggleAggregatorEntrypoint(toggleContractEntrypointParams, operations);
 
             }
         |   _ -> skip
     ]
 
 } with (operations, s)
+
+
+
+function toggleDelegationEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleDelegationEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleDelegationEntrypoint(toggleContractEntrypointParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleDoormanEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleDoormanEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleDoormanEntrypoint(toggleContractEntrypointParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleFarmEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleFarmEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleFarmEntrypoint(toggleContractEntrypointParams, operations);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleFarmFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleFarmFacEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleFarmFacEntrypoint(toggleContractEntrypointParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleTreasuryEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleTreasuryEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleTreasuryEntrypoint(toggleContractEntrypointParams, operations);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleTreasuryFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleTreasuryFacEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleTreasuryFacEntrypoint(toggleContractEntrypointParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleVaultFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleVaultFacEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleVaultFacEntrypoint(toggleContractEntrypointParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleLendingContEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleLendingContEntrypoint(toggleContractEntrypointParams) -> {
+
+                operations := toggleLendingContEntrypoint(toggleContractEntrypointParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
 
 
 
@@ -839,83 +1380,83 @@ block {
 
 
 
-// function trackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
+function trackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
 
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-//     var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
 
-//     case executeAction of [
+    case executeAction of [
       
-//         |   TrackFarm(trackFarmParams) -> {
+        |   TrackFarm(trackFarmParams) -> {
 
-//                 // Find and get farmFactory contract address from the generalContracts map
-//                 const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+                // Find and get farmFactory contract address from the generalContracts map
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
-//                 // Find and get trackFarm entrypoint of farmFactory contract
-//                 const trackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%trackFarm",
-//                     farmFactoryAddress) : option(contract(address))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
-//                     ];
+                // Find and get trackFarm entrypoint of farmFactory contract
+                const trackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%trackFarm",
+                    farmFactoryAddress) : option(contract(address))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
 
-//                 // Create operation to track a farm
-//                 const trackFarmOperation : operation = Tezos.transaction(
-//                     (trackFarmParams),
-//                     0tez, 
-//                     trackFarmEntrypoint
-//                 );
+                // Create operation to track a farm
+                const trackFarmOperation : operation = Tezos.transaction(
+                    (trackFarmParams),
+                    0tez, 
+                    trackFarmEntrypoint
+                );
 
-//                 operations := trackFarmOperation # operations;
+                operations := trackFarmOperation # operations;
 
-//             }
-//         |   _ -> skip
-//     ]
+            }
+        |   _ -> skip
+    ]
 
-// } with (operations, s)
+} with (operations, s)
 
 
 
-// function untrackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
+function untrackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
 
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-//     var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
 
-//     case executeAction of [
+    case executeAction of [
       
-//         |   UntrackFarm(untrackFarmParams) -> {
+        |   UntrackFarm(untrackFarmParams) -> {
 
-//                 // Find and get farmFactory contract address from the generalContracts map
-//                 const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+                // Find and get farmFactory contract address from the generalContracts map
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
-//                 // Find and get untrack entrypoint of farmFactory contract
-//                 const untrackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%untrackFarm",
-//                     farmFactoryAddress) : option(contract(address))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
-//                     ];
+                // Find and get untrack entrypoint of farmFactory contract
+                const untrackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%untrackFarm",
+                    farmFactoryAddress) : option(contract(address))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
 
-//                 // Create operation to untrack a farm
-//                 const untrackFarmOperation : operation = Tezos.transaction(
-//                     (untrackFarmParams),
-//                     0tez, 
-//                     untrackFarmEntrypoint
-//                 );
+                // Create operation to untrack a farm
+                const untrackFarmOperation : operation = Tezos.transaction(
+                    (untrackFarmParams),
+                    0tez, 
+                    untrackFarmEntrypoint
+                );
 
-//                 operations := untrackFarmOperation # operations;
+                operations := untrackFarmOperation # operations;
 
-//             }
-//         |   _ -> skip
-//     ]
+            }
+        |   _ -> skip
+    ]
 
-// } with (operations, s)
+} with (operations, s)
 
 
 
@@ -1037,83 +1578,83 @@ block {
 
 
 
-// function trackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
+function trackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
 
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-//     var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
 
-//     case executeAction of [
+    case executeAction of [
       
-//         |   TrackTreasury(trackTreasuryParams) -> {
+        |   TrackTreasury(trackTreasuryParams) -> {
 
-//                 // Find and get treasuryFactory contract address from the generalContracts map
-//                 const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+                // Find and get treasuryFactory contract address from the generalContracts map
+                const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
-//                 // Find and get trackTreasury entrypoint of treasuryFactory contract
-//                 const trackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%trackTreasury",
-//                     treasuryFactoryAddress) : option(contract(address))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
-//                     ];
+                // Find and get trackTreasury entrypoint of treasuryFactory contract
+                const trackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%trackTreasury",
+                    treasuryFactoryAddress) : option(contract(address))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
 
-//                 // Create operation to track a treasury
-//                 const trackTreasuryOperation : operation = Tezos.transaction(
-//                     (trackTreasuryParams),
-//                     0tez, 
-//                     trackTreasuryEntrypoint
-//                 );
+                // Create operation to track a treasury
+                const trackTreasuryOperation : operation = Tezos.transaction(
+                    (trackTreasuryParams),
+                    0tez, 
+                    trackTreasuryEntrypoint
+                );
 
-//                 operations := trackTreasuryOperation # operations;
+                operations := trackTreasuryOperation # operations;
 
-//             }
-//         |   _ -> skip
-//     ]
+            }
+        |   _ -> skip
+    ]
 
-// } with (operations, s)
+} with (operations, s)
 
 
 
-// function untrackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
+function untrackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
 
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-//     var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
 
-//     case executeAction of [
+    case executeAction of [
       
-//         |   UntrackTreasury(untrackTreasuryParams) -> {
+        |   UntrackTreasury(untrackTreasuryParams) -> {
 
-//                 // Find and get treasuryFactory contract address from the generalContracts map
-//                 const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+                // Find and get treasuryFactory contract address from the generalContracts map
+                const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
-//                 // Find and get untrackTreasury entrypoint of treasuryFactory contract
-//                 const untrackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%untrackTreasury",
-//                     treasuryFactoryAddress) : option(contract(address))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
-//                     ];
+                // Find and get untrackTreasury entrypoint of treasuryFactory contract
+                const untrackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%untrackTreasury",
+                    treasuryFactoryAddress) : option(contract(address))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
 
-//                 // Create operation to untrack a treasury
-//                 const untrackTreasuryOperation : operation = Tezos.transaction(
-//                     (untrackTreasuryParams),
-//                     0tez, 
-//                     untrackTreasuryEntrypoint
-//                 );
+                // Create operation to untrack a treasury
+                const untrackTreasuryOperation : operation = Tezos.transaction(
+                    (untrackTreasuryParams),
+                    0tez, 
+                    untrackTreasuryEntrypoint
+                );
 
-//                 operations := untrackTreasuryOperation # operations;
+                operations := untrackTreasuryOperation # operations;
 
-//             }
-//         |   _ -> skip
-//     ]
+            }
+        |   _ -> skip
+    ]
 
-// } with (operations, s)
+} with (operations, s)
 
 
 
@@ -1132,7 +1673,6 @@ block {
                 // assign params to constants for better code readability
                 const targetTreasuryAddress   : address               = transferTreasuryParams.targetTreasuryAddress;
                 const treasuryTransfer        : transferActionType    = transferTreasuryParams.treasuryTransfer;
-
 
                 // Find and get transfer entrypoint of treasury contract
                 const transferEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1175,7 +1715,6 @@ block {
                 const targetTreasuryAddress   : address                  = updateMvkOperatorsTreasuryParams.targetTreasuryAddress;
                 const updatedOperators        : updateOperatorsType    = updateMvkOperatorsTreasuryParams.treasuryUpdatedOperators;
 
-
                 // Find and get update_operators entrypoint of treasury contract
                 const updateEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%updateMvkOperators",
@@ -1216,7 +1755,6 @@ block {
             // assign params to constants for better code readability
             const targetTreasuryAddress   : address                  = mintMvkAndTransferTreasuryParams.targetTreasuryAddress;
             const treasuryMint            : mintMvkAndTransferType   = mintMvkAndTransferTreasuryParams.treasuryMint;
-
 
             // Find and get mintMvkAndTransfer entrypoint of treasury contract
             const mintEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1300,7 +1838,6 @@ block {
                 const targetTreasuryAddress   : address       = unstakeMvkTreasuryParams.targetTreasuryAddress;
                 const treasuryUnstake         : nat           = unstakeMvkTreasuryParams.unstakeAmount;
 
-
                 // Find and get unstake entrypoint of treasury contract
                 const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%unstakeMvk",
@@ -1366,83 +1903,83 @@ block {
 
 
 
-// function trackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
+function trackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
 
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-//     var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
 
-//     case executeAction of [
+    case executeAction of [
       
-//         |   TrackAggregator(trackAggregatorParams) -> {
+        |   TrackAggregator(trackAggregatorParams) -> {
 
-//                 // Find and get aggregatorFactory contract address
-//                 const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
+                // Find and get aggregatorFactory contract address
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
 
-//                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
-//                 const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%trackAggregator",
-//                     aggregatorFactoryAddress) : option(contract(address))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
-//                     ];
+                // Find and get trackAggregator entrypoint of aggregatorFactory contract
+                const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%trackAggregator",
+                    aggregatorFactoryAddress) : option(contract(address))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
 
-//                 // Create operation to track aggregator
-//                 const trackAggregatorOperation : operation = Tezos.transaction(
-//                     (trackAggregatorParams),
-//                     0tez, 
-//                     trackAggregatorEntrypoint
-//                 );
+                // Create operation to track aggregator
+                const trackAggregatorOperation : operation = Tezos.transaction(
+                    (trackAggregatorParams),
+                    0tez, 
+                    trackAggregatorEntrypoint
+                );
 
-//                 operations := trackAggregatorOperation # operations;
+                operations := trackAggregatorOperation # operations;
 
-//             }
-//         |   _ -> skip
-//     ]
+            }
+        |   _ -> skip
+    ]
 
-// } with (operations, s)
+} with (operations, s)
 
 
 
-// function untrackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
+function untrackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
 
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-//     var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
 
-//     case executeAction of [
+    case executeAction of [
       
-//         |   UntrackAggregator(untrackAggregatorParams) -> {
+        |   UntrackAggregator(untrackAggregatorParams) -> {
 
-//                 // Find and get aggregatorFactory contract address
-//                 const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
+                // Find and get aggregatorFactory contract address
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
 
-//                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
-//                 const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%untrackAggregator",
-//                     aggregatorFactoryAddress) : option(contract(address))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
-//                     ];
+                // Find and get trackAggregator entrypoint of aggregatorFactory contract
+                const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%untrackAggregator",
+                    aggregatorFactoryAddress) : option(contract(address))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
 
-//                 // Create operation to untrack aggregator
-//                 const untrackAggregatorOperation : operation = Tezos.transaction(
-//                     (untrackAggregatorParams),
-//                     0tez, 
-//                     untrackAggregatorEntrypoint
-//                 );
+                // Create operation to untrack aggregator
+                const untrackAggregatorOperation : operation = Tezos.transaction(
+                    (untrackAggregatorParams),
+                    0tez, 
+                    untrackAggregatorEntrypoint
+                );
 
-//                 operations := untrackAggregatorOperation # operations;
+                operations := untrackAggregatorOperation # operations;
 
-//             }
-//         |   _ -> skip
-//     ]
+            }
+        |   _ -> skip
+    ]
 
-// } with (operations, s)
+} with (operations, s)
 
 
 
@@ -1521,83 +2058,7 @@ block {
 
 
 
-function trackContract(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
-
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-    var operations : list(operation) := nil;
-
-    case executeAction of [
-      
-        |   TrackContract(trackContractParams) -> {
-
-                operations := case trackContractParams of [
-                        TrackFarm (_v)          -> trackFarm(_v, operations, s)
-                    |   TrackTreasury (_v)      -> trackTreasury(_v, operations, s)
-                    |   TrackAggregator (_v)    -> trackAggregator(_v, operations, s)
-                ]
-            }
-        |   _ -> skip
-    ]
-
-} with (operations, s)
-
-
-
-function untrackContract(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
-
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-    var operations : list(operation) := nil;
-
-    case executeAction of [
-      
-        |   UntrackContract(trackContractParams) -> {
-
-                operations := case trackContractParams of [
-                        UntrackFarm (_v)          -> untrackFarm(_v, operations, s)
-                    |   UntrackTreasury (_v)      -> untrackTreasury(_v, operations, s)
-                    |   UntrackAggregator (_v)    -> untrackAggregator(_v, operations, s)
-                ]
-            }
-        |   _ -> skip
-    ]
-
-} with (operations, s)
-
-
-
-function manageVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
-
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-    var operations : list(operation) := nil;
-
-    case executeAction of [
-      
-        |   ManageVestee(manageVesteeParams) -> {
-
-                operations := case manageVesteeParams of [
-                        AddVestee (_v)          -> addVestee(_v, operations, s)
-                    |   RemoveVestee (_v)       -> removeVestee(_v, operations, s)
-                    |   UpdateVestee (_v)       -> updateVestee(_v, operations, s)
-                    |   ToggleVesteeLock (_v)   -> toggleVesteeLock(_v, operations, s)
-                ]
-            }
-        |   _ -> skip
-    ]
-
-} with (operations, s)
-
-
-
-// function setLoanToken(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// function manageVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 // block {
 
 //     // verify that sender is admin or the Governance Contract address
@@ -1607,28 +2068,14 @@ block {
 
 //     case executeAction of [
       
-//         |   SetLoanToken(setLoanTokenParams) -> {
+//         |   ManageVestee(manageVesteeParams) -> {
 
-//                 // Find and get lending controller contract address from the generalContracts map
-//                 const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
-
-//                 // Find and get setLoanToken entrypoint of lending controller contract
-//                 const setLoanTokenEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%setLoanToken",
-//                     lendingControllerAddress) : option(contract(setLoanTokenActionType))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setLoanTokenActionType))
-//                     ];
-
-//                 // Create operation to set loan token
-//                 const setLoanTokenOperation : operation = Tezos.transaction(
-//                     (setLoanTokenParams),
-//                     0tez, 
-//                     setLoanTokenEntrypoint
-//                 );
-
-//                 operations := setLoanTokenOperation # operations;
-
+//                 operations := case manageVesteeParams of [
+//                         AddVestee (_v)          -> addVestee(_v, operations, s)
+//                     |   RemoveVestee (_v)       -> removeVestee(_v, operations, s)
+//                     |   UpdateVestee (_v)       -> updateVestee(_v, operations, s)
+//                     |   ToggleVesteeLock (_v)   -> toggleVesteeLock(_v, operations, s)
+//                 ]
 //             }
 //         |   _ -> skip
 //     ]
@@ -1637,43 +2084,171 @@ block {
 
 
 
-// function setCollateralToken(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
+function addVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
 
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-//     var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
 
-//     case executeAction of [
+    case executeAction of [
       
-//         |   SetCollateralToken(setCollateralTokenParams) -> {
+        |   AddVestee(addVesteeParams) -> {
 
-//                 // Find and get lending controller contract address from the generalContracts map
-//                 const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+                operations := addVestee(addVesteeParams, operations, s);
 
-//                 // Find and get setCollateralToken entrypoint of lending controller contract
-//                 const setCollateralTokenEntrypoint = case (Tezos.get_entrypoint_opt(
-//                     "%setCollateralToken",
-//                     lendingControllerAddress) : option(contract(setCollateralTokenActionType))) of [
-//                             Some(contr) -> contr
-//                         |   None        -> (failwith(error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setCollateralTokenActionType))
-//                     ];
+            }
+        |   _ -> skip
+    ]
 
-//                 // Create operation to set collateral token
-//                 const setCollateralTokenOperation : operation = Tezos.transaction(
-//                     (setCollateralTokenParams),
-//                     0tez, 
-//                     setCollateralTokenEntrypoint
-//                 );
+} with (operations, s)
 
-//                 operations := setCollateralTokenOperation # operations;
 
-//             }
-//         |   _ -> skip
-//     ]
 
-// } with (operations, s)
+function removeVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   RemoveVestee(removeVesteeParams) -> {
+
+                operations := removeVestee(removeVesteeParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   UpdateVestee(updateVesteeParams) -> {
+
+                operations := updateVestee(updateVesteeParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleVesteeLock(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   ToggleVesteeLock(toggleVesteeLockParams) -> {
+
+                operations := toggleVesteeLock(toggleVesteeLockParams, operations, s);
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function setLoanToken(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   SetLoanToken(setLoanTokenParams) -> {
+
+                // Find and get lending controller contract address from the generalContracts map
+                const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+                // Find and get setLoanToken entrypoint of lending controller contract
+                const setLoanTokenEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setLoanToken",
+                    lendingControllerAddress) : option(contract(setLoanTokenActionType))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setLoanTokenActionType))
+                    ];
+
+                // Create operation to set loan token
+                const setLoanTokenOperation : operation = Tezos.transaction(
+                    (setLoanTokenParams),
+                    0tez, 
+                    setLoanTokenEntrypoint
+                );
+
+                operations := setLoanTokenOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function setCollateralToken(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   SetCollateralToken(setCollateralTokenParams) -> {
+
+                // Find and get lending controller contract address from the generalContracts map
+                const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+                // Find and get setCollateralToken entrypoint of lending controller contract
+                const setCollateralTokenEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setCollateralToken",
+                    lendingControllerAddress) : option(contract(setCollateralTokenActionType))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setCollateralTokenActionType))
+                    ];
+
+                // Create operation to set collateral token
+                const setCollateralTokenOperation : operation = Tezos.transaction(
+                    (setCollateralTokenParams),
+                    0tez, 
+                    setCollateralTokenEntrypoint
+                );
+
+                operations := setCollateralTokenOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
 
 
 

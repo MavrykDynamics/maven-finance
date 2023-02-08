@@ -406,9 +406,6 @@
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateMetadata",
-    "lambdaUpdateWhitelistContracts",
-    "lambdaUpdateGeneralContracts",
-    "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
     "executeGovernanceLambdaProxy",
@@ -424,20 +421,47 @@
     "updateContractGeneralMap",
     "updateContractWhitelistTokenMap",
 
-    "updateContractConfig",
+    "updateGovernanceConfig",
+    "updateGovernanceFinancialConfig",
+    "updateGovernanceSatelliteConfig",
+    "updateDoormanConfig",
+    "updateDelegationConfig",
+    "updateEmergencyConfig",
+    "updateBreakGlassConfig",
+    "updateCouncilConfig",
+    "updateFarmConfig",
+    "updateFarmFactoryConfig",
+    "updateAggregatorConfig",
+    "updateAggregatorFactoryConfig",
+    "updateTreasuryFactoryConfig",
+    "updateVaultFactoryConfig",
+    "updateLendingControllerConfig",
 
     "pauseAllContractEntrypoint",
     "unpauseAllContractEntrypoint",
-    "toggleContractEntrypoint",
+
+    "toggleAggregatorFacEntrypoint",
+    "toggleDelegationEntrypoint",
+    "toggleDoormanEntrypoint",
+    "toggleFarmEntrypoint",
+    "toggleFarmFacEntrypoint",
+    "toggleTreasuryEntrypoint",
+    "toggleTreasuryFacEntrypoint",
+    "toggleVaultFacEntrypoint",
+    "toggleLendingContEntrypoint",
 
     "updateWhitelistDevelopersSet",
     "setGovernanceProxy",
 
     "createFarm",
+    "trackFarm",
+    "untrackFarm",
     "initFarm",
     "closeFarm",
 
     "createTreasury",
+    "trackTreasury",
+    "untrackTreasury",
     "transferTreasury",
     "mintMvkAndTransferTreasury",
     "updateMvkOperatorsTreasury",
@@ -445,14 +469,18 @@
     "unstakeMvkTreasury",
 
     "createAggregator",
+    "trackAggregator",
+    "untrackAggregator",
 
     "updateMvkInflationRate",
     "triggerMvkInflation",
 
-    "trackContract",
-    "untrackContract",
+    "addVestee",
+    "removeVestee",
+    "updateVestee",
+    "toggleVesteeLock",
 
-    "manageVestee",
-    "toggleVesteeLock"
+    "setLoanToken",
+    "setCollateralToken"
   ]
 }

@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------
 
 
-type proxyLambdaLedgerType is big_map(nat, bytes)
+type proxyLambdaLedgerType is map(nat, bytes)
 
 
 // ------------------------------------------------------------------------------
@@ -122,6 +122,16 @@ type toggleTreasuryFacEntrypointType is [@layout:comb] record [
     empty                     : unit;
 ]
 
+type toggleVaultFacEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : vaultFactoryTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+type toggleLendingContEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : lendingControllerTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
 type toggleDoormanEntrypointType is [@layout:comb] record [
     targetEntrypoint          : doormanTogglePauseEntrypointType;
     empty                     : unit;
@@ -137,49 +147,6 @@ type toggleDelegationEntrypointType is [@layout:comb] record [
 // Lambda Action Types
 // ------------------------------------------------------------------------------
 
-type updateContractConfigType is 
-        UpdateGovernanceConfig             of governanceUpdateConfigParamsType
-    |   UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
-    |   UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
-    |   UpdateDelegationConfig             of delegationUpdateConfigParamsType
-    |   UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
-    |   UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
-    |   UpdateCouncilConfig                of councilUpdateConfigParamsType
-    |   UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
-    |   UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
-    |   UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
-    |   UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
-    |   UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
-    |   UpdateDoormanConfig                of doormanUpdateConfigParamsType
-
-type toggleContractEntrypointType is
-        ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
-    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
-    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
-    |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
-    |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
-    |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
-    |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
-    |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
-
-
-type manageVesteeType is 
-        AddVestee                          of addVesteeType
-    |   RemoveVestee                       of (address)
-    |   UpdateVestee                       of updateVesteeType
-    |   ToggleVesteeLock                   of (address)
-
-
-type trackContractType is 
-        TrackFarm                          of (address)
-    |   TrackTreasury                      of (address)
-    |   TrackAggregator                    of (address)
-
-
-type untrackContractType is 
-        UntrackFarm                          of (address)
-    |   UntrackTreasury                      of (address)
-    |   UntrackAggregator                    of (address)
 
 type executeActionParamsType is 
 
@@ -194,20 +161,48 @@ type executeActionParamsType is
     |   UpdateContractGeneralMap           of updateContractGeneralMapType
     |   UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
 
-    |   UpdateContractConfig               of updateContractConfigType
+    |   UpdateGovernanceConfig             of governanceUpdateConfigParamsType
+    |   UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
+    |   UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
+    |   UpdateDoormanConfig                of doormanUpdateConfigParamsType
+    |   UpdateDelegationConfig             of delegationUpdateConfigParamsType
+    |   UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
+    |   UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
+    |   UpdateCouncilConfig                of councilUpdateConfigParamsType
+    |   UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
+    |   UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
+    |   UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
+    |   UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
+    |   UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
+    |   UpdateVaultFactoryConfig           of vaultFactoryUpdateConfigParamsType
+    |   UpdateLendingControllerConfig      of lendingControllerUpdateConfigParamsType
 
     |   PauseAllContractEntrypoint         of (address)
     |   UnpauseAllContractEntrypoint       of (address)
-    |   ToggleContractEntrypoint           of toggleContractEntrypointType
+
+    |   ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
+    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
+    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
+    |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
+    |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
+    |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
+    |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
+    |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
+    |   ToggleVaultFacEntrypoint           of toggleVaultFacEntrypointType
+    |   ToggleLendingContEntrypoint        of toggleLendingContEntrypointType
 
     |   UpdateWhitelistDevelopersSet       of (address)
     |   SetGovernanceProxy                 of (address)
 
     |   CreateFarm                         of createFarmType
+    |   TrackFarm                          of (address)
+    |   UntrackFarm                        of (address)
     |   InitFarm                           of (targetFarmInitType)
     |   CloseFarm                          of (address)
 
     |   CreateTreasury                     of createTreasuryType
+    |   TrackTreasury                      of (address)
+    |   UntrackTreasury                    of (address)
     |   TransferTreasury                   of targetTreasuryTransferType
     |   MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
     |   UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
@@ -215,17 +210,19 @@ type executeActionParamsType is
     |   UnstakeMvkTreasury                 of unstakeTreasuryType
 
     |   CreateAggregator                   of createAggregatorParamsType
+    |   TrackAggregator                    of (address)
+    |   UntrackAggregator                  of (address)
 
     |   UpdateMvkInflationRate             of (nat)
     |   TriggerMvkInflation                of (unit)
 
-    |   TrackContract                      of trackContractType
-    |   UntrackContract                    of untrackContractType
-
-    |   ManageVestee                       of manageVesteeType
+    |   AddVestee                          of addVesteeType
+    |   RemoveVestee                       of (address)
+    |   UpdateVestee                       of updateVesteeType
+    |   ToggleVesteeLock                   of (address)
     
-    // |   SetLoanToken                       of setLoanTokenActionType
-    // |   SetCollateralToken                 of setCollateralTokenActionType
+    |   SetLoanToken                       of setLoanTokenActionType
+    |   SetCollateralToken                 of setCollateralTokenActionType
 
 type executeActionType is (executeActionParamsType)
 
@@ -236,9 +233,6 @@ type governanceProxyLambdaActionType is
         LambdaSetAdmin                        of (address)
     |   LambdaSetGovernance                   of (address)
     |   LambdaUpdateMetadata                  of updateMetadataType
-    |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
-    |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
-    |   LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
     |   LambdaMistakenTransfer                of transferActionType
 
 
@@ -249,17 +243,11 @@ type governanceProxyLambdaActionType is
 
 type governanceProxyStorageType is record [
     admin                       : address;
+    governanceAddress           : address;
+    mvkTokenAddress             : address;    
     metadata                    : metadataType;
 
-    mvkTokenAddress             : address;
-    governanceAddress           : address;    // separate admin from governance address in event of break glass
-    
-    whitelistContracts          : whitelistContractsType;      
-    generalContracts            : generalContractsType; 
-    whitelistTokenContracts     : whitelistTokenContractsType;      
-
     proxyLambdaLedger           : proxyLambdaLedgerType;
-
     lambdaLedger                : lambdaLedgerType;             
 ]
 
