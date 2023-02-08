@@ -17,7 +17,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, trudy, oracleMaintainer, oscar } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
 
 // import doormanAddress                   from '../deployments/doormanAddress.json';
 // import delegationAddress                from '../deployments/delegationAddress.json';

@@ -1,8 +1,7 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
-const { bob, oracleMaintainer } = require('../scripts/sandbox/accounts')
-const {oracles} = require('../scripts/sandbox/oracles')
+const { bob } = require('../scripts/sandbox/accounts')
 
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 

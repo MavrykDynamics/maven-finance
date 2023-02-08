@@ -13,7 +13,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, trudy, susie, oracle0, oracle1, oracle2, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy, susie } from "../scripts/sandbox/accounts";
 
 // import doormanAddress                   from '../deployments/doormanAddress.json';
 // import delegationAddress                from '../deployments/delegationAddress.json';
@@ -226,33 +226,6 @@
 
 //             // Setup Oracles
 //             await signerFactory(bob.sk);
-
-//             // const oracleMap = MichelsonMap.fromLiteral({
-//             //   [oracle0.pkh] : true,
-//             //   [oracle1.pkh] : true,
-//             //   [oracle2.pkh] : true,
-//             // }) as MichelsonMap<
-//             //     string,
-//             //     boolean
-//             //     >
-//             // const oracleMap = MichelsonMap.fromLiteral({
-//             //     [bob.pkh]              : {
-//             //                                 oraclePublicKey: bob.pk,
-//             //                                 oraclePeerId: bob.peerId
-//             //                             },
-//             //     [eve.pkh]              : {
-//             //                                 oraclePublicKey: eve.pk,
-//             //                                 oraclePeerId: eve.peerId
-//             //                             },
-//             //     [mallory.pkh]          : {
-//             //                                 oraclePublicKey: mallory.pk,
-//             //                                 oraclePeerId: mallory.peerId
-//             //                             },
-//             //     [oracleMaintainer.pkh] : {
-//             //                                 oraclePublicKey: oracleMaintainer.pk,
-//             //                                 oraclePeerId: oracleMaintainer.peerId
-//             //                             },
-//             // });
 
 //             const oracleMap = MichelsonMap.fromLiteral({});
 

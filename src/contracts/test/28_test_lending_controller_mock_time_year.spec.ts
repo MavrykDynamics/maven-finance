@@ -28,9 +28,9 @@
 // import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
 // import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
 
-// import lpTokenPoolMockFa12TokenAddress  from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
-// import lpTokenPoolMockFa2TokenAddress   from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
-// import lpTokenPoolXtzAddress            from "../deployments/lpTokenPoolXtzAddress.json";
+// import mTokenUsdtAddress  from "../deployments/mTokenUsdtAddress.json";
+// import mTokenEurlAddress   from "../deployments/mTokenEurlAddress.json";
+// import mTokenXtzAddress            from "../deployments/mTokenXtzAddress.json";
 
 // import lendingControllerAddress         from '../deployments/lendingControllerMockTimeAddress.json';
 // import lendingControllerMockTimeAddress from '../deployments/lendingControllerMockTimeAddress.json';
@@ -80,9 +80,9 @@
 //     let mockUsdXtzAggregatorStorage
 //     let mockUsdMvkAggregatorStorage
 
-//     let lpTokenPoolMockFa12TokenInstance
-//     let lpTokenPoolMockFa2TokenInstance
-//     let lpTokenPoolXtzInstance
+//     let mTokenUsdtInstance
+//     let mTokenEurlInstance
+//     let mTokenXtzInstance
 
 //     let governanceInstance
 //     let governanceProxyInstance
@@ -139,9 +139,9 @@
 //         governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
 //         governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
 
-//         lpTokenPoolMockFa12TokenInstance        = await utils.tezos.contract.at(lpTokenPoolMockFa12TokenAddress.address);
-//         lpTokenPoolMockFa2TokenInstance         = await utils.tezos.contract.at(lpTokenPoolMockFa2TokenAddress.address);
-//         lpTokenPoolXtzInstance                  = await utils.tezos.contract.at(lpTokenPoolXtzAddress.address);
+//         mTokenUsdtInstance        = await utils.tezos.contract.at(mTokenUsdtAddress.address);
+//         mTokenEurlInstance         = await utils.tezos.contract.at(mTokenEurlAddress.address);
+//         mTokenXtzInstance                  = await utils.tezos.contract.at(mTokenXtzAddress.address);
 
 //         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
 //         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
@@ -208,9 +208,9 @@
 //         console.log('Governance Contract deployed at:'          , governanceInstance.address);
 //         console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
 
-//         console.log('LP Token Pool - Mock FA12 Token - deployed at:'    , lpTokenPoolMockFa12TokenInstance.address);
-//         console.log('LP Token Pool - Mock FA2 Token - deployed at:'     , lpTokenPoolMockFa2TokenInstance.address);
-//         console.log('LP Token Pool - XTZ - deployed at:'                , lpTokenPoolXtzInstance.address);
+//         console.log('mTokenUsdt - deployed at:'    , mTokenUsdtInstance.address);
+//         console.log('mTokenEurl - deployed at:'     , mTokenEurlInstance.address);
+//         console.log('mTokenXtz - deployed at:'                , mTokenXtzInstance.address);
 
 //         console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
 //         console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
@@ -235,7 +235,7 @@
 //         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
 //         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
-//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
+//             updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
 //                 txs: [
@@ -250,7 +250,7 @@
 //         }
 
 //         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
-//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+//             updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
 //                 txs: [
@@ -265,7 +265,7 @@
 //         }
 
 //         if(!(tezLoanToken == undefined || tezLoanToken == null)){
-//             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
+//             updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
 //                 txs: [
@@ -297,15 +297,14 @@
 
 //                 const setLoanTokenActionType                = "createLoanToken";
 
-//                 const tokenName                             = "mockFa12";
+//                 const tokenName                             = "usdt";
 //                 const tokenContractAddress                  = mockFa12TokenAddress.address;
 //                 const tokenType                             = "fa12";
 //                 const tokenDecimals                         = 6;
 
 //                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenUsdtAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -335,8 +334,7 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -359,9 +357,8 @@
 
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
     
-//                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(mockFa12LoanToken.lpTokenId              , 0);
+//                     assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
+//                     assert.equal(mockFa12LoanToken.mTokenAddress , mTokenContractAddress);
     
 //                     assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
@@ -399,7 +396,7 @@
 
 //                 const setLoanTokenActionType                = "createLoanToken";
 
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -407,8 +404,7 @@
 
 //                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenEurlAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -437,8 +433,7 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -462,9 +457,8 @@
 
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-//                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
-//                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(mockFa2LoanToken.lpTokenId              , 0);
+//                     assert.equal(mockFa2LoanToken.mTokensTotal          , 0);
+//                     assert.equal(mockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
 //                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(mockFa2LoanToken.tokenPoolTotal         , 0);
@@ -510,8 +504,7 @@
 
 //                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenXtzAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -541,8 +534,7 @@
 
 //                         oracleAddress,
 
-//                         lpTokenContractAddress,
-//                         lpTokenId,
+//                         mTokenContractAddress,
                         
 //                         reserveRatio,
 //                         optimalUtilisationRate,
@@ -565,9 +557,8 @@
 //                     assert.equal(tezLoanToken.tokenName              , tokenName);
 //                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
-//                     assert.equal(tezLoanToken.lpTokensTotal          , 0);
-//                     assert.equal(tezLoanToken.lpTokenContractAddress , lpTokenContractAddress);
-//                     assert.equal(tezLoanToken.lpTokenId              , 0);
+//                     assert.equal(tezLoanToken.mTokensTotal          , 0);
+//                     assert.equal(tezLoanToken.mTokenAddress , mTokenContractAddress);
     
 //                     assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
 //                     assert.equal(tezLoanToken.tokenPoolTotal         , 0);
@@ -614,8 +605,7 @@
 
 //                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
-//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
-//                 const lpTokenId                             = 0;
+//                 const mTokenContractAddress                = mTokenEurlAddress.address;
 
 //                 const interestRateDecimals                  = 27;
 //                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -636,8 +626,7 @@
 
 //                     oracleAddress,
 
-//                     lpTokenContractAddress,
-//                     lpTokenId,
+//                     mTokenContractAddress,
                     
 //                     reserveRatio,
 //                     optimalUtilisationRate,
@@ -1010,21 +999,21 @@
     
 //             // init variables
 //             await signerFactory(eve.sk);
-//             const loanTokenName = "mockFa12";
+//             const loanTokenName = "usdt";
 //             const liquidityAmount = 100000000; // 100 Mock FA12 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
 //             // get mock fa12 token storage and lp token pool mock fa12 token storage
 //             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
-//             const lpTokenPoolMockFa12TokenStorage   = await lpTokenPoolMockFa12TokenInstance.storage();
+//             const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
             
 //             // get initial eve's Mock FA12 Token balance
 //             const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
 //             // get initial eve's Token Pool FA2 LP - Mock FA12 Token - balance
-//             const eveLpTokenPoolMockFa12Ledger                 = await lpTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
+//             const eveLpTokenPoolMockFa12Ledger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialLpTokenPoolMockFa12TokenBalance    = eveLpTokenPoolMockFa12Ledger == undefined ? 0 : eveLpTokenPoolMockFa12Ledger.toNumber();
 
 //             // get initial lending controller's Mock FA12 Token balance
@@ -1060,7 +1049,7 @@
 //             // get updated storages
 //             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
 //             const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
-//             const updatedLpTokenPoolMockFa12TokenStorage  = await lpTokenPoolMockFa12TokenInstance.storage();
+//             const updatedLpTokenPoolMockFa12TokenStorage  = await mTokenUsdtInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1084,21 +1073,21 @@
     
 //             // init variables
 //             await signerFactory(eve.sk);
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 //             const liquidityAmount = 100000000; // 100 Mock FA2 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
 //             // get mock fa2 token storage and lp token pool mock fa2 token storage
 //             const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//             const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+//             const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
             
 //             // get initial eve's Mock FA2 Token balance
 //             const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
 //             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//             const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//             const eveLpTokenPoolMockFa2Ledger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
@@ -1132,7 +1121,7 @@
 //             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
 //             const updatedMockFa2TokenStorage       = await mockFa2TokenInstance.storage();
             
-//             const updatedLpTokenPoolMockFa2TokenStorage     = await lpTokenPoolMockFa2TokenInstance.storage();
+//             const updatedLpTokenPoolMockFa2TokenStorage     = await mTokenEurlInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1162,15 +1151,15 @@
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
-//             // get LP token pool XTZ token storage (FA2 Token Standard)
-//             const lpTokenPoolXtzStorage   = await lpTokenPoolXtzInstance.storage();
+//             // get mTokenXtz token storage (FA2 Token Standard)
+//             const mTokenPoolXtzStorage   = await mTokenXtzInstance.storage();
 
 //             // get initial eve XTZ balance
 //             const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
 //             const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
 
 //             // get initial eve's Token Pool FA2 LP - Tez - balance
-//             const eveLpTokenPoolXtzLedger            = await lpTokenPoolXtzStorage.ledger.get(eve.pkh);            
+//             const eveLpTokenPoolXtzLedger            = await mTokenPoolXtzStorage.ledger.get(eve.pkh);            
 //             const eveInitialLpTokenPoolXtzBalance    = eveLpTokenPoolXtzLedger == undefined ? 0 : eveLpTokenPoolXtzLedger.toNumber();
             
 //             // get initial lending controller's XTZ balance
@@ -1190,7 +1179,7 @@
 
 //             // get updated storages
 //             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
-//             const updatedLpTokenPoolXtzStorage     = await lpTokenPoolXtzInstance.storage();
+//             const updatedLpTokenPoolXtzStorage     = await mTokenXtzInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1200,7 +1189,7 @@
 //             const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
 //             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance + liquidityAmount);
 
-//             // check Eve's LP Token Pool XTZ balance
+//             // check Eve's mTokenXtz balance
 //             const updatedEveLpTokenPoolXtzLedger        = await updatedLpTokenPoolXtzStorage.ledger.get(eve.pkh);            
 //             assert.equal(updatedEveLpTokenPoolXtzLedger, eveInitialLpTokenPoolXtzBalance + liquidityAmount);        
 
@@ -1245,7 +1234,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
+//             const loanTokenName = "usdt";
 
 //             const depositorsConfig      = "any";
 
@@ -1473,7 +1462,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -1512,7 +1501,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
+//             const loanTokenName = "usdt";
 
 //             const depositorsConfig      = "any";
 
@@ -1740,7 +1729,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -1778,7 +1767,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
+//             const loanTokenName = "usdt";
 
 //             const depositorsConfig      = "any";
 
@@ -2006,7 +1995,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -2045,7 +2034,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
+//             const loanTokenName = "usdt";
 
 //             const depositorsConfig      = "any";
 
@@ -2271,7 +2260,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -2313,7 +2302,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 
 //             const depositorsConfig      = "any";
 
@@ -2541,7 +2530,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
@@ -2581,7 +2570,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 
 //             const depositorsConfig      = "any";
 
@@ -2809,7 +2798,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -2848,7 +2837,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 
 //             const depositorsConfig      = "any";
 
@@ -3076,7 +3065,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -3114,7 +3103,7 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 
 //             const depositorsConfig      = "any";
 
@@ -3342,7 +3331,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -3599,7 +3588,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
@@ -3853,7 +3842,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 
@@ -4108,7 +4097,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
@@ -4362,7 +4351,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal.toNumber(), 0.0001), true);
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
