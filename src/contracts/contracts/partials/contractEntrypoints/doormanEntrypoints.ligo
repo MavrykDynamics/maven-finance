@@ -295,7 +295,7 @@ block{
 
 
 
-(* onVaultWithdrawStakedMvk entrypoint *)
+(* onVaultWithdrawStake entrypoint *)
 function onVaultWithdrawStake(const onVaultWithdrawStakeParams : onVaultWithdrawStakeType; var s: doormanStorageType): return is
 block{
 

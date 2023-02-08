@@ -1470,13 +1470,11 @@
 //                 const vaultOwner                = mallory.pkh;
 //                 const loanTokenName             = "mockFa12";
 
-//                 const whitelistedDepositors     = [mallory.pkh];
 //                 const depositorsConfig          = "whitelist";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     mallory.pkh,  
 //                     loanTokenName,
-//                     whitelistedDepositors,
 //                     depositorsConfig
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -1519,13 +1517,11 @@
 //                 const vaultOwner                = mallory.pkh;
 //                 const loanTokenName             = "mockFa2";
 
-//                 const whitelistedDepositors     = [];
 //                 const depositorsConfig          = "any";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     mallory.pkh,  
 //                     loanTokenName,
-//                     whitelistedDepositors,
 //                     depositorsConfig
 //                     ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -1566,13 +1562,11 @@
 //                 const vaultOwner                = eve.pkh;
 //                 const loanTokenName             = "mockFa2";
 
-//                 const whitelistedDepositors     = [eve.pkh];
 //                 const depositorsConfig          = "whitelist";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,  
 //                     loanTokenName,
-//                     whitelistedDepositors,
 //                     depositorsConfig,
 //                     ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -1614,14 +1608,12 @@
 //                 const vaultOwner                = eve.pkh;
 //                 const loanTokenName             = "tez";
 
-//                 const whitelistedDepositors     = [eve.pkh];
 //                 const depositorsConfig          = "whitelist";
 
 //                 // user (eve) creates a new vault
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,  
 //                     loanTokenName,
-//                     whitelistedDepositors,
 //                     depositorsConfig,
 //                     ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -4623,6 +4615,8 @@
 
 //         before('set governance defaults',async () => {
             
+//             await signerFactory(bob.sk);
+
 //             // Check if cycle already started (for retest purposes)
 //             const cycleEnd  = governanceStorage.currentCycleInfo.cycleEndLevel;
 //             if (cycleEnd == 0) {
@@ -4644,6 +4638,7 @@
 //                 await updateGovernanceConfig.confirmation();
     
 //                 // Register satellites
+//                 await signerFactory(bob.sk)
 //                 var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
 //                     add_operator: {
