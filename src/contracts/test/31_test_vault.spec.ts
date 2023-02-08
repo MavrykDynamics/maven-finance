@@ -1532,12 +1532,12 @@
 //             await vaultUpdateOperatorsOperation.confirmation();
     
 //             // vault staked mvk operation
-//             const eveVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
+//             const eveVaultDepositStakedTokenOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
 //                 tokenName,
 //                 vaultId,                 
 //                 mvkDepositAmount                            
 //             ).send();
-//             await eveVaultDepositStakedMvkOperation.confirmation();
+//             await eveVaultDepositStakedTokenOperation.confirmation();
 
 //             // get vault staked balance on the doorman contract
 //             doormanStorage                           = await doormanInstance.storage();

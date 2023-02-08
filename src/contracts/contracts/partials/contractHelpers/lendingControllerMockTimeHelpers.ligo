@@ -1329,7 +1329,7 @@ block {
     // Transfer operations
     if collateralTokenName = "smvk" then {
 
-        // use %onVaultLiquidateStakedMvk entrypoint in Doorman Contract to transfer staked MVK balances
+        // use %onVaultLiquidateStake entrypoint in Doorman Contract to transfer staked token balances
 
         // get staking contract address
         const stakingContractAddress : address = case collateralToken.stakingContractAddress of [
@@ -1337,25 +1337,25 @@ block {
             |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
         ];
 
-        // send staked mvk from vault to liquidator
-        const sendStakedMvkFromVaultToLiquidatorOperation : operation = onLiquidateStakedTokenFromVaultOperation(
+        // send staked token from vault to liquidator
+        const sendStakedTokenFromVaultToLiquidatorOperation : operation = onLiquidateStakedTokenFromVaultOperation(
             vaultAddress,                       // vault address
             liquidatorAddress,                  // liquidator              
             liquidatorTokenAmount,              // liquidated amount
             stakingContractAddress              // staking contract address
         );                
 
-        operations := sendStakedMvkFromVaultToLiquidatorOperation # operations;
+        operations := sendStakedTokenFromVaultToLiquidatorOperation # operations;
 
-        // send staked mvk from vault to treasury
-        const sendStakedMvkFromVaultToTreasuryOperation : operation = onLiquidateStakedTokenFromVaultOperation(
+        // send staked token from vault to treasury
+        const sendStakedTokenFromVaultToTreasuryOperation : operation = onLiquidateStakedTokenFromVaultOperation(
             vaultAddress,                       // vault address
             treasuryAddress,                    // liquidator              
             treasuryTokenAmount,                // liquidated amount
             stakingContractAddress              // staking contract address
         );                
 
-        operations := sendStakedMvkFromVaultToTreasuryOperation # operations;
+        operations := sendStakedTokenFromVaultToTreasuryOperation # operations;
 
     } else {
 
