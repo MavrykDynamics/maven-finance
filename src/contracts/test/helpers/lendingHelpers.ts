@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { alice, bob, eve, mallory, oscar, trudy } from "../../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 
 // ------------------------------------------------------------------
 //
@@ -360,10 +360,6 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1500005)
             }
         ]
     },
@@ -383,10 +379,6 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(3500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(3500005)
             }
         ]
     },
@@ -406,10 +398,6 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1800000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1800005)
             }
         ]
     },
@@ -430,10 +418,6 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1000000000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1000000005)
             }
         ]
     },
@@ -459,10 +443,6 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(500005)
             }
         ]
     },
@@ -482,10 +462,6 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1166666)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1166671)
             }
         ]
     },
@@ -505,10 +481,6 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(600000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(600005)
             }
         ]
     },
@@ -528,10 +500,6 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(333333333)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(333333338)
             }
         ]
     },
@@ -558,10 +526,6 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(2500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(2500005)
             }
         ]
     },
@@ -581,10 +545,6 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(5833333)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(5833338)
             }
         ]
     },
@@ -604,10 +564,6 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(3000000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(3000005)
             }
         ]
     },
@@ -627,10 +583,6 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1666666666)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1666666671)
             }
         ]
     }    
