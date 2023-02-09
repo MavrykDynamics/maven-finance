@@ -62,7 +62,7 @@ describe('Lending Controller Supporting Contracts', async () => {
             // Originate and deploy contracts
             //----------------------------
 
-            // LP Token for Mock FA12 Token in Lending Controller Token Pool 
+            // mToken for Mock FA12 Token in Lending Controller Token Pool 
             mTokenStorage.governanceAddress = governanceAddress.address;
             mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
                 "lendingController"     : lendingControllerMockTimeAddress.address,
@@ -119,7 +119,7 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
 
-            // LP Token for Mock FA12 Token in Lending Controller Token Pool 
+            // mToken for Mock FA12 Token in Lending Controller Token Pool 
             mTokenStorage.loanToken = "eurl"; 
             mTokenStorage.metadata  = MichelsonMap.fromLiteral({
                 '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -172,7 +172,7 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
 
-            // LP Token for XTZ in Lending Controller Token Pool 
+            // mToken for XTZ in Lending Controller Token Pool 
             mTokenStorage.loanToken = "tez"; 
             mTokenStorage.metadata  = MichelsonMap.fromLiteral({
                 '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -225,7 +225,7 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
 
-            // LP Token for XTZ in Lending Controller Token Pool 
+            // mToken for XTZ in Lending Controller Token Pool 
             mTokenStorage.loanToken = "tzbtc"; 
             mTokenStorage.metadata  = MichelsonMap.fromLiteral({
                 '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
