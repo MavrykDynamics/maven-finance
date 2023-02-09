@@ -157,7 +157,7 @@
 
 //         // ------------------------------------------------------------------
 //         //
-//         // Update LP Tokens (i.e. mTokens) tokenRewardIndex by transferring 0
+//         // Update mTokens (i.e. mTokens) tokenRewardIndex by transferring 0
 //         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
 //         //
 //         // ------------------------------------------------------------------
@@ -1683,9 +1683,9 @@
 //             const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-//             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//             const eveLpTokenPoolMockFa2Ledger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
+//             // get initial eve's mEurl Token - Mock FA2 Token - balance
+//             const eveMEurlTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//             const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
 //             const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
@@ -1718,7 +1718,7 @@
 //             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
 //             const updatedMockFa2TokenStorage       = await mockFa2TokenInstance.storage();
             
-//             const updatedLpTokenPoolMockFa2TokenStorage     = await mTokenEurlInstance.storage();
+//             const updatedMEurlTokenTokenStorage     = await mTokenEurlInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1732,9 +1732,9 @@
 //             const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance + liquidityAmount);
 
-//             // check Eve's LP Token Pool Mock FA2 Token balance
-//             const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//             assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance + liquidityAmount);        
+//             // check Eve's mEurl Token Token balance
+//             const updatedEveMEurlTokenLedger        = await updatedMEurlTokenTokenStorage.ledger.get(eve.pkh);            
+//             assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance + liquidityAmount);        
 
 //         });
 
@@ -1779,9 +1779,9 @@
 //             const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-//             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//             const eveLpTokenPoolMockFa2Ledger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
+//             // get initial eve's mEurl Token - Mock FA2 Token - balance
+//             const eveMEurlTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//             const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
 //             const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
@@ -1801,12 +1801,12 @@
 //             // get updated storages
 //             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
 //             const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//             const updatedLpTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
+//             const updatedMEurlTokenTokenStorage   = await mTokenEurlInstance.storage();
 
 //             // Summary - Liquidity Removed for Mock FA2 Token
 //             // 1) Loan Token Pool Record Balance - decrease
 //             // 2) Lending Controller Token Balance - decrease
-//             // 3) User LP Token Balance - decrease
+//             // 3) User mToken Balance - decrease
 //             // 4) User Token Balance - increase
 
 //             // 1) check new balance for loan token pool total
@@ -1817,9 +1817,9 @@
 //             const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
 
-//             // 3) check Eve's LP Token Pool Mock FA2 Token balance
-//             const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//             assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount);        
+//             // 3) check Eve's mEurl Token Token balance
+//             const updatedEveMEurlTokenLedger        = await updatedMEurlTokenTokenStorage.ledger.get(eve.pkh);            
+//             assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance - withdrawAmount);        
 
 //             // 4) check Eve's Mock FA2 Token balance
 //             const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
@@ -2196,9 +2196,9 @@
 //                 const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
 //                 const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-//                 // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//                 const eveLpTokenPoolMockFa2Ledger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
+//                 // get initial eve's mEurl Token - Mock FA2 Token - balance
+//                 const eveMEurlTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//                 const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
 //                 // get initial lending controller's Mock FA2 Token balance
 //                 const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
@@ -2218,7 +2218,7 @@
 //                 // get updated storages
 //                 const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
 //                 const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//                 const updatedLpTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
+//                 const updatedMEurlTokenTokenStorage   = await mTokenEurlInstance.storage();
 
 //                 // lendingControllerStorage = await lendingControllerInstance.storage();
 //                 const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get('mockFa2'); 
@@ -2226,7 +2226,7 @@
 //                 // Summary - Liquidity Removed for Mock FA2 Token
 //                 // 1) Loan Token Pool Record Balance - decrease
 //                 // 2) Lending Controller Token Balance - decrease
-//                 // 3) User LP Token Balance - decrease
+//                 // 3) User mToken Balance - decrease
 //                 // 4) User Token Balance - increase
 
 //                 // 1) check new balance for loan token pool total
@@ -2237,9 +2237,9 @@
 //                 const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
 //                 assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
 
-//                 // 3) check Eve's LP Token Pool Mock FA2 Token balance
-//                 const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount);        
+//                 // 3) check Eve's mEurl Token Token balance
+//                 const updatedEveMEurlTokenLedger        = await updatedMEurlTokenTokenStorage.ledger.get(eve.pkh);            
+//                 assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance - withdrawAmount);        
 
 //                 // 4) check Eve's Mock FA2 Token balance
 //                 const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
