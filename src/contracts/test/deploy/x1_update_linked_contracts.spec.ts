@@ -37,7 +37,6 @@ import tokenSaleAddress from '../../deployments/tokenSaleAddress.json'
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json'
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json'
 import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json'
-import tokenPoolRewardAddress from '../../deployments/tokenPoolRewardAddress.json'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -80,7 +79,6 @@ describe('Linked contracts updates for Tests', async () => {
       const lendingControllerInstance: any            = await utils.tezos.contract.at(lendingControllerAddress.address);
       const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
       const vaultFactoryInstance: any                 = await utils.tezos.contract.at(vaultFactoryAddress.address);
-      // const tokenPoolRewardInstance: any              = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
       
       //----------------------------
       // Set remaining contract addresses - post-deployment
@@ -239,11 +237,10 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite'   , governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , governanceFinancialAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , vaultFactoryAddress.address))
-      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
-      // .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
+      // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
 
       // uncomment if lending controller mock time contract is used
-      // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
   
       // whitelist contracts
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory'        , vaultFactoryAddress.address))
@@ -288,6 +285,7 @@ describe('Linked contracts updates for Tests', async () => {
       // whitelist contracts
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts('governanceProxy', governanceProxyAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactoryAddress.address))
+      .withContractCall(treasuryInstance.methods.updateWhitelistContracts("treasuryFactory", treasuryFactoryAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("tokenSale", tokenSaleAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", doormanAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", delegationAddress.address))
@@ -302,7 +300,7 @@ describe('Linked contracts updates for Tests', async () => {
       const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
       await treasuryContractsBatchOperation.confirmation();
       
-      console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory]')
+      console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory, treasuryFactory]')
       console.log('Treasury Contract - set whitelist token contract addresses map [MavrykFA12, MavrykFA2, MVK]')
   
       // Vesting Contract - set whitelist contract addresses map [council]

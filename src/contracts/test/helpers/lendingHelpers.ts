@@ -93,7 +93,7 @@ export const calculateBorrowIndex = (compoundedInterest, currentBorrowIndex) => 
 
 export const calculateAccruedInterest = (currentLoanOutstandingTotal, vaultBorrowIndex, tokenBorrowIndex) => {
 
-    let newLoanOutstandingTotal = 0
+    let newLoanOutstandingTotal = currentLoanOutstandingTotal
     
     if(currentLoanOutstandingTotal > 0){
         if(vaultBorrowIndex > 0){

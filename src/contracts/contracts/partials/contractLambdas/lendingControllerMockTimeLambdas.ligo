@@ -554,8 +554,8 @@ block {
                 loanTokenRecord.lpTokensTotal    := loanTokenRecord.lpTokensTotal + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
-                // send tokens to token pool (self address) operation / skip if loan token name is xtz
-                if loanTokenName =  "xtz" then {
+                // send tokens to token pool (self address) operation / skip if loan token name is tez
+                if loanTokenName =  "tez" then {
 
                     if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
 
@@ -1866,7 +1866,7 @@ block {
                 const vaultAddress      : address                               = vault.address;
 
                 // ------------------------------------------------------------------
-                // Register vaultWithdrawStakedMvk action on the Staking Contract (e.g. Doorman)
+                // Register vaultWithdrawStakedToken action on the Staking Contract (e.g. Doorman)
                 // ------------------------------------------------------------------
 
                 // get staking contract address

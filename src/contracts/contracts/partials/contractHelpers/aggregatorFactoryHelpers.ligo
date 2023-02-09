@@ -214,7 +214,7 @@ block {
     const aggregatorLambdaLedger : lambdaLedgerType = s.aggregatorLambdaLedger;
 
     const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
-        updateDataIsPaused                 = False;
+        updateDataIsPaused                  = False;
         withdrawRewardXtzIsPaused           = False;
         withdrawRewardStakedMvkIsPaused     = False;
     ];

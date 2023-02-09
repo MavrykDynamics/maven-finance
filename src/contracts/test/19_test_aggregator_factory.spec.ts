@@ -92,8 +92,8 @@
 //                 // Operation
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
         
-                    // 'USD/BTC',
-                    // true,
+//                     'USD/BTC',
+//                     true,
                     
 //                     oracleMap,
         
@@ -123,8 +123,8 @@
 //                 // Operation
 //                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
         
-                    // 'USD/BTC',
-                    // true,
+//                     'USD/BTC',
+//                     true,
                     
 //                     oracleMap,
         
@@ -144,7 +144,7 @@
 //                 // Final values
 //                 aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
 //                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
-//                 const aggregatorRecord          = await governanceSatelliteStorage.aggregatorLedger.get("USDBTC");
+//                 const aggregatorRecord          = await governanceSatelliteStorage.aggregatorLedger.get("USD/BTC");
 //                 const endTrackedAggregators     = aggregatorFactoryStorage.trackedAggregators.length;
 
 //                 // Assertion
@@ -329,8 +329,8 @@
 //                 // Test operations
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
             
-                    // 'USD/BTC',
-                    // true,
+//                     'USD/BTC',
+//                     true,
                     
 //                     oracleMap,
             
@@ -499,8 +499,8 @@
 //                 // Test operations
 //                 const testCreateAggregatorOp    = await aggregatorFactoryInstance.methods.createAggregator(
             
-                    // 'USD/Testv2',
-                    // true,
+//                     'USD/Testv2',
+//                     true,
                     
 //                     oracleMap,
             

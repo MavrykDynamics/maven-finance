@@ -35,7 +35,6 @@
 // import lendingControllerAddress         from '../deployments/lendingControllerMockTimeAddress.json';
 // import lendingControllerMockTimeAddress from '../deployments/lendingControllerMockTimeAddress.json';
 
-// import tokenPoolRewardAddress           from '../deployments/tokenPoolRewardAddress.json';
 // import vaultFactoryAddress              from '../deployments/vaultFactoryAddress.json';
 // import { vaultStorageType }             from "./types/vaultStorageType"
 
@@ -67,7 +66,6 @@
 //     let delegationInstance
 //     let mvkTokenInstance
 //     let treasuryInstance
-//     let tokenPoolRewardInstance
     
 //     let mockFa12TokenInstance
 //     let mockFa2TokenInstance
@@ -96,7 +94,6 @@
 //     let delegationStorage
 //     let mvkTokenStorage
 //     let treasuryStorage
-//     let tokenPoolRewardStorage
 
 //     let mockFa12TokenStorage
 //     let mockFa2TokenStorage
@@ -136,7 +133,6 @@
 //         delegationInstance                      = await utils.tezos.contract.at(delegationAddress.address);
 //         mvkTokenInstance                        = await utils.tezos.contract.at(mvkTokenAddress.address);
 //         treasuryInstance                        = await utils.tezos.contract.at(treasuryAddress.address);
-//         tokenPoolRewardInstance                 = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
 
 //         mockFa12TokenInstance                   = await utils.tezos.contract.at(mockFa12TokenAddress.address);
 //         mockFa2TokenInstance                    = await utils.tezos.contract.at(mockFa2TokenAddress.address);
@@ -159,7 +155,6 @@
 //         delegationStorage                       = await delegationInstance.storage();
 //         mvkTokenStorage                         = await mvkTokenInstance.storage();
 //         treasuryStorage                         = await treasuryInstance.storage();
-//         tokenPoolRewardStorage                  = await tokenPoolRewardInstance.storage();
 
 //         mockFa12TokenStorage                    = await mockFa12TokenInstance.storage();
 //         mockFa2TokenStorage                     = await mockFa2TokenInstance.storage();
@@ -207,7 +202,6 @@
 //         console.log('Delegation Contract deployed at:'          , delegationInstance.address);
 //         console.log('MVK Token Contract deployed at:'           , mvkTokenInstance.address);
 //         console.log('Lending Treasury Contract deployed at:'    , treasuryInstance.address);
-//         console.log('Token Pool Reward Contract deployed at:'   , tokenPoolRewardInstance.address);
 
 //         console.log('Mock FA12 Token Contract deployed at:'     , mockFa12TokenInstance.address);
 //         console.log('Mock FA2 Token Contract deployed at:'      , mockFa2TokenInstance.address);
@@ -1253,13 +1247,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa12";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1355,9 +1347,6 @@
 
 //             const treasuryMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
-
-//             // const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -1455,9 +1444,6 @@
 //             const updatedTreasuryMockFa12Ledger                 = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -1494,7 +1480,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -1529,13 +1514,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa12";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1631,9 +1614,6 @@
 
 //             const treasuryMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
-
-//             const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -1731,9 +1711,6 @@
 //             const updatedTreasuryMockFa12Ledger                 = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -1770,7 +1747,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -1804,13 +1780,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa12";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1906,9 +1880,6 @@
 
 //             const treasuryMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
-
-//             // const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2006,9 +1977,6 @@
 //             const updatedTreasuryMockFa12Ledger                 = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2045,7 +2013,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -2080,13 +2047,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa12";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2180,9 +2145,6 @@
 
 //             const treasuryMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
-
-//             // const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2280,9 +2242,6 @@
 //             const updatedTreasuryMockFa12Ledger                 = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2319,7 +2278,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -2357,13 +2315,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa2";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2460,9 +2416,6 @@
 //             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
 
-//             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
-
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 //             const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
@@ -2559,9 +2512,6 @@
 //             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2599,7 +2549,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -2634,13 +2583,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa2";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2737,9 +2684,6 @@
 //             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
 
-//             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
-
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 //             const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
@@ -2836,9 +2780,6 @@
 //             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2875,7 +2816,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -2910,13 +2850,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa2";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3012,9 +2950,6 @@
 
 //             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
-
-//             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
 
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -3112,9 +3047,6 @@
 //             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -3151,7 +3083,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -3185,13 +3116,11 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "mockFa2";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3287,9 +3216,6 @@
 
 //             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
-
-//             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
 
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -3387,9 +3313,6 @@
 //             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
 //             const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
-//             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-//             // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -3426,7 +3349,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -3465,14 +3387,12 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3569,9 +3489,6 @@
 //             const treasuryXtzLedger   = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const treasuryInitialXtzBalance  = treasuryXtzLedger.toNumber();
 
-//             // const tokenPoolRewardXtzLedger   = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const tokenPoolRewardInitialXtzBalance  = tokenPoolRewardXtzLedger.toNumber();
-
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 //             const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
@@ -3653,9 +3570,6 @@
 //             const updatedTreasuryXtzLedger                      = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const updatedTreasuryXtzBalance                     = updatedTreasuryXtzLedger.toNumber();
 
-//             // const updatedTokenPoolRewardXtzLedger               = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const updatedTokenPoolRewardXtzBalance              = updatedTokenPoolRewardXtzLedger.toNumber();
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -3694,7 +3608,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -3728,14 +3641,12 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3832,9 +3743,6 @@
 //             const treasuryXtzLedger   = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const treasuryInitialXtzBalance  = treasuryXtzLedger.toNumber();
 
-//             // const tokenPoolRewardXtzLedger   = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const tokenPoolRewardInitialXtzBalance  = tokenPoolRewardXtzLedger.toNumber();
-
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 //             const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
@@ -3916,9 +3824,6 @@
 //             const updatedTreasuryXtzLedger                      = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const updatedTreasuryXtzBalance                     = updatedTreasuryXtzLedger.toNumber();
 
-//             // const updatedTokenPoolRewardXtzLedger               = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const updatedTokenPoolRewardXtzBalance              = updatedTokenPoolRewardXtzLedger.toNumber();
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -3957,7 +3862,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -3992,14 +3896,12 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -4096,9 +3998,6 @@
 //             const treasuryXtzLedger   = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const treasuryInitialXtzBalance  = treasuryXtzLedger.toNumber();
 
-//             // const tokenPoolRewardXtzLedger   = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const tokenPoolRewardInitialXtzBalance  = tokenPoolRewardXtzLedger.toNumber();
-
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 //             const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
@@ -4180,9 +4079,6 @@
 //             const updatedTreasuryXtzLedger                      = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const updatedTreasuryXtzBalance                     = updatedTreasuryXtzLedger.toNumber();
 
-//             // const updatedTokenPoolRewardXtzLedger               = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const updatedTokenPoolRewardXtzBalance              = updatedTokenPoolRewardXtzLedger.toNumber();
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -4221,7 +4117,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewards, 0.0001), true);
 
 //         })
 
@@ -4255,14 +4150,12 @@
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -4359,9 +4252,6 @@
 //             const treasuryXtzLedger   = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const treasuryInitialXtzBalance  = treasuryXtzLedger.toNumber();
 
-//             // const tokenPoolRewardXtzLedger   = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const tokenPoolRewardInitialXtzBalance  = tokenPoolRewardXtzLedger.toNumber();
-
 //             // get token pool stats
 //             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 //             const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
@@ -4443,9 +4333,6 @@
 //             const updatedTreasuryXtzLedger                      = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             const updatedTreasuryXtzBalance                     = updatedTreasuryXtzLedger.toNumber();
 
-//             // const updatedTokenPoolRewardXtzLedger               = await utils.tezos.tz.getBalance(tokenPoolRewardAddress.address);
-//             // const updatedTokenPoolRewardXtzBalance              = updatedTokenPoolRewardXtzLedger.toNumber();
-
 //             // On-chain views to vault and loan token
 //             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
 //             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -4484,7 +4371,6 @@
 
 //             // check treasury fees and interest to token pool reward contract
 //             assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
-//             // assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewards, 0.0001), true);
 
 //         })
 

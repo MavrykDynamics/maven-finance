@@ -1,7 +1,7 @@
 // const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
 // const { InMemorySigner, importKey } = require("@taquito/signer");
 // import assert, { ok, rejects, strictEqual, fail } from "assert";
-// import { MVK, Utils, zeroAddress } from "./helpers/Utils";
+// import { Utils, zeroAddress, TEZ, MVK } from "./helpers/Utils";
 // import { createHash } from "crypto";
 // import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
 // import fs from "fs";
@@ -43,7 +43,8 @@
 // }
 
 // describe("Stress tests", async () => {
-//     var utils: Utils;
+    
+//     var utils: Utils
 
 //     let doormanInstance;
 //     let delegationInstance;
@@ -80,6 +81,7 @@
 
 //     before("setup", async () => {
 //         try{
+
 //             utils = new Utils();
 //             await utils.init(bob.sk);
             
@@ -221,7 +223,8 @@
 //             for(let i = 0; i < batchesCount; i++) {
 //                 const batch = utils.tezos.wallet.batch();
 //                 for (const indexStr in randomUserAccounts){
-//                     const index: number = indexStr.toNumber();
+
+//                     const index: number = parseInt(indexStr);
 //                     const account: any  = randomUserAccounts[index];
 
 //                     if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
@@ -236,7 +239,7 @@
 //                         if(userBalance.toNumber() < 1){
 //                             batch.withTransfer({ to: account.pkh, amount: tezAmount })
 //                             const transferEstimation    = await utils.tezos.estimate.transfer({ to: account.pkh, amount: tezAmount })
-//                             console.log("Transfer estimation for",account.pkh,":",transferEstimation)
+//                             // console.log("Transfer estimation for",account.pkh,":",transferEstimation)
 //                         }
 //                     }
 //                 }
@@ -281,7 +284,7 @@
 //                 // Operation
 //                 for (const indexStr in randomUserAccounts){
                     
-//                     const index: number         = indexStr.toNumber();
+//                     const index: number         = parseInt(indexStr);
 //                     delegationStorage           = await delegationInstance.storage();
 //                     doormanStorage              = await doormanInstance.storage();
 //                     const accessAmount          = delegationStorage.config.minimumStakedMvkBalance.toNumber() > doormanStorage.config.minMvkAmount.toNumber() ? delegationStorage.config.minimumStakedMvkBalance.toNumber() : doormanStorage.config.minMvkAmount.toNumber();
@@ -372,14 +375,14 @@
 //                         // Print the result and the estimations
 //                         delegationStorage       = await delegationInstance.storage();
 //                         satelliteRecord         = await delegationStorage.satelliteLedger.get(account.pkh);
-//                         console.log("Satellite record for", account.pkh, ":", satelliteRecord);
-//                         console.log("   - Batch estimation :", batchTotalCost);
+//                         // console.log("Satellite record for", account.pkh, ":", satelliteRecord);
+//                         // console.log("   - Batch estimation :", batchTotalCost);
 //                     }
 //                 }
 
-//                 console.log("Registering complete")
-//                 console.dir(minimalCost, {depth: 5});
-//                 console.dir(maximalCost, {depth: 5});
+//                 // console.log("Registering complete")
+//                 // console.dir(minimalCost, {depth: 5});
+//                 // console.dir(maximalCost, {depth: 5});
                 
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -434,8 +437,8 @@
 //                     estimate: operationEstimation,
 //                     totalCostMutez: operationEstimation.totalCost
 //                 }
-//                 console.log("Round: ", currentRound)
-//                 console.log("Operation total cost: ", operationTotalCost)
+//                 // console.log("Round: ", currentRound)
+//                 // console.log("Operation total cost: ", operationTotalCost)
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -462,7 +465,7 @@
 //                     estimate: operationEstimation,
 //                     totalCostMutez: operationEstimation.totalCost
 //                 }
-//                 console.log("Operation total cost: ", operationTotalCost)
+//                 // console.log("Operation total cost: ", operationTotalCost)
 
 //                 // Operation
 //                 const operation             = await governanceSatelliteInstance.methods.suspendSatellite(satelliteToSuspend, purpose).send();
@@ -471,7 +474,8 @@
 //                 // Final values
 //                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
 //                 const satelliteAction       = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-//                 console.log("Governance satellite action:", satelliteAction)
+//                 // console.log("Governance satellite action:", satelliteAction)
+
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -527,7 +531,7 @@
 //                     estimate: firstVoteEstimation,
 //                     totalCostMutez: firstVoteEstimation.totalCost
 //                 }
-//                 console.log("First council vote operation total cost: ", firstVoteTotalCost)
+//                 // console.log("First council vote operation total cost: ", firstVoteTotalCost)
 
 //                 // First sign operation
 //                 const aliceSignsRequestMintActionOperation  = await councilInstance.methods.signAction(councilActionId).send();
@@ -542,7 +546,7 @@
 //                     estimate: secondVoteEstimation,
 //                     totalCostMutez: secondVoteEstimation.totalCost
 //                 }
-//                 console.log("Second council vote operation total cost: ", secondVoteTotalCost)
+//                 // console.log("Second council vote operation total cost: ", secondVoteTotalCost)
 
 //                 const eveSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
 //                 await eveSignsRequestMintActionOperation.confirmation();
@@ -551,7 +555,7 @@
 //                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
 //                 const financialAction           = await governanceFinancialStorage.financialRequestLedger.get(financialActionId);
 
-//                 console.log("Governance financial action:", financialAction)
+//                 // console.log("Governance financial action:", financialAction)
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             } 
@@ -587,7 +591,7 @@
 //                     estimate: distributeRewardEstimation,
 //                     totalCostMutez: distributeRewardEstimation.totalCost
 //                 }
-//                 console.log("Estimate: ", distributeRewardTotalCost)
+//                 // console.log("Estimate: ", distributeRewardTotalCost)
 
 //                 // Operation
 //                 const distributeRewardOperation     = await delegationInstance.methods.distributeReward(satellitesSet,MVK(50)).send();
@@ -669,7 +673,7 @@
 //                 var packedParam;
 //                 if (referenceDataPacked) {
 //                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %createFarm param: ' + packedParam);
+//                     // console.log('packed %createFarm param: ' + packedParam);
 //                 } else {
 //                 throw `packing failed`
 //                 };
@@ -706,8 +710,8 @@
 
 //                     var voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
 //                     await voteOperation.confirmation();
-//                     console.log(account.pkh, "voted for proposal #", proposalId, "during the proposal round")
-//                     console.log("Estimation: ", proposalVoteTotalCost)
+//                     // console.log(account.pkh, "voted for proposal #", proposalId, "during the proposal round")
+//                     // console.log("Estimation: ", proposalVoteTotalCost)
 //                 }
 
 //                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
@@ -727,8 +731,8 @@
 
 //                     var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
-//                     console.log(account.pkh, "voted for proposal #", proposalId, "during the voting round")
-//                     console.log("Estimation: ", votingVoteTotalCost)
+//                     // console.log(account.pkh, "voted for proposal #", proposalId, "during the voting round")
+//                     // console.log("Estimation: ", votingVoteTotalCost)
 //                 }
 
 //                 // Execute proposal
@@ -738,7 +742,7 @@
 //                     estimate: startNextRoundEstimation,
 //                     totalCostMutez: startNextRoundEstimation.totalCost
 //                 }
-//                 console.log("startNextRound #1 estimation: ", startNextRoundTotalCost)
+//                 // console.log("startNextRound #1 estimation: ", startNextRoundTotalCost)
 
 //                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
@@ -750,14 +754,14 @@
 //                     totalCostMutez: startNextRoundEstimation.totalCost
 //                 }
 
-//                 console.log("startNextRound #2 estimation: ", startNextRoundTotalCost)
+//                 // console.log("startNextRound #2 estimation: ", startNextRoundTotalCost)
 //                 nextRoundOperation              = await governanceInstance.methods.startNextRound(false).send();
 //                 await nextRoundOperation.confirmation();
 
 //                 // Final values
 //                 governanceStorage               = await governanceInstance.storage();
 //                 const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
-//                 console.log("Final proposal: ", proposal)
+//                 // console.log("Final proposal: ", proposal)
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             } 
@@ -778,14 +782,14 @@
 //                 const userAmount        = randomUserAccounts.length;
 //                 const batchesCount      = Math.ceil(userAmount / batchSize);
 //                 const userLPGiveaway    = Math.floor(adminLPBalance / userAmount);
-//                 console.log("LP TOKEN PER USER:", userLPGiveaway)
-//                 console.log("MAX LP:", adminLPBalance)
-//                 console.log("USER AMOUNT:", userAmount)
+//                 // console.log("LP TOKEN PER USER:", userLPGiveaway)
+//                 // console.log("MAX LP:", adminLPBalance)
+//                 // console.log("USER AMOUNT:", userAmount)
 
 //                 for(let i = 0; i < batchesCount; i++) {
 //                     const batch = utils.tezos.wallet.batch();
 //                     for (const indexStr in randomUserAccounts){
-//                         const index: number = indexStr.toNumber();
+//                         const index: number = parseInt(indexStr);
 //                         const account: any  = randomUserAccounts[index];
 
 //                         if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
@@ -796,7 +800,7 @@
 //                                 batch.withContractCall(lpTokenInstance.methods.transfer(bob.pkh, account.pkh, userLPGiveaway))
 //                                 const transferParams        = await lpTokenInstance.methods.transfer(bob.pkh, account.pkh, userLPGiveaway).toTransferParams({})
 //                                 const transferEstimation    = await utils.tezos.estimate.transfer(transferParams);
-//                                 console.log("LP transfer estimation for",account.pkh,":",transferEstimation)
+//                                 // console.log("LP transfer estimation for",account.pkh,":",transferEstimation)
 //                             }
 //                         }
 //                     }
@@ -874,15 +878,15 @@
 //                         })
 //                     })
 
-//                     console.log("USER", account.pkh, "DEPOSITED", amountToDeposit, "LP TOKEN IN THE FARM");
-//                     for(const i in batchTotalCost){
-//                         console.log(batchTotalCost[i])
-//                     }
-//                     console.log("FARM STATE:",
-//                     "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
-//                     "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
-//                     "\n     - ClaimedRewards:", farmStorage.claimedRewards,
-//                     "\n     - DepositorRecord:", depositRecord)
+//                     // console.log("USER", account.pkh, "DEPOSITED", amountToDeposit, "LP TOKEN IN THE FARM");
+//                     // for(const i in batchTotalCost){
+//                     //     console.log(batchTotalCost[i])
+//                     // }
+//                     // console.log("FARM STATE:",
+//                     // "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
+//                     // "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
+//                     // "\n     - ClaimedRewards:", farmStorage.claimedRewards,
+//                     // "\n     - DepositorRecord:", depositRecord)
 //                 }
 
 //             } catch(e) {
@@ -917,14 +921,14 @@
 //                         farmStorage             = await farmInstance.storage();
 //                         depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
         
-//                         console.log("USER", account.pkh, "WITHDREW", amountToWithdraw, "LP TOKEN FROM THE FARM");
-//                         console.log("ESTIMATE:", withdrawEstimate, 
-//                         "\nTotal cost mutez:", withdrawEstimate.totalCost)
-//                         console.log("FARM STATE:",
-//                         "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
-//                         "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
-//                         "\n     - ClaimedRewards:", farmStorage.claimedRewards,
-//                         "\n     - DepositorRecord:", depositRecord)
+//                         // console.log("USER", account.pkh, "WITHDREW", amountToWithdraw, "LP TOKEN FROM THE FARM");
+//                         // console.log("ESTIMATE:", withdrawEstimate, 
+//                         // "\nTotal cost mutez:", withdrawEstimate.totalCost)
+//                         // console.log("FARM STATE:",
+//                         // "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
+//                         // "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
+//                         // "\n     - ClaimedRewards:", farmStorage.claimedRewards,
+//                         // "\n     - DepositorRecord:", depositRecord)
 
 //                     }
 //                 }
@@ -966,15 +970,15 @@
 //                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
 //                         depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
         
-//                         console.log("USER", account.pkh, "CLAIM REWARDS FROM THE FARM");
-//                         console.log("ESTIMATE:", claimEstimate, 
-//                         "\nTotal cost mutez:", claimEstimate.totalCost);
-//                         console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n End:", finalSMVKBalance);
-//                         console.log("FARM STATE:",
-//                         "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
-//                         "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
-//                         "\n     - ClaimedRewards:", farmStorage.claimedRewards,
-//                         "\n     - DepositorRecord:", depositRecord);
+//                         // console.log("USER", account.pkh, "CLAIM REWARDS FROM THE FARM");
+//                         // console.log("ESTIMATE:", claimEstimate, 
+//                         // "\nTotal cost mutez:", claimEstimate.totalCost);
+//                         // console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n End:", finalSMVKBalance);
+//                         // console.log("FARM STATE:",
+//                         // "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
+//                         // "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
+//                         // "\n     - ClaimedRewards:", farmStorage.claimedRewards,
+//                         // "\n     - DepositorRecord:", depositRecord);
 
 //                     }
 //                 }
@@ -1043,11 +1047,11 @@
 //                         const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
 //                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
         
-//                         console.log("USER", account.pkh, "STAKE", amountToStake, "MVK IN THE DOORMAN CONTRACT");
+//                         // console.log("USER", account.pkh, "STAKE", amountToStake, "MVK IN THE DOORMAN CONTRACT");
 //                         for(const i in batchTotalCost){
-//                             console.log(batchTotalCost[i])
+//                             // console.log(batchTotalCost[i])
 //                         }
-//                         console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
+//                         // console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
 
 //                     }
 //                 }
@@ -1093,23 +1097,26 @@
 //                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
 //                         const finalAmount       = finalMVKBalance - initMVKBalance;
         
-//                         console.log("USER", account.pkh, "UNSTAKES", amountToUnstake, "MVK FROM THE DOORMAN CONTRACT, PAYS:", paidFee,"AND GETS:", finalAmount);
-//                         console.log("ESTIMATE:", unstakeEstimate, 
-//                         "\nTotal cost mutez:", unstakeEstimate.totalCost);
-//                         console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
-//                         console.log("MVK TOTAL SUPPLY:", mvkTotalSupply, ", SMVK TOTAL SUPPLY:", smvkTotalSupply)
-//                         console.log("MLI:", mli, ", EXIT FEE:", exitFee);
-//                         console.log("DOORMAN STATE:",
-//                         "\n     - Unclaimed rewards:", doormanStorage.unclaimedRewards.toNumber(),
-//                         "\n     - AccumulatedFeesPerShare:", doormanStorage.accumulatedFeesPerShare.toNumber(),
-//                         "\n     - Init record:", initSMVKRecord,
-//                         "\n     - Final record:", finalSMVKRecord);
+//                         // console.log("USER", account.pkh, "UNSTAKES", amountToUnstake, "MVK FROM THE DOORMAN CONTRACT, PAYS:", paidFee,"AND GETS:", finalAmount);
+//                         // console.log("ESTIMATE:", unstakeEstimate, 
+//                         // "\nTotal cost mutez:", unstakeEstimate.totalCost);
+//                         // console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
+//                         // console.log("MVK TOTAL SUPPLY:", mvkTotalSupply, ", SMVK TOTAL SUPPLY:", smvkTotalSupply)
+//                         // console.log("MLI:", mli, ", EXIT FEE:", exitFee);
+//                         // console.log("DOORMAN STATE:",
+//                         // "\n     - Unclaimed rewards:", doormanStorage.unclaimedRewards.toNumber(),
+//                         // "\n     - AccumulatedFeesPerShare:", doormanStorage.accumulatedFeesPerShare.toNumber(),
+//                         // "\n     - Init record:", initSMVKRecord,
+//                         // "\n     - Final record:", finalSMVKRecord);
 
 //                     }
 //                 }
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }
-//         })
-//     })
-// })
+
+//         });
+
+//     });
+
+// });

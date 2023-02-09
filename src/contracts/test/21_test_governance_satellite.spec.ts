@@ -1466,10 +1466,6 @@
 //             assert.equal(usdXtzAggregatorOracles,      undefined);
 //             assert.equal(usdDogeAggregatorOracles,     undefined);
 
-//             // get bob satellite oracle record
-//             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.size;
-            
 //             const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //             const bobStakeAmount           = MVK(100);
 //             const aliceStakeAmount         = MVK(100);

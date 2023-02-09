@@ -44,7 +44,7 @@ type action is
     |   MintOrBurn                of mintOrBurnType
 
 
-type return is list (operation) * mavrykFa2TokenStorageType
+type return is list (operation) * mTokenStorageType
 const noOperations : list (operation) = nil;
 
 // const fixedPointAccuracy : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27     - // for use in division
@@ -59,13 +59,13 @@ const noOperations : list (operation) = nil;
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : mavrykFa2TokenStorageType) : unit is
+function checkSenderIsAllowed(var s : mTokenStorageType) : unit is
     if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const s : mavrykFa2TokenStorageType) : unit is
+function checkSenderIsAdmin(const s : mTokenStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
@@ -77,7 +77,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavrykFa2TokenStorageType) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mTokenStorageType) : unit is
 block{
 
   if Tezos.get_sender() = s.admin then skip
@@ -169,7 +169,7 @@ block {
 
 
 // get raw user balance from ledger
-function getRawBalance(const userAddress : address; const s : mavrykFa2TokenStorageType) : nat is 
+function getRawBalance(const userAddress : address; const s : mTokenStorageType) : nat is 
 block {
 
     var rawUserBalance : tokenBalanceType := case s.ledger[userAddress] of [
@@ -182,7 +182,7 @@ block {
 
 
 // get raw user reward index
-function getUserRewardIndex(const userAddress : address; const tokenRewardIndex : nat; const s : mavrykFa2TokenStorageType) : nat is 
+function getUserRewardIndex(const userAddress : address; const tokenRewardIndex : nat; const s : mTokenStorageType) : nat is 
 block {
 
     const userRewardIndex : nat = case s.rewardIndexLedger[userAddress] of [
@@ -210,7 +210,7 @@ block {
 
 
 // update user balance and user reward index
-function updateUserBalanceAndRewardIndex(const userAddress : address; const newUserBalance : nat; const newUserRewardIndex : nat; var s : mavrykFa2TokenStorageType) : mavrykFa2TokenStorageType is 
+function updateUserBalanceAndRewardIndex(const userAddress : address; const newUserBalance : nat; const newUserRewardIndex : nat; var s : mTokenStorageType) : mTokenStorageType is 
 block {
 
     s.ledger[userAddress]            := newUserBalance;
@@ -229,7 +229,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* Get loan token record from lending controller contract *)
-function getLoanTokenRecordFromLendingController(const loanTokenName : string; const s : mavrykFa2TokenStorageType) : loanTokenRecordType is 
+function getLoanTokenRecordFromLendingController(const loanTokenName : string; const s : mTokenStorageType) : loanTokenRecordType is 
 block {
 
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
@@ -265,25 +265,25 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; const s : mavrykFa2TokenStorageType) : address is
+[@view] function getAdmin(const _ : unit; const s : mTokenStorageType) : address is
     s.admin
 
 
 
 (* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : mavrykFa2TokenStorageType) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _ : unit; const s : mTokenStorageType) : whitelistContractsType is
     s.whitelistContracts
 
 
 
 (* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const s : mavrykFa2TokenStorageType) : option(unit) is
+[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : option(unit) is
     Big_map.find_opt(operator, s.operators)
 
 
 
 (* get: balance View *)
-[@view] function get_balance(const userAndId : ownerType * nat; const s : mavrykFa2TokenStorageType) : tokenBalanceType is
+[@view] function get_balance(const userAndId : ownerType * nat; const s : mTokenStorageType) : tokenBalanceType is
 block {
 
     // init user address
@@ -311,7 +311,7 @@ block {
 
 
 (* get: reward index View *)
-[@view] function get_reward_index(const userAddress : ownerType; const s : mavrykFa2TokenStorageType) : nat is
+[@view] function get_reward_index(const userAddress : ownerType; const s : mTokenStorageType) : nat is
 block {
 
     // get user reward index 
@@ -325,19 +325,19 @@ block {
 
 
 (* all_tokens View *)
-[@view] function all_tokens(const _ : unit; const _s : mavrykFa2TokenStorageType) : list(nat) is
+[@view] function all_tokens(const _ : unit; const _s : mTokenStorageType) : list(nat) is
     list[0n]
 
 
 
 (* check if operator *)
-[@view] function is_operator(const operator : (ownerType * operatorType * nat); const s : mavrykFa2TokenStorageType) : bool is
+[@view] function is_operator(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : bool is
     Big_map.mem(operator, s.operators)
 
 
 
 (* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const s : mavrykFa2TokenStorageType) : tokenMetadataInfoType is
+[@view] function token_metadata(const tokenId : nat; const s : mTokenStorageType) : tokenMetadataInfoType is
     case Big_map.find_opt(tokenId, s.token_metadata) of [
             Some (_metadata)  -> _metadata
         |   None -> record[
@@ -363,7 +363,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : mavrykFa2TokenStorageType) : return is
+function setAdmin(const newAdminAddress : address; var s : mTokenStorageType) : return is
 block {
 
     checkSenderIsAllowed(s);
@@ -374,7 +374,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : mavrykFa2TokenStorageType) : return is
+function setGovernance(const newGovernanceAddress : address; var s : mTokenStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -385,7 +385,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsTypes : updateWhitelistContractsType; var s : mavrykFa2TokenStorageType) : return is
+function updateWhitelistContracts(const updateWhitelistContractsTypes : updateWhitelistContractsType; var s : mTokenStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -396,7 +396,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationTypes : transferActionType; var s : mavrykFa2TokenStorageType) : return is
+function mistakenTransfer(const destinationTypes : transferActionType; var s : mTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -434,7 +434,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* assertMetadata entrypoint *)
-function assertMetadata(const assertMetadataParams : assertMetadataType; const s : mavrykFa2TokenStorageType) : return is
+function assertMetadata(const assertMetadataParams : assertMetadataType; const s : mTokenStorageType) : return is
 block{
 
     const metadataKey  : string  = assertMetadataParams.key;
@@ -449,7 +449,7 @@ block{
 
 
 (* transfer entrypoint *)
-function transfer(const transferParams : fa2TransferType; const s : mavrykFa2TokenStorageType) : return is
+function transfer(const transferParams : fa2TransferType; const s : mTokenStorageType) : return is
 block{
 
     function makeTransfer(const account : return; const transferParam : transfer) : return is
@@ -462,7 +462,7 @@ block{
             const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
             const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
              
-            function transferTokens(var accumulator : mavrykFa2TokenStorageType; const destination : transferDestination) : mavrykFa2TokenStorageType is
+            function transferTokens(var accumulator : mTokenStorageType; const destination : transferDestination) : mTokenStorageType is
             block {
 
                 const tokenId       : tokenIdType       = destination.token_id;
@@ -524,7 +524,7 @@ block{
             } with accumulator;
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            const updatedStorage : mavrykFa2TokenStorageType = List.fold(transferTokens, txs, account.1);
+            const updatedStorage : mTokenStorageType = List.fold(transferTokens, txs, account.1);
 
         } with (mergeOperations(updatedOperations,account.0), updatedStorage)
 
@@ -534,7 +534,7 @@ block{
 
 
 (* balance_of entrypoint *)
-function balanceOf(const balanceOfParams : balanceOfType; const s : mavrykFa2TokenStorageType) : return is
+function balanceOf(const balanceOfParams : balanceOfType; const s : mTokenStorageType) : return is
 block{
 
     // get loan token record from Lending Controller through on-chain views
@@ -577,7 +577,7 @@ block{
 
 
 (* update_operators entrypoint *)
-function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mavrykFa2TokenStorageType) : return is
+function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mTokenStorageType) : return is
 block{
 
     var updatedOperators : operatorsType := List.fold(
@@ -602,7 +602,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* MintOrBurn Entrypoint *)
-function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mavrykFa2TokenStorageType) : return is
+function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mTokenStorageType) : return is
 block {
 
     // check sender is whitelisted
@@ -672,7 +672,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* main entrypoint *)
-function main (const action : action; const s : mavrykFa2TokenStorageType) : return is
+function main (const action : action; const s : mTokenStorageType) : return is
 block{
 
     checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint

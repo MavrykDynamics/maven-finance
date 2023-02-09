@@ -4180,10 +4180,10 @@ describe("Testnet interactions helper", async () => {
     //         }
     //     });
 
-    //     it('Admin pauses vaultWithdrawStakedMvk', async () => {
+    //     it('Admin pauses vaultWithdrawStakedToken', async () => {
     //         try{
     //             // Operation
-    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedMvk", true).send();
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedToken", true).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
