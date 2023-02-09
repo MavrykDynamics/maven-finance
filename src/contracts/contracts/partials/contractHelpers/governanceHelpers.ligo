@@ -40,6 +40,46 @@ block{
 
 
 
+// Allowed Senders: Admin, Governance Proxy Node
+function verifySenderIsAdminOrGovernanceProxyNode(var s : governanceStorageType) : unit is
+block{
+
+    const governanceProxyAddress : address = getContractAddressFromGovernanceContract("governanceProxy", s.governanceAddress, error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND);
+    
+    const getProxyNodeAddressesView : option(set(address)) = Tezos.call_view("getProxyNodeAddresses", unit, governanceProxyAddress);
+    const governanceProxyNodeAddresses : set(address) = case getProxyNodeAddressesView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_PROXY_NODE_ADDRESSES_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND)
+    ];
+    const updatedSetWithAdminAddress : set(address) = Set.add(s.admin, governanceProxyNodeAddresses);
+
+    verifySenderIsAllowed(updatedSetWithAdminAddress, error_ONLY_ADMIN_OR_GOVERNANCE_PROXY_NODE_ALLOWED)
+
+} with unit
+
+
+
+// Allowed Senders: Admin, Governance Proxy Node
+function verifySenderIsWhitelistedOrAdminOrGovernanceProxyNode(var s : governanceStorageType) : unit is
+block{
+
+    const governanceProxyAddress : address = getContractAddressFromGovernanceContract("governanceProxy", s.governanceAddress, error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND);
+    
+    const getProxyNodeAddressesView : option(set(address)) = Tezos.call_view("getProxyNodeAddresses", unit, governanceProxyAddress);
+    const governanceProxyNodeAddresses : set(address) = case getProxyNodeAddressesView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_PROXY_NODE_ADDRESSES_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND)
+    ];
+    const updatedSetWithAdminAddress : set(address) = Set.add(s.admin, governanceProxyNodeAddresses);
+
+    // check if sender is whitelisted, admin, or governance proxy node contract
+    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip
+    else verifySenderIsAllowed(updatedSetWithAdminAddress, error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_OR_GOVERNANCE_PROXY_NODE_ALLOWED);
+
+} with unit
+
+
+
 // Allowed Senders : Admin, Whitelisted Contract
 function verifySenderIsWhitelistedOrAdmin(var s : governanceStorageType) : unit is
 block {

@@ -28,6 +28,12 @@
 
 
 
+(* View: get proxy node addresses *)
+[@view] function getProxyNodeAddresses(const _ : unit; const s : governanceProxyStorageType) : set(address) is
+    s.proxyNodeAddresses
+
+
+
 (* View: get a proxy lambda *)
 [@view] function getProxyLambdaOpt(const lambdaIndex : nat; const s : governanceProxyStorageType) : option(bytes) is
     Big_map.find_opt(lambdaIndex, s.proxyLambdaLedger)

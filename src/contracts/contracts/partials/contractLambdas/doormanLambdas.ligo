@@ -48,8 +48,7 @@ block {
 function lambdaUpdateMetadata(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
     
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case doormanLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -70,8 +69,7 @@ block {
 function lambdaUpdateConfig(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 
 block {
 
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case doormanLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -113,8 +111,7 @@ block {
 function lambdaUpdateGeneralContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case doormanLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

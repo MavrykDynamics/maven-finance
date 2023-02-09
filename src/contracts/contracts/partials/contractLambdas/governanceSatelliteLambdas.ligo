@@ -47,7 +47,7 @@ block {
 function lambdaUpdateMetadata(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case governanceSatelliteLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -69,7 +69,7 @@ function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSa
 block {
 
   verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
-  verifySenderIsAdmin(s.admin); // verify that sender is admin
+  verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
   case governanceSatelliteLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -113,7 +113,7 @@ block {
 function lambdaUpdateGeneralContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case governanceSatelliteLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

@@ -52,7 +52,7 @@ block {
 function lambdaUpdateMetadata(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case vaultLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {

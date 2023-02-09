@@ -48,8 +48,7 @@ block {
 function lambdaUpdateMetadata(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case delegationLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -70,8 +69,7 @@ block {
 function lambdaUpdateConfig(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 
 block {
 
-    // verify that sender is admin 
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case delegationLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -118,8 +116,7 @@ block {
 function lambdaUpdateGeneralContracts(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
-    // verify that sender is admin 
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case delegationLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

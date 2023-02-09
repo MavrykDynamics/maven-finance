@@ -121,6 +121,12 @@ type toggleTreasuryFacEntrypointType is [@layout:comb] record [
     empty                     : unit;
 ]
 
+type toggleVaultFacEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : vaultFactoryTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+
 type toggleDoormanEntrypointType is [@layout:comb] record [
     targetEntrypoint          : doormanTogglePauseEntrypointType;
     empty                     : unit;
@@ -128,6 +134,11 @@ type toggleDoormanEntrypointType is [@layout:comb] record [
 
 type toggleDelegationEntrypointType is [@layout:comb] record [
     targetEntrypoint          : delegationTogglePauseEntrypointType;
+    empty                     : unit;
+]
+
+type toggleLendingContEntrypointType is [@layout:comb] record [
+    targetEntrypoint          : lendingControllerTogglePauseEntrypointType;
     empty                     : unit;
 ]
 
@@ -161,7 +172,7 @@ type processGovernanceActionType is [@layout:comb] record [
 ]
 
 
-type setProxyNodeAddressesActionType is 
+type setProxyNodeAddressActionType is 
     |   AddProxyNodeAddress         of (address)
     |   RemoveProxyNodeAddress      of (address)
 
@@ -184,10 +195,10 @@ type executeActionParamsType is
     |   PauseAllContractEntrypoint         of (address)
     |   UnpauseAllContractEntrypoint       of (address)
     
-    |   ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
-    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
     |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
     |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
+    |   ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
+    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
     |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
     |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
     |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
@@ -232,7 +243,7 @@ type governanceProxyLambdaActionType is
     |   LambdaMistakenTransfer                of transferActionType
 
         // Governance Proxy Lambdas
-    |   LambdaSetProxyNodeAddress             of setProxyNodeAddressesActionType
+    |   LambdaSetProxyNodeAddress             of setProxyNodeAddressActionType
     |   LambdaProcessGovernanceAction         of processGovernanceActionType
 
         // Meta Lambdas
@@ -250,7 +261,7 @@ type governanceProxyStorageType is record [
 
     mvkTokenAddress             : address;
     governanceAddress           : address;
-    proxyNodeAddreses           : set(address);
+    proxyNodeAddresses           : set(address);
     
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType; 

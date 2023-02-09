@@ -811,6 +811,61 @@ block {
 
 } with (operations)
 
+
+
+function toggleVaultFacEntrypoint(const toggleEntrypointParams : toggleVaultFacEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get the vault factory contract address from the generalContracts big map
+    const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Find and get togglePauseEntrypoint entrypoint
+    const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%togglePauseEntrypoint",
+        vaultFactoryAddress) : option(contract(vaultFactoryTogglePauseEntrypointType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND) : contract(vaultFactoryTogglePauseEntrypointType))
+        ];
+
+    // Create operation to pause an entrypoint in the specified vault factory contract
+    const togglePauseEntrypointOperation : operation = Tezos.transaction(
+        toggleEntrypointParams.targetEntrypoint,
+        0tez, 
+        togglePauseEntrypoint
+    );
+
+    operations := togglePauseEntrypointOperation # operations;
+
+} with (operations)
+
+
+
+function toggleLendingContEntrypoint(const toggleEntrypointParams : toggleLendingContEntrypointType; var operations : list(operation); const s : governanceProxyStorageType) : list(operation) is 
+block {
+
+    // Find and get the lending controller contract address from the generalContracts big map
+    const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    // Find and get togglePauseEntrypoint entrypoint
+    const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+        "%togglePauseEntrypoint",
+        lendingControllerAddress) : option(contract(lendingControllerTogglePauseEntrypointType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(lendingControllerTogglePauseEntrypointType))
+        ];
+
+    // Create operation to pause an entrypoint in the specified lending controller contract
+    const togglePauseEntrypointOperation : operation = Tezos.transaction(
+        toggleEntrypointParams.targetEntrypoint,
+        0tez, 
+        togglePauseEntrypoint
+    );
+
+    operations := togglePauseEntrypointOperation # operations;
+
+} with (operations)
+
+
 // ------------------------------------------------------------------------------
 // Toggle Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------

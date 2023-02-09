@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case vaultFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -69,7 +69,7 @@ block {
 function lambdaUpdateConfig(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is 
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case vaultFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -110,7 +110,7 @@ block {
 function lambdaUpdateGeneralContracts(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case vaultFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

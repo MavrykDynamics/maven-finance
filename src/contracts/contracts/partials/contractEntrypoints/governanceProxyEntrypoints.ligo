@@ -135,17 +135,17 @@ block {
 // Main Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* setProxyNodeAddresses entrypoint *)
-function setProxyNodeAddresses(const setProxyNodeAddressesParams : setProxyNodeAddressesActionType; var s : governanceProxyStorageType) : return is 
+(* setProxyNodeAddress entrypoint *)
+function setProxyNodeAddress(const setProxyNodeAddressParams : setProxyNodeAddressActionType; var s : governanceProxyStorageType) : return is 
 block {
     
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaSetProxyNodeAddresses", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetProxyNodeAddress", s.lambdaLedger);
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaProxyNodeAddresses(setProxyNodeAddressesParams);
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaSetProxyNodeAddress(setProxyNodeAddressParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  

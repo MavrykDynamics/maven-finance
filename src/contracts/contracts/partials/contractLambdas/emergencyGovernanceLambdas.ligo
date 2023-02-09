@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -70,7 +70,7 @@ function lambdaUpdateConfig(const emergencyGovernanceLambdaAction : emergencyGov
 block {
 
   verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
-  verifySenderIsAdmin(s.admin); // verify that sender is admin
+  verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
   case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -117,7 +117,7 @@ block {
 function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

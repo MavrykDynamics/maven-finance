@@ -428,10 +428,10 @@
     "pauseAllContractEntrypoint",
     "unpauseAllContractEntrypoint",
 
-    "toggleAggregatorEntrypoint",
-    "toggleAggregatorFacEntrypoint",
     "toggleDelegationEntrypoint",
     "toggleDoormanEntrypoint",
+    "toggleAggregatorEntrypoint",
+    "toggleAggregatorFacEntrypoint",
     "toggleFarmEntrypoint",
     "toggleFarmFacEntrypoint",
     "toggleTreasuryEntrypoint",
@@ -473,6 +473,10 @@
 
     "updateProxyLambda",
 
+    "setContractName",
+    "updateContractMetadata",
+    "updateContractGeneralMap",
+
     "updateGovernanceConfig",
     "updateGovernanceFinancialConfig",
     "updateGovernanceSatelliteConfig",
@@ -495,7 +499,13 @@
     "closeFarm",
 
     "trackTreasury",
-    "untrackTreasury"
+    "untrackTreasury",
+    "updateMvkOperatorsTreasury",
+    "stakeMvkTreasury",
+    "unstakeMvkTreasury",
+
+    "trackAggregator",
+    "untrackAggregator"
   ],
   "governanceProxyNodeOne": [
     "lambdaSetAdmin",

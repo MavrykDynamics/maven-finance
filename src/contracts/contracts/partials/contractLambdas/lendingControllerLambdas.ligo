@@ -52,7 +52,7 @@ block {
 function lambdaUpdateConfig(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case lendingControllerLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {

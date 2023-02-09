@@ -30,6 +30,25 @@ block{
 
 
 
+// Allowed Senders: Admin, Governance Proxy Node
+function verifySenderIsAdminOrGovernanceProxyNode(var s : farmStorageType) : unit is
+block{
+
+    const governanceProxyAddress : address = getContractAddressFromGovernanceContract("governanceProxy", s.governanceAddress, error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND);
+    
+    const getProxyNodeAddressesView : option(set(address)) = Tezos.call_view("getProxyNodeAddresses", unit, governanceProxyAddress);
+    const governanceProxyNodeAddresses : set(address) = case getProxyNodeAddressesView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_PROXY_NODE_ADDRESSES_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND)
+    ];
+    const updatedSetWithAdminAddress : set(address) = Set.add(s.admin, governanceProxyNodeAddresses);
+
+    verifySenderIsAllowed(updatedSetWithAdminAddress, error_ONLY_ADMIN_OR_GOVERNANCE_PROXY_NODE_ALLOWED)
+
+} with unit
+
+
+
 // Check that farm is open
 function checkFarmIsOpen(const s : farmStorageType) : unit is 
     if not s.open then failwith(error_FARM_CLOSED)

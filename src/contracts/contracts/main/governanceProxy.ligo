@@ -76,6 +76,9 @@
 // Vault Types 
 #include "../partials/contractTypes/vaultTypes.ligo"
 
+// Vault Factory Types 
+#include "../partials/contractTypes/vaultFactoryTypes.ligo"
+
 // LendingController Type
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
@@ -96,6 +99,7 @@ type governanceProxyAction is
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
+    |   SetProxyNodeAddress             of setProxyNodeAddressActionType
     |   ExecuteGovernanceAction         of (bytes)
     |   ProcessGovernanceAction         of processGovernanceActionType
 
@@ -169,7 +173,7 @@ block {
         |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Main entrypoints
-        |   SetProxyNodeAddresses(parameters)         -> setProxyNodeAddresses(parameters, s)
+        |   SetProxyNodeAddress(parameters)           -> setProxyNodeAddress(parameters, s)
         |   ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)        
         |   ProcessGovernanceAction(parameters)       -> processGovernanceAction(parameters, s)
 

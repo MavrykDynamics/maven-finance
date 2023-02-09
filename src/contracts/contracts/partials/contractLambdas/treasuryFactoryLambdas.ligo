@@ -46,7 +46,7 @@ block {
 function lambdaUpdateMetadata(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -68,7 +68,7 @@ block {
 function lambdaUpdateConfig(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -109,7 +109,7 @@ block {
 function lambdaUpdateGeneralContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case treasuryFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -371,7 +371,7 @@ block{
     // 2. Check that %trackTreasury entrypoint is not paused (e.g. glass broken)
     // 3. Add Treasury Contract to tracked Treasuries
 
-    verifySenderIsAdmin(s.admin);       // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     // verify that %trackTreasury entrypoint is not paused (e.g. glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.trackTreasuryIsPaused, error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED);
@@ -398,7 +398,7 @@ block{
     // 2. Check that %untrackTreasury entrypoint is not paused (e.g. glass broken)
     // 3. Remove Treasury Contract from tracked Treasuries
 
-    verifySenderIsAdmin(s.admin);        // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     // check that %untrackTreasury entrypoint is not paused (e.g. glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.untrackTreasuryIsPaused, error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED);
