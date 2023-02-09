@@ -56,8 +56,7 @@ block {
     // 5. Validate that new name input does not exceed aggregatorNameMaxLength
     // 6. Set new name on Aggregator Contract
     
-    // verify that sender is admin (i.e. Governance Proxy Contract address)
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     var operations : list(operation) := nil;
 
@@ -109,8 +108,7 @@ block {
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    // check that sender is admin 
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case aggregatorLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -132,8 +130,7 @@ block {
 function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
-    // check that sender is admin
-    verifySenderIsAdmin(s.admin);
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case aggregatorLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -181,8 +178,7 @@ block {
 function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
 
-    // check that sender is admin
-    verifySenderIsAdmin(s.admin); 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case aggregatorLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

@@ -76,7 +76,7 @@ block {
     // 4. Get the treasuryNameMaxLength parameter from the Treasury Factory Contract Config
     // 5. Validate input (name does not exceed max length) and update the Treasury Contract name
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case treasuryLambdaAction of [
         |   LambdaSetName(updatedName) -> {
@@ -109,7 +109,7 @@ block {
 function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case treasuryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -148,7 +148,7 @@ block {
 function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case treasuryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -368,7 +368,7 @@ block {
     // 2. Update operators of Treasury Contract on the MVK Token contract 
     //    - required to set Doorman Contract as an operator for staking/unstaking 
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     var operations : list(operation) := nil;
 
@@ -398,7 +398,7 @@ block {
     // 4. Get stake entrypoint in the Doorman Contract
     // 5. Create and send stake operation to the Doorman Contract
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     // verify that %stakeMvk entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeMvkIsPaused, error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
@@ -432,7 +432,7 @@ block {
     // 4. Get unstake entrypoint in the Doorman Contract
     // 5. Create and send unstake operation to the Doorman Contract
     
-    verifySenderIsAdmin(s.admin);  // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     // verify that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeMvkIsPaused, error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);

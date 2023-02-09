@@ -76,6 +76,9 @@
 // Vault Types 
 #include "../partials/contractTypes/vaultTypes.ligo"
 
+// Vault Factory Types 
+#include "../partials/contractTypes/vaultFactoryTypes.ligo"
+
 // LendingController Type
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 

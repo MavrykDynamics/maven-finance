@@ -53,7 +53,7 @@ function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionTyp
 block {
 
     verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount
-    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case councilLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -75,7 +75,7 @@ function lambdaUpdateConfig(const councilLambdaAction : councilLambdaActionType;
 block {
 
     verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case councilLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -122,7 +122,7 @@ block {
 function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case councilLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

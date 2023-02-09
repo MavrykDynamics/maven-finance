@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case farmFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -69,7 +69,7 @@ block {
 function lambdaUpdateConfig(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is 
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case farmFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -110,7 +110,7 @@ block {
 function lambdaUpdateGeneralContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case farmFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -350,7 +350,7 @@ block{
     // 2. Check that %trackFarm entrypoint is not paused (e.g. glass broken)
     // 3. Add Farm Contract to tracked Farms
     
-    verifySenderIsAdmin(s.admin);   // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     verifyEntrypointIsNotPaused(s.breakGlassConfig.trackFarmIsPaused, error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED);
 
     case farmFactoryLambdaAction of [
@@ -375,7 +375,7 @@ block{
     // 2. Check that %untrackFarm entrypoint is not paused (e.g. glass broken)
     // 3. Remove Farm Contract from tracked Farms
 
-    verifySenderIsAdmin(s.admin);     // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     verifyEntrypointIsNotPaused(s.breakGlassConfig.untrackFarmIsPaused, error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED);
 
     case farmFactoryLambdaAction of [

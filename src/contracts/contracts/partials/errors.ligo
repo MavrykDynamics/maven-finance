@@ -25,8 +25,10 @@
 [@inline] const error_ONLY_SELF_ALLOWED                                                                                 = 15n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                                                          = 16n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_FINANCIAL_ALLOWED                                                = 17n;
+[@inline] const error_ONLY_ADMIN_OR_GOVERNANCE_PROXY_NODE_ALLOWED                                                       = 17n;
 [@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                                                      = 18n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_ALLOWED                                               = 19n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_OR_GOVERNANCE_PROXY_NODE_ALLOWED                      = 19n;
 [@inline] const error_ONLY_WHITELISTED_ADDRESSES_ALLOWED                                                                = 20n;
 [@inline] const error_ONLY_PROPOSER_ALLOWED                                                                             = 21n;
 [@inline] const error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED                                 = 22n;
@@ -659,8 +661,8 @@
 [@inline] const error_GET_WHITELIST_TOKEN_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                         = 482n;
 [@inline] const error_GET_WHITELIST_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                               = 483n;
 [@inline] const error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                 = 484n;
+[@inline] const error_GET_PROXY_NODE_ADDRESSES_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                              = 485n;
 [@inline] const error_GET_PROXY_LAMBDA_OPT_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                  = 485n;
-
 
 // ------------------------------------------------------------------------------
 //
@@ -1157,6 +1159,8 @@
 [@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED                                          = 808n;
 [@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                       = 809n;
 
+[@inline] const error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                            = 809n;
+[@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                      = 809n;
 
 // ------------------------------------------------------------------------------
 //
@@ -1295,3 +1299,5 @@
 [@inline] const error_UPDATE_OPERATORS_ENTRYPOINT_IN_STAKING_TOKEN_CONTRACT_NOT_FOUND                                   = 905n;
 [@inline] const error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED                                                  = 906n;
 
+[@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                 = 907n;
+[@inline] const error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                       = 907n;

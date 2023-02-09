@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case governanceFinancialLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -70,7 +70,7 @@ function lambdaUpdateConfig(const governanceFinancialLambdaAction : governanceFi
 block {
 
   verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
-  verifySenderIsAdmin(s.admin); // verify that sender is admin
+  verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
   case governanceFinancialLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -112,7 +112,7 @@ block {
 function lambdaUpdateGeneralContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case governanceFinancialLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

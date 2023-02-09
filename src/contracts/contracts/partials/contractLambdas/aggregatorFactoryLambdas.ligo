@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block{
   
-    verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -69,7 +69,7 @@ block{
 function lambdaUpdateConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block{
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -110,7 +110,7 @@ block {
 function lambdaUpdateGeneralContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case aggregatorFactoryLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -365,7 +365,7 @@ block{
     // 2. Check if Aggregator Name exists (e.g. BTC/USD) 
     //      -   Add Aggregator Contract to Tracked Aggregators Map if Aggregator Name does not exist
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     verifyEntrypointIsNotPaused(s.breakGlassConfig.trackAggregatorIsPaused, error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
@@ -406,7 +406,7 @@ block{
     //      -   Check that sender is admin
     // 2. Remove Aggregator Contract from Tracked Aggregators Map 
 
-    verifySenderIsAdmin(s.admin);               // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     verifyEntrypointIsNotPaused(s.breakGlassConfig.untrackAggregatorIsPaused, error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;

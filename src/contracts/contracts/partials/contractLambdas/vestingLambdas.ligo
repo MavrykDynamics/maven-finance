@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case vestingLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -86,7 +86,7 @@ block {
 function lambdaUpdateGeneralContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin 
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case vestingLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {

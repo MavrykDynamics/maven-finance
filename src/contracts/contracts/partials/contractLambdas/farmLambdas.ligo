@@ -55,7 +55,7 @@ block {
     // 4. Get the nameMaxLength parameter from the Farm Factory Contract Config
     // 5. Validate input (name does not exceed max length) and update the Farm Contract name
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case farmLambdaAction of [
         |   LambdaSetName(updatedName) -> {
@@ -88,7 +88,7 @@ block {
 function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
     
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case farmLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -109,7 +109,7 @@ block {
 function lambdaUpdateConfig(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 
 block {
 
-  verifySenderIsAdmin(s.admin); // verify that sender is admin
+  verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
   
   case farmLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -173,7 +173,7 @@ block {
 function lambdaUpdateGeneralContracts(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     
     case farmLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -241,7 +241,7 @@ block{
     // 4. Check whether the farm is infinite or if its total blocks has been set
     // 5. Update Farm Storage and init Farm
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case farmLambdaAction of [
         |   LambdaInitFarm(initFarmParams) -> {
@@ -273,7 +273,7 @@ block{
     // 2. Check that farm is open
     // 3. Update and close farm
 
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
     checkFarmIsOpen(s);     // check that farm is open
 
     case farmLambdaAction of [

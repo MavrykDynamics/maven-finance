@@ -149,7 +149,7 @@ block {
     // 3. Set new contract metadata
 
     verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case governanceLambdaAction of [
         |   LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -176,7 +176,7 @@ block {
     // 3. Update config with new input (validate if necessary)
 
     verifyNoAmountSent(Unit);   // check that no tez is sent to the entrypoint
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
+    verifySenderIsAdminOrGovernanceProxyNode(s); // verify that sender is admin or governance proxy node address
 
     case governanceLambdaAction of [
         |   LambdaUpdateConfig(updateConfigParams) -> {
@@ -246,7 +246,7 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update general contracts map
 
-    verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
+    verifySenderIsWhitelistedOrAdminOrGovernanceProxyNode(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
     verifyNoAmountSent(Unit);            // check that no tez is sent to the entrypoint
     
     case governanceLambdaAction of [
