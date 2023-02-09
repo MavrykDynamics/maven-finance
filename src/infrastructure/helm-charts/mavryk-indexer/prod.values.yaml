@@ -269,6 +269,105 @@ instances:
         host:
         secretName:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
+  prod-demo:
+    dipdup:
+      initialWipe: false
+      image:
+        registry: docker.io
+        repository: mavrykdynamics/mavryk-indexer
+        tag: v0.28.0
+        pullPolicy: IfNotPresent
+        pullSecret: docker-pull-credentials
+      metrics:
+        serviceMonitor:
+          namespace: kube-prometheus-stack
+      database:
+        backup:
+          enabled: true
+          env:
+            - name: POSTGRES_DB
+              value: dipdup-dev
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_HOST_PROD_DEMO
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PORT_PROD_DEMO
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_USERNAME_PROD_DEMO
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PASSWORD_PROD_DEMO
+            - name: BACKUP_RETENTION_IN_DAYS
+              value: '7'
+            - name: BACKUP_FOLDER
+              value: '/usr/indexer-backup'
+      env:
+        - name: POSTGRES_DB
+          value: dipdup-dev
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_HOST_PROD_DEMO
+        - name: POSTGRES_PORT
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_PORT_PROD_DEMO
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_USERNAME_PROD_DEMO
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_PASSWORD_PROD_DEMO
+        - name: ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: HASURA_GRAPHQL_ADMIN_SECRET
+        - name: HASURA_URL
+          value: http://hasura-prod-demo.mavryk-indexer.svc.cluster.local:8080
+        - name: TZKT_GHOSTNET_URL
+          value: https://api.ghostnet.tzkt.io
+        - name: TZKT_MAINNET_URL
+          value: https://api.tzkt.io
+    hasura:
+      enabled: true
+      image:
+        registry: docker.io
+        repository: hasura/graphql-engine
+        tag: v2.15.2
+      hpa:
+        enabled: true
+      resources:
+        enabled: true
+        requests:
+          memory: 1000Mi
+          cpu: 1000m
+        limits:
+          memory: 2000Mi
+          cpu: 1500m
+      ingress:
+        service:
+          name: hasura-prod-demo
+        enabled: true
+        host: api-demo.mavryk.finance
+        secretName: api-demo-mavryk-tls
+      databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_DEMO
 
 # pgadmin4 module values
 pgadmin4:
