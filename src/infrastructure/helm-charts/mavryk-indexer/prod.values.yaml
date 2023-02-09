@@ -5,7 +5,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.28.0
+        tag: v0.31.3
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -77,7 +77,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.28.0
+        tag: v0.31.3
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -176,7 +176,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.28.0
+        tag: v0.31.3
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -275,7 +275,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.28.0
+        tag: v0.31.3
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -286,7 +286,7 @@ instances:
           enabled: true
           env:
             - name: POSTGRES_DB
-              value: dipdup-dev
+              value: dipdup-demo
             - name: PGHOST
               valueFrom:
                 secretKeyRef:
@@ -313,7 +313,7 @@ instances:
               value: '/usr/indexer-backup'
       env:
         - name: POSTGRES_DB
-          value: dipdup-dev
+          value: dipdup-demo
         - name: POSTGRES_HOST
           valueFrom:
             secretKeyRef:
