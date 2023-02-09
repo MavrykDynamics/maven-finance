@@ -495,9 +495,9 @@
 //         console.log('Governance Contract deployed at:'          , governanceInstance.address);
 //         console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
 
-//         console.log('LP Token Pool - Mock FA12 Token - deployed at:'    , mUsdtTokenInstance.address);
-//         console.log('LP Token Pool - Mock FA2 Token - deployed at:'     , mEurlTokenInstance.address);
-//         console.log('LP Token Pool - XTZ - deployed at:'                , mXtzTokenInstance.address);
+//         console.log('mUsdt Token - deployed at:'    , mUsdtTokenInstance.address);
+//         console.log('mEurl Token - deployed at:'     , mEurlTokenInstance.address);
+//         console.log('mToken Pool - XTZ - deployed at:'                , mXtzTokenInstance.address);
 
 //         console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
 //         console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
@@ -717,7 +717,7 @@
 
 //         // ------------------------------------------------------------------
 //         //
-//         // Update LP Tokens (i.e. mTokens) tokenRewardIndex by transferring 0
+//         // Update mTokens (i.e. mTokens) tokenRewardIndex by transferring 0
 //         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
 //         //
 //         // ------------------------------------------------------------------
@@ -1574,8 +1574,8 @@
 //             const eveMockFa12Ledger                 = await usdtTokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
-//             // get initial eve's Token Pool FA2 LP - Mock FA12 Token - balance
-//             const eveInitialLpTokenPoolMockFa12TokenBalance    = await mUsdtTokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
+//             // get initial eve's mEurl Token - Mock FA12 Token - balance
+//             const eveInitialMUsdtTokenTokenBalance    = await mUsdtTokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
 
 //             // get initial lending controller's Mock FA12 Token balance
 //             const lendingControllerMockFa12Ledger                = await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
@@ -1610,7 +1610,7 @@
 //             // get updated storages
 //             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
 //             const updatedMockFa12TokenStorage             = await usdtTokenInstance.storage();
-//             const updatedLpTokenPoolMockFa12TokenStorage  = await mUsdtTokenInstance.storage();
+//             const updatedMUsdtTokenTokenStorage  = await mUsdtTokenInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1624,9 +1624,9 @@
 //             const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
-//             // check Eve's LP Token Pool Mock FA12 Token balance
-//             const updatedEveLpTokenPoolMockFa12Ledger    = await mUsdtTokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
-//             assert.equal(updatedEveLpTokenPoolMockFa12Ledger.toNumber(), eveInitialLpTokenPoolMockFa12TokenBalance.toNumber() + liquidityAmount);
+//             // check Eve's mUsdt Token Token balance
+//             const updatedEveMUsdtTokenLedger    = await mUsdtTokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
+//             assert.equal(updatedEveMUsdtTokenLedger.toNumber(), eveInitialMUsdtTokenTokenBalance.toNumber() + liquidityAmount);
 
 //         });
 
@@ -1641,15 +1641,15 @@
             
 //             // get mock fa2 token storage and lp token pool mock fa2 token storage
 //             const eurlTokenStorage              = await eurlTokenInstance.storage();
-//             const lpTokenPoolMockFa2TokenStorage   = await mEurlTokenInstance.storage();
+//             const mEurlTokenStorage   = await mEurlTokenInstance.storage();
             
 //             // get initial eve's Mock FA2 Token balance
 //             const eveMockFa2Ledger                 = await eurlTokenStorage.ledger.get(eve.pkh);            
 //             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-//             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
-//             const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
+//             // get initial eve's mEurl Token - Mock FA2 Token - balance
+//             const eveMEurlTokenLedger                 = await mEurlTokenStorage.ledger.get(eve.pkh);            
+//             const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
 //             const lendingControllerMockFa2Ledger                = await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
@@ -1682,7 +1682,7 @@
 //             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
 //             const updatedMockFa2TokenStorage       = await eurlTokenInstance.storage();
             
-//             const updatedLpTokenPoolMockFa2TokenStorage     = await mEurlTokenInstance.storage();
+//             const updatedMEurlTokenTokenStorage     = await mEurlTokenInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1696,9 +1696,9 @@
 //             const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance + liquidityAmount);
 
-//             // check Eve's LP Token Pool Mock FA2 Token balance
-//             const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//             assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance + liquidityAmount);        
+//             // check Eve's mEurl Token Token balance
+//             const updatedEveMEurlTokenLedger        = await updatedMEurlTokenTokenStorage.ledger.get(eve.pkh);            
+//             assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance + liquidityAmount);        
 
 //         });
 
@@ -1712,16 +1712,16 @@
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
-//             // get LP token pool XTZ token storage (FA2 Token Standard)
+//             // get mToken XTZ token storage (FA2 Token Standard)
 //             const mXtzTokenStorage   = await mXtzTokenInstance.storage();
 
 //             // get initial eve XTZ balance
 //             const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
 //             const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
 
-//             // get initial eve's Token Pool FA2 LP - Tez - balance
-//             const eveLpTokenPoolXtzLedger            = await mXtzTokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialLpTokenPoolXtzBalance    = eveLpTokenPoolXtzLedger == undefined ? 0 : eveLpTokenPoolXtzLedger.toNumber();
+//             // get initial eve's mEurl Token - Tez - balance
+//             const eveMXtzTokenLedger            = await mXtzTokenStorage.ledger.get(eve.pkh);            
+//             const eveInitialMXtzTokenBalance    = eveMXtzTokenLedger == undefined ? 0 : eveMXtzTokenLedger.toNumber();
             
 //             // get initial lending controller's XTZ balance
 //             const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
@@ -1740,7 +1740,7 @@
 
 //             // get updated storages
 //             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
-//             const updatedLpTokenPoolXtzStorage     = await mXtzTokenInstance.storage();
+//             const updatedMXtzTokenStorage     = await mXtzTokenInstance.storage();
 
 //             // check new balance for loan token pool total
 //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -1750,9 +1750,9 @@
 //             const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
 //             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance + liquidityAmount);
 
-//             // check Eve's LP Token Pool XTZ balance
-//             const updatedEveLpTokenPoolXtzLedger        = await updatedLpTokenPoolXtzStorage.ledger.get(eve.pkh);            
-//             assert.equal(updatedEveLpTokenPoolXtzLedger, eveInitialLpTokenPoolXtzBalance + liquidityAmount);        
+//             // check Eve's mToken Pool XTZ balance
+//             const updatedEveMXtzTokenLedger        = await updatedMXtzTokenStorage.ledger.get(eve.pkh);            
+//             assert.equal(updatedEveMXtzTokenLedger, eveInitialMXtzTokenBalance + liquidityAmount);        
 
 //             // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
 //             const eveXtzBalance = await utils.tezos.tz.getBalance(eve.pkh);
