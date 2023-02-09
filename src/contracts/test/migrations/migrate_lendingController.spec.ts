@@ -37,7 +37,6 @@ import {
 } from '../contractHelpers/aggregatorFactoryTestHelper'
 import { LendingController, setLendingControllerLambdas } from "../contractHelpers/lendingControllerTestHelper"
 import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from "../contractHelpers/vaultFactoryTestHelper"
-import { TokenPoolReward, setTokenPoolRewardLambdas } from "../contractHelpers/tokenPoolRewardTestHelper"
 
 import { MavrykFa12Token } from '../contractHelpers/mavrykFa12TokenTestHelper'
 import { MavrykFa2Token } from '../contractHelpers/mavrykFa2TokenTestHelper'
@@ -51,7 +50,6 @@ import { aggregatorStorage } from '../../storage/aggregatorStorage'
 
 import { lendingControllerStorage } from "../../storage/lendingControllerStorage"
 import { vaultFactoryStorage } from "../../storage/vaultFactoryStorage"
-import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
 
 import { mavrykFa12TokenStorage } from '../../storage/mavrykFa12TokenStorage'
 import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
@@ -81,7 +79,6 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
 
   var lendingController                 : LendingController
   var vaultFactory                      : VaultFactory
-  var tokenPoolReward                   : TokenPoolReward
   
   var tezos
   
@@ -303,20 +300,6 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         console.log('Mock USD/MVK Aggregator Contract deployed at:', mockUsdMvkAggregator.contract.address)
 
 
-        //----------------------------
-        // Token Pool Reward Contract
-        //----------------------------
-
-        tokenPoolRewardStorage.mvkTokenAddress   = mvkTokenAddress.address;
-        tokenPoolRewardStorage.governanceAddress = governanceAddress.address;
-        tokenPoolReward = await TokenPoolReward.originate(
-            utils.tezos,
-            tokenPoolRewardStorage
-        )
-        await saveContractAddress('tokenPoolRewardAddress', tokenPoolReward.contract.address)
-        console.log('Token Pool Reward Contract deployed at:', tokenPoolReward.contract.address)
-        
-    
         /* ---- ---- ---- ---- ---- */
   
         tezos = lendingController.tezos
@@ -340,10 +323,6 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await setVaultFactoryProductLambdas(tezos, vaultFactory.contract)
         console.log("Vault Factory - Vault Lambdas Setup")
 
-        // Token Pool Reward Lambdas
-        await setTokenPoolRewardLambdas(tezos, tokenPoolReward.contract)
-        console.log("Token Pool Reward Lambdas Setup")
-
         // Aggregator Setup Lambdas
         await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
         await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
@@ -363,7 +342,6 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         .batch()
 
         .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController' , lendingController.contract.address))
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward'   , tokenPoolReward.contract.address))
         .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'      , vaultFactory.contract.address))
 
         .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa12TokenAggregator'    , mockUsdMockFa12TokenAggregator.contract.address))

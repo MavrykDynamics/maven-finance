@@ -81,7 +81,6 @@
 //     let delegationInstance
 //     let mvkTokenInstance
 //     let treasuryInstance
-//     // let tokenPoolRewardInstance
     
 //     let mockFa12TokenInstance
 //     let mockFa2TokenInstance
@@ -109,7 +108,6 @@
 //     let delegationStorage
 //     let mvkTokenStorage
 //     let treasuryStorage
-//     // let tokenPoolRewardStorage
 
 //     let mockFa12TokenStorage
 //     let mockFa2TokenStorage
@@ -1675,13 +1673,11 @@
 //             const liquidator    = mallory.pkh;
 //             const loanTokenName = "mockFa12";
 
-//             const whitelistedDepositors = [];
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
-//                 whitelistedDepositors,  // whitelisted depositors
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();

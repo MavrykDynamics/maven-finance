@@ -427,7 +427,7 @@ block{
                 // get median
                 const median: nat = getMedianFromMap(pivotObservationMap(params.oracleObservations), Map.size (params.oracleObservations));
 
-                // implement weight data over x entries
+                // todo: fix percent oracle response
 
                 var newlastCompletedData := record [
                     round                   = epochAndRound.1;
@@ -497,9 +497,6 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaWithdrawRewardXtz(oracleAddress) -> {
 
-                // Verify that sender is an oracle registered on the aggregator
-                verifySenderIsRegisteredOracle(s);
-
                 // Verify that satellite is not suspended or banned
                 verifySatelliteIsNotSuspendedOrBanned(oracleAddress, s);
                 
@@ -547,9 +544,6 @@ block{
 
     case aggregatorLambdaAction of [
         |   LambdaWithdrawRewardStakedMvk(oracleAddress) -> {
-                
-                // Verify that sender is an oracle registered on the aggregator
-                verifySenderIsRegisteredOracle(s);
 
                 // Verify that satellite is not suspended or banned
                 verifySatelliteIsNotSuspendedOrBanned(oracleAddress, s);

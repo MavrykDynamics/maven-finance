@@ -292,6 +292,11 @@ block{
 
                 const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
 
+                const vaultDepositors : depositorsType = record [
+                    whitelistedDepositors = (set[]:set(address));
+                    depositorsConfig      = createVaultParams.depositors;
+                ];
+
                 // params for vault with storage origination
                 const originateVaultStorage : vaultStorageType = record [
                     admin                       = s.admin;
@@ -300,7 +305,7 @@ block{
                     governanceAddress           = s.governanceAddress;
                     
                     handle                      = handle;
-                    depositors                  = createVaultParams.depositors;
+                    depositors                  = vaultDepositors;
 
                     lambdaLedger                = vaultLambdaLedger;
                 ];

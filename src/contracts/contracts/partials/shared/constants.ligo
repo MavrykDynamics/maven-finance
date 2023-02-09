@@ -3,7 +3,7 @@
 // ------------------------------------------------------------------------------
 
 // fixed point accuracy for calculations - 1e36
-const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
+const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000n // 10^27
 
 // for entries where a default address is required
 const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);

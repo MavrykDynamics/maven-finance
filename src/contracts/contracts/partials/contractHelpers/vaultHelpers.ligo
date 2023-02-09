@@ -67,19 +67,6 @@ block {
 function checkSenderIsWhitelistedDepositor(const s : vaultStorageType) : bool is
 block {
 
-    // check if sender is a whitelisted depositor
-    // const isWhitelistedDepositorCheck : bool = case s.depositors of [
-    //         Any                    -> True
-    //     |   Whitelist(_depositors) -> _depositors contains Tezos.get_sender()
-    // ];
-
-    // const isAllowedToDeposit : bool = 
-    // if s.depositors.depositorsConfig = "any" then True 
-    // else if s.depositors.depositorsConfig = "whitelist" then {
-    //     const isWhitelistedDepositor : bool = s.depositors.whitelistedDepositors contains Tezos.get_sender();
-    // } with isWhitelistedDepositor
-    // else False;
-
     const isAllowedToDeposit : bool = case s.depositors.depositorsConfig of [
             Any       -> True
         |   Whitelist -> s.depositors.whitelistedDepositors contains Tezos.get_sender()
@@ -89,21 +76,6 @@ block {
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Misc Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper functions - conversions
-function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
-function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
-function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
-
-// ------------------------------------------------------------------------------
-// Misc Helper Functions End
 // ------------------------------------------------------------------------------
 
 

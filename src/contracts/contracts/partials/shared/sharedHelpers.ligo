@@ -11,6 +11,10 @@
 // General Contract Helpers
 // ------------------------------------------------------------------------------
 
+// helper functions - conversions
+function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
+function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
+function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
 
 function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
 block {

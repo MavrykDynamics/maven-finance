@@ -77,10 +77,10 @@
 	},
 	{
 		"index": 19,
-		"name": "lambdaVaultDepositStakedMvk"
+		"name": "lambdaVaultDepositStakedToken"
 	},
 	{
 		"index": 20,
-		"name": "lambdaVaultWithdrawStakedMvk"
+		"name": "lambdaVaultWithdrawStakedToken"
 	}
 ]

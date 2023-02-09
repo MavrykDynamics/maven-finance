@@ -276,9 +276,19 @@ block {
     case governanceLambdaAction of [
             LambdaUpdateWhitelistDevelopers(developer) -> 
 
-                if checkWhitelistDeveloperExists(developer, s) 
-                then s := removeWhitelistDeveloper(developer, s)
-                else s := addWhitelistDeveloper(developer, s)
+                // if checkWhitelistDeveloperExists(developer, s) 
+                // then s := removeWhitelistDeveloper(developer, s)
+                // else s := addWhitelistDeveloper(developer, s)
+
+            if Set.mem(developer, s.whitelistDevelopers) then 
+                
+                if Set.cardinal(s.whitelistDevelopers) > 1n then 
+                    s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
+                else failwith(error_AT_LEAST_ONE_WHITELISTED_DEVELOPER_REQUIRED)
+
+            else
+
+                s.whitelistDevelopers := Set.add(developer, s.whitelistDevelopers)
 
         |   _ -> skip
     ];

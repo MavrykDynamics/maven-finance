@@ -61,7 +61,7 @@ describe('Lending Controller Mock Time', async () => {
             )
 
             await saveContractAddress('lendingControllerMockTimeAddress', lendingControllerMockTime.contract.address)
-            console.log('Lending Controller Contract deployed at:', lendingControllerMockTime.contract.address)
+            console.log('Lending Controller (Mock Time) Contract deployed at:', lendingControllerMockTime.contract.address)
 
             //----------------------------
             // Set Lambdas
@@ -71,7 +71,7 @@ describe('Lending Controller Mock Time', async () => {
 
             // Lending Controller Lambdas
             await setLendingControllerLambdas(tezos, lendingControllerMockTime.contract);
-            console.log("Lending Controller Lambdas Setup")
+            console.log("Lending Controller (Mock Time) Lambdas Setup")
 
         } catch(e){
             
