@@ -16,7 +16,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, trudy, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy } from "../scripts/sandbox/accounts";
 
 // import doormanAddress                   from '../deployments/doormanAddress.json';
 // import delegationAddress                from '../deployments/delegationAddress.json';
@@ -94,7 +94,7 @@
 //             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
 //             governanceProxyStorage          = await governanceProxyInstance.storage();
             
-//             console.log('-- -- -- -- -- Governance Satellite Tests -- -- -- --')
+//             console.log('-- -- -- -- -- Satellite Status Tests -- -- -- --')
 //             console.log('Doorman Contract deployed at:'               , doormanInstance.address);
 //             console.log('Delegation Contract deployed at:'            , delegationInstance.address);
 //             console.log('MVK Token Contract deployed at:'             , mvkTokenInstance.address);
@@ -500,8 +500,6 @@
 //                     // Operation
 //                     await chai.expect(governanceSatelliteInstance.methods.addOracleToAggregator(
 //                         eve.pkh,
-//                         eve.pk,
-//                         eve.peerId,
 //                         aggregatorAddress.address,
 //                         "Test purpose"
 //                     ).send()).to.be.rejected;
@@ -524,8 +522,6 @@
 //                     // Operation
 //                     await chai.expect(governanceSatelliteInstance.methods.addOracleToAggregator(
 //                         eve.pkh,
-//                         eve.pk,
-//                         eve.peerId,
 //                         aggregatorAddress.address,
 //                         "Test purpose"
 //                     ).send()).to.be.rejected;
@@ -997,7 +993,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1051,7 +1047,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1122,7 +1118,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1188,7 +1184,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1262,7 +1258,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1328,7 +1324,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1420,7 +1416,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1476,7 +1472,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1550,7 +1546,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1619,7 +1615,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1706,7 +1702,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1786,7 +1782,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -1930,7 +1926,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -2058,7 +2054,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -2203,7 +2199,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };
@@ -2302,7 +2298,7 @@
 //                     var packedParam;
 //                     if (referenceDataPacked) {
 //                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
 //                     } else {
 //                         throw `packing failed`
 //                     };

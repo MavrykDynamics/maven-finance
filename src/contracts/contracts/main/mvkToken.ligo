@@ -90,12 +90,6 @@ function checkSenderIsAdmin(const store : mvkTokenStorageType) : unit is
 
 
 
-function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-    else unit
-
-
-
 function checkSenderIsDoormanContract(const store : mvkTokenStorageType) : unit is
 if getContractAddressFromGovernanceContract("doorman", store.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND) =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
 
@@ -363,19 +357,8 @@ block {
     // Operations list
     var operations : list(operation) := nil;
 
-    // Create transfer operations
-    function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
-        block{
-
-            const transferTokenOperation : operation = case transferParam.token of [
-                |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-            ];
-
-        } with (transferTokenOperation # operationList);
-    
-    operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+    // Create transfer operations (transferOperationFold in transferHelpers)
+    operations := List.fold_right(transferOperationFold, destinationParams, operations)
 
 } with (operations, store)
 
@@ -593,7 +576,7 @@ block {
 function main (const action : action; const store : mvkTokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
 
 } with(
     

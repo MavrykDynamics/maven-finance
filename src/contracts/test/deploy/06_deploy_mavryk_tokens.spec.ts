@@ -18,8 +18,8 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { MavrykFa12Token } from '../helpers/mavrykFa12TokenHelper'
-import { MavrykFa2Token } from '../helpers/mavrykFa2TokenHelper'
+import { MavrykFa12Token } from '../contractHelpers/mavrykFa12TokenTestHelper'
+import { MavrykFa2Token } from '../contractHelpers/mavrykFa2TokenTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

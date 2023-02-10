@@ -2008,7 +2008,7 @@
 //                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
 //                 const dataMap                       = councilActionsRequestTokens.dataMap
 //                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
-//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mockFa12TokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavrykFa12TokenContractAddress }, type: { prim: 'address' } })).packed
 //                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
 //                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
 //                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2154,7 +2154,7 @@
 //                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
 //                 const dataMap                       = councilActionsRequestTokens.dataMap
 //                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
-//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mockFa2TokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavrykFa2TokenContractAddress }, type: { prim: 'address' } })).packed
 //                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
 //                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
 //                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2163,13 +2163,13 @@
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  mavrykFa2TokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 // assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
+//                 // assert.equal(councilActionAddress.get("tokenContractAddress"),  mavrykFa2TokenContractAddress);
+//                 // assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
+//                 // assert.equal(councilActionNat.get("tokenId"),      tokenId);
+//                 // assert.equal(councilActionString.get("tokenName"),      tokenName);
+//                 // assert.equal(councilActionString.get("purpose"),      purpose);
+//                 // assert.equal(councilActionString.get("tokenType"),      tokenType);
 //                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
 //                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
 //                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);

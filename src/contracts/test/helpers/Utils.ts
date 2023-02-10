@@ -72,6 +72,15 @@ export const MVK = (value: number = 1) => {
   return value * 10**parseInt(mvkTokenDecimals.decimals)
 }
 
+
+
+// TEZ Formatter
+export const TEZ = (value: number = 1) => {
+  return value * 10**6
+}
+
+
+
 export const packObservations = async (
   oracleDataResponsesForPack: MichelsonMap<string, any>
 ): Promise<string>  => {

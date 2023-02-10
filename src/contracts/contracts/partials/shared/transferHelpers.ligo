@@ -3,6 +3,8 @@
 // ------------------------------------------------------------------------------
 
 #include "./transferTypes.ligo"
+#include "../contractTypes/treasuryTypes.ligo"
+#include "../contractTypes/mvkTokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
@@ -53,3 +55,71 @@ block{
 // Transfer Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Common Operation Helpers
+// ------------------------------------------------------------------------------
+
+// helper function to get transfer entrypoint in treasury contract
+function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%transfer",
+        contractAddress) : option(contract(transferActionType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
+        ];
+
+
+
+// helper function to get %mint entrypoint from MVK Token address
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
+    case (Tezos.get_entrypoint_opt(
+        "%mint",
+        token_address) : option(contract(mintType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
+        ];
+
+
+
+// helper function to send mint MVK and transfer operation to treasury
+function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
+    case (Tezos.get_entrypoint_opt(
+        "%mintMvkAndTransfer",
+        contractAddress) : option(contract(mintMvkAndTransferType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
+        ];
+
+
+
+// verify that token is allowed for operation fold
+function verifyTokenAllowedForOperationFold(const invalidTokenAddress : address; const transferParams : transferActionType; const errorCode : nat) : unit is
+block {
+
+    for transferDestination in list transferParams block {
+        case transferDestination.token of [
+            |   Tez         -> skip
+            |   Fa12(token) -> if token = invalidTokenAddress then failwith(errorCode) else skip
+            |   Fa2(token)  -> if token.tokenContractAddress = invalidTokenAddress then failwith(errorCode) else skip
+        ]
+    };
+    
+} with unit
+
+
+
+// Create transfer operations
+function transferOperationFold(const transferParams : transferDestinationType; var operationList: list(operation)) : list(operation) is
+block {
+
+    const transferTokenOperation : operation = case transferParams.token of [
+        |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParams.to_, "Error. Contract not found at given address") : contract(unit)), transferParams.amount * 1mutez)
+        |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParams.to_, transferParams.amount, token)
+        |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParams.to_, transferParams.amount, token.tokenId, token.tokenContractAddress)
+    ];
+
+    operationList := transferTokenOperation # operationList
+
+} with operationList

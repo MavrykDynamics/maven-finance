@@ -262,8 +262,8 @@ type governanceLambdaActionType is
     |   LambdaSetGovernanceProxy                    of address
     |   LambdaUpdateMetadata                        of updateMetadataType
     |   LambdaUpdateConfig                          of governanceUpdateConfigParamsType
-    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
     |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType    
     |   LambdaUpdateWhitelistDevelopers             of (address)
     |   LambdaMistakenTransfer                      of transferActionType
     |   LambdaSetContractAdmin                      of setContractAdminType
@@ -309,8 +309,8 @@ type governanceStorageType is [@layout:comb] record [
     currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically
 
     cycleProposals                    : map(actionIdType, nat);                 // proposal ids in the current cycle, proposal vote smvk total
-    cycleProposers                    : big_map((nat*address), set(nat));       // cycleId*proposer --> set of actionIds
-    roundVotes                        : big_map((nat*address), roundVoteType);  // proposal round: (proposal id*satelliteAddress) | voting round: (cycleId*satelliteAddress, voteType)
+    cycleProposers                    : big_map((nat * address), set(nat));       // cycleId * proposer --> set of actionIds
+    roundVotes                        : big_map((nat * address), roundVoteType);  // proposal round: (proposal id * satelliteAddress) | voting round: (cycleId*satelliteAddress, voteType)
 
     nextProposalId                    : nat;                        // counter of next proposal id
     cycleId                           : nat;                        // counter of current cycle 
