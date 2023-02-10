@@ -4,13 +4,25 @@
 
 ### Deployment
 
-- DEV: 0.30
-- PROD: 0.29
-- PROD2: 0.29
+- DEV: 0.32
+- PROD: 0.31
+- PROD2: 0.31
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.31
+
+### Breaking changes
+
+- LendingControllerLoanToken
+  - Column LPTokenTotal renamed to MTokensTotal
+  - Column LPTokenAddress removed and replaced by a FK to the MToken table called MToken
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.30</summary>
 
 ## Version 0.30
 
@@ -35,7 +47,7 @@
 - LendingControllerLoanToken
   - Column paused added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.29</summary>
 

@@ -21,11 +21,13 @@ async def on_vault_factory_create_vault(
     governance_address      = vault_origination.storage.governanceAddress
     admin                   = vault_origination.storage.admin
     depositors              = vault_origination.storage.depositors
+    depositors_config       = depositors.depositorsConfig
+    whitelisted_addresses   = depositors.whitelistedDepositors
     allowance_type          = models.VaultAllowance.ANY
 
-    if type(depositors.depositorsConfig) == Any:
+    if type(depositors_config) == Any:
         allowance_type  = models.VaultAllowance.ANY
-    elif type(depositors.depositorsConfig) == Whitelist:
+    elif type(depositors_config) == Whitelist:
         allowance_type  = models.VaultAllowance.WHITELIST
 
     # Check vault does not already exists
@@ -74,7 +76,7 @@ async def on_vault_factory_create_vault(
         await vault.save()
 
         # Register depositors
-        for depositor_address in depositors.whitelistedDepositors:
+        for depositor_address in whitelisted_addresses:
             depositor           = await models.mavryk_user_cache.get(address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,

@@ -168,9 +168,8 @@ class LoanTokenLedger(BaseModel):
     tokenType: Union[TokenTypeItem3, TokenTypeItem4, TokenTypeItem5]
     tokenDecimals: str
     oracleAddress: str
-    lpTokensTotal: str
-    lpTokenContractAddress: str
-    lpTokenId: str
+    mTokensTotal: str
+    mTokenAddress: str
     tokenPoolTotal: str
     totalBorrowed: str
     totalRemaining: str
