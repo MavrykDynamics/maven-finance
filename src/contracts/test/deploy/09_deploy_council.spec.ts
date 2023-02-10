@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Council, setCouncilLambdas } from '../helpers/councilHelper'
+import { Council, setCouncilLambdas } from '../contractHelpers/councilTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

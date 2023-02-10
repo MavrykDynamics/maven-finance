@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import {Aggregator, setAggregatorLambdas} from '../helpers/aggregatorHelper'
+import {Aggregator, setAggregatorLambdas} from '../contractHelpers/aggregatorTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

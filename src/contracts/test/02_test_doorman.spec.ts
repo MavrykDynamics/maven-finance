@@ -232,7 +232,7 @@
 
 //                 // Test values
 //                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
-//                 const exitFee = Math.trunc((500 * 10**36 * 10**36) / (mli + 5*10**36));
+//                 const exitFee = (((300_000 * 10**36) - (5_250 * mli)) * 10**36 + 25*mli*mli) / (10_000 * 10**36)
 //                 const paidFee = Math.trunc(userUnstake * (exitFee/100));
 //                 const expectedFinalAmount = userUnstake - (paidFee/10**36);
 
@@ -345,7 +345,7 @@
 //                 console.log("COMBINED REWARDS: ", combinedRewards)
 
 //                 // Assertions
-//                 assert.equal(combinedRewards, exitFee)
+//                 assert.equal(almostEqual(combinedRewards, exitFee, 0.001), true)
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }

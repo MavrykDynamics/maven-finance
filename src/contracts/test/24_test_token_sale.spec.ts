@@ -16,7 +16,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, trudy, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy } from "../scripts/sandbox/accounts";
 
 // import mvkTokenAddress                  from '../deployments/mvkTokenAddress.json';
 // import treasuryAddress                  from '../deployments/treasuryAddress.json';

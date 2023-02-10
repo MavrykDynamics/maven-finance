@@ -11,10 +11,10 @@ import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
 export const mvkTokenDecimals = 9
 
-const totalSupply = MVK(1000000)
-const maximumSupply = MVK(10**9)
-const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
-const singleUserSupply = new BigNumber(totalSupply / 8)
+const totalSupply       = MVK(1400000)
+const maximumSupply     = MVK(10**9)
+const initialSupply     = new BigNumber(totalSupply)        // 1,400,000 MVK Tokens (1e9)
+const singleUserSupply  = new BigNumber(totalSupply / 7)    // 200,000 MVK Tokens (1e9)
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -46,13 +46,13 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 const ledger = MichelsonMap.fromLiteral({
-    [bob.pkh]: singleUserSupply,
-    [alice.pkh]: singleUserSupply,
-    [eve.pkh]: singleUserSupply,
-    [mallory.pkh]: singleUserSupply,
-    [oscar.pkh]: singleUserSupply,
-    [trudy.pkh]: singleUserSupply,
-    [susie.pkh]: singleUserSupply
+    [bob.pkh]       : singleUserSupply,
+    [alice.pkh]     : singleUserSupply,
+    [eve.pkh]       : singleUserSupply,
+    [mallory.pkh]   : singleUserSupply,
+    [oscar.pkh]     : singleUserSupply,
+    [trudy.pkh]     : singleUserSupply,
+    [susie.pkh]     : singleUserSupply
 })
 
 const token_metadata = MichelsonMap.fromLiteral({

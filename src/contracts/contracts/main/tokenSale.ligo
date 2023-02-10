@@ -52,6 +52,10 @@ const noOperations : list (operation) = nil;
 type return is list (operation) * tokenSaleStorageType
 
 
+// ------------------------------------------------------------------------------
+// Constants specific for Token Sale
+// ------------------------------------------------------------------------------
+
 const oneDayInSeconds : int = 86_400;
 const onePeriodInSeconds : int = 2_592_000;
 
@@ -79,12 +83,6 @@ function checkSenderIsAdmin(var s : tokenSaleStorageType) : unit is
 function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.get_sender() = Tezos.get_self_address()) then unit
     else failwith(error_ONLY_SELF_ALLOWED);
-
-
-
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.get_amount() = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
 
@@ -133,23 +131,6 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
-// Entrypoint Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-// helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        contractAddress) : option(contract(transferActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
-        ];
-
-// ------------------------------------------------------------------------------
-// Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
@@ -254,7 +235,7 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 function setAdmin(const newAdminAddress : address; var s : tokenSaleStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
 
@@ -266,7 +247,7 @@ block {
 function setGovernance(const newGovernanceAddress : address; var s : tokenSaleStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
     s.governanceAddress := newGovernanceAddress;
 
@@ -278,7 +259,7 @@ block {
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : tokenSaleStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
     const metadataKey   : string = updateMetadataParams.metadataKey;
@@ -295,7 +276,7 @@ function updateConfig(const updateConfigParams : tokenSaleUpdateConfigParamsType
 block {
 
     // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
+    verifyNoAmountSent(Unit);
 
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -369,7 +350,7 @@ block {
 function setWhitelistTimestamp(const setWhitelistTimestampParams : setWhitelistTimestampActionType; var s : tokenSaleStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
     checkSenderIsAdmin(s); // check that sender is admin
 
     // init params
@@ -387,7 +368,7 @@ block {
 function addToWhitelist(const userAddressList : list(address); var s : tokenSaleStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
     checkSenderIsAdmin(s); // check that sender is admin
 
     // loop to add user addresses to whitelist
@@ -403,7 +384,7 @@ block {
 function removeFromWhitelist(const userAddressList : list(address); var s : tokenSaleStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
     checkSenderIsAdmin(s); // check that sender is admin
 
     // loop to remove user addresses from whitelist
@@ -614,7 +595,7 @@ block {
 function startSale(var s : tokenSaleStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
     // check for close
@@ -631,7 +612,7 @@ block {
 function closeSale(var s : tokenSaleStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
     // check for start
@@ -649,7 +630,7 @@ block {
 function pauseSale(var s : tokenSaleStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
     // check for close

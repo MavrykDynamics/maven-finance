@@ -26,8 +26,8 @@ const config = {
     blocksPerVotingRound                : 14400,
     blocksPerTimelockRound              : 5760,
 
-    proposalDataTitleMaxLength      : 400,
-    proposalTitleMaxLength              : 400,
+    proposalDataTitleMaxLength          : 400,
+    proposalTitleMaxLength              : 100,
     proposalDescriptionMaxLength        : 400,
     proposalInvoiceMaxLength            : 400,
     proposalSourceCodeMaxLength         : 400

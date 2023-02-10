@@ -15,7 +15,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../../env";
-import { bob, alice, eve, mallory, trudy, oracle0, oracle1, oracle2, oracleMaintainer } from "../../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 import * as accounts from "../../scripts/sandbox/accounts";
 
 import doormanAddress from '../../deployments/doormanAddress.json';
@@ -27,7 +27,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import lpTokenPoolMockFa12TokenAddress from '../../deployments/lpTokenPoolMockFa12TokenAddress.json';
+import mTokenUsdtAddress from '../../deployments/mTokenUsdtAddress.json';
 import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
 import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
 import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";

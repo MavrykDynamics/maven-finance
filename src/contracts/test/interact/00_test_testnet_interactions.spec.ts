@@ -15,7 +15,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../../env";
-import { bob, alice, eve, mallory, trudy, oracle0, oracle1, oracle2, oracleMaintainer } from "../../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 
 import doormanAddress from '../../deployments/doormanAddress.json';
 import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
@@ -26,10 +26,9 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import mTokenAddress from '../../deployments/mTokenAddress.json';
-import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
-import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
-import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
+import mTokenUsdtAddress from "../../deployments/mTokenUsdtAddress.json";
+import mTokenXtzAddress from "../../deployments/mTokenXtzAddress.json";
+import mTokenEurlAddress from "../../deployments/mTokenEurlAddress.json";
 import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
 import mavrykFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
 import treasuryAddress from '../../deployments/treasuryAddress.json';
@@ -84,7 +83,7 @@ describe("Testnet interactions helper", async () => {
     let tokenSaleInstance;
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
-    let mTokenInstance;
+    let mTokenEurlInstance;
     let vaultInstance;
     let vaultFactoryInstance;
     let mavrykFa12TokenInstance;
@@ -110,7 +109,7 @@ describe("Testnet interactions helper", async () => {
     let tokenSaleStorage;
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
-    let mTokenStorage;
+    let mTokenEurlStorage;
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
@@ -188,7 +187,7 @@ describe("Testnet interactions helper", async () => {
             tokenSaleInstance                       = await utils.tezos.contract.at(tokenSaleAddress.address);
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
-            mTokenInstance                          = await utils.tezos.contract.at(mTokenAddress.address);
+            mTokenEurlInstance                      = await utils.tezos.contract.at(mTokenEurlAddress.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
             mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
     
@@ -213,7 +212,7 @@ describe("Testnet interactions helper", async () => {
             tokenSaleStorage                        = await tokenSaleInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
-            mTokenStorage                           = await mTokenInstance.storage();
+            mTokenEurlStorage                           = await mTokenEurlInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
     
@@ -235,7 +234,7 @@ describe("Testnet interactions helper", async () => {
             console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
-            console.log('MToken Contract deployed at:', mTokenInstance.address);
+            console.log('MToken Contract deployed at:', mTokenEurlInstance.address);
             console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
             console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
 
@@ -509,6 +508,36 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await doormanInstance.methods.togglePauseEntrypoint("farmClaim", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses onVaultDepositStake', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStake", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses onVaultWithdrawStake', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStake", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses onVaultLiquidateStake', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStake", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2175,11 +2204,7 @@ describe("Testnet interactions helper", async () => {
                     [mallory.pkh]          : {
                                                 oraclePublicKey: mallory.pk,
                                                 oraclePeerId: mallory.peerId
-                                            },
-                    [oracleMaintainer.pkh] : {
-                                                oraclePublicKey: oracleMaintainer.pk,
-                                                oraclePeerId: oracleMaintainer.peerId
-                                            },
+                                            }
                 });
 
                 // USD/BTC Aggregator
@@ -4180,10 +4205,10 @@ describe("Testnet interactions helper", async () => {
     //         }
     //     });
 
-    //     it('Admin pauses vaultWithdrawStakedMvk', async () => {
+    //     it('Admin pauses vaultWithdrawStakedToken', async () => {
     //         try{
     //             // Operation
-    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedMvk", true).send();
+    //             const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedToken", true).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -4243,7 +4268,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin sets loan token', async () => {
     //         try{
     //             // Initial values
-    //             const tokenName                             = "mockFa12";
+    //             const tokenName                             = "usdt";
     //             const tokenContractAddress                  = mavrykFa12TokenAddress.address;
     //             const tokenType                             = "fa12";
     //             const tokenDecimals                         = 6;
@@ -4251,8 +4276,7 @@ describe("Testnet interactions helper", async () => {
     //             const oracleType                            = "oracle";
     //             const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-    //             const lpTokenContractAddress                = mTokenAddress.address;
-    //             const lpTokenId                             = 0;
+    //             const mTokenAddress                         = mTokenAddress.address;
 
     //             const interestRateDecimals                  = 27;
     //             const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -4273,8 +4297,7 @@ describe("Testnet interactions helper", async () => {
 
     //                 oracleAddress,
 
-    //                 lpTokenContractAddress,
-    //                 lpTokenId,
+    //                 mTokenAddress,
                     
     //                 reserveRatio,
     //                 optimalUtilisationRate,
@@ -4299,7 +4322,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin adds liquidity', async () => {
     //         try{
     //             // Initial values
-    //             const loanTokenName = "mockFa12";
+    //             const loanTokenName = "usdt";
     //             const liquidityAmount = 20000; // 0.2 Mock FA12 Tokens
 
     //             // Operation
@@ -4321,7 +4344,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin removes liquidity', async () => {
     //         try{
     //             // Initial values
-    //             const loanTokenName = "mockFa12";
+    //             const loanTokenName = "usdt";
     //             const liquidityAmount = 10000; // 0.1 Mock FA12 Tokens
 
     //             // Operation
@@ -4338,7 +4361,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin sets collateral token', async () => {
     //         try{
     //             // Initial values
-    //             const tokenName                  = "mockFa12";
+    //             const tokenName                  = "usdt";
     //             const tokenContractAddress       = mavrykFa12TokenAddress.address;
     //             const tokenType                  = "fa12";
 
@@ -4357,6 +4380,9 @@ describe("Testnet interactions helper", async () => {
     //                 oracleAddress,
     //                 false,
     //                 false,
+    //                 false,
+    //                 null,
+    //                 MVK(10), // Max deposit amount
 
     //                 // fa12 token type - token contract address
     //                 tokenType,
@@ -4373,13 +4399,13 @@ describe("Testnet interactions helper", async () => {
     //         try{
     //             // Initial values
     //             const depositors    = "any";
-    //             const loanTokenName = "mockFa12";
+    //             const loanTokenName = "usdt";
 
     //             // Operation
     //             const operation = await vaultFactoryInstance.methods.createVault(
     //                 null,
     //                 loanTokenName,          // loan token type
-    //                 depositors              // depositors type
+    //                 depositors
     //             ).send();
     //             await operation.confirmation();
     //         } catch(e){
@@ -4393,7 +4419,7 @@ describe("Testnet interactions helper", async () => {
     //             vaultFactoryStorage         = await vaultFactoryInstance.storage();
     //             var vaultId                 = vaultFactoryStorage.vaultCounter.toNumber() - 1;
     //             const depositors    = "any";
-    //             const loanTokenName = "mockFa12";
+    //             const loanTokenName = "usdt";
 
     //             // Operation
     //             const operation = await lendingControllerInstance.methods.closeVault(vaultId).send();
@@ -4438,6 +4464,9 @@ describe("Testnet interactions helper", async () => {
     //                 oracleAddress,
     //                 false,
     //                 false,
+    //                 false,
+    //                 null,
+    //                 MVK(10), // Max deposit amount
                     
     //                 // fa2 token type - token contract address + token id
     //                 tokenType,
@@ -4536,7 +4565,10 @@ describe("Testnet interactions helper", async () => {
 
     //                 oracleAddress,
     //                 tokenProtected,
+    //                 false,
     //                 true,
+    //                 doormanAddress.address,
+    //                 MVK(10), // Max deposit amount
 
     //                 // fa2 token type - token contract address
     //                 tokenType,
@@ -4867,7 +4899,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses vaultDepositStakedMvk', async () => {
             try{
                 // Operation
-                const operation = await lendingControllerMockTimeInstance.methods.togglePauseEntrypoint("vaultDepositStakedMvk", true).send();
+                const operation = await lendingControllerMockTimeInstance.methods.togglePauseEntrypoint("vaultDepositStakedToken", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4877,7 +4909,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses vaultWithdrawStakedMvk', async () => {
             try{
                 // Operation
-                const operation = await lendingControllerMockTimeInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedMvk", true).send();
+                const operation = await lendingControllerMockTimeInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedToken", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4937,15 +4969,14 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets loan token', async () => {
             try{
                 // Initial values
-                const tokenName                             = "mockFa12";
+                const tokenName                             = "usdt";
                 const tokenContractAddress                  = mavrykFa12TokenAddress.address;
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
-                const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+                const oracleAddress                         = aggregatorAddress.address;
 
-                const lpTokenContractAddress                = mTokenAddress.address;
-                const lpTokenId                             = 0;
+                const mTokenAddress                         = mTokenUsdtAddress.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -4966,8 +4997,7 @@ describe("Testnet interactions helper", async () => {
 
                     oracleAddress,
 
-                    lpTokenContractAddress,
-                    lpTokenId,
+                    mTokenAddress,
                     
                     reserveRatio,
                     optimalUtilisationRate,
@@ -4975,13 +5005,11 @@ describe("Testnet interactions helper", async () => {
                     maxInterestRate,
                     interestRateBelowOptimalUtilisation,
                     interestRateAboveOptimalUtilisation,
-
                     minRepaymentAmount,
 
                     // fa12 token type - token contract address
                     tokenType,
-                    tokenContractAddress,
-
+                    tokenContractAddress
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -4992,7 +5020,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin adds liquidity', async () => {
             try{
                 // Initial values
-                const loanTokenName = "mockFa12";
+                const loanTokenName = "usdt";
                 const liquidityAmount = 20000; // 0.2 Mock FA12 Tokens
 
                 // Operation
@@ -5014,7 +5042,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin removes liquidity', async () => {
             try{
                 // Initial values
-                const loanTokenName = "mockFa12";
+                const loanTokenName = "usdt";
                 const liquidityAmount = 10000; // 0.1 Mock FA12 Tokens
 
                 // Operation
@@ -5031,12 +5059,12 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets collateral token', async () => {
             try{
                 // Initial values
-                const tokenName                  = "mockFa12";
-                const tokenContractAddress       = mavrykFa12TokenAddress.address;
+                const tokenName                  = "musdt";
+                const tokenContractAddress       = mTokenUsdtAddress.address;
                 const tokenType                  = "fa12";
 
                 const tokenDecimals              = 6;
-                const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
+                const oracleAddress              = aggregatorAddress.address;
 
                 // Operation
                 const operation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
@@ -5048,11 +5076,15 @@ describe("Testnet interactions helper", async () => {
 
                     oracleAddress,
                     false,
+                    true,
                     false,
+                    null,
+                    null, // Max deposit amount
 
                     // fa12 token type - token contract address
                     tokenType,
                     tokenContractAddress,
+                    0
 
                 ).send();
                 await operation.confirmation();
@@ -5065,7 +5097,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Initial values
                 const depositors    = "any";
-                const loanTokenName = "mockFa12";
+                const loanTokenName = "usdt";
 
                 // Operation
                 const operation = await vaultFactoryInstance.methods.createVault(
@@ -5084,8 +5116,8 @@ describe("Testnet interactions helper", async () => {
                 // Initial values
                 vaultFactoryStorage         = await vaultFactoryInstance.storage();
                 var vaultId                 = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const depositors    = "any";
-                const loanTokenName = "mockFa12";
+                const depositors            = "any";
+                const loanTokenName         = "usdt";
 
                 // Operation
                 const operation = await lendingControllerMockTimeInstance.methods.closeVault(vaultId).send();
@@ -5117,7 +5149,7 @@ describe("Testnet interactions helper", async () => {
                 const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
-                const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+                const oracleAddress                         = aggregatorAddress.address;
 
                 // Operation
                 const updateCollateralOperation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
@@ -5130,6 +5162,9 @@ describe("Testnet interactions helper", async () => {
                     oracleAddress,
                     false,
                     false,
+                    false,
+                    null,
+                    MVK(10), // Max deposit amount
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
@@ -5147,6 +5182,9 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Initial values
                 const depositAmountMutez    = 10000000;
+
+                console.log("ADDRESS:",createdVaultAddress)
+
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
@@ -5215,7 +5253,7 @@ describe("Testnet interactions helper", async () => {
                 const tokenId                           = 0;
 
                 const tokenDecimals                     = 9;
-                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+                const oracleAddress                     = aggregatorAddress.address;
                 const tokenProtected                    = true; // sMVK is protected
 
                 // Add SMVK as collateral
@@ -5228,7 +5266,10 @@ describe("Testnet interactions helper", async () => {
 
                     oracleAddress,
                     tokenProtected,
+                    false,
                     true,
+                    doormanAddress.address,
+                    null, // Max deposit amount
 
                     // fa2 token type - token contract address
                     tokenType,
@@ -5239,7 +5280,7 @@ describe("Testnet interactions helper", async () => {
                 await setCollateralTokenOperation.confirmation();
 
                 // Operation
-                const operation                         = await lendingControllerMockTimeInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
+                const operation                         = await lendingControllerMockTimeInstance.methods.vaultDepositStakedToken("smvk", vaultId, depositAmount).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5254,7 +5295,7 @@ describe("Testnet interactions helper", async () => {
                 const withdrawAmount        = 1000;
 
                 // Operation
-                const operation             = await lendingControllerMockTimeInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
+                const operation             = await lendingControllerMockTimeInstance.methods.vaultWithdrawStakedToken("smvk", vaultId, withdrawAmount).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5336,7 +5377,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets admin', async () => {
             try{
                 // Operation
-                const operation = await mTokenInstance.methods.setAdmin(bob.pkh).send();
+                const operation = await mTokenEurlInstance.methods.setAdmin(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5346,7 +5387,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await mTokenInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await mTokenEurlInstance.methods.setGovernance(governanceAddress.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5356,7 +5397,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await mTokenInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
+                const operation = await mTokenEurlInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5366,7 +5407,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin transfers MVK', async () => {
             try{
                 // Operation
-                const operation = await mTokenInstance.methods.transfer([
+                const operation = await mTokenEurlInstance.methods.transfer([
                     {
                         from_: bob.pkh,
                         txs: [
@@ -5398,7 +5439,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates its operators', async () => {
             try{
                 // Operation
-                const operation = await mTokenInstance.methods.update_operators([
+                const operation = await mTokenEurlInstance.methods.update_operators([
                     {
                         add_operator: {
                             owner: bob.pkh,
@@ -5505,15 +5546,14 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Initial values
                 const depositors        = "whitelist";
-                const loanTokenName     = "mockFa12";
+                const loanTokenName     = "usdt";
                 const whitelistedUsers  = [bob.pkh, alice.pkh];
 
                 // Operation
                 const operation = await vaultFactoryInstance.methods.createVault(
                     null,
                     loanTokenName,          // loan token type
-                    depositors,             // depositors type
-                    whitelistedUsers        // whitelisted users
+                    depositors
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -5567,7 +5607,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates the depositor', async () => {
             try{
                 // Operation
-                const operation = await vaultInstance.methods.updateDepositor("allowAny", true).send();
+                const operation = await vaultInstance.methods.updateDepositor(bob.pkh, true, "whitelist").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
