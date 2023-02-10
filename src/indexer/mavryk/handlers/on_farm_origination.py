@@ -76,31 +76,38 @@ async def on_farm_origination(
         address = governance_address
     )
     await governance.save()
-    farm, _         = await models.Farm.get_or_create(
-        address     = farm_address,
-        admin       = admin,
-        governance  = governance
+
+    # Check farm does not already exists
+    farm_exists                     = await models.Farm.get_or_none(
+        address     = farm_address
     )
-    farm.creation_timestamp              = creation_timestamp
-    farm.last_updated_at                 = creation_timestamp
-    farm.name                            = name 
-    farm.force_rewards_from_transfer     = force_rewards_from_transfer
-    farm.infinite                        = infinite
-    farm.lp_token_address                = lp_token_address
-    farm.lp_token_balance                = lp_token_balance
-    farm.token0_address                  = token0_address
-    farm.token1_address                  = token1_address
-    farm.total_blocks                    = total_blocks
-    farm.current_reward_per_block        = current_reward_per_block
-    farm.total_rewards                   = total_rewards
-    farm.deposit_paused                  = deposit_paused
-    farm.withdraw_paused                 = withdraw_paused
-    farm.claim_paused                    = claim_paused
-    farm.last_block_update               = last_block_update
-    farm.open                            = open
-    farm.init                            = init
-    farm.init_block                      = init_block
-    farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
-    farm.unpaid_rewards                  = unpaid_rewards
-    farm.paid_rewards                    = paid_rewards
-    await farm.save()
+
+    if not farm_exists:
+        farm, _         = await models.Farm.get_or_create(
+            address     = farm_address,
+            admin       = admin,
+            governance  = governance
+        )
+        farm.creation_timestamp              = creation_timestamp
+        farm.last_updated_at                 = creation_timestamp
+        farm.name                            = name 
+        farm.force_rewards_from_transfer     = force_rewards_from_transfer
+        farm.infinite                        = infinite
+        farm.lp_token_address                = lp_token_address
+        farm.lp_token_balance                = lp_token_balance
+        farm.token0_address                  = token0_address
+        farm.token1_address                  = token1_address
+        farm.total_blocks                    = total_blocks
+        farm.current_reward_per_block        = current_reward_per_block
+        farm.total_rewards                   = total_rewards
+        farm.deposit_paused                  = deposit_paused
+        farm.withdraw_paused                 = withdraw_paused
+        farm.claim_paused                    = claim_paused
+        farm.last_block_update               = last_block_update
+        farm.open                            = open
+        farm.init                            = init
+        farm.init_block                      = init_block
+        farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
+        farm.unpaid_rewards                  = unpaid_rewards
+        farm.paid_rewards                    = paid_rewards
+        await farm.save()
