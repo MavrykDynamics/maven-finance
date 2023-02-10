@@ -162,7 +162,6 @@ type processGovernanceActionType is [@layout:comb] record [
     encodedCode         : bytes;
 ]
 
-
 type governanceUpdateConfigNewValueType is nat
 
 type governanceUpdateConfigActionType is 
