@@ -417,7 +417,7 @@ nodes:
           shell:
             history_mode: full
           metrics_addr:
-            - :9932
+            - 0.0.0.0:9932
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
@@ -451,7 +451,7 @@ nodes:
           shell:
             history_mode: archive
           metrics_addr:
-            - :9932
+            - 0.0.0.0:9932
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
@@ -483,7 +483,7 @@ nodes:
           shell:
             history_mode: rolling
           metrics_addr:
-            - :9932
+            - 0.0.0.0:9932
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
