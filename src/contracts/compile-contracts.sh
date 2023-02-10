@@ -11,10 +11,10 @@ LAMBDA_BUILD_FOLDER=$CONTRACT_BUILD_FOLDER/lambdas
 LAMBDA_INDEX_FILE=$CONTRACT_PARTIALS_FOLDER/contractsLambdaIndex.json
 LAMBDA_INDEXES=$(cat $LAMBDA_INDEX_FILE)
 TMP_FILE=./.lambdas_compiled_tmp
-LIGO_VERSION=0.53.0
+LIGO_VERSION=0.60.0
 
 # Init arguments
-THREADS=5
+THREADS=4
 PROTOCOL=kathmandu
 COMPILE_CONTRACTS=1
 COMPILE_LAMBDAS=1
@@ -83,8 +83,7 @@ done
 
 # Compile lambda function
 compile_single_lambda () {
-    lambda=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-    BYTES=$(docker run --name $lambda-$$ $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile expression pascaligo "Bytes.pack($2)" --michelson-format json --init-file $PWD/contracts/main/$1.ligo --protocol $PROTOCOL | jq '.bytes')
+    BYTES=$(docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile expression pascaligo "Bytes.pack($2)" --michelson-format json --init-file $PWD/contracts/main/$1.ligo --protocol $PROTOCOL | jq '.bytes')
     if [ -z $BYTES ]
     then
         compile_single_lambda $1 $2
@@ -150,9 +149,8 @@ compile_all_lambdas () {
 }
 
 compile_single_contract () {
-    contractname=$(echo "$1" | tr '[:upper:]' '[:lower:]')
-    docker run --name $contractname-$$ $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL > $CONTRACT_COMPILED_FOLDER/$1.tz
-    docker run --name $contractname-$$ $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --michelson-format json --protocol $PROTOCOL > $PWD/.$1_tmp.json
+    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL > $CONTRACT_COMPILED_FOLDER/$1.tz
+    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --michelson-format json --protocol $PROTOCOL > $PWD/.$1_tmp.json
     jq -n --arg name $1 --slurpfile code $PWD/.$1_tmp.json --arg version $LIGO_VERSION '{ "contractName": $name, "michelson": $code[0], "networks": {}, "compiler": { "name": "ligo", "version": $version }, "networkType": "Tezos" }' > $CONTRACT_BUILD_FOLDER/$1.json
     rm $PWD/.$1_tmp.json
 }
@@ -165,10 +163,9 @@ compile_all_contracts () {
     # Compile contracts
     for CONTRACT_NAME in ${CONTRACTS_ARRAY[@]}
     do
-        compile_single_contract $CONTRACT_NAME & PID=$! $PID
+        compile_single_contract $CONTRACT_NAME & PID=$!
         PIDS=( "${PIDS[@]}" "$PID")
         CURR_LENGTH=${#PIDS[@]}
-
         echo -e "▣ $CONTRACT_NAME"
 
         # Process not all processes at once
@@ -197,7 +194,7 @@ ctrl_c() {
 }
 
 # Print main message & get docker ligo
-LIGO_DOCKER_VERSION=$(docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION --version)
+LIGO_DOCKER_VERSION=$(docker run --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION --version)
 echo -e "#############################"
 echo -e "# CONTRACT COMPILER SCRIPT"
 echo -e "# ligo version: $LIGO_DOCKER_VERSION"

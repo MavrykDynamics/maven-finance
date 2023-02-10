@@ -12,7 +12,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan } from "../scripts/sandbox/accounts";
 
 // import doormanAddress                           from '../deployments/doormanAddress.json';
 // import delegationAddress                        from '../deployments/delegationAddress.json';
@@ -41,9 +41,9 @@
 // import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
 // import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
 
-// import lpTokenPoolMockFa12TokenAddress          from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
-// import lpTokenPoolMockFa2TokenAddress           from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
-// import lpTokenPoolXtzAddress                    from "../deployments/lpTokenPoolXtzAddress.json";
+// import mTokenUsdtAddress          from "../deployments/mTokenUsdtAddress.json";
+// import mTokenEurlAddress           from "../deployments/mTokenEurlAddress.json";
+// import mTokenXtzAddress                    from "../deployments/mTokenXtzAddress.json";
 
 
 // import doormanLambdas               from '../build/lambdas/doormanLambdas.json'
@@ -2633,11 +2633,7 @@
 //                     [mallory.pkh]          : {
 //                                                 oraclePublicKey: mallory.pk,
 //                                                 oraclePeerId: mallory.peerId
-//                                             },
-//                     [oracleMaintainer.pkh] : {
-//                                                 oraclePublicKey: oracleMaintainer.pk,
-//                                                 oraclePeerId: oracleMaintainer.peerId
-//                                             },
+//                                             }
 //                 });
                   
 //                 const aggregatorMetadataBase = Buffer.from(
@@ -8107,7 +8103,7 @@
 
 //     //             const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-//     //             const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
+//     //             const lpTokenContractAddress                = mTokenUsdtAddress.address;
 //     //             const lpTokenId                             = 0;
 
 //     //             const interestRateDecimals                  = 27;
