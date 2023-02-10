@@ -787,6 +787,7 @@
 //                     const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
 //                     var emergencyProposal       = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
 
+//                     console.log("before update config");
 //                     // Set all contracts admin to governance address if it is not
 //                     await signerFactory(bob.sk);
 //                     governanceStorage             = await governanceInstance.storage();
@@ -796,8 +797,12 @@
 //                     updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
 //                     await updateConfigOperation.confirmation();
 
+//                     console.log("before set admin");
+
 //                     var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                     await setAdminOperation.confirmation();
+
+//                     console.log("after set admin");
 
 //                     for (let entry of generalContracts){
 //                         // Get contract storage
@@ -810,6 +815,9 @@
 //                             await setAdminOperation.confirmation()
 //                         }
 //                     }
+
+//                     console.log("before update operators");
+
 
 //                     // User stake more to trigger break glass
 //                     await signerFactory(mallory.sk);
@@ -831,19 +839,28 @@
 //                     const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(mallory.pkh);
 //                     assert.notEqual(stakeRecord.balance, 0);
 
+
+//                     console.log("before trigger emergency governance");
+
 //                     const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
 //                         "Test emergency governance", 
 //                         "For tests"
 //                     ).send({amount: 0});
 //                     await emergencyControlOperation.confirmation();
+
+//                     console.log("after trigger emergency governance");
                     
 //                     const voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
 //                     await voteOperation.confirmation();
+
+//                     console.log("after vote for emergency governance");
 
 //                     // Check if glass was broken
 //                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     const glassBroken       = breakGlassStorage.glassBroken;
 //                     assert.equal(glassBroken, true);
+
+//                     console.log("glass broken - propagate break glass next");
 
 //                     // Propagate break glass
 //                     await signerFactory(bob.sk)

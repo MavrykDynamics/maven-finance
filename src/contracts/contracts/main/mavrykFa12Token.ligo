@@ -12,7 +12,7 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// LP Token Types
+// FA12 Token Types
 #include "../partials/contractTypes/mavrykFa12TokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
@@ -58,13 +58,6 @@ function checkSenderIsAllowed(var s : mavrykFa12TokenStorageType) : unit is
 function checkSenderIsAdmin(const s : mavrykFa12TokenStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
-
-
-
-function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-    else unit
-
 
 
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavrykFa12TokenStorageType) : unit is
@@ -241,19 +234,8 @@ block {
     // Operations list
     var operations : list(operation) := nil;
 
-    // Create transfer operations
-    function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
-        block{
-
-            const transferTokenOperation : operation = case transferParam.token of [
-                |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-            ];
-
-        } with (transferTokenOperation # operationList);
-    
-    operations  := List.fold_right(transferOperationFold, destinationTypes, operations)
+    // Create transfer operations (transferOperationFold in transferHelpers)
+    operations := List.fold_right(transferOperationFold, destinationTypes, operations)
 
 } with (operations, s)
 
@@ -366,7 +348,7 @@ block {
 function mintOrBurn(const mintOrBurnParams: mintOrBurnType; var s : mavrykFa12TokenStorageType) : return is
 block {
 
-    // check sender is from cfmm contract
+    // check sender is whitelisted
     if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     const quantity        : int       = mintOrBurnParams.quantity;
@@ -439,7 +421,7 @@ block {
 function main (const action : action; const s : mavrykFa12TokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
 
 } with(
     

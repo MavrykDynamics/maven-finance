@@ -1138,24 +1138,30 @@
 //                     await signerFactory(eve.sk);
 //                     farmStorage                 = await farmInstance.storage();
 //                     doormanStorage              = await doormanInstance.storage();
-//                     lpTokenStorage              = lpTokenInstance.storage();
+//                     lpTokenStorage              = await lpTokenInstance.storage();
 //                     const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
 //                     const lpBalance             = lpLedgerStart.balance.toNumber();
 //                     const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+
+//                     console.log(userSMVKLedger);
 //                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
-//                     const userSMVKBalance       = userSMVKLedger.balance.toNumber()
+//                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber();
 //                     const farmOpen              = farmStorage.open;
 
 //                     console.log("LEDGER: ", lpLedgerStart)
                     
 //                     // Operation
 //                     await wait(2 * blockTime * 1000);
-//                     await chai.expect(farmInstance.methods.claim(alice.pkh).send()).to.be.rejected;
+//                     // await chai.expect(farmInstance.methods.claim(alice.pkh).send()).to.be.rejected;
+//                     const claimOperation = await farmInstance.methods.claim(alice.pkh).send();
+//                     await claimOperation.confirmation();
 
 //                     // Final values
 //                     doormanStorage              = await doormanInstance.storage();
 //                     const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-//                     const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
+//                     const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+
+//                     console.log(userSMVKBalanceEnd);
 
 //                     // Assertions
 //                     assert.equal(farmOpen, false);
@@ -1172,7 +1178,7 @@
 //                     // Initial values
 //                     await signerFactory(alice.sk);
 //                     farmStorage                 = await farmInstance.storage();
-//                     lpTokenStorage              = lpTokenInstance.storage();
+//                     lpTokenStorage              = await lpTokenInstance.storage();
 //                     const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
 //                     const lpBalance             = lpLedgerStart.balance.toNumber();
 //                     const amountToWithdraw      = 1;
@@ -1183,7 +1189,7 @@
 //                     await withdrawOperation.confirmation();
 
 //                     // Final values
-//                     lpTokenStorage              = lpTokenInstance.storage();
+//                     lpTokenStorage              = await lpTokenInstance.storage();
 //                     const lpLedgerStartEnd      = await lpTokenStorage.ledger.get(alice.pkh);
 //                     const lpBalanceEnd          = lpLedgerStartEnd.balance.toNumber();
 

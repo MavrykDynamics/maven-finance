@@ -11,7 +11,7 @@
 
 // chai.use(chaiAsPromised);   
 // chai.should();
-// import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan } from "../scripts/sandbox/accounts";
 // import aggregatorAddress            from '../deployments/aggregatorAddress.json';
 // import aggregatorFactoryAddress     from '../deployments/aggregatorFactoryAddress.json';
 // import governanceAddress            from '../deployments/governanceAddress.json';
@@ -58,11 +58,7 @@
 //         [mallory.pkh]          : {
 //                                     oraclePublicKey: mallory.pk,
 //                                     oraclePeerId: mallory.peerId
-//                                 },
-//         [oracleMaintainer.pkh] : {
-//                                     oraclePublicKey: oracleMaintainer.pk,
-//                                     oraclePeerId: oracleMaintainer.peerId
-//                                 },
+//                                 }
 //     });
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -92,8 +88,8 @@
 //                 // Operation
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
         
-                    // 'USD/BTC',
-                    // true,
+//                     'USD/BTC',
+//                     true,
                     
 //                     oracleMap,
         
@@ -123,8 +119,8 @@
 //                 // Operation
 //                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
         
-                    // 'USD/BTC',
-                    // true,
+//                     'USD/BTC',
+//                     true,
                     
 //                     oracleMap,
         
@@ -144,7 +140,7 @@
 //                 // Final values
 //                 aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
 //                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
-//                 const aggregatorRecord          = await governanceSatelliteStorage.aggregatorLedger.get("USDBTC");
+//                 const aggregatorRecord          = await governanceSatelliteStorage.aggregatorLedger.get("USD/BTC");
 //                 const endTrackedAggregators     = aggregatorFactoryStorage.trackedAggregators.length;
 
 //                 // Assertion
@@ -329,8 +325,8 @@
 //                 // Test operations
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
             
-                    // 'USD/BTC',
-                    // true,
+//                     'USD/BTC',
+//                     true,
                     
 //                     oracleMap,
             
@@ -362,11 +358,7 @@
 //                     {
 //                         "oracle": mallory.pkh,
 //                         "data": new BigNumber(10142857900)
-//                     },
-//                     {
-//                         "oracle": oracleMaintainer.pkh,
-//                         "data": new BigNumber(10144537815)
-//                     },
+//                     }
 //                 ];
 //                 const epoch: number = 1;
 //                 const round: number = 1;
@@ -386,8 +378,6 @@
 //                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
 //                 await signerFactory(mallory.sk);
 //                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-//                 await signerFactory(oracleMaintainer.sk);
-//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
 
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
 //                 await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send()).to.be.rejected;
@@ -499,8 +489,8 @@
 //                 // Test operations
 //                 const testCreateAggregatorOp    = await aggregatorFactoryInstance.methods.createAggregator(
             
-                    // 'USD/Testv2',
-                    // true,
+//                     'USD/Testv2',
+//                     true,
                     
 //                     oracleMap,
             

@@ -26,7 +26,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import {
   AggregatorFactory,
   setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
-} from '../helpers/aggregatorFactoryHelper'
+} from '../contractHelpers/aggregatorFactoryTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

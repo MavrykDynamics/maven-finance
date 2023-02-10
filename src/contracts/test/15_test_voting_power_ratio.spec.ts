@@ -27,7 +27,7 @@
 // import { config } from "yargs";
 // import { MichelsonMap } from "@taquito/taquito";
 
-// describe("Governance tests", async () => {
+// describe("Governance - Voting Power Ratio - tests", async () => {
 //     var utils: Utils;
 
 //     let doormanInstance;
@@ -76,7 +76,7 @@
 //         breakGlassStorage = await breakGlassInstance.storage();
 //         councilStorage  = await councilInstance.storage();
 
-//         console.log('-- -- -- -- -- Governance Tests -- -- -- --')
+//         console.log('-- -- -- -- -- Governance - Voting Power Ratio - Tests -- -- -- --')
 //         console.log('Doorman Contract deployed at:', doormanInstance.address);
 //         console.log('Delegation Contract deployed at:', delegationInstance.address);
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
@@ -472,12 +472,13 @@
 //                 governanceStorage       = await governanceInstance.storage()
 
 //                 const firstSatellite    = await delegationStorage.satelliteLedger.get(alice.pkh);
-//                 console.log("FIRST SATELLITE (ALICE)")
-//                 console.dir(firstSatellite, {depth: 5})
+//                 // console.log("FIRST SATELLITE (ALICE)")
+//                 // console.dir(firstSatellite, {depth: 5})
 
 //                 const secondSatellite   = await delegationStorage.satelliteLedger.get(eve.pkh);
-//                 console.log("SECOND SATELLITE (EVE)")
-//                 console.dir(secondSatellite, {depth: 5})
+//                 // console.log("SECOND SATELLITE (EVE)")
+//                 // console.dir(secondSatellite, {depth: 5})
+
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
@@ -552,11 +553,11 @@
 //                 const proposalDataStorage = await newProposal.proposalData.get("0");
 //                 const newCurrentRoundProposal = governanceStorage.cycleProposals.get(nextProposalId);
 
-//                 console.log("PROPOSAL: ", newProposal)
+//                 // console.log("PROPOSAL: ", newProposal)
 
 //                 // Assertions
 //                 assert.notStrictEqual(proposalDataStorage, undefined);
-//                 assert.strictEqual(proposalDataStorage.data, packedUpdateConfigSuccessRewardParam);
+//                 assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam);
 //                 assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
 //                 assert.notStrictEqual(newCurrentRoundProposal, undefined);
 //                 assert.notStrictEqual(newProposal, undefined);
@@ -654,8 +655,8 @@
 //                 const secondVotingPower = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //                 const totalVotingPower  = firstVotingPower.totalVotingPower.toNumber() + secondVotingPower.totalVotingPower.toNumber()
 
-//                 console.log("PROPOSAL AFTER VOTES")
-//                 console.dir(proposal, {depth: 5});
+//                 // console.log("PROPOSAL AFTER VOTES")
+//                 // console.dir(proposal, {depth: 5});
 
 //                 // Assertion
 //                 assert.equal(totalVotingPower, proposal.quorumStakedMvkTotal.toNumber())

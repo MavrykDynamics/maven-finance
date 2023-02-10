@@ -77,8 +77,8 @@ type emergencyGovernanceLambdaActionType is
     |   LambdaSetGovernance             of (address)
     |   LambdaUpdateMetadata            of updateMetadataType
     |   LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
-    |   LambdaUpdateGeneralContracts    of updateGeneralContractsType
     |   LambdaUpdateWhitelistContracts  of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts    of updateGeneralContractsType
     |   LambdaMistakenTransfer          of transferActionType
 
         // Emergency Governance Entrypoints

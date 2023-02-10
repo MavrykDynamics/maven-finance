@@ -21,7 +21,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas } from "../helpers/farmFactoryHelper"
+import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas } from "../contractHelpers/farmFactoryTestHelper"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
