@@ -21,9 +21,8 @@ async def on_lending_controller_set_loan_token(
     lending_controller_address                          = set_loan_token.data.target_address
     loan_token_storage                                  = set_loan_token.storage.loanTokenLedger[loan_token_name]
     loan_token_oracle_address                           = loan_token_storage.oracleAddress
-    loan_token_lp_token_total                           = float(loan_token_storage.lpTokensTotal)
-    loan_token_lp_token_address                         = loan_token_storage.lpTokenContractAddress
-    loan_token_lp_token_id                              = int(loan_token_storage.lpTokenId)
+    loan_token_m_tokens_total                           = float(loan_token_storage.mTokensTotal)
+    loan_token_m_token_address                          = loan_token_storage.mTokenAddress
     loan_token_reserve_ratio                            = int(loan_token_storage.reserveRatio)
     loan_token_token_pool_total                         = float(loan_token_storage.tokenPoolTotal)
     loan_token_total_borrowed                           = float(loan_token_storage.totalBorrowed)
@@ -65,11 +64,11 @@ async def on_lending_controller_set_loan_token(
             token_id=str(loan_token_id)
         )
 
-        # Persist LP Token Metadata
+        # Persist M Token Metadata
         await persist_token_metadata(
             ctx=ctx,
-            token_address=loan_token_lp_token_address,
-            token_id=str(loan_token_lp_token_id)
+            token_address=loan_token_m_token_address,
+            token_id="0"
         )
 
     # Create / Update record
@@ -78,14 +77,18 @@ async def on_lending_controller_set_loan_token(
         mock_time       = False
     )
     oracle                              = await models.mavryk_user_cache.get(address=loan_token_oracle_address)
+    m_token, _                          = await models.MToken.get_or_create(
+        address = loan_token_m_token_address
+    )
+    await m_token.save()
     lending_controller_loan_token, _    = await models.LendingControllerLoanToken.get_or_create(
         lending_controller  = lending_controller,
         loan_token_name     = loan_token_name,
         loan_token_address  = loan_token_address,
-        lp_token_address    = loan_token_lp_token_address
+        m_token             = m_token
     )
     lending_controller_loan_token.oracle                                    = oracle
-    lending_controller_loan_token.lp_token_total                            = loan_token_lp_token_total
+    lending_controller_loan_token.m_tokens_total                            = loan_token_m_tokens_total
     lending_controller_loan_token.reserve_ratio                             = loan_token_reserve_ratio
     lending_controller_loan_token.token_pool_total                          = loan_token_token_pool_total
     lending_controller_loan_token.total_borrowed                            = loan_token_total_borrowed

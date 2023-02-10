@@ -44,8 +44,7 @@ class CreateLoanToken(BaseModel):
     tokenName: str
     tokenDecimals: str
     oracleAddress: str
-    lpTokenContractAddress: str
-    lpTokenId: str
+    mTokenAddress: str
     reserveRatio: str
     optimalUtilisationRate: str
     baseInterestRate: str

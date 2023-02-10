@@ -11,16 +11,18 @@ async def on_vault_origination(
 ) -> None:
     
     # Get operation info
-    vault_address       = vault_origination.data.originated_contract_address
-    timestamp           = vault_origination.data.timestamp
-    governance_address  = vault_origination.storage.governanceAddress
-    admin               = vault_origination.storage.admin
-    depositors          = vault_origination.storage.depositors
-    allowance_type      = models.VaultAllowance.ANY
+    vault_address           = vault_origination.data.originated_contract_address
+    timestamp               = vault_origination.data.timestamp
+    governance_address      = vault_origination.storage.governanceAddress
+    admin                   = vault_origination.storage.admin
+    depositors              = vault_origination.storage.depositors
+    depositors_config       = depositors.depositorsConfig
+    whitelisted_addresses   = depositors.whitelistedDepositors
+    allowance_type          = models.VaultAllowance.ANY
 
-    if type(depositors) == Any:
+    if type(depositors_config) == Any:
         allowance_type  = models.VaultAllowance.ANY
-    elif type(depositors) == Whitelist:
+    elif type(depositors_config) == Whitelist:
         allowance_type  = models.VaultAllowance.WHITELIST
     
     # Persist contract metadata
@@ -45,7 +47,7 @@ async def on_vault_origination(
     await vault.save()
 
     # Register depositors
-    for depositor_address in depositors.whitelistedDepositors:
+    for depositor_address in whitelisted_addresses:
         depositor           = await models.mavryk_user_cache.get(address=depositor_address)
         vault_depositor, _  = await models.VaultDepositor.get_or_create(
             vault       = vault,
