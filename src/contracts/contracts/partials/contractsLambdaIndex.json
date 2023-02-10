@@ -411,6 +411,8 @@
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
+    "executeGovernanceLambdaProxy",
+
     "updateProxyLambda",
     "setContractAdmin",
     "setContractGovernance",
