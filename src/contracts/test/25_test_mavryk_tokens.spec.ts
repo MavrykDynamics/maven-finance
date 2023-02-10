@@ -7,7 +7,7 @@
 // chai.use(chaiAsPromised);   
 // chai.should();
 
-// import { bob, alice, eve, mallory, trudy, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy } from "../scripts/sandbox/accounts";
 
 // import mavrykFa12TokenAddress   from '../deployments/mavrykFa12TokenAddress.json';
 // import mavrykFa2TokenAddress    from '../deployments/mavrykFa2TokenAddress.json';
@@ -820,7 +820,7 @@
 //                     mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
 //                     const initFirstOperator             = await mavrykFa2TokenStorage.operators.get({
 //                         0: alice.pkh,
-//                         1: bob.pkh,
+//                         1: mallory.pkh,
 //                         2: 0
 //                     });
 //                     const initSecondOperator            = await mavrykFa2TokenStorage.operators.get({
@@ -835,7 +835,7 @@
 //                         {
 //                             remove_operator: {
 //                                 owner: alice.pkh,
-//                                 operator: bob.pkh,
+//                                 operator: mallory.pkh,
 //                                 token_id: 0,
 //                             },
 //                         },
@@ -866,7 +866,7 @@
 //                             from_: alice.pkh,
 //                             txs: [
 //                                 {
-//                                     to_: bob.pkh,
+//                                     to_: mallory.pkh,
 //                                     token_id: 0,
 //                                     amount: tokenAmount / 4,
 //                                 }

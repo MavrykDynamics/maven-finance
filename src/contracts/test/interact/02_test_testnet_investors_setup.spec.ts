@@ -7,6 +7,7 @@ import fs from "fs";
 import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
 import { confirmOperation } from "../../scripts/confirmation";
 import { BigNumber } from "bignumber.js";
+import { MichelsonMap } from "@taquito/taquito";
 
 const chai = require("chai");
 const salt          = 'azerty';
@@ -27,7 +28,6 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import mTokenUsdtAddress from '../../deployments/mTokenUsdtAddress.json';
 import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
 import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
 import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
@@ -183,149 +183,94 @@ describe("Testnet setup helper", async () => {
         }
     });
 
-    describe("PROD ENVIRONMENT SETUP", async () => {
+    describe("INVESTOR ENVIRONMENT SETUP", async () => {
 
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
         });
 
-        it('Admin gets all MVK', async () => {
+        it('Creation of 3 Satellites', async () => {
             try{
-                for(let accountName in accounts){
-                    let account = accounts[accountName];
-                    let balance = await mvkTokenStorage.ledger.get(account.pkh);
-                    if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== bob.pkh){
-                        // Transfer all funds to bob
-                        await signerFactory(account.sk);
-                        console.log("account:", account)
-                        console.log("balance:", balance)
-                        let operation = await mvkTokenInstance.methods.transfer([
-                            {
-                                from_: account.pkh,
-                                txs: [
-                                {
-                                    to_: bob.pkh,
-                                    token_id: 0,
-                                    amount: balance.toNumber(),
-                                }
-                                ],
-                            },
-                            ])
-                            .send()
-                        await operation.confirmation();
-                    }
-                }
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+                // Bob Satellite
+                await signerFactory(bob.sk);
+                var updateOperatorsOperation    = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+                var stakeOperation              = await doormanInstance.methods.stake(MVK(1000)).send();
+                await stakeOperation.confirmation();
+                var registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                    "Mavryk Dynamics", 
+                    "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
+                    "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+                    "https://mavryk.finance/", 
+                    500,
+                    bob.pk,
+                    bob.peerId
+                ).send();
+                await registerOperation.confirmation();
 
-        it('Admin sets admin and whitelist of all contracts', async () => {
-            try{
-                // Set general contracts admin
-                governanceStorage             = await governanceInstance.storage();
-                var generalContracts          = governanceStorage.generalContracts.entries();
-                for (let entry of generalContracts){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+                // // Eve Satellite
+                await signerFactory(eve.sk);
+                updateOperatorsOperation    = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: eve.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+                stakeOperation              = await doormanInstance.methods.stake(MVK(200)).send();
+                await stakeOperation.confirmation();
+                registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                    "Buzz Lightyear", 
+                    "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger. While Buzz Lightyear's sole mission used to be defeating the evil Emperor Zurg, what he now cares about most is keeping Andy's toy family together. After he feature-film Lightyear starring Chris Evans, Buzz has decided to operate a satellite of the Mavryk Finance network and sign oracle price feeds to further grow and secure the future of financial independence.", 
+                    "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ", 
+                    "https://toystory.disney.com/buzz-lightyear", 
+                    350,
+                    eve.pk,
+                    eve.peerId
+                ).send();
+                await registerOperation.confirmation();
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
-
-                // Set farm contracts admin
-                farmFactoryStorage              = await farmFactoryInstance.storage();
-                var trackedFarms                = farmFactoryStorage.trackedFarms.entries();
-                for (let entry of trackedFarms){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-
-                    // Check whitelist [Council, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get("council") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('council', councilAddress.address).send()
-                            await operation.confirmation()
-                        }
-                        if(storage.whitelistContracts.get("farmFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('farmFactory', farmFactoryAddress.address).send()
-                            await operation.confirmation()
-                        }
-                    }
-                }
-
-                // Set treasury contracts admin
-                treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
-                var trackedTreasuries           = treasuryFactoryStorage.trackedTreasuries.entries();
-                for (let entry of trackedTreasuries){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-
-                    // Check whitelist [Gov proxy, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get("governanceProxy") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('governanceProxy', governanceProxyAddress.address).send()
-                            await operation.confirmation()
-                        }
-                        if(storage.whitelistContracts.get("treasuryFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('treasuryFactory', treasuryFactoryAddress.address).send()
-                            await operation.confirmation()
-                        }
-                    }
-                }
-
-                // Set aggregator contracts admin
-                aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
-                var trackedAggregators          = aggregatorFactoryStorage.trackedAggregators.entries();
-                for (let entry of trackedAggregators){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-
-                    // Check whitelist [Gov satellite, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get("governanceSatellite") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatelliteAddress.address).send()
-                            await operation.confirmation()
-                        }
-                        if(storage.whitelistContracts.get("aggregatorFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactoryAddress.address).send()
-                            await operation.confirmation()
-                        }
-                    }
-                }
-
-                // Set governance proxy admin, governance admin and mvkToken admin
-                setAdminOperation   = await governanceProxyInstance.methods.setAdmin(governanceProxyAddress.address).send();
-                await setAdminOperation.confirmation()
-                setAdminOperation   = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
-                await setAdminOperation.confirmation()
-                setAdminOperation   = await mvkTokenInstance.methods.setAdmin(governanceProxyAddress.address).send();
-                await setAdminOperation.confirmation()
-                
+                // Mallory Satellite
+                await signerFactory(mallory.sk);
+                updateOperatorsOperation    = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: mallory.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+                stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
+                await stakeOperation.confirmation();
+                registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                    "Captain Kirk", 
+                    "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history. The highly decorated Kirk served as the commanding officer of the Constitution-class starships USS Enterprise and USS Enterprise-A, where he served Federation interests as an explorer, soldier, diplomat, and time traveler. He currently spends his time as a Mavryk Satellite and signs Oracle price feeds for the Mavryk Finance network.", 
+                    "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn", 
+                    "https://intl.startrek.com/",
+                    700,
+                    mallory.pk,
+                    mallory.peerId
+                ).send();
+                await registerOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
