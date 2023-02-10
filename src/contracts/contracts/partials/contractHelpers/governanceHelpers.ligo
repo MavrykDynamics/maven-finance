@@ -44,7 +44,7 @@ block{
 function verifySenderIsAdminOrGovernanceProxyNode(var s : governanceStorageType) : unit is
 block{
 
-    const governanceProxyAddress : address = getContractAddressFromGovernanceContract("governanceProxy", s.governanceAddress, error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND);
+    const governanceProxyAddress : address = getAddressFromGeneralContracts("governanceProxy", s, error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND);
     
     const getProxyNodeAddressesView : option(set(address)) = Tezos.call_view("getProxyNodeAddresses", unit, governanceProxyAddress);
     const governanceProxyNodeAddresses : set(address) = case getProxyNodeAddressesView of [
@@ -63,7 +63,7 @@ block{
 function verifySenderIsWhitelistedOrAdminOrGovernanceProxyNode(var s : governanceStorageType) : unit is
 block{
 
-    const governanceProxyAddress : address = getContractAddressFromGovernanceContract("governanceProxy", s.governanceAddress, error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND);
+    const governanceProxyAddress : address = getAddressFromGeneralContracts("governanceProxy", s, error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND);
     
     const getProxyNodeAddressesView : option(set(address)) = Tezos.call_view("getProxyNodeAddresses", unit, governanceProxyAddress);
     const governanceProxyNodeAddresses : set(address) = case getProxyNodeAddressesView of [

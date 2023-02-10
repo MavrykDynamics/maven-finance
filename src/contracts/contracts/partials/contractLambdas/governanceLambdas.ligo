@@ -223,7 +223,7 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update whitelist contracts map
 
-    verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
+    verifySenderIsWhitelistedOrAdminOrGovernanceProxyNode(s); // verify that sender is admin, whitelisted (e.g. Factory contracts), or governance proxy node
     verifyNoAmountSent(Unit);            // verify that no tez is sent to the entrypoint
     
     case governanceLambdaAction of [
@@ -246,7 +246,7 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update general contracts map
 
-    verifySenderIsWhitelistedOrAdminOrGovernanceProxyNode(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
+    verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
     verifyNoAmountSent(Unit);            // check that no tez is sent to the entrypoint
     
     case governanceLambdaAction of [
@@ -1208,7 +1208,7 @@ block {
 
                     // Execute the data or skip if this entry has no data to execute
                     case metadata of [
-                            Some (_dataBytes)   -> operations := processGovernanceActionOperation(
+                            Some (_dataBytes) -> operations := processGovernanceActionOperation(
                                     _dataBytes.entrypointName,
                                     _dataBytes.encodedCode,
                                     s
