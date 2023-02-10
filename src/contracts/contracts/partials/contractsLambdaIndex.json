@@ -452,7 +452,6 @@
     "trackContract",
     "untrackContract",
 
-    "manageVestee",
-    "toggleVesteeLock"
+    "manageVestee"
   ]
 }

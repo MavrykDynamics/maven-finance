@@ -551,7 +551,7 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
-                loanTokenRecord.lpTokensTotal    := loanTokenRecord.lpTokensTotal + amount;
+                loanTokenRecord.mTokensTotal     := loanTokenRecord.mTokensTotal + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
                 // send tokens to token pool (self address) operation / skip if loan token name is tez
@@ -569,9 +569,9 @@ block {
                     operations := sendTokensToTokenPoolOperation # operations;
                 };
 
-                // mint LP Tokens and send to sender
-                const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, int(amount), loanTokenRecord.lpTokenContractAddress);
-                operations := mintLpTokensTokensOperation # operations;
+                // mint M Tokens and send to sender
+                const mintMTokensTokensOperation : operation = mintOrBurnMToken(initiator, int(amount), loanTokenRecord.mTokenAddress);
+                operations := mintMTokensTokensOperation # operations;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
@@ -625,13 +625,13 @@ block {
                 const loanTokenPoolTotal        : nat         = loanTokenRecord.tokenPoolTotal;
                 const loanTotalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 
-                const lpTokenContractAddress    : address     = loanTokenRecord.lpTokenContractAddress;
-                const lpTokensTotal             : nat         = loanTokenRecord.lpTokensTotal;
-                const lpTokensBurned            : nat         = amount;
+                const mTokenAddress             : address     = loanTokenRecord.mTokenAddress;
+                const mTokensTotal              : nat         = loanTokenRecord.mTokensTotal;
+                const mTokensBurned             : nat         = amount;
 
-                // Calculate new total of LP Tokens - verify that lpTokensBurned is less than lpTokensTotal
-                verifyLessThanOrEqual(lpTokensBurned, lpTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
-                const newLpTokensTotal : nat = abs(lpTokensTotal - lpTokensBurned);
+                // Calculate new total of LP Tokens - verify that mTokensBurned is less than mTokensTotal
+                verifyLessThanOrEqual(mTokensBurned, mTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
+                const newMTokensTotal : nat = abs(mTokensTotal - mTokensBurned);
 
                 // Calculate new token pool amount - verify that amount is less than loan token pool total
                 verifyLessThanOrEqual(amount, loanTokenPoolTotal, error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE);
@@ -641,9 +641,9 @@ block {
                 verifyLessThanOrEqual(amount, loanTotalRemaining, error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE);
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
-                // burn LP Tokens and send to sender
-                const burnLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, 0n - amount, lpTokenContractAddress);
-                operations := burnLpTokensTokensOperation # operations;
+                // burn M Tokens and send to sender
+                const burnMTokensOperation : operation = mintOrBurnMToken(initiator, 0n - amount, mTokenAddress);
+                operations := burnMTokensOperation # operations;
                 
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(
@@ -656,7 +656,7 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := newTokenPoolTotal;
-                loanTokenRecord.lpTokensTotal    := newLpTokensTotal;
+                loanTokenRecord.mTokensTotal     := newMTokensTotal;
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index

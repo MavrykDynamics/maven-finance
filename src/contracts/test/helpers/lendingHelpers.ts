@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { alice, bob, eve, mallory, oracleMaintainer, oscar, trudy } from "../../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 
 // ------------------------------------------------------------------
 //
@@ -174,29 +174,29 @@ export const calculateScaledTokenBalance = (initialTokenBalance, initialUserRewa
 
 export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLedger) => {
     
-    let mockFa12Balance             = collateralBalanceLedger.get('mockFa12') == undefined ? 0 : collateralBalanceLedger.get('mockFa12');
-    let mockFa2Balance              = collateralBalanceLedger.get('mockFa2')  == undefined ? 0 : collateralBalanceLedger.get('mockFa2');
+    let usdtBalance                 = collateralBalanceLedger.get('usdt') == undefined ? 0 : collateralBalanceLedger.get('usdt');
+    let eurlBalance                 = collateralBalanceLedger.get('eurl')  == undefined ? 0 : collateralBalanceLedger.get('eurl');
     let xtzBalance                  = collateralBalanceLedger.get('tez')      == undefined ? 0 : collateralBalanceLedger.get('tez');
     let mvkBalance                  = collateralBalanceLedger.get("smvk")     == undefined ? 0 : collateralBalanceLedger.get("smvk");
 
-    let mockFa12TokenPrice          = tokenOracles.find(o => o.name === "mockFa12").price;
-    let mockFa2TokenPrice           = tokenOracles.find(o => o.name === "mockFa2").price;
+    let usdtTokenPrice              = tokenOracles.find(o => o.name === "usdt").price;
+    let eurlTokenPrice              = tokenOracles.find(o => o.name === "eurl").price;
     let tezPrice                    = tokenOracles.find(o => o.name === "tez").price;
     let mvkPrice                    = tokenOracles.find(o => o.name === "smvk").price;
 
-    let mockFa12TokenPriceDecimals  = tokenOracles.find(o => o.name === "mockFa12").priceDecimals;
-    let mockFa2TokenPriceDecimals   = tokenOracles.find(o => o.name === "mockFa2").priceDecimals;
+    let usdtTokenPriceDecimals      = tokenOracles.find(o => o.name === "usdt").priceDecimals;
+    let eurlTokenPriceDecimals      = tokenOracles.find(o => o.name === "eurl").priceDecimals;
     let tezPriceDecimals            = tokenOracles.find(o => o.name === "tez").priceDecimals;
     let mvkPriceDecimals            = tokenOracles.find(o => o.name === "smvk").priceDecimals;
 
-    let mockFa12TokenDecimals       = tokenOracles.find(o => o.name === "mockFa12").tokenDecimals;
-    let mockFa2TokenDecimals        = tokenOracles.find(o => o.name === "mockFa2").tokenDecimals;
+    let usdtTokenDecimals           = tokenOracles.find(o => o.name === "usdt").tokenDecimals;
+    let eurlTokenDecimals           = tokenOracles.find(o => o.name === "eurl").tokenDecimals;
     let tezTokenDecimals            = tokenOracles.find(o => o.name === "tez").tokenDecimals;
     let mvkTokenDecimals            = tokenOracles.find(o => o.name === "smvk").tokenDecimals;
 
     // rebased to no decimals (Math.trunc to simulate smart contract division)
-    let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(mockFa12Balance / (10 ** mockFa12TokenDecimals)) * mockFa12TokenPrice ) / (10 ** mockFa12TokenPriceDecimals);
-    let vaultMockFa2TokenValue      = Math.trunc(Math.trunc(mockFa2Balance  / (10 ** mockFa2TokenDecimals )) * mockFa2TokenPrice  ) / (10 ** mockFa2TokenPriceDecimals);
+    let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(usdtBalance / (10 ** usdtTokenDecimals)) * usdtTokenPrice ) / (10 ** usdtTokenPriceDecimals);
+    let vaultMockFa2TokenValue      = Math.trunc(Math.trunc(eurlBalance  / (10 ** eurlTokenDecimals )) * eurlTokenPrice  ) / (10 ** eurlTokenPriceDecimals);
     let vaultXtzValue               = Math.trunc(Math.trunc(xtzBalance      / (10 ** tezTokenDecimals     )) * tezPrice           ) / (10 ** tezPriceDecimals);
     let vaultMvkValue               = Math.trunc(Math.trunc(mvkBalance      / (10 ** mvkTokenDecimals     )) * mvkPrice           ) / (10 ** mvkPriceDecimals);
     
@@ -346,7 +346,7 @@ export const calculateTotalLiquidationAmount = (liquidationAmount, vaultMaxLiqui
 export const defaultPriceObservations = [
         
     {
-        "name" : "mockFa12",
+        "name" : "usdt",
         "medianPrice": 1500000, // 1,500,000 -> $1.50
         "observations" : [ 
             {
@@ -360,16 +360,12 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1500005)
             }
         ]
     },
 
     {
-        "name": "mockFa2",
+        "name": "eurl",
         "medianPrice": 3500000, // 3,500,000 -> $3.50
         "observations" : [
             {
@@ -383,10 +379,6 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(3500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(3500005)
             }
         ]
     },
@@ -406,10 +398,6 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1800000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1800005)
             }
         ]
     },
@@ -430,10 +418,6 @@ export const defaultPriceObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1000000000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1000000005)
             }
         ]
     },
@@ -445,7 +429,7 @@ export const defaultPriceObservations = [
 export const priceDecreaseObservations = [
     
     {
-        "name": "mockFa12",
+        "name": "usdt",
         "medianPrice": 500000, // 500,000 -> $0.50
         "observations" : [
             {
@@ -459,16 +443,12 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(500005)
             }
         ]
     },
 
     {
-        "name": "mockFa2",
+        "name": "eurl",
         "medianPrice": 1166666, // 1,166,666 -> $1.16
         "observations" : [
             {
@@ -482,10 +462,6 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1166666)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1166671)
             }
         ]
     },
@@ -505,10 +481,6 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(600000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(600005)
             }
         ]
     },
@@ -528,10 +500,6 @@ export const priceDecreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(333333333)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(333333338)
             }
         ]
     },
@@ -544,7 +512,7 @@ export const priceDecreaseObservations = [
 export const priceIncreaseObservations = [
     
     {
-        "name": "mockFa12",
+        "name": "usdt",
         "medianPrice": 2500000, // 2,500,000 -> $2.50
         "observations" : [
             {
@@ -558,16 +526,12 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(2500000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(2500005)
             }
         ]
     },
 
     {
-        "name": "mockFa2",
+        "name": "eurl",
         "medianPrice": 5833333, // 5,833,333 -> $5.83
         "observations" : [
             {
@@ -581,10 +545,6 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(5833333)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(5833338)
             }
         ]
     },
@@ -604,10 +564,6 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(3000000)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(3000005)
             }
         ]
     },
@@ -627,10 +583,6 @@ export const priceIncreaseObservations = [
             {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1666666666)
-            },
-            {
-                "oracle": oscar.pkh,
-                "data" :new BigNumber(1666666671)
             }
         ]
     }    

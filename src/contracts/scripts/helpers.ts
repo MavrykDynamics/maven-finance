@@ -38,11 +38,6 @@ export const migrate = async (tezos: TezosToolkit, contract: string, storage: an
             code: artifacts.michelson,
             storage: storage,
         })
-        .catch((e) => {
-            console.error(e)
-
-            return null
-        })
 
         console.log('show operation')
         console.log(operation)
@@ -118,9 +113,9 @@ export const getLigo = (
 
     if (isDockerizedLigo) {
         if (isAppleM1) {
-            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
         } else {
-            path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+            path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
         }
 
         try {
@@ -137,9 +132,9 @@ export const getLigo = (
         } catch (err) {
 
             if (isAppleM1) {
-                path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:next`
+                path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
             } else {
-                path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+                path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
             }
 
             execSync(`${path}  --help`)
@@ -152,7 +147,7 @@ export const getLigo = (
 
 export const oldCompileContract = async (
 
-    contract : string = undefined,
+    contract : string = "",
     contractsDir: string = env.contractsDir,
     michelsonOutputDir: string = env.michelsonBuildDir,
     jsonOutputDir: string = env.buildDir,
