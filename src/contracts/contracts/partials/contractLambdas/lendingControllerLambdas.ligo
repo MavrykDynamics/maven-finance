@@ -569,8 +569,8 @@ block {
                 };
 
                 // mint M Tokens and send to sender
-                const mintMTokensTokensOperation : operation = mintOrBurnMToken(initiator, int(amount), loanTokenRecord.mTokenAddress);
-                operations := mintMTokensTokensOperation # operations;
+                const mintMTokensOperation : operation              = mintOrBurnMToken(initiator, int(amount), loanTokenRecord.mTokenAddress);
+                operations := mintMTokensOperation # operations;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -641,8 +641,8 @@ block {
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
                 // burn M Tokens and send to sender
-                const burnMTokensTokensOperation : operation = mintOrBurnMToken(initiator, 0n - amount, mTokenAddress);
-                operations := burnMTokensTokensOperation # operations;
+                const burnMTokensOperation : operation = mintOrBurnMToken(initiator, 0n - amount, mTokenAddress);
+                operations := burnMTokensOperation # operations;
 
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(

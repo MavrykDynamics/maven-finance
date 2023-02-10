@@ -642,8 +642,8 @@ block {
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
                 // burn M Tokens and send to sender
-                const burnMTokensTokensOperation : operation = mintOrBurnMToken(initiator, 0n - amount, mTokenAddress);
-                operations := burnMTokensTokensOperation # operations;
+                const burnMTokensOperation : operation = mintOrBurnMToken(initiator, 0n - amount, mTokenAddress);
+                operations := burnMTokensOperation # operations;
                 
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(
