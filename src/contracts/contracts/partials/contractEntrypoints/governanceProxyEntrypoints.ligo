@@ -138,8 +138,6 @@ block {
 (* setProxyNodeAddress entrypoint *)
 function setProxyNodeAddress(const setProxyNodeAddressParams : setProxyNodeAddressActionType; var s : governanceProxyStorageType) : return is 
 block {
-    
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaSetProxyNodeAddress", s.lambdaLedger);
@@ -149,6 +147,18 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    
+    // s.proxyNodeAddresses := case setProxyNodeAddressParams of [
+    //     |   AddProxyNodeAddress(proxyNodeAddress)    -> Set.add(proxyNodeAddress, s.proxyNodeAddresses)
+    //     |   RemoveProxyNodeAddress(proxyNodeAddress) -> Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
+    // ]
+
+    // const setAction         : string  = setProxyNodeAddressParams.setAction; 
+    // const proxyNodeAddress  : address = setProxyNodeAddressParams.proxyNodeAddress; 
+
+    // if setAction = "add" then s.proxyNodeAddresses := Set.add(proxyNodeAddress, s.proxyNodeAddresses) 
+    // else if setAction = "remove" then s.proxyNodeAddresses := Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
+    // else skip;
 
 } with response
 
@@ -183,8 +193,6 @@ block {
 (* processGovernanceAction entrypoint *)
 function processGovernanceAction(const processGovernanceActionParams : processGovernanceActionType; var s : governanceProxyStorageType) : return is 
 block {
-    
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaProcessGovernanceAction", s.lambdaLedger);
@@ -233,6 +241,12 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+    // s := case setLambdaPointerParams of [
+    //     |   AddLambdaPointer(_v)    -> addLambdaPointer(_v, s)
+    //     |   UpdateLambdaPointer(_v) -> updateLambdaPointer(_v, s)
+    //     |   RemoveLambdaPointer(_v) -> removeLambdaPointer(_v, s)
+    // ]
 
 } with response
 

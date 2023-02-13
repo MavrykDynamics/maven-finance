@@ -215,7 +215,7 @@ describe('Linked contracts updates for Tests', async () => {
   
   
       // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
-      const governanceContractsBatch = await utils.tezos.wallet
+      const governanceGeneralContractsBatch = await utils.tezos.wallet
       .batch()
   
       // general contracts
@@ -236,12 +236,18 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('aggregatorFactory'     , aggregatorFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite'   , governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , governanceFinancialAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceProxy'       , governanceProxyAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , vaultFactoryAddress.address))
       // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
 
       // uncomment if lending controller mock time contract is used
       .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
+
+      const governanceGeneralContractsBatchOperation = await governanceGeneralContractsBatch.send()
+      await governanceGeneralContractsBatchOperation.confirmation();
   
+      const governanceWhitelistContractsBatch = await utils.tezos.wallet
+      .batch()
       // whitelist contracts
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory'        , vaultFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('farmFactory'         , farmFactoryAddress.address))
@@ -253,12 +259,12 @@ describe('Linked contracts updates for Tests', async () => {
   
       // governance proxy
       .withContractCall(governanceInstance.methods.setGovernanceProxy(governanceProxyAddress.address))
-      const governanceContractsBatchOperation = await governanceContractsBatch.send()
-      await governanceContractsBatchOperation.confirmation();
+      
+      const governanceWhitelistContractsBatchOperation = await governanceWhitelistContractsBatch.send()
+      await governanceWhitelistContractsBatchOperation.confirmation();
   
       console.log('Governance Contract - set general contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
       console.log('Governance Contract - set governance proxy address')
-  
   
   
       // Governance Financial Contract - set whitelist token contracts [MavrykFA2, MavrykFA12, MVK]

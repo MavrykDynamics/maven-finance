@@ -23,13 +23,14 @@ export const governanceProxyStorage: governanceProxyStorageType = {
     
     mvkTokenAddress           : "",
     governanceAddress         : bob.pkh,
+    proxyNodeAddresses        : [],
     
     whitelistContracts        : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),
     whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
 
     lambdaPointerLedger       : MichelsonMap.fromLiteral({}),
-
+    proxyLambdaLedger         : MichelsonMap.fromLiteral({}),
     lambdaLedger              : MichelsonMap.fromLiteral({})
 
 };

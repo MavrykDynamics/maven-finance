@@ -15,12 +15,22 @@ import { confirmOperation } from "../../scripts/confirmation";
 import { governanceProxyStorageType } from "../types/governanceProxyStorageType";
 
 import governanceProxyLambdas from "../../build/lambdas/governanceProxyLambdas.json";
+import governanceProxyNodeLambdas from "../../build/lambdas/governanceProxyNodeLambdas.json";
 
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
 type GovernanceProxyContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
     setProxyLambda: (number, string) => ContractMethod<T>;
+    setLambdaPointer: (
+        setAction : string,
+        entrypointName : string,
+        proxyNodeAddress : string
+    ) => ContractMethod<T>;
+    setProxyNodeAddress: (
+        setAction : string,
+        proxyNodeAddress : string
+    )  => ContractMethod<T>;
     updateWhitelistContracts: (
         whitelistContractName:string,
         whitelistContractAddress:string
@@ -48,13 +58,17 @@ type GovernanceProxyContractAbstraction<T extends ContractProvider | Wallet = an
     governanceProxyStorageType>;
 
 
-export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction) => {
+export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, lastIndex : number) => {
 
     const batch = tezosToolkit.wallet.batch();
+    var index   = 0;
 
     for (let lambdaName in governanceProxyLambdas) {
-        let bytes = governanceProxyLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+        let bytes   = governanceProxyLambdas[lambdaName]
+        if(index < lastIndex){
+            batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+        }
+        index++;
     }
 
     const setupGovernanceProxyLambdasOperation = await batch.send()
@@ -62,9 +76,11 @@ export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolk
 
 };
 
+
 export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, startIndex : number) => {
 
-    const lambdasPerBatch = 10;
+    // N.B. lambdasPerBatch should be greater than the count of non-proxy lambdas, if not batch operations will return an empty list and fail
+    const lambdasPerBatch = 11;
 
     const lambdasCount = Object.keys(governanceProxyLambdas).length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
@@ -75,7 +91,9 @@ export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: Tezos
         var index   = 0
 
         for (let lambdaName in governanceProxyLambdas) {
+            
             let bytes   = governanceProxyLambdas[lambdaName]
+
             if(index >= startIndex){
             
                 // since contract lambdas and proxy lambdas are sharing the same index json - separate the two
@@ -92,7 +110,64 @@ export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: Tezos
         await confirmOperation(tezosToolkit, setupGovernanceProxyLambdasOperation.opHash);
 
     }
+
 };
+
+
+export const setGovernanceProxyLambdaPointers = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, startIndex : number) => {
+    
+    const batch = tezosToolkit.wallet.batch();
+    var index   = 0
+
+    for (let lambdaName in governanceProxyLambdas) {
+
+        if(index >= startIndex){
+            
+            batch.withContractCall(
+                contract.methods.setLambdaPointer(
+                    "add", lambdaName, contract.address
+                )
+            )
+        }
+        index++;
+    }
+
+    const setupGovernanceProxyLambdaPointersOperation = await batch.send()
+    await confirmOperation(tezosToolkit, setupGovernanceProxyLambdaPointersOperation.opHash);
+
+};
+
+
+export const setGovernanceProxyNodeLambdaPointers = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, governanceProxyNodeAddress : string, startIndex : number) => {
+    
+    const batch = tezosToolkit.wallet.batch();
+    var index   = 0
+
+    for (let lambdaName in governanceProxyNodeLambdas) {
+        
+        if(index >= startIndex){
+
+            batch.withContractCall(
+                contract.methods.setLambdaPointer(
+                    "add", lambdaName, governanceProxyNodeAddress
+                )
+            )
+        }
+        index++;
+    }
+
+    const setupGovernanceProxyLambdaPointersOperation = await batch.send()
+    await confirmOperation(tezosToolkit, setupGovernanceProxyLambdaPointersOperation.opHash);
+
+};
+
+
+export const setGovernanceProxyNodeAddress = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, governanceProxyNodeAddress : string) => {
+
+    const setProxyNodeAddressOperation = await contract.methods.setProxyNodeAddress("addProxyNodeAddress", governanceProxyNodeAddress).send();
+    await setProxyNodeAddressOperation.confirmation();
+
+}
 
 
 export class GovernanceProxy {
