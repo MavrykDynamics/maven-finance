@@ -1,0 +1,62 @@
+oracles:
+  bob:
+    rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+    tezos:
+      address: tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
+      publicKey: edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D
+      secretKey: edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
+    p2p:
+      peerId: 12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
+      peerPublicKey: CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
+      peerPrivateKey: CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
+    alphavantage:
+      secretName: api-keys
+      key: ALPHAVANTAGE_API_KEY
+    messari:
+      secretName: api-keys
+      key: MESSARI_API_KEY_1
+  eve:
+    rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+    tezos:
+      address: tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
+      publicKey: edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis
+      secretKey: edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
+    p2p:
+      peerId: 12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      peerPublicKey: CAESIB3LuOsvQXa/QtLkCtHqfEdDnXDiDtGIKB42deJZQSZb
+      peerPrivateKey: CAESQJhgTKhCqif5bg/4RS4mPfjIp/TNA6c7licLcTFumPchHcu46y9Bdr9C0uQK0ep8R0OdcOIO0YgoHjZ14llBJls=
+    alphavantage:
+      secretName: api-keys
+      key: ALPHAVANTAGE_API_KEY
+    messari:
+      secretName: api-keys
+      key: MESSARI_API_KEY_2
+  mallory:
+    rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+    tezos:
+      address: tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
+      publicKey: edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ
+      secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
+    p2p:
+      peerId: 12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      peerPublicKey: CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
+      peerPrivateKey: CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
+    alphavantage:
+      secretName: api-keys
+      key: ALPHAVANTAGE_API_KEY
+    messari:
+      secretName: api-keys
+      key: MESSARI_API_KEY_3
+
+image:
+  pullSecret: docker-pull-credentials
+  registry: docker.io
+  repository: mavrykdynamics/mavryk-oracle
+  tag: v0.1.5
+  pullPolicy: Always
+
+aggregatorsAddresses:
+  - KT19YSL9nPCiKFMfFnQD54X6yQF89Awzqyqg
+  - KT1CqqzaopWu4CWAXfV61ZNhKR7A1ysCwMgo
+  - KT1EBBZPVJLzeiTd2rm8Qb9o7GzbEV3Y3d8h
+  - KT1TNxevgVDnVifCguTEVqsj8cDP9wLUoF4g

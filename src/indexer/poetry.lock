@@ -126,16 +126,16 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "asyncpg"
-version = "0.26.0"
+version = "0.27.0"
 description = "An asyncio PostgreSQL driver"
 category = "main"
 optional = false
-python-versions = ">=3.6.0"
+python-versions = ">=3.7.0"
 
 [package.extras]
-dev = ["Cython (>=0.29.24,<0.30.0)", "pytest (>=6.0)", "Sphinx (>=4.1.2,<4.2.0)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)", "pycodestyle (>=2.7.0,<2.8.0)", "flake8 (>=3.9.2,<3.10.0)", "uvloop (>=0.15.3)"]
+dev = ["Cython (>=0.29.24,<0.30.0)", "pytest (>=6.0)", "Sphinx (>=4.1.2,<4.2.0)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)", "flake8 (>=5.0.4,<5.1.0)", "uvloop (>=0.15.3)"]
 docs = ["Sphinx (>=4.1.2,<4.2.0)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)"]
-test = ["pycodestyle (>=2.7.0,<2.8.0)", "flake8 (>=3.9.2,<3.10.0)", "uvloop (>=0.15.3)"]
+test = ["flake8 (>=5.0.4,<5.1.0)", "uvloop (>=0.15.3)"]
 
 [[package]]
 name = "attrs"
@@ -247,7 +247,7 @@ http = ["httpx"]
 
 [[package]]
 name = "dipdup"
-version = "6.4.3"
+version = "6.5.0"
 description = "Modular framework for creating selective indexers and featureful backends for dapps"
 category = "main"
 optional = false
@@ -259,7 +259,7 @@ aiolimiter = ">=1.0.0,<2.0.0"
 anyio = ">=3.3.2,<4.0.0"
 APScheduler = ">=3.8.0,<4.0.0"
 asyncclick = ">=8.0.1,<9.0.0"
-asyncpg = "0.26.0"
+asyncpg = "0.27.0"
 datamodel-code-generator = "0.13.1"
 orjson = ">=3.6.6,<4.0.0"
 prometheus-client = ">=0.14.1,<0.15.0"
@@ -274,7 +274,7 @@ tabulate = ">=0.8.9,<0.9.0"
 tortoise-orm = "0.19.2"
 
 [package.extras]
-pytezos = ["pytezos (==3.7.2)"]
+pytezos = ["pytezos (==3.7.4)"]
 
 [[package]]
 name = "dnspython"
@@ -295,11 +295,11 @@ wmi = ["wmi (>=1.5.1,<2.0.0)"]
 
 [[package]]
 name = "email-validator"
-version = "1.3.0"
+version = "1.3.1"
 description = "A robust email address syntax and deliverability validation library."
 category = "main"
 optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+python-versions = ">=3.5"
 
 [package.dependencies]
 dnspython = ">=1.15.0"
@@ -362,16 +362,16 @@ six = "*"
 
 [[package]]
 name = "isort"
-version = "5.11.4"
+version = "5.12.0"
 description = "A Python utility / library to sort Python imports."
 category = "main"
 optional = false
-python-versions = ">=3.7.0"
+python-versions = ">=3.8.0"
 
 [package.extras]
-colors = ["colorama (>=0.4.3,<0.5.0)"]
+colors = ["colorama (>=0.4.3)"]
 requirements-deprecated-finder = ["pip-api", "pipreqs"]
-pipfile-deprecated-finder = ["pipreqs", "requirementslib"]
+pipfile-deprecated-finder = ["pip-shims (>=0.5.2)", "pipreqs", "requirementslib"]
 plugins = ["setuptools"]
 
 [[package]]
@@ -494,7 +494,7 @@ pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "pathspec"
-version = "0.10.3"
+version = "0.11.0"
 description = "Utility library for gitignore style pattern matching of file paths."
 category = "main"
 optional = false
@@ -725,7 +725,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "sentry-sdk"
-version = "1.13.0"
+version = "1.14.0"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = false
@@ -746,7 +746,7 @@ falcon = ["falcon (>=1.4)"]
 fastapi = ["fastapi (>=0.79.0)"]
 flask = ["flask (>=0.11)", "blinker (>=1.1)"]
 httpx = ["httpx (>=0.16.0)"]
-opentelemetry = ["opentelemetry-distro (>=0.350b0)"]
+opentelemetry = ["opentelemetry-distro (>=0.35b0)"]
 pure_eval = ["pure-eval", "executing", "asttokens"]
 pymongo = ["pymongo (>=3.1)"]
 pyspark = ["pyspark (>=2.4.4)"]
@@ -907,7 +907,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.4"
-content-hash = "9f4279147d96be3aa79a308903e779f17c863ebcb41644c119332db466126170"
+content-hash = "f07bb0b114e0b9b53f8b122638617dddd270a23bd0791795b43886c64fd73dc2"
 
 [metadata.files]
 aiohttp = []
