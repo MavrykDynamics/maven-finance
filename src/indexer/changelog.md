@@ -12,7 +12,7 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
-## Version 0.31
+## Version 0.32
 
 ### Breaking changes
 
@@ -22,9 +22,9 @@
 
 <details><summary>Previous versions</summary>
 
-<details><summary>0.30</summary>
+<details><summary>0.31</summary>
 
-## Version 0.30
+## Version 0.31
 
 ### Breaking changes
 
