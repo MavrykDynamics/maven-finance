@@ -43,46 +43,52 @@ async def on_aggregator_origination(
     governance, _                   = await models.Governance.get_or_create(address = governance_address)
     await governance.save();
 
-    # Create record
-    aggregator      = models.Aggregator(
-        address                                     = address,
-        admin                                       = admin,
-        governance                                  = governance,
-        last_updated_at                             = creation_timestamp,
-        creation_timestamp                          = creation_timestamp,
-        name                                        = name,
-        decimals                                    = decimals,
-        alpha_pct_per_thousand                      = alpha_pct_per_thousand,
-        pct_oracle_threshold                        = pct_oracle_threshold,
-        heart_beat_seconds                          = heart_beat_seconds,
-        reward_amount_smvk                          = reward_amount_smvk,
-        reward_amount_xtz                           = reward_amount_xtz,
-        update_data_paused                          = update_data_paused,
-        withdraw_reward_xtz_paused                  = withdraw_reward_xtz_paused,
-        withdraw_reward_smvk_paused                 = withdraw_reward_smvk_paused,
-        last_completed_data_round                   = last_completed_data_round,
-        last_completed_data_epoch                   = last_completed_data_epoch,
-        last_completed_data                         = last_completed_data,
-        last_completed_data_pct_oracle_resp         = last_completed_data_pct_oracle_resp,
-        last_completed_data_last_updated_at         = last_completed_data_last_updated_at
+    # Check aggregator does not already exists
+    aggregator_exists                     = await models.Aggregator.get_or_none(
+        address     = address
     )
 
-    await aggregator.save()
-
-    # Add oracles to aggregator
-    for oracle_address in oracles:
-        oracle_storage_record   = oracles[oracle_address]
-        oracle_pk               = oracle_storage_record.oraclePublicKey
-        oracle_peer_id          = oracle_storage_record.oraclePeerId
-
-        # Create record
-        oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
-        aggregator_oracle       = models.AggregatorOracle(
-            aggregator  = aggregator,
-            user        = oracle,
-            public_key  = oracle_pk,
-            peer_id     = oracle_peer_id,
-            init_round  = last_completed_data_round,
-            init_epoch  = last_completed_data_epoch
+    # Create record
+    if not aggregator_exists:
+        aggregator      = models.Aggregator(
+            address                                     = address,
+            admin                                       = admin,
+            governance                                  = governance,
+            last_updated_at                             = creation_timestamp,
+            creation_timestamp                          = creation_timestamp,
+            name                                        = name,
+            decimals                                    = decimals,
+            alpha_pct_per_thousand                      = alpha_pct_per_thousand,
+            pct_oracle_threshold                        = pct_oracle_threshold,
+            heart_beat_seconds                          = heart_beat_seconds,
+            reward_amount_smvk                          = reward_amount_smvk,
+            reward_amount_xtz                           = reward_amount_xtz,
+            update_data_paused                          = update_data_paused,
+            withdraw_reward_xtz_paused                  = withdraw_reward_xtz_paused,
+            withdraw_reward_smvk_paused                 = withdraw_reward_smvk_paused,
+            last_completed_data_round                   = last_completed_data_round,
+            last_completed_data_epoch                   = last_completed_data_epoch,
+            last_completed_data                         = last_completed_data,
+            last_completed_data_pct_oracle_resp         = last_completed_data_pct_oracle_resp,
+            last_completed_data_last_updated_at         = last_completed_data_last_updated_at
         )
-        await aggregator_oracle.save()
+
+        await aggregator.save()
+
+        # Add oracles to aggregator
+        for oracle_address in oracles:
+            oracle_storage_record   = oracles[oracle_address]
+            oracle_pk               = oracle_storage_record.oraclePublicKey
+            oracle_peer_id          = oracle_storage_record.oraclePeerId
+
+            # Create record
+            oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
+            aggregator_oracle       = models.AggregatorOracle(
+                aggregator  = aggregator,
+                user        = oracle,
+                public_key  = oracle_pk,
+                peer_id     = oracle_peer_id,
+                init_round  = last_completed_data_round,
+                init_epoch  = last_completed_data_epoch
+            )
+            await aggregator_oracle.save()

@@ -15,9 +15,9 @@ class Doorman(MavrykContract, Model):
     unstake_paused                          = fields.BooleanField(default=False)
     compound_paused                         = fields.BooleanField(default=False)
     farm_claimed_paused                     = fields.BooleanField(default=False)
-    on_vault_deposit_smvk_paused            = fields.BooleanField(default=False)
-    on_vault_withdraw_smvk_paused           = fields.BooleanField(default=False)
-    on_vault_liquidate_smvk_paused          = fields.BooleanField(default=False)
+    on_vault_deposit_stake_paused           = fields.BooleanField(default=False)
+    on_vault_withdraw_stake_paused          = fields.BooleanField(default=False)
+    on_vault_liquidate_stake_paused         = fields.BooleanField(default=False)
 
     class Meta:
         table = 'doorman'

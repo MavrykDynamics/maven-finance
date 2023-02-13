@@ -77,6 +77,13 @@
     name: dipdup-dev
     state: present
 
+- name: Create the dipdup demo database
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: dipdup-demo
+    state: present
+
 - name: Create the dipdup user
   become: true
   become_user: postgres
@@ -99,6 +106,15 @@
   become_user: postgres
   community.postgresql.postgresql_privs:
     db: dipdup-dev
+    privs: ALL
+    type: database
+    role: dipdup
+
+- name: Grant privs to dipdup user on dipdup demo database
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_privs:
+    db: dipdup-demo
     privs: ALL
     type: database
     role: dipdup
