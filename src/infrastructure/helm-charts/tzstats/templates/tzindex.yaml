@@ -40,6 +40,10 @@ spec:
               value: '0.0.0.0'
             - name: TZ_SERVER_ADDR
               value: '0.0.0.0'
+            - name: TZ_SERVER_CORS_ENABLE
+              value: 'true'
+            - name: TZ_SERVER_CORS_ORIGIN
+              value: '*'
           image: mavrykdynamics/tzindex:v15.0.0
           imagePullPolicy: Always
           ports:
