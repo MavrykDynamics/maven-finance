@@ -44,8 +44,7 @@ class CreateLoanToken(BaseModel):
     tokenName: str
     tokenDecimals: str
     oracleAddress: str
-    lpTokenContractAddress: str
-    lpTokenId: str
+    mTokenAddress: str
     reserveRatio: str
     optimalUtilisationRate: str
     baseInterestRate: str
@@ -76,6 +75,7 @@ class UpdateLoanToken(BaseModel):
     interestRateBelowOptimalUtilisation: str
     interestRateAboveOptimalUtilisation: str
     minRepaymentAmount: str
+    isPaused: bool
 
 
 class ActionItem1(BaseModel):
