@@ -81,6 +81,8 @@ spec:
           volumeMounts:
             - mountPath: /home/tzindex/db
               name: db-volume
+      securityContext:
+        fsGroup: 1000
   volumeClaimTemplates:
     - metadata:
         name: db-volume
