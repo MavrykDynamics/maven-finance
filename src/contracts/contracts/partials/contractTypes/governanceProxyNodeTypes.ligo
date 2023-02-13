@@ -137,21 +137,6 @@ type toggleDelegationEntrypointType is [@layout:comb] record [
 // Lambda Action Types
 // ------------------------------------------------------------------------------
 
-type updateContractConfigType is 
-        UpdateGovernanceConfig             of governanceUpdateConfigParamsType
-    |   UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
-    |   UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
-    |   UpdateDelegationConfig             of delegationUpdateConfigParamsType
-    |   UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
-    |   UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
-    |   UpdateCouncilConfig                of councilUpdateConfigParamsType
-    |   UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
-    |   UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
-    |   UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
-    |   UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
-    |   UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
-    |   UpdateDoormanConfig                of doormanUpdateConfigParamsType
-
 type toggleContractEntrypointType is
         ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
     |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
@@ -161,13 +146,6 @@ type toggleContractEntrypointType is
     |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
     |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
     |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
-
-
-type manageVesteeType is 
-        AddVestee                          of addVesteeType
-    |   RemoveVestee                       of (address)
-    |   UpdateVestee                       of updateVesteeType
-    |   ToggleVesteeLock                   of (address)
 
 
 type trackContractType is 
@@ -181,31 +159,46 @@ type untrackContractType is
     |   UntrackTreasury                      of (address)
     |   UntrackAggregator                    of (address)
 
+
 type executeActionParamsType is 
 
         UpdateProxyLambda                  of setProxyLambdaType
-    |   SetContractAdmin                   of setContractAdminType
-    |   SetContractGovernance              of setContractGovernanceType
+
     |   SetContractName                    of setContractNameType
-    |   SetContractLambda                  of setContractLambdaType
-    |   SetFactoryProductLambda            of setContractLambdaType
     |   UpdateContractMetadata             of updateContractMetadataType
-    |   UpdateContractWhitelistMap         of updateContractWhitelistMapType
     |   UpdateContractGeneralMap           of updateContractGeneralMapType
-    |   UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
 
-    |   UpdateContractConfig               of updateContractConfigType
+    |   UpdateGovernanceConfig             of governanceUpdateConfigParamsType
+    |   UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
+    |   UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
+    |   UpdateDoormanConfig                of doormanUpdateConfigParamsType
+    |   UpdateDelegationConfig             of delegationUpdateConfigParamsType
+    |   UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
+    |   UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
+    |   UpdateCouncilConfig                of councilUpdateConfigParamsType
+    |   UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
+    |   UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
+    |   UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
+    |   UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
+    |   UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
+    |   UpdateVaultFactoryConfig           of vaultFactoryUpdateConfigParamsType
+    |   UpdateLendingControllerConfig      of lendingControllerUpdateConfigParamsType
 
-    |   PauseAllContractEntrypoint         of (address)
-    |   UnpauseAllContractEntrypoint       of (address)
-    |   ToggleContractEntrypoint           of toggleContractEntrypointType
+    |   InitFarm                           of (targetFarmInitType)
+    |   TrackFarm                          of (address)
+    |   UntrackFarm                        of (address)
+    |   CloseFarm                          of (address)
 
-    |   UpdateWhitelistDevelopersSet       of (address)
-    |   SetGovernanceProxy                 of (address)
+    |   TrackTreasury                      of (address)
+    |   UntrackTreasury                    of (address)
+    |   UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
+    |   StakeMvkTreasury                   of stakeTreasuryType
+    |   UnstakeMvkTreasury                 of unstakeTreasuryType
 
-    |   TrackContract                      of trackContractType
-    |   UntrackContract                    of untrackContractType
+    |   TrackAggregator                    of (address)
+    |   UntrackAggregator                  of (address)
 
+    
 type executeActionType is (executeActionParamsType)
 
 

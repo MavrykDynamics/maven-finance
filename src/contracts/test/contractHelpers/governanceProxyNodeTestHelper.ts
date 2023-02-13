@@ -14,8 +14,7 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { governanceProxyNodeStorageType } from "../types/governanceProxyNodeStorageType";
 
-import governanceProxyNodeOneLambdas from "../../build/lambdas/governanceProxyNodeOneLambdas.json";
-import governanceProxyNodeTwoLambdas from "../../build/lambdas/governanceProxyNodeTwoLambdas.json";
+import governanceProxyNodeLambdas from "../../build/lambdas/governanceProxyNodeLambdas.json";
 
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -49,15 +48,13 @@ type GovernanceProxyNodeContractAbstraction<T extends ContractProvider | Wallet 
     governanceProxyNodeStorageType>;
 
 
-export const setGovernanceProxyNodeContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyNodeContractAbstraction, proxyNode: string, lastIndex : number) => {
-
-    let governanceProxyNodeLambdas
-    governanceProxyNodeLambdas = proxyNode == "one" ? governanceProxyNodeOneLambdas : governanceProxyNodeTwoLambdas;
+export const setGovernanceProxyNodeContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyNodeContractAbstraction, lastIndex : number) => {
 
     const batch = tezosToolkit.wallet.batch();
     var index   = 0
 
     for (let lambdaName in governanceProxyNodeLambdas) {
+
         let bytes   = governanceProxyNodeLambdas[lambdaName]
         if(index < lastIndex){
             batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
@@ -70,12 +67,9 @@ export const setGovernanceProxyNodeContractLambdas = async (tezosToolkit: TezosT
 
 };
 
-export const setGovernanceProxyNodeContractProxyLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyNodeContractAbstraction, proxyNode: string, startIndex : number) => {
+export const setGovernanceProxyNodeContractProxyLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyNodeContractAbstraction, startIndex : number) => {
 
-    let governanceProxyNodeLambdas
-    governanceProxyNodeLambdas = proxyNode == "one" ? governanceProxyNodeOneLambdas : governanceProxyNodeTwoLambdas;
-
-    const lambdasPerBatch = 10;
+    const lambdasPerBatch = 8;
 
     const lambdasCount = Object.keys(governanceProxyNodeLambdas).length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
@@ -86,7 +80,9 @@ export const setGovernanceProxyNodeContractProxyLambdas = async (tezosToolkit: T
         var index   = 0
 
         for (let lambdaName in governanceProxyNodeLambdas) {
+            
             let bytes   = governanceProxyNodeLambdas[lambdaName]
+
             if(index >= startIndex){
             
                 // since contract lambdas and proxy lambdas are sharing the same index json - separate the two

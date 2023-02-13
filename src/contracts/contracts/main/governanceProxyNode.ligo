@@ -83,8 +83,7 @@
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
 // Governance Proxy Types
-// - Use Node Three Types
-#include "../partials/contractTypes/governanceProxyNodeThreeTypes.ligo"
+#include "../partials/contractTypes/governanceProxyNodeTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -123,8 +122,7 @@ type governanceProxyUnpackLambdaFunctionType is (governanceProxyNodeLambdaAction
 // ------------------------------------------------------------------------------
 
 // GovernanceProxyNode Helpers:
-// - Use Node Three Helpers
-#include "../partials/contractHelpers/governanceProxyNodeThreeHelpers.ligo"
+#include "../partials/contractHelpers/governanceProxyNodeHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Views
@@ -138,8 +136,7 @@ type governanceProxyUnpackLambdaFunctionType is (governanceProxyNodeLambdaAction
 // ------------------------------------------------------------------------------
 
 // GovernanceProxyNode Lambdas :
-// - Use Node Three Lambdas
-#include "../partials/contractLambdas/governanceProxyNodeThreeLambdas.ligo"
+#include "../partials/contractLambdas/governanceProxyNodeLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

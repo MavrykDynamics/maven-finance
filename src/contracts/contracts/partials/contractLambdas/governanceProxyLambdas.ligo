@@ -165,17 +165,21 @@ block {
     // 1.
     
     verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin);  // verify that sender is admin
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
     case governanceProxyLambdaAction of [
         |   LambdaSetProxyNodeAddress(setProxyNodeAddressParams) -> {
+                
+                const setAction         : string  = setProxyNodeAddressParams.setAction; 
+                const proxyNodeAddress  : address = setProxyNodeAddressParams.proxyNodeAddress; 
 
-                s.proxyNodeAddresses := case setProxyNodeAddressParams of [
-                    |   AddProxyNodeAddress(proxyNodeAddress)    -> Set.add(proxyNodeAddress, s.proxyNodeAddresses)
-                    |   RemoveProxyNodeAddress(proxyNodeAddress) -> Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
-                ]
+                if      setAction = "add"    then s.proxyNodeAddresses := Set.add(proxyNodeAddress, s.proxyNodeAddresses) 
+                else if setAction = "remove" then s.proxyNodeAddresses := Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
+                else skip;
                 
             }
         |   _ -> skip
@@ -193,7 +197,9 @@ block {
     // 1.
 
     verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
-    verifySenderIsAdmin(s.admin);  // verify that sender is admin
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
     var operations : list(operation) := nil;
 
@@ -204,7 +210,7 @@ block {
                 const entrypointName    : string  = processGovernanceActionParams.entrypointName;
                 const encodedCode       : bytes   = processGovernanceActionParams.encodedCode;
 
-                const proxyNodeAddress : address = getProxyNodeAddress(entrypointName, s);
+                const proxyNodeAddress  : address = getProxyNodeAddress(entrypointName, s);
 
                 const executeGovernanceActionOperation : operation = executeGovernanceActionOperation(encodedCode, proxyNodeAddress);
                 operations := executeGovernanceActionOperation # operations;
@@ -232,11 +238,14 @@ block {
     case governanceProxyLambdaAction of [
         |   LambdaSetLambdaPointer(setLambdaPointerParams) -> {
 
-                s := case setLambdaPointerParams of [
-                    |   AddLambdaPointer(_v)    -> addLambdaPointer(_v, s)
-                    |   UpdateLambdaPointer(_v) -> updateLambdaPointer(_v, s)
-                    |   RemoveLambdaPointer(_v) -> removeLambdaPointer(_v, s)
-                ]
+                const setAction         : string            = setLambdaPointerParams.setAction; 
+                const entrypointName    : string            = setLambdaPointerParams.entrypointName; 
+                const proxyNodeAddress  : option(address)   = setLambdaPointerParams.proxyNodeAddress;
+
+                if      setAction = "add"    then s := addLambdaPointer(entrypointName, proxyNodeAddress, s)
+                else if setAction = "update" then s := updateLambdaPointer(entrypointName, proxyNodeAddress, s)
+                else if setAction = "remove" then s := removeLambdaPointer(entrypointName, s)
+                else skip;
                 
             }
         |   _ -> skip
@@ -250,8 +259,8 @@ block {
 function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+    // verify that sender is self or admin or Governance contract
+    verifySenderIsSelfOrAdminOrGovernance(s);
 
     (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
     const id : nat = case executeAction of [
@@ -259,55 +268,59 @@ block {
             (* Update Lambda Function *)
         |   UpdateProxyLambda (_v)                 -> 1n
 
+            (* Governance Proxy Controls *)
+        |   GovSetLambdaPointer (_v)               -> 2n
+        |   GovSetProxyNodeAddress (_v)            -> 3n
+
             (* General Controls *)
-        |   SetContractAdmin (_v)                  -> 2n
-        |   SetContractGovernance (_v)             -> 3n
-        |   SetContractLambda (_v)                 -> 4n
-        |   SetFactoryProductLambda (_v)           -> 5n
-        |   UpdateContractWhitelistMap (_v)        -> 6n
-        |   UpdateContractWhitelistTokenMap (_v)   -> 7n
+        |   SetContractAdmin (_v)                  -> 4n
+        |   SetContractGovernance (_v)             -> 5n
+        |   SetContractLambda (_v)                 -> 6n
+        |   SetFactoryProductLambda (_v)           -> 7n
+        |   UpdateContractWhitelistMap (_v)        -> 8n
+        |   UpdateContractWhitelistTokenMap (_v)   -> 9n
 
             (* BreakGlass Configs *)
-        |   PauseAllContractEntrypoint (_v)        -> 8n
-        |   UnpauseAllContractEntrypoint (_v)      -> 9n
+        |   PauseAllContractEntrypoint (_v)        -> 10n
+        |   UnpauseAllContractEntrypoint (_v)      -> 11n
 
-        |   ToggleDelegationEntrypoint (_v)        -> 10n
-        |   ToggleDoormanEntrypoint (_v)           -> 11n
-        |   ToggleAggregatorEntrypoint (_v)        -> 12n
-        |   ToggleAggregatorFacEntrypoint (_v)     -> 13n
-        |   ToggleFarmEntrypoint (_v)              -> 14n
-        |   ToggleFarmFacEntrypoint (_v)           -> 15n
-        |   ToggleTreasuryEntrypoint (_v)          -> 16n
-        |   ToggleTreasuryFacEntrypoint (_v)       -> 17n
-        |   ToggleVaultFacEntrypoint (_v)          -> 18n
-        |   ToggleLendingContEntrypoint (_v)       -> 19n
+        |   ToggleDelegationEntrypoint (_v)        -> 12n
+        |   ToggleDoormanEntrypoint (_v)           -> 13n
+        |   ToggleAggregatorEntrypoint (_v)        -> 14n
+        |   ToggleAggregatorFacEntrypoint (_v)     -> 15n
+        |   ToggleFarmEntrypoint (_v)              -> 16n
+        |   ToggleFarmFacEntrypoint (_v)           -> 17n
+        |   ToggleTreasuryEntrypoint (_v)          -> 18n
+        |   ToggleTreasuryFacEntrypoint (_v)       -> 19n
+        |   ToggleVaultFacEntrypoint (_v)          -> 20n
+        |   ToggleLendingContEntrypoint (_v)       -> 21n
 
             (* Governance Control *)
-        |   UpdateWhitelistDevelopersSet (_v)      -> 20n
-        |   SetGovernanceProxy (_v)                -> 21n
+        |   UpdateWhitelistDevelopersSet (_v)      -> 22n
+        |   SetGovernanceProxy (_v)                -> 23n
 
             (* Create Contracts *)
-        |   CreateFarm (_v)                        -> 22n
-        |   CreateAggregator (_v)                  -> 23n
-        |   CreateTreasury (_v)                    -> 24n
+        |   CreateFarm (_v)                        -> 24n
+        |   CreateAggregator (_v)                  -> 25n
+        |   CreateTreasury (_v)                    -> 26n
 
             (* Treasury Control *)
-        |   TransferTreasury (_v)                  -> 25n
-        |   MintMvkAndTransferTreasury (_v)        -> 26n
+        |   TransferTreasury (_v)                  -> 27n
+        |   MintMvkAndTransferTreasury (_v)        -> 28n
 
             (* MVK Token Control *)
-        |   UpdateMvkInflationRate (_v)            -> 27n
-        |   TriggerMvkInflation (_v)               -> 28n
+        |   UpdateMvkInflationRate (_v)            -> 29n
+        |   TriggerMvkInflation (_v)               -> 30n
 
             (* Vesting Control *)
-        |   AddVestee (_v)                         -> 29n
-        |   RemoveVestee (_v)                      -> 30n
-        |   UpdateVestee (_v)                      -> 31n
-        |   ToggleVesteeLock (_v)                  -> 32n
+        |   AddVestee (_v)                         -> 31n
+        |   RemoveVestee (_v)                      -> 32n
+        |   UpdateVestee (_v)                      -> 33n
+        |   ToggleVesteeLock (_v)                  -> 34n
 
             (* Lending Controller Control *)
-        |   SetLoanToken (_v)                      -> 33n
-        |   SetCollateralToken (_v)                -> 34n
+        |   SetLoanToken (_v)                      -> 35n
+        |   SetCollateralToken (_v)                -> 36n
 
     ];
 
@@ -352,6 +365,71 @@ block {
 
 // ------------------------------------------------------------------------------
 // Basic Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Governance Proxy Control Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(* govSetLambdaPointer lambda *)
+function govSetLambdaPointer(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   GovSetLambdaPointer(setLambdaPointerParams) -> {
+                
+                const setAction         : string            = setLambdaPointerParams.setAction; 
+                const entrypointName    : string            = setLambdaPointerParams.entrypointName; 
+                const proxyNodeAddress  : option(address)   = setLambdaPointerParams.proxyNodeAddress;
+
+                if      setAction = "add"    then s := addLambdaPointer(entrypointName, proxyNodeAddress, s)
+                else if setAction = "update" then s := updateLambdaPointer(entrypointName, proxyNodeAddress, s)
+                else if setAction = "remove" then s := removeLambdaPointer(entrypointName, s)
+                else skip;
+                
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* govSetProxyNodeAddress lambda *)
+function govSetProxyNodeAddress(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
+block {
+    
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+        |   GovSetProxyNodeAddress(setProxyNodeAddressParams) -> {
+
+                const setAction         : string  = setProxyNodeAddressParams.setAction; 
+                const proxyNodeAddress  : address = setProxyNodeAddressParams.proxyNodeAddress; 
+
+                if      setAction = "add"    then s.proxyNodeAddresses := Set.add(proxyNodeAddress, s.proxyNodeAddresses) 
+                else if setAction = "remove" then s.proxyNodeAddresses := Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
+                else skip;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+// ------------------------------------------------------------------------------
+// Governance Proxy Control Lambdas End
 // ------------------------------------------------------------------------------
 
 
@@ -506,45 +584,6 @@ block {
 
 
 
-// (* updateContractMetadata lambda *)
-// function updateContractMetadata(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
-// block {
-    
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-//     var operations : list(operation) := nil;
-
-//     case executeAction of [
-//         |   UpdateContractMetadata(updateContractMetadataParams) -> {
-
-//                 // assign params to constants for better code readability
-//                 const targetContractAddress  : address   = updateContractMetadataParams.targetContractAddress;
-//                 const metadataKey            : string    = updateContractMetadataParams.metadataKey;
-//                 const metadataHash           : bytes     = updateContractMetadataParams.metadataHash;
-
-//                 const updateMetadataRecord : updateMetadataType = record [
-//                     metadataKey  = metadataKey;
-//                     metadataHash = metadataHash;
-//                 ];
-
-//                 // Create operation to update contract metadata on a specified Contract
-//                 const updateContractMetadataOperation : operation = Tezos.transaction(
-//                     updateMetadataRecord,
-//                     0tez, 
-//                     getUpdateMetadataEntrypoint(targetContractAddress)
-//                 );
-
-//                 operations := updateContractMetadataOperation # operations;
-
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (operations, s)
-
-
-
 (* updateContractWhitelistMap lambda *)
 function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
@@ -581,45 +620,6 @@ block {
     ];
 
 } with (operations, s)
-
-
-
-(* updateContractGeneralMap lambda *)
-// function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
-// block {
-    
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-//     var operations : list(operation) := nil;
-
-//     case executeAction of [
-//         |   UpdateContractGeneralMap(updateContractGeneralMapParams) -> {
-
-//                 // assign params to constants for better code readability
-//                 const targetContractAddress     : address   = updateContractGeneralMapParams.targetContractAddress;
-//                 const generalContractName       : string    = updateContractGeneralMapParams.generalContractName;
-//                 const generalContractAddress    : address   = updateContractGeneralMapParams.generalContractAddress;
-
-//                 const updateGeneralMapRecord : updateGeneralContractsType = record [
-//                     generalContractName    = generalContractName;
-//                     generalContractAddress = generalContractAddress;
-//                 ];
-
-//                 // Create operation to update contract general map on a specified contract
-//                 const updateContractGeneralMapOperation : operation = Tezos.transaction(
-//                     updateGeneralMapRecord,
-//                     0tez, 
-//                     getUpdateGeneralContractsEntrypoint(targetContractAddress)
-//                 );
-
-//                 operations := updateContractGeneralMapOperation # operations;
-
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (operations, s)
 
 
 
@@ -661,75 +661,9 @@ block {
 } with (operations, s)
 
 
-
-(* setContractName lambda *)
-// function setContractName(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
-// block {
-    
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-//     var operations : list(operation) := nil;
-
-//     case executeAction of [
-//         |   SetContractName(updateContractNameParams) -> {
-
-//                 // assign params to constants for better code readability
-//                 const targetContractAddress     : address   = updateContractNameParams.targetContractAddress;
-//                 const updatedName               : string    = updateContractNameParams.contractName;
-
-//                 // Create operation to set contract name on a specified contract
-//                 const setNameOperation : operation = Tezos.transaction(
-//                     updatedName,
-//                     0tez, 
-//                     getSetContractNameEntrypoint(targetContractAddress)
-//                 );
-
-//                 operations := setNameOperation # operations;
-
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (operations, s)
-
 // ------------------------------------------------------------------------------
 // General Control Lambdas End
 // ------------------------------------------------------------------------------
-
-// function updateContractConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
-
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-//     var operations : list(operation) := nil;
-
-//     case executeAction of [
-//         |   UpdateContractConfig(updateContractConfigParams) -> {
-
-//                 operations := case updateContractConfigParams of [
-//                         UpdateGovernanceConfig (_v)             -> updateGovernanceConfig(_v, operations, s)
-//                     |   UpdateGovernanceFinancialConfig (_v)    -> updateGovernanceFinancialConfig(_v, operations, s)
-//                     |   UpdateGovernanceSatelliteConfig (_v)    -> updateGovernanceSatelliteConfig(_v, operations, s)
-//                     |   UpdateDelegationConfig (_v)             -> updateDelegationConfig(_v, operations, s)
-//                     |   UpdateEmergencyConfig (_v)              -> updateEmergencyConfig(_v, operations, s)
-//                     |   UpdateBreakGlassConfig (_v)             -> updateBreakGlassConfig(_v, operations, s)
-//                     |   UpdateCouncilConfig (_v)                -> updateCouncilConfig(_v, operations, s)
-//                     |   UpdateFarmConfig (_v)                   -> updateFarmConfig(_v, operations)
-//                     |   UpdateFarmFactoryConfig (_v)            -> updateFarmFactoryConfig(_v, operations, s)
-//                     |   UpdateAggregatorConfig (_v)             -> updateAggregatorConfig(_v, operations)
-//                     |   UpdateAggregatorFactoryConfig (_v)      -> updateAggregatorFactoryConfig(_v, operations, s)
-//                     |   UpdateTreasuryFactoryConfig (_v)        -> updateTreasuryFactoryConfig(_v, operations, s)
-//                     |   UpdateDoormanConfig (_v)                -> updateDoormanConfig(_v, operations, s)
-//                 ]
-
-//             }
-//         |   _ -> skip
-//     ]
-
-// } with (operations, s)
-
 
 
 function pauseAllContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
@@ -787,37 +721,6 @@ block {
     ]
 
 } with (operations, s)
-
-
-
-// function toggleContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-// block {
-
-//     // verify that sender is admin or the Governance Contract address
-//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-//     var operations : list(operation) := nil;
-
-//     case executeAction of [
-      
-//         |   ToggleContractEntrypoint(toggleContractEntrypointParams) -> {
-
-//                 operations := case toggleContractEntrypointParams of [
-//                         ToggleAggregatorEntrypoint (_v)     -> toggleAggregatorEntrypoint(_v, operations)
-//                     |   ToggleAggregatorFacEntrypoint (_v)  -> toggleAggregatorFacEntrypoint(_v, operations, s)
-//                     |   ToggleDelegationEntrypoint (_v)     -> toggleDelegationEntrypoint(_v, operations, s)
-//                     |   ToggleDoormanEntrypoint (_v)        -> toggleDoormanEntrypoint(_v, operations, s)
-//                     |   ToggleFarmEntrypoint (_v)           -> toggleFarmEntrypoint(_v, operations)
-//                     |   ToggleFarmFacEntrypoint (_v)        -> toggleFarmFacEntrypoint(_v, operations, s)
-//                     |   ToggleTreasuryEntrypoint (_v)       -> toggleTreasuryEntrypoint(_v, operations)
-//                     |   ToggleTreasuryFacEntrypoint (_v)    -> toggleTreasuryFacEntrypoint(_v, operations, s)
-//                 ]
-
-//             }
-//         |   _ -> skip
-//     ]
-
-// } with (operations, s)
 
 
 

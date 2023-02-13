@@ -142,28 +142,12 @@ type toggleLendingContEntrypointType is [@layout:comb] record [
     empty                     : unit;
 ]
 
-type addLambdaPointerActionType is [@layout:comb] record [
-    entrypointName      : string;
-    proxyNodeAddress    : address;
+
+type setLambdaPointerActionType is [@layout:comb] record [
+    setAction           : string; // add / update / remove
+    entrypointName      : string; 
+    proxyNodeAddress    : option(address);
 ]
-
-
-type updateLambdaPointerActionType is [@layout:comb] record [
-    entrypointName      : string;
-    proxyNodeAddress    : address;
-]
-
-
-type removeLambdaPointerActionType is [@layout:comb] record [
-    entrypointName      : string;
-    empty               : unit;
-]
-
-
-type setLambdaPointerActionType is 
-    |   AddLambdaPointer        of addLambdaPointerActionType
-    |   UpdateLambdaPointer     of updateLambdaPointerActionType
-    |   RemoveLambdaPointer     of removeLambdaPointerActionType
 
 
 type processGovernanceActionType is [@layout:comb] record [
@@ -172,9 +156,10 @@ type processGovernanceActionType is [@layout:comb] record [
 ]
 
 
-type setProxyNodeAddressActionType is 
-    |   AddProxyNodeAddress         of (address)
-    |   RemoveProxyNodeAddress      of (address)
+type setProxyNodeAddressActionType is [@layout:comb] record [
+    setAction           : string; // add / remove
+    proxyNodeAddress    : address;
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -185,6 +170,9 @@ type executeActionParamsType is
 
         UpdateProxyLambda                  of setProxyLambdaType
     
+    |   GovSetLambdaPointer                of setLambdaPointerActionType
+    |   GovSetProxyNodeAddress             of setProxyNodeAddressActionType
+
     |   SetContractAdmin                   of setContractAdminType
     |   SetContractGovernance              of setContractGovernanceType
     |   SetContractLambda                  of setContractLambdaType
@@ -261,7 +249,7 @@ type governanceProxyStorageType is record [
 
     mvkTokenAddress             : address;
     governanceAddress           : address;
-    proxyNodeAddresses           : set(address);
+    proxyNodeAddresses          : set(address);
     
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType; 

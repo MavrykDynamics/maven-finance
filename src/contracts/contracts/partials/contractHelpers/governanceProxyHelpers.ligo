@@ -10,11 +10,22 @@
 // ------------------------------------------------------------------------------
 
 // Allowed Senders : Admin, Governance Satellite Contract
-function verifySenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorageType) : unit is
-block{
+function verifySenderIsAdminOrGovernanceSatelliteContract(const s : governanceProxyStorageType) : unit is
+block {
 
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; governanceSatelliteAddress], error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED)
+
+} with unit
+
+
+
+// Allowed Senders : Self, Admin, Governance Contract
+function verifySenderIsSelfOrAdminOrGovernance(const s : governanceProxyStorageType) : unit is
+block {
+
+    const allowedSet : set(address) = set[s.admin; s.governanceAddress; Tezos.get_self_address()];
+    verifySenderIsAllowed(allowedSet, error_ONLY_SELF_OR_ADMIN_OR_GOVERNANCE_ALLOWED);
 
 } with unit
     
@@ -1175,12 +1186,15 @@ block {
 
 
 
-function addLambdaPointer(const addLambdaPointerParams : addLambdaPointerActionType; var s : governanceProxyStorageType) : governanceProxyStorageType is
+function addLambdaPointer(const entrypointName : string; const proxyNodeAddress : option(address); var s : governanceProxyStorageType) : governanceProxyStorageType is
 block {
 
     // init variables
-    const entrypointName    : string    = addLambdaPointerParams.entrypointName;
-    const proxyNodeAddress  : address   = addLambdaPointerParams.proxyNodeAddress;
+    const entrypointName    : string    = entrypointName;
+    const proxyNodeAddress  : address   = case proxyNodeAddress of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_PROXY_NODE_ADDRESS_NOT_FOUND)
+    ];
 
     // check that entrypoint name does not already exist in the lambda pointer ledger
     if Map.mem(entrypointName, s.lambdaPointerLedger) then failwith(error_LAMBDA_POINTER_ALREADY_EXISTS) else skip;
@@ -1192,12 +1206,15 @@ block {
 
 
 
-function updateLambdaPointer(const updateLambdaPointerParams : updateLambdaPointerActionType; var s : governanceProxyStorageType) : governanceProxyStorageType is
+function updateLambdaPointer(const entrypointName : string; const proxyNodeAddress : option(address); var s : governanceProxyStorageType) : governanceProxyStorageType is
 block {
 
     // init variables
-    const entrypointName    : string    = updateLambdaPointerParams.entrypointName;
-    const proxyNodeAddress  : address   = updateLambdaPointerParams.proxyNodeAddress;
+    const entrypointName    : string    = entrypointName;
+    const proxyNodeAddress  : address   = case proxyNodeAddress of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_PROXY_NODE_ADDRESS_NOT_FOUND)
+    ];
 
     // check that entrypoint name does not already exist in the lambda pointer ledger
     if Map.mem(entrypointName, s.lambdaPointerLedger) then skip else failwith(error_LAMBDA_POINTER_DOES_NOT_EXIST);
@@ -1209,11 +1226,11 @@ block {
 
 
 
-function removeLambdaPointer(const removeLambdaPointerParams : removeLambdaPointerActionType; var s : governanceProxyStorageType) : governanceProxyStorageType is
+function removeLambdaPointer(const entrypointName : string; var s : governanceProxyStorageType) : governanceProxyStorageType is
 block {
 
     // init variables
-    const entrypointName    : string    = removeLambdaPointerParams.entrypointName;
+    const entrypointName : string = entrypointName;
 
     // check that entrypoint name does not already exist in the lambda pointer ledger
     if Map.mem(entrypointName, s.lambdaPointerLedger) then skip else failwith(error_LAMBDA_POINTER_DOES_NOT_EXIST);

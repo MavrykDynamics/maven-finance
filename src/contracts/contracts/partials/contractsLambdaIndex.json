@@ -411,12 +411,16 @@
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
-    "lambdaSetLambdaPointer",
+    "lambdaSetProxyNodeAddress",
     "lambdaProcessGovernanceAction",
+    "lambdaSetLambdaPointer",
 
     "executeGovernanceLambdaProxy",
 
     "updateProxyLambda",
+
+    "govSetLambdaPointer",
+    "govSetProxyNodeAddress",
 
     "setContractAdmin",
     "setContractGovernance",
@@ -460,7 +464,7 @@
     "setLoanToken",
     "setCollateralToken"
   ],
-  "governanceProxyNodeThree": [
+  "governanceProxyNode": [
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateMetadata",
@@ -506,74 +510,5 @@
 
     "trackAggregator",
     "untrackAggregator"
-  ],
-  "governanceProxyNodeOne": [
-    "lambdaSetAdmin",
-    "lambdaSetGovernance",
-    "lambdaUpdateMetadata",
-    "lambdaUpdateWhitelistContracts",
-    "lambdaUpdateGeneralContracts",
-    "lambdaUpdateWhitelistTokenContracts",
-    "lambdaMistakenTransfer",
-
-    "executeGovernanceLambdaProxy",
-
-    "updateProxyLambda",
-    "setContractAdmin",
-    "setContractGovernance",
-    "setContractName",
-    "setContractLambda",
-    "setFactoryProductLambda",
-    "updateContractMetadata",
-    "updateContractWhitelistMap",
-    "updateContractGeneralMap",
-    "updateContractWhitelistTokenMap",
-
-    "updateContractConfig",
-
-    "pauseAllContractEntrypoint",
-    "unpauseAllContractEntrypoint",
-    "toggleContractEntrypoint",
-
-    "updateWhitelistDevelopersSet",
-    "setGovernanceProxy",
-
-    "trackContract",
-    "untrackContract"
-  ],
-  "governanceProxyNodeTwo": [
-    "lambdaSetAdmin",
-    "lambdaSetGovernance",
-    "lambdaUpdateMetadata",
-    "lambdaUpdateWhitelistContracts",
-    "lambdaUpdateGeneralContracts",
-    "lambdaUpdateWhitelistTokenContracts",
-    "lambdaMistakenTransfer",
-
-    "executeGovernanceLambdaProxy",
-
-    "updateProxyLambda",
-
-    "createFarm",
-    "initFarm",
-    "closeFarm",
-
-    "createTreasury",
-    "transferTreasury",
-    "mintMvkAndTransferTreasury",
-    "updateMvkOperatorsTreasury",
-    "stakeMvkTreasury",
-    "unstakeMvkTreasury",
-
-    "createAggregator",
-
-    "updateMvkInflationRate",
-    "triggerMvkInflation",
-
-    "manageVestee",
-    "toggleVesteeLock",
-
-    "setLoanToken",
-    "setCollateralToken"
   ]
 }

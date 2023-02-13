@@ -13,3 +13,20 @@ export const packData = async (rpc, packedDataValue, packedDataType) => {
         throw `Pack data failed`
     };
 }
+
+
+export const createProposalData = (title, entrypointName, encodedCode, codeDescription) => {
+
+    const proposalData = [
+        {
+            addOrSetProposalData: {
+                title: title,
+                entrypointName: entrypointName,
+                encodedCode: encodedCode,
+                codeDescription: codeDescription
+            }
+        }
+    ];
+
+    return proposalData
+}
