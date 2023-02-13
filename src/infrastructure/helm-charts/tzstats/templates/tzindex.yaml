@@ -15,14 +15,42 @@ spec:
     app: tzindex
   type: ClusterIP
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tzindex
+  namespace: tzstats
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+    - hosts:
+        - api-tzindex.mavryk.io
+      secretName: api-tzindex-tls
+  rules:
+    - host: api-tzindex.mavryk.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tzindex
+                port:
+                  name: api
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: Statefulset
 metadata:
   name: tzindex
   labels:
     app: tzindex
 spec:
+  podManagementPolicy: Parallel
   replicas: 1
+  serviceName: tzindex
   selector:
     matchLabels:
       app: tzindex
@@ -50,3 +78,17 @@ spec:
             - name: api
               containerPort: 8000
               protocol: TCP
+          volumeMounts:
+            - mountPath: /home/tzindex/db
+              name: db-volume
+  volumeClaimTemplates:
+    - metadata:
+        name: db-volume
+        namespace: tzstats
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: do-block-storage
+        resources:
+          requests:
+            storage: '10Gi'
