@@ -74,10 +74,12 @@ spec:
               value: '*'
             - name: TZ_LOG_LEVEL
               value: 'stdout'
+            - name: TZ_LIGHT
+              value: 'false'
+            - name: TZ_FULL
+              value: 'true'
           image: mavrykdynamics/tzindex:v15.0.0
           imagePullPolicy: Always
-          args:
-            - -full
           ports:
             - name: api
               containerPort: 8000
