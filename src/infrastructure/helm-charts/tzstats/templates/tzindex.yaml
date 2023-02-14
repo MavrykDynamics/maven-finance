@@ -74,7 +74,7 @@ spec:
               value: '*'
             - name: TZ_LOG_LEVEL
               value: 'stdout'
-          image: mavrykdynamics/tzindex:v15.0.0
+          image: mavrykdynamics/tzindex:v15.0.1
           imagePullPolicy: Always
           ports:
             - name: api
