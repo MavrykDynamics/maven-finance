@@ -76,6 +76,8 @@ spec:
               value: 'stdout'
           image: mavrykdynamics/tzindex:v15.0.0
           imagePullPolicy: Always
+          args:
+            - -full
           ports:
             - name: api
               containerPort: 8000
