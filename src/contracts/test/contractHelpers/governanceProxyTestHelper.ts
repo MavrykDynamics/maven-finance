@@ -164,7 +164,7 @@ export const setGovernanceProxyNodeLambdaPointers = async (tezosToolkit: TezosTo
 
 export const setGovernanceProxyNodeAddress = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, governanceProxyNodeAddress : string) => {
 
-    const setProxyNodeAddressOperation = await contract.methods.setProxyNodeAddress("addProxyNodeAddress", governanceProxyNodeAddress).send();
+    const setProxyNodeAddressOperation = await contract.methods.setProxyNodeAddress("add", governanceProxyNodeAddress).send();
     await setProxyNodeAddressOperation.confirmation();
 
 }

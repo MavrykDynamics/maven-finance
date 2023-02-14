@@ -179,7 +179,7 @@ block {
 
                 if      setAction = "add"    then s.proxyNodeAddresses := Set.add(proxyNodeAddress, s.proxyNodeAddresses) 
                 else if setAction = "remove" then s.proxyNodeAddresses := Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
-                else skip;
+                else failwith(error_INVALID_ACTION_TYPE);
                 
             }
         |   _ -> skip
@@ -245,7 +245,7 @@ block {
                 if      setAction = "add"    then s := addLambdaPointer(entrypointName, proxyNodeAddress, s)
                 else if setAction = "update" then s := updateLambdaPointer(entrypointName, proxyNodeAddress, s)
                 else if setAction = "remove" then s := removeLambdaPointer(entrypointName, s)
-                else skip;
+                else failwith(error_INVALID_ACTION_TYPE);
                 
             }
         |   _ -> skip
@@ -392,7 +392,7 @@ block {
                 if      setAction = "add"    then s := addLambdaPointer(entrypointName, proxyNodeAddress, s)
                 else if setAction = "update" then s := updateLambdaPointer(entrypointName, proxyNodeAddress, s)
                 else if setAction = "remove" then s := removeLambdaPointer(entrypointName, s)
-                else skip;
+                else failwith(error_INVALID_ACTION_TYPE);
                 
             }
         |   _ -> skip
@@ -419,7 +419,7 @@ block {
 
                 if      setAction = "add"    then s.proxyNodeAddresses := Set.add(proxyNodeAddress, s.proxyNodeAddresses) 
                 else if setAction = "remove" then s.proxyNodeAddresses := Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
-                else skip;
+                else failwith(error_INVALID_ACTION_TYPE);
 
             }
         |   _ -> skip
