@@ -86,6 +86,15 @@ describe('Linked contracts updates for Tests', async () => {
 
       await signerFactory(bob.sk);
 
+      // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
+      const governanceSetGovernanceProxyAndNodeOperation = await utils.tezos.wallet.batch()
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceProxy'       , governanceProxyAddress.address))
+        .withContractCall(governanceInstance.methods.updateWhitelistContracts('governanceProxy' , governanceProxyAddress.address))
+        .send();
+      await governanceSetGovernanceProxyAndNodeOperation.confirmation();
+      
+      console.log('Governance Contract - set governance proxy contract in general and whitelist contracts map ')
+
       // Break Glass Contract - set whitelist contract addresses [emergencyGovernance]
       const breakGlassContractOperation = await breakGlassInstance.methods.updateWhitelistContracts("emergencyGovernance", emergencyGovernanceAddress.address).send();
       await breakGlassContractOperation.confirmation();
@@ -162,6 +171,8 @@ describe('Linked contracts updates for Tests', async () => {
           .send()
         await transferToTreasury.confirmation();
       }
+
+      // requires governance proxy node
       const updateOperatorsTreasury = (await treasuryInstance.methods
         .updateMvkOperators([
           {
@@ -236,7 +247,6 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('aggregatorFactory'     , aggregatorFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite'   , governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , governanceFinancialAddress.address))
-      .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceProxy'       , governanceProxyAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , vaultFactoryAddress.address))
       // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
 

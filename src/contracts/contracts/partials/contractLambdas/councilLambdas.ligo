@@ -874,7 +874,7 @@ block {
                     const executeCouncilActionReturn : return = executeCouncilAction(councilActionRecord, actionId, operations, s);
                     
                     s           := executeCouncilActionReturn.1;
-                    operations := executeCouncilActionReturn.0;
+                    operations  := executeCouncilActionReturn.0;
 
                 } else skip;
 

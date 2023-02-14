@@ -391,7 +391,7 @@ block {
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to
-                operations :=   .1;
+                operations := totalVotingPowerAndSatelliteUpdate.1;
 
                 // ------------------------------------------------------------------
                 // Compute vote
