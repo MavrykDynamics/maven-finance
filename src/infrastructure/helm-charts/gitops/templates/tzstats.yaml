@@ -18,5 +18,5 @@ spec:
     targetRevision: staging
     helm:
       valueFiles:
-        - {{ .Values.mavrykOracles.valueFiles }}
+        - {{ .Values.tzstats.valueFiles }}
 {{end}}
