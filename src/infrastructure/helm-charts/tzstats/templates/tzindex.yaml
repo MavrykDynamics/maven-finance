@@ -63,7 +63,7 @@ spec:
         - name: tzindex
           env:
             - name: TZ_RPC_URL
-              value: http://tezos-baking-archive-node.basenet.svc.cluster.local:8732
+              value: http://tezos-baking-archive-node-rpc.basenet.svc.cluster.local
             - name: TZ_SERVER_HOST
               value: '0.0.0.0'
             - name: TZ_SERVER_ADDR
