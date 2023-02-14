@@ -43,6 +43,3 @@ sealedSecrets:
 
 thanos:
   valueFiles: prod.values.yaml
-
-tzstats:
-  valueFiles: prod.values.yaml
