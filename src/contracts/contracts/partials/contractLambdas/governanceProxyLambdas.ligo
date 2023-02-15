@@ -280,29 +280,29 @@ block {
         |   UpdateContractWhitelistMap (_v)        -> 8n
         |   UpdateContractWhitelistTokenMap (_v)   -> 9n
 
-            (* BreakGlass Configs *)
-        |   PauseAllContractEntrypoint (_v)        -> 10n
-        |   UnpauseAllContractEntrypoint (_v)      -> 11n
-
-        |   ToggleDelegationEntrypoint (_v)        -> 12n
-        |   ToggleDoormanEntrypoint (_v)           -> 13n
-        |   ToggleAggregatorEntrypoint (_v)        -> 14n
-        |   ToggleAggregatorFacEntrypoint (_v)     -> 15n
-        |   ToggleFarmEntrypoint (_v)              -> 16n
-        |   ToggleFarmFacEntrypoint (_v)           -> 17n
-        |   ToggleTreasuryEntrypoint (_v)          -> 18n
-        |   ToggleTreasuryFacEntrypoint (_v)       -> 19n
-        |   ToggleVaultFacEntrypoint (_v)          -> 20n
-        |   ToggleLendingContEntrypoint (_v)       -> 21n
-
             (* Governance Control *)
-        |   UpdateWhitelistDevelopersSet (_v)      -> 22n
-        |   SetGovernanceProxy (_v)                -> 23n
+        |   UpdateWhitelistDevelopersSet (_v)      -> 10n
+        |   SetGovernanceProxy (_v)                -> 11n
 
             (* Create Contracts *)
-        |   CreateFarm (_v)                        -> 24n
-        |   CreateAggregator (_v)                  -> 25n
-        |   CreateTreasury (_v)                    -> 26n
+        |   CreateFarm (_v)                        -> 12n
+        |   CreateAggregator (_v)                  -> 13n
+        |   CreateTreasury (_v)                    -> 14n
+
+            (* BreakGlass Configs *)
+        |   PauseAllContractEntrypoint (_v)        -> 15n
+        |   UnpauseAllContractEntrypoint (_v)      -> 16n
+
+        |   ToggleDoormanEntrypoint (_v)           -> 17n
+        |   ToggleDelegationEntrypoint (_v)        -> 18n
+        |   ToggleAggregatorEntrypoint (_v)        -> 19n
+        |   ToggleAggregatorFacEntrypoint (_v)     -> 20n
+        |   ToggleFarmEntrypoint (_v)              -> 21n
+        |   ToggleFarmFacEntrypoint (_v)           -> 22n
+        |   ToggleTreasuryEntrypoint (_v)          -> 23n
+        |   ToggleTreasuryFacEntrypoint (_v)       -> 24n
+        |   ToggleVaultFacEntrypoint (_v)          -> 25n
+        |   ToggleLendingContEntrypoint (_v)       -> 26n
 
             (* Treasury Control *)
         |   TransferTreasury (_v)                  -> 27n

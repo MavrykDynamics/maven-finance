@@ -180,11 +180,18 @@ type executeActionParamsType is
     |   UpdateContractWhitelistMap         of updateContractWhitelistMapType
     |   UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
 
+    |   UpdateWhitelistDevelopersSet       of (address)
+    |   SetGovernanceProxy                 of (address)
+
+    |   CreateFarm                         of createFarmType
+    |   CreateAggregator                   of createAggregatorParamsType
+    |   CreateTreasury                     of createTreasuryType
+    
     |   PauseAllContractEntrypoint         of (address)
     |   UnpauseAllContractEntrypoint       of (address)
     
-    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
     |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
+    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
     |   ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
     |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
     |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
@@ -193,13 +200,6 @@ type executeActionParamsType is
     |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
     |   ToggleVaultFacEntrypoint           of toggleVaultFacEntrypointType
     |   ToggleLendingContEntrypoint        of toggleLendingContEntrypointType
-
-    |   UpdateWhitelistDevelopersSet       of (address)
-    |   SetGovernanceProxy                 of (address)
-
-    |   CreateFarm                         of createFarmType
-    |   CreateAggregator                   of createAggregatorParamsType
-    |   CreateTreasury                     of createTreasuryType
     
     |   TransferTreasury                   of targetTreasuryTransferType
     |   MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
@@ -208,9 +208,9 @@ type executeActionParamsType is
     |   TriggerMvkInflation                of (unit)
 
     |   AddVestee                          of addVesteeType
-    |   RemoveVestee                       of (address)
     |   UpdateVestee                       of updateVesteeType
     |   ToggleVesteeLock                   of (address)
+    |   RemoveVestee                       of (address)
     
     |   SetLoanToken                       of setLoanTokenActionType
     |   SetCollateralToken                 of setCollateralTokenActionType
