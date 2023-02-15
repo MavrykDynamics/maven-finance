@@ -429,6 +429,13 @@
     "updateContractWhitelistMap",
     "updateContractWhitelistTokenMap",
 
+    "updateWhitelistDevelopersSet",
+    "setGovernanceProxy",
+
+    "createFarm",
+    "createAggregator",
+    "createTreasury",
+
     "pauseAllContractEntrypoint",
     "unpauseAllContractEntrypoint",
 
@@ -443,13 +450,6 @@
     "toggleVaultFacEntrypoint",
     "toggleLendingContEntrypoint",
 
-    "updateWhitelistDevelopersSet",
-    "setGovernanceProxy",
-
-    "createFarm",
-    "createAggregator",
-    "createTreasury",
-
     "transferTreasury",
     "mintMvkAndTransferTreasury",
 
@@ -457,9 +457,9 @@
     "triggerMvkInflation",
 
     "addVestee",
-    "removeVestee",
     "updateVestee",
     "toggleVesteeLock",
+    "removeVestee",
 
     "setLoanToken",
     "setCollateralToken"

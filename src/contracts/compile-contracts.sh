@@ -14,7 +14,7 @@ TMP_FILE=./.lambdas_compiled_tmp
 LIGO_VERSION=0.53.0
 
 # Init arguments
-THREADS=5
+THREADS=2
 PROTOCOL=kathmandu
 COMPILE_CONTRACTS=1
 COMPILE_LAMBDAS=1

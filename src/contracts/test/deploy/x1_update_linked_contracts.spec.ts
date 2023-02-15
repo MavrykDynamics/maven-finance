@@ -88,7 +88,7 @@ describe('Linked contracts updates for Tests', async () => {
 
       // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
       const governanceSetGovernanceProxyAndNodeOperation = await utils.tezos.wallet.batch()
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceProxy'       , governanceProxyAddress.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceProxy'   , governanceProxyAddress.address))
         .withContractCall(governanceInstance.methods.updateWhitelistContracts('governanceProxy' , governanceProxyAddress.address))
         .send();
       await governanceSetGovernanceProxyAndNodeOperation.confirmation();
@@ -248,10 +248,10 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite'   , governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , governanceFinancialAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , vaultFactoryAddress.address))
-      // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
 
       // uncomment if lending controller mock time contract is used
-      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
+      // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
 
       const governanceGeneralContractsBatchOperation = await governanceGeneralContractsBatch.send()
       await governanceGeneralContractsBatchOperation.confirmation();
