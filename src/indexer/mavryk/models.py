@@ -23,3 +23,4 @@ from mavryk.sql_model.treasury import *
 from mavryk.sql_model.vault import *
 from mavryk.sql_model.vault_factory import *
 from mavryk.sql_model.vesting import *
+from mavryk.sql_model.candle_chart import *

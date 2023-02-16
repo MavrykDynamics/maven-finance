@@ -8,6 +8,8 @@ from mavryk.types.tzbtc.storage import TzbtcStorage
 from mavryk.types.liquidity_baking.parameter.add_liquidity import AddLiquidityParameter
 from dipdup.models import Transaction
 import mavryk.models as models
+from mavryk.sql_model.enums import CandleInterval
+from datetime import datetime, timedelta
 
 async def on_liquidity_baking_add_liquidity(
     ctx: HandlerContext,
@@ -89,4 +91,36 @@ async def on_liquidity_baking_add_liquidity(
         xtz_pool            = xtz_pool,
         lqt_total           = lqt_total
     )
+
     await liquidity_baking_history_data.save()
+
+    # Create / Update record
+    candle5m, _ = await models.CandleChart.get_or_create(
+        exchange_id = liquidity_baking_address,
+        type  = CandleInterval.FIVE_MINUTES
+    )
+
+    candle5m_current_bucket         = candle5m.calc_current_bucket(timestamp, candle5m.type.seconds)
+    candle5m_current_data_point, _     = await models.CandleData.get_or_create(
+        chart=candle5m,
+        bucket=candle5m_current_bucket
+    )
+    current_quote                               = 0 if xtz_qty_decimals == 0 or token_qty_decimals == 0 else xtz_qty_decimals / token_qty_decimals
+    candle5m_current_average                    = candle5m_current_data_point.average
+    candle5m_current_open                       = candle5m_current_data_point.open
+    candle5m_current_high                       = candle5m_current_data_point.high
+    candle5m_current_low                        = candle5m_current_data_point.low
+    candle5m_current_token_volume               = candle5m_current_data_point.token_volume
+    candle5m_current_xtz_volume                 = candle5m_current_data_point.xtz_volume
+    candle5m_current_trades                     = candle5m_current_data_point.trades
+
+    candle5m_current_data_point.average         = (candle5m_current_average + current_quote) / (candle5m_current_trades + 1)
+    candle5m_current_data_point.open            = current_quote if candle5m_current_open == 0 else candle5m_current_open
+    candle5m_current_data_point.high            = max(candle5m_current_high, current_quote)
+    candle5m_current_data_point.low             = min(candle5m_current_low, current_quote)if candle5m_current_low == 0 else candle5m_current_low
+    candle5m_current_data_point.close           = current_quote
+    candle5m_current_data_point.token_volume    = candle5m_current_token_volume + token_qty_decimals
+    candle5m_current_data_point.xtz_volume      = candle5m_current_xtz_volume + xtz_qty_decimals
+    candle5m_current_data_point.trades          = candle5m_current_trades + 1
+    await candle5m_current_data_point.save()
+
