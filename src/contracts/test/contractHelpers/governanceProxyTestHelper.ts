@@ -65,7 +65,7 @@ export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolk
 
     for (let lambdaName in governanceProxyLambdas) {
         let bytes   = governanceProxyLambdas[lambdaName]
-        if(index < lastIndex){
+        if(index <= lastIndex){
             batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
         }
         index++;
@@ -95,12 +95,9 @@ export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: Tezos
             let bytes   = governanceProxyLambdas[lambdaName]
 
             if(index >= startIndex){
-            
-                // since contract lambdas and proxy lambdas are sharing the same index json - separate the two
-                const newIndex = index - startIndex;
 
                 if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-                    batch.withContractCall(contract.methods.setProxyLambda(newIndex, bytes))
+                    batch.withContractCall(contract.methods.setProxyLambda(lambdaName, bytes))
                 }
             }
             index++;

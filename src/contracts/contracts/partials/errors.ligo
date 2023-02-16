@@ -644,8 +644,9 @@
 
 // CONTRACT SPECIFIC ERRORS
 [@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA                                                         = 473n;
-[@inline] const error_INVALID_ACTION_TYPE                                                                               = 473n;
-
+[@inline] const error_INVALID_ACTION_TYPE                                                                               = 474n;
+[@inline] const error_PROXY_LAMBDA_NOT_FOUND                                                                            = 475n;
+[@inline] const error_EXECUTE_GOVERNANCE_ACTION_LAMBDA_NOT_FOUND                                                        = 476n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                       = 474n;

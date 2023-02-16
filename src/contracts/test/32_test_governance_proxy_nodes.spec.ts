@@ -351,10 +351,15 @@ describe("Governance proxy lambdas tests", async () => {
     //
     // ====================================================
 
-    describe("Governance Proxy MAIN Tests Start", async() => {
-        it(`start governance proxy main tests`, async () => {
+    describe(`
+    -- -- -- -- -- -- -- -- -- -- -- -- --
+
+    Governance Proxy MAIN Tests Start
+    
+    -- -- -- -- -- -- -- -- -- -- -- -- --`, async() => {
+        it(``, async () => {
             try {
-                console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+
             } catch (e) {
                 console.log(e)
             }
@@ -2468,8 +2473,8 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalData = sharedTestHelper.createProposalData(
                     "toggleDelegationEntrypoint#1",    // title
                     "toggleDelegationEntrypoint",      // entrypointName
-                    packedData,                     // encodedCode
-                    ""                              // codeDescription
+                    packedData,                        // encodedCode
+                    ""                                 // codeDescription
                 );
 
                 // Start governance rounds
@@ -4871,10 +4876,15 @@ describe("Governance proxy lambdas tests", async () => {
     // ====================================================
 
 
-    describe("Governance Proxy NODE Tests Start", async() => {
-        it(`start governance proxy node tests`, async () => {
+    describe(`
+    -- -- -- -- -- -- -- -- -- -- -- -- --
+
+    Governance Proxy NODE Tests Start
+    
+    -- -- -- -- -- -- -- -- -- -- -- -- --`, async() => {
+        it(``, async () => {
             try {
-                console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+
             } catch (e) {
                 console.log(e)
             }

@@ -28,49 +28,6 @@ block{
 // Entrypoint Functions Begin
 // ------------------------------------------------------------------------------
 
-// governance proxy lamba helper function to get %setAdmin entrypoint
-function getSetAdminEntrypoint(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%setAdmin",
-        contractAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
-        ];
-
-
-// governance proxy lamba helper function to get %setGovernance entrypoint
-function getSetGovernanceEntrypoint(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%setGovernance",
-        contractAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND) : contract(address))
-        ];
-
-
-
-// governance proxy lamba helper function to get %setLambda entrypoint
-function getSetLambdaEntrypoint(const contractAddress : address) : contract(setLambdaType) is
-    case (Tezos.get_entrypoint_opt(
-        "%setLambda",
-        contractAddress) : option(contract(setLambdaType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_SET_LAMBDA_ENTRYPOINT_NOT_FOUND) : contract(setLambdaType))
-        ];
-
-
-
-// governance proxy lamba helper function to get %setProductLambda entrypoint
-function getSetProductLambdaEntrypoint(const contractAddress : address) : contract(setLambdaType) is
-    case (Tezos.get_entrypoint_opt(
-        "%setProductLambda",
-        contractAddress) : option(contract(setLambdaType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_SET_PRODUCT_LAMBDA_ENTRYPOINT_NOT_FOUND) : contract(setLambdaType))
-        ];
-
-
-
 // governance proxy lamba helper function to get %updateMetadata entrypoint
 function getUpdateMetadataEntrypoint(const contractAddress : address) : contract(updateMetadataType) is
     case (Tezos.get_entrypoint_opt(
@@ -78,39 +35,6 @@ function getUpdateMetadataEntrypoint(const contractAddress : address) : contract
         contractAddress) : option(contract(updateMetadataType))) of [
                 Some(contr) -> contr
             |   None        -> (failwith(error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND) : contract(updateMetadataType))
-        ];
-
-
-
-// governance proxy lamba helper function to get %updateWhitelistContracts entrypoint
-function getUpdateWhitelistContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistContractsType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateWhitelistContracts",
-        contractAddress) : option(contract(updateWhitelistContractsType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistContractsType))
-        ];
-
-
-
-// governance proxy lamba helper function to get %updateWhitelistTokenContracts entrypoint
-function getUpdateWhitelistTokenContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistTokenContractsType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateWhitelistTokenContracts",
-        contractAddress) : option(contract(updateWhitelistTokenContractsType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistTokenContractsType))
-        ];
-
-
-
-// governance proxy lamba helper function to get %updateWhitelistDevelopers entrypoint
-function getUpdateWhitelistDevelopersEntrypoint(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateWhitelistDevelopers",
-        contractAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_WHITELIST_DEVELOPERS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -123,29 +47,6 @@ function getSetContractNameEntrypoint(const contractAddress : address) : contrac
                 Some(contr) -> contr
             |   None        -> (failwith(error_SET_NAME_ENTRYPOINT_NOT_FOUND) : contract(string))
         ];
-
-
-
-// governance proxy lamba helper function to get %pauseAll entrypoint
-function getPauseAllEntrypoint(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt(
-        "%pauseAll",
-        contractAddress) : option(contract(unit))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_PAUSE_ALL_ENTRYPOINT_NOT_FOUND) : contract(unit))
-        ];
-
-
-
-// governance proxy lamba helper function to get %unpauseAll entrypoint
-function getUnpauseAllEntrypoint(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt(
-        "%unpauseAll",
-        contractAddress) : option(contract(unit))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_NOT_FOUND) : contract(unit))
-        ];
-
 
 // ------------------------------------------------------------------------------
 // Entrypoint Functions End

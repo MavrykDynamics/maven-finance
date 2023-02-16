@@ -94,11 +94,11 @@ describe('Governance Proxy', async () => {
             await signerFactory(bob.sk);
         
             // Governance Proxy Setup Lambdas - Contract Lambdas
-            await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 10);
+            await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 9);
             console.log("Governance Proxy Contract - Lambdas Setup")
 
-            // Governance Proxy Setup Lambdas - Contract Proxy Lambdas
-            await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 10);
+            // Governance Proxy Setup Lambdas - Contract Proxy Lambdas (index should start at executeGovernanceAction (exclude) in contractsLambdaIndex.json)
+            await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 9);
             console.log("Governance Proxy Contract - Proxy Lambdas Setup")
 
             console.log("---")
@@ -114,10 +114,11 @@ describe('Governance Proxy', async () => {
             console.log("---")
 
             // Governance Proxy Node Setup Lambdas - Contract Lambdas
-            await setGovernanceProxyNodeContractLambdas(tezos, governanceProxyNode.contract, 7) // 8 is the last index + 1 (exclusive)
+            await setGovernanceProxyNodeContractLambdas(tezos, governanceProxyNode.contract, 6) 
             console.log("Governance Proxy Node Contract - Lambdas Setup")
 
-            await setGovernanceProxyNodeContractProxyLambdas(tezos, governanceProxyNode.contract, 7)
+            // Governance Proxy Node Setup Lambdas - Contract Proxy Lambdas (index should start at executeGovernanceAction (exclude) in contractsLambdaIndex.json)
+            await setGovernanceProxyNodeContractProxyLambdas(tezos, governanceProxyNode.contract, 6)
             console.log("Governance Proxy Node Contract - Proxy Lambdas Setup")
 
             console.log("---")
