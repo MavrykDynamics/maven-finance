@@ -415,7 +415,7 @@
     "lambdaProcessGovernanceAction",
     "lambdaSetLambdaPointer",
 
-    "executeGovernanceLambdaProxy",
+    "executeGovernanceAction",
 
     "updateProxyLambda",
 
@@ -439,8 +439,8 @@
     "pauseAllContractEntrypoint",
     "unpauseAllContractEntrypoint",
 
-    "toggleDelegationEntrypoint",
     "toggleDoormanEntrypoint",
+    "toggleDelegationEntrypoint",
     "toggleAggregatorEntrypoint",
     "toggleAggregatorFacEntrypoint",
     "toggleFarmEntrypoint",
@@ -459,10 +459,7 @@
     "addVestee",
     "updateVestee",
     "toggleVesteeLock",
-    "removeVestee",
-
-    "setLoanToken",
-    "setCollateralToken"
+    "removeVestee"
   ],
   "governanceProxyNode": [
     "lambdaSetAdmin",
@@ -473,7 +470,7 @@
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
-    "executeGovernanceLambdaProxy",
+    "executeGovernanceAction",
 
     "updateProxyLambda",
 
@@ -509,6 +506,9 @@
     "unstakeMvkTreasury",
 
     "trackAggregator",
-    "untrackAggregator"
+    "untrackAggregator",
+
+    "setLoanToken",
+    "setCollateralToken"
   ]
 }

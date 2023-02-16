@@ -157,63 +157,68 @@ block {
 // Basic Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* executeGovernanceLambdaProxy lambda *)
-function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is
+(* executeGovernanceLambda lambda *)
+function executeGovernanceLambda(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is
 block {
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
-    const id : nat = case executeAction of [
+    (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambda *)
+    const lambdaName : string = case executeAction of [
       
             (* Update Lambda Function *)
-        |   UpdateProxyLambda (_v)                 -> 1n
+        |   UpdateProxyLambda (_v)                 -> "updateProxyLambda"
 
             (* Housekeeping *)
-        |   SetContractName (_v)                   -> 2n
-        |   UpdateContractMetadata (_v)            -> 3n
-        |   UpdateContractGeneralMap (_v)          -> 4n
+        |   SetContractName (_v)                   -> "setContractName"
+        |   UpdateContractMetadata (_v)            -> "updateContractMetadata"
+        |   UpdateContractGeneralMap (_v)          -> "updateContractGeneralMap"
 
             (* Config Control *)
-        |   UpdateGovernanceConfig (_v)             -> 5n
-        |   UpdateGovernanceFinancialConfig (_v)    -> 6n
-        |   UpdateGovernanceSatelliteConfig (_v)    -> 7n
-        |   UpdateDoormanConfig (_v)                -> 8n
-        |   UpdateDelegationConfig (_v)             -> 9n
-        |   UpdateEmergencyConfig (_v)              -> 10n
-        |   UpdateBreakGlassConfig (_v)             -> 11n
-        |   UpdateCouncilConfig (_v)                -> 12n
-        |   UpdateFarmConfig (_v)                   -> 13n
-        |   UpdateFarmFactoryConfig (_v)            -> 14n
-        |   UpdateAggregatorConfig (_v)             -> 15n
-        |   UpdateAggregatorFactoryConfig (_v)      -> 16n
-        |   UpdateTreasuryFactoryConfig (_v)        -> 17n
-        |   UpdateVaultFactoryConfig (_v)           -> 18n
-        |   UpdateLendingControllerConfig (_v)      -> 19n
+        |   UpdateGovernanceConfig (_v)             -> "updateGovernanceConfig"
+        |   UpdateGovernanceFinancialConfig (_v)    -> "updateGovernanceFinancialConfig"
+        |   UpdateGovernanceSatelliteConfig (_v)    -> "updateGovernanceSatelliteConfig"
+        |   UpdateDoormanConfig (_v)                -> "updateDoormanConfig"
+        |   UpdateDelegationConfig (_v)             -> "updateDelegationConfig"
+        |   UpdateEmergencyConfig (_v)              -> "updateEmergencyConfig"
+        |   UpdateBreakGlassConfig (_v)             -> "updateBreakGlassConfig"
+        |   UpdateCouncilConfig (_v)                -> "updateCouncilConfig"
+        |   UpdateFarmConfig (_v)                   -> "updateFarmConfig"
+        |   UpdateFarmFactoryConfig (_v)            -> "updateFarmFactoryConfig"
+        |   UpdateAggregatorConfig (_v)             -> "updateAggregatorConfig"
+        |   UpdateAggregatorFactoryConfig (_v)      -> "updateAggregatorFactoryConfig"
+        |   UpdateTreasuryFactoryConfig (_v)        -> "updateTreasuryFactoryConfig"
+        |   UpdateVaultFactoryConfig (_v)           -> "updateVaultFactoryConfig"
+        |   UpdateLendingControllerConfig (_v)      -> "updateLendingControllerConfig"
 
             (* Farm Control *)
-        |   InitFarm (_v)                           -> 20n
-        |   TrackFarm (_v)                          -> 21n
-        |   UntrackFarm (_v)                        -> 22n
-        |   CloseFarm (_v)                          -> 23n
+        |   InitFarm (_v)                           -> "initFarm"
+        |   TrackFarm (_v)                          -> "trackFarm"
+        |   UntrackFarm (_v)                        -> "untrackFarm"
+        |   CloseFarm (_v)                          -> "closeFarm"
 
             (* Treasury Control *)
-        |   TrackTreasury (_v)                      -> 24n
-        |   UntrackTreasury (_v)                    -> 25n
-        |   UpdateMvkOperatorsTreasury (_v)         -> 26n
-        |   StakeMvkTreasury (_v)                   -> 27n
-        |   UnstakeMvkTreasury (_v)                 -> 28n
+        |   TrackTreasury (_v)                      -> "trackTreasury"
+        |   UntrackTreasury (_v)                    -> "untrackTreasury"
+        |   UpdateMvkOperatorsTreasury (_v)         -> "updateMvkOperatorsTreasury"
+        |   StakeMvkTreasury (_v)                   -> "stakeMvkTreasury"
+        |   UnstakeMvkTreasury (_v)                 -> "unstakeMvkTreasury"
 
             (* Aggregator Control *)
-        |   TrackAggregator (_v)                    -> 29n
-        |   UntrackAggregator (_v)                  -> 30n
+        |   TrackAggregator (_v)                    -> "trackAggregator"
+        |   UntrackAggregator (_v)                  -> "untrackAggregator"
+
+            (* Lending Controller Control *)
+        |   SetLoanToken (_v)                      -> "setLoanToken"
+        |   SetCollateralToken (_v)                -> "setCollateralToken"
+
     ];
 
     // Get entrypoint lambda as bytes
-    const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
+    const lambdaBytes : bytes = case s.proxyLambdaLedger[lambdaName] of [
         |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   None     -> failwith(error_PROXY_LAMBDA_NOT_FOUND)
     ];
 
     // Reference: type governanceProxyNodeProxyLambdaFunctionType is (executeActionType * governanceProxyNodeStorageType) -> return
@@ -237,11 +242,11 @@ block {
         |   UpdateProxyLambda(params) -> {
 
                 // Assign params to constants for better code readability
-                const lambdaId     : nat   = params.id;
-                const lambdaBytes  : bytes = params.func_bytes;
+                const lambdaName   : string  = params.lambdaName;
+                const lambdaBytes  : bytes   = params.func_bytes;
 
                 // Allow override of lambdas
-                s.proxyLambdaLedger[lambdaId] := lambdaBytes
+                s.proxyLambdaLedger[lambdaName] := lambdaBytes
 
             }
         |   _ -> skip
@@ -256,7 +261,7 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Gov Proxy Node Three Lambdas Begin
+// Gov Proxy Node Lambdas Begin
 // ------------------------------------------------------------------------------
 
 (* setContractName lambda *)
@@ -1057,8 +1062,87 @@ block {
 } with (operations, s)
 
 // ------------------------------------------------------------------------------
-// Gov Proxy Node Three Lambdas End
+// Gov Proxy Node Lambdas End
 // ------------------------------------------------------------------------------
+
+
+function setLoanToken(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   SetLoanToken(setLoanTokenParams) -> {
+
+                // Find and get lending controller contract address from the generalContracts map
+                const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+                // Find and get setLoanToken entrypoint of lending controller contract
+                const setLoanTokenEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setLoanToken",
+                    lendingControllerAddress) : option(contract(setLoanTokenActionType))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setLoanTokenActionType))
+                    ];
+
+                // Create operation to set loan token
+                const setLoanTokenOperation : operation = Tezos.transaction(
+                    (setLoanTokenParams),
+                    0tez, 
+                    setLoanTokenEntrypoint
+                );
+
+                operations := setLoanTokenOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function setCollateralToken(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is 
+block {
+
+    // verify that sender is admin or the Governance Contract address
+    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+
+    var operations : list(operation) := nil;
+
+    case executeAction of [
+      
+        |   SetCollateralToken(setCollateralTokenParams) -> {
+
+                // Find and get lending controller contract address from the generalContracts map
+                const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+                // Find and get setCollateralToken entrypoint of lending controller contract
+                const setCollateralTokenEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setCollateralToken",
+                    lendingControllerAddress) : option(contract(setCollateralTokenActionType))) of [
+                            Some(contr) -> contr
+                        |   None        -> (failwith(error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(setCollateralTokenActionType))
+                    ];
+
+                // Create operation to set collateral token
+                const setCollateralTokenOperation : operation = Tezos.transaction(
+                    (setCollateralTokenParams),
+                    0tez, 
+                    setCollateralTokenEntrypoint
+                );
+
+                operations := setCollateralTokenOperation # operations;
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 //

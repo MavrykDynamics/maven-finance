@@ -99,11 +99,11 @@ type governanceProxyNodeAction is
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
-    |   SetProxyLambda                  of setProxyLambdaType
     |   ExecuteGovernanceAction         of (bytes)
     |   DataPackingHelper               of executeActionType
 
         // Lambda Entrypoints
+    |   SetProxyLambda                  of setProxyLambdaType
     |   SetLambda                       of setLambdaType
 
 

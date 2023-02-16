@@ -5,14 +5,14 @@
 
 
 type lambdaPointerLedgerType is map(string, address)
-type proxyLambdaLedgerType is big_map(nat, bytes)
+type proxyLambdaLedgerType is map(string, bytes)
 
 // ------------------------------------------------------------------------------
 // Execute Action Types
 // ------------------------------------------------------------------------------
 
 type setProxyLambdaType is [@layout:comb] record [
-    id          : nat;
+    lambdaName  : string;
     func_bytes  : bytes;
 ]
 
@@ -22,48 +22,16 @@ type setContractLambdaType is [@layout:comb] record [
     func_bytes              : bytes;
 ]
 
-type updateContractMetadataType is [@layout:comb] record [
-    targetContractAddress  : address;
-    metadataKey            : string;
-    metadataHash           : bytes; 
-]
-
 type updateContractWhitelistMapType is [@layout:comb] record [
     targetContractAddress     : address;
     whitelistContractName     : string;
     whitelistContractAddress  : address; 
 ]
 
-type updateContractGeneralMapType is [@layout:comb] record [
-    targetContractAddress     : address;
-    generalContractName       : string;
-    generalContractAddress    : address; 
-]
-
 type updateContractWhitelistTokenMapType is [@layout:comb] record [
     targetContractAddress     : address;
     tokenContractName         : string;
     tokenContractAddress      : address; 
-]
-
-type setContractNameType is [@layout:comb] record [
-    targetContractAddress     : address;
-    contractName              : string;
-]
-
-type targetFarmUpdateConfigParamsType is [@layout:comb] record [
-    targetFarmAddress         : address;
-    farmConfig                : farmUpdateConfigParamsType;
-]
-
-type targetAggregatorUpdateConfigParamsType is [@layout:comb] record [
-    targetAggregatorAddress   : address;
-    aggregatorConfig          : aggregatorUpdateConfigParamsType;
-]
-
-type targetFarmInitType is [@layout:comb] record [
-    targetFarmAddress         : address;
-    farmConfig                : initFarmParamsType;
 ]
 
 type targetTreasuryTransferType is [@layout:comb] record [
@@ -74,21 +42,6 @@ type targetTreasuryTransferType is [@layout:comb] record [
 type targetTreasuryMintMvkAndTransferType is [@layout:comb] record [
     targetTreasuryAddress     : address;
     treasuryMint              : mintMvkAndTransferType;
-]
-
-type updateOperatorsTreasuryType is [@layout:comb] record [
-    targetTreasuryAddress     : address;
-    treasuryUpdatedOperators  : updateOperatorsType;
-]
-
-type stakeTreasuryType is [@layout:comb] record [
-    targetTreasuryAddress     : address;
-    stakeAmount               : nat;
-]
-
-type unstakeTreasuryType is [@layout:comb] record [
-    targetTreasuryAddress     : address;
-    unstakeAmount             : nat;
 ]
 
 type toggleAggregatorEntrypointType is [@layout:comb] record [
@@ -126,7 +79,6 @@ type toggleVaultFacEntrypointType is [@layout:comb] record [
     empty                     : unit;
 ]
 
-
 type toggleDoormanEntrypointType is [@layout:comb] record [
     targetEntrypoint          : doormanTogglePauseEntrypointType;
     empty                     : unit;
@@ -142,19 +94,16 @@ type toggleLendingContEntrypointType is [@layout:comb] record [
     empty                     : unit;
 ]
 
-
 type setLambdaPointerActionType is [@layout:comb] record [
     setAction           : string; // add / update / remove
     entrypointName      : string; 
     proxyNodeAddress    : option(address);
 ]
 
-
 type processGovernanceActionType is [@layout:comb] record [
     entrypointName      : string;
     encodedCode         : bytes;
 ]
-
 
 type setProxyNodeAddressActionType is [@layout:comb] record [
     setAction           : string; // add / remove
@@ -211,9 +160,6 @@ type executeActionParamsType is
     |   UpdateVestee                       of updateVesteeType
     |   ToggleVesteeLock                   of (address)
     |   RemoveVestee                       of (address)
-    
-    |   SetLoanToken                       of setLoanTokenActionType
-    |   SetCollateralToken                 of setCollateralTokenActionType
 
     
 type executeActionType is (executeActionParamsType)

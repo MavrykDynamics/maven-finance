@@ -35,8 +35,8 @@
 
 
 (* View: get a proxy lambda *)
-[@view] function getProxyLambdaOpt(const lambdaIndex : nat; const s : governanceProxyStorageType) : option(bytes) is
-    Big_map.find_opt(lambdaIndex, s.proxyLambdaLedger)
+[@view] function getProxyLambdaOpt(const lambdaName : string; const s : governanceProxyStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.proxyLambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

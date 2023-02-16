@@ -136,11 +136,11 @@ block {
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
     
     // assign params to constants for better code readability
-    const lambdaId      = setProxyLambdaParams.id;
+    const lambdaName    = setProxyLambdaParams.lambdaName;
     const lambdaBytes   = setProxyLambdaParams.func_bytes;
 
     // set lambda in lambdaLedger - allow override of lambdas
-    s.proxyLambdaLedger[lambdaId] := lambdaBytes;
+    s.proxyLambdaLedger[lambdaName] := lambdaBytes;
 
 } with (noOperations, s)
 
@@ -157,9 +157,9 @@ block {
         |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
     ];
 
-    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger[0n] of [
+    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger["executeGovernanceAction"] of [
             Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   None     -> failwith(error_EXECUTE_GOVERNANCE_ACTION_LAMBDA_NOT_FOUND)
     ];
 
     // reference: type governanceProxyNodeProxyLambdaFunctionType is (executeActionType * governanceProxyNodeStorageType) -> return

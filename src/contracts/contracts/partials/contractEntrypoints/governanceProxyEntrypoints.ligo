@@ -148,18 +148,6 @@ block {
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
     
-    // s.proxyNodeAddresses := case setProxyNodeAddressParams of [
-    //     |   AddProxyNodeAddress(proxyNodeAddress)    -> Set.add(proxyNodeAddress, s.proxyNodeAddresses)
-    //     |   RemoveProxyNodeAddress(proxyNodeAddress) -> Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
-    // ]
-
-    // const setAction         : string  = setProxyNodeAddressParams.setAction; 
-    // const proxyNodeAddress  : address = setProxyNodeAddressParams.proxyNodeAddress; 
-
-    // if setAction = "add" then s.proxyNodeAddresses := Set.add(proxyNodeAddress, s.proxyNodeAddresses) 
-    // else if setAction = "remove" then s.proxyNodeAddresses := Set.remove(proxyNodeAddress, s.proxyNodeAddresses)
-    // else skip;
-
 } with response
 
 
@@ -175,9 +163,9 @@ block {
         |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
     ];
 
-    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger[0n] of [
+    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger["executeGovernanceAction"] of [
             Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   None     -> failwith(error_EXECUTE_GOVERNANCE_ACTION_LAMBDA_NOT_FOUND)
     ];
 
     // reference: type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorageType) -> return
@@ -242,12 +230,6 @@ block {
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
 
-    // s := case setLambdaPointerParams of [
-    //     |   AddLambdaPointer(_v)    -> addLambdaPointer(_v, s)
-    //     |   UpdateLambdaPointer(_v) -> updateLambdaPointer(_v, s)
-    //     |   RemoveLambdaPointer(_v) -> removeLambdaPointer(_v, s)
-    // ]
-
 } with response
 
 
@@ -259,11 +241,11 @@ block {
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // governance contract will also be the admin in most cases unless break glass
     
     // assign params to constants for better code readability
-    const lambdaId      = setProxyLambdaParams.id;
+    const lambdaName    = setProxyLambdaParams.lambdaName;
     const lambdaBytes   = setProxyLambdaParams.func_bytes;
 
     // set lambda in lambdaLedger - allow override of lambdas
-    s.proxyLambdaLedger[lambdaId] := lambdaBytes;
+    s.proxyLambdaLedger[lambdaName] := lambdaBytes;
 
 } with (noOperations, s)
 

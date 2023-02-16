@@ -4,23 +4,18 @@
 // ------------------------------------------------------------------------------
 
 
-type proxyLambdaLedgerType is big_map(nat, bytes)
+type proxyLambdaLedgerType is map(string, bytes)
 
 
 // ------------------------------------------------------------------------------
 // Execute Action Types
 // ------------------------------------------------------------------------------
 
+// General action types
 
 type setProxyLambdaType is [@layout:comb] record [
-    id          : nat;
+    lambdaName  : string;
     func_bytes  : bytes;
-]
-
-type setContractLambdaType is [@layout:comb] record [
-    targetContractAddress   : address;
-    name                    : string;
-    func_bytes              : bytes;
 ]
 
 type updateContractMetadataType is [@layout:comb] record [
@@ -29,22 +24,10 @@ type updateContractMetadataType is [@layout:comb] record [
     metadataHash           : bytes; 
 ]
 
-type updateContractWhitelistMapType is [@layout:comb] record [
-    targetContractAddress     : address;
-    whitelistContractName     : string;
-    whitelistContractAddress  : address; 
-]
-
 type updateContractGeneralMapType is [@layout:comb] record [
     targetContractAddress     : address;
     generalContractName       : string;
     generalContractAddress    : address; 
-]
-
-type updateContractWhitelistTokenMapType is [@layout:comb] record [
-    targetContractAddress     : address;
-    tokenContractName         : string;
-    tokenContractAddress      : address; 
 ]
 
 type setContractNameType is [@layout:comb] record [
@@ -52,14 +35,11 @@ type setContractNameType is [@layout:comb] record [
     contractName              : string;
 ]
 
+// Farm related action types
+
 type targetFarmUpdateConfigParamsType is [@layout:comb] record [
     targetFarmAddress         : address;
     farmConfig                : farmUpdateConfigParamsType;
-]
-
-type targetAggregatorUpdateConfigParamsType is [@layout:comb] record [
-    targetAggregatorAddress   : address;
-    aggregatorConfig          : aggregatorUpdateConfigParamsType;
 ]
 
 type targetFarmInitType is [@layout:comb] record [
@@ -67,15 +47,14 @@ type targetFarmInitType is [@layout:comb] record [
     farmConfig                : initFarmParamsType;
 ]
 
-type targetTreasuryTransferType is [@layout:comb] record [
-    targetTreasuryAddress     : address;
-    treasuryTransfer          : transferActionType;
+// Aggregator related action types
+
+type targetAggregatorUpdateConfigParamsType is [@layout:comb] record [
+    targetAggregatorAddress   : address;
+    aggregatorConfig          : aggregatorUpdateConfigParamsType;
 ]
 
-type targetTreasuryMintMvkAndTransferType is [@layout:comb] record [
-    targetTreasuryAddress     : address;
-    treasuryMint              : mintMvkAndTransferType;
-]
+// Treasury related action types
 
 type updateOperatorsTreasuryType is [@layout:comb] record [
     targetTreasuryAddress     : address;
@@ -92,72 +71,10 @@ type unstakeTreasuryType is [@layout:comb] record [
     unstakeAmount             : nat;
 ]
 
-type toggleAggregatorEntrypointType is [@layout:comb] record [
-    targetAggregatorAddress   : address;
-    targetEntrypoint          : aggregatorTogglePauseEntrypointType;
-]
-
-type toggleAggregatorFacEntrypointType is [@layout:comb] record [
-    targetEntrypoint          : aggregatorFactoryTogglePauseEntrypointType;
-    empty                     : unit;
-]
-
-type toggleFarmEntrypointType is [@layout:comb] record [
-    targetFarmAddress         : address;
-    targetEntrypoint          : farmTogglePauseEntrypointType;
-]
-
-type toggleFarmFacEntrypointType is [@layout:comb] record [
-    targetEntrypoint          : farmFactoryTogglePauseEntrypointType;
-    empty                     : unit;
-]
-
-type toggleTreasuryEntrypointType is [@layout:comb] record [
-    targetTreasuryAddress     : address;
-    targetEntrypoint          : treasuryTogglePauseEntrypointType;
-]
-
-type toggleTreasuryFacEntrypointType is [@layout:comb] record [
-    targetEntrypoint          : treasuryFactoryTogglePauseEntrypointType;
-    empty                     : unit;
-]
-
-type toggleDoormanEntrypointType is [@layout:comb] record [
-    targetEntrypoint          : doormanTogglePauseEntrypointType;
-    empty                     : unit;
-]
-
-type toggleDelegationEntrypointType is [@layout:comb] record [
-    targetEntrypoint          : delegationTogglePauseEntrypointType;
-    empty                     : unit;
-]
-
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
-
-type toggleContractEntrypointType is
-        ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
-    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
-    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
-    |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
-    |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
-    |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
-    |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
-    |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
-
-
-type trackContractType is 
-        TrackFarm                          of (address)
-    |   TrackTreasury                      of (address)
-    |   TrackAggregator                    of (address)
-
-
-type untrackContractType is 
-        UntrackFarm                          of (address)
-    |   UntrackTreasury                      of (address)
-    |   UntrackAggregator                    of (address)
 
 
 type executeActionParamsType is 
@@ -198,6 +115,9 @@ type executeActionParamsType is
     |   TrackAggregator                    of (address)
     |   UntrackAggregator                  of (address)
 
+    |   SetLoanToken                       of setLoanTokenActionType
+    |   SetCollateralToken                 of setCollateralTokenActionType
+
     
 type executeActionType is (executeActionParamsType)
 
@@ -224,7 +144,7 @@ type governanceProxyNodeStorageType is record [
     metadata                    : metadataType;
 
     mvkTokenAddress             : address;
-    governanceAddress           : address;    // separate admin from governance address in event of break glass
+    governanceAddress           : address;    
     
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType; 
