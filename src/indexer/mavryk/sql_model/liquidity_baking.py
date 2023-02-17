@@ -34,7 +34,7 @@ class LiquidityBakingHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     liquidity_baking                        = fields.ForeignKeyField('models.LiquidityBaking', related_name='history_data')
     trader                                  = fields.ForeignKeyField('models.MavrykUser', related_name='liquidity_baking_trades')
-    timestamp                               = fields.DatetimeField(index=True)
+    timestamp                               = fields.DatetimeField(use_tz=True)
     level                                   = fields.BigIntField()
     type                                    = fields.IntEnumField(enum_type=DexType, index=True)
     token_price                             = fields.FloatField(default=0.0)
