@@ -26,7 +26,10 @@ WITH(TIMESCALEDB.CONTINUOUS) AS
 	    FIRST(token_price, timestamp) AS "open",
 	    MAX(token_price) AS high,
 	    MIN(token_price) AS low,
-	    LAST(token_price, timestamp) AS "close"
+	    LAST(token_price, timestamp) AS "close",
+        SUM(xtz_qty) AS xtz_volume,
+        SUM(token_qty) AS token_volume,
+        COUNT(id) AS trades
 	FROM
 	    liquidity_baking_history_data
 	GROUP BY
@@ -36,7 +39,7 @@ BUCKET;
 
 SELECT
     add_continuous_aggregate_policy(
-        'one_day_candle',
+        'LIQUIDITY_BAKING_ONE_DAY_CANDLE',
         start_offset => INTERVAL '3 days',
         end_offset => INTERVAL '1 day',
         schedule_interval => INTERVAL '1 day'
