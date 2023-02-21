@@ -27,10 +27,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - explorer.mavryk.io
-      secretName: explorer-tls
+        - '{{ .Values.tzstats.ingress.host }}'
+      secretName: '{{ .Values.tzstats.ingress.secretName }}'
   rules:
-    - host: explorer.mavryk.io
+    - host: '{{ .Values.tzstats.ingress.host }}'
       http:
         paths:
           - path: /
@@ -57,10 +57,12 @@ spec:
       labels:
         app: tzstats
     spec:
+      imagePullSecrets:
+        - name: '{{ .Values.tzstats.image.pullSecret }}'
       containers:
         - name: tzstats
-          image: mavrykdynamics/tzstats:v0.0.2
-          imagePullPolicy: Always
+          image: '{{ .Values.tzstats.image.registry }}/{{ .Values.tzstats.image.repository }}:{{ .Values.tzstats.image.tag }}'
+          imagePullPolicy: '{{ .Values.tzstats.image.pullPolicy }}'
           ports:
             - name: frontend
               containerPort: 80

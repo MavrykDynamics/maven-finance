@@ -27,10 +27,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - api-tzindex.mavryk.io
-      secretName: api-tzindex-tls
+        - '{{ .Values.tzindex.ingress.host }}'
+      secretName: '{{ .Values.tzindex.ingress.secretName }}'
   rules:
-    - host: api-tzindex.mavryk.io
+    - host: '{{ .Values.tzindex.ingress.host }}'
       http:
         paths:
           - path: /
@@ -59,23 +59,24 @@ spec:
       labels:
         app: tzindex
     spec:
+      imagePullSecrets:
+        - name: '{{ .Values.tzindex.image.pullSecret }}'
       containers:
         - name: tzindex
           env:
-            - name: TZ_RPC_URL
-              value: http://tezos-baking-archive-node-rpc.basenet.svc.cluster.local
-            - name: TZ_SERVER_HOST
-              value: '0.0.0.0'
-            - name: TZ_SERVER_ADDR
-              value: '0.0.0.0'
-            - name: TZ_SERVER_CORS_ENABLE
-              value: 'true'
-            - name: TZ_SERVER_CORS_ORIGIN
-              value: '*'
-            - name: TZ_LOG_LEVEL
-              value: 'stdout'
-          image: mavrykdynamics/tzindex:v15.0.1
-          imagePullPolicy: Always
+          {{- range .Values.tzindex.env }}
+            - name: {{ .name }}
+              {{- if ((.value))}}
+              value: "{{.value}}"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+              {{- end }}
+          {{- end }}
+          image: '{{ .Values.tzindex.image.registry }}/{{ .Values.tzindex.image.repository }}:{{ .Values.tzindex.image.tag }}'
+          imagePullPolicy: '{{ .Values.tzindex.image.pullPolicy }}'
           ports:
             - name: api
               containerPort: 8000
@@ -95,4 +96,4 @@ spec:
         storageClassName: do-block-storage
         resources:
           requests:
-            storage: '10Gi'
+            storage: '{{ .Values.tzindex.volume.storage }}'
