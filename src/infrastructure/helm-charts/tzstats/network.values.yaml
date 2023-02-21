@@ -3,7 +3,7 @@ tzindex:
     storage: 10Gi
   image:
     registry: docker.io
-    repository: mavrykdynamics/tzstats
+    repository: mavrykdynamics/tzindex
     tag: v15.0.1
     pullPolicy: IfNotPresent
     pullSecret: docker-pull-credentials
