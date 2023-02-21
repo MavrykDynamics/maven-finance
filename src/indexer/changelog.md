@@ -12,6 +12,33 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## Version 0.33
+
+### What's new
+
+- LiquidityBakinge5MCandle
+
+  - View added
+
+- LiquidityBakinge15MCandle
+
+  - View added
+
+- LiquidityBakinge1HCandle
+
+  - View added
+
+- LiquidityBakinge1DCandle
+
+  - View added
+
+- LiquidityBakinge1WCandle
+  - View added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.32</summary>
+
 ## Version 0.32
 
 ### Breaking changes
@@ -20,7 +47,7 @@
   - Column LPTokenTotal renamed to MTokensTotal
   - Column LPTokenAddress removed and replaced by a FK to the MToken table called MToken
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.31</summary>
 
