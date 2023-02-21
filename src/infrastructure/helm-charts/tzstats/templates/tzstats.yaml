@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tzstats
+  labels:
+    app: tzstats
+spec:
+  ports:
+    - name: frontend
+      port: 80
+      protocol: TCP
+      targetPort: frontend
+  selector:
+    app: tzstats
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tzstats
+  namespace: tzstats
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+    - hosts:
+        - explorer.mavryk.io
+      secretName: explorer-tls
+  rules:
+    - host: explorer.mavryk.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tzstats
+                port:
+                  name: frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tzstats
+  labels:
+    app: tzstats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tzstats
+  template:
+    metadata:
+      labels:
+        app: tzstats
+    spec:
+      containers:
+        - name: tzstats
+          env:
+            - name: TZSTATS_API_URL
+              value: https://api-tzindex.mavryk.io
+          image: mavrykdynamics/tzstats:v0.0.1
+          imagePullPolicy: Always
+          ports:
+            - name: frontend
+              containerPort: 80
+              protocol: TCP
