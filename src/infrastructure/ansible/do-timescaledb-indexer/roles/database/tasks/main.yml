@@ -70,6 +70,13 @@
     name: dipdup
     state: present
 
+- name: Add the TimescaleDB extension to the dipdup database
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_ext:
+    name: timescaledb
+    db: dipdup
+
 - name: Create the dipdup dev database
   become: true
   become_user: postgres
@@ -77,12 +84,26 @@
     name: dipdup-dev
     state: present
 
+- name: Add the TimescaleDB extension to the dipdup dev database
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_ext:
+    name: timescaledb
+    db: dipdup-dev
+
 - name: Create the dipdup demo database
   become: true
   become_user: postgres
   community.postgresql.postgresql_db:
     name: dipdup-demo
     state: present
+
+- name: Add the TimescaleDB extension to the dipdup demo database
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_ext:
+    name: timescaledb
+    db: dipdup-demo
 
 - name: Create the dipdup user
   become: true
