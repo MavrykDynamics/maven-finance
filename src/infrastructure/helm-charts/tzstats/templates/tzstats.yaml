@@ -60,9 +60,9 @@ spec:
       containers:
         - name: tzstats
           env:
-            - name: TZSTATS_API_URL
+            - name: REACT_APP_TZSTATS_API_URL
               value: https://api-tzindex.mavryk.io
-          image: mavrykdynamics/tzstats:v0.0.1
+          image: mavrykdynamics/tzstats:v0.0.2
           imagePullPolicy: Always
           ports:
             - name: frontend
