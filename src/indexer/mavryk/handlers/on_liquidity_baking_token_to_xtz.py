@@ -1,11 +1,10 @@
-
-from mavryk.types.liquidity_baking.storage import LiquidityBakingStorage
-from mavryk.types.tzbtc.storage import TzbtcStorage
+from dipdup.context import HandlerContext
+from dipdup.models import OperationData
 from dipdup.models import Transaction
 from mavryk.types.liquidity_baking.parameter.token_to_xtz import TokenToXtzParameter
-from dipdup.models import OperationData
+from mavryk.types.liquidity_baking.storage import LiquidityBakingStorage
 from mavryk.types.tzbtc.parameter.transfer import TransferParameter
-from dipdup.context import HandlerContext
+from mavryk.types.tzbtc.storage import TzbtcStorage
 import mavryk.models as models
 
 async def on_liquidity_baking_token_to_xtz(
@@ -13,6 +12,7 @@ async def on_liquidity_baking_token_to_xtz(
     token_to_xtz: Transaction[TokenToXtzParameter, LiquidityBakingStorage],
     transfer: Transaction[TransferParameter, TzbtcStorage],
     transaction_2: OperationData,
+    transaction_3: OperationData,
 ) -> None:
     
     # Get operation data
@@ -27,7 +27,7 @@ async def on_liquidity_baking_token_to_xtz(
     lqt_address                 = token_to_xtz.storage.lqtAddress
     min_xtz_quantity            = float(token_to_xtz.parameter.minXtzBought)
     token_quantity              = float(transfer.parameter.value)
-    xtz_quantity                = float(transaction_2.amount)
+    xtz_quantity                = float(transaction_2.amount) + float(transaction_3.amount)
 
     # Create / Update record
     liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
@@ -37,16 +37,17 @@ async def on_liquidity_baking_token_to_xtz(
     min_xtz_quantity_decimals       = min_xtz_quantity / (10**liquidity_baking.xtz_decimals)
     token_quantity_decimals         = token_quantity / (10**liquidity_baking.token_decimals)
     xtz_quantity_decimals           = xtz_quantity / (10**liquidity_baking.xtz_decimals)
+    xtz_pool_decimals               = xtz_pool / (10**liquidity_baking.xtz_decimals)
+    token_pool_decimals             = token_pool / (10**liquidity_baking.token_decimals)
     slippage                        = 0
     price                           = 0
     if xtz_quantity_decimals > 0:
         slippage    = (1 - (min_xtz_quantity_decimals / xtz_quantity_decimals))
     if token_quantity_decimals > 0:
         price       = xtz_quantity_decimals / token_quantity_decimals
-    xtz_pool_decimals               = xtz_pool / (10**liquidity_baking.xtz_decimals)
-    token_pool_decimals             = token_pool / (10**liquidity_baking.token_decimals)
-    share_price                     = (xtz_pool_decimals + (xtz_pool_decimals / token_pool_decimals) * token_pool_decimals) / lqt_total
-
+    else:
+        price       = xtz_pool_decimals / token_pool_decimals
+    share_price                         = (xtz_pool_decimals + (xtz_pool_decimals / token_pool_decimals) * token_pool_decimals) / lqt_total
     liquidity_baking.token_pool         = token_pool
     liquidity_baking.xtz_pool           = xtz_pool
     liquidity_baking.lqt_total          = lqt_total
