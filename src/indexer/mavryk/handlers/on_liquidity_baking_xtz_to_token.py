@@ -35,15 +35,16 @@ async def on_liquidity_baking_xtz_to_token(
     min_token_quantity_decimals     = min_token_quantity / (10**liquidity_baking.token_decimals)
     token_quantity_decimals         = token_quantity / (10**liquidity_baking.token_decimals)
     xtz_quantity_decimals           = xtz_quantity / (10**liquidity_baking.xtz_decimals)
+    xtz_pool_decimals               = xtz_pool / (10**liquidity_baking.xtz_decimals)
+    token_pool_decimals             = token_pool / (10**liquidity_baking.token_decimals)
     slippage                        = 0
     price                           = 0
     if token_quantity_decimals > 0:
         slippage    = (1 - (min_token_quantity_decimals / token_quantity_decimals))
         price       = xtz_quantity_decimals / token_quantity_decimals
-    xtz_pool_decimals               = xtz_pool / (10**liquidity_baking.xtz_decimals)
-    token_pool_decimals             = token_pool / (10**liquidity_baking.token_decimals)
-    share_price                     = (xtz_pool_decimals + (xtz_pool_decimals / token_pool_decimals) * token_pool_decimals) / lqt_total
-    
+    else:
+        price       = xtz_pool_decimals / token_pool_decimals
+    share_price                         = (xtz_pool_decimals + (xtz_pool_decimals / token_pool_decimals) * token_pool_decimals) / lqt_total
     liquidity_baking.token_pool         = token_pool
     liquidity_baking.xtz_pool           = xtz_pool
     liquidity_baking.lqt_total          = lqt_total
