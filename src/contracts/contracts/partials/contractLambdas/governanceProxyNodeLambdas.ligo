@@ -157,14 +157,13 @@ block {
 // Basic Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* executeGovernanceLambda lambda *)
-function executeGovernanceLambda(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is
+(* executeGovernanceAction lambda *)
+function executeGovernanceAction(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is
 block {
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambda *)
     const lambdaName : string = case executeAction of [
       
             (* Update Lambda Function *)

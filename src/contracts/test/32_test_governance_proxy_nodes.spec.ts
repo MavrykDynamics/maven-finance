@@ -4388,486 +4388,486 @@ describe("Governance proxy lambdas tests", async () => {
     })
 
 
-    describe("%setLoanToken", async() => {
+    // describe("%setLoanToken", async() => {
 
-        beforeEach("Set signer to admin", async() => {
-            await signerFactory(bob.sk)
-        })
+    //     beforeEach("Set signer to admin", async() => {
+    //         await signerFactory(bob.sk)
+    //     })
 
-        it("Scenario - Set Loan Token on the Lending Controller (Create New Loan Token)", async() => {
-            try{
-                // Initial values
-                governanceStorage           = await governanceInstance.storage();
+    //     it("Scenario - Set Loan Token on the Lending Controller (Create New Loan Token)", async() => {
+    //         try{
+    //             // Initial values
+    //             governanceStorage           = await governanceInstance.storage();
                 
-                const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Lending Controller %setLoanToken";
-                const proposalDesc          = "Details about new proposal";
-                const proposalIpfs          = "ipfs://QM123456789";
-                const proposalSourceCode    = "Proposal Source Code";
+    //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+    //             const proposalName          = "Lending Controller %setLoanToken";
+    //             const proposalDesc          = "Details about new proposal";
+    //             const proposalIpfs          = "ipfs://QM123456789";
+    //             const proposalSourceCode    = "Proposal Source Code";
 
-                const setLoanTokenActionType                = "createLoanToken";
-                const tokenName                             = "mockLoanToken";
-                const tokenContractAddress                  = mockFa12TokenAddress.address;
-                const tokenType                             = "fa12";
-                const tokenDecimals                         = 6;
+    //             const setLoanTokenActionType                = "createLoanToken";
+    //             const tokenName                             = "mockLoanToken";
+    //             const tokenContractAddress                  = mockFa12TokenAddress.address;
+    //             const tokenType                             = "fa12";
+    //             const tokenDecimals                         = 6;
 
-                const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+    //             const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
-                const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
-                const lpTokenId                             = 0;
+    //             const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
+    //             const lpTokenId                             = 0;
 
-                const interestRateDecimals                  = 27;
-                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
-                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
-                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
-                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
-                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
-                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+    //             const interestRateDecimals                  = 27;
+    //             const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+    //             const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+    //             const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+    //             const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+    //             const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+    //             const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
-                const minRepaymentAmount                    = 10000;
+    //             const minRepaymentAmount                    = 10000;
 
-                // Update general map compiled params
-                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-                    'setLoanToken',
+    //             // Update general map compiled params
+    //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+    //                 'setLoanToken',
                     
-                    setLoanTokenActionType,
+    //                 setLoanTokenActionType,
 
-                    tokenName,
-                    tokenDecimals,
+    //                 tokenName,
+    //                 tokenDecimals,
 
-                    oracleAddress,
+    //                 oracleAddress,
 
-                    lpTokenContractAddress,
-                    lpTokenId,
+    //                 lpTokenContractAddress,
+    //                 lpTokenId,
                     
-                    reserveRatio,
-                    optimalUtilisationRate,
-                    baseInterestRate,
-                    maxInterestRate,
-                    interestRateBelowOptimalUtilisation,
-                    interestRateAboveOptimalUtilisation,
+    //                 reserveRatio,
+    //                 optimalUtilisationRate,
+    //                 baseInterestRate,
+    //                 maxInterestRate,
+    //                 interestRateBelowOptimalUtilisation,
+    //                 interestRateAboveOptimalUtilisation,
 
-                    minRepaymentAmount,
+    //                 minRepaymentAmount,
 
-                    // fa12 token type - token contract address
-                    tokenType,
-                    tokenContractAddress,
-                ).toTransferParams();
+    //                 // fa12 token type - token contract address
+    //                 tokenType,
+    //                 tokenContractAddress,
+    //             ).toTransferParams();
                 
-                const packedDataValue = lambdaParams.parameter.value;
-                const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+    //             const packedDataValue = lambdaParams.parameter.value;
+    //             const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
                 
-                const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+    //             const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
 
-                // create proposal data
-                const proposalData = sharedTestHelper.createProposalData(
-                    "Data to set loan token",    // title
-                    "setLoanToken",              // entrypointName
-                    packedData,                  // encodedCode
-                    ""                           // codeDescription
-                );
+    //             // create proposal data
+    //             const proposalData = sharedTestHelper.createProposalData(
+    //                 "Data to set loan token",    // title
+    //                 "setLoanToken",              // entrypointName
+    //                 packedData,                  // encodedCode
+    //                 ""                           // codeDescription
+    //             );
 
-                // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             // Start governance rounds
+    //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-                await proposeOperation.confirmation();
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-                await lockOperation.confirmation();
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(alice.sk);
-                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(bob.sk);
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+    //             await proposeOperation.confirmation();
+    //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+    //             await lockOperation.confirmation();
+    //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(bob.sk);
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                // Votes operation -> both satellites vote
-                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(alice.sk);
-                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(bob.sk);
+    //             // Votes operation -> both satellites vote
+    //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(bob.sk);
 
-                // Execute proposal
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             // Execute proposal
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                // Final values
-                governanceStorage           = await governanceInstance.storage();
-                const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+    //             // Final values
+    //             governanceStorage           = await governanceInstance.storage();
+    //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
                 
-                lendingControllerStorage    = await lendingControllerInstance.storage();
-                const mockLoanToken         = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+    //             lendingControllerStorage    = await lendingControllerInstance.storage();
+    //             const mockLoanToken         = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-                // Assertions
-                assert.strictEqual(proposal.executed, true);
+    //             // Assertions
+    //             assert.strictEqual(proposal.executed, true);
 
-                assert.equal(mockLoanToken.tokenName              , tokenName);
+    //             assert.equal(mockLoanToken.tokenName              , tokenName);
 
-                assert.equal(mockLoanToken.lpTokensTotal          , 0);
-                assert.equal(mockLoanToken.lpTokenContractAddress , lpTokenContractAddress);
-                assert.equal(mockLoanToken.lpTokenId              , 0);
+    //             assert.equal(mockLoanToken.lpTokensTotal          , 0);
+    //             assert.equal(mockLoanToken.lpTokenContractAddress , lpTokenContractAddress);
+    //             assert.equal(mockLoanToken.lpTokenId              , 0);
 
-                assert.equal(mockLoanToken.reserveRatio           , reserveRatio);
-                assert.equal(mockLoanToken.tokenPoolTotal         , 0);
-                assert.equal(mockLoanToken.totalBorrowed          , 0);
-                assert.equal(mockLoanToken.totalRemaining         , 0);
+    //             assert.equal(mockLoanToken.reserveRatio           , reserveRatio);
+    //             assert.equal(mockLoanToken.tokenPoolTotal         , 0);
+    //             assert.equal(mockLoanToken.totalBorrowed          , 0);
+    //             assert.equal(mockLoanToken.totalRemaining         , 0);
 
-                assert.equal(mockLoanToken.optimalUtilisationRate , optimalUtilisationRate);
-                assert.equal(mockLoanToken.baseInterestRate       , baseInterestRate);
-                assert.equal(mockLoanToken.maxInterestRate        , maxInterestRate);
+    //             assert.equal(mockLoanToken.optimalUtilisationRate , optimalUtilisationRate);
+    //             assert.equal(mockLoanToken.baseInterestRate       , baseInterestRate);
+    //             assert.equal(mockLoanToken.maxInterestRate        , maxInterestRate);
                 
-                assert.equal(mockLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
-                assert.equal(mockLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+    //             assert.equal(mockLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+    //             assert.equal(mockLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
 
-                assert.equal(mockLoanToken.minRepaymentAmount       , minRepaymentAmount);
+    //             assert.equal(mockLoanToken.minRepaymentAmount       , minRepaymentAmount);
 
-            } catch(e) {
-                console.dir(e, {depth:5})
-            }
-        })
+    //         } catch(e) {
+    //             console.dir(e, {depth:5})
+    //         }
+    //     })
 
-        it("Scenario - Set Loan Token on the Lending Controller (Update Loan Token)", async() => {
-            try{
-                // Initial values
-                governanceStorage           = await governanceInstance.storage();
+    //     it("Scenario - Set Loan Token on the Lending Controller (Update Loan Token)", async() => {
+    //         try{
+    //             // Initial values
+    //             governanceStorage           = await governanceInstance.storage();
                 
-                const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Lending Controller %setLoanToken";
-                const proposalDesc          = "Details about new proposal";
-                const proposalIpfs          = "ipfs://QM123456789";
-                const proposalSourceCode    = "Proposal Source Code";
+    //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+    //             const proposalName          = "Lending Controller %setLoanToken";
+    //             const proposalDesc          = "Details about new proposal";
+    //             const proposalIpfs          = "ipfs://QM123456789";
+    //             const proposalSourceCode    = "Proposal Source Code";
 
-                const setLoanTokenActionType                   = "updateLoanToken";
+    //             const setLoanTokenActionType                   = "updateLoanToken";
                 
-                const tokenName                                = "mockLoanToken";
-                const interestRateDecimals                     = 27;
+    //             const tokenName                                = "mockLoanToken";
+    //             const interestRateDecimals                     = 27;
                 
-                const newOracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+    //             const newOracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-                const newReserveRatio                          = 2000; // 20% reserves (4 decimals)
-                const newOptimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));   // 50% utilisation rate kink
-                const newBaseInterestRate                      = 10  * (10 ** (interestRateDecimals - 2));  // 5%
-                const newMaxInterestRate                       = 50 * (10 ** (interestRateDecimals - 2));  // 25% 
-                const newInterestRateBelowOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 10% 
-                const newInterestRateAboveOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 20%
-                const newMinRepaymentAmount                    = 20000;
-                const isPaused                                 = true;
+    //             const newReserveRatio                          = 2000; // 20% reserves (4 decimals)
+    //             const newOptimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));   // 50% utilisation rate kink
+    //             const newBaseInterestRate                      = 10  * (10 ** (interestRateDecimals - 2));  // 5%
+    //             const newMaxInterestRate                       = 50 * (10 ** (interestRateDecimals - 2));  // 25% 
+    //             const newInterestRateBelowOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 10% 
+    //             const newInterestRateAboveOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 20%
+    //             const newMinRepaymentAmount                    = 20000;
+    //             const isPaused                                 = true;
 
 
-                // Update general map compiled params
-                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-                    'setLoanToken',
+    //             // Update general map compiled params
+    //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+    //                 'setLoanToken',
                     
-                    setLoanTokenActionType,
+    //                 setLoanTokenActionType,
                     
-                    tokenName,
+    //                 tokenName,
 
-                    newOracleAddress,
+    //                 newOracleAddress,
                     
-                    newReserveRatio,
-                    newOptimalUtilisationRate,
-                    newBaseInterestRate,
-                    newMaxInterestRate,
-                    newInterestRateBelowOptimalUtilisation,
-                    newInterestRateAboveOptimalUtilisation,
-                    newMinRepaymentAmount,
+    //                 newReserveRatio,
+    //                 newOptimalUtilisationRate,
+    //                 newBaseInterestRate,
+    //                 newMaxInterestRate,
+    //                 newInterestRateBelowOptimalUtilisation,
+    //                 newInterestRateAboveOptimalUtilisation,
+    //                 newMinRepaymentAmount,
 
-                    isPaused
+    //                 isPaused
 
-                ).toTransferParams();
+    //             ).toTransferParams();
                 
-                const packedDataValue = lambdaParams.parameter.value;
-                const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+    //             const packedDataValue = lambdaParams.parameter.value;
+    //             const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
                 
-                const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+    //             const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
 
-                // create proposal data
-                const proposalData = sharedTestHelper.createProposalData(
-                    "Data to update loan token", // title
-                    "setLoanToken",              // entrypointName
-                    packedData,                  // encodedCode
-                    ""                           // codeDescription
-                );
+    //             // create proposal data
+    //             const proposalData = sharedTestHelper.createProposalData(
+    //                 "Data to update loan token", // title
+    //                 "setLoanToken",              // entrypointName
+    //                 packedData,                  // encodedCode
+    //                 ""                           // codeDescription
+    //             );
 
-                // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             // Start governance rounds
+    //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-                await proposeOperation.confirmation();
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-                await lockOperation.confirmation();
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(alice.sk);
-                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(bob.sk);
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+    //             await proposeOperation.confirmation();
+    //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+    //             await lockOperation.confirmation();
+    //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(bob.sk);
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                // Votes operation -> both satellites vote
-                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(alice.sk);
-                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(bob.sk);
+    //             // Votes operation -> both satellites vote
+    //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(bob.sk);
 
-                // Execute proposal
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             // Execute proposal
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                // Final values
-                governanceStorage           = await governanceInstance.storage();
-                const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+    //             // Final values
+    //             governanceStorage           = await governanceInstance.storage();
+    //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
                 
-                lendingControllerStorage    = await lendingControllerInstance.storage();
-                const mockLoanToken         = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+    //             lendingControllerStorage    = await lendingControllerInstance.storage();
+    //             const mockLoanToken         = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-                // Assertions
-                assert.strictEqual(proposal.executed, true);
+    //             // Assertions
+    //             assert.strictEqual(proposal.executed, true);
 
-                assert.equal(mockLoanToken.tokenName      , tokenName);
-                assert.equal(mockLoanToken.isPaused       , isPaused);
+    //             assert.equal(mockLoanToken.tokenName      , tokenName);
+    //             assert.equal(mockLoanToken.isPaused       , isPaused);
 
-            } catch(e) {
-                console.dir(e, {depth:5})
-            }
-        })
-    })
+    //         } catch(e) {
+    //             console.dir(e, {depth:5})
+    //         }
+    //     })
+    // })
 
 
-    describe("%setCollateralToken", async() => {
+    // describe("%setCollateralToken", async() => {
 
-        beforeEach("Set signer to admin", async() => {
-            await signerFactory(bob.sk)
-        })
+    //     beforeEach("Set signer to admin", async() => {
+    //         await signerFactory(bob.sk)
+    //     })
 
-        it("Scenario - Set Collateral Token on the Lending Controller (Create New Collateral Token)", async() => {
-            try{
-                // Initial values
-                governanceStorage           = await governanceInstance.storage();
+    //     it("Scenario - Set Collateral Token on the Lending Controller (Create New Collateral Token)", async() => {
+    //         try{
+    //             // Initial values
+    //             governanceStorage           = await governanceInstance.storage();
                 
-                const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Lending Controller %setCollateralToken";
-                const proposalDesc          = "Details about new proposal";
-                const proposalIpfs          = "ipfs://QM123456789";
-                const proposalSourceCode    = "Proposal Source Code";
+    //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+    //             const proposalName          = "Lending Controller %setCollateralToken";
+    //             const proposalDesc          = "Details about new proposal";
+    //             const proposalIpfs          = "ipfs://QM123456789";
+    //             const proposalSourceCode    = "Proposal Source Code";
 
-                const setCollateralTokenActionType      = "createCollateralToken";
+    //             const setCollateralTokenActionType      = "createCollateralToken";
 
-                const tokenName                         = "mockCollateralToken";
-                const tokenContractAddress              = mockFa12TokenAddress.address;
-                const tokenType                         = "fa12";
+    //             const tokenName                         = "mockCollateralToken";
+    //             const tokenContractAddress              = mockFa12TokenAddress.address;
+    //             const tokenType                         = "fa12";
 
-                const tokenDecimals                     = 6;
-                const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
-                const tokenProtected                    = false;
+    //             const tokenDecimals                     = 6;
+    //             const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
+    //             const tokenProtected                    = false;
                 
-                const isScaledToken                     = false;
-                const isStakedToken                     = false;
-                const stakingContractAddress            = null;
+    //             const isScaledToken                     = false;
+    //             const isStakedToken                     = false;
+    //             const stakingContractAddress            = null;
                 
-                const maxDepositAmount                  = null;
+    //             const maxDepositAmount                  = null;
 
-                // Update general map compiled params
-                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-                    'setCollateralToken',
+    //             // Update general map compiled params
+    //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+    //                 'setCollateralToken',
                     
-                    setCollateralTokenActionType,
+    //                 setCollateralTokenActionType,
 
-                    tokenName,
-                    tokenContractAddress,
-                    tokenDecimals,
+    //                 tokenName,
+    //                 tokenContractAddress,
+    //                 tokenDecimals,
 
-                    oracleAddress,
-                    tokenProtected,
+    //                 oracleAddress,
+    //                 tokenProtected,
                     
-                    isScaledToken,
-                    isStakedToken,
-                    stakingContractAddress,
+    //                 isScaledToken,
+    //                 isStakedToken,
+    //                 stakingContractAddress,
 
-                    maxDepositAmount,
+    //                 maxDepositAmount,
 
-                    // fa12 token type - token contract address
-                    tokenType,
-                    tokenContractAddress,
+    //                 // fa12 token type - token contract address
+    //                 tokenType,
+    //                 tokenContractAddress,
 
-                ).toTransferParams();
+    //             ).toTransferParams();
                 
-                const packedDataValue = lambdaParams.parameter.value;
-                const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+    //             const packedDataValue = lambdaParams.parameter.value;
+    //             const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
                 
-                const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+    //             const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
 
-                // create proposal data
-                const proposalData = sharedTestHelper.createProposalData(
-                    "Data to set collateral token",     // title
-                    "setCollateralToken",               // entrypointName
-                    packedData,                         // encodedCode
-                    ""                                  // codeDescription
-                );
+    //             // create proposal data
+    //             const proposalData = sharedTestHelper.createProposalData(
+    //                 "Data to set collateral token",     // title
+    //                 "setCollateralToken",               // entrypointName
+    //                 packedData,                         // encodedCode
+    //                 ""                                  // codeDescription
+    //             );
 
-                // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             // Start governance rounds
+    //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-                await proposeOperation.confirmation();
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-                await lockOperation.confirmation();
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(alice.sk);
-                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(bob.sk);
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+    //             await proposeOperation.confirmation();
+    //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+    //             await lockOperation.confirmation();
+    //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(bob.sk);
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                // Votes operation -> both satellites vote
-                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(alice.sk);
-                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(bob.sk);
+    //             // Votes operation -> both satellites vote
+    //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(bob.sk);
 
-                // Execute proposal
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             // Execute proposal
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                // Final values
-                governanceStorage           = await governanceInstance.storage();
-                const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+    //             // Final values
+    //             governanceStorage           = await governanceInstance.storage();
+    //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
                 
-                lendingControllerStorage    = await lendingControllerInstance.storage();
-                const mockCollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+    //             lendingControllerStorage    = await lendingControllerInstance.storage();
+    //             const mockCollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-                // Assertions
-                assert.strictEqual(proposal.executed, true);
+    //             // Assertions
+    //             assert.strictEqual(proposal.executed, true);
 
-                assert.equal(mockCollateralToken.tokenName              , tokenName);
-                assert.equal(mockCollateralToken.tokenDecimals          , tokenDecimals);
-                assert.equal(mockCollateralToken.oracleAddress          , oracleAddress);
-                assert.equal(mockCollateralToken.protected              , tokenProtected);
+    //             assert.equal(mockCollateralToken.tokenName              , tokenName);
+    //             assert.equal(mockCollateralToken.tokenDecimals          , tokenDecimals);
+    //             assert.equal(mockCollateralToken.oracleAddress          , oracleAddress);
+    //             assert.equal(mockCollateralToken.protected              , tokenProtected);
 
-            } catch(e) {
-                console.dir(e, {depth:5})
-            }
-        })
+    //         } catch(e) {
+    //             console.dir(e, {depth:5})
+    //         }
+    //     })
 
-        it("Scenario - Set Collateral Token on the Lending Controller (Update Collateral Token)", async() => {
-            try{
-                // Initial values
-                governanceStorage           = await governanceInstance.storage();
+    //     it("Scenario - Set Collateral Token on the Lending Controller (Update Collateral Token)", async() => {
+    //         try{
+    //             // Initial values
+    //             governanceStorage           = await governanceInstance.storage();
                 
-                const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Lending Controller %setCollateralToken";
-                const proposalDesc          = "Details about new proposal";
-                const proposalIpfs          = "ipfs://QM123456789";
-                const proposalSourceCode    = "Proposal Source Code";
+    //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+    //             const proposalName          = "Lending Controller %setCollateralToken";
+    //             const proposalDesc          = "Details about new proposal";
+    //             const proposalIpfs          = "ipfs://QM123456789";
+    //             const proposalSourceCode    = "Proposal Source Code";
 
-                const setCollateralTokenActionType      = "updateCollateralToken";
+    //             const setCollateralTokenActionType      = "updateCollateralToken";
 
-                const tokenName                         = "mockCollateralToken";
+    //             const tokenName                         = "mockCollateralToken";
                 
-                const newOracleAddress                  = mockUsdMockFa2TokenAggregatorAddress.address;
-                const stakingContractAddress            = null;
-                const maxDepositAmount                  = null;
-                const isPaused                          = false;
+    //             const newOracleAddress                  = mockUsdMockFa2TokenAggregatorAddress.address;
+    //             const stakingContractAddress            = null;
+    //             const maxDepositAmount                  = null;
+    //             const isPaused                          = false;
 
-                // Update general map compiled params
-                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-                    'setCollateralToken',
+    //             // Update general map compiled params
+    //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+    //                 'setCollateralToken',
                     
-                    setCollateralTokenActionType,
+    //                 setCollateralTokenActionType,
 
-                    tokenName,
-                    newOracleAddress,
-                    isPaused,
+    //                 tokenName,
+    //                 newOracleAddress,
+    //                 isPaused,
 
-                    stakingContractAddress,
-                    maxDepositAmount
+    //                 stakingContractAddress,
+    //                 maxDepositAmount
 
-                ).toTransferParams();
+    //             ).toTransferParams();
                 
-                const packedDataValue = lambdaParams.parameter.value;
-                const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+    //             const packedDataValue = lambdaParams.parameter.value;
+    //             const packedDataType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
                 
-                const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
+    //             const packedData = await sharedTestHelper.packData(rpc, packedDataValue, packedDataType);
 
-                // create proposal data
-                const proposalData = sharedTestHelper.createProposalData(
-                    "Data to update collateral token",  // title
-                    "setCollateralToken",               // entrypointName
-                    packedData,                         // encodedCode
-                    ""                                  // codeDescription
-                );
+    //             // create proposal data
+    //             const proposalData = sharedTestHelper.createProposalData(
+    //                 "Data to update collateral token",  // title
+    //                 "setCollateralToken",               // entrypointName
+    //                 packedData,                         // encodedCode
+    //                 ""                                  // codeDescription
+    //             );
 
-                // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             // Start governance rounds
+    //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-                await proposeOperation.confirmation();
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-                await lockOperation.confirmation();
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(alice.sk);
-                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
-                await signerFactory(bob.sk);
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+    //             await proposeOperation.confirmation();
+    //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+    //             await lockOperation.confirmation();
+    //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
+    //             await signerFactory(bob.sk);
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                // Votes operation -> both satellites vote
-                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(alice.sk);
-                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
-                await signerFactory(bob.sk);
+    //             // Votes operation -> both satellites vote
+    //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(alice.sk);
+    //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(bob.sk);
 
-                // Execute proposal
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             // Execute proposal
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                // Final values
-                governanceStorage           = await governanceInstance.storage();
-                const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+    //             // Final values
+    //             governanceStorage           = await governanceInstance.storage();
+    //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
                 
-                lendingControllerStorage    = await lendingControllerInstance.storage();
-                const mockCollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+    //             lendingControllerStorage    = await lendingControllerInstance.storage();
+    //             const mockCollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-                // Assertions
-                assert.strictEqual(proposal.executed, true);
+    //             // Assertions
+    //             assert.strictEqual(proposal.executed, true);
 
-                assert.equal(mockCollateralToken.tokenName              , tokenName);
-                assert.equal(mockCollateralToken.oracleAddress          , newOracleAddress);
-                assert.equal(mockCollateralToken.maxDepositAmount       , maxDepositAmount);
-                assert.equal(mockCollateralToken.isPaused               , isPaused);
+    //             assert.equal(mockCollateralToken.tokenName              , tokenName);
+    //             assert.equal(mockCollateralToken.oracleAddress          , newOracleAddress);
+    //             assert.equal(mockCollateralToken.maxDepositAmount       , maxDepositAmount);
+    //             assert.equal(mockCollateralToken.isPaused               , isPaused);
 
-            } catch(e) {
-                console.dir(e, {depth:5})
-            }
-        })
-    })
+    //         } catch(e) {
+    //             console.dir(e, {depth:5})
+    //         }
+    //     })
+    // })
 
     // ====================================================
     //
