@@ -147,8 +147,8 @@ type executeActionParamsType is
     |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
     |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
     |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
-    |   ToggleVaultFacEntrypoint           of toggleVaultFacEntrypointType
-    |   ToggleLendingContEntrypoint        of toggleLendingContEntrypointType
+    // |   ToggleVaultFacEntrypoint           of toggleVaultFacEntrypointType
+    // |   ToggleLendingContEntrypoint        of toggleLendingContEntrypointType
     
     |   TransferTreasury                   of targetTreasuryTransferType
     |   MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType

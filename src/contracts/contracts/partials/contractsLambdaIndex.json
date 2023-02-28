@@ -447,8 +447,6 @@
     "toggleFarmFacEntrypoint",
     "toggleTreasuryEntrypoint",
     "toggleTreasuryFacEntrypoint",
-    "toggleVaultFacEntrypoint",
-    "toggleLendingContEntrypoint",
 
     "transferTreasury",
     "mintMvkAndTransferTreasury",

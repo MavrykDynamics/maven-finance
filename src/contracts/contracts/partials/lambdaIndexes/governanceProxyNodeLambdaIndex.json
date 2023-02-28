@@ -1,0 +1,162 @@
+[
+	{
+		"index": 0,
+		"name": "lambdaSetAdmin"
+	},
+	{
+		"index": 1,
+		"name": "lambdaSetGovernance"
+	},
+	{
+		"index": 2,
+		"name": "lambdaUpdateMetadata"
+	},
+	{
+		"index": 3,
+		"name": "lambdaUpdateWhitelistContracts"
+	},
+	{
+		"index": 4,
+		"name": "lambdaUpdateGeneralContracts"
+	},
+	{
+		"index": 5,
+		"name": "lambdaUpdateWhitelistTokenContracts"
+	},
+	{
+		"index": 6,
+		"name": "lambdaMistakenTransfer"
+	},
+	{
+		"index": 7,
+		"name": "executeGovernanceAction"
+	},
+	{
+		"index": 8,
+		"name": "updateProxyLambda"
+	},
+	{
+		"index": 9,
+		"name": "setContractName"
+	},
+	{
+		"index": 10,
+		"name": "updateContractMetadata"
+	},
+	{
+		"index": 11,
+		"name": "updateContractGeneralMap"
+	},
+	{
+		"index": 12,
+		"name": "updateGovernanceConfig"
+	},
+	{
+		"index": 13,
+		"name": "updateGovernanceFinancialConfig"
+	},
+	{
+		"index": 14,
+		"name": "updateGovernanceSatelliteConfig"
+	},
+	{
+		"index": 15,
+		"name": "updateDoormanConfig"
+	},
+	{
+		"index": 16,
+		"name": "updateDelegationConfig"
+	},
+	{
+		"index": 17,
+		"name": "updateEmergencyConfig"
+	},
+	{
+		"index": 18,
+		"name": "updateBreakGlassConfig"
+	},
+	{
+		"index": 19,
+		"name": "updateCouncilConfig"
+	},
+	{
+		"index": 20,
+		"name": "updateFarmConfig"
+	},
+	{
+		"index": 21,
+		"name": "updateFarmFactoryConfig"
+	},
+	{
+		"index": 22,
+		"name": "updateAggregatorConfig"
+	},
+	{
+		"index": 23,
+		"name": "updateAggregatorFactoryConfig"
+	},
+	{
+		"index": 24,
+		"name": "updateTreasuryFactoryConfig"
+	},
+	{
+		"index": 25,
+		"name": "updateVaultFactoryConfig"
+	},
+	{
+		"index": 26,
+		"name": "updateLendingControllerConfig"
+	},
+	{
+		"index": 27,
+		"name": "initFarm"
+	},
+	{
+		"index": 28,
+		"name": "trackFarm"
+	},
+	{
+		"index": 29,
+		"name": "untrackFarm"
+	},
+	{
+		"index": 30,
+		"name": "closeFarm"
+	},
+	{
+		"index": 31,
+		"name": "trackTreasury"
+	},
+	{
+		"index": 32,
+		"name": "untrackTreasury"
+	},
+	{
+		"index": 33,
+		"name": "updateMvkOperatorsTreasury"
+	},
+	{
+		"index": 34,
+		"name": "stakeMvkTreasury"
+	},
+	{
+		"index": 35,
+		"name": "unstakeMvkTreasury"
+	},
+	{
+		"index": 36,
+		"name": "trackAggregator"
+	},
+	{
+		"index": 37,
+		"name": "untrackAggregator"
+	},
+	{
+		"index": 38,
+		"name": "setLoanToken"
+	},
+	{
+		"index": 39,
+		"name": "setCollateralToken"
+	}
+]

@@ -255,8 +255,8 @@ block {
 
 
 
-(* executeGovernanceLambda lambda *)
-function executeGovernanceLambda(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
+(* executeGovernanceAction lambda *)
+function executeGovernanceAction(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     // verify that sender is self or admin or Governance contract
@@ -300,8 +300,8 @@ block {
         |   ToggleFarmFacEntrypoint (_v)           -> "toggleFarmFacEntrypoint"
         |   ToggleTreasuryEntrypoint (_v)          -> "toggleTreasuryEntrypoint"
         |   ToggleTreasuryFacEntrypoint (_v)       -> "toggleTreasuryFacEntrypoint"
-        |   ToggleVaultFacEntrypoint (_v)          -> "toggleVaultFacEntrypoint"
-        |   ToggleLendingContEntrypoint (_v)       -> "toggleLendingContEntrypoint"
+        // |   ToggleVaultFacEntrypoint (_v)          -> "toggleVaultFacEntrypoint"
+        // |   ToggleLendingContEntrypoint (_v)       -> "toggleLendingContEntrypoint"
 
             (* Treasury Control *)
         |   TransferTreasury (_v)                  -> "transferTreasury"
@@ -1097,47 +1097,47 @@ block {
 
 
 
-function toggleVaultFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
+// function toggleVaultFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
+//     case executeAction of [
       
-        |   ToggleVaultFacEntrypoint(toggleContractEntrypointParams) -> {
+//         |   ToggleVaultFacEntrypoint(toggleContractEntrypointParams) -> {
 
-                operations := toggleVaultFacEntrypoint(toggleContractEntrypointParams, operations, s);
+//                 operations := toggleVaultFacEntrypoint(toggleContractEntrypointParams, operations, s);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-function toggleLendingContEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
+// function toggleLendingContEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
+//     case executeAction of [
       
-        |   ToggleLendingContEntrypoint(toggleContractEntrypointParams) -> {
+//         |   ToggleLendingContEntrypoint(toggleContractEntrypointParams) -> {
 
-                operations := toggleLendingContEntrypoint(toggleContractEntrypointParams, operations, s);
+//                 operations := toggleLendingContEntrypoint(toggleContractEntrypointParams, operations, s);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
