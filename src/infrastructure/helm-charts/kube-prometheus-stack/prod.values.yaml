@@ -765,6 +765,9 @@ kube-prometheus-stack:
         allowed_organizations: mavrykfinance
       feature_toggles:
         publicDashboards: true
+      users:
+        auto_assign_org: false
+        auto_assign_org_id: 2 # Assign to visitors in case previous config var does not work
 
     envValueFrom:
       GF_AUTH_GITHUB_CLIENT_ID:
