@@ -767,7 +767,7 @@ kube-prometheus-stack:
         publicDashboards: true
       users:
         auto_assign_org: true
-        auto_assign_org_id: 2
+        auto_assign_org_id: 5
 
     envValueFrom:
       GF_AUTH_GITHUB_CLIENT_ID:
