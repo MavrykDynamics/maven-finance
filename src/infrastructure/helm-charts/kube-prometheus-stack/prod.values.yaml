@@ -763,6 +763,8 @@ kube-prometheus-stack:
         api_url: https://api.github.com/user
         team_ids: '7093653'
         allowed_organizations: mavrykfinance
+      feature_toggles:
+        publicDashboards: true
 
     envValueFrom:
       GF_AUTH_GITHUB_CLIENT_ID:
