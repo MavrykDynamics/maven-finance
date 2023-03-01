@@ -256,7 +256,7 @@ block {
 
 
 (* executeGovernanceAction lambda *)
-function executeGovernanceAction(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
+function lambdaExecuteGovernanceAction(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     // verify that sender is self or admin or Governance contract
@@ -296,10 +296,10 @@ block {
         |   ToggleDelegationEntrypoint (_v)        -> "toggleDelegationEntrypoint"
         |   ToggleAggregatorEntrypoint (_v)        -> "toggleAggregatorEntrypoint"
         |   ToggleAggregatorFacEntrypoint (_v)     -> "toggleAggregatorFacEntrypoint"
-        |   ToggleFarmEntrypoint (_v)              -> "toggleFarmEntrypoint"
-        |   ToggleFarmFacEntrypoint (_v)           -> "toggleFarmFacEntrypoint"
-        |   ToggleTreasuryEntrypoint (_v)          -> "toggleTreasuryEntrypoint"
-        |   ToggleTreasuryFacEntrypoint (_v)       -> "toggleTreasuryFacEntrypoint"
+        // |   ToggleFarmEntrypoint (_v)              -> "toggleFarmEntrypoint"
+        // |   ToggleFarmFacEntrypoint (_v)           -> "toggleFarmFacEntrypoint"
+        // |   ToggleTreasuryEntrypoint (_v)          -> "toggleTreasuryEntrypoint"
+        // |   ToggleTreasuryFacEntrypoint (_v)       -> "toggleTreasuryFacEntrypoint"
         // |   ToggleVaultFacEntrypoint (_v)          -> "toggleVaultFacEntrypoint"
         // |   ToggleLendingContEntrypoint (_v)       -> "toggleLendingContEntrypoint"
 
@@ -1009,91 +1009,91 @@ block {
 
 
 
-function toggleFarmEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
+// function toggleFarmEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
+//     case executeAction of [
       
-        |   ToggleFarmEntrypoint(toggleContractEntrypointParams) -> {
+//         |   ToggleFarmEntrypoint(toggleContractEntrypointParams) -> {
 
-                operations := toggleFarmEntrypoint(toggleContractEntrypointParams, operations);
+//                 operations := toggleFarmEntrypoint(toggleContractEntrypointParams, operations);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-function toggleFarmFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
+// function toggleFarmFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
+//     case executeAction of [
       
-        |   ToggleFarmFacEntrypoint(toggleContractEntrypointParams) -> {
+//         |   ToggleFarmFacEntrypoint(toggleContractEntrypointParams) -> {
 
-                operations := toggleFarmFacEntrypoint(toggleContractEntrypointParams, operations, s);
+//                 operations := toggleFarmFacEntrypoint(toggleContractEntrypointParams, operations, s);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-function toggleTreasuryEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
+// function toggleTreasuryEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
+//     case executeAction of [
       
-        |   ToggleTreasuryEntrypoint(toggleContractEntrypointParams) -> {
+//         |   ToggleTreasuryEntrypoint(toggleContractEntrypointParams) -> {
 
-                operations := toggleTreasuryEntrypoint(toggleContractEntrypointParams, operations);
+//                 operations := toggleTreasuryEntrypoint(toggleContractEntrypointParams, operations);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-function toggleTreasuryFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
+// function toggleTreasuryFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
+//     case executeAction of [
       
-        |   ToggleTreasuryFacEntrypoint(toggleContractEntrypointParams) -> {
+//         |   ToggleTreasuryFacEntrypoint(toggleContractEntrypointParams) -> {
 
-                operations := toggleTreasuryFacEntrypoint(toggleContractEntrypointParams, operations, s);
+//                 operations := toggleTreasuryFacEntrypoint(toggleContractEntrypointParams, operations, s);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 

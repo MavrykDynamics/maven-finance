@@ -115,8 +115,8 @@ type executeActionParamsType is
     |   TrackAggregator                    of (address)
     |   UntrackAggregator                  of (address)
 
-    |   SetLoanToken                       of setLoanTokenActionType
-    |   SetCollateralToken                 of setCollateralTokenActionType
+    // |   SetLoanToken                       of setLoanTokenActionType
+    // |   SetCollateralToken                 of setCollateralTokenActionType
 
     
 type executeActionType is (executeActionParamsType)

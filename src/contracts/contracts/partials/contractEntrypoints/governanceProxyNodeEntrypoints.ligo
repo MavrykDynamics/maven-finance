@@ -157,7 +157,7 @@ block {
         |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
     ];
 
-    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger["executeGovernanceAction"] of [
+    const executeGovernanceActionLambdaBytes : bytes = case s.proxyLambdaLedger["lambdaExecuteGovernanceAction"] of [
             Some(_v) -> _v
         |   None     -> failwith(error_EXECUTE_GOVERNANCE_ACTION_LAMBDA_NOT_FOUND)
     ];

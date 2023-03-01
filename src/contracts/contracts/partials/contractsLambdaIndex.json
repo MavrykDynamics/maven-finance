@@ -415,7 +415,7 @@
     "lambdaProcessGovernanceAction",
     "lambdaSetLambdaPointer",
 
-    "executeGovernanceAction",
+    "lambdaExecuteGovernanceAction",
 
     "updateProxyLambda",
 
@@ -443,10 +443,6 @@
     "toggleDelegationEntrypoint",
     "toggleAggregatorEntrypoint",
     "toggleAggregatorFacEntrypoint",
-    "toggleFarmEntrypoint",
-    "toggleFarmFacEntrypoint",
-    "toggleTreasuryEntrypoint",
-    "toggleTreasuryFacEntrypoint",
 
     "transferTreasury",
     "mintMvkAndTransferTreasury",
@@ -468,7 +464,7 @@
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
 
-    "executeGovernanceAction",
+    "lambdaExecuteGovernanceAction",
 
     "updateProxyLambda",
 
@@ -504,9 +500,6 @@
     "unstakeMvkTreasury",
 
     "trackAggregator",
-    "untrackAggregator",
-
-    "setLoanToken",
-    "setCollateralToken"
+    "untrackAggregator"
   ]
 }
