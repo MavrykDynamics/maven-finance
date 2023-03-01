@@ -1,6 +1,6 @@
 [[package]]
 name = "aiohttp"
-version = "3.8.3"
+version = "3.8.4"
 description = "Async http client/server framework (asyncio)"
 category = "main"
 optional = false
@@ -10,7 +10,7 @@ python-versions = ">=3.6"
 aiosignal = ">=1.1.2"
 async-timeout = ">=4.0.0a3,<5.0"
 attrs = ">=17.3.0"
-charset-normalizer = ">=2.0,<3.0"
+charset-normalizer = ">=2.0,<4.0"
 frozenlist = ">=1.1.1"
 multidict = ">=4.5,<7.0"
 yarl = ">=1.0,<2.0"
@@ -70,11 +70,11 @@ trio = ["trio (>=0.16,<0.22)"]
 
 [[package]]
 name = "apscheduler"
-version = "3.9.1.post1"
+version = "3.10.0"
 description = "In-process task scheduler with Cron-like capabilities"
 category = "main"
 optional = false
-python-versions = "!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+python-versions = ">=3.6"
 
 [package.dependencies]
 pytz = "*"
@@ -82,14 +82,13 @@ six = ">=1.4.0"
 tzlocal = ">=2.0,<3.0.0 || >=4.0.0"
 
 [package.extras]
-asyncio = ["trollius"]
 doc = ["sphinx", "sphinx-rtd-theme"]
 gevent = ["gevent"]
 mongodb = ["pymongo (>=3.0)"]
 redis = ["redis (>=3.0)"]
 rethinkdb = ["rethinkdb (>=2.4.0)"]
-sqlalchemy = ["sqlalchemy (>=0.8)"]
-testing = ["pytest", "pytest-cov", "pytest-tornado5", "mock", "pytest-asyncio (<0.6)", "pytest-asyncio"]
+sqlalchemy = ["sqlalchemy (>=1.4)"]
+testing = ["pytest", "pytest-asyncio", "pytest-cov", "pytest-tornado5"]
 tornado = ["tornado (>=4.3)"]
 twisted = ["twisted"]
 zookeeper = ["kazoo"]
@@ -155,7 +154,7 @@ tests_no_zope = ["hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist", "c
 
 [[package]]
 name = "black"
-version = "23.1a1"
+version = "22.12.0"
 description = "The uncompromising code formatter."
 category = "main"
 optional = false
@@ -166,7 +165,7 @@ click = ">=8.0.0"
 mypy-extensions = ">=0.4.3"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
+tomli = {version = ">=1.1.0", markers = "python_full_version < \"3.11.0a7\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -192,14 +191,11 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "charset-normalizer"
-version = "2.1.1"
+version = "3.0.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
-python-versions = ">=3.6.0"
-
-[package.extras]
-unicode_backport = ["unicodedata2"]
+python-versions = "*"
 
 [[package]]
 name = "click"
@@ -222,11 +218,11 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.13.1"
+version = "0.17.1"
 description = "Datamodel Code Generator"
 category = "main"
 optional = false
-python-versions = ">=3.6.1,<4.0.0"
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 argcomplete = ">=1.10,<3.0"
@@ -235,9 +231,10 @@ genson = ">=1.2.1,<2.0"
 inflect = ">=4.1.0,<6.0"
 isort = ">=4.3.21,<6.0"
 jinja2 = ">=2.10.1,<4.0"
-openapi-spec-validator = ">=0.2.8,<0.4"
+openapi-spec-validator = ">=0.2.8,<=0.5.1"
+packaging = "*"
 prance = ">=0.18.2,<1.0"
-pydantic = {version = ">=1.9.0,<2.0", extras = ["email"], markers = "python_version >= \"3.10\""}
+pydantic = {version = ">=1.9.0,<2.0", extras = ["email"], markers = "python_version >= \"3.10\" and python_version < \"3.11\""}
 PySnooper = ">=0.4.1,<2.0.0"
 toml = ">=0.10.0,<1.0.0"
 typed-ast = {version = ">=1.5.0", markers = "python_full_version >= \"3.9.8\""}
@@ -247,7 +244,7 @@ http = ["httpx"]
 
 [[package]]
 name = "dipdup"
-version = "6.5.0"
+version = "6.5.1"
 description = "Modular framework for creating selective indexers and featureful backends for dapps"
 category = "main"
 optional = false
@@ -260,21 +257,21 @@ anyio = ">=3.3.2,<4.0.0"
 APScheduler = ">=3.8.0,<4.0.0"
 asyncclick = ">=8.0.1,<9.0.0"
 asyncpg = "0.27.0"
-datamodel-code-generator = "0.13.1"
+datamodel-code-generator = "0.17.1"
 orjson = ">=3.6.6,<4.0.0"
 prometheus-client = ">=0.14.1,<0.15.0"
-pydantic = "1.9.2"
+pydantic = "1.10.5"
 pyhumps = ">=3.0.2,<4.0.0"
 pysignalr = "0.1.2"
 python-dotenv = ">=0.19.0,<0.20.0"
 "ruamel.yaml" = ">=0.17.2,<0.18.0"
 sentry-sdk = ">=1.4.3,<2.0.0"
 sqlparse = ">=0.4.2,<0.5.0"
-tabulate = ">=0.8.9,<0.9.0"
-tortoise-orm = "0.19.2"
+tabulate = ">=0.9.0,<0.10.0"
+tortoise-orm = "0.19.3"
 
 [package.extras]
-pytezos = ["pytezos (==3.7.4)"]
+pytezos = ["pytezos (==3.8.0)"]
 
 [[package]]
 name = "dnspython"
@@ -330,6 +327,18 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "importlib-resources"
+version = "5.12.0"
+description = "Read resources from Python packages"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+docs = ["sphinx (>=3.5)", "jaraco.packaging (>=9)", "rst.linker (>=1.9)", "furo", "sphinx-lint", "jaraco.tidelift (>=1.4)"]
+testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)", "pytest-flake8"]
+
+[[package]]
 name = "inflect"
 version = "5.6.2"
 description = "Correctly generate plurals, singular nouns, ordinals, indefinite articles; convert numbers to words"
@@ -348,17 +357,6 @@ description = "Simple module to parse ISO 8601 dates"
 category = "main"
 optional = false
 python-versions = ">=3.6.2,<4.0"
-
-[[package]]
-name = "isodate"
-version = "0.6.1"
-description = "An ISO 8601 date/time/duration parser and formatter"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-six = "*"
 
 [[package]]
 name = "isort"
@@ -390,20 +388,41 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "jsonschema"
-version = "3.2.0"
+version = "4.17.3"
 description = "An implementation of JSON Schema validation for Python"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 
 [package.dependencies]
 attrs = ">=17.4.0"
-pyrsistent = ">=0.14.0"
-six = ">=1.11.0"
+pyrsistent = ">=0.14.0,<0.17.0 || >0.17.0,<0.17.1 || >0.17.1,<0.17.2 || >0.17.2"
 
 [package.extras]
-format = ["idna", "jsonpointer (>1.13)", "rfc3987", "strict-rfc3339", "webcolors"]
-format_nongpl = ["idna", "jsonpointer (>1.13)", "webcolors", "rfc3986-validator (>0.1.0)", "rfc3339-validator"]
+format = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3987", "uri-template", "webcolors (>=1.11)"]
+format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3986-validator (>0.1.0)", "uri-template", "webcolors (>=1.11)"]
+
+[[package]]
+name = "jsonschema-spec"
+version = "0.1.3"
+description = "JSONSchema Spec with object-oriented paths"
+category = "main"
+optional = false
+python-versions = ">=3.7.0,<4.0.0"
+
+[package.dependencies]
+jsonschema = ">=4.0.0,<5.0.0"
+pathable = ">=0.4.1,<0.5.0"
+PyYAML = ">=5.1"
+typing-extensions = ">=4.3.0,<5.0.0"
+
+[[package]]
+name = "lazy-object-proxy"
+version = "1.9.0"
+description = "A fast and thorough lazy object proxy."
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "markupsafe"
@@ -431,51 +450,51 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "mypy-extensions"
-version = "0.4.3"
-description = "Experimental type system extensions for programs checked with the mypy typechecker."
+version = "1.0.0"
+description = "Type system extensions for programs checked with the mypy type checker."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.5"
 
 [[package]]
 name = "openapi-schema-validator"
-version = "0.1.6"
+version = "0.3.4"
 description = "OpenAPI schema validation for Python"
 category = "main"
 optional = false
-python-versions = ">= 2.7, != 3.0.*, != 3.1.*, != 3.2.*, != 3.3.*, != 3.4.*"
+python-versions = ">=3.7.0,<4.0.0"
 
 [package.dependencies]
-isodate = "*"
-jsonschema = ">=3.0.0"
-six = "*"
+attrs = ">=19.2.0"
+jsonschema = ">=4.0.0,<5.0.0"
 
 [package.extras]
+rfc3339-validator = ["rfc3339-validator"]
+strict-rfc3339 = ["strict-rfc3339"]
 isodate = ["isodate"]
-rfc3339_validator = ["rfc3339-validator"]
-strict_rfc3339 = ["strict-rfc3339"]
 
 [[package]]
 name = "openapi-spec-validator"
-version = "0.3.3"
-description = "OpenAPI 2.0 (aka Swagger) and OpenAPI 3.0 spec validator"
+version = "0.5.1"
+description = "OpenAPI 2.0 (aka Swagger) and OpenAPI 3 spec validator"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7.0,<4.0.0"
 
 [package.dependencies]
-jsonschema = ">=3.2.0,<4.0.0"
-openapi-schema-validator = "<0.2.0"
-pyrsistent = "<0.17.0"
+importlib-resources = ">=5.8.0,<6.0.0"
+jsonschema = ">=4.0.0,<5.0.0"
+jsonschema-spec = ">=0.1.1,<0.2.0"
+lazy-object-proxy = ">=1.7.1,<2.0.0"
+openapi-schema-validator = ">=0.3.2,<0.4.0"
 PyYAML = ">=5.1"
-six = "*"
 
 [package.extras]
 requests = ["requests"]
 
 [[package]]
 name = "orjson"
-version = "3.8.5"
+version = "3.8.6"
 description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
 category = "main"
 optional = false
@@ -493,6 +512,14 @@ python-versions = ">=3.6"
 pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
+name = "pathable"
+version = "0.4.3"
+description = "Object-oriented paths"
+category = "main"
+optional = false
+python-versions = ">=3.7.0,<4.0.0"
+
+[[package]]
 name = "pathspec"
 version = "0.11.0"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -502,15 +529,15 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "platformdirs"
-version = "2.6.2"
+version = "3.0.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.extras]
-docs = ["furo (>=2022.12.7)", "proselint (>=0.13)", "sphinx-autodoc-typehints (>=1.19.5)", "sphinx (>=5.3)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.2.2)", "pytest-cov (>=4)", "pytest-mock (>=3.10)", "pytest (>=7.2)"]
+docs = ["furo (>=2022.12.7)", "proselint (>=0.13)", "sphinx-autodoc-typehints (>=1.22,!=1.23.4)", "sphinx (>=6.1.3)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.2.2)", "pytest-cov (>=4)", "pytest-mock (>=3.10)", "pytest (>=7.2.1)"]
 
 [[package]]
 name = "prance"
@@ -549,15 +576,15 @@ twisted = ["twisted"]
 
 [[package]]
 name = "pydantic"
-version = "1.9.2"
+version = "1.10.5"
 description = "Data validation and settings management using python type hints"
 category = "main"
 optional = false
-python-versions = ">=3.6.1"
+python-versions = ">=3.7"
 
 [package.dependencies]
 email-validator = {version = ">=1.0.3", optional = true, markers = "extra == \"email\""}
-typing-extensions = ">=3.7.4.3"
+typing-extensions = ">=4.2.0"
 
 [package.extras]
 dotenv = ["python-dotenv (>=0.10.4)"]
@@ -592,14 +619,11 @@ python-versions = ">=3.7,<4.0"
 
 [[package]]
 name = "pyrsistent"
-version = "0.16.1"
+version = "0.19.3"
 description = "Persistent/Functional/Immutable data structures"
 category = "main"
 optional = false
-python-versions = ">=2.7"
-
-[package.dependencies]
-six = "*"
+python-versions = ">=3.7"
 
 [[package]]
 name = "pysignalr"
@@ -725,7 +749,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "sentry-sdk"
-version = "1.14.0"
+version = "1.15.0"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = false
@@ -746,6 +770,7 @@ falcon = ["falcon (>=1.4)"]
 fastapi = ["fastapi (>=0.79.0)"]
 flask = ["flask (>=0.11)", "blinker (>=1.1)"]
 httpx = ["httpx (>=0.16.0)"]
+huey = ["huey (>=2)"]
 opentelemetry = ["opentelemetry-distro (>=0.35b0)"]
 pure_eval = ["pure-eval", "executing", "asttokens"]
 pymongo = ["pymongo (>=3.1)"]
@@ -784,11 +809,11 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "tabulate"
-version = "0.8.10"
+version = "0.9.0"
 description = "Pretty-print tabular data"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7"
 
 [package.extras]
 widechars = ["wcwidth"]
@@ -811,7 +836,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "tortoise-orm"
-version = "0.19.2"
+version = "0.19.3"
 description = "Easy async ORM for python, built with relations in mind"
 category = "main"
 optional = false
@@ -829,7 +854,7 @@ asyncmy = ["asyncmy (>=0.2.5,<0.3.0)"]
 asyncodbc = ["asyncodbc (>=0.1.1,<0.2.0)"]
 asyncpg = ["asyncpg"]
 accel = ["ciso8601", "orjson", "uvloop"]
-psycopg = ["psycopg"]
+psycopg = ["psycopg[binary,pool] (==3.0.12)"]
 
 [[package]]
 name = "typed-ast"
@@ -841,7 +866,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "typing-extensions"
-version = "4.4.0"
+version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
@@ -907,7 +932,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.4"
-content-hash = "f07bb0b114e0b9b53f8b122638617dddd270a23bd0791795b43886c64fd73dc2"
+content-hash = "f3c6bc8a32f0cb1e123ec2983078879915b3cd838385e784c54031bf18050e68"
 
 [metadata.files]
 aiohttp = []
@@ -954,21 +979,17 @@ genson = [
     {file = "genson-1.2.2.tar.gz", hash = "sha256:8caf69aa10af7aee0e1a1351d1d06801f4696e005f06cedef438635384346a16"},
 ]
 idna = []
+importlib-resources = []
 inflect = []
 iso8601 = []
-isodate = [
-    {file = "isodate-0.6.1-py2.py3-none-any.whl", hash = "sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96"},
-    {file = "isodate-0.6.1.tar.gz", hash = "sha256:48c5881de7e8b0a0d648cb024c8062dc84e7b840ed81e864c7614fd3c127bde9"},
-]
 isort = []
 jinja2 = [
     {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
 ]
-jsonschema = [
-    {file = "jsonschema-3.2.0-py2.py3-none-any.whl", hash = "sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163"},
-    {file = "jsonschema-3.2.0.tar.gz", hash = "sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a"},
-]
+jsonschema = []
+jsonschema-spec = []
+lazy-object-proxy = []
 markupsafe = []
 msgpack = [
     {file = "msgpack-1.0.4-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:4ab251d229d10498e9a2f3b1e68ef64cb393394ec477e3370c457f9430ce9250"},
@@ -1025,24 +1046,15 @@ msgpack = [
     {file = "msgpack-1.0.4.tar.gz", hash = "sha256:f5d869c18f030202eb412f08b28d2afeea553d6613aee89e200d7aca7ef01f5f"},
 ]
 multidict = []
-mypy-extensions = [
-    {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
-    {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
-]
-openapi-schema-validator = [
-    {file = "openapi-schema-validator-0.1.6.tar.gz", hash = "sha256:230db361c71a5b08b25ec926797ac8b59a8f499bbd7316bd15b6cd0fc9aea5df"},
-    {file = "openapi_schema_validator-0.1.6-py2-none-any.whl", hash = "sha256:8ef097b78c191c89d9a12cdf3d311b2ecf9d3b80bbe8610dbc67a812205a6a8d"},
-    {file = "openapi_schema_validator-0.1.6-py3-none-any.whl", hash = "sha256:af023ae0d16372cf8dd0d128c9f3eaa080dc3cd5dfc69e6a247579f25bd10503"},
-]
-openapi-spec-validator = [
-    {file = "openapi-spec-validator-0.3.3.tar.gz", hash = "sha256:43d606c5910ed66e1641807993bd0a981de2fc5da44f03e1c4ca2bb65b94b68e"},
-    {file = "openapi_spec_validator-0.3.3-py2.py3-none-any.whl", hash = "sha256:49d7da81996714445116f6105c9c5955c0e197ef8636da4f368c913f64753443"},
-]
+mypy-extensions = []
+openapi-schema-validator = []
+openapi-spec-validator = []
 orjson = []
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
+pathable = []
 pathspec = []
 platformdirs = []
 prance = []
@@ -1054,9 +1066,7 @@ pydantic = []
 pyhumps = []
 pyparsing = []
 pypika-tortoise = []
-pyrsistent = [
-    {file = "pyrsistent-0.16.1.tar.gz", hash = "sha256:aa2ae1c2e496f4d6777f869ea5de7166a8ccb9c2e06ebcf6c7ff1b670c98c5ef"},
-]
+pyrsistent = []
 pysignalr = [
     {file = "pysignalr-0.1.2-py3-none-any.whl", hash = "sha256:71500f8c299224251ecc74e24e22aee82e1f6f87870ad3eb3a3d52b17be01056"},
     {file = "pysignalr-0.1.2.tar.gz", hash = "sha256:4d919d3e4a89c28c427d881ac7239f3ec73f8d731266308bcbc88143d6cf085d"},
@@ -1130,11 +1140,7 @@ six = [
 ]
 sniffio = []
 sqlparse = []
-tabulate = [
-    {file = "tabulate-0.8.10-py3-none-any.whl", hash = "sha256:0ba055423dbaa164b9e456abe7920c5e8ed33fcc16f6d1b2f2d152c8e1e8b4fc"},
-    {file = "tabulate-0.8.10-py3.8.egg", hash = "sha256:436f1c768b424654fce8597290d2764def1eea6a77cfa5c33be00b1bc0f4f63d"},
-    {file = "tabulate-0.8.10.tar.gz", hash = "sha256:6c57f3f3dd7ac2782770155f3adb2db0b1a269637e42f27599925e64b114f519"},
-]
+tabulate = []
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
