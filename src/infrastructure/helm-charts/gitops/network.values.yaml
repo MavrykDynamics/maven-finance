@@ -28,3 +28,6 @@ promtail:
 
 sealedSecrets:
   valueFiles: network.values.yaml
+
+tzstats:
+  valueFiles: network.values.yaml
