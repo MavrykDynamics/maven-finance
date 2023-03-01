@@ -27,7 +27,7 @@ inputs = {
   ]
   default_node_pool_name      = "default"
   default_node_pool_size      = "s-4vcpu-8gb"
-  default_node_pool_min_nodes = 2
+  default_node_pool_min_nodes = 3
   default_node_pool_max_nodes = 3
   default_node_pool_tags      = [
     "mavryk",
