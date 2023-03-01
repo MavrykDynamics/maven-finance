@@ -143,10 +143,10 @@ type executeActionParamsType is
     |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
     |   ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
     |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
-    |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
-    |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
-    |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
-    |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
+    // |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
+    // |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
+    // |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
+    // |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
     // |   ToggleVaultFacEntrypoint           of toggleVaultFacEntrypointType
     // |   ToggleLendingContEntrypoint        of toggleLendingContEntrypointType
     
