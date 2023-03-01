@@ -10,8 +10,8 @@ images:
   octez: tezos/tezos:v15-release
 # Images that are part of the tezos-k8s repo go here with 'dev' tag
 tezos_k8s_images:
-  utils: ghcr.io/oxheadalpha/tezos-k8s-utils:6.13.0
-  zerotier: ghcr.io/oxheadalpha/tezos-k8s-zerotier:6.13.0
+  utils: ghcr.io/oxheadalpha/tezos-k8s-utils:6.14.0
+  zerotier: ghcr.io/oxheadalpha/tezos-k8s-zerotier:6.14.0
 ## Properties that are templated for some k8s resources. There are container
 ## scripts that will look up some of these values. They should not be modified.
 tzkt_indexer_statefulset:
@@ -268,17 +268,28 @@ signers: {}
 # ```
 # End Signers
 
-## Where full and rolling history mode nodes will get their Tezos snapshots from.
-full_snapshot_url: https://mainnet.xtz-shots.io/full
-rolling_snapshot_url: https://mainnet.xtz-shots.io/rolling
-## Alternatively to a Tezos snapshot, you can download an LZ4-compressed
-## filesystem tar of a node's data directory by setting `archive_tarball_url`
-## and `rolling_tarball_url` fields to the URL of the file. NOTE:
-## `rolling_tarball_url` and `rolling_snapshot_url` are mutually exclusive and
-## cannot both be specified at the same time.
-archive_tarball_url: https://mainnet.xtz-shots.io/archive-tarball
-# rolling_tarball_url: "https://mainnet.xtz-shots.io/rolling-tarball
-
+# When spinning up nodes, tezos-k8s will attempt to download a snapshot from a
+# known source. This should be a url to a json metadata file in the format
+# xtz-shots uses. If you want to sync from scratch or for a private chain, set
+# to `null`.
+snapshot_source: https://xtz-shots.io/tezos-snapshots.json
+# By default, tezos-k8s will download and unpack snapshots.
+# A tarball is a LZ4-compressed filesystem tar of a node's data directory.
+# You must trust the tarball provider to provide good data, as no check is
+# performed by the node.
+# If you prefer tarballs, set to "true" below.
+prefer_tarballs: false
+# By default, tezos-k8s will attempt to download the right artifact from
+# `snapshot_source` set above. You can override and hard-code a snapshot URL
+# source below. When any of the below variables are set, `snapshot_source` above
+# will be ignored for all artifact types.
+## NOTE: `*_tarball_url` and `*_snapshot_url` are mutually exclusive
+## and cannot both be specified at the same time.
+archive_tarball_url: null # e.g. https://mainnet.xtz-shots.io/archive-tarball
+full_snapshot_url: null
+full_tarball_url: null
+rolling_snapshot_url: null
+rolling_tarball_url: null
 # List of peers for nodes to connect to. Gets set under config.json `p2p` field
 bootstrap_peers: []
 # Identity generation difficulty.
