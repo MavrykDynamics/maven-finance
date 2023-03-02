@@ -455,65 +455,65 @@ block {
 
 
 
-function updateVaultFactoryConfig(const updateConfigParams : vaultFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
-block {
+// function updateVaultFactoryConfig(const updateConfigParams : vaultFactoryUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
+// block {
     
-    // Find and get vault factory contract address from the generalContracts big map
-    const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+//     // Find and get vault factory contract address from the generalContracts big map
+//     const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
 
-    // assign params to constants for better code readability
-    const updateConfigAction    = updateConfigParams.updateConfigAction;
-    const updateConfigNewValue  = updateConfigParams.updateConfigNewValue;
+//     // assign params to constants for better code readability
+//     const updateConfigAction    = updateConfigParams.updateConfigAction;
+//     const updateConfigNewValue  = updateConfigParams.updateConfigNewValue;
 
-    // Find and get updateConfig entrypoint of farm factory contract
-    const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
-        "%updateConfig",
-        vaultFactoryAddress) : option(contract(nat * vaultFactoryUpdateConfigActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND) : contract(nat * vaultFactoryUpdateConfigActionType))
-        ];
+//     // Find and get updateConfig entrypoint of farm factory contract
+//     const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+//         "%updateConfig",
+//         vaultFactoryAddress) : option(contract(nat * vaultFactoryUpdateConfigActionType))) of [
+//                 Some(contr) -> contr
+//             |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND) : contract(nat * vaultFactoryUpdateConfigActionType))
+//         ];
 
-    // Create operation to update vault factory contract config
-    const updateVaultFactoryConfigOperation : operation = Tezos.transaction(
-        (updateConfigNewValue, updateConfigAction),
-        0tez, 
-        updateConfigEntrypoint
-    );
+//     // Create operation to update vault factory contract config
+//     const updateVaultFactoryConfigOperation : operation = Tezos.transaction(
+//         (updateConfigNewValue, updateConfigAction),
+//         0tez, 
+//         updateConfigEntrypoint
+//     );
 
-    operations := updateVaultFactoryConfigOperation # operations;
+//     operations := updateVaultFactoryConfigOperation # operations;
 
-} with (operations)
+// } with (operations)
 
 
 
-function updateLendingControllerConfig(const updateConfigParams : lendingControllerUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
-block {
+// function updateLendingControllerConfig(const updateConfigParams : lendingControllerUpdateConfigParamsType; var operations : list(operation); const s : governanceProxyNodeStorageType) : list(operation) is 
+// block {
     
-    // Find and get lending controller contract address from the generalContracts big map
-    const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+//     // Find and get lending controller contract address from the generalContracts big map
+//     const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
-    // assign params to constants for better code readability
-    const updateConfigAction    = updateConfigParams.updateConfigAction;
-    const updateConfigNewValue  = updateConfigParams.updateConfigNewValue;
+//     // assign params to constants for better code readability
+//     const updateConfigAction    = updateConfigParams.updateConfigAction;
+//     const updateConfigNewValue  = updateConfigParams.updateConfigNewValue;
 
-    // Find and get updateConfig entrypoint of farm factory contract
-    const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
-        "%updateConfig",
-        lendingControllerAddress) : option(contract(nat * lendingControllerUpdateConfigActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(nat * lendingControllerUpdateConfigActionType))
-        ];
+//     // Find and get updateConfig entrypoint of farm factory contract
+//     const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+//         "%updateConfig",
+//         lendingControllerAddress) : option(contract(nat * lendingControllerUpdateConfigActionType))) of [
+//                 Some(contr) -> contr
+//             |   None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(nat * lendingControllerUpdateConfigActionType))
+//         ];
 
-    // Create operation to update lending controller contract config
-    const updateLendingControllerConfigOperation : operation = Tezos.transaction(
-        (updateConfigNewValue, updateConfigAction),
-        0tez, 
-        updateConfigEntrypoint
-    );
+//     // Create operation to update lending controller contract config
+//     const updateLendingControllerConfigOperation : operation = Tezos.transaction(
+//         (updateConfigNewValue, updateConfigAction),
+//         0tez, 
+//         updateConfigEntrypoint
+//     );
 
-    operations := updateLendingControllerConfigOperation # operations;
+//     operations := updateLendingControllerConfigOperation # operations;
 
-} with (operations)
+// } with (operations)
 
 // ------------------------------------------------------------------------------
 // Update Config Helper Functions End

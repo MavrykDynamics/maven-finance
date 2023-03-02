@@ -485,8 +485,6 @@
     "updateAggregatorConfig",
     "updateAggregatorFactoryConfig",
     "updateTreasuryFactoryConfig",
-    "updateVaultFactoryConfig",
-    "updateLendingControllerConfig",
 
     "initFarm",
     "trackFarm",

@@ -188,8 +188,8 @@ block {
         |   UpdateAggregatorConfig (_v)             -> "updateAggregatorConfig"
         |   UpdateAggregatorFactoryConfig (_v)      -> "updateAggregatorFactoryConfig"
         |   UpdateTreasuryFactoryConfig (_v)        -> "updateTreasuryFactoryConfig"
-        |   UpdateVaultFactoryConfig (_v)           -> "updateVaultFactoryConfig"
-        |   UpdateLendingControllerConfig (_v)      -> "updateLendingControllerConfig"
+        // |   UpdateVaultFactoryConfig (_v)           -> "updateVaultFactoryConfig"
+        // |   UpdateLendingControllerConfig (_v)      -> "updateLendingControllerConfig"
 
             (* Farm Control *)
         |   InitFarm (_v)                           -> "initFarm"
@@ -682,45 +682,45 @@ block {
 
 
 
-function updateVaultFactoryConfig(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is 
-block {
+// function updateVaultFactoryConfig(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
-        |   UpdateVaultFactoryConfig(updateContractConfigParams) -> {
+//     case executeAction of [
+//         |   UpdateVaultFactoryConfig(updateContractConfigParams) -> {
 
-                operations := updateVaultFactoryConfig(updateContractConfigParams, operations, s);
+//                 operations := updateVaultFactoryConfig(updateContractConfigParams, operations, s);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-function updateLendingControllerConfig(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is 
-block {
+// function updateLendingControllerConfig(const executeAction : executeActionType; var s : governanceProxyNodeStorageType) : return is 
+// block {
 
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
+//     // verify that sender is admin or the Governance Contract address
+//     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case executeAction of [
-        |   UpdateLendingControllerConfig(updateContractConfigParams) -> {
+//     case executeAction of [
+//         |   UpdateLendingControllerConfig(updateContractConfigParams) -> {
 
-                operations := updateLendingControllerConfig(updateContractConfigParams, operations, s);
+//                 operations := updateLendingControllerConfig(updateContractConfigParams, operations, s);
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 

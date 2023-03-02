@@ -98,8 +98,8 @@ type executeActionParamsType is
     |   UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
     |   UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
     |   UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
-    |   UpdateVaultFactoryConfig           of vaultFactoryUpdateConfigParamsType
-    |   UpdateLendingControllerConfig      of lendingControllerUpdateConfigParamsType
+    // |   UpdateVaultFactoryConfig           of vaultFactoryUpdateConfigParamsType
+    // |   UpdateLendingControllerConfig      of lendingControllerUpdateConfigParamsType
 
     |   InitFarm                           of (targetFarmInitType)
     |   TrackFarm                          of (address)
