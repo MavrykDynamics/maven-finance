@@ -75,6 +75,7 @@ type vaultLambdaActionType is
     |   LambdaDelegateTezToBaker         of delegateTezToBakerType
     |   LambdaDelegateMvkToSat           of satelliteAddressType
     |   LambdaDeposit                    of depositType 
+    |   LambdaDepositXtz                 of unit
     |   LambdaWithdraw                   of withdrawType
     |   LambdaOnLiquidate                of onLiquidateType 
     |   LambdaUpdateDepositor            of updateDepositorType

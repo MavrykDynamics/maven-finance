@@ -193,6 +193,52 @@ block {
 
 
 
+(* depositXtz lambda *)
+function lambdaDepositXtz(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case vaultLambdaAction of [
+        |   LambdaDepositXtz(_params) -> {
+
+                // init deposit operation params
+                const amount     : nat        = (Tezos.get_amount() / 1mutez);
+                const tokenName  : string     = "xtz";
+
+                // get collateral token record from Lending Controller through on-chain view
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+
+                // verify collateral token is not paused
+                verifyCollateralTokenIsNotPaused(collateralTokenRecord);
+
+                // check if sender is owner or a whitelisted depositor
+                const isOwner : bool = checkSenderIsOwner(s);
+                const isWhitelistedDepositor : bool = checkSenderIsWhitelistedDepositor(s);
+
+                // verify that sender is either the vault owner or a whitelisted depositor
+                verifyDepositAllowed(isOwner, isWhitelistedDepositor);
+
+                // register deposit in Lending Controller
+                const registerDepositOperation : operation = registerDepositInLendingController(
+                    amount,       // amount
+                    tokenName,    // tokenName
+                    s             // storage
+                );
+
+                operations := registerDepositOperation # operations;
+
+                // process deposit from sender to vault
+                if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                
+            }   
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
 (* withdraw lambda *)
 function lambdaWithdraw(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
