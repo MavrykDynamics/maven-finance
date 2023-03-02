@@ -32,7 +32,7 @@
 
 type vaultActionType is 
 
-    |   Default of unit
+    |   Default                         of unit
 
         // Housekeeping Entrypoints
     |   SetAdmin                        of (address)
@@ -94,7 +94,7 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
 
     case vaultAction of [
 
-        |   Default(_params)                             -> ((nil : list(operation)), s)
+        |   Default(_params)                             -> default(s)
 
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                         -> setAdmin(parameters, s) 

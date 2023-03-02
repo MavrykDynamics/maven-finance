@@ -4,6 +4,22 @@
 //
 // ------------------------------------------------------------------------------
 
+(* default entrypoint *)
+function default(var s : vaultStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDepositXtz", s.lambdaLedger);
+    
+    // init vault controller lambda action
+    const vaultLambdaAction : vaultLambdaActionType = LambdaDepositXtz(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
+    
+} with response
+
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints Begin
 // ------------------------------------------------------------------------------
