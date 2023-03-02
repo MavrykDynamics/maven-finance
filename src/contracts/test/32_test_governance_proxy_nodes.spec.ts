@@ -192,57 +192,6 @@ describe("Governance proxy lambdas tests", async () => {
             console.log('Mallory address: '     + mallory.pkh);
             console.log('Oscar address: '       + oscar.pkh);
             console.log('-- -- -- -- -- -- -- -- --')
-
-            // const script = await Tezos.rpc.getScript('KT1MTFjUeqBeZoFeW1NLSrzJdcS5apFiUXoB');
-            // const storageSchema = Schema.fromRPCResponse({ script });
-
-            
-            // const entrypointType = governanceProxyInstance.entrypoints.entrypoints.setAdmin;
-            // const michelsonType = util.inspect(entrypointType, {showHidden: false, depth: null, colors: true});
-
-            // // const entrypointSchema = new Schema(michelsonType);
-
-            // console.log(michelsonType);
-            // // console.log(entrypointSchema);
-
-            // const parameterSchema = new ParameterSchema(michelsonType);
-
-            // console.log(parameterSchema);
-
-            // const michelsonData = parameterSchema.Encode(
-            //     'tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu'
-            // )
-
-            // const michelsonData = entrypointSchema.Encode(
-            //     bob.pkh
-            // );
-
-            // console.log(michelsonData);
-            // console.log(JSON.stringify(michelsonData, null, 2));
-
-
-            const entrypointTwoType     = governanceProxyInstance.entrypoints.entrypoints.updateWhitelistContracts;
-            const entrypointTwoSchema   = new Schema(entrypointTwoType);
-            console.log(entrypointTwoSchema.val);
-
-            const parameterSchema   = new ParameterSchema(entrypointTwoSchema.val);
-            // const michelsonTwoData  = parameterSchema.Encode(
-            //     "testWhitelistEncode",
-            //     oscar.pkh
-            // );
-
-            console.log(parameterSchema);
-            // console.log(michelsonTwoData);
-            
-            // console.log(JSON.stringify(michelsonTwoData, null, 2));
-
-
-            // console.log(governanceProxyInstance);
-
-            // console.log(governanceProxyInstance.entrypoints.entrypoints.updateWhitelistTokenContracts);
-            // const contractParameterSchema = governanceProxyInstance.parameterSchema.ExtractSchema();
-            // console.log(JSON.stringify(contractParameterSchema,null,2));
-
     
             // Check if cycle already started (for retest purposes)
             const cycleEnd  = governanceStorage.currentCycleInfo.cycleEndLevel;
