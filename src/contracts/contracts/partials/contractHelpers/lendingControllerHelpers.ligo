@@ -346,20 +346,20 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const loanTokenName : string; const decimals : nat; const tokenBorrowIndex : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
                         
         address                     = vaultAddress;
-        collateralBalanceLedger     = collateralBalanceLedger;
+        collateralBalanceLedger     = (map[] : collateralBalanceLedgerType); // init empty collateral balance ledger map
         loanToken                   = loanTokenName;
 
         loanOutstandingTotal        = 0n;
         loanPrincipalTotal          = 0n;
         loanInterestTotal           = 0n;
         loanDecimals                = decimals;
-        borrowIndex                 = tokenBorrowIndex;
+        borrowIndex                 = 0n;
 
         lastUpdatedBlockLevel       = Tezos.get_level();
         lastUpdatedTimestamp        = Tezos.get_now();
