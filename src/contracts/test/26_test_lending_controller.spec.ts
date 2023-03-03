@@ -1401,7 +1401,7 @@ describe("Lending Controller tests", async () => {
     //
     describe('%createVault test: create vaults - loan tokens: MockFA12 Tokens, MockFA2 Tokens, Tez', function () {
 
-        it('user (eve) can create a new vault (depositors: any) with no tez - LOAN TOKEN: MockFA12', async () => {
+        it('user (eve) can create a new vault (depositors: any) with no tez - LOAN TOKEN: MockFA12 (USDT)', async () => {
             try{        
                 
                 // init variables
@@ -1414,10 +1414,19 @@ describe("Lending Controller tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     eve.pkh,                // delegate to
-                    loanTokenName,          // loan token type
+                    loanTokenName,          // loan token name
                     depositorsConfig        // depositors config type - any / whitelist
                 ).send();
                 await userCreatesNewVaultOperation.confirmation();
+
+                const createVaultParam        = await vaultFactoryInstance.methods.createVault(
+                    eve.pkh,                // delegate to
+                    loanTokenName,          // loan token name
+                    depositorsConfig        // depositors config type - any / whitelist
+                ).toTransferParams();
+                const estimate              = await utils.tezos.estimate.transfer(createVaultParam);
+                console.log("CREATE VAULT ESTIMATION: ", estimate)
+
 
                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
                 const vaultHandle = {
@@ -1445,7 +1454,7 @@ describe("Lending Controller tests", async () => {
 
         });    
 
-        it('user (mallory) can create a new vault (depositors: whitelist set) with no tez - LOAN TOKEN: MockFA12', async () => {
+        it('user (mallory) can create a new vault (depositors: whitelist set) with no tez - LOAN TOKEN: MockFA12 (USDT)', async () => {
             try{        
 
                 // init variables
@@ -2620,18 +2629,18 @@ describe("Lending Controller tests", async () => {
 
             // init variables
             await signerFactory(eve.sk);
-            const loanTokenName = "usdt";
+            const loanTokenName   = "usdt";
             const liquidityAmount = 10000000; // 10 Mock FA12 Tokens
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
             // get mock fa12 token storage and lp token pool mock fa12 token storage
-            const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
-            const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
+            const mockFa12TokenStorage                = await mockFa12TokenInstance.storage();
+            const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
             
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
+            const eveMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMockFa12TokenBalance      = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
             // get initial eve's mEurl Token - Mock FA12 Token - balance
             const eveMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
