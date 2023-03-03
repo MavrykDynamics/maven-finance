@@ -274,41 +274,17 @@ block{
     case vaultFactoryLambdaAction of [
         |   LambdaCreateVault(createVaultParams) -> {
 
-                // init loan token name
+                // init variables
                 const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
                 const vaultOwner : address = Tezos.get_sender();
-
-                // get vault counter
                 const newVaultId : vaultIdType = s.vaultCounter;
-                
-                // make vault handle
-                const handle : vaultHandleType = record [
-                    id     = newVaultId;
-                    owner  = vaultOwner;
-                ];
 
-                // verify vault is unique or if it already exists in Lending Controller
-                verifyVaultHandleIsUnique(handle, s);
-
-                const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
-
-                const vaultDepositors : depositorsType = record [
-                    whitelistedDepositors = (set[]:set(address));
-                    depositorsConfig      = createVaultParams.depositors;
-                ];
-
-                // params for vault with storage origination
-                const originateVaultStorage : vaultStorageType = record [
-                    admin                       = s.admin;
-                    metadata                    = s.vaultMetadata;
-                    mvkTokenAddress             = s.mvkTokenAddress;
-                    governanceAddress           = s.governanceAddress;
-                    
-                    handle                      = handle;
-                    depositors                  = vaultDepositors;
-
-                    lambdaLedger                = vaultLambdaLedger;
-                ];
+                // Prepare new vault storage
+                const originateVaultStorage : vaultStorageType = prepareVaultStorage(
+                    createVaultParams, 
+                    vaultOwner,
+                    newVaultId,
+                    s);
 
                 // originate vault func with delegate option
                 const vaultOrigination : (operation * address) = createVaultFunc(

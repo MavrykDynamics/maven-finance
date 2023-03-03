@@ -58,26 +58,15 @@ block {
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get %withdraw entrypoint in a Vault Contract
-function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(withdrawType) is
+// helper function to get %initVaultAction entrypoint in a Vault Contract
+function getInitVaultActionEntrypoint(const vaultAddress : address) : contract(initVaultActionType) is
     case (Tezos.get_entrypoint_opt(
-        "%withdraw",
-        vaultAddress) : option(contract(withdrawType))) of [
+        "%initVaultAction",
+        vaultAddress) : option(contract(initVaultActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(withdrawType))
+            |   None -> (failwith(error_INIT_VAULT_ACTION_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(initVaultActionType))
         ]
 
-
-
-// helper function to get %onLiquidate entrypoint in a Vault Contract
-function getVaultOnLiquidateEntrypoint(const vaultAddress : address) : contract(onLiquidateType) is
-    case (Tezos.get_entrypoint_opt(
-        "%onLiquidate",
-        vaultAddress) : option(contract(onLiquidateType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(onLiquidateType))
-        ]
-        
 
 
 // helper function to get %onVaultDepositStake entrypoint in staking Contract
@@ -588,58 +577,21 @@ block {
 
 
 // helper function withdraw from vault - call %withdraw in a specified Vault Contract
-function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
-block {
+// function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const vaultAddress : address) : operation is
+// block {
 
-    const withdrawFromVaultOperation : operation = case token of [
-        
-        |   Tez(_tez) -> {
+//     const withdrawOperationParams : initVaultActionType = Withdraw(
+//         amount     = amount;
+//         tokenName  = tokenName;
+//     );
 
-                const withdrawTezOperationParams : withdrawType = record [                    
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-                
-                const withdrawTezOperation : operation = Tezos.transaction(
-                    withdrawTezOperationParams,
-                    0mutez,
-                    getVaultWithdrawEntrypoint(vaultAddress)
-                );
-            
-            } with withdrawTezOperation
+//     const withdrawFromVaultOperation : operation = Tezos.transaction(
+//         withdrawOperationParams,
+//         0mutez,
+//         getInitVaultActionEntrypoint(vaultAddress)
+//     );
 
-        |   Fa12(_token) -> {
-
-                const withdrawFa12OperationParams : withdrawType = record [
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const withdrawFa12Operation : operation = Tezos.transaction(
-                    withdrawFa12OperationParams,
-                    0mutez,
-                    getVaultWithdrawEntrypoint(vaultAddress)
-                );
-
-            } with withdrawFa12Operation
-
-        |   Fa2(_token) -> {
-
-                const withdrawFa2OperationParams : withdrawType = record [
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const withdrawFa2Operation : operation = Tezos.transaction(
-                    withdrawFa2OperationParams,
-                    0mutez,
-                    getVaultWithdrawEntrypoint(vaultAddress)
-                );
-
-            } with withdrawFa2Operation
-    ];
-
-} with withdrawFromVaultOperation
+// } with withdrawFromVaultOperation
 
 
 
@@ -707,59 +659,22 @@ block {
 
 
 // helper function liquidate collateral from vault - call %onLiquidate in a specified Vault Contract
-function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const vaultAddress : address) : operation is
 block {
 
-    const liquidateFromVaultOperation : operation = case token of [
-        
-        |   Tez(_tez) -> {
+    const liquidateOperationParams : initVaultActionType = OnLiquidate(
+        record[
+            receiver   = receiver;
+            amount     = amount;
+            tokenName  = tokenName;
+        ]
+    );
 
-                const liquidateTezOperationParams : onLiquidateType = record [                    
-                    receiver   = receiver;
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-                
-                const liquidateTezOperation : operation = Tezos.transaction(
-                    liquidateTezOperationParams,
-                    0mutez,
-                    getVaultOnLiquidateEntrypoint(vaultAddress)
-                );
-            
-            } with liquidateTezOperation
-
-        |   Fa12(_token) -> {
-
-                const liquidateFa12OperationParams : onLiquidateType = record [
-                    receiver   = receiver;
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const liquidateFa12Operation : operation = Tezos.transaction(
-                    liquidateFa12OperationParams,
-                    0mutez,
-                    getVaultOnLiquidateEntrypoint(vaultAddress)
-                );
-
-            } with liquidateFa12Operation
-
-        |   Fa2(_token) -> {
-
-                const liquidateFa2OperationParams : onLiquidateType = record [
-                    receiver   = receiver;
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const liquidateFa2Operation : operation = Tezos.transaction(
-                    liquidateFa2OperationParams,
-                    0mutez,
-                    getVaultOnLiquidateEntrypoint(vaultAddress)
-                );
-
-            } with liquidateFa2Operation
-    ];
+    const liquidateFromVaultOperation : operation = Tezos.transaction(
+        liquidateOperationParams,
+        0mutez,
+        getInitVaultActionEntrypoint(vaultAddress)
+    );
 
 } with liquidateFromVaultOperation
 
@@ -1286,7 +1201,6 @@ block {
 
     // Init variables
     const collateralTokenName   : string      = collateralToken.tokenName;
-    const collateralTokenType   : tokenType   = collateralToken.tokenType;
     const liquidatorAddress     : address     = liquidator.0;
     const liquidatorTokenAmount : nat         = liquidator.1;
     const treasuryAddress       : address     = treasury.0;
@@ -1332,7 +1246,6 @@ block {
             liquidatorAddress,                  // receiver (i.e. to_)
             collateralTokenName,                // token name
             liquidatorTokenAmount,              // token amount to be withdrawn
-            collateralTokenType,                // token type (i.e. tez, fa12, fa2) 
             vaultAddress                        // vault address
         );
         operations := sendTokensFromVaultToLiquidatorOperation # operations;
@@ -1342,7 +1255,6 @@ block {
             treasuryAddress,                    // receiver (i.e. to_)
             collateralTokenName,                // token name
             treasuryTokenAmount,                // token amount to be withdrawn
-            collateralTokenType,                // token type (i.e. tez, fa12, fa2) 
             vaultAddress                        // vault address
         );
         operations := sendTokensFromVaultToTreasuryOperation # operations;

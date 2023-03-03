@@ -9,6 +9,10 @@
     s.admin
 
 
+(* View: get governance address *)
+[@view] function getGovernanceAddress(const _ : unit; var s : vaultFactoryStorageType) : address is
+    s.governanceAddress
+
 
 (* View: get config *)
 [@view] function getConfig (const _ : unit; const s : vaultFactoryStorageType) : vaultFactoryConfigType is 
