@@ -441,5 +441,6 @@
     "untrackContract",
 
     "manageVestee"
-  ]
+  ],
+  "governanceProxyTest": ["lambdaSetAdmin", "lambdaSetGovernance", "lambdaUpdateMetadata", "lambdaMistakenTransfer"]
 }

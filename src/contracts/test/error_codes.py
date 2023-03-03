@@ -1287,4 +1287,3 @@ error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND                             
 error_NOT_STAKED_TOKEN                                                                                  = 910
 error_UPDATE_OPERATORS_ENTRYPOINT_IN_STAKING_TOKEN_CONTRACT_NOT_FOUND                                   = 911
 error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED                                                  = 912
-
