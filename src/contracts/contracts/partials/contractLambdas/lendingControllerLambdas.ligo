@@ -563,7 +563,7 @@ block {
                 };
 
                 // mint M Tokens and send to sender
-                const mintMTokensOperation : operation              = mintOrBurnMToken(initiator, int(amount), loanTokenRecord.mTokenAddress);
+                const mintMTokensOperation : operation = mintOrBurnMToken(initiator, int(amount), loanTokenRecord.mTokenAddress);
                 operations := mintMTokensOperation # operations;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
@@ -751,7 +751,6 @@ block {
                                 vaultOwner,                         // to_
                                 collateralTokenName,                // token name
                                 finalTokenBalance,                  // token amount to be withdrawn
-                                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
                             );
                             operations := withdrawTokenOperation # operations;
@@ -763,7 +762,6 @@ block {
                                 vaultOwner,                         // to_
                                 collateralTokenName,                // token name
                                 finalTokenBalance,                  // token amount to be withdrawn
-                                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
                             );
                             operations := withdrawTokenOperation # operations;
@@ -1336,7 +1334,7 @@ block {
                 const initiator          : initiatorAddressType    = Tezos.get_sender();
 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
-                const treasuryAddress: address        = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+                const treasuryAddress: address      = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, initiator);
