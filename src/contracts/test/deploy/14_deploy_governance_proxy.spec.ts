@@ -20,13 +20,13 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GovernanceProxy, setGovernanceProxyContractLambdas, setGovernanceProxyContractProxyLambdas } from '../contractHelpers/governanceProxyTestHelper'
+import { GovernanceProxy, setGovernanceProxyContractLambdas } from '../contractHelpers/governanceProxyTestTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { governanceProxyStorage } from '../../storage/governanceProxyStorage'
+import { governanceProxyStorage } from '../../storage/governanceProxyTestStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -69,12 +69,8 @@ describe('Governance Proxy', async () => {
       await signerFactory(bob.sk);
   
       // Governance Proxy Setup Lambdas - Contract Lambdas
-      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 8) // 8 is the last index + 1 (exclusive)
+      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract)
       console.log("Governance Proxy Contract - Lambdas Setup")
-
-      // Governance Proxy Setup Lambdas - Proxy Lambdas
-      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 8) // 8 is the starting index (inclusive)
-      console.log("Governance Proxy Contract - Proxy Lambdas Setup")
 
     } catch(e){
       console.dir(e, {depth: 5})
