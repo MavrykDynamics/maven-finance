@@ -750,7 +750,6 @@ block {
                                 vaultOwner,                         // to_
                                 collateralTokenName,                // token name
                                 finalTokenBalance,                  // token amount to be withdrawn
-                                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
                             );
                             operations := withdrawTokenOperation # operations;
@@ -762,7 +761,6 @@ block {
                                 vaultOwner,                         // to_
                                 collateralTokenName,                // token name
                                 finalTokenBalance,                  // token amount to be withdrawn
-                                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
                             );
                             operations := withdrawTokenOperation # operations;

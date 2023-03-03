@@ -65,8 +65,10 @@ describe('Lending Controller Supporting Contracts', async () => {
             // mToken for Mock FA12 Token in Lending Controller Token Pool 
             mTokenStorage.governanceAddress = governanceAddress.address;
             mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                "lendingController"     : lendingControllerMockTimeAddress.address,
+                "lendingControllerMockTime"     : lendingControllerMockTimeAddress.address, // to be removed in prod
+                "lendingController"             : lendingControllerAddress.address,
             })
+
             mTokenStorage.loanToken = "usdt";  // should correspond to loan token record in lending controller
             mTokenStorage.metadata  = MichelsonMap.fromLiteral({
                 '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
