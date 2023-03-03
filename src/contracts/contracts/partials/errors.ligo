@@ -1287,4 +1287,3 @@
 [@inline] const error_NOT_STAKED_TOKEN                                                                                  = 910n;
 [@inline] const error_UPDATE_OPERATORS_ENTRYPOINT_IN_STAKING_TOKEN_CONTRACT_NOT_FOUND                                   = 911n;
 [@inline] const error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED                                                  = 912n;
-

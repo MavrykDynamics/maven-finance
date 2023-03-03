@@ -260,6 +260,6 @@ type governanceProxyStorageType is record [
 
     proxyLambdaLedger           : proxyLambdaLedgerType;
 
-    lambdaLedger                : lambdaLedgerType;             
+    lambdaLedger                : lambdaLedgerType;
 ]
 
