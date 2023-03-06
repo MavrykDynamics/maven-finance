@@ -184,48 +184,34 @@ type untrackContractType is
 type executeActionParamsType is 
 
         UpdateProxyLambda                  of setProxyLambdaType
-    |   SetContractAdmin                   of setContractAdminType
-    |   SetContractGovernance              of setContractGovernanceType
-    |   SetContractName                    of setContractNameType
-    |   SetContractLambda                  of setContractLambdaType
-    |   SetFactoryProductLambda            of setContractLambdaType
-    |   UpdateContractMetadata             of updateContractMetadataType
-    |   UpdateContractWhitelistMap         of updateContractWhitelistMapType
-    |   UpdateContractGeneralMap           of updateContractGeneralMapType
-    |   UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
+    // |   SetContractAdmin                   of setContractAdminType
+    // |   SetContractGovernance              of setContractGovernanceType
+    // |   SetContractName                    of setContractNameType
+    // |   SetContractLambda                  of setContractLambdaType
+    // |   SetFactoryProductLambda            of setContractLambdaType
+    // |   UpdateContractMetadata             of updateContractMetadataType
+    // |   UpdateContractWhitelistMap         of updateContractWhitelistMapType
+    // |   UpdateContractGeneralMap           of updateContractGeneralMapType
+    // |   UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
 
     |   UpdateContractConfig               of updateContractConfigType
 
-    |   PauseAllContractEntrypoint         of (address)
-    |   UnpauseAllContractEntrypoint       of (address)
+    // |   PauseAllContractEntrypoint         of (address)
+    // |   UnpauseAllContractEntrypoint       of (address)
     |   ToggleContractEntrypoint           of toggleContractEntrypointType
 
-    |   UpdateWhitelistDevelopersSet       of (address)
-    |   SetGovernanceProxy                 of (address)
-
-    |   CreateFarm                         of createFarmType
-    |   InitFarm                           of (targetFarmInitType)
-    |   CloseFarm                          of (address)
-
-    |   CreateTreasury                     of createTreasuryType
     |   TransferTreasury                   of targetTreasuryTransferType
-    |   MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
     |   UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
-    |   StakeMvkTreasury                   of stakeTreasuryType
-    |   UnstakeMvkTreasury                 of unstakeTreasuryType
-
     |   CreateAggregator                   of createAggregatorParamsType
 
-    |   UpdateMvkInflationRate             of (nat)
-    |   TriggerMvkInflation                of (unit)
+    // |   UpdateMvkInflationRate             of (nat)
+    // |   TriggerMvkInflation                of (unit)
 
-    |   TrackContract                      of trackContractType
-    |   UntrackContract                    of untrackContractType
-
-    |   ManageVestee                       of manageVesteeType
+    // |   TrackContract                      of trackContractType
+    // |   UntrackContract                    of untrackContractType
     
-    // |   SetLoanToken                       of setLoanTokenActionType
-    // |   SetCollateralToken                 of setCollateralTokenActionType
+    |   SetLoanToken                       of setLoanTokenActionType
+    |   SetCollateralToken                 of setCollateralTokenActionType
 
 type executeActionType is (executeActionParamsType)
 

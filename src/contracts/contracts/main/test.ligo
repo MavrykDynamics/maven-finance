@@ -48,6 +48,29 @@
 // Lending Controller Types
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
+// Governance Types
+#include "../partials/contractTypes/governanceTypes.ligo"
+
+// Council Types
+#include "../partials/contractTypes/councilTypes.ligo"
+
+// Emergency Governance Types
+#include "../partials/contractTypes/emergencyGovernanceTypes.ligo"
+
+// BreakGlass Types
+#include "../partials/contractTypes/breakGlassTypes.ligo"
+
+// Governance Financial Types
+#include "../partials/contractTypes/governanceFinancialTypes.ligo"
+
+// Governance Satellite Types
+#include "../partials/contractTypes/governanceSatelliteTypes.ligo"
+
+// Token Sale Types
+#include "../partials/contractTypes/tokenSaleTypes.ligo"
+
+// Vault Factory Types
+#include "../partials/contractTypes/vaultFactoryTypes.ligo"
 
 type actionType is 
         // Default Entrypoint to Receive Tez
@@ -201,12 +224,97 @@ type return is list (operation) * unit
 //     );
 // } with list[contractOperation]
 
+function updateAggregatorConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigDecimals
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(aggregatorUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(aggregatorUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateAggregatorFactoryConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigAggregatorNameMaxLength
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(aggregatorFactoryUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(aggregatorFactoryUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateBreakGlassConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = (ConfigThreshold: breakGlassUpdateConfigActionType)
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(breakGlassUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(breakGlassUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateCouncilConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = (ConfigThreshold: councilUpdateConfigActionType)
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(councilUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(councilUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateDelegationConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigMinimumStakedMvkBalance
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(delegationUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(delegationUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
 function updateDoormanConfig (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record [
             updateConfigNewValue    = 111n; 
-            updateConfigAction      = ConfigMinMvkAmount
+            updateConfigAction      = (ConfigMinMvkAmount: doormanUpdateConfigActionType)
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
@@ -214,6 +322,176 @@ block {
             ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(doormanUpdateConfigParamsType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(doormanUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateEmergencyGovernanceConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigVoteExpiryDays
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(emergencyUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(emergencyUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateFarmConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigRewardPerBlock
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(farmUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(farmUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateFarmFactoryConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigFarmNameMaxLength
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(farmFactoryUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(farmFactoryUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateGovernanceConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigSuccessReward
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(governanceUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(governanceUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateGovernanceFinancialConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigFinancialReqApprovalPct
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(governanceFinancialUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(governanceFinancialUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateGovernanceSatelliteConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigSatelliteDurationInDays
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(governanceSatelliteUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(governanceSatelliteUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateLendingControllerConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigCollateralRatio
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(lendingControllerUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(lendingControllerUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateTokenSaleConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = (ConfigMaxAmountPerWalletTotal(0n): tokenSaleUpdateConfigActionType)
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(tokenSaleUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(tokenSaleUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateTreasuryFactoryConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigTreasuryNameMaxLength
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(treasuryFactoryUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(treasuryFactoryUpdateConfigParamsType))
+        ]
+    );
+} with list[contractOperation]
+
+function updateVaultFactoryConfig (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = 111n; 
+            updateConfigAction      = ConfigVaultNameMaxLength
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(vaultFactoryUpdateConfigParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(vaultFactoryUpdateConfigParamsType))
         ]
     );
 } with list[contractOperation]
@@ -749,7 +1027,7 @@ function main (const action : actionType; const s : unit) : return is
     case action of [
 
             // Housekeeping Entrypoints
-            Default (_parameters)                -> (toggleVesteeLock(), s)
+            Default (_parameters)                -> (updateVaultFactoryConfig(), s)
         |   Empty (_parameters)                  -> ((nil : list(operation)), s)
 
     ]
