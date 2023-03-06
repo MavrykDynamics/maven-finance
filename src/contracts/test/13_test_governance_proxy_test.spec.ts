@@ -5,7 +5,7 @@ import { Utils, MVK } from './helpers/Utils';
 import fs from 'fs';
 import { confirmOperation } from '../scripts/confirmation';
 import { BigNumber } from 'bignumber.js'
-import { addVestee, closeFarm, createFarm, initFarm, removeVestee, setAdmin, setGovernance, setName, toggleVesteeLock, updateVestee } from './helpers/governanceProxyHelpers';
+import { addVestee, closeFarm, createFarm, createTreasury, initFarm, mintMvkAndTransfer, pauseAll, removeVestee, setAdmin, setGovernance, setGovernanceProxy, setName, stakeMvk, toggleVesteeLock, unpauseAll, unstakeMvk, updateVestee, updateWhitelistDevelopers } from './helpers/governanceProxyHelpers';
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -13,15 +13,18 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from '../env';
-import { bob, alice, eve, mallory, oscar } from '../scripts/sandbox/accounts';
+import { bob, alice, eve, mallory, oscar, trudy } from '../scripts/sandbox/accounts';
 
 import governanceProxyAddress       from '../deployments/governanceProxyAddress.json';
 import mvkTokenAddress              from '../deployments/mvkTokenAddress.json';
 import vestingAddress               from '../deployments/vestingAddress.json';
 import farmAddress                  from '../deployments/farmAddress.json';
 import farmFactoryAddress           from '../deployments/farmFactoryAddress.json';
+import treasuryAddress              from '../deployments/treasuryAddress.json';
+import treasuryFactoryAddress       from '../deployments/treasuryFactoryAddress.json';
 import governanceAddress            from '../deployments/governanceAddress.json';
 import mTokenEurlAddress            from '../deployments/mTokenEurlAddress.json';
+import doormanAddress               from '../deployments/doormanAddress.json';
 
 import { MichelsonMap }             from '@taquito/taquito';
 import { farmStorageType }          from './types/farmStorageType';
@@ -35,14 +38,20 @@ describe('Governance proxy lambdas tests', async () => {
     let vestingInstance;
     let farmInstance;
     let farmFactoryInstance;
+    let treasuryInstance;
+    let treasuryFactoryInstance;
     let governanceInstance;
+    let doormanInstance;
 
     let governanceProxyStorage;
     let mvkTokenStorage;
     let vestingStorage;
     let farmStorage;
     let farmFactoryStorage;
+    let treasuryStorage;
+    let treasuryFactoryStorage;
     let governanceStorage;
+    let doormanStorage;
     
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -60,14 +69,20 @@ describe('Governance proxy lambdas tests', async () => {
             vestingInstance                 = await utils.tezos.contract.at(vestingAddress.address);
             farmInstance                    = await utils.tezos.contract.at(farmAddress.address);
             farmFactoryInstance             = await utils.tezos.contract.at(farmFactoryAddress.address);
+            treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
+            treasuryFactoryInstance         = await utils.tezos.contract.at(treasuryFactoryAddress.address);
             governanceInstance              = await utils.tezos.contract.at(governanceAddress.address);
+            doormanInstance                 = await utils.tezos.contract.at(doormanAddress.address);
 
             governanceProxyStorage          = await governanceProxyInstance.storage();
             mvkTokenStorage                 = await mvkTokenInstance.storage();
             vestingStorage                  = await vestingInstance.storage();
             farmStorage                     = await farmInstance.storage();
             farmFactoryStorage              = await farmFactoryInstance.storage();
+            treasuryStorage                 = await treasuryInstance.storage();
+            treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
             governanceStorage               = await governanceInstance.storage();
+            doormanStorage                  = await doormanInstance.storage();
     
             console.log('-- -- -- -- -- Governance Proxy Tests -- -- -- --')
             console.log('Governance Proxy Contract deployed at:'        , governanceProxyInstance.address);
@@ -75,7 +90,10 @@ describe('Governance proxy lambdas tests', async () => {
             console.log('Vesting Contract deployed at:'                 , vestingInstance.address);
             console.log('Farm Contract deployed at:'                    , farmInstance.address);
             console.log('Farm Factory Contract deployed at:'            , farmFactoryInstance.address);
+            console.log('Treasury Contract deployed at:'                , treasuryInstance.address);
+            console.log('Treasury Factory Contract deployed at:'        , treasuryFactoryInstance.address);
             console.log('Governance Contract deployed at:'              , governanceInstance.address);
+            console.log('Doorman Contract deployed at:'                 , doormanInstance.address);
 
             console.log('Bob address: '         + bob.pkh);
             console.log('Alice address: '       + alice.pkh);
@@ -183,7 +201,7 @@ describe('Governance proxy lambdas tests', async () => {
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
-            })
+            });
     
             it('%setGovernance', async () => {
                 try{
@@ -465,6 +483,62 @@ describe('Governance proxy lambdas tests', async () => {
                     console.log(e);
                 } 
             });
+
+            it('%pauseAll', async () => {
+                try{
+                    // Initial values
+                    farmStorage                     = await farmInstance.storage();
+                    const initFarmBreakGlassConfig  = await farmStorage.breakGlassConfig;
+                    
+                    // Operation
+                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(await pauseAll(utils.tezos, governanceProxyAddress.address, farmAddress.address)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    farmStorage                     = await farmInstance.storage();
+                    const finalFarmBreakGlassConfig = await farmStorage.breakGlassConfig;
+
+                    // Assertions
+                    assert.equal(initFarmBreakGlassConfig.depositIsPaused, false);
+                    assert.equal(initFarmBreakGlassConfig.withdrawIsPaused, false);
+                    assert.equal(initFarmBreakGlassConfig.claimIsPaused, false);
+                    assert.equal(finalFarmBreakGlassConfig.depositIsPaused, true);
+                    assert.equal(finalFarmBreakGlassConfig.withdrawIsPaused, true);
+                    assert.equal(finalFarmBreakGlassConfig.claimIsPaused, true);
+
+
+                } catch(e){
+                    console.log(e);
+                } 
+            });
+
+            it('%unpauseAll', async () => {
+                try{
+                    // Initial values
+                    farmStorage                     = await farmInstance.storage();
+                    const initFarmBreakGlassConfig  = await farmStorage.breakGlassConfig;
+                    
+                    // Operation
+                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(await unpauseAll(utils.tezos, governanceProxyAddress.address, farmAddress.address)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    farmStorage                     = await farmInstance.storage();
+                    const finalFarmBreakGlassConfig = await farmStorage.breakGlassConfig;
+
+                    // Assertions
+                    assert.equal(initFarmBreakGlassConfig.depositIsPaused, true);
+                    assert.equal(initFarmBreakGlassConfig.withdrawIsPaused, true);
+                    assert.equal(initFarmBreakGlassConfig.claimIsPaused, true);
+                    assert.equal(finalFarmBreakGlassConfig.depositIsPaused, false);
+                    assert.equal(finalFarmBreakGlassConfig.withdrawIsPaused, false);
+                    assert.equal(finalFarmBreakGlassConfig.claimIsPaused, false);
+
+
+                } catch(e){
+                    console.log(e);
+                }
+            });
             
         });
 
@@ -554,6 +628,251 @@ describe('Governance proxy lambdas tests', async () => {
                     console.log(e);
                 } 
             });
-        })
+        });
+
+        describe('Treasury Contract', function() {
+
+            before('Change the Treasury contract admin', async () => {
+                try{
+                    // Initial values
+                    await signerFactory(bob.sk)
+                    treasuryStorage     = await treasuryInstance.storage();
+    
+                    // Operation
+                    if(treasuryStorage.admin !== governanceProxyAddress.address){
+                        const operation = await treasuryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                        await operation.confirmation();
+                    }
+                } catch(e) {
+                    console.dir(e, {depth: 5})
+                }
+            });
+
+            it('%mintMvkAndTransfer', async () => {
+                try{
+                    // Initial values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const receiverAddress               = alice.pkh;
+                    const mintedAmount                  = MVK(2);
+                    const initReceiverMvkLedger         = await mvkTokenStorage.ledger.get(receiverAddress);
+                    const initReceiverMvkBalance        = initReceiverMvkLedger ? initReceiverMvkLedger.toNumber() : 0;
+                    
+                    // Operation
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(await mintMvkAndTransfer(utils.tezos, governanceProxyAddress.address, treasuryAddress.address, receiverAddress, mintedAmount)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const finalReceiverMvkLedger        = await mvkTokenStorage.ledger.get(receiverAddress);
+                    const finalReceiverMvkBalance       = finalReceiverMvkLedger ? finalReceiverMvkLedger.toNumber() : 0;
+
+                    // Assertions
+                    assert.equal(finalReceiverMvkBalance, initReceiverMvkBalance + mintedAmount);
+
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('%stakeMvk', async () => {
+                try{
+                    // Initial values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    const stakedAmount                  = MVK(2);
+                    const initTreasurySMvkLedger        = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+                    const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
+                    
+                    // Operation
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(await stakeMvk(utils.tezos, governanceProxyAddress.address, treasuryAddress.address, stakedAmount)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    const finalTreasurySMvkLedger       = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+                    const finalTreasurySMvkBalance      = finalTreasurySMvkLedger ? finalTreasurySMvkLedger.toNumber() : 0;
+
+                    // Assertions
+                    assert.equal(finalTreasurySMvkBalance, initTreasurySMvkBalance + stakedAmount);
+
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('%unstakeMvk', async () => {
+                try{
+                    // Initial values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    const unstakedAmount                = MVK();
+                    const initTreasurySMvkLedger        = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+                    const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
+                    
+                    // Operation
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(await unstakeMvk(utils.tezos, governanceProxyAddress.address, treasuryAddress.address, unstakedAmount)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    const finalTreasurySMvkLedger       = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+                    const finalTreasurySMvkBalance      = finalTreasurySMvkLedger ? finalTreasurySMvkLedger.toNumber() : 0;
+
+                    // Assertions
+                    assert.notEqual(finalTreasurySMvkBalance, initTreasurySMvkBalance);
+
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
+        describe('Treasury Factory Contract', function() {
+
+            before('Change the Treasury Factory contract admin', async () => {
+                try{
+                    // Initial values
+                    await signerFactory(bob.sk)
+                    treasuryFactoryStorage    = await treasuryFactoryInstance.storage();
+    
+                    // Operation
+                    if(treasuryFactoryStorage.admin !== governanceProxyAddress.address){
+                        const operation     = await treasuryFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                        await operation.confirmation();
+                    }
+                } catch(e) {
+                    console.dir(e, {depth: 5})
+                }
+            });
+
+            it('%createTreasury', async () => {
+                try{
+                    // Initial values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    governanceStorage                   = await governanceInstance.storage();
+                    const treasuryName                  = "TreasuryTest";
+                    const addToGeneralContracts         = true;
+                    const metadataBytes                 = Buffer.from(
+                        JSON.stringify({
+                            name: 'MAVRYK PLENTY-USDTz Farm',
+                            description: 'MAVRYK Farm Contract',
+                            version: 'v1.0.0',
+                            liquidityPairToken: {
+                            tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                            origin: ['Plenty'],
+                            token0: {
+                                symbol: ['PLENTY'],
+                                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                            },
+                            token1: {
+                                symbol: ['USDtz'],
+                                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                            }
+                            },
+                            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                        }),
+                        'ascii',
+                        ).toString('hex')
+                    const initTrackedTreasuryLength     = treasuryFactoryStorage.trackedTreasuries.length;
+                    const initTreasuryTestGovernance    = await governanceStorage.generalContracts.get(treasuryName);
+                    
+                    // Operation
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(await createTreasury(utils.tezos, governanceProxyAddress.address, treasuryFactoryAddress.address, treasuryName, addToGeneralContracts, metadataBytes)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    governanceStorage                   = await governanceInstance.storage();
+                    const createdTreasuryAddress        = treasuryFactoryStorage.trackedTreasuries[0];
+                    const createdTreasuryInstance       = await utils.tezos.contract.at(createdTreasuryAddress);
+                    const createdTreasuryStorage: any   = await createdTreasuryInstance.storage();
+                    const finalTrackedFarmsLength       = treasuryFactoryStorage.trackedTreasuries.length;
+                    const finalTreasuryTestGovernance   = await governanceStorage.generalContracts.get(treasuryName);
+
+                    // Assertions
+                    assert.equal(initTrackedTreasuryLength, 0);
+                    assert.equal(initTreasuryTestGovernance, undefined);
+                    assert.equal(finalTrackedFarmsLength, 1);
+                    assert.strictEqual(finalTreasuryTestGovernance, createdTreasuryAddress);
+                    assert.strictEqual(createdTreasuryStorage.name, treasuryName);
+
+
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
+        describe('Governance Contract', function() {
+
+            before('Change the Governance contract admin', async () => {
+                try{
+                    // Initial values
+                    await signerFactory(bob.sk)
+                    governanceStorage       = await governanceInstance.storage();
+    
+                    // Operation
+                    if(governanceStorage.admin !== governanceProxyAddress.address){
+                        const operation     = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                        await operation.confirmation();
+                    }
+                } catch(e) {
+                    console.dir(e, {depth: 5})
+                }
+            });
+
+            it('%setGovernanceProxy', async () => {
+                try{
+                    // Initial values
+                    governanceStorage                   = await governanceInstance.storage();
+                    const newGovernanceProxyAddress     = bob.pkh;
+                    const initGovernanceProxyAddress    = governanceStorage.governanceProxyAddress;
+                    
+                    // Operation
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(await setGovernanceProxy(utils.tezos, governanceProxyAddress.address, governanceAddress.address, newGovernanceProxyAddress)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    governanceStorage                   = await governanceInstance.storage();
+                    const finalGovernanceProxyAddress   = governanceStorage.governanceProxyAddress;
+
+                    // Assertions
+                    assert.notStrictEqual(initGovernanceProxyAddress, finalGovernanceProxyAddress);
+                    assert.strictEqual(initGovernanceProxyAddress, governanceProxyAddress.address);
+                    assert.strictEqual(finalGovernanceProxyAddress, newGovernanceProxyAddress);
+
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('%updateWhitelistDevelopers', async () => {
+                try{
+                    // Initial values
+                    governanceStorage                           = await governanceInstance.storage();
+                    const newWhistlistedDeveloperAddress        = trudy.pkh;
+                    const initGovernanceWhitelistedDevelopers   = await governanceStorage.whitelistDevelopers;
+                    
+                    // Operation
+                    const operation                             = await governanceProxyInstance.methods.executeGovernanceAction(await updateWhitelistDevelopers(utils.tezos, governanceProxyAddress.address, governanceAddress.address, newWhistlistedDeveloperAddress)).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    governanceStorage                           = await governanceInstance.storage();
+                    const finalGovernanceWhitelistedDevelopers  = await governanceStorage.whitelistDevelopers;
+
+                    // Assertions
+                    assert.notEqual(initGovernanceWhitelistedDevelopers.length, finalGovernanceWhitelistedDevelopers.length);
+                    assert.equal(newWhistlistedDeveloperAddress in finalGovernanceWhitelistedDevelopers, true);
+
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
     });
 });

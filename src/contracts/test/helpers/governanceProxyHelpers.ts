@@ -791,6 +791,35 @@ export const trackProductContract = async(tezos: TezosToolkit, governanceProxyCo
     return await packLambdaFunction(tezos, governanceProxyContractAddress, lambdaFunction)
 }
 
+export const untrackProductContract = async(tezos: TezosToolkit, governanceProxyContractAddress: string, contractAddress: string, productContractType: "Aggregator" | "Farm" | "Treasury", productContractAddress: string) => {
+    // Prepare proposal metadata
+    const entrypointToCall  = "%untrack" + productContractType;
+    const lambdaFunction    = [ 
+        { "prim": "DROP" },
+        { "prim": "PUSH",
+        "args":
+            [ { "prim": "address" },
+            { "string": `${contractAddress}` } ] },
+        { "prim": "CONTRACT", "args": [ { "prim": "address" } ],
+        "annots": [ `${entrypointToCall}` ] },
+        { "prim": "IF_NONE",
+        "args":
+            [ [ { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                { "prim": "FAILWITH" } ], [] ] },
+        { "prim": "PUSH",
+        "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+        { "prim": "PUSH",
+        "args":
+            [ { "prim": "address" },
+            { "string": `${productContractAddress}` } ] },
+        { "prim": "TRANSFER_TOKENS" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "SWAP" }, { "prim": "CONS" }
+    ]; 
+    return await packLambdaFunction(tezos, governanceProxyContractAddress, lambdaFunction)
+}
+
 export const addVestee = async(tezos: TezosToolkit, governanceProxyContractAddress: string, contractAddress: string, vesteeAddress: string, totalAllocatedAmount: number, cliffInMonths: number, vestingInMonths: number) => {
     // Prepare proposal metadata
     const lambdaFunction    = [ 
@@ -936,5 +965,990 @@ export const toggleVesteeLock = async(tezos: TezosToolkit, governanceProxyContra
         { "prim": "NIL", "args": [ { "prim": "operation" } ] },
         { "prim": "SWAP" }, { "prim": "CONS" }
     ]; 
+    return await packLambdaFunction(tezos, governanceProxyContractAddress, lambdaFunction)
+}
+
+export const updateConfig = async(tezos: TezosToolkit, governanceProxyContractAddress: string, contractAddress: string, contractType: "Aggregator" | "AggregatorFactory" | "BreakGlass" | "Council" | "Delegation" | "Doorman" | "EmergencyGovernance" | "Farm" | "FarmFactory" | "Governance" | "GovernanceFinancial" | "GovernanceSatellite" | "LendingController" | "LendingControllerMockTime" | "TokenSale" | "TreasuryFactory" | "VaultFactory", configName: string, updatedValue: number, tokenSaleBuyOption: number = 0) => {
+    // Prepare proposal metadata
+    var lambdaFunction    = undefined;
+    switch(contractType) {
+        case "Aggregator":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configAlphaPercentPerThousand" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configDecimals" ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configHeartBeatSeconds" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configPercentOracleThreshold" ] } ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "unit",
+                                        "annots":
+                                            [ "%configRewardAmountStakedMvk" ] },
+                                        { "prim": "unit",
+                                        "annots":
+                                            [ "%configRewardAmountXtz" ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT", "args": [ { "prim": "unit" } ] },
+                { "prim": "LEFT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "LEFT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "AggregatorFactory":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit",
+                                    "annots":
+                                    [ "%configAggregatorNameMaxLength" ] },
+                                { "prim": "unit",
+                                    "annots": [ "%empty" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+        ]
+        break;
+    case "BreakGlass":
+        lambdaFunction  = [
+            { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configActionExpiryDays" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configCouncilImageMaxLength" ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configCouncilNameMaxLength" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configCouncilWebsiteMaxLength" ] } ] } ] },
+                                { "prim": "unit",
+                                    "annots": [ "%configThreshold" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "Council":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configActionExpiryDays" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configCouncilImageMaxLength" ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configCouncilNameMaxLength" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configCouncilWebsiteMaxLength" ] } ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configRequestPurposeMaxLength" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configRequestTokenNameMaxLength" ] } ] },
+                                        { "prim": "unit",
+                                        "annots": [ "%configThreshold" ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "Delegation":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configDelegationRatio" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configMaxSatellites" ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configMinimumStakedMvkBalance" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configSatDescMaxLength" ] } ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configSatImageMaxLength" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configSatNameMaxLength" ] } ] },
+                                        { "prim": "unit",
+                                        "annots":
+                                            [ "%configSatWebsiteMaxLength" ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "LEFT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] },
+                            { "prim": "unit" } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "Doorman":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit",
+                                    "annots": [ "%configMinMvkAmount" ] },
+                                { "prim": "unit",
+                                    "annots": [ "%empty" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "EmergencyGovernance":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configMinStakedMvkForTrigger" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configMinStakedMvkForVoting" ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configProposalDescMaxLength" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configProposalTitleMaxLength" ] } ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configRequiredFeeMutez" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configStakedMvkPercentRequired" ] } ] },
+                                        { "prim": "unit",
+                                        "annots":
+                                            [ "%configVoteExpiryDays" ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "Farm":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit",
+                                    "annots":
+                                    [ "%configForceRewardFromTransfer" ] },
+                                { "prim": "unit",
+                                    "annots": [ "%configRewardPerBlock" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT", "args": [ { "prim": "unit" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "FarmFactory":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit",
+                                    "annots":
+                                    [ "%configFarmNameMaxLength" ] },
+                                { "prim": "unit",
+                                    "annots": [ "%empty" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "Governance":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configBlocksPerProposalRound" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configBlocksPerTimelockRound" ] } ] },
+                                            { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configBlocksPerVotingRound" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configCycleVotersReward" ] } ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configMaxProposalsPerSatellite" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configMinProposalRoundVotePct" ] } ] },
+                                            { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configMinProposalRoundVotesReq" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configMinQuorumPercentage" ] } ] } ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configMinYayVotePercentage" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configProposalCodeMaxLength" ] } ] },
+                                            { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configProposalDatTitleMaxLength" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configProposalDescMaxLength" ] } ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configProposalInvoiceMaxLength" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configProposalTitleMaxLength" ] } ] },
+                                            { "prim": "or",
+                                                "args":
+                                                [ { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configProposeFeeMutez" ] },
+                                                    { "prim": "unit",
+                                                    "annots":
+                                                        [ "%configSuccessReward" ] } ] } ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT", "args": [ { "prim": "unit" } ] },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] } ] } ] },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "unit" },
+                                        { "prim": "unit" } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "unit" },
+                                        { "prim": "unit" } ] } ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "unit" },
+                                        { "prim": "unit" } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "unit" },
+                                        { "prim": "unit" } ] } ] } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "GovernanceFinancial":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit",
+                                    "annots":
+                                    [ "%configFinancialReqApprovalPct" ] },
+                                { "prim": "unit",
+                                    "annots":
+                                    [ "%configFinancialReqDurationDays" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "GovernanceSatellite":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "unit",
+                                        "annots":
+                                            [ "%configApprovalPercentage" ] },
+                                        { "prim": "unit",
+                                        "annots":
+                                            [ "%configMaxActionsPerSatellite" ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "unit",
+                                        "annots":
+                                            [ "%configPurposeMaxLength" ] },
+                                        { "prim": "unit",
+                                        "annots":
+                                            [ "%configSatelliteDurationInDays" ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT", "args": [ { "prim": "unit" } ] },
+                { "prim": "RIGHT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "LendingController":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configAdminLiquidationFee" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configCollateralRatio" ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configInterestTreasuryShare" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configLiquidationFeePercent" ] } ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configLiquidationRatio" ] },
+                                            { "prim": "unit",
+                                                "annots":
+                                                [ "%configMinLoanFeeTreasuryShare" ] } ] },
+                                        { "prim": "unit",
+                                        "annots":
+                                            [ "%configMinimumLoanFeePercent" ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "RIGHT", "args": [ { "prim": "unit" } ] },
+                { "prim": "LEFT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                { "prim": "LEFT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "unit" } ] },
+                            { "prim": "unit" } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "TokenSale":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "nat",
+                                                "annots":
+                                                [ "%configMaxAmountCap" ] },
+                                            { "prim": "nat",
+                                                "annots":
+                                                [ "%configMaxAmountPerWalletTotal" ] } ] },
+                                        { "prim": "or",
+                                        "args":
+                                            [ { "prim": "nat",
+                                                "annots":
+                                                [ "%configMinMvkAmount" ] },
+                                            { "prim": "nat",
+                                                "annots":
+                                                [ "%configTokenXtzPrice" ] } ] } ] },
+                                { "prim": "or",
+                                    "args":
+                                    [ { "prim": "or",
+                                        "args":
+                                            [ { "prim": "unit",
+                                                "annots":
+                                                [ "%configVestingPeriodDurationSec" ] },
+                                            { "prim": "nat",
+                                                "annots":
+                                                [ "%configVestingPeriods" ] } ] },
+                                        { "prim": "nat",
+                                        "annots":
+                                            [ "%configWhitelistMaxAmountTotal" ] } ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${tokenSaleBuyOption.toString()}` } ] },
+                { "prim": "RIGHT", "args": [ { "prim": "nat" } ] },
+                { "prim": "LEFT",
+                "args":
+                    [ { "prim": "or",
+                        "args": [ { "prim": "nat" }, { "prim": "nat" } ] } ] },
+                { "prim": "LEFT",
+                "args":
+                    [ { "prim": "or",
+                        "args":
+                        [ { "prim": "or",
+                            "args":
+                                [ { "prim": "unit" }, { "prim": "nat" } ] },
+                            { "prim": "nat" } ] } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "TreasuryFactory":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit",
+                                    "annots":
+                                    [ "%configTreasuryNameMaxLength" ] },
+                                { "prim": "unit",
+                                    "annots": [ "%empty" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+        case "VaultFactory":
+            lambdaFunction  = [
+                { "prim": "DROP" },
+                { "prim": "PUSH",
+                "args":
+                    [ { "prim": "address" },
+                    { "string": `${contractAddress}` } ] },
+                { "prim": "CONTRACT",
+                "args":
+                    [ { "prim": "pair",
+                        "args":
+                        [ { "prim": "nat",
+                            "annots": [ "%updateConfigNewValue" ] },
+                            { "prim": "or",
+                            "args":
+                                [ { "prim": "unit",
+                                    "annots":
+                                    [ "%configVaultNameMaxLength" ] },
+                                { "prim": "unit",
+                                    "annots": [ "%empty" ] } ],
+                            "annots": [ "%updateConfigAction" ] } ] } ],
+                "annots": [ "%updateConfig" ] },
+                { "prim": "IF_NONE",
+                "args":
+                    [ [ { "prim": "PUSH",
+                        "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                        { "prim": "FAILWITH" } ], [] ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                { "prim": "UNIT" },
+                { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                { "prim": "PUSH",
+                "args": [ { "prim": "nat" }, { "int": `${updatedValue.toString()}` } ] },
+                { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "SWAP" }, { "prim": "CONS" }
+            ]
+            break;
+    }
     return await packLambdaFunction(tezos, governanceProxyContractAddress, lambdaFunction)
 }
