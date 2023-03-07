@@ -83,11 +83,11 @@ type return is list (operation) * unit
 function setAdmin (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
-        ("tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM" : address),
+        ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg": address),
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%setAdmin",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(address))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg": address)) : option(contract(address))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(address))
         ]
@@ -97,11 +97,11 @@ block {
 function setGovernance (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
-        ("tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM" : address),
+        ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address),
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%setGovernance",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(address))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(address))
         ]
@@ -111,11 +111,11 @@ block {
 function setName (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
-        "nameTest",
+        ("null" : string),
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%setName",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(string))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)) : option(contract(string))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(string))
         ]
@@ -126,13 +126,13 @@ function setLambda (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record[
-            name="LAMBDANAME";
+            name=("null" : string);
             func_bytes=("74657a6f732d73746f726167653a64617461": bytes)
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%setLambda",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(setLambdaType))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)) : option(contract(setLambdaType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(setLambdaType))
         ]
@@ -143,13 +143,13 @@ function setProductLambda (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record[
-            name="LAMBDANAME";
+            name=("null" : string);
             func_bytes=("74657a6f732d73746f726167653a64617461": bytes)
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%setProductLambda",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(setLambdaType))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)) : option(contract(setLambdaType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(setLambdaType))
         ]
@@ -160,13 +160,13 @@ function updateMetadata (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record[
-            metadataKey="KEY";
+            metadataKey=("null" : string);
             metadataHash=("74657a6f732d73746f726167653a64617461": bytes)
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%updateMetadata",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(updateMetadataType))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)) : option(contract(updateMetadataType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(updateMetadataType))
         ]
@@ -228,13 +228,13 @@ function updateAggregatorConfig (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record [
-            updateConfigNewValue    = 111n; 
-            updateConfigAction      = ConfigDecimals
+            updateConfigNewValue    = (6n : nat); 
+            updateConfigAction      = (ConfigHeartBeatSeconds : aggregatorUpdateConfigActionType)
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(aggregatorUpdateConfigParamsType))) of [
+            ("KT1SJdu9ntAmzjjzpwGeU6nTa6ueefRosqp9" : address)) : option(contract(aggregatorUpdateConfigParamsType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(aggregatorUpdateConfigParamsType))
         ]
@@ -580,7 +580,7 @@ block {
             forceRewardFromTransfer  = False;
             infinite                 = False;
             plannedRewards           = record[
-                totalBlocks              = 66n;
+                totalBlocks              = (0n: nat);
                 currentRewardPerBlock    = 12345n;
             ];
             metadata                 = ("74657a6f732d73746f726167653a64617461": bytes);
@@ -606,13 +606,13 @@ block {
         record[
             totalBlocks                 = (0n: nat);
             currentRewardPerBlock       = (0n: nat);
-            forceRewardFromTransfer     = (True: bool);
-            infinite                    = (True: bool);
+            forceRewardFromTransfer     = (False: bool);
+            infinite                    = (False: bool);
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%initFarm",
-            ("test" : address)) : option(contract(initFarmParamsType))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)) : option(contract(initFarmParamsType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(initFarmParamsType))
         ]
@@ -912,58 +912,30 @@ block {
     );
 } with list[contractOperation]
 
-function setLoanToken1 (const _ : unit) : list(operation) is
+function setLoanToken (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record [
             action = CreateLoanToken(record [
-                tokenName                           = "LOANTOKENNAME";
-                tokenDecimals                       = 111n;
-                oracleAddress                       = ("tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq" : address);
-                mTokenAddress                       = ("tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n" : address);
-                reserveRatio                        = 222n;
-                optimalUtilisationRate              = 333n;
-                baseInterestRate                    = 444n;
-                maxInterestRate                     = 555n;
-                interestRateBelowOptimalUtilisation = 666n;
-                interestRateAboveOptimalUtilisation = 777n;
-                minRepaymentAmount                  = 888n;
-                tokenType                           = (Tez : tokenType)
+                tokenName                           = ("null" : string);
+                tokenDecimals                       = (0n : nat);
+                oracleAddress                       = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);
+                mTokenAddress                       = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);
+                reserveRatio                        = (0n : nat);
+                optimalUtilisationRate              = (0n : nat);
+                baseInterestRate                    = (0n : nat);
+                maxInterestRate                     = (0n : nat);
+                interestRateBelowOptimalUtilisation = (0n : nat);
+                interestRateAboveOptimalUtilisation = (0n : nat);
+                minRepaymentAmount                  = (0n : nat);
+                tokenType                           = (Tez : tokenType);
             ]);
             empty  = Unit;
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%setLoanToken",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(setLoanTokenActionType))) of [
-                    Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(setLoanTokenActionType))
-        ]
-    );
-} with list[contractOperation]
-
-function setLoanToken2 (const _ : unit) : list(operation) is
-block {
-    const contractOperation : operation = Tezos.transaction(
-        record [
-            action = UpdateLoanToken(record [
-                tokenName                           = "LOANTOKENNAME";
-                oracleAddress                       = ("tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq" : address);
-                reserveRatio                        = 111n;
-                optimalUtilisationRate              = 222n;
-                baseInterestRate                    = 333n;
-                maxInterestRate                     = 444n;
-                interestRateBelowOptimalUtilisation = 555n;
-                interestRateAboveOptimalUtilisation = 666n;
-                minRepaymentAmount                  = 777n;
-                isPaused                            = True;
-            ]);
-            empty  = Unit;
-        ],
-        0tez,
-        case (Tezos.get_entrypoint_opt(
-            "%setLoanToken",
-            ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address)) : option(contract(setLoanTokenActionType))) of [
+            ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)) : option(contract(setLoanTokenActionType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(setLoanTokenActionType))
         ]
@@ -1027,7 +999,7 @@ function main (const action : actionType; const s : unit) : return is
     case action of [
 
             // Housekeeping Entrypoints
-            Default (_parameters)                -> (initFarm(), s)
+            Default (_parameters)                -> (updateAggregatorConfig(), s)
         |   Empty (_parameters)                  -> ((nil : list(operation)), s)
 
     ]
