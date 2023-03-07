@@ -1418,8 +1418,7 @@ block {
     // Update Loan Token state and get token borrow index
     // ------------------------------------------------------------------
 
-    // Get current vault borrow index, and vault loan token name
-    var vaultBorrowIndex      : nat := vault.borrowIndex;
+    // Get vault loan token name
     const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
     // Get loan token record
@@ -1430,6 +1429,10 @@ block {
     
     // Get loan token parameters
     const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
+
+    // Get or set current vault borrow index
+    var vaultBorrowIndex : nat := vault.borrowIndex;
+    if vaultBorrowIndex = 0n then vaultBorrowIndex := tokenBorrowIndex else skip;
 
     // ------------------------------------------------------------------
     // Accrue interest to vault oustanding

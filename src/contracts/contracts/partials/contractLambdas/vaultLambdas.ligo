@@ -224,6 +224,9 @@ block {
                         }
                     |   UpdateTokenOperators(updateTokenOperatorsParams) -> {
 
+                            // verify sender is vault owner
+                            verifySenderIsVaultOwner(s);
+
                             const tokenName         : string              = updateTokenOperatorsParams.tokenName;
                             const updateOperators   : updateOperatorsType = updateTokenOperatorsParams.updateOperators;
 
