@@ -1113,7 +1113,7 @@
 
 [@inline] const error_ONLY_VAULT_OWNER_ALLOWED                                                                          = 792n;
 [@inline] const error_INVALID_DEPOSITORS_CONFIG                                                                         = 793n;
-[@inline] const error_SET_TO_ANY_DEPOSITORS_FIRST                                                                       = 794n;
+[@inline] const error_INVALID_UPDATE_DEPOSITORS_CONFIGURATION                                                           = 794n;
 [@inline] const error_VAULT_LAMBDA_NOT_FOUND_IN_VAULT_FACTORY_VAULT_LAMBDA_LEDGER                                       = 795n;
 
 // ENTRYPOINTS NOT FOUND ERRORS

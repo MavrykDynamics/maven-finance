@@ -33,5 +33,5 @@ export const vaultStorage: vaultStorageType = {
     admin                       : alice.pkh,
     handle                      : vaultHandle,
     name                        : "newVault",
-    depositors                  : MichelsonMap.fromLiteral({}),
+    depositors                  : "any",
 };
