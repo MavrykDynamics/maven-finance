@@ -284,7 +284,8 @@ block{
                     createVaultParams, 
                     vaultOwner,
                     newVaultId,
-                    s);
+                    s
+                );
 
                 // originate vault func with delegate option
                 const vaultOrigination : (operation * address) = createVaultFunc(

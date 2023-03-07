@@ -819,7 +819,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType      = "createCollateralToken";
-//                 const tokenName                         = "mockFa12";
+//                 const tokenName                         = "usdt";
 //                 const tokenContractAddress              = mockFa12TokenAddress.address;
 //                 const tokenType                         = "fa12";
 //                 const tokenId                           = 0;
@@ -887,7 +887,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType          = "createCollateralToken";
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -1873,7 +1873,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -1950,7 +1950,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -2031,7 +2031,7 @@
 //             await signerFactory(eve.sk);
 //             const vaultId        = eveVaultSet[0];
 //             const vaultOwner     = eve.pkh;
-//             const tokenName      = "mockFa12";
+//             const tokenName      = "usdt";
     
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
@@ -2082,7 +2082,7 @@
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
 
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -2159,7 +2159,7 @@
 //             await signerFactory(eve.sk);
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -2209,7 +2209,7 @@
 //             await signerFactory(mallory.sk);
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -2270,7 +2270,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2349,7 +2349,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2427,7 +2427,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2476,7 +2476,7 @@
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2555,7 +2555,7 @@
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2605,7 +2605,7 @@
 //             const vaultOwner         = mallory.pkh;
 //             const tokenId            = 0;
 
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -5219,7 +5219,7 @@
 //     //             // init variables
 //     //             await signerFactory(bob.sk);
 
-//     //             const tokenName                             = "mockFa2";
+//     //             const tokenName                             = "eurl";
 
 //     //             const updateCollateralTokenActionType       = "updateCollateralToken";
 //     //             const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
@@ -5259,7 +5259,7 @@
 //     //         await signerFactory(eve.sk);
 //     //         const vaultId            = eveVaultSet[1];
 //     //         const vaultOwner         = eve.pkh;
-//     //         const tokenName          = "mockFa2";
+//     //         const tokenName          = "eurl";
 //     //         const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
 //     //         lendingControllerStorage = await lendingControllerInstance.storage();

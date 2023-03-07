@@ -64,16 +64,27 @@ block {
         |   LambdaInitVaultAction(initVaultAction) -> {
 
                 case initVaultAction of [
-                    |   DelegateTezOrMvk(delegateTezOrMvkParams) -> {
+                    |   DelegateTezToBaker(optionKeyHash) -> {
+
+                            // verify sender is vault owner
+                            verifySenderIsVaultOwner(s);
+                            
+                            // Create delegate to tez baker operation
+                            const delegateToTezBakerOperation : operation = Tezos.set_delegate(optionKeyHash);
+                            
+                            operations := delegateToTezBakerOperation # operations;
+
+                        }
+                    |   DelegateMvkToSatellite(satelliteAddress) -> {
 
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
 
-                            case delegateTezOrMvkParams of [
-                                    Tez(optionKeyHash)     -> operations := Tezos.set_delegate(optionKeyHash) # operations
-                                |   Mvk(satelliteAddress)  -> operations := delegateToSatelliteOperation(satelliteAddress, s) # operations
-                            ]
-                            
+                            // Create delegate to satellite operation
+                            const delegateToSatelliteOperation : operation = delegateToSatelliteOperation(satelliteAddress, s);
+
+                            operations := delegateToSatelliteOperation # operations;
+
                         }
                     |   Deposit(depositParams) -> {
 
@@ -207,12 +218,12 @@ block {
                             // if Any and is true, then value is Any; if Any and is false, then reset Whitelist to empty address set
                             // if Whitelist and bool is true, then add account to Whitelist set; else remove account from Whitelist set
                             const emptyWhitelistSet : set(address) = set[];
-                            
+
                             const depositors : depositorsType = case updateDepositorParams.allowance of [
                                 | Any(bool) -> if bool then Any else Whitelist(emptyWhitelistSet)
                                 | Whitelist(_account) -> block {
                                     const updateDepositors : depositorsType = case s.depositors of [
-                                        | Any                    -> failwith(error_SET_TO_ANY_DEPOSITORS_FIRST)
+                                        | Any                    -> if _account.0 then Whitelist(set[_account.1]) else failwith(error_INVALID_UPDATE_DEPOSITORS_CONFIGURATION) // from "Any" to "Whitelist"
                                         | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
                                     ];
                                 } with updateDepositors
