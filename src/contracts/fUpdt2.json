@@ -1,0 +1,159 @@
+[ { "prim": "parameter",
+    "args":
+      [ { "prim": "or",
+          "args":
+            [ { "prim": "unit", "annots": [ "%default" ] },
+              { "prim": "unit", "annots": [ "%empty" ] } ] } ] },
+  { "prim": "storage", "args": [ { "prim": "unit" } ] },
+  { "prim": "code",
+    "args":
+      [ [ { "prim": "UNPAIR" },
+          { "prim": "IF_LEFT",
+            "args":
+              [ [ { "prim": "DROP" },
+                  { "prim": "PUSH",
+                    "args":
+                      [ { "prim": "address" },
+                        { "string": "tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" } ] },
+                  { "prim": "CONTRACT",
+                    "args":
+                      [ { "prim": "pair",
+                          "args":
+                            [ { "prim": "nat",
+                                "annots": [ "%updateConfigNewValue" ] },
+                              { "prim": "or",
+                                "args":
+                                  [ { "prim": "or",
+                                      "args":
+                                        [ { "prim": "or",
+                                            "args":
+                                              [ { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configBlocksPerProposalRound" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configBlocksPerTimelockRound" ] } ] },
+                                                { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configBlocksPerVotingRound" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configCycleVotersReward" ] } ] } ] },
+                                          { "prim": "or",
+                                            "args":
+                                              [ { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configMaxProposalsPerSatellite" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configMinProposalRoundVotePct" ] } ] },
+                                                { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configMinProposalRoundVotesReq" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configMinQuorumPercentage" ] } ] } ] } ] },
+                                    { "prim": "or",
+                                      "args":
+                                        [ { "prim": "or",
+                                            "args":
+                                              [ { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configMinYayVotePercentage" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configProposalCodeMaxLength" ] } ] },
+                                                { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configProposalDatTitleMaxLength" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configProposalDescMaxLength" ] } ] } ] },
+                                          { "prim": "or",
+                                            "args":
+                                              [ { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configProposalInvoiceMaxLength" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configProposalTitleMaxLength" ] } ] },
+                                                { "prim": "or",
+                                                  "args":
+                                                    [ { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configProposeFeeMutez" ] },
+                                                      { "prim": "unit",
+                                                        "annots":
+                                                          [ "%configSuccessReward" ] } ] } ] } ] } ],
+                                "annots": [ "%updateConfigAction" ] } ] } ],
+                    "annots": [ "%updateConfig" ] },
+                  { "prim": "IF_NONE",
+                    "args":
+                      [ [ { "prim": "PUSH",
+                            "args": [ { "prim": "nat" }, { "int": "0" } ] },
+                          { "prim": "FAILWITH" } ], [] ] },
+                  { "prim": "PUSH",
+                    "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+                  { "prim": "UNIT" },
+                  { "prim": "LEFT", "args": [ { "prim": "unit" } ] },
+                  { "prim": "LEFT",
+                    "args":
+                      [ { "prim": "or",
+                          "args": [ { "prim": "unit" }, { "prim": "unit" } ] } ] },
+                  { "prim": "RIGHT",
+                    "args":
+                      [ { "prim": "or",
+                          "args":
+                            [ { "prim": "or",
+                                "args":
+                                  [ { "prim": "unit" }, { "prim": "unit" } ] },
+                              { "prim": "or",
+                                "args":
+                                  [ { "prim": "unit" }, { "prim": "unit" } ] } ] } ] },
+                  { "prim": "RIGHT",
+                    "args":
+                      [ { "prim": "or",
+                          "args":
+                            [ { "prim": "or",
+                                "args":
+                                  [ { "prim": "or",
+                                      "args":
+                                        [ { "prim": "unit" },
+                                          { "prim": "unit" } ] },
+                                    { "prim": "or",
+                                      "args":
+                                        [ { "prim": "unit" },
+                                          { "prim": "unit" } ] } ] },
+                              { "prim": "or",
+                                "args":
+                                  [ { "prim": "or",
+                                      "args":
+                                        [ { "prim": "unit" },
+                                          { "prim": "unit" } ] },
+                                    { "prim": "or",
+                                      "args":
+                                        [ { "prim": "unit" },
+                                          { "prim": "unit" } ] } ] } ] } ] },
+                  { "prim": "PUSH",
+                    "args": [ { "prim": "nat" }, { "int": "111" } ] },
+                  { "prim": "PAIR" }, { "prim": "TRANSFER_TOKENS" },
+                  { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                  { "prim": "SWAP" }, { "prim": "CONS" } ],
+                [ { "prim": "DROP" },
+                  { "prim": "NIL", "args": [ { "prim": "operation" } ] } ] ] },
+          { "prim": "PAIR" } ] ] } ]
+
