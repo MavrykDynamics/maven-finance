@@ -477,7 +477,7 @@ block {
                 const handle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
                 // Get loan token record 
-                const loanTokenRecord : loanTokenRecordType = getLoanTokenReference(loanTokenName, s);;
+                const loanTokenRecord : loanTokenRecordType = getLoanTokenReference(loanTokenName, s);
                 
                 // Create vault record - loan token borrow index initialised to 0
                 const vault : vaultRecordType = createVaultRecord(
