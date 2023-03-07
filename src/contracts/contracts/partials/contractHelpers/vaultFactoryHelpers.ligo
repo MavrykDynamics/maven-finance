@@ -111,7 +111,7 @@ block {
 
     // params for vault with storage origination
     const newVaultStorage : vaultStorageType = record [
-        admin                       = s.admin;
+        admin                       = Tezos.get_self_address();
         name                        = vaultName;
         handle                      = handle;
         depositors                  = createVaultParams.depositors;
