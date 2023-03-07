@@ -970,7 +970,7 @@ export const toggleVesteeLock = async(tezos: TezosToolkit, governanceProxyContra
 
 export const updateConfig = async(tezos: TezosToolkit, governanceProxyContractAddress: string, contractAddress: string, contractType: "Aggregator" | "AggregatorFactory" | "BreakGlass" | "Council" | "Delegation" | "Doorman" | "EmergencyGovernance" | "Farm" | "FarmFactory" | "Governance" | "GovernanceFinancial" | "GovernanceSatellite" | "LendingController" | "LendingControllerMockTime" | "TokenSale" | "TreasuryFactory" | "VaultFactory", configName: string, updatedValue: number, tokenSaleBuyOption: number = 0) => {
     // Prepare proposal metadata
-    var lambdaFunction    = undefined;
+    var lambdaFunction: any = undefined;
     switch(contractType) {
         case "Aggregator":
             lambdaFunction  = [
