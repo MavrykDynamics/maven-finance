@@ -20,6 +20,7 @@
     "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230203 limabox start && bash ./sandbox-init.sh",
     "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name mavryk-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230203 limabox start && bash ./sandbox-init.sh",
     "generate-error-codes": "bash ./generate-error-codes.sh",
+    "compile-lambda-function": "ts-node scripts/proxyLambdaFunctionPacker.ts",
     "pre-compile": "ts-node scripts/cli.ts compile -o contracts/compiled -c",
     "pre-compile-m1": "ts-node scripts/cli.ts compile -o contracts/compiled -m true -c",
     "pre-compile-all": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",
@@ -32,16 +33,13 @@
     "compile-all-lambdas-2": "yarn compile-contract-lambdas farm,farmFactory,treasury,treasuryFactory,aggregator,aggregatorFactory",
     "compile-all-lambdas-3": "yarn compile-contract-lambdas vault,lendingController",
     "compile-all-contracts-no-lambdas": "./compile-contracts.sh --contracts-only",
-
     "old-compile-contract": "ts-node scripts/cli.ts old-compile-contract -c",
     "generate-lambda-indexes": "ts-node scripts/cli.ts generate-lambda-indexes",
-    
     "compile": "./compile-contracts.sh",
     "compile-m1": "./compile-contracts.sh -a",
     "migrate": "./deploy-contracts.sh",
-    "migrate-lendingController" : "ts-mocha --paths test/migrations/migrate_lendingController.spec.ts --bail --timeout 900000",
-    "migrate-lendingControllerMockTime" : "ts-mocha --paths test/migrations/migrate_lendingControllerMockTime.spec.ts --bail --timeout 900000",
-    
+    "migrate-lendingController": "ts-mocha --paths test/migrations/migrate_lendingController.spec.ts --bail --timeout 900000",
+    "migrate-lendingControllerMockTime": "ts-mocha --paths test/migrations/migrate_lendingControllerMockTime.spec.ts --bail --timeout 900000",
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ghostnet ./deploy-contracts.sh",
     "test-net-deploy-prod": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ghostnet PRODUCTION=true ./deploy-contracts.sh",
     "test-net-interact": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ghostnet ts-mocha --paths test/interact/00_test_testnet_interactions.spec.ts --bail --timeout 900000",
