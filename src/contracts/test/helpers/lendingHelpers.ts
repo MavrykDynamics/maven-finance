@@ -175,9 +175,9 @@ export const calculateScaledTokenBalance = (initialTokenBalance, initialUserRewa
 export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLedger) => {
     
     let usdtBalance                 = collateralBalanceLedger.get('usdt') == undefined ? 0 : collateralBalanceLedger.get('usdt');
-    let eurlBalance                 = collateralBalanceLedger.get('eurl')  == undefined ? 0 : collateralBalanceLedger.get('eurl');
-    let xtzBalance                  = collateralBalanceLedger.get('tez')      == undefined ? 0 : collateralBalanceLedger.get('tez');
-    let mvkBalance                  = collateralBalanceLedger.get("smvk")     == undefined ? 0 : collateralBalanceLedger.get("smvk");
+    let eurlBalance                 = collateralBalanceLedger.get('eurl') == undefined ? 0 : collateralBalanceLedger.get('eurl');
+    let xtzBalance                  = collateralBalanceLedger.get('tez')  == undefined ? 0 : collateralBalanceLedger.get('tez');
+    let mvkBalance                  = collateralBalanceLedger.get("smvk") == undefined ? 0 : collateralBalanceLedger.get("smvk");
 
     let usdtTokenPrice              = tokenOracles.find(o => o.name === "usdt").price;
     let eurlTokenPrice              = tokenOracles.find(o => o.name === "eurl").price;
@@ -195,10 +195,10 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
     let mvkTokenDecimals            = tokenOracles.find(o => o.name === "smvk").tokenDecimals;
 
     // rebased to no decimals (Math.trunc to simulate smart contract division)
-    let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(usdtBalance / (10 ** usdtTokenDecimals)) * usdtTokenPrice ) / (10 ** usdtTokenPriceDecimals);
+    let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(usdtBalance  / (10 ** usdtTokenDecimals )) * usdtTokenPrice  ) / (10 ** usdtTokenPriceDecimals);
     let vaultMockFa2TokenValue      = Math.trunc(Math.trunc(eurlBalance  / (10 ** eurlTokenDecimals )) * eurlTokenPrice  ) / (10 ** eurlTokenPriceDecimals);
-    let vaultXtzValue               = Math.trunc(Math.trunc(xtzBalance      / (10 ** tezTokenDecimals     )) * tezPrice           ) / (10 ** tezPriceDecimals);
-    let vaultMvkValue               = Math.trunc(Math.trunc(mvkBalance      / (10 ** mvkTokenDecimals     )) * mvkPrice           ) / (10 ** mvkPriceDecimals);
+    let vaultXtzValue               = Math.trunc(Math.trunc(xtzBalance   / (10 ** tezTokenDecimals  )) * tezPrice        ) / (10 ** tezPriceDecimals);
+    let vaultMvkValue               = Math.trunc(Math.trunc(mvkBalance   / (10 ** mvkTokenDecimals  )) * mvkPrice        ) / (10 ** mvkPriceDecimals);
     
     let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue + vaultMvkValue;
 
