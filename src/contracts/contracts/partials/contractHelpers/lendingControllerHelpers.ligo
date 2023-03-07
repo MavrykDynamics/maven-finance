@@ -576,24 +576,6 @@ block {
 
 
 
-// helper function withdraw from vault - call %withdraw in a specified Vault Contract
-// function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const vaultAddress : address) : operation is
-// block {
-
-//     const withdrawOperationParams : initVaultActionType = Withdraw(
-//         amount     = amount;
-//         tokenName  = tokenName;
-//     );
-
-//     const withdrawFromVaultOperation : operation = Tezos.transaction(
-//         withdrawOperationParams,
-//         0mutez,
-//         getInitVaultActionEntrypoint(vaultAddress)
-//     );
-
-// } with withdrawFromVaultOperation
-
-
 
 // helper function withdraw staked token (e.g. sMVK) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultWithdrawStake in Doorman Contract
 function onWithdrawStakedTokenFromVaultOperation(const vaultOwner : address; const vaultAddress : address; const withdrawAmount : nat; const stakingContractAddress : address) : operation is

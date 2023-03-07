@@ -39,10 +39,8 @@ import mTokenUsdtAddress                        from "../deployments/mTokenUsdtA
 import mTokenEurlAddress                        from "../deployments/mTokenEurlAddress.json";
 import mTokenXtzAddress                         from "../deployments/mTokenXtzAddress.json";
 
-import lendingControllerAddress         from '../deployments/lendingControllerMockTimeAddress.json';
-import lendingControllerMockTimeAddress from '../deployments/lendingControllerMockTimeAddress.json';
-
-import vaultFactoryAddress              from '../deployments/vaultFactoryAddress.json';
+import lendingControllerMockTimeAddress         from '../deployments/lendingControllerMockTimeAddress.json';
+import vaultFactoryAddress                      from '../deployments/vaultFactoryAddress.json';
 
 import { vaultStorageType }             from "./types/vaultStorageType"
 import { aggregatorStorageType }        from './types/aggregatorStorageType';
@@ -66,8 +64,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     // ------------------------------------------------
 
     //  vault sets 
-    var eveVaultSet     = []
-    var malloryVaultSet = [] 
+    var eveVaultSet : Array<Number>     = []
+    var malloryVaultSet : Array<Number> = [] 
 
     // 3 seconds blocks (docker sandbox)
     const oneMinuteLevelBlocks = 20
@@ -448,8 +446,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         mvkTokenInstance                        = await utils.tezos.contract.at(mvkTokenAddress.address);
         treasuryInstance                        = await utils.tezos.contract.at(treasuryAddress.address);
 
-        usdtTokenInstance                   = await utils.tezos.contract.at(usdtTokenAddress.address);
-        eurlTokenInstance                    = await utils.tezos.contract.at(eurlTokenAddress.address);
+        usdtTokenInstance                       = await utils.tezos.contract.at(usdtTokenAddress.address);
+        eurlTokenInstance                       = await utils.tezos.contract.at(eurlTokenAddress.address);
         governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
         governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
 
@@ -470,8 +468,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         mvkTokenStorage                         = await mvkTokenInstance.storage();
         treasuryStorage                         = await treasuryInstance.storage();
 
-        usdtTokenStorage                    = await usdtTokenInstance.storage();
-        eurlTokenStorage                     = await eurlTokenInstance.storage();
+        usdtTokenStorage                        = await usdtTokenInstance.storage();
+        eurlTokenStorage                        = await eurlTokenInstance.storage();
         governanceStorage                       = await governanceInstance.storage();
         governanceProxyStorage                  = await governanceInstance.storage();
         lendingControllerStorage                = await lendingControllerInstance.storage();
@@ -1578,7 +1576,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const eveInitialMUsdtTokenTokenBalance    = await mUsdtTokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
+            const lendingControllerMockFa12Ledger                = await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
@@ -1588,14 +1586,14 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await usdtTokenInstance.methods.approve(
-                lendingControllerAddress.address,
+                lendingControllerMockTimeAddress.address,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await usdtTokenInstance.methods.approve(
-                lendingControllerAddress.address,
+                lendingControllerMockTimeAddress.address,
                 liquidityAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -1621,7 +1619,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check Eve's mUsdt Token Token balance
@@ -1652,7 +1650,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA2 Token balance
-            const lendingControllerMockFa2Ledger                = await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
+            const lendingControllerMockFa2Ledger                = await eurlTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
             // get initial lending controller token pool total
@@ -1664,7 +1662,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 {
                     add_operator: {
                         owner: eve.pkh,
-                        operator: lendingControllerAddress.address,
+                        operator: lendingControllerMockTimeAddress.address,
                         token_id: 0,
                     },
                 }])
@@ -1693,7 +1691,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA2 Token Balance
-            const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+            const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance + liquidityAmount);
 
             // check Eve's mEurl Token Token balance
@@ -1724,7 +1722,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const eveInitialMXtzTokenBalance    = eveMXtzTokenLedger == undefined ? 0 : eveMXtzTokenLedger.toNumber();
             
             // get initial lending controller's XTZ balance
-            const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+            const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerMockTimeAddress.address);
             const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
 
             // get initial lending controller token pool total
@@ -1747,7 +1745,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check Lending Controller's XTZ Balance
-            const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+            const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerMockTimeAddress.address);
             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance + liquidityAmount);
 
             // check Eve's mToken Pool XTZ balance
@@ -1798,12 +1796,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const vaultOwner    = eve.pkh;
             const liquidator    = mallory.pkh;
             const loanTokenName = "usdt";
-
+            const vaultName     = "newVault";
             const depositorsConfig      = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
                 loanTokenName,          // loan token type
+                vaultName,              // vault name
                 depositorsConfig        // depositors config type - any / whitelist
             ).send();
             await userCreatesNewVaultOperation.confirmation();
@@ -1850,7 +1849,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await setNewTokenAllowanceForDeposit.confirmation();
 
             // eve deposits mock FA12 tokens into vault
-            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",
                 usdtDepositAmount,           
                 "usdt"
             ).send();
@@ -1886,7 +1886,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             treasuryMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(treasuryAddress.address);            
             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
-            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
+            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             initialLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
             // get token pool stats
@@ -2037,14 +2037,14 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // mallory resets mock FA12 tokens allowance then set new allowance to liquidate amount
             // reset token allowance
             resetTokenAllowance = await usdtTokenInstance.methods.approve(
-                lendingControllerAddress.address,
+                lendingControllerMockTimeAddress.address,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             setNewTokenAllowance = await usdtTokenInstance.methods.approve(
-                lendingControllerAddress.address,
+                lendingControllerMockTimeAddress.address,
                 liquidationAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -2059,7 +2059,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             // Update storage
             lendingControllerStorage    = await lendingControllerInstance.storage();
-            usdtTokenStorage        = await usdtTokenInstance.storage();
+            usdtTokenStorage            = await usdtTokenInstance.storage();
 
             // vault record
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
@@ -2120,7 +2120,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             treasuryMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(treasuryAddress.address);            
             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
-            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
+            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
 
@@ -2178,14 +2178,14 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // mallory resets mock FA12 tokens allowance then set new allowance to liquidate amount
             // reset token allowance
             resetTokenAllowance = await usdtTokenInstance.methods.approve(
-                lendingControllerAddress.address,
+                lendingControllerMockTimeAddress.address,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             setNewTokenAllowance = await usdtTokenInstance.methods.approve(
-                lendingControllerAddress.address,
+                lendingControllerMockTimeAddress.address,
                 overflowLiquidationAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -2250,7 +2250,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             treasuryMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(treasuryAddress.address);            
             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
-            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
+            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
             // ----------------------------------------------------------------------------------------------
@@ -2317,12 +2317,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const vaultOwner    = eve.pkh;
             const liquidator    = mallory.pkh;
             const loanTokenName = "eurl";
-
+            const vaultName     = "newVault";
             const depositorsConfig      = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
                 loanTokenName,          // loan token type
+                vaultName,              // vault name
                 depositorsConfig        // depositors config type - any / whitelist
             ).send();
             await userCreatesNewVaultOperation.confirmation();
@@ -2369,7 +2370,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await setNewTokenAllowance.confirmation();
 
             // eve deposits mock FA12 tokens into vault
-            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",
                 usdtDepositAmount,           
                 "usdt"
             ).send();
@@ -2416,13 +2418,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
             initialTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
 
-            lendingControllerMockFa12TokenAccount         =  await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerMockFa2TokenAccount          =  await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
+            lendingControllerMockFa12TokenAccount         =  await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerMockFa2TokenAccount          =  await eurlTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             initialLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             initialLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
-            lendingControllerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerMockFa2TokenAccount           =  await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
+            lendingControllerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerMockFa2TokenAccount           =  await eurlTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             initialLendingControllerMockFa12TokenBalance   = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             initialLendingControllerMockFa2TokenBalance    = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
@@ -2659,7 +2661,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 {
                     add_operator: {
                         owner: liquidator,
-                        operator: lendingControllerAddress.address,
+                        operator: lendingControllerMockTimeAddress.address,
                         token_id: 0,
                     },
                 }])
@@ -2729,13 +2731,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
             updatedTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
 
-            lendingControllerMockFa12TokenAccount         =  await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerMockFa2TokenAccount          =  await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
+            lendingControllerMockFa12TokenAccount         =  await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerMockFa2TokenAccount          =  await eurlTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             updatedLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             updatedLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
-            lendingControllerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerMockFa2TokenAccount           =  await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
+            lendingControllerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerMockFa2TokenAccount           =  await eurlTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
             updatedLendingControllerMockFa12TokenBalance   = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             updatedLendingControllerMockFa2TokenBalance    = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
@@ -2885,12 +2887,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const vaultOwner    = eve.pkh;
             const liquidator    = mallory.pkh;
             const loanTokenName = "eurl";
-
+            const vaultName     = "newVault";
             const depositorsConfig      = "any";    
     
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
                 loanTokenName,          // loan token type
+                vaultName,              // vault name
                 depositorsConfig        // depositors config type - any / whitelist
             ).send();
             await userCreatesNewVaultOperation.confirmation();
@@ -2940,7 +2943,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await setNewTokenAllowance.confirmation();
     
             // eve deposits mock FA12 tokens into vault
-            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",
                 usdtDepositAmount,           
                 "usdt"
             ).send();
@@ -2962,7 +2966,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await updateOperatorsOperation.confirmation();
     
             // eve deposits mock FA2 tokens into vault
-            const eveDepositMockFa2TokenOperation  = await vaultInstance.methods.deposit(
+            const eveDepositMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",
                 eurlDepositAmount,           
                 "eurl"
             ).send();
@@ -2972,9 +2977,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Deposit Tez
             // ---------------------------------
     
-            const eveDepositTezOperation  = await vaultInstance.methods.deposit(
-                    tezDepositAmount,  // amt
-                    "tez"              // token
+            const eveDepositTezOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",         // vault action
+                tezDepositAmount,  // amt
+                "tez"              // token
             ).send({ mutez : true, amount : tezDepositAmount });
             await eveDepositTezOperation.confirmation();
     
@@ -2987,7 +2993,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const stakedTokenName = "smvk";
 
             // eve set doorman as operator for vault
-            updateOperatorsOperation = await vaultInstance.methods.updateTokenOperators(
+            updateOperatorsOperation = await vaultInstance.methods.initVaultAction(
+                "updateTokenOperators",
                 stakedTokenName,
                 [
                     {
@@ -3086,9 +3093,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ----            
 
             // Lending Controller
-            lendingControllerMockFa12TokenAccount         = await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerMockFa2TokenAccount          = await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+            lendingControllerMockFa12TokenAccount         = await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerMockFa2TokenAccount          = await eurlTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerMockTimeAddress.address);
 
             initialLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             initialLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
@@ -3406,7 +3413,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 {
                     add_operator: {
                         owner: liquidator,
-                        operator: lendingControllerAddress.address,
+                        operator: lendingControllerMockTimeAddress.address,
                         token_id: 0,
                     },
                 }])
@@ -3451,7 +3458,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultBorrowIndex            = vaultRecord.borrowIndex;
     
             console.log('after liquidation');
-            console.log(vaultRecord);
+            // console.log(vaultRecord);
 
             // vault calculations
             totalLiquidationAmount                  = lendingHelper.calculateTotalLiquidationAmount(liquidationAmount, vaultMaxLiquidationAmount);
@@ -3524,9 +3531,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ----            
 
             // Lending Controller
-            lendingControllerMockFa12TokenAccount         = await usdtTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerMockFa2TokenAccount          = await eurlTokenStorage.ledger.get(lendingControllerAddress.address);            
-            lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+            lendingControllerMockFa12TokenAccount         = await usdtTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerMockFa2TokenAccount          = await eurlTokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
+            lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerMockTimeAddress.address);
 
             updatedLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             updatedLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
@@ -3687,12 +3694,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const loanTokenName = "usdt";
-
+            const vaultName     = "newVault";
             const depositorsConfig      = "any";    
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
                 loanTokenName,          // loan token type
+                vaultName,              // vault name
                 depositorsConfig        // depositors config type - any / whitelist
             ).send();
             await userCreatesNewVaultOperation.confirmation();
@@ -3744,7 +3752,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await setNewTokenAllowance.confirmation();
     
             // eve deposits mock FA12 tokens into vault
-            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",
                 usdtDepositAmount,           
                 "usdt"
             ).send();
@@ -3766,7 +3775,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await updateOperatorsOperation.confirmation();
     
             // eve deposits mock FA2 tokens into vault
-            const eveDepositMockFa2TokenOperation  = await vaultInstance.methods.deposit(
+            const eveDepositMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",
                 eurlDepositAmount,           
                 "eurl"
             ).send();
@@ -3776,9 +3786,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Deposit Tez
             // ---------------------------------
     
-            const eveDepositTezOperation  = await vaultInstance.methods.deposit(
-                    tezDepositAmount,  // amt
-                    "tez"              // token
+            const eveDepositTezOperation  = await vaultInstance.methods.initVaultAction(
+                "deposit",
+                tezDepositAmount,  // amt
+                "tez"              // token
             ).send({ mutez : true, amount : tezDepositAmount });
             await eveDepositTezOperation.confirmation();
     
@@ -3789,7 +3800,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const stakedTokenName = "smvk";
 
             // eve set doorman as operator for vault
-            updateOperatorsOperation = await vaultInstance.methods.updateTokenOperators(
+            updateOperatorsOperation = await vaultInstance.methods.initVaultAction(
+                "updateTokenOperators",
                 stakedTokenName,
                 [
                     {
