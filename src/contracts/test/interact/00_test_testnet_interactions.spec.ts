@@ -4405,6 +4405,7 @@ describe("Testnet interactions helper", async () => {
     //             const operation = await vaultFactoryInstance.methods.createVault(
     //                 null,
     //                 loanTokenName,          // loan token type
+    //                 "vaultName",
     //                 depositors
     //             ).send();
     //             await operation.confirmation();
@@ -4429,6 +4430,7 @@ describe("Testnet interactions helper", async () => {
     //             const createVaultOperation = await vaultFactoryInstance.methods.createVault(
     //                 null,
     //                 loanTokenName,          // loan token type
+    //                 "vaultName",
     //                 depositors              // depositors type
     //             ).send();
     //             await createVaultOperation.confirmation();
@@ -4487,7 +4489,7 @@ describe("Testnet interactions helper", async () => {
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.deposit(depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -4501,7 +4503,7 @@ describe("Testnet interactions helper", async () => {
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.withdraw(withdrawAmountMutez, "tez").send();
+    //             const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMutez, "tez").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -5103,6 +5105,7 @@ describe("Testnet interactions helper", async () => {
                 const operation = await vaultFactoryInstance.methods.createVault(
                     null,
                     loanTokenName,          // loan token type
+                    "vaultName",
                     depositors              // depositors type
                 ).send();
                 await operation.confirmation();
@@ -5127,6 +5130,7 @@ describe("Testnet interactions helper", async () => {
                 const createVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,
                     loanTokenName,          // loan token type
+                    "vaultName",
                     depositors              // depositors type
                 ).send();
                 await createVaultOperation.confirmation();
@@ -5188,7 +5192,22 @@ describe("Testnet interactions helper", async () => {
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.deposit(depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin deposits XTZ into the new vault by directly sending XTZ to the vault', async () => {
+            try{
+                // Initial values
+                const depositAmountTez    = 10;
+
+                console.log("ADDRESS:",createdVaultAddress)
+
+                // Operation
+                const operation = await utils.tezos.contract.transfer({ to: createdVaultAddress, amount: depositAmountTez});
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5202,7 +5221,7 @@ describe("Testnet interactions helper", async () => {
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.withdraw(withdrawAmountMutez, "tez").send();
+                const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMutez, "tez").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5545,7 +5564,6 @@ describe("Testnet interactions helper", async () => {
         it('Admin creates a vault', async () => {
             try{
                 // Initial values
-                const depositors        = "whitelist";
                 const loanTokenName     = "usdt";
                 const whitelistedUsers  = [bob.pkh, alice.pkh];
 
@@ -5553,7 +5571,9 @@ describe("Testnet interactions helper", async () => {
                 const operation = await vaultFactoryInstance.methods.createVault(
                     null,
                     loanTokenName,          // loan token type
-                    depositors
+                    "vaultName",
+                    "whitelist",
+                    whitelistedUsers
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -5584,30 +5604,20 @@ describe("Testnet interactions helper", async () => {
             await signerFactory(bob.sk)
         });
         
-        it('Admin sets admin', async () => {
-            try{
-                // Operation
-                const operation = await vaultInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin sets governance', async () => {
-            try{
-                // Operation
-                const operation = await vaultInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin updates the depositor', async () => {
             try{
                 // Operation
-                const operation = await vaultInstance.methods.updateDepositor(bob.pkh, true, "whitelist").send();
+                const operation = await vaultInstance.methods.initVaultAction("updateDepositor", "whitelist", true, bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates the vault name', async () => {
+            try{
+                // Operation
+                const operation = await vaultInstance.methods.initVaultAction("updateVaultName", "newVaultName").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
