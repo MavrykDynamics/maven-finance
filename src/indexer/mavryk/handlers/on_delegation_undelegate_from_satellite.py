@@ -39,6 +39,8 @@ async def on_delegation_undelegate_from_satellite(
         delegation  = delegation,
         satellite   = satellite_record
     ).first()
-    await user.save()
-    await delegation_record.delete()
-    await satellite_reward_record.save()
+    # TODO: remove this temp fix
+    if delegation_record:
+        await user.save()
+        await delegation_record.delete()
+        await satellite_reward_record.save()
