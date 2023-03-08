@@ -461,6 +461,7 @@
 
 // ENTRYPOINTS PAUSED ERRORS
 [@inline] const error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED                                            = 328n;
+[@inline] const error_CREATE_FARM_M_TOKEN_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED                                    = 328n;
 [@inline] const error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED                                             = 329n;
 [@inline] const error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED                                           = 330n;
 
@@ -1287,4 +1288,6 @@
 [@inline] const error_NOT_STAKED_TOKEN                                                                                  = 910n;
 [@inline] const error_UPDATE_OPERATORS_ENTRYPOINT_IN_STAKING_TOKEN_CONTRACT_NOT_FOUND                                   = 911n;
 [@inline] const error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED                                                  = 912n;
+
+[@inline] const error_GET_BALANCE_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                    = 913n;
 

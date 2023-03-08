@@ -213,6 +213,23 @@ block{
 
 
 
+(* createFarmMToken entrypoint *)
+function createFarmMToken(const createFarmMTokenParams : createFarmMTokenType; var s : farmFactoryStorageType) : return is 
+block{
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateFarmMToken", s.lambdaLedger);
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaCreateFarmMToken(createFarmMTokenParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
 (* trackFarm entrypoint *)
 function trackFarm (const farmContract : address; var s : farmFactoryStorageType) : return is 
 block{
