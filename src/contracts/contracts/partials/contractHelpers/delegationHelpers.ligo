@@ -459,10 +459,11 @@ block {
 
 
 // helper function to get or create delegate's satellite rewards record
-function getOrCreateDelegateRewardsRecord(const userAddress : address; const satelliteAddress : address; const satelliteAccumulatedRewardsPerShare : nat; const s : delegationStorageType) : satelliteRewardsType is 
+function getOrCreateUpdatedDelegateRewardsRecord(const userAddress : address; const satelliteAddress : address; const satelliteAccumulatedRewardsPerShare : nat; const s : delegationStorageType) : satelliteRewardsType is 
 block {
 
-    const delegateRewardsRecord : satelliteRewardsType = case s.satelliteRewardsLedger[userAddress] of [
+    // Get the user reward record or create a new one
+    var delegateRewardsRecord : satelliteRewardsType    := case s.satelliteRewardsLedger[userAddress] of [
             Some (_rewardsRecord) -> _rewardsRecord
         |   None -> record [
                 unpaid                                      = 0n;
@@ -472,6 +473,13 @@ block {
                 satelliteReferenceAddress                   = satelliteAddress;
             ]
     ];
+
+    // If the user's satellite changed, update the reward record
+    if delegateRewardsRecord.satelliteReferenceAddress =/= satelliteAddress then {
+        delegateRewardsRecord.participationRewardsPerShare          := satelliteAccumulatedRewardsPerShare;
+        delegateRewardsRecord.satelliteAccumulatedRewardsPerShare   := satelliteAccumulatedRewardsPerShare;
+        delegateRewardsRecord.satelliteReferenceAddress             := satelliteAddress;
+    }
 
 } with delegateRewardsRecord
 
