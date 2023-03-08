@@ -856,7 +856,7 @@ asyncmy = ["asyncmy (>=0.2.5,<0.3.0)"]
 asyncodbc = ["asyncodbc (>=0.1.1,<0.2.0)"]
 asyncpg = ["asyncpg"]
 accel = ["ciso8601", "orjson", "uvloop"]
-psycopg = ["psycopg[pool,binary] (==3.0.12)"]
+psycopg = ["psycopg[binary,pool] (==3.0.12)"]
 
 [[package]]
 name = "typed-ast"
