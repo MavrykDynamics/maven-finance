@@ -143,14 +143,6 @@ class ProposalReward(BaseModel):
     value: Dict[str, Any]
 
 
-class Key1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nat: str
-    address: str
-
-
 class Value(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -165,7 +157,7 @@ class SnapshotLedgerItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    key: Key1
+    key: Key
     value: Value
 
 
@@ -205,28 +197,12 @@ class CurrentCycleInfo(BaseModel):
     minQuorumStakedMvkTotal: str
 
 
-class Key2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nat: str
-    address: str
-
-
 class CycleProposer(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    key: Key2
+    key: Key
     value: List[str]
-
-
-class Key3(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nat: str
-    address: str
 
 
 class ValueItem(BaseModel):
@@ -261,7 +237,7 @@ class RoundVote(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    key: Key3
+    key: Key
     value: Union[ValueItem, ValueItem1, ValueItem2, ValueItem3]
 
 

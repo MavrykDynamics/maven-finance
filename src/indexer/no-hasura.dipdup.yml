@@ -38,82 +38,82 @@ contracts:
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1N2X4bWbSzG2MFieZBzAzmVGkg9EQeEnUU
+    address: KT1L8J4WAsiM1ZYp95Jpsq4ezoKGDFeChZzx
     typename: mvk_token
   governance_proxy:
-    address: KT1SBnLZfVYmUcTfrvURhKvmARyzPH33A5a5
+    address: KT1NyWyhu96hR4CuhfCxWGYoar2Eko1Sd6uf
     typename: governance_proxy
   governance:
-    address: KT1SfSoY8EocjXRTgY8sszT19MBQKBKLWHrV
+    address: KT1DCnwVbprwyKQLBoNYeJ4gDEUPmxLDcmXk
     typename: governance
   doorman:
-    address: KT1C8skLrZqU6beWV3M1qD9TPBY8nnFpSPur
+    address: KT1AMTVLgkG3ePGkETMKiPw2PS2rhhssLpW9
     typename: doorman
   farm:
-    code_hash: KT1VNuDADC81F2F31ytxcdnxmFeSrVhmmdFk
+    code_hash: KT1EbD5TgvuJdFTKwo6X4UnoMaVkoiasvns4
     typename: farm
   farm_factory:
-    address: KT1GZut5zK8GfN7K86PgE89iYuNvHbVV5jcB
+    address: KT1NPKSekxnzEZMdgZk2969vfxWiZYRkFn8m
     typename: farm_factory
   delegation:
-    address: KT1MDBgwMaM4mSGwBGUdZGZZgjHhrbCa4Zsg
+    address: KT1SiCGg56VwuJEo1sjmrRbe98E6zFfaoJRE
     typename: delegation
   vesting:
-    address: KT1GW3GETqFzoXLApg2fCTdJv89R5yunDum4
+    address: KT1L9fqj31VXoNE6dpZCGJZUFCQUzPf5YYdD
     typename: vesting
   emergency_governance:
-    address: KT1BiZ8YCrZEi9TGiAQp1g1AzQ8qV31Wu5Dr
+    address: KT1EoyV9B6wWN7cmdsGgFiAbJztcyfX7biPP
     typename: emergency_governance
   council:
-    address: KT1PtUpg19yXwa1qNUqjmGFQRUNiHYUjLZHz
+    address: KT19Czi94ow2JoJdTPpuXJhL6D1RNNXG9EG3
     typename: council
   break_glass:
-    address: KT1MDbeypcpTPDX1wJsDo7bFGQ2nbnHwgp4v
+    address: KT1GB2NE6oQkJ5w7ScrReEfHEN6xKzh3ExEi
     typename: break_glass
   governance_financial:
-    address: KT1FJ92Q9xRUNiymVVmpbr6wMK6wsRrUMagK
+    address: KT1Xd6smJvR8VxhySg8bNxdaQD1t86NscD4T
     typename: governance_financial
   governance_satellite:
-    address: KT1JDp8SGhd9SqhnWT9KAJFCtpu9eg1mTmuP
+    address: KT1H6fexFXAF9RYHYfrqw356yRYCecSKRzD4
     typename: governance_satellite
   aggregator:
-    code_hash: KT1CSdP4Y7UoKKActBx7yLQ9NgQrjJLoTGDF
+    code_hash: KT1TqH6DRn7Zr6YxrgdCJ2QwwSTSeAGzhzqe
     typename: aggregator
   aggregator_factory:
-    address: KT1Snm8qKhLQyq3BxBkvkrCj6piCTGddWPFs
+    address: KT1J6hy8RPEGqiGqtqwTadAp4qxv2qJSWv2p
     typename: aggregator_factory
   treasury:
-    code_hash: KT1LpEeqWXtGstoDAYrwb6ncsfEKiC2AZdek
+    code_hash: KT1TX6NUx6LTvnf6mf1agwnjErZtpaxj4T36
     typename: treasury
   treasury_factory:
-    address: KT1PrTXZoSuW7xNdwBpqtmjH3EjTR7fsdoY6
+    address: KT19Gs53GGJvQBuZ4YDhucu7ALpaJ28qKq7Q
     typename: treasury_factory
   token_sale:
-    address: KT1VTXErKWDQXQAhYp8Bi2dUKRhbaXbpcSEw
+    address: KT1TKLTWhtwkQMVTsWE7Cn4nY7eRZyfLEUrt
     typename: token_sale
   lending_controller:
-    address: KT1NjrFuGtycr1tuqvqVTad5kjNBdg5hZ9Kn
+    address: KT1ApgaRiZrRp3ynqZ9MvTSiHRgF9NQE9tWq
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1Po2g6PWSpemoKyTLmLYQcnn6UXBTGckBx
+    address: KT1V8Bvsn8JN5H7yfsCJabXVdNHUycBvQabR
     typename: lending_controller_mock_time
   m_token_xtz:
-    address: KT1PPoRBZnKdAjiDJLudxCoY2FWxCx5KcUid
+    address: KT1CRqkynE2rayCCrapBsbAm7R8nGnsdjBTR
     typename: m_token
   m_token_eurl:
-    address: KT1QHfCrLEUHPrv5nQB6oReA4FsSHVLt9MsA
+    address: KT1VVU3CjEBJRxKJQDt5Msc6ps9yZNjmAQFs
     typename: m_token
   m_token_tzbtc:
-    address: KT1EX2xfi8ADy22svm9zGf5G6ptXMJBekVNu
+    address: KT1CzjpAqPbSha7yWdmcAvSMsRtWTAKMtzG7
     typename: m_token
   m_token_usdt:
-    address: KT1VtQiTiugXwUnktMCyGVER6e44UyePihmf
+    address: KT1AUCdcGBZ7CJmtvVhPKxoC12wtivW9pKgH
     typename: m_token
   vault:
-    code_hash: KT1DRbjJgPGVc12azgqi87AQAPVtGR65SNAv
+    code_hash: KT1PPP3SrtxAWfL2FHT3e1cR4ANfL7EVKeP5
     typename: vault
   vault_factory:
-    address: KT1H2Ve6F9T921sjDLHsMhMAManWd3JWSNbh
+    address: KT19rKRLnE1XazdH3A7sxKkzXi2yW8GD7JYp
     typename: vault_factory
 
 hooks:
@@ -321,22 +321,14 @@ templates:
     contracts:
     - <vault_contract>
     handlers:
-    - callback: on_vault_set_admin
-      pattern:
-      - destination: <vault_contract>
-        entrypoint: setAdmin
-    - callback: on_vault_set_governance
-      pattern:
-      - destination: <vault_contract>
-        entrypoint: setGovernance
     - callback: on_vault_update_depositor
       pattern:
       - destination: <vault_contract>
         entrypoint: updateDepositor
-    - callback: on_vault_set_lambda
+    - callback: on_vault_update_vault_name
       pattern:
       - destination: <vault_contract>
-        entrypoint: setLambda
+        entrypoint: updateVaultName
   m_token_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -1689,22 +1681,14 @@ indexes:
       pattern:
       - type: origination
         originated_contract: vault
-    - callback: on_vault_set_admin
-      pattern:
-      - destination: vault
-        entrypoint: setAdmin
-    - callback: on_vault_set_governance
-      pattern:
-      - destination: vault
-        entrypoint: setGovernance
     - callback: on_vault_update_depositor
       pattern:
       - destination: vault
         entrypoint: updateDepositor
-    - callback: on_vault_set_lambda
+    - callback: on_vault_update_vault_name
       pattern:
       - destination: vault
-        entrypoint: setLambda
+        entrypoint: updateVaultName
   vault_factory:
     kind: operation
     datasource: tzkt_ghostnet

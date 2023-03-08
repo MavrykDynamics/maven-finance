@@ -1,5 +1,5 @@
 
-from mavryk.types.vault.parameter.update_depositor import UpdateDepositorParameter, DepositorsConfigItem as Any, DepositorsConfigItem1 as Whitelist
+from mavryk.types.vault.parameter.update_depositor import UpdateDepositorParameter, AllowanceItem as Any, AllowanceItem1 as Whitelist
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.vault.storage import VaultStorage
@@ -12,9 +12,7 @@ async def on_vault_update_depositor(
 
     # Get operation info
     vault_address       = update_depositor.data.target_address
-    depositor_address   = update_depositor.parameter.depositorAddress
-    depositor_config    = update_depositor.parameter.depositorsConfig
-    add_depositor       = update_depositor.parameter.addOrRemoveBool
+    depositor           = update_depositor.parameter.allowance
     allowance_type      = models.VaultAllowance.ANY
 
     # Update record
@@ -22,10 +20,19 @@ async def on_vault_update_depositor(
         address = vault_address
     )
 
-    if type(depositor_config) == Any:
-        allowance_type      = models.VaultAllowance.ANY
-    elif type(depositor_config) == Whitelist:
+    if type(depositor) == Any:
+        reset_whitelist     = not depositor.any
+        if reset_whitelist:
+            allowance_type      = models.VaultAllowance.WHITELIST
+            vault_depositors    = await models.VaultDepositor.filter(vault = vault).all()
+            for vault_depositor in vault_depositors:
+                await vault_depositor.delete()
+        else:
+            allowance_type      = models.VaultAllowance.ANY
+    elif type(depositor) == Whitelist:
         allowance_type      = models.VaultAllowance.WHITELIST
+        depositor_address   = depositor.whitelist.address
+        add_depositor       = depositor.whitelist.bool
         depositor           = await models.mavryk_user_cache.get(address=depositor_address)
         vault_depositor, _  = await models.VaultDepositor.get_or_create(
             vault       = vault,
