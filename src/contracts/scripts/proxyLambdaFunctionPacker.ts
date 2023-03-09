@@ -2,6 +2,7 @@ import env from '../env';
 import * as fs from 'fs'
 import { execSync } from 'child_process';
 import { TezosToolkit } from '@taquito/taquito'
+import { generateProxyContract } from './proxyLambdaFunction'
 
 const packLambdaFunction    = async(
 
@@ -114,7 +115,6 @@ function getLigo (
     return path
 }
 
-
 const compileLambdaFunctionContract = async(
 
     contractPath: string = "",
@@ -140,10 +140,10 @@ const compileLambdaFunctionContract = async(
 export const compileLambdaFunction  = async(
 
     network: string = 'development',
-    governanceProxyContractAddress: string = 'KT1MAAW37c1849xRudegcw7VGAs9F5DPWicR',
-    lambdaFunctionArgs: string[] = [],
-    inputFile: string   = './contracts/main/governanceProxyLambdaFunctionTemplate.ligo',
+    governanceProxyContractAddress: string = 'KT1RAuWGnxyYx7i1VZafrNt4zLdLUgQdJQe5',
     outputFile: string   = './contracts/main/governanceProxyLambdaFunction.ligo',
+    lambdaFunctionName: string = "",
+    lambdaFunctionParameters: Array<any> = []
 
 ) => {
 
@@ -151,111 +151,68 @@ export const compileLambdaFunction  = async(
     var args: string[] = [];
     if (require.main === module) {
         // Script called from terminal
-        args = process.argv.slice(2);
-      } else {
-        // Script called from typescript
-        args = lambdaFunctionArgs;
-      }
-    const lambdaFunctionUsed = args[0];
+        lambdaFunctionName          = process.argv[2];
+        args                        = process.argv.slice(3);
+        lambdaFunctionParameters    = args;
+    }
 
-    // Read the contents of the input file
-    const data  = fs.readFileSync(inputFile, 'utf8');
-
-    // Find all words starting with "${" and ending with "}"
-    const regex = /\$\{.*?\}/g;
-    const matches: RegExpMatchArray | null = data.match(regex);
-
-    if(matches){
-        // Find all words starting with "function " and ending with "("
-        const functionRegex = /function\s+\w+\s*\(/g;
-        const functionNames = data.match(functionRegex);
-
-        // Print the matched words
-        var modifiedData = "";
-        if (functionNames) {
-            const functionNamesFixed: string[] = [];
-            functionNames.forEach(functionName => {
-                var functionNameFixed: string   = functionName.replace('function ', '').replace(' (', '');
-                functionNamesFixed.push(functionNameFixed)
-            });
-            if(functionNamesFixed.includes(lambdaFunctionUsed)){
-                // Replace words in the text
-                const regex     = new RegExp(escapeRegExp("${LAMBDA_FUNCTION}").trim(), 'g')
-                modifiedData    = data.replace(regex, lambdaFunctionUsed+"()");
-
-                var relatedVarsCounter = 0;
-                matches.forEach(match => {
-                    // Only print related variables
-                    if(match.startsWith("${"+lambdaFunctionUsed.toUpperCase())){
-                        relatedVarsCounter++;
-                    }
-                });
-                const expectedParameterLength   = relatedVarsCounter + 1;
-
-                // Check the correct amount of parameters
-                if(expectedParameterLength != args.length){
-                    console.log("This lambda function expects more parameters.");
-                    console.log("List of expected parameters:");
-
-                    matches.forEach(match => {
-                        // Only print related variables
-                        if(match.startsWith("${"+lambdaFunctionUsed.toUpperCase())){
-                            console.log(match.replace("${" + lambdaFunctionUsed.toUpperCase() + '_', '').replace("}", ''))
-                        }
-                    });
-                    throw new Error("Parameters mismatch");
-                } else {
-                    var argIndex    = 1;
-                    matches.forEach(match => {
-                        // Format the variable properly
-                        const regex                         = new RegExp(escapeRegExp(match).trim(), 'g')
-                        const typeRegex                     = /:.*?\}/g;
-                        const type: RegExpMatchArray | null = match.match(typeRegex);
-                        if(match!=="${LAMBDA_FUNCTION}"){
-                            if(type){
-                                const formattedType = type[0].replace(': ', '').replace('}', '')
-                                var formattedVar    = formatArgs(formattedType, args[argIndex]);
-                                if(match.startsWith("${"+lambdaFunctionUsed.toUpperCase())){
-                                    formattedVar  = formatArgs(formattedType, args[argIndex]);
-                                    argIndex++;
-                                }
-                                else {
-                                    formattedVar  = formatArgs(formattedType);
-                                }
-                                if(formattedVar){
-                                    modifiedData    = modifiedData.replace(regex, formattedVar);
-                                }
-                                else {
-                                    throw new Error("Variable could not be formatted properly");
-                                }
-                            }
-                            else {
-                                throw new Error("No type found for the given variable");
-                            }
-                        }
-                    });
+    // Read the contents of the input file specified in the first command line argument
+    // const generatedContract: string = generateProxyContract(
+    //     lambdaFunctionName,
+    //     lambdaFunctionParameters
+    // );
+    const generatedContract: string = generateProxyContract(
+        "setLoanToken",
+        [
+            "KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE",
+            {
+                createLoanToken: {
+                    tokenName                           : "Test",
+                    tokenDecimals                       : 0,
+                    oracleAddress                       : "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
+                    mTokenAddress                       : "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
+                    reserveRatio                        : 0,
+                    optimalUtilisationRate              : 0,
+                    baseInterestRate                    : 0,
+                    maxInterestRate                     : 0,
+                    interestRateBelowOptimalUtilisation : 0,
+                    interestRateAboveOptimalUtilisation : 0,
+                    minRepaymentAmount                  : 0,
+                    tokenType                           : "tez"
                 }
-
-            } else{
-                throw new Error("Lambda function not found");
             }
-        } else {
-            throw new Error("No matches found");
-        }
+        ]
+    );
+    // const generatedContract: string = generateProxyContract(
+    //     "setLoanToken",
+    //     [
+    //         "KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE",
+    //         {
+    //             updateLoanToken: {
+    //                 tokenName                           : "Test",
+    //                 oracleAddress                       : "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
+    //                 reserveRatio                        : 0,
+    //                 optimalUtilisationRate              : 0,
+    //                 baseInterestRate                    : 0,
+    //                 maxInterestRate                     : 0,
+    //                 interestRateBelowOptimalUtilisation : 0,
+    //                 interestRateAboveOptimalUtilisation : 0,
+    //                 minRepaymentAmount                  : 0,
+    //                 isPaused                            : false
+    //             }
+    //         }
+    //     ]
+    // );
 
-        // Write the result to the output file
-        fs.writeFileSync(outputFile, modifiedData);
+    // Write the result to the output file
+    fs.writeFileSync(outputFile, generatedContract);
 
-        // Start the compiling process
-        const lambdaFunctionJson    = await compileLambdaFunctionContract(outputFile);
-        const networkConfig: any    = env.networks[network]
-        const tezos: TezosToolkit   = new TezosToolkit(networkConfig.rpc)
-        const packedLambdaFunction  = await packLambdaFunction(tezos, governanceProxyContractAddress, lambdaFunctionJson)
-        return packedLambdaFunction;
-    }
-    else {
-        throw new Error("No variables found in given template");
-    }
+    // Start the compiling process
+    const lambdaFunctionJson    = await compileLambdaFunctionContract(outputFile);
+    const networkConfig: any    = env.networks[network]
+    const tezos: TezosToolkit   = new TezosToolkit(networkConfig.rpc)
+    const packedLambdaFunction  = await packLambdaFunction(tezos, governanceProxyContractAddress, lambdaFunctionJson)
+    return packedLambdaFunction;
 }
 
 compileLambdaFunction();
