@@ -97,7 +97,10 @@ block {
                 interestRateBelowOptimalUtilisation = (0n : nat);
                 interestRateAboveOptimalUtilisation = (0n : nat);
                 minRepaymentAmount                  = (0n : nat);
-                tokenType                           = (Tez : tokenType);
+                tokenType                           = (Fa2(record[
+                tokenContractAddress    = ("KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE": address);
+                tokenId                 = 0n;
+            ]) : tokenType);
             ]);
             empty  = Unit;
         ],
