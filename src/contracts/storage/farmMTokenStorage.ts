@@ -22,7 +22,7 @@ const claimedRewards = {
 
 const lpTokenId = new BigNumber(0);
 const lpTokenStandard = {
-    fa12: ""
+    fa2 : ""
 };
 const lpToken = {
     tokenAddress: "",
