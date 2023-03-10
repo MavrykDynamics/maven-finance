@@ -123,6 +123,576 @@ block {
 } with list[contractOperation]`
 };
 
+const setGovernance  = (
+
+    targetContract: string,
+    newGovernanceAddress: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${newGovernanceAddress}" : address),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%setGovernance",
+            ("${targetContract}" : address)) : option(contract(address))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(address))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const setName  = (
+
+    targetContract: string,
+    newName: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${newName}" : string),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%setName",
+            ("${targetContract}" : address)) : option(contract(string))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(string))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const setLambda  = (
+
+    targetContract: string,
+    lambdaName: string,
+    lambdaBytes: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record[
+            name=("${lambdaName}" : string);
+            func_bytes=("${lambdaBytes}": bytes)
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%setLambda",
+            ("${targetContract}" : address)) : option(contract(setLambdaType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(setLambdaType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const setProductLambda  = (
+
+    targetContract: string,
+    lambdaName: string,
+    lambdaBytes: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record[
+            name=("${lambdaName}" : string);
+            func_bytes=("${lambdaBytes}": bytes)
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%setProductLambda",
+            ("${targetContract}" : address)) : option(contract(setLambdaType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(setLambdaType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateMetadata  = (
+
+    targetContract: string,
+    metadataKey: string,
+    metadataHash: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record[
+            metadataKey=("${metadataKey}" : string);
+            metadataHash=("${metadataHash}": bytes)
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateMetadata",
+            ("${targetContract}" : address)) : option(contract(updateMetadataType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(updateMetadataType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateWhitelistContracts  = (
+
+    targetContract: string,
+    whitelistContractName: string,
+    whitelistContractAddress: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            whitelistContractName     = "${whitelistContractName}";
+            whitelistContractAddress  = ("${whitelistContractAddress}" : address);
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateWhitelistContracts",
+            ("${targetContract}" : address)) : option(contract(updateWhitelistContractsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(updateWhitelistContractsType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateGeneralContracts  = (
+
+    targetContract: string,
+    generalContractName: string,
+    generalContractAddress: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            generalContractName     = "${generalContractName}";
+            generalContractAddress  = ("${generalContractAddress}" : address);
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateGeneralContracts",
+            ("${targetContract}" : address)) : option(contract(updateGeneralContractsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(updateGeneralContractsType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateWhitelistTokenContracts  = (
+
+    targetContract: string,
+    tokenContractName: string,
+    tokenContractAddress: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            tokenContractName     = "${tokenContractName}";
+            tokenContractAddress  = ("${tokenContractAddress}" : address);
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateWhitelistTokenContracts",
+            ("${targetContract}" : address)) : option(contract(updateWhitelistTokenContractsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(updateWhitelistTokenContractsType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateConfig  = (
+
+    targetContract: string,
+    targetContractType: "aggregator" | "aggregatorFactory" | "breakGlass" | "council" | "delegation" | "doorman" | "emergencyGovernance" | "farm" | "farmFactory" | "governance" | "governanceFinancial" | "governanceSatellite" | "lendingController" | "tokenSale" | "treasuryFactory" | "vaultFactory",
+    updateConfigAction: string,
+    updateConfigNewValue: number,
+    tokenSaleBuyOption: number = 0
+
+) => {
+
+    // Generate the ligo return type based on the chosen contract
+    var ligoReturnType: string
+    var ligoConfigActionType: string
+    switch(targetContractType){
+        case "aggregator":
+            ligoReturnType          = "aggregatorUpdateConfigParamsType"
+            ligoConfigActionType    = "aggregatorUpdateConfigActionType"
+            break;
+        case "aggregatorFactory":
+            ligoReturnType          = "aggregatorFactoryUpdateConfigParamsType"
+            ligoConfigActionType    = "aggregatorFactoryUpdateConfigActionType"
+            break;
+        case "breakGlass":
+            ligoReturnType          = "breakGlassUpdateConfigParamsType"
+            ligoConfigActionType    = "breakGlassUpdateConfigActionType"
+            break;
+        case "council":
+            ligoReturnType          = "councilUpdateConfigParamsType"
+            ligoConfigActionType    = "councilUpdateConfigActionType"
+            break;
+        case "delegation":
+            ligoReturnType          = "delegationUpdateConfigParamsType"
+            ligoConfigActionType    = "delegationUpdateConfigActionType"
+            break;
+        case "doorman":
+            ligoReturnType          = "doormanUpdateConfigParamsType"
+            ligoConfigActionType    = "doormanUpdateConfigActionType"
+            break;
+        case "emergencyGovernance":
+            ligoReturnType          = "emergencyUpdateConfigParamsType"
+            ligoConfigActionType    = "emergencyUpdateConfigActionType"
+            break;
+        case "farm":
+            ligoReturnType          = "farmUpdateConfigParamsType"
+            ligoConfigActionType    = "farmUpdateConfigActionType"
+            break;
+        case "farmFactory":
+            ligoReturnType          = "farmFactoryUpdateConfigParamsType"
+            ligoConfigActionType    = "farmFactoryUpdateConfigActionType"
+            break;
+        case "governance":
+            ligoReturnType          = "governanceUpdateConfigParamsType"
+            ligoConfigActionType    = "governanceUpdateConfigActionType"
+            break;
+        case "governanceFinancial":
+            ligoReturnType          = "governanceFinancialUpdateConfigParamsType"
+            ligoConfigActionType    = "governanceFinancialUpdateConfigActionType"
+            break;
+        case "governanceSatellite":
+            ligoReturnType          = "governanceSatelliteUpdateConfigParamsType"
+            ligoConfigActionType    = "governanceSatelliteUpdateConfigActionType"
+            break;
+        case "lendingController":
+            ligoReturnType          = "lendingControllerUpdateConfigParamsType"
+            ligoConfigActionType    = "lendingControllerUpdateConfigActionType"
+            break;
+        case "tokenSale":
+            updateConfigAction      += `(${tokenSaleBuyOption}n)`
+            ligoReturnType          = "tokenSaleUpdateConfigParamsType"
+            ligoConfigActionType    = "tokenSaleUpdateConfigActionType"
+            break;
+        case "treasuryFactory":
+            ligoReturnType          = "treasuryFactoryUpdateConfigParamsType"
+            ligoConfigActionType    = "treasuryFactoryUpdateConfigActionType"
+            break;
+        case "vaultFactory":
+            ligoReturnType          = "vaultFactoryUpdateConfigParamsType"
+            ligoConfigActionType    = "vaultFactoryUpdateConfigActionType"
+            break;
+    }
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            updateConfigNewValue    = ${updateConfigNewValue}n; 
+            updateConfigAction      = (${updateConfigAction}: ${ligoConfigActionType})
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            ("${targetContract}" : address)) : option(contract(${ligoReturnType}))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(${ligoReturnType}))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const pauseAll  = (
+
+    targetContract: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        unit,
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%pauseAll",
+            ("${targetContract}" : address)) : option(contract(unit))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(unit))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const unpauseAll  = (
+
+    targetContract: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        unit,
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%unpauseAll",
+            ("${targetContract}" : address)) : option(contract(unit))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(unit))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const togglePauseEntrypoint  = (
+
+    targetContract: string,
+    targetContractType: "aggregator" | "aggregatorFactory" | "delegation" | "doorman" | "farm" | "farmFactory" | "lendingController" | "treasury" | "treasuryFactory" | "vaultFactory",
+    targetEntrypoint: string,
+    pause: boolean
+
+) => {
+
+    // Generate the ligo return type based on the chosen contract
+    var ligoReturnType: string
+    var ligoPausableEntrypointType: string
+    switch(targetContractType){
+        case "aggregator":
+            ligoReturnType              = "aggregatorTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "aggregatorPausableEntrypointType"
+            break;
+        case "aggregatorFactory":
+            ligoReturnType              = "aggregatorFactoryTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "aggregatorFactoryPausableEntrypointType"
+            break;
+        case "delegation":
+            ligoReturnType              = "delegationTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "delegationPausableEntrypointType"
+            break;
+        case "doorman":
+            ligoReturnType              = "doormanTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "doormanPausableEntrypointType"
+            break;
+        case "farm":
+            ligoReturnType              = "farmTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "farmPausableEntrypointType"
+            break;
+        case "farmFactory":
+            ligoReturnType              = "farmFactoryTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "farmFactoryPausableEntrypointType"
+            break;
+        case "lendingController":
+            ligoReturnType              = "lendingControllerTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "lendingControllerPausableEntrypointType"
+            break;
+        case "treasury":
+            ligoReturnType              = "treasuryTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "treasuryPausableEntrypointType"
+            break;
+        case "treasuryFactory":
+            ligoReturnType              = "treasuryFactoryTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "treasuryFactoryPausableEntrypointType"
+            break;
+        case "vaultFactory":
+            ligoReturnType              = "vaultFactoryTogglePauseEntrypointType"
+            ligoPausableEntrypointType  = "vaultFactoryPausableEntrypointType"
+            break;
+    }
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            targetEntrypoint  = (${targetEntrypoint}(${pause ? "True" : "False"}): ${ligoPausableEntrypointType});
+            empty             = Unit;
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            ("${targetContract}" : address)) : option(contract(${ligoReturnType}))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(${ligoReturnType}))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateWhitelistDevelopers  = (
+
+    targetContract: string,
+    whitelistedDeveloperAddress: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${whitelistedDeveloperAddress}" : address),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateWhitelistDevelopers",
+            ("${targetContract}" : address)) : option(contract(address))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(address))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const setGovernanceProxy  = (
+
+    targetContract: string,
+    governanceProxyAddress: string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${governanceProxyAddress}" : address),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%setGovernanceProxy",
+            ("${targetContract}" : address)) : option(contract(address))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(address))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const createFarm  = (
+
+    targetContract          : string,
+    farmName                : string,
+    addToGeneralContracts   : boolean,
+    forceRewardFromTransfer : boolean,
+    infinite                : boolean,
+    plannedRewards          : {
+        totalBlocks             : number,
+        currentRewardPerBlock   : number
+    },
+    metadata                : string,
+    lpToken                 : {
+        tokenAddress            : string,
+        tokenId                 : number,
+        tokenStandard           : "fa12" | "fa2"
+    }
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record[
+            name                     = "${farmName}";
+            addToGeneralContracts    = ${addToGeneralContracts ? "True" : "False"};
+            forceRewardFromTransfer  = ${forceRewardFromTransfer ? "True" : "False"};
+            infinite                 = ${infinite ? "True" : "False"};
+            plannedRewards           = record[
+                totalBlocks              = (${plannedRewards.totalBlocks}n: nat);
+                currentRewardPerBlock    = ${plannedRewards.currentRewardPerBlock}n;
+            ];
+            metadata                 = ("${metadata}": bytes);
+            lpToken                  = record[
+                tokenAddress             = ("${lpToken.tokenAddress}" : address);
+                tokenId                  = ${lpToken.tokenId}n;
+                tokenStandard            = (${lpToken.tokenStandard == "fa12" ? "Fa12" : "Fa2"}: lpStandardType);
+            ];
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%createFarm",
+            ("${targetContract}" : address)) : option(contract(createFarmType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(createFarmType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const initFarm  = (
+
+    targetContract          : string,
+    totalBlocks             : number,
+    currentRewardPerBlock   : number,
+    forceRewardFromTransfer : boolean,
+    infinite                : boolean,
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record[
+            totalBlocks                 = (${totalBlocks}n: nat);
+            currentRewardPerBlock       = (${currentRewardPerBlock}n: nat);
+            forceRewardFromTransfer     = (${forceRewardFromTransfer ? "True" : "False"}: bool);
+            infinite                    = (${infinite ? "True" : "False"}: bool);
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%initFarm",
+            ("${targetContract}" : address)) : option(contract(initFarmParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(initFarmParamsType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const closeFarm  = (
+
+    targetContract          : string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        unit,
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%closeFarm",
+            ("${targetContract}" : address)) : option(contract(unit))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(unit))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const createTreasury  = (
+
+    targetContract          : string,
+    addToGeneralContracts   : boolean,
+    metadata                : string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record[
+            name                    = "${targetContract}";
+            addToGeneralContracts   = ${addToGeneralContracts ? "True" : "False"};
+            metadata                = ("${metadata}": bytes);
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%createTreasury",
+            ("${targetContract}" : address)) : option(contract(createTreasuryType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(createTreasuryType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
 interface fa12 {
     fa12                                    : string;
 }

@@ -178,7 +178,12 @@ export const compileLambdaFunction  = async(
                     interestRateBelowOptimalUtilisation : 0,
                     interestRateAboveOptimalUtilisation : 0,
                     minRepaymentAmount                  : 0,
-                    tokenType                           : "tez"
+                    tokenType                           : {
+                        fa2: {
+                            tokenContractAddress: "KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE",
+                            tokenId             : 0
+                        }
+                    }
                 }
             }
         ]
