@@ -1,3 +1,14 @@
+interface fa12 {
+    fa12                                    : string;
+}
+
+interface fa2 {
+    fa2                                     : {
+        tokenContractAddress                    : string;
+        tokenId                                 : number;
+    }
+}
+
 const proxyContract = (
 
     lambdaFunction: string
@@ -693,16 +704,202 @@ block {
 } with list[contractOperation]`
 };
 
-interface fa12 {
-    fa12                                    : string;
+interface transferItem {
+    to_     : string;
+    amount  : number;
+    token   : fa12 | fa2 | "tez"
 }
 
-interface fa2 {
-    fa2                                     : {
-        tokenContractAddress                    : string;
-        tokenId                                 : number;
+const transfer  = (
+
+    targetContract          : string,
+    transfers               : Array<transferItem>
+
+) => {
+
+    // Create the transfer record list
+    var transfersRecord: string;
+    transfers.forEach((transfer) => {
+        
+        // Create the token type
+        const tokenTypeFa12 = transfer.token as fa12;
+        const tokenTypeFa2  = transfer.token as fa2;
+        var tokenType: any;
+        if(transfer.token === "tez"){
+            tokenType       = "Tez";
+        }
+        else if(typeof(transfer.token) === "string"){
+            tokenType       = `Fa12(("${tokenTypeFa12.fa12}": address))`;
+        }
+        else{
+            tokenType       = `Fa2(record[
+                tokenContractAddress    = ("${tokenTypeFa2.fa2.tokenContractAddress}": address);
+                tokenId                 = ${tokenTypeFa2.fa2.tokenId}n;
+            ])`;
+        }
+        
+        // Create and append the transfer record
+        transfersRecord     += `
+            record[
+                to_       = ("${transfer.to_}" : address);
+                amount    = ${transfer.amount}n;
+                token     = ${tokenType};
+            ];
+        `;
+    });
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        list[
+            ${transfersRecord}
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%transfer",
+            ("${targetContract}" : address)) : option(contract(transferActionType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(transferActionType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const mintMvkAndTransfer  = (
+
+    targetContract          : string,
+    to_                     : string,
+    amount                  : number
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            to_ = ("${to_}" : address);
+            amt = ${amount}n;
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%mintMvkAndTransfer",
+            ("${targetContract}" : address)) : option(contract(mintMvkAndTransferType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(mintMvkAndTransferType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+interface addOperator {
+    addOperator: {
+        owner: string,
+        operator: string,
+        tokenId: number
     }
 }
+
+interface removeOperator {
+    removeOperator: {
+        owner: string,
+        operator: string,
+        tokenId: number
+    }
+}
+
+interface operatorItem {
+    operatorItem: addOperator | removeOperator
+}
+
+const updateMvkOperators  = (
+
+    targetContract          : string,
+    operators               : Array<operatorItem>
+
+) => {
+
+    // Create the update operator list
+    var operatorRecord: string;
+    operators.forEach((operator) => {
+        if("addOperator" in operator){
+            const addOperatorItem: addOperator  = operator.operatorItem as addOperator;
+            operatorRecord  += `
+            Add_operator(record[
+                owner    = ("${addOperatorItem.addOperator.owner}" : address);
+                operator = ("${addOperatorItem.addOperator.operator}" : address);
+                token_id = ${addOperatorItem.addOperator.tokenId}n;
+            ]);
+            `
+        }
+        else {
+            const removeOperatorItem: removeOperator  = operator.operatorItem as removeOperator;
+            operatorRecord  += `
+            Remove_operator(record[
+                owner    = ("${removeOperatorItem.removeOperator.owner}" : address);
+                operator = ("${removeOperatorItem.removeOperator.operator}" : address);
+                token_id = ${removeOperatorItem.removeOperator.tokenId}n;
+            ]);
+            `
+        }
+    });
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        list[
+            ${operatorRecord}
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateMvkOperators",
+            ("${targetContract}" : address)) : option(contract(updateOperatorsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(updateOperatorsType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const stakeMvk  = (
+
+    targetContract          : string,
+    amount                  : number
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ${amount}n,
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%stakeMvk",
+            ("${targetContract}" : address)) : option(contract(nat))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(nat))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const unstakeMvk  = (
+
+    targetContract          : string,
+    amount                  : number
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ${amount}n,
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%unstakeMvk",
+            ("${targetContract}" : address)) : option(contract(nat))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(nat))
+        ]
+    );
+} with list[contractOperation]`
+};
 
 interface createLoanToken {
     createLoanToken                         : {
