@@ -33,10 +33,10 @@ async def on_vault_update_depositor(
         allowance_type      = models.VaultAllowance.WHITELIST
         depositor_address   = depositor.whitelist.address
         add_depositor       = depositor.whitelist.bool
-        depositor           = await models.mavryk_user_cache.get(address=depositor_address)
+        user                = await models.mavryk_user_cache.get(address=depositor_address)
         vault_depositor, _  = await models.VaultDepositor.get_or_create(
             vault       = vault,
-            depositor   = depositor
+            depositor   = user
         )
         if add_depositor:
             await vault_depositor.save()
