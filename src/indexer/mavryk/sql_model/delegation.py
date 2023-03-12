@@ -45,9 +45,9 @@ class DelegationWhitelistContract(LinkedContract, Model):
 
 class SatelliteRewards(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_rewards', index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_rewardss', index=True)
     reference                               = fields.ForeignKeyField('models.SatelliteRewards', related_name='satellite_references', null=True, index=True)
-    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_rewards')
+    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_rewardss')
     unpaid                                  = fields.FloatField(default=0)
     paid                                    = fields.FloatField(default=0)
     participation_rewards_per_share         = fields.FloatField(default=0)
