@@ -376,6 +376,16 @@
 //                         await approveOperation.confirmation();
 //                     }
 
+//                     const bobDepositParam        = await farmInstance.methods.deposit(firstAmountToDeposit).toTransferParams();
+//                     const bobEstimate            = await utils.tezos.estimate.transfer(bobDepositParam);
+//                     console.log("BOB FARM DEPOSIT ESTIMATION: ", bobEstimate);
+
+//                     await signerFactory(alice.sk)
+//                     const aliceDepositParam        = await farmInstance.methods.deposit(secondAmountToDeposit).toTransferParams();
+//                     const aliceEstimate            = await utils.tezos.estimate.transfer(aliceDepositParam);
+//                     console.log("ALICE FARM DEPOSIT ESTIMATION: ", aliceEstimate);
+                    
+
 //                     // Operations
 //                     await signerFactory(bob.sk)
 //                     var depositOperation        = await farmInstance.methods.deposit(firstAmountToDeposit).send();
@@ -418,6 +428,10 @@
 //                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
 //                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
 //                     const amountToWithdraw  = 1;
+
+//                     const bobWithdrawParam        = await farmInstance.methods.withdraw(amountToWithdraw).toTransferParams();
+//                     const bobEstimate            = await utils.tezos.estimate.transfer(bobWithdrawParam);
+//                     console.log("BOB Withdraw Farm ESTIMATION: ", bobEstimate);
 
 //                     // Operation
 //                     const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
