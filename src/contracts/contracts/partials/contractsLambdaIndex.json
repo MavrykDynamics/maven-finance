@@ -55,19 +55,7 @@
     "lambdaVaultDepositStakedToken",
     "lambdaVaultWithdrawStakedToken"
   ],
-  "vault": [
-    "lambdaSetAdmin",
-    "lambdaSetGovernance",
-    "lambdaUpdateMetadata",
-
-    "lambdaDelegateTezToBaker",
-    "lambdaDelegateMvkToSat",
-    "lambdaDeposit",
-    "lambdaWithdraw",
-    "lambdaOnLiquidate",
-    "lambdaUpdateDepositor",
-    "lambdaUpdateTokenOperators"
-  ],
+  "vault": ["lambdaDepositXtz", "lambdaInitVaultAction"],
   "vaultFactory": [
     "lambdaSetAdmin",
     "lambdaSetGovernance",

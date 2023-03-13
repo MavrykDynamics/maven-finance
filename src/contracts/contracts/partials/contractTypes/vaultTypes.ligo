@@ -11,14 +11,11 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type depositorsConfigType is
-    |   Any       of unit 
-    |   Whitelist of unit
 
-type depositorsType is [@layout:comb] record [
-    whitelistedDepositors   : set(address);
-    depositorsConfig        : depositorsConfigType; 
-]
+type depositorsType is 
+    |   Any         of unit
+    |   Whitelist   of set(address)
+
 
 type vaultHandleType is [@layout:comb] record [
     id      : nat;          // vault id
@@ -30,13 +27,17 @@ type vaultHandleType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 type delegateTezToBakerType is option(key_hash)
-type satelliteAddressType is address
+type delegateMvkToSatelliteType is address
+
+type updateDepositorAllowanceType is
+    |   Any         of bool
+    |   Whitelist   of (bool * address)
 
 type updateDepositorType is [@layout:comb] record [
-    depositorAddress        : address;
-    addOrRemoveBool         : bool;
-    depositorsConfig        : depositorsConfigType;
+    allowance       : updateDepositorAllowanceType;
+    empty           : unit;
 ]
+
 
 type withdrawType  is [@layout:comb] record [
     amount          : nat;
@@ -59,27 +60,28 @@ type updateTokenOperatorsType is [@layout:comb] record [
     updateOperators  :  updateOperatorsType
 ];
 
+
+type initVaultActionType is 
+    |   DelegateTezToBaker      of delegateTezToBakerType
+    |   DelegateMvkToSatellite  of delegateMvkToSatelliteType
+    |   Deposit                 of depositType
+    |   Withdraw                of withdrawType
+    |   OnLiquidate             of onLiquidateType
+    |   UpdateDepositor         of updateDepositorType
+    |   UpdateTokenOperators    of updateTokenOperatorsType
+    |   UpdateVaultName         of string
+
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
 
 
 type vaultLambdaActionType is 
-        
-        // Housekeeping Entrypoints
-    |   LambdaSetAdmin                   of (address)
-    |   LambdaSetGovernance              of (address)
-    |   LambdaUpdateMetadata             of updateMetadataType
 
         // Vault Entrypoints
-    |   LambdaDelegateTezToBaker         of delegateTezToBakerType
-    |   LambdaDelegateMvkToSat           of satelliteAddressType
-    |   LambdaDeposit                    of depositType 
-    |   LambdaWithdraw                   of withdrawType
-    |   LambdaOnLiquidate                of onLiquidateType 
-    |   LambdaUpdateDepositor            of updateDepositorType
-    |   LambdaUpdateTokenOperators       of updateTokenOperatorsType
-
+    |   LambdaDepositXtz                 of unit
+    |   LambdaInitVaultAction            of initVaultActionType
 
 // ------------------------------------------------------------------------------
 // Storage Type
@@ -87,15 +89,9 @@ type vaultLambdaActionType is
 
 
 type vaultStorageType is record [
-    
-    admin                   : address;                  
-    metadata                : metadataType;
-    mvkTokenAddress         : address;
-    governanceAddress       : address; 
-
+    admin                   : address;                  // vault factory contract
+    name                    : string;                   // vault name
     handle                  : vaultHandleType;          // owner of the vault
     depositors              : depositorsType;           // users who can deposit into the vault    
-    
-    lambdaLedger            : lambdaLedgerType;
 ]
 

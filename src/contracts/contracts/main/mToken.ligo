@@ -242,7 +242,7 @@ block {
                     Some (_record)  -> _record
                 |   None            -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
             ]
-        |   None                -> failwith (error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
+        |   None -> failwith (error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
     ];
 
 } with loanTokenRecord

@@ -22,6 +22,9 @@
 // Vault Types
 #include "../partials/contractTypes/vaultTypes.ligo"
 
+// Vault Factory Types
+#include "../partials/contractTypes/vaultFactoryTypes.ligo"
+
 // Delegation Types
 #include "../partials/contractTypes/delegationTypes.ligo"
 
@@ -32,24 +35,10 @@
 
 type vaultActionType is 
 
-    |   Default of unit
+    |   Default                         of unit
 
-        // Housekeeping Entrypoints
-    |   SetAdmin                        of (address)
-    |   SetGovernance                   of (address)
-    |   UpdateMetadata                  of updateMetadataType
-    
         // Vault Entrypoints
-    |   DelegateTezToBaker              of delegateTezToBakerType
-    |   DelegateMvkToSatellite          of satelliteAddressType
-    |   Deposit                         of depositType 
-    |   Withdraw                        of withdrawType
-    |   OnLiquidate                     of onLiquidateType
-    |   UpdateDepositor                 of updateDepositorType
-    |   UpdateTokenOperators            of updateTokenOperatorsType
-  
-        // Lambda Entrypoints
-    |   SetLambda                       of setLambdaType
+    |   InitVaultAction                 of initVaultActionType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * vaultStorageType
@@ -94,23 +83,9 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
 
     case vaultAction of [
 
-        |   Default(_params)                             -> ((nil : list(operation)), s)
-
-            // Housekeeping Entrypoints
-        |   SetAdmin(parameters)                         -> setAdmin(parameters, s) 
-        |   SetGovernance(parameters)                    -> setGovernance(parameters, s) 
-        |   UpdateMetadata(parameters)                   -> updateMetadata(parameters, s)
+        |   Default(_params)                             -> default(s)
         
             // Vault Entrypoints 
-        |   DelegateTezToBaker(parameters)               -> delegateTezToBaker(parameters, s)
-        |   DelegateMvkToSatellite(parameters)           -> delegateMvkToSatellite(parameters, s)
-        |   Deposit(parameters)                          -> deposit(parameters, s)
-        |   Withdraw(parameters)                         -> withdraw(parameters, s)
-        |   OnLiquidate(parameters)                      -> onLiquidate(parameters, s)
-        |   UpdateDepositor(parameters)                  -> updateDepositor(parameters, s)
-        |   UpdateTokenOperators(parameters)             -> updateTokenOperators(parameters, s)
-
-            // Lambda Entrypoints
-        |   SetLambda(parameters)                        -> setLambda(parameters, s)    
+        |   InitVaultAction(parameters)                  -> initVaultAction(parameters, s)
 
     ]

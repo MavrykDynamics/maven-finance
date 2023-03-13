@@ -44,8 +44,8 @@
 
 //     //  - eve: first vault loan token: usdt, second vault loan token: eurl, third vault loan token - tez
 //     //  - mallory: first vault loan token: usdt, second vault loan token: eurl
-//     var eveVaultSet = []
-//     var malloryVaultSet = [] 
+//     var eveVaultSet : Array<Number>     = []
+//     var malloryVaultSet : Array<Number> = [] 
 
 //     // const oneDayLevelBlocks = 4320
 //     // const oneMonthLevelBlocks = 129600
@@ -1661,12 +1661,13 @@
 //             const vaultOwner    = eve.pkh;
 //             const liquidator    = mallory.pkh;
 //             const loanTokenName = "usdt";
-
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1713,7 +1714,8 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 usdtDepositAmount,           
 //                 "usdt"
 //             ).send();

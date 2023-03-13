@@ -58,26 +58,15 @@ block {
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get %withdraw entrypoint in a Vault Contract
-function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(withdrawType) is
+// helper function to get %initVaultAction entrypoint in a Vault Contract
+function getInitVaultActionEntrypoint(const vaultAddress : address) : contract(initVaultActionType) is
     case (Tezos.get_entrypoint_opt(
-        "%withdraw",
-        vaultAddress) : option(contract(withdrawType))) of [
+        "%initVaultAction",
+        vaultAddress) : option(contract(initVaultActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(withdrawType))
+            |   None -> (failwith(error_INIT_VAULT_ACTION_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(initVaultActionType))
         ]
 
-
-
-// helper function to get %onLiquidate entrypoint in a Vault Contract
-function getVaultOnLiquidateEntrypoint(const vaultAddress : address) : contract(onLiquidateType) is
-    case (Tezos.get_entrypoint_opt(
-        "%onLiquidate",
-        vaultAddress) : option(contract(onLiquidateType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(onLiquidateType))
-        ]
-        
 
 
 // helper function to get %onVaultDepositStake entrypoint in staking Contract
@@ -346,20 +335,20 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const loanTokenName : string; const decimals : nat; const tokenBorrowIndex : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
                         
         address                     = vaultAddress;
-        collateralBalanceLedger     = collateralBalanceLedger;
+        collateralBalanceLedger     = (map[] : collateralBalanceLedgerType); // init empty collateral balance ledger map
         loanToken                   = loanTokenName;
 
         loanOutstandingTotal        = 0n;
         loanPrincipalTotal          = 0n;
         loanInterestTotal           = 0n;
         loanDecimals                = decimals;
-        borrowIndex                 = tokenBorrowIndex;
+        borrowIndex                 = 0n;
 
         lastUpdatedBlockLevel       = Tezos.get_level();
         lastUpdatedTimestamp        = Tezos.get_now();
@@ -587,61 +576,6 @@ block {
 
 
 
-// helper function withdraw from vault - call %withdraw in a specified Vault Contract
-function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
-block {
-
-    const withdrawFromVaultOperation : operation = case token of [
-        
-        |   Tez(_tez) -> {
-
-                const withdrawTezOperationParams : withdrawType = record [                    
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-                
-                const withdrawTezOperation : operation = Tezos.transaction(
-                    withdrawTezOperationParams,
-                    0mutez,
-                    getVaultWithdrawEntrypoint(vaultAddress)
-                );
-            
-            } with withdrawTezOperation
-
-        |   Fa12(_token) -> {
-
-                const withdrawFa12OperationParams : withdrawType = record [
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const withdrawFa12Operation : operation = Tezos.transaction(
-                    withdrawFa12OperationParams,
-                    0mutez,
-                    getVaultWithdrawEntrypoint(vaultAddress)
-                );
-
-            } with withdrawFa12Operation
-
-        |   Fa2(_token) -> {
-
-                const withdrawFa2OperationParams : withdrawType = record [
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const withdrawFa2Operation : operation = Tezos.transaction(
-                    withdrawFa2OperationParams,
-                    0mutez,
-                    getVaultWithdrawEntrypoint(vaultAddress)
-                );
-
-            } with withdrawFa2Operation
-    ];
-
-} with withdrawFromVaultOperation
-
-
 
 // helper function withdraw staked token (e.g. sMVK) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultWithdrawStake in Doorman Contract
 function onWithdrawStakedTokenFromVaultOperation(const vaultOwner : address; const vaultAddress : address; const withdrawAmount : nat; const stakingContractAddress : address) : operation is
@@ -707,59 +641,22 @@ block {
 
 
 // helper function liquidate collateral from vault - call %onLiquidate in a specified Vault Contract
-function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const vaultAddress : address) : operation is
 block {
 
-    const liquidateFromVaultOperation : operation = case token of [
-        
-        |   Tez(_tez) -> {
+    const liquidateOperationParams : initVaultActionType = OnLiquidate(
+        record[
+            receiver   = receiver;
+            amount     = amount;
+            tokenName  = tokenName;
+        ]
+    );
 
-                const liquidateTezOperationParams : onLiquidateType = record [                    
-                    receiver   = receiver;
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-                
-                const liquidateTezOperation : operation = Tezos.transaction(
-                    liquidateTezOperationParams,
-                    0mutez,
-                    getVaultOnLiquidateEntrypoint(vaultAddress)
-                );
-            
-            } with liquidateTezOperation
-
-        |   Fa12(_token) -> {
-
-                const liquidateFa12OperationParams : onLiquidateType = record [
-                    receiver   = receiver;
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const liquidateFa12Operation : operation = Tezos.transaction(
-                    liquidateFa12OperationParams,
-                    0mutez,
-                    getVaultOnLiquidateEntrypoint(vaultAddress)
-                );
-
-            } with liquidateFa12Operation
-
-        |   Fa2(_token) -> {
-
-                const liquidateFa2OperationParams : onLiquidateType = record [
-                    receiver   = receiver;
-                    amount     = amount;
-                    tokenName  = tokenName;
-                ];
-
-                const liquidateFa2Operation : operation = Tezos.transaction(
-                    liquidateFa2OperationParams,
-                    0mutez,
-                    getVaultOnLiquidateEntrypoint(vaultAddress)
-                );
-
-            } with liquidateFa2Operation
-    ];
+    const liquidateFromVaultOperation : operation = Tezos.transaction(
+        liquidateOperationParams,
+        0mutez,
+        getInitVaultActionEntrypoint(vaultAddress)
+    );
 
 } with liquidateFromVaultOperation
 
@@ -1286,7 +1183,6 @@ block {
 
     // Init variables
     const collateralTokenName   : string      = collateralToken.tokenName;
-    const collateralTokenType   : tokenType   = collateralToken.tokenType;
     const liquidatorAddress     : address     = liquidator.0;
     const liquidatorTokenAmount : nat         = liquidator.1;
     const treasuryAddress       : address     = treasury.0;
@@ -1332,7 +1228,6 @@ block {
             liquidatorAddress,                  // receiver (i.e. to_)
             collateralTokenName,                // token name
             liquidatorTokenAmount,              // token amount to be withdrawn
-            collateralTokenType,                // token type (i.e. tez, fa12, fa2) 
             vaultAddress                        // vault address
         );
         operations := sendTokensFromVaultToLiquidatorOperation # operations;
@@ -1342,7 +1237,6 @@ block {
             treasuryAddress,                    // receiver (i.e. to_)
             collateralTokenName,                // token name
             treasuryTokenAmount,                // token amount to be withdrawn
-            collateralTokenType,                // token type (i.e. tez, fa12, fa2) 
             vaultAddress                        // vault address
         );
         operations := sendTokensFromVaultToTreasuryOperation # operations;
@@ -1474,9 +1368,8 @@ block {
     // Update Loan Token state and get token borrow index
     // ------------------------------------------------------------------
 
-    // Get current vault borrow index, and vault loan token name
-    var vaultBorrowIndex      : nat := vault.borrowIndex;
-    const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
+    // Get vault loan token name
+    const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
     // Get loan token record
     var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
@@ -1486,6 +1379,10 @@ block {
     
     // Get loan token parameters
     const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
+
+    // Get or set current vault borrow index
+    var vaultBorrowIndex : nat := vault.borrowIndex;
+    if vaultBorrowIndex = 0n then vaultBorrowIndex := tokenBorrowIndex else skip;
 
     // ------------------------------------------------------------------
     // Accrue interest to vault oustanding

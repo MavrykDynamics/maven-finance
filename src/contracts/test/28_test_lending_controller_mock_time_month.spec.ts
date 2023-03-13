@@ -29,11 +29,11 @@
 // import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
 // import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
 
-// import mTokenUsdtAddress  from "../deployments/mTokenUsdtAddress.json";
-// import mTokenEurlAddress   from "../deployments/mTokenEurlAddress.json";
-// import mTokenXtzAddress            from "../deployments/mTokenXtzAddress.json";
+// import mTokenUsdtAddress                from "../deployments/mTokenUsdtAddress.json";
+// import mTokenEurlAddress                from "../deployments/mTokenEurlAddress.json";
+// import mTokenXtzAddress                 from "../deployments/mTokenXtzAddress.json";
 
-// import lendingControllerAddress         from '../deployments/lendingControllerMockTimeAddress.json';
+// import lendingControllerAddress         from '../deployments/lendingControllerAddress.json';
 // import lendingControllerMockTimeAddress from '../deployments/lendingControllerMockTimeAddress.json';
 
 // import vaultFactoryAddress              from '../deployments/vaultFactoryAddress.json';
@@ -45,8 +45,8 @@
 
 //     //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
 //     //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
-//     var eveVaultSet = []
-//     var malloryVaultSet = [] 
+//     var eveVaultSet : Array<Number>     = []
+//     var malloryVaultSet : Array<Number> = [] 
 
 //     let updateTokenRewardIndexOperation
 
@@ -156,9 +156,9 @@
 //         governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
 //         governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
 
-//         mTokenUsdtInstance        = await utils.tezos.contract.at(mTokenUsdtAddress.address);
-//         mTokenEurlInstance         = await utils.tezos.contract.at(mTokenEurlAddress.address);
-//         mTokenXtzInstance                  = await utils.tezos.contract.at(mTokenXtzAddress.address);
+//         mTokenUsdtInstance                      = await utils.tezos.contract.at(mTokenUsdtAddress.address);
+//         mTokenEurlInstance                      = await utils.tezos.contract.at(mTokenEurlAddress.address);
+//         mTokenXtzInstance                       = await utils.tezos.contract.at(mTokenXtzAddress.address);
 
 //         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
 //         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
@@ -187,14 +187,14 @@
 //         mockUsdMvkAggregatorStorage             = await mockUsdMvkAggregatorInstance.storage();
 
 //         tokenOracles.push({
-//             'name': 'mockFa12', 
+//             'name': 'usdt', 
 //             'price': mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data.toNumber(),
 //             'priceDecimals': mockUsdMockFa12TokenAggregatorStorage.config.decimals.toNumber(),
 //             'tokenDecimals': 0
 //         })
 
 //         tokenOracles.push({
-//             'name': 'mockFa2', 
+//             'name': 'eurl', 
 //             'price': mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data.toNumber(),
 //             'priceDecimals': mockUsdMockFa2TokenAggregatorStorage.config.decimals.toNumber(),
 //             'tokenDecimals': 0
@@ -226,14 +226,15 @@
 //         console.log('Governance Contract deployed at:'          , governanceInstance.address);
 //         console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
 
-//         console.log('mTokenUsdt - deployed at:'    , mTokenUsdtInstance.address);
-//         console.log('mTokenEurl - deployed at:'     , mTokenEurlInstance.address);
-//         console.log('mTokenXtz - deployed at:'                , mTokenXtzInstance.address);
+//         console.log('mTokenUsdt - deployed at:'                 , mTokenUsdtInstance.address);
+//         console.log('mTokenEurl - deployed at:'                 , mTokenEurlInstance.address);
+//         console.log('mTokenXtz - deployed at:'                  , mTokenXtzInstance.address);
 
 //         console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
 //         console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
 //         console.log('Mock Aggregator - USD / XTZ - deployed at:'                , mockUsdXtzAggregatorInstance.address);
 
+//         console.log('Lending Controller Contract deployed at:'                  , lendingControllerAddress.address);
 //         console.log('Lending Controller Mock Time Contract deployed at:'        , lendingControllerInstance.address);
 
 //         console.log('Alice address: ' + alice.pkh);
@@ -248,8 +249,8 @@
 //         // ------------------------------------------------------------------
 //         await signerFactory(bob.sk);
 
-//         const mockFa12LoanToken = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("mockFa12").executeView({ viewCaller : bob.pkh});
-//         const mockFa2LoanToken  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("mockFa2").executeView({ viewCaller : bob.pkh});
+//         const mockFa12LoanToken = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("usdt").executeView({ viewCaller : bob.pkh});
+//         const mockFa2LoanToken  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("eurl").executeView({ viewCaller : bob.pkh});
 //         const tezLoanToken      = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("tez").executeView({ viewCaller : bob.pkh});
         
 //         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
@@ -315,7 +316,7 @@
 
 //                 const setLoanTokenActionType                = "createLoanToken";
 
-//                 const tokenName                             = "mockFa12";
+//                 const tokenName                             = "usdt";
 //                 const tokenContractAddress                  = mockFa12TokenAddress.address;
 //                 const tokenType                             = "fa12";
 //                 const tokenDecimals                         = 6;
@@ -335,7 +336,7 @@
 //                 const minRepaymentAmount                    = 10000;
 
 //                 // update token oracle with token decimals
-//                 const mockFa12TokenIndex = tokenOracles.findIndex((o => o.name === "mockFa12"));
+//                 const mockFa12TokenIndex = tokenOracles.findIndex((o => o.name === "usdt"));
 //                 tokenOracles[mockFa12TokenIndex].tokenDecimals = tokenDecimals;
 
 //                 // check if loan token exists
@@ -414,7 +415,7 @@
 
 //                 const setLoanTokenActionType                = "createLoanToken";
 
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -435,7 +436,7 @@
 //                 const minRepaymentAmount                    = 10000;
 
 //                 // update token oracle with token decimals
-//                 const mockFa2TokenIndex = tokenOracles.findIndex((o => o.name === "mockFa2"));
+//                 const mockFa2TokenIndex = tokenOracles.findIndex((o => o.name === "eurl"));
 //                 tokenOracles[mockFa2TokenIndex].tokenDecimals = tokenDecimals;
 
 //                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
@@ -692,7 +693,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType      = "createCollateralToken";
-//                 const tokenName                         = "mockFa12";
+//                 const tokenName                         = "usdt";
 //                 const tokenContractAddress              = mockFa12TokenAddress.address;
 //                 const tokenType                         = "fa12";
 //                 const tokenId                           = 0;
@@ -762,7 +763,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType          = "createCollateralToken";
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -1019,14 +1020,14 @@
     
 //             // init variables
 //             await signerFactory(eve.sk);
-//             const loanTokenName = "mockFa12";
+//             const loanTokenName = "usdt";
 //             const liquidityAmount = 100000000; // 100 Mock FA12 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
 //             // get mock fa12 token storage and lp token pool mock fa12 token storage
 //             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
-//             const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
+//             const mTokenPoolMockFa12TokenStorage    = await mTokenUsdtInstance.storage();
 
 //             // get initial eve's Mock FA12 Token balance
 //             const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
@@ -1037,7 +1038,7 @@
 //             const eveInitialMUsdtTokenTokenBalance    = eveMUsdtTokenLedger == undefined ? 0 : eveMUsdtTokenLedger.toNumber();
 
 //             // get initial lending controller's Mock FA12 Token balance
-//             const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
 //             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
 //             // get initial lending controller token pool total
@@ -1047,14 +1048,14 @@
 //             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
 //             // reset token allowance
 //             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-//                 lendingControllerAddress.address,
+//                 lendingControllerMockTimeAddress.address,
 //                 0
 //             ).send();
 //             await resetTokenAllowance.confirmation();
 
 //             // set new token allowance
 //             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-//                 lendingControllerAddress.address,
+//                 lendingControllerMockTimeAddress.address,
 //                 liquidityAmount
 //             ).send();
 //             await setNewTokenAllowance.confirmation();
@@ -1069,18 +1070,18 @@
 //             // get updated storages
 //             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
 //             const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
-//             const updatedMUsdtTokenTokenStorage  = await mTokenUsdtInstance.storage();
+//             const updatedMUsdtTokenTokenStorage           = await mTokenUsdtInstance.storage();
 
 //             // check new balance for loan token pool total
-//             updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//             updatedLoanTokenRecord                  = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
 //             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
 //             // check Eve's Mock FA12 Token balance
-//             const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+//             const updatedEveMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
 //             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - liquidityAmount);
 
 //             // check Lending Controller's Mock FA12 Token Balance
-//             const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
 //             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
 //             // check Eve's mUsdt Token Token balance
@@ -1093,7 +1094,7 @@
     
 //             // init variables
 //             await signerFactory(eve.sk);
-//             const loanTokenName = "mockFa2";
+//             const loanTokenName = "eurl";
 //             const liquidityAmount = 100000000; // 100 Mock FA2 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
@@ -1111,7 +1112,7 @@
 //             const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
-//             const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
 //             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
 //             // get initial lending controller token pool total
@@ -1123,7 +1124,7 @@
 //                 {
 //                     add_operator: {
 //                         owner: eve.pkh,
-//                         operator: lendingControllerAddress.address,
+//                         operator: lendingControllerMockTimeAddress.address,
 //                         token_id: 0,
 //                     },
 //                 }])
@@ -1152,7 +1153,7 @@
 //             assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance - liquidityAmount);
 
 //             // check Lending Controller's Mock FA2 Token Balance
-//             const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerMockTimeAddress.address);            
 //             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance + liquidityAmount);
 
 //             // check Eve's mEurl Token Token balance
@@ -1183,7 +1184,7 @@
 //             const eveInitialMXtzTokenBalance    = eveMXtzTokenLedger == undefined ? 0 : eveMXtzTokenLedger.toNumber();
             
 //             // get initial lending controller's XTZ balance
-//             const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+//             const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerMockTimeAddress.address);
 //             const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
 
 //             // get initial lending controller token pool total
@@ -1206,7 +1207,7 @@
 //             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
 //             // check Lending Controller's XTZ Balance
-//             const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+//             const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerMockTimeAddress.address);
 //             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance + liquidityAmount);
 
 //             // check Eve's mTokenXtz balance
@@ -1254,13 +1255,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
-
+//             const vaultName     = "newVault";
+//             const loanTokenName = "usdt";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1306,9 +1308,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,                 
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1329,9 +1332,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,    
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -1526,13 +1530,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
-
+//             const loanTokenName = "usdt";
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1578,9 +1583,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,    
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1601,9 +1607,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,      
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -1800,13 +1807,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
-
+//             const loanTokenName = "usdt";
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1852,9 +1860,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,           
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1875,9 +1884,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,   
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -2075,13 +2085,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa12";
-
+//             const loanTokenName = "usdt";
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2127,9 +2138,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,       
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2150,9 +2162,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,  
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -2351,13 +2364,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
-
+//             const loanTokenName = "eurl";
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2403,9 +2417,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,               
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2426,9 +2441,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,  
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -2626,13 +2642,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
-
+//             const loanTokenName = "eurl";
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2678,9 +2695,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,         
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2701,9 +2719,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,      
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -2901,13 +2920,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
-
+//             const loanTokenName = "eurl";
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2953,9 +2973,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,           
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2976,9 +2997,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,      
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -3175,13 +3197,14 @@
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
-//             const loanTokenName = "mockFa2";
-
+//             const loanTokenName = "eurl";
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3227,9 +3250,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,            
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3250,9 +3274,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,          
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -3455,13 +3480,14 @@
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
-
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3507,9 +3533,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,            
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3530,9 +3557,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,         
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -3717,13 +3745,14 @@
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
-
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3769,9 +3798,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,                
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3792,9 +3822,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,                 
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -3980,13 +4011,14 @@
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
-
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -4032,9 +4064,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,                
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -4055,9 +4088,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,             
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
@@ -4242,13 +4276,14 @@
 //             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const loanTokenName = "tez";
-
+//             const vaultName     = "newVault";
 //             const depositorsConfig      = "any";
 
 //             // user (eve) creates a new vault with no tez
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                 eve.pkh,                // delegate to
 //                 loanTokenName,          // loan token type
+//                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -4294,9 +4329,10 @@
 //             await setNewTokenAllowanceForDeposit.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa12DepositAmount,               
-//                 "mockFa12"
+//                 "usdt"
 //             ).send();
 //             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -4317,9 +4353,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 mockFa2DepositAmount,                  
-//                 "mockFa2"
+//                 "eurl"
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
 
