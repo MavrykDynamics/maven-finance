@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Extra
 
@@ -19,7 +19,7 @@ class Depositor1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    whitelist: Dict[str, Any]
+    whitelist: List[str]
 
 
 class CreateVaultParameter(BaseModel):
@@ -28,4 +28,5 @@ class CreateVaultParameter(BaseModel):
 
     delegate: Optional[str]
     loanTokenName: str
+    name: str
     depositors: Union[Depositor, Depositor1]
