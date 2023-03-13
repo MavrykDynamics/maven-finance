@@ -30,15 +30,8 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const vaultStorage: vaultStorageType = {
-    
     admin                       : alice.pkh,
-    metadata                    : metadata,
-    mvkTokenAddress             : zeroAddress,
-    governanceAddress           : zeroAddress,
-    
     handle                      : vaultHandle,
-    depositors                  : MichelsonMap.fromLiteral({}),
-
-    lambdaLedger                : MichelsonMap.fromLiteral({}),
-
+    name                        : "newVault",
+    depositors                  : "any",
 };

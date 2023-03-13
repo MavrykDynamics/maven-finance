@@ -32,8 +32,8 @@
 // import mTokenEurlAddress                        from "../deployments/mTokenEurlAddress.json";
 // import mTokenXtzAddress                         from "../deployments/mTokenXtzAddress.json";
 
-// import lendingControllerAddress from '../deployments/lendingControllerAddress.json';
-// import vaultFactoryAddress      from '../deployments/vaultFactoryAddress.json';
+// import lendingControllerAddress                 from '../deployments/lendingControllerAddress.json';
+// import vaultFactoryAddress                      from '../deployments/vaultFactoryAddress.json';
 
 // import { vaultStorageType } from "./types/vaultStorageType"
 
@@ -43,8 +43,8 @@
 
 //     //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
 //     //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
-//     var eveVaultSet = []
-//     var malloryVaultSet = [] 
+//     var eveVaultSet : Array<Number>     = [] 
+//     var malloryVaultSet : Array<Number> = [] 
     
 //     let updateTokenRewardIndexOperation
 
@@ -819,7 +819,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType      = "createCollateralToken";
-//                 const tokenName                         = "mockFa12";
+//                 const tokenName                         = "usdt";
 //                 const tokenContractAddress              = mockFa12TokenAddress.address;
 //                 const tokenType                         = "fa12";
 //                 const tokenId                           = 0;
@@ -887,7 +887,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType          = "createCollateralToken";
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -1401,23 +1401,34 @@
 //     //
 //     describe('%createVault test: create vaults - loan tokens: MockFA12 Tokens, MockFA2 Tokens, Tez', function () {
 
-//         it('user (eve) can create a new vault (depositors: any) with no tez - LOAN TOKEN: MockFA12', async () => {
+//         it('user (eve) can create a new vault (depositors: any) with no tez - LOAN TOKEN: MockFA12 (USDT)', async () => {
 //             try{        
                 
 //                 // init variables
 //                 await signerFactory(eve.sk);
 //                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner            = eve.pkh;
+//                 const vaultName             = "newVault";
 //                 const loanTokenName         = "usdt";
                 
 //                 const depositorsConfig      = "any";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,                // delegate to
-//                     loanTokenName,          // loan token type
+//                     loanTokenName,          // loan token name
+//                     vaultName,              // vault name
 //                     depositorsConfig        // depositors config type - any / whitelist
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
+
+//                 // const createVaultParam        = await vaultFactoryInstance.methods.createVault(
+//                 //     eve.pkh,                // delegate to
+//                 //     loanTokenName,          // loan token name
+//                 //     vaultName,              // vault name
+//                 //     depositorsConfig        // depositors config type - any / whitelist
+//                 // ).toTransferParams();
+//                 // const estimate              = await utils.tezos.estimate.transfer(createVaultParam);
+//                 // console.log("CREATE VAULT ESTIMATION: ", estimate)
 
 //                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
 //                 const vaultHandle = {
@@ -1434,7 +1445,7 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin , vaultFactoryAddress.address);
 
 //                 // push new vault id to vault set
 //                 eveVaultSet.push(vaultId);
@@ -1445,7 +1456,7 @@
 
 //         });    
 
-//         it('user (mallory) can create a new vault (depositors: whitelist set) with no tez - LOAN TOKEN: MockFA12', async () => {
+//         it('user (mallory) can create a new vault (depositors: whitelist set) with no tez - LOAN TOKEN: MockFA12 (USDT)', async () => {
 //             try{        
 
 //                 // init variables
@@ -1453,6 +1464,7 @@
 //                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = mallory.pkh;
+//                 const vaultName                 = "newVault";
 //                 const loanTokenName             = "usdt";
 
 //                 const depositorsConfig          = "whitelist";
@@ -1460,7 +1472,9 @@
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     mallory.pkh,  
 //                     loanTokenName,
-//                     depositorsConfig
+//                     vaultName,
+//                     depositorsConfig,
+//                     []
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
 
@@ -1479,7 +1493,7 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin , vaultFactoryAddress.address);
 
 //                 // push new vault id to vault set
 //                 malloryVaultSet.push(vaultId);
@@ -1500,6 +1514,7 @@
 //                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = mallory.pkh;
+//                 const vaultName                 = "newVault";
 //                 const loanTokenName             = "eurl";
 
 //                 const depositorsConfig          = "any";
@@ -1507,8 +1522,9 @@
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     mallory.pkh,  
 //                     loanTokenName,
+//                     vaultName,
 //                     depositorsConfig
-//                     ).send();
+//                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
 
 //                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1526,7 +1542,7 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin , vaultFactoryAddress.address);
 
 //                 // push new vault id to vault set
 //                 malloryVaultSet.push(vaultId);
@@ -1545,6 +1561,7 @@
 //                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = eve.pkh;
+//                 const vaultName                 = "newVault";
 //                 const loanTokenName             = "eurl";
 
 //                 const depositorsConfig          = "whitelist";
@@ -1552,8 +1569,10 @@
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,  
 //                     loanTokenName,
+//                     vaultName,
 //                     depositorsConfig,
-//                     ).send();
+//                     []
+//                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
 
 //                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1571,7 +1590,7 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin , vaultFactoryAddress.address);
 
 //                 // push new vault id to vault set
 //                 eveVaultSet.push(vaultId);
@@ -1591,6 +1610,7 @@
 //                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = eve.pkh;
+//                 const vaultName                 = "newVault";
 //                 const loanTokenName             = "tez";
 
 //                 const depositorsConfig          = "whitelist";
@@ -1599,7 +1619,9 @@
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,  
 //                     loanTokenName,
+//                     vaultName,
 //                     depositorsConfig,
+//                     []
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
 
@@ -1618,7 +1640,7 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin , vaultFactoryAddress.address);
                 
 //                 // push new vault id to vault set
 //                 eveVaultSet.push(vaultId);
@@ -1660,9 +1682,10 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 //             const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-//             const eveDepositTezOperation  = await eveVaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const eveDepositTezOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "deposit",             // vault action types     
+//                 depositAmountMutez,    // amt
+//                 "tez"                  // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
 //             await eveDepositTezOperation.confirmation();
 
@@ -1675,7 +1698,7 @@
 //             // deposit into second and third vaults for borrow tests below
             
 //             // second vault
-//             const secondVaultId            = eveVaultSet[1];
+//             const secondVaultId = eveVaultSet[1];
 //             const secondVaultHandle = {
 //                 "id"     : secondVaultId,
 //                 "owner"  : vaultOwner
@@ -1686,14 +1709,15 @@
 //             // get vault contract
 //             const secondVaultAddress             = secondVault.address;
 //             const eveSecondVaultInstance         = await utils.tezos.contract.at(secondVaultAddress);
-//             const eveDepositTezIntoSecondVaultOperation  = await eveSecondVaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const eveDepositTezIntoSecondVaultOperation  = await eveSecondVaultInstance.methods.initVaultAction(
+//                 "deposit",              // vault action type
+//                 depositAmountMutez,     // amt
+//                 "tez"                   // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
 //             await eveDepositTezIntoSecondVaultOperation.confirmation();
 
 //             // third vault
-//             const thirdVaultId            = eveVaultSet[2];
+//             const thirdVaultId = eveVaultSet[2];
 //             const thirdVaultHandle = {
 //                 "id"     : thirdVaultId,
 //                 "owner"  : vaultOwner
@@ -1704,9 +1728,10 @@
 //             // get vault contract
 //             const thirdVaultAddress             = thirdVault.address;
 //             const eveThirdVaultInstance         = await utils.tezos.contract.at(thirdVaultAddress);
-//             const eveDepositTezIntoThirdVaultOperation  = await eveThirdVaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const eveDepositTezIntoThirdVaultOperation  = await eveThirdVaultInstance.methods.initVaultAction(
+//                 "deposit",                  // vault action type
+//                 depositAmountMutez,         // amt
+//                 "tez"                       // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
 //             await eveDepositTezIntoThirdVaultOperation.confirmation();
 
@@ -1741,9 +1766,10 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 //             const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "deposit",            // vault action type  
+//                 depositAmountMutez,   // amt
+//                 "tez"                 // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
 //             await malloryDepositTezIntoEveVaultOperation.confirmation();
 
@@ -1779,9 +1805,10 @@
 //             const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
 //             const vaultInstanceStorage     = await vaultInstance.storage();
     
-//             const malloryDepositTezOperation  = await vaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const malloryDepositTezOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",              // vault action type
+//                 depositAmountMutez,     // amt
+//                 "tez"                   // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
 //             await malloryDepositTezOperation.confirmation();
     
@@ -1821,9 +1848,10 @@
 //             const vaultInstance             = await utils.tezos.contract.at(vaultAddress);
 //             const vaultInstanceStorage      = await vaultInstance.storage();
     
-//             const failEveDepositTezIntoMalloryVaultOperation  = await vaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const failEveDepositTezIntoMalloryVaultOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",              // vault action type
+//                 depositAmountMutez,     // amt
+//                 "tez"                   // token
 //             );
 //             await chai.expect(failEveDepositTezIntoMalloryVaultOperation.send({ mutez : true, amount : depositAmountMutez })).to.be.rejected;    
     
@@ -1845,7 +1873,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -1890,7 +1918,8 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,          
 //                 tokenName
 //             ).send();
@@ -1921,7 +1950,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -1967,7 +1996,8 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // mallory deposits mock FA12 tokens into eve's vault
-//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,             
 //                 tokenName
 //             ).send();
@@ -2001,7 +2031,7 @@
 //             await signerFactory(eve.sk);
 //             const vaultId        = eveVaultSet[0];
 //             const vaultOwner     = eve.pkh;
-//             const tokenName      = "mockFa12";
+//             const tokenName      = "usdt";
     
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
@@ -2035,7 +2065,8 @@
 //             await setNewTokenAllowance.confirmation();
     
 //             // eve fails to deposit tez and mock FA12 tokens into vault
-//             const failEveDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const failEveDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,              
 //                 tokenName
 //             );
@@ -2051,7 +2082,7 @@
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
 
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -2097,7 +2128,8 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // mallory deposits mock FA12 tokens into her vault
-//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,                         
 //                 tokenName
 //             ).send();
@@ -2127,7 +2159,7 @@
 //             await signerFactory(eve.sk);
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -2162,8 +2194,9 @@
 //             await setNewTokenAllowance.confirmation();
     
 //             // eve fails to deposit tez and mock FA12 tokens into vault
-//             const failDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-//                 depositAmount,                         // amt
+//             const failDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
+//                 depositAmount,
 //                 tokenName
 //             );
 //             await chai.expect(failDepositMockFa12TokenOperation.send()).to.be.rejected;    
@@ -2176,7 +2209,7 @@
 //             await signerFactory(mallory.sk);
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -2211,7 +2244,8 @@
 //             await setNewTokenAllowance.confirmation();
     
 //             // mallory fails to deposit tez and mock FA12 tokens into vault
-//             const failDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const failDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount, 
 //                 tokenName
 //             );
@@ -2236,7 +2270,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2282,7 +2316,8 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount, 
 //                 tokenName
 //             ).send();
@@ -2314,7 +2349,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2360,7 +2395,8 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // mallory deposits mock FA2 tokens into vault
-//             const malloryDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const malloryDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,                      
 //                 tokenName
 //             ).send();
@@ -2391,7 +2427,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2423,7 +2459,8 @@
 //             await updateOperatorsOperation.confirmation();
     
 //             // eve fails to deposit tez and mock FA2 tokens into vault at the same time
-//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.deposit(
+//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,
 //                 tokenName
 //             );
@@ -2439,7 +2476,7 @@
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2485,7 +2522,8 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // mallory deposits mock FA2 tokens into vault
-//             const malloryDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const malloryDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,  
 //                 tokenName
 //             ).send();
@@ -2517,7 +2555,7 @@
 //             const vaultId            = malloryVaultSet[0];
 //             const vaultOwner         = mallory.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2549,7 +2587,8 @@
 //             await updateOperatorsOperation.confirmation();
     
 //             // eve fails to deposit tez and mock FA2 tokens into vault at the same time
-//             const failDepositMockFa2TokenOperation  = await vaultInstance.methods.deposit(
+//             const failDepositMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount, 
 //                 tokenName
 //             );
@@ -2566,7 +2605,7 @@
 //             const vaultOwner         = mallory.pkh;
 //             const tokenId            = 0;
 
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2598,7 +2637,8 @@
 //             await updateOperatorsOperation.confirmation();
     
 //             // eve fails to deposit tez and mock FA2 tokens into vault at the same time
-//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.deposit(
+//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,         
 //                 tokenName
 //             );
@@ -2620,18 +2660,18 @@
 
 //             // init variables
 //             await signerFactory(eve.sk);
-//             const loanTokenName = "usdt";
+//             const loanTokenName   = "usdt";
 //             const liquidityAmount = 10000000; // 10 Mock FA12 Tokens
 
 //             lendingControllerStorage = await lendingControllerInstance.storage();
             
 //             // get mock fa12 token storage and lp token pool mock fa12 token storage
-//             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
-//             const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
+//             const mockFa12TokenStorage                = await mockFa12TokenInstance.storage();
+//             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
             
 //             // get initial eve's Mock FA12 Token balance
-//             const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
+//             const eveMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+//             const eveInitialMockFa12TokenBalance      = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
 //             // get initial eve's mEurl Token - Mock FA12 Token - balance
 //             const eveMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
@@ -3778,7 +3818,8 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //             // withdraw operation
-//             const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 tokenName                            
 //             ).send();
@@ -3836,7 +3877,8 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //             // withdraw operation
-//             const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 tokenName                            
 //             ).send();
@@ -3894,7 +3936,8 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //             // withdraw operation
-//             const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 tokenName                            
 //             ).send();
@@ -3947,14 +3990,16 @@
 //             await chai.expect(failSetNewAdminOperation.send()).to.be.rejected;    
 
 //             // withdraw operation - mockFa12 token
-//             const failWithdrawTestTokenOneOperation  = await eveVaultInstance.methods.withdraw(
+//             const failWithdrawTestTokenOneOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 testTokenNameOne                            
 //             );
 //             await chai.expect(failWithdrawTestTokenOneOperation.send()).to.be.rejected;
 
 //             // withdraw operation - mockFa2 token
-//             const failWithdrawTestTokenTwoOperation  = await eveVaultInstance.methods.withdraw(
+//             const failWithdrawTestTokenTwoOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 testTokenNameTwo                            
 //             );
@@ -3989,7 +4034,8 @@
 //             await chai.expect(failSetNewAdminOperation.send()).to.be.rejected;    
 
 //             // withdraw operation
-//             const failWithdrawTestTokenOneOperation  = await eveVaultInstance.methods.withdraw(
+//             const failWithdrawTestTokenOneOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 tokenName                            
 //             );
@@ -4080,7 +4126,8 @@
 //             // ----------------------------------------------------------------------------------------------
 
 //             // eve set doorman as operator for vault
-//             const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.updateTokenOperators(
+//             const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.initVaultAction(
+//                 "updateTokenOperators",
 //                 tokenName,
 //                 [
 //                     {
@@ -4169,7 +4216,8 @@
 
 //             // eve set doorman as operator for vault
 //             const eveVaultInstance                  = await utils.tezos.contract.at(vaultAddress);
-//             const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.updateTokenOperators(
+//             const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.initVaultAction(
+//                 "updateTokenOperators",
 //                 tokenName,
 //                 [
 //                     {
@@ -4300,8 +4348,9 @@
 //             // ----------------------------------------------------------------------------------------------
 
 //             // mallory set doorman as operator for vault
-//             const eveVaultInstance                = await utils.tezos.contract.at(vaultAddress);
-//             const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.updateTokenOperators(
+//             const eveVaultInstance                  = await utils.tezos.contract.at(vaultAddress);
+//             const vaultUpdateTokenOperatorOperation = await eveVaultInstance.methods.initVaultAction(
+//                 "updateTokenOperators",
 //                 tokenName,
 //                 [
 //                     {
@@ -4599,717 +4648,721 @@
 //     // 
 //     // Test: Pause Loan Token - cannot add liquidity, can remove liquidity
 //     //
-//     describe('test paused loan token', function () {
+//     // describe('test paused loan token', function () {
 
-//         before('set governance defaults',async () => {
+//     //     before('set governance defaults',async () => {
             
-//             await signerFactory(bob.sk);
+//     //         await signerFactory(bob.sk);
 
-//             // Check if cycle already started (for retest purposes)
-//             const cycleEnd  = governanceStorage.currentCycleInfo.cycleEndLevel;
-//             if (cycleEnd == 0) {
+//     //         // Check if cycle already started (for retest purposes)
+//     //         const cycleEnd  = governanceStorage.currentCycleInfo.cycleEndLevel;
+//     //         if (cycleEnd == 0) {
 
-//                 // Update governance config for shorter cycles
-//                 await signerFactory(bob.sk)
-//                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
-//                 await updateGovernanceConfig.confirmation();
+//     //             // Update governance config for shorter cycles
+//     //             await signerFactory(bob.sk)
+//     //             var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+//     //             await updateGovernanceConfig.confirmation();
+//     //             updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+//     //             await updateGovernanceConfig.confirmation();
+//     //             updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+//     //             await updateGovernanceConfig.confirmation();
+//     //             updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
+//     //             await updateGovernanceConfig.confirmation();
+//     //             updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
+//     //             await updateGovernanceConfig.confirmation();
+//     //             updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
+//     //             await updateGovernanceConfig.confirmation();
+//     //             updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
+//     //             await updateGovernanceConfig.confirmation();
     
-//                 // Register satellites
-//                 await signerFactory(bob.sk)
-//                 var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//                 {
-//                     add_operator: {
-//                         owner    : bob.pkh,
-//                         operator : doormanAddress.address,
-//                         token_id : 0,
-//                     },
-//                 }])
-//                 .send()
-//                 await updateOperatorsOperation.confirmation();
-//                 var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
-//                 await stakeOperation.confirmation();
-//                 var registerAsSatelliteOperation = await delegationInstance.methods
-//                     .registerAsSatellite(
-//                         "Bob", 
-//                         "Bob description", 
-//                         "Bob image", 
-//                         "Bob website",
-//                         1000
-//                     ).send();
-//                 await registerAsSatelliteOperation.confirmation();
+//     //             // Register satellites
+//     //             await signerFactory(bob.sk)
+//     //             var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //             {
+//     //                 add_operator: {
+//     //                     owner    : bob.pkh,
+//     //                     operator : doormanAddress.address,
+//     //                     token_id : 0,
+//     //                 },
+//     //             }])
+//     //             .send()
+//     //             await updateOperatorsOperation.confirmation();
+//     //             var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
+//     //             await stakeOperation.confirmation();
+//     //             var registerAsSatelliteOperation = await delegationInstance.methods
+//     //                 .registerAsSatellite(
+//     //                     "Bob", 
+//     //                     "Bob description", 
+//     //                     "Bob image", 
+//     //                     "Bob website",
+//     //                     1000
+//     //                 ).send();
+//     //             await registerAsSatelliteOperation.confirmation();
     
-//                 await signerFactory(alice.sk)
-//                 var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//                 {
-//                     add_operator: {
-//                         owner    : alice.pkh,
-//                         operator : doormanAddress.address,
-//                         token_id : 0,
-//                     },
-//                 }])
-//                 .send()
-//                 await updateOperatorsOperation.confirmation();
-//                 stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
-//                 await stakeOperation.confirmation();
-//                 var registerAsSatelliteOperation = await delegationInstance.methods
-//                     .registerAsSatellite(
-//                         "Alice", 
-//                         "Alice description", 
-//                         "Alice image", 
-//                         "Alice website",
-//                         1000
-//                     ).send();
-//                 await registerAsSatelliteOperation.confirmation();
+//     //             await signerFactory(alice.sk)
+//     //             var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //             {
+//     //                 add_operator: {
+//     //                     owner    : alice.pkh,
+//     //                     operator : doormanAddress.address,
+//     //                     token_id : 0,
+//     //                 },
+//     //             }])
+//     //             .send()
+//     //             await updateOperatorsOperation.confirmation();
+//     //             stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
+//     //             await stakeOperation.confirmation();
+//     //             var registerAsSatelliteOperation = await delegationInstance.methods
+//     //                 .registerAsSatellite(
+//     //                     "Alice", 
+//     //                     "Alice description", 
+//     //                     "Alice image", 
+//     //                     "Alice website",
+//     //                     1000
+//     //                 ).send();
+//     //             await registerAsSatelliteOperation.confirmation();
         
-//                 // Set contracts admin to governance proxy
-//                 await signerFactory(bob.sk);
-//                 governanceStorage               = await governanceInstance.storage();            
-//                 const generalContracts          = governanceStorage.generalContracts.entries();
-//                 var setAdminOperation           = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
-//                 await setAdminOperation.confirmation();
-//                 setAdminOperation               = await mvkTokenInstance.methods.setAdmin(governanceProxyAddress.address).send();
-//                 await setAdminOperation.confirmation();
+//     //             // Set contracts admin to governance proxy
+//     //             await signerFactory(bob.sk);
+//     //             governanceStorage               = await governanceInstance.storage();            
+//     //             const generalContracts          = governanceStorage.generalContracts.entries();
+//     //             var setAdminOperation           = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
+//     //             await setAdminOperation.confirmation();
+//     //             setAdminOperation               = await mvkTokenInstance.methods.setAdmin(governanceProxyAddress.address).send();
+//     //             await setAdminOperation.confirmation();
 
-//                 for (let entry of generalContracts){
-//                     // Get contract storage
-//                     var contract        = await utils.tezos.contract.at(entry[1]);
-//                     var storage:any     = await contract.storage();
+//     //             for (let entry of generalContracts){
+//     //                 // Get contract storage
+//     //                 var contract        = await utils.tezos.contract.at(entry[1]);
+//     //                 var storage:any     = await contract.storage();
     
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
-//                         setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
-//                         await setAdminOperation.confirmation()
-//                     }
-//                 }
+//     //                 // Check admin
+//     //                 if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//     //                     setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+//     //                     await setAdminOperation.confirmation()
+//     //                 }
+//     //             }
 
-//             } else {
-//                 // Start next round until new proposal round
-//                 governanceStorage                = await governanceInstance.storage()
-//                 var currentCycleInfoRound        = governanceStorage.currentCycleInfo.round
-//                 var currentCycleInfoRoundString  = Object.keys(currentCycleInfoRound)[0]
+//     //         } else {
+//     //             // Start next round until new proposal round
+//     //             governanceStorage                = await governanceInstance.storage()
+//     //             var currentCycleInfoRound        = governanceStorage.currentCycleInfo.round
+//     //             var currentCycleInfoRoundString  = Object.keys(currentCycleInfoRound)[0]
     
-//                 delegationStorage       = await delegationInstance.storage();
-//                 console.log(await delegationStorage.satelliteLedger.size);
+//     //             delegationStorage       = await delegationInstance.storage();
+//     //             console.log(await delegationStorage.satelliteLedger.size);
     
-//                 while(currentCycleInfoRoundString!=="proposal"){
-//                     var restartRound                = await governanceInstance.methods.startNextRound(false).send();
-//                     await restartRound.confirmation()
-//                     governanceStorage               = await governanceInstance.storage()
-//                     currentCycleInfoRound                    = governanceStorage.currentCycleInfo.round
-//                     currentCycleInfoRoundString              = Object.keys(currentCycleInfoRound)[0]
-//                     console.log("Current round: ", currentCycleInfoRoundString)
-//                 }
-//             }
-//         })
+//     //             while(currentCycleInfoRoundString!=="proposal"){
+//     //                 var restartRound                = await governanceInstance.methods.startNextRound(false).send();
+//     //                 await restartRound.confirmation()
+//     //                 governanceStorage               = await governanceInstance.storage()
+//     //                 currentCycleInfoRound                    = governanceStorage.currentCycleInfo.round
+//     //                 currentCycleInfoRoundString              = Object.keys(currentCycleInfoRound)[0]
+//     //                 console.log("Current round: ", currentCycleInfoRoundString)
+//     //             }
+//     //         }
+//     //     })
 
-//         it("Set lending controller contract admin to Bob", async() => {
-//             try{
+//     //     it("Set lending controller contract admin to Bob", async() => {
+//     //         try{
 
-//                 // ------------------------------------------------------------------
-//                 //
-//                 // Setup governance satellites 
-//                 //
-//                 // ------------------------------------------------------------------
+//     //             // ------------------------------------------------------------------
+//     //             //
+//     //             // Setup governance satellites 
+//     //             //
+//     //             // ------------------------------------------------------------------
 
-//                 const aliceSatellite    = await delegationStorage.satelliteLedger.get(alice.pkh);
-//                 const bobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
+//     //             const aliceSatellite    = await delegationStorage.satelliteLedger.get(alice.pkh);
+//     //             const bobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
                 
-//                 if(bobSatellite === undefined){
+//     //             if(bobSatellite === undefined){
 
-//                     // Bob stakes 100 MVK tokens and registers as a satellite
-//                     await signerFactory(bob.sk);
-//                     var updateOperators = await mvkTokenInstance.methods.update_operators([
-//                         {
-//                             add_operator: {
-//                                 owner: bob.pkh,
-//                                 operator: doormanAddress.address,
-//                                 token_id: 0,
-//                             },
-//                         },
-//                     ]).send()
-//                     await updateOperators.confirmation();  
-//                     const bobStakeAmount                  = MVK(100);
-//                     const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
-//                     await bobStakeAmountOperation.confirmation();                        
-//                     const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "1000").send();
-//                     await bobRegisterAsSatelliteOperation.confirmation();
-//                 }
+//     //                 // Bob stakes 100 MVK tokens and registers as a satellite
+//     //                 await signerFactory(bob.sk);
+//     //                 var updateOperators = await mvkTokenInstance.methods.update_operators([
+//     //                     {
+//     //                         add_operator: {
+//     //                             owner: bob.pkh,
+//     //                             operator: doormanAddress.address,
+//     //                             token_id: 0,
+//     //                         },
+//     //                     },
+//     //                 ]).send()
+//     //                 await updateOperators.confirmation();  
+//     //                 const bobStakeAmount                  = MVK(100);
+//     //                 const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
+//     //                 await bobStakeAmountOperation.confirmation();                        
+//     //                 const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "1000").send();
+//     //                 await bobRegisterAsSatelliteOperation.confirmation();
+//     //             }
 
-//                 if(aliceSatellite === undefined){
+//     //             if(aliceSatellite === undefined){
 
-//                     // Eve stakes 100 MVK tokens and registers as a satellite 
-//                     await signerFactory(alice.sk);
-//                     updateOperators = await mvkTokenInstance.methods.update_operators([
-//                         {
-//                             add_operator: {
-//                                 owner: alice.pkh,
-//                                 operator: doormanAddress.address,
-//                                 token_id: 0,
-//                             },
-//                         },
-//                     ]).send()
-//                     await updateOperators.confirmation(); 
-//                     const aliceStakeAmount                  = MVK(100);
-//                     const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
-//                     await aliceStakeAmountOperation.confirmation();                        
-//                     const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "1000").send();
-//                     await aliceRegisterAsSatelliteOperation.confirmation();
-//                 }
+//     //                 // Eve stakes 100 MVK tokens and registers as a satellite 
+//     //                 await signerFactory(alice.sk);
+//     //                 updateOperators = await mvkTokenInstance.methods.update_operators([
+//     //                     {
+//     //                         add_operator: {
+//     //                             owner: alice.pkh,
+//     //                             operator: doormanAddress.address,
+//     //                             token_id: 0,
+//     //                         },
+//     //                     },
+//     //                 ]).send()
+//     //                 await updateOperators.confirmation(); 
+//     //                 const aliceStakeAmount                  = MVK(100);
+//     //                 const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
+//     //                 await aliceStakeAmountOperation.confirmation();                        
+//     //                 const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "1000").send();
+//     //                 await aliceRegisterAsSatelliteOperation.confirmation();
+//     //             }
 
-//                 await signerFactory(bob.sk);
+//     //             await signerFactory(bob.sk);
 
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 lendingControllerStorage    = await lendingControllerInstance.storage();
-//                 const initAdmin             = lendingControllerStorage.admin;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Set contract";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             lendingControllerStorage    = await lendingControllerInstance.storage();
+//     //             const initAdmin             = lendingControllerStorage.admin;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Set contract";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
 
-//                 // Set a contract admin compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'setContractAdmin',
-//                     lendingControllerInstance.address,
-//                     bob.pkh,
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Set a contract admin compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'setContractAdmin',
+//     //                 lendingControllerInstance.address,
+//     //                 bob.pkh,
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %setContractAdmin param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %setContractAdmin param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
 
-//                 const proposalData      = [
-//                     {
-//                         addOrSetProposalData: {
-//                             title: "SetAdmin#1",
-//                             encodedCode: packedParam,
-// 						    codeDescription: ""
-//                         }
-//                     }
-//                 ];
+//     //             const proposalData      = [
+//     //                 {
+//     //                     addOrSetProposalData: {
+//     //                         title: "SetAdmin#1",
+//     //                         encodedCode: packedParam,
+// 	// 					    codeDescription: ""
+//     //                     }
+//     //                 }
+//     //             ];
 
-//                 //Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             //Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-//                 await proposeOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+//     //             await proposeOperation.confirmation();
 
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
 
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
 
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
 
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
 
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 lendingControllerStorage    = await lendingControllerInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endAdmin              = lendingControllerStorage.admin;
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             lendingControllerStorage    = await lendingControllerInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endAdmin              = lendingControllerStorage.admin;
                 
-//                 // Assertions
-//                 console.log(initAdmin)
-//                 console.log(endAdmin)
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(initAdmin, endAdmin);
-//                 assert.equal(endAdmin, bob.pkh);
+//     //             // Assertions
+//     //             console.log(initAdmin)
+//     //             console.log(endAdmin)
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(initAdmin, endAdmin);
+//     //             assert.equal(endAdmin, bob.pkh);
 
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
 
-//         it('admin should be able to update and pause a loan token', async () => {
+//     //     it('admin should be able to update and pause a loan token', async () => {
 
-//             try{        
+//     //         try{        
                 
-//                 // init variables
-//                 await signerFactory(bob.sk);
+//     //             // init variables
+//     //             await signerFactory(bob.sk);
                 
-//                 const updateLoanTokenActionType                = "updateLoanToken";
-//                 const tokenName                                = "eurl";
-//                 const interestRateDecimals                     = 27;
+//     //             const updateLoanTokenActionType                = "updateLoanToken";
+//     //             const tokenName                                = "eurl";
+//     //             const interestRateDecimals                     = 27;
                 
-//                 const newOracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+//     //             const newOracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
-//                 const newReserveRatio                          = 2000; // 20% reserves (4 decimals)
-//                 const newOptimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));   // 50% utilisation rate kink
-//                 const newBaseInterestRate                      = 10  * (10 ** (interestRateDecimals - 2));  // 5%
-//                 const newMaxInterestRate                       = 50 * (10 ** (interestRateDecimals - 2));  // 25% 
-//                 const newInterestRateBelowOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 10% 
-//                 const newInterestRateAboveOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 20%
-//                 const newMinRepaymentAmount                    = 20000;
-//                 const isPaused                                 = true;
+//     //             const newReserveRatio                          = 2000; // 20% reserves (4 decimals)
+//     //             const newOptimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));   // 50% utilisation rate kink
+//     //             const newBaseInterestRate                      = 10  * (10 ** (interestRateDecimals - 2));  // 5%
+//     //             const newMaxInterestRate                       = 50 * (10 ** (interestRateDecimals - 2));  // 25% 
+//     //             const newInterestRateBelowOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 10% 
+//     //             const newInterestRateAboveOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 20%
+//     //             const newMinRepaymentAmount                    = 20000;
+//     //             const isPaused                                 = true;
 
-//                 const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+//     //             const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
 
-//                     updateLoanTokenActionType,
+//     //                 updateLoanTokenActionType,
                     
-//                     tokenName,
+//     //                 tokenName,
 
-//                     newOracleAddress,
+//     //                 newOracleAddress,
                     
-//                     newReserveRatio,
-//                     newOptimalUtilisationRate,
-//                     newBaseInterestRate,
-//                     newMaxInterestRate,
-//                     newInterestRateBelowOptimalUtilisation,
-//                     newInterestRateAboveOptimalUtilisation,
-//                     newMinRepaymentAmount,
+//     //                 newReserveRatio,
+//     //                 newOptimalUtilisationRate,
+//     //                 newBaseInterestRate,
+//     //                 newMaxInterestRate,
+//     //                 newInterestRateBelowOptimalUtilisation,
+//     //                 newInterestRateAboveOptimalUtilisation,
+//     //                 newMinRepaymentAmount,
 
-//                     isPaused
+//     //                 isPaused
                     
-//                 ).send();
-//                 await adminUpdateMockFa2LoanTokenOperation.confirmation();
+//     //             ).send();
+//     //             await adminUpdateMockFa2LoanTokenOperation.confirmation();
 
-//                 lendingControllerStorage = await lendingControllerInstance.storage();
-//                 const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+//     //             lendingControllerStorage = await lendingControllerInstance.storage();
+//     //             const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-//                 assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
-//                 assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
+//     //             assert.equal(updatedMockFa2LoanToken.tokenName      , tokenName);
+//     //             assert.equal(updatedMockFa2LoanToken.isPaused       , isPaused);
                 
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
 
-//         it('user (eve) should not be able to add liqudity if loan token is paused', async () => {
+//     //     it('user (eve) should not be able to add liqudity if loan token is paused', async () => {
 
-//             try{        
+//     //         try{        
 
-//                 // init variables
-//                 await signerFactory(eve.sk);
-//                 const loanTokenName = "eurl";
-//                 const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
+//     //             // init variables
+//     //             await signerFactory(eve.sk);
+//     //             const loanTokenName = "eurl";
+//     //             const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
 
-//                 // update operators for vault
-//                 const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-//                     {
-//                         add_operator: {
-//                             owner: eve.pkh,
-//                             operator: lendingControllerAddress.address,
-//                             token_id: 0,
-//                         },
-//                     }])
-//                     .send()
-//                 await updateOperatorsOperation.confirmation();
+//     //             // update operators for vault
+//     //             const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
+//     //                 {
+//     //                     add_operator: {
+//     //                         owner: eve.pkh,
+//     //                         operator: lendingControllerAddress.address,
+//     //                         token_id: 0,
+//     //                     },
+//     //                 }])
+//     //                 .send()
+//     //             await updateOperatorsOperation.confirmation();
 
-//                 // eve fail to deposit mock FA2 tokens into lending controller token pool as the loan token is paused
-//                 const failEveDepositTokenOperation  = lendingControllerInstance.methods.addLiquidity(
-//                     loanTokenName,
-//                     liquidityAmount
-//                 );
-//                 await chai.expect(failEveDepositTokenOperation.send()).to.be.rejected;    
+//     //             // eve fail to deposit mock FA2 tokens into lending controller token pool as the loan token is paused
+//     //             const failEveDepositTokenOperation  = lendingControllerInstance.methods.addLiquidity(
+//     //                 loanTokenName,
+//     //                 liquidityAmount
+//     //             );
+//     //             await chai.expect(failEveDepositTokenOperation.send()).to.be.rejected;    
 
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
 
-//         it('user (eve) should still be able to remove liqudity even if loan token is paused', async () => {
+//     //     it('user (eve) should still be able to remove liqudity even if loan token is paused', async () => {
 
-//             try{       
+//     //         try{       
 
-//                 // init variables
-//                 await signerFactory(eve.sk);
-//                 const loanTokenName = "eurl";
-//                 const withdrawAmount = 5000000; // 5 Mock FA2 Tokens
+//     //             // init variables
+//     //             await signerFactory(eve.sk);
+//     //             const loanTokenName = "eurl";
+//     //             const withdrawAmount = 5000000; // 5 Mock FA2 Tokens
 
-//                 lendingControllerStorage = await lendingControllerInstance.storage();
+//     //             lendingControllerStorage = await lendingControllerInstance.storage();
                 
-//                 // get mock fa12 token storage and lp token pool mock fa2 token storage
-//                 const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//                 const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
+//     //             // get mock fa12 token storage and lp token pool mock fa2 token storage
+//     //             const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
+//     //             const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
                 
-//                 // get initial eve's Mock FA2 Token balance
-//                 const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
+//     //             // get initial eve's Mock FA2 Token balance
+//     //             const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
+//     //             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-//                 // get initial eve's mEurl Token - Mock FA2 Token - balance
-//                 const eveMEurlTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
+//     //             // get initial eve's mEurl Token - Mock FA2 Token - balance
+//     //             const eveMEurlTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+//     //             const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
-//                 // get initial lending controller's Mock FA2 Token balance
-//                 const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-//                 const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
+//     //             // get initial lending controller's Mock FA2 Token balance
+//     //             const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+//     //             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
-//                 // get initial lending controller token pool total
-//                 const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
-//                 const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
+//     //             // get initial lending controller token pool total
+//     //             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//     //             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
-//                 // eve withdraws mock FA2 tokens liquidity from lending controller token pool
-//                 const eveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
-//                     loanTokenName,
-//                     withdrawAmount, 
-//                 ).send();
-//                 await eveWithdrawTokenOperation.confirmation();
+//     //             // eve withdraws mock FA2 tokens liquidity from lending controller token pool
+//     //             const eveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
+//     //                 loanTokenName,
+//     //                 withdrawAmount, 
+//     //             ).send();
+//     //             await eveWithdrawTokenOperation.confirmation();
 
-//                 // get updated storages
-//                 const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
-//                 const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-//                 const updatedMEurlTokenTokenStorage   = await mTokenEurlInstance.storage();
+//     //             // get updated storages
+//     //             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
+//     //             const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
+//     //             const updatedMEurlTokenTokenStorage   = await mTokenEurlInstance.storage();
 
-//                 // Summary - Liquidity Removed for Mock FA2 Token
-//                 // 1) Loan Token Pool Record Balance - decrease
-//                 // 2) Lending Controller Token Balance - decrease
-//                 // 3) User mToken Balance - decrease
-//                 // 4) User Token Balance - increase
+//     //             // Summary - Liquidity Removed for Mock FA2 Token
+//     //             // 1) Loan Token Pool Record Balance - decrease
+//     //             // 2) Lending Controller Token Balance - decrease
+//     //             // 3) User mToken Balance - decrease
+//     //             // 4) User Token Balance - increase
 
-//                 // 1) check new balance for loan token pool total
-//                 const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
-//                 assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
+//     //             // 1) check new balance for loan token pool total
+//     //             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//     //             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
 
-//                 // 2) check Lending Controller's Mock FA2 Token Balance
-//                 const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-//                 assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
+//     //             // 2) check Lending Controller's Mock FA2 Token Balance
+//     //             const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+//     //             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
 
-//                 // 3) check Eve's mEurl Token Token balance
-//                 const updatedEveMEurlTokenLedger        = await updatedMEurlTokenTokenStorage.ledger.get(eve.pkh);            
-//                 assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance - withdrawAmount);        
+//     //             // 3) check Eve's mEurl Token Token balance
+//     //             const updatedEveMEurlTokenLedger        = await updatedMEurlTokenTokenStorage.ledger.get(eve.pkh);            
+//     //             assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance - withdrawAmount);        
 
-//                 // 4) check Eve's Mock FA2 Token balance
-//                 const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
+//     //             // 4) check Eve's Mock FA2 Token balance
+//     //             const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+//     //             assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
                 
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
 
 
-//         it('user (eve) should still be able to deposit into vault even if loan token is paused', async () => {
+//     //     it('user (eve) should still be able to deposit into vault even if loan token is paused', async () => {
 
-//             try{       
+//     //         try{       
 
-//                 const vaultId            = eveVaultSet[1]; // vault with mockFa2 loan token
-//                 const vaultOwner         = eve.pkh;
-//                 const depositAmountTez   = 1;
-//                 const depositAmountMutez = 1000000;
+//     //             const vaultId            = eveVaultSet[1]; // vault with mockFa2 loan token
+//     //             const vaultOwner         = eve.pkh;
+//     //             const depositAmountTez   = 1;
+//     //             const depositAmountMutez = 1000000;
 
-//                 const vaultHandle = {
-//                     "id"     : vaultId,
-//                     "owner"  : vaultOwner
-//                 };
+//     //             const vaultHandle = {
+//     //                 "id"     : vaultId,
+//     //                 "owner"  : vaultOwner
+//     //             };
     
-//                 const vault                    = await lendingControllerStorage.vaults.get(vaultHandle);
+//     //             const vault                    = await lendingControllerStorage.vaults.get(vaultHandle);
 
-//                 // get vault contract
-//                 const vaultAddress             = vault.address;
-//                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-//                 const eveVaultInstanceStorage  = await eveVaultInstance.storage();
+//     //             // get vault contract
+//     //             const vaultAddress             = vault.address;
+//     //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+//     //             const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-//                 const eveDepositTezOperation   = await eveVaultInstance.methods.deposit(
-//                     depositAmountMutez,                   // amt
-//                     "tez"                                 // token
-//                 ).send({ mutez : true, amount : depositAmountMutez });
-//                 await eveDepositTezOperation.confirmation();
+//     //             const eveDepositTezOperation   = await eveVaultInstance.methods.initVaultAction(
+//     //                 "deposit",
+//     //                 depositAmountMutez,                   // amt
+//     //                 "tez"                                 // token
+//     //             ).send({ mutez : true, amount : depositAmountMutez });
+//     //             await eveDepositTezOperation.confirmation();
     
-//                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//                 const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-//                 const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+//     //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+//     //             const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//     //             const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
                 
-//                 assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
+//     //             assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
                 
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
 
 
-//         it('user (eve) should not be able to borrow from vault if loan token is paused', async () => {
+//     //     it('user (eve) should not be able to borrow from vault if loan token is paused', async () => {
 
-//             try{        
+//     //         try{        
 
-//                 const vaultId            = eveVaultSet[1]; // vault with mockFa2 loan token
-//                 const vaultOwner         = eve.pkh;
-//                 const borrowAmount       = 100000;
+//     //             const vaultId            = eveVaultSet[1]; // vault with mockFa2 loan token
+//     //             const vaultOwner         = eve.pkh;
+//     //             const borrowAmount       = 100000;
 
-//                 const vaultHandle = {
-//                     "id"     : vaultId,
-//                     "owner"  : vaultOwner
-//                 };
+//     //             const vaultHandle = {
+//     //                 "id"     : vaultId,
+//     //                 "owner"  : vaultOwner
+//     //             };
     
-//                 const vault              = await lendingControllerStorage.vaults.get(vaultHandle);
+//     //             const vault              = await lendingControllerStorage.vaults.get(vaultHandle);
 
-//                 // borrow operation
-//                 const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount);
-//                 await chai.expect(eveBorrowOperation.send()).to.be.rejected;    
-
-                
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-
-//         it('user (eve) should still be able to withdraw from vault even if loan token is paused', async () => {
-
-//             try{        
-
-//                 await signerFactory(eve.sk);
-//                 const vaultId              = eveVaultSet[0]; 
-//                 const vaultOwner           = eve.pkh;
-//                 const withdrawAmount       = 100000; // 0.1 mockFa2 token
-//                 const tokenName            = 'mockFa2';
-    
-//                 const vaultHandle = {
-//                     "id"     : vaultId,
-//                     "owner"  : vaultOwner
-//                 };
-    
-//                 const lendingControllerStorage      = await lendingControllerInstance.storage();
-//                 const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-    
-//                 const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
-    
-//                 // get vault contract
-//                 const vaultAddress = vault.address;
-    
-//                 // get initial balance for Eve and Vault
-//                 const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
-    
-//                 const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
-//                 const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
-    
-//                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-    
-//                 // withdraw operation
-//                 const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
-//                     withdrawAmount,                 
-//                     tokenName                            
-//                 ).send();
-//                 await eveWithdrawOperation.confirmation();
-    
-//                 // get updated storages for lending controller and vault
-//                 const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-//                 const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-//                 const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
-//                 const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
-    
-//                 // get updated balance for Eve and Vault
-//                 const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
-    
-//                 const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
-//                 const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
-                
-    
-//                 assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
-//                 assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
-//                 assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
+//     //             // borrow operation
+//     //             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount);
+//     //             await chai.expect(eveBorrowOperation.send()).to.be.rejected;    
 
                 
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//     });
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
 
 
-//         // 
+//     //     it('user (eve) should still be able to withdraw from vault even if loan token is paused', async () => {
+
+//     //         try{        
+
+//     //             await signerFactory(eve.sk);
+//     //             const vaultId              = eveVaultSet[0]; 
+//     //             const vaultOwner           = eve.pkh;
+//     //             const withdrawAmount       = 100000; // 0.1 mockFa2 token
+//     //             const tokenName            = 'mockFa2';
+    
+//     //             const vaultHandle = {
+//     //                 "id"     : vaultId,
+//     //                 "owner"  : vaultOwner
+//     //             };
+    
+//     //             const lendingControllerStorage      = await lendingControllerInstance.storage();
+//     //             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+    
+//     //             const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
+    
+//     //             // get vault contract
+//     //             const vaultAddress = vault.address;
+    
+//     //             // get initial balance for Eve and Vault
+//     //             const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
+//     //             const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
+    
+//     //             const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
+//     //             const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
+    
+//     //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+    
+//     //             // withdraw operation
+//     //             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//     //                 "withdraw",
+//     //                 withdrawAmount,                 
+//     //                 tokenName                            
+//     //             ).send();
+//     //             await eveWithdrawOperation.confirmation();
+    
+//     //             // get updated storages for lending controller and vault
+//     //             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+//     //             const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//     //             const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
+//     //             const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
+    
+//     //             // get updated balance for Eve and Vault
+//     //             const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+//     //             const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
+    
+//     //             const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
+//     //             const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
+                
+    
+//     //             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
+//     //             assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
+//     //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
+
+                
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
+
+//     // });
+
+
+//     // 
 //     // Test: Pause Loan Token - cannot add liquidity, can remove liquidity
-//     //
-//     describe('test paused collateral token', function () {
+//     // 
+//     // describe('test paused collateral token', function () {
 
-//         it('admin should be able to update and pause a collateral token', async () => {
+//     //     it('admin should be able to update and pause a collateral token', async () => {
 
-//             try{        
+//     //         try{        
                 
-//                 // init variables
-//                 await signerFactory(bob.sk);
+//     //             // init variables
+//     //             await signerFactory(bob.sk);
 
-//                 const tokenName                             = "mockFa2";
+//     //             const tokenName                             = "eurl";
 
-//                 const updateCollateralTokenActionType       = "updateCollateralToken";
-//                 const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
-//                 const stakingContractAddress                = null;
-//                 const maxDepositAmount                      = null;
-//                 const isPaused                              = true;
+//     //             const updateCollateralTokenActionType       = "updateCollateralToken";
+//     //             const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
+//     //             const stakingContractAddress                = null;
+//     //             const maxDepositAmount                      = null;
+//     //             const isPaused                              = true;
                 
-//                 const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+//     //             const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
 
-//                     updateCollateralTokenActionType,
+//     //                 updateCollateralTokenActionType,
                     
-//                     tokenName,
-//                     newOracleAddress,
-//                     isPaused,
+//     //                 tokenName,
+//     //                 newOracleAddress,
+//     //                 isPaused,
 
-//                     stakingContractAddress,
-//                     maxDepositAmount
+//     //                 stakingContractAddress,
+//     //                 maxDepositAmount
 
-//                 ).send();
-//                 await adminSetMockFa2CollateralTokenOperation.confirmation();
+//     //             ).send();
+//     //             await adminSetMockFa2CollateralTokenOperation.confirmation();
 
-//                 lendingControllerStorage               = await lendingControllerInstance.storage();
-//                 const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+//     //             lendingControllerStorage               = await lendingControllerInstance.storage();
+//     //             const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-//                 // collateral token should now be paused
-//                 assert.equal(updatedMockFa2CollateralToken.isPaused       , isPaused);
+//     //             // collateral token should now be paused
+//     //             assert.equal(updatedMockFa2CollateralToken.isPaused       , isPaused);
 
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
 
 
-//         it('user (eve) should not be able to deposit mock FA2 collateral tokens into her vault', async () => {
+//     //     it('user (eve) should not be able to deposit mock FA2 collateral tokens into her vault', async () => {
     
-//             // init variables
-//             await signerFactory(eve.sk);
-//             const vaultId            = eveVaultSet[1];
-//             const vaultOwner         = eve.pkh;
-//             const tokenName          = "mockFa2";
-//             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
+//     //         // init variables
+//     //         await signerFactory(eve.sk);
+//     //         const vaultId            = eveVaultSet[1];
+//     //         const vaultOwner         = eve.pkh;
+//     //         const tokenName          = "eurl";
+//     //         const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
-//             lendingControllerStorage = await lendingControllerInstance.storage();
+//     //         lendingControllerStorage = await lendingControllerInstance.storage();
 
-//             // create vault handle
-//             const vaultHandle = {
-//                 "id"     : vaultId,
-//                 "owner"  : vaultOwner
-//             };
+//     //         // create vault handle
+//     //         const vaultHandle = {
+//     //             "id"     : vaultId,
+//     //             "owner"  : vaultOwner
+//     //         };
 
-//             // get vault from Lending Controller        
-//             const vault = await lendingControllerStorage.vaults.get(vaultHandle);
+//     //         // get vault from Lending Controller        
+//     //         const vault = await lendingControllerStorage.vaults.get(vaultHandle);
 
-//             // get vault contract
-//             const vaultAddress             = vault.address;
-//             const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
+//     //         // get vault contract
+//     //         const vaultAddress             = vault.address;
+//     //         const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
 
-//             // update operators for vault
-//             const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-//             {
-//                 add_operator: {
-//                     owner: eve.pkh,
-//                     operator: vaultAddress,
-//                     token_id: 0,
-//                 },
-//             }])
-//             .send()
-//             await updateOperatorsOperation.confirmation();
+//     //         // update operators for vault
+//     //         const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
+//     //         {
+//     //             add_operator: {
+//     //                 owner: eve.pkh,
+//     //                 operator: vaultAddress,
+//     //                 token_id: 0,
+//     //             },
+//     //         }])
+//     //         .send()
+//     //         await updateOperatorsOperation.confirmation();
 
-//             // eve fails to deposit mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-//                 depositAmount, 
-//                 tokenName
-//             );
-//             await chai.expect(eveDepositTokenOperation.send()).to.be.rejected;    
+//     //         // eve fails to deposit mock FA2 tokens into vault
+//     //         const eveDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//     //             "deposit",
+//     //             depositAmount, 
+//     //             tokenName
+//     //         );
+//     //         await chai.expect(eveDepositTokenOperation.send()).to.be.rejected;    
 
-//         });
+//     //     });
 
-//         it('user (eve) should still be able to withdraw from vault even if collateral token is paused', async () => {
+//     //     it('user (eve) should still be able to withdraw from vault even if collateral token is paused', async () => {
 
-//             try{        
+//     //         try{        
 
-//                 await signerFactory(eve.sk);
-//                 const vaultId              = eveVaultSet[1]; 
-//                 const vaultOwner           = eve.pkh;
-//                 const withdrawAmount       = 100000; // 0.1 mockFa2 token
-//                 const tokenName            = 'mockFa2';
+//     //             await signerFactory(eve.sk);
+//     //             const vaultId              = eveVaultSet[1]; 
+//     //             const vaultOwner           = eve.pkh;
+//     //             const withdrawAmount       = 100000; // 0.1 mockFa2 token
+//     //             const tokenName            = 'mockFa2';
     
-//                 const vaultHandle = {
-//                     "id"     : vaultId,
-//                     "owner"  : vaultOwner
-//                 };
+//     //             const vaultHandle = {
+//     //                 "id"     : vaultId,
+//     //                 "owner"  : vaultOwner
+//     //             };
     
-//                 const lendingControllerStorage      = await lendingControllerInstance.storage();
-//                 const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+//     //             const lendingControllerStorage      = await lendingControllerInstance.storage();
+//     //             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
     
-//                 const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
+//     //             const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
     
-//                 // get vault contract
-//                 const vaultAddress = vault.address;
+//     //             // get vault contract
+//     //             const vaultAddress = vault.address;
     
-//                 // get initial balance for Eve and Vault
-//                 const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
+//     //             // get initial balance for Eve and Vault
+//     //             const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
+//     //             const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
     
-//                 const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
-//                 const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
+//     //             const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
+//     //             const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
     
-//                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+//     //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
     
-//                 // withdraw operation
-//                 const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
-//                     withdrawAmount,                 
-//                     tokenName                            
-//                 ).send();
-//                 await eveWithdrawOperation.confirmation();
+//     //             // withdraw operation
+//     //             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//     //                 "withdraw",
+//     //                 withdrawAmount,                 
+//     //                 tokenName                            
+//     //             ).send();
+//     //             await eveWithdrawOperation.confirmation();
     
-//                 // get updated storages for lending controller and vault
-//                 const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-//                 const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-//                 const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
-//                 const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
+//     //             // get updated storages for lending controller and vault
+//     //             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+//     //             const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//     //             const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
+//     //             const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
     
-//                 // get updated balance for Eve and Vault
-//                 const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-//                 const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
+//     //             // get updated balance for Eve and Vault
+//     //             const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+//     //             const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
     
-//                 const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
-//                 const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
+//     //             const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
+//     //             const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
                 
     
-//                 assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
-//                 assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
-//                 assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
+//     //             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
+//     //             assert.equal(updatedVaultMockFa2TokenBalance, vaultInitialMockFa2TokenBalance - withdrawAmount);
+//     //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance + withdrawAmount);
 
                 
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
+//     //         } catch(e){
+//     //             console.log(e);
+//     //         } 
+//     //     });
 
-//     });
+//     // });
 
 // });

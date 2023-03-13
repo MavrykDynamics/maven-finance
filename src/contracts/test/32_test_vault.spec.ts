@@ -34,23 +34,21 @@
 // import lendingControllerMockTimeAddress from '../deployments/lendingControllerMockTimeAddress.json';
 // import vaultFactoryAddress      from '../deployments/vaultFactoryAddress.json';
 
-// import { vaultStorageType } from "./types/vaultStorageType"
-
-// type depositorsType = {
-//     depositorsConfig        : string;
-//     whitelistedDepositors   : [];
-// }
+// import { depositorsType, vaultStorageType } from "./types/vaultStorageType"
 
 // describe("Vault tests", async () => {
-    
+
+
 //     var utils: Utils
 
 //     //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
 //     //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
-//     var eveVaultSet = []
-//     var malloryVaultSet = [] 
+//     var eveVaultSet : Array<Number>     = []
+//     var malloryVaultSet : Array<Number> = [] 
     
 //     let updateTokenRewardIndexOperation
+
+//     let vaultStorage
 
 //     let doormanInstance
 //     let delegationInstance
@@ -223,8 +221,8 @@
 //         // ------------------------------------------------------------------
 //         await signerFactory(bob.sk);
 
-//         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
-//         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
+//         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
+//         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurl"); 
 //         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
 
 //         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
@@ -240,7 +238,6 @@
 //                 ]
 //             }]).send();
 //             await updateTokenRewardIndexOperation.confirmation();
-//             console.log('mockfa12 loan token set');
 //         }
 
 //         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
@@ -256,7 +253,6 @@
 //                 ]
 //             }]).send();
 //             await updateTokenRewardIndexOperation.confirmation();
-//             console.log('mockfa2 loan token set');
 //         }
 
 //         if(!(tezLoanToken == undefined || tezLoanToken == null)){
@@ -272,7 +268,6 @@
 //                 ]
 //             }]).send();
 //             await updateTokenRewardIndexOperation.confirmation();
-//             console.log('tez loan token set');
 //         }
 
 //     });
@@ -292,7 +287,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setLoanTokenActionType                = "createLoanToken";
-//                 const tokenName                             = "mockFa12";
+//                 const tokenName                             = "usdt";
 //                 const tokenContractAddress                  = mockFa12TokenAddress.address;
 //                 const tokenType                             = "fa12";
 //                 const tokenDecimals                         = 6;
@@ -390,7 +385,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setLoanTokenActionType                = "createLoanToken";
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -942,12 +937,14 @@
 //                 await signerFactory(eve.sk);
 //                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner            = eve.pkh;
+//                 const loanTokenName         = "usdt";
+//                 const vaultName             = "newVault";
 //                 const depositorsConfig      = "any";
-//                 const loanTokenName         = "mockFa12";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,                // delegate to
 //                     loanTokenName,          // loan token type
+//                     vaultName,              // vault name
 //                     depositorsConfig        // depositors config type - any / whitelist
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -967,7 +964,8 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin, vaultFactoryAddress.address);
+//                 assert.equal(Object.keys(vaultOriginatedContractStorage.depositors)[0], depositorsConfig);
 
 //                 // push new vault id to vault set
 //                 eveVaultSet.push(vaultId);
@@ -988,12 +986,15 @@
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = mallory.pkh;
 //                 const depositorsConfig          = "whitelist";
-//                 const loanTokenName             = "mockFa12";
+//                 const loanTokenName             = "usdt";
+//                 const vaultName                 = "newVault";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     mallory.pkh,  
 //                     loanTokenName,
-//                     depositorsConfig
+//                     vaultName,
+//                     depositorsConfig,
+//                     []
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
 
@@ -1013,7 +1014,7 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin , vaultFactoryAddress.address);
 
 //                 // push new vault id to vault set
 //                 malloryVaultSet.push(vaultId);
@@ -1025,21 +1026,22 @@
 //                 const addOrRemoveBool          = true;
 
 //                 const malloryVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-//                 const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.updateDepositor(            
-//                     newDepositorAddress,           // new whitelisted depositor address
+
+//                 const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.initVaultAction(            
+//                     "updateDepositor",             // vault action type
+//                     newDepositorConfigType,        // whitelist
 //                     addOrRemoveBool,               // true: add whitelist address
-//                     newDepositorConfigType         // whitelist 
+//                     newDepositorAddress,           // new whitelisted depositor address
 //                 ).send();
 //                 await malloryUpdateDepositorOperation.confirmation();
 
 //                 const updatedMalloryVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
 //                 const updatedMalloryVaultInstanceStorage : vaultStorageType  = await updatedMalloryVaultInstance.storage();
-//                 const updatedVaultDepositors         : depositorsType    = updatedMalloryVaultInstanceStorage.depositors;
-//                 const depositorsConfigType  = Object.keys(updatedVaultDepositors.depositorsConfig)[0];
+//                 const updatedVaultDepositors : any                           = updatedMalloryVaultInstanceStorage.depositors;
 
 //                 // check that depositors type is no longer any and now has alice address
-//                 assert.equal(depositorsConfigType, "whitelist");    
-//                 assert.equal(updatedVaultDepositors.whitelistedDepositors.length, 1);      
+//                 assert.equal(updatedVaultDepositors.whitelist[0], newDepositorAddress);    
+//                 assert.equal(updatedVaultDepositors.whitelist.length, 1);      
 
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -1077,7 +1079,8 @@
 //             const vaultAddress             = vault.address;
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
-//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
+//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmountMutez,                   // amt
 //                 "tez"                                 // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
@@ -1116,28 +1119,27 @@
 //             const vaultAddress             = vault.address;
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 //             const eveVaultInstanceStorage : vaultStorageType  = await eveVaultInstance.storage();
-//             const vaultDepositors         : depositorsType    = eveVaultInstanceStorage.depositors;
-//             var depositorsConfigType  = Object.keys(vaultDepositors.depositorsConfig)[0];
+//             const vaultDepositors                             = eveVaultInstanceStorage.depositors;
+//             var depositorsConfigType                          = Object.keys(vaultDepositors)[0];
 
 //             // check that initial depositors type is any, and there is no whitelisted depositors
 //             assert.equal(depositorsConfigType, "any");    
-//             assert.equal(vaultDepositors.whitelistedDepositors.length , 0);                    
 
-//             const eveUpdateDepositorOperation  = await eveVaultInstance.methods.updateDepositor(            
-//                 newDepositorAddress,           // new whitelisted depositor address
+//             const eveUpdateDepositorOperation  = await eveVaultInstance.methods.initVaultAction(            
+//                 "updateDepositor",             // vault action type
+//                 newDepositorConfigType,        // whitelist 
 //                 addOrRemoveBool,               // true: add whitelist address
-//                 newDepositorConfigType         // whitelist 
+//                 newDepositorAddress,           // new whitelisted depositor address
 //             ).send();
 //             await eveUpdateDepositorOperation.confirmation();
 
 //             const updatedEveVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
 //             const updatedEveVaultInstanceStorage : vaultStorageType  = await updatedEveVaultInstance.storage();
-//             const updatedVaultDepositors         : depositorsType    = updatedEveVaultInstanceStorage.depositors;
-//             depositorsConfigType  = Object.keys(updatedVaultDepositors.depositorsConfig)[0];
+//             const updatedVaultDepositors : any                       = updatedEveVaultInstanceStorage.depositors;
 
 //             // check that depositors type is no longer any and now has alice address
-//             assert.equal(depositorsConfigType, "whitelist");    
-//             assert.equal(updatedVaultDepositors.whitelistedDepositors.length, 1);                              
+//             assert.equal(updatedVaultDepositors.whitelist[0], newDepositorAddress);    
+//             assert.equal(updatedVaultDepositors.whitelist.length, 1);                              
 
 //         });
 
@@ -1165,9 +1167,10 @@
 //             const vaultAddress             = vault.address;
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
-//             const aliceDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const aliceDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "deposit",              // vault action
+//                 depositAmountMutez,     // amt
+//                 "tez"                   // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
 //             await aliceDepositTezIntoEveVaultOperation.confirmation();
 
@@ -1180,9 +1183,10 @@
 
 //             // check that mallory is not able to deposit into the vault now
 //             await signerFactory(mallory.sk);
-//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
-//                 depositAmountMutez,                   // amt
-//                 "tez"                                 // token
+//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "deposit",              // vault action
+//                 depositAmountMutez,     // amt
+//                 "tez"                   // token
 //             );
 //             await chai.expect(malloryDepositTezIntoEveVaultOperation.send({ mutez : true, amount : depositAmountMutez })).to.be.rejected;
 
@@ -1249,7 +1253,8 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // alice deposits mock FA12 tokens into mallory's vault
-//             const aliceDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const aliceDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,                         
 //                 tokenName
 //             ).send();
@@ -1288,7 +1293,8 @@
 //             ).send();
 //             await eveSetNewTokenAllowance.confirmation();
 
-//             const eveDepositTezIntoEveVaultOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositTezIntoEveVaultOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,                   // amt
 //                 tokenName                        // token
 //             );
@@ -1305,9 +1311,7 @@
 //             const vaultOwner         = mallory.pkh;
 
 //             const newDepositorConfigType = "any";
-//             const zeroAddress            = mallory.pkh;
-//             const addOrRemoveBool        = false;
-
+            
 //             const vaultHandle = {
 //                 "id"    : vaultId,
 //                 "owner" : vaultOwner
@@ -1321,22 +1325,22 @@
 //             const malloryVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 //             const malloryVaultInstanceStorage : vaultStorageType  = await malloryVaultInstance.storage();
 //             const vaultDepositors             : depositorsType    = malloryVaultInstanceStorage.depositors;
-//             var depositorsConfigType  = Object.keys(vaultDepositors.depositorsConfig)[0];
+//             var depositorsConfigType  = Object.keys(vaultDepositors)[0];
 
 //             // check that initial depositors type is any
 //             assert.equal(depositorsConfigType, "whitelist");            
 
-//             const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.updateDepositor(            
-//                 zeroAddress,                // use placeholder: depositor address 
-//                 addOrRemoveBool,            // use placeholder: add or remove bool    
-//                 newDepositorConfigType      // any 
+//             const malloryUpdateDepositorOperation  = await malloryVaultInstance.methods.initVaultAction(
+//                 "updateDepositor",          // vault action type            
+//                 newDepositorConfigType,     // "any" depositor type
+//                 true,                       // bool true for "any"
 //             ).send();
 //             await malloryUpdateDepositorOperation.confirmation();
 
 //             const updatedMalloryVaultInstance                            = await utils.tezos.contract.at(vaultAddress);
 //             const updatedMalloryVaultInstanceStorage : vaultStorageType  = await updatedMalloryVaultInstance.storage();
 //             const updatedVaultDepositors             : depositorsType    = updatedMalloryVaultInstanceStorage.depositors;
-//             depositorsConfigType  = Object.keys(updatedVaultDepositors.depositorsConfig)[0];
+//             depositorsConfigType  = Object.keys(updatedVaultDepositors)[0];
 
 //             // check that depositors type is no longer whitelisted and is now any
 //             assert.equal(depositorsConfigType, "any");    
@@ -1396,7 +1400,8 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // eve deposits mock FA12 tokens into mallory's vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,                         
 //                 tokenName
 //             ).send();
@@ -1508,7 +1513,8 @@
 //             // ----------------------------------------------------------------------------------------------
     
 //             // eve set doorman as operator for vault
-//             const vaultUpdateOperatorsOperation = await eveVaultInstance.methods.updateTokenOperators(
+//             const vaultUpdateOperatorsOperation = await eveVaultInstance.methods.initVaultAction(
+//                 "updateTokenOperators",
 //                 tokenName,
 //                 [
 //                     {
@@ -1521,7 +1527,7 @@
 //             ]
 //             ).send();
 //             await vaultUpdateOperatorsOperation.confirmation();
-    
+            
 //             // vault staked mvk operation
 //             const eveVaultDepositStakedTokenOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
 //                 tokenName,
@@ -1529,7 +1535,7 @@
 //                 mvkDepositAmount                            
 //             ).send();
 //             await eveVaultDepositStakedTokenOperation.confirmation();
-
+            
 //             // get vault staked balance on the doorman contract
 //             doormanStorage                           = await doormanInstance.storage();
 //             const updatedVaultOwnerStakedMvkAccount  = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
@@ -1543,9 +1549,12 @@
 
 //             // assert increase in staked mvk balance for vault 
 //             assert.equal(updatedVaultStakedMvkBalance, initialVaultStakedMvkBalance + mvkDepositAmount);
-
+            
 //             // delegate vault staked mvk to oscar's satellite
-//             const delegationOperation   = await eveVaultInstance.methods.delegateMvkToSatellite(satelliteAddress).send();
+//             const delegationOperation   = await eveVaultInstance.methods.initVaultAction(
+//                 "delegateMvkToSatellite",
+//                 satelliteAddress
+//             ).send();
 //             await delegationOperation.confirmation();
 
 //             const updatedSatelliteRecord               = await delegationStorage.satelliteLedger.get(satelliteAddress);
@@ -1590,7 +1599,10 @@
 //             const initialBobSatelliteTotalDelegatedAmount    = initialBobSatelliteRecord.totalDelegatedAmount.toNumber();
 
 //             // redelegate from oscar to bob
-//             const delegationOperation   = await eveVaultInstance.methods.delegateMvkToSatellite(newSatelliteAddress).send();
+//             const delegationOperation   = await eveVaultInstance.methods.initVaultAction(
+//                 "delegateMvkToSatellite",
+//                 newSatelliteAddress
+//             ).send();
 //             await delegationOperation.confirmation();
 
 //             const updatedOscarSatelliteRecord               = await delegationStorage.satelliteLedger.get(satelliteAddress);

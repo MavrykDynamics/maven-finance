@@ -5,6 +5,29 @@
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
+// Getters Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get governance address from vault factory
+function getGovernanceAddress(const s : vaultStorageType) : address is 
+block {
+
+    // get governance address view from vault factory
+    const getGovernanceAddressView : option (address) = Tezos.call_view ("getGovernanceAddress", unit, s.admin);
+    const governanceAddress : address = case getGovernanceAddressView of [
+            Some (_address) -> _address
+        |   None            -> failwith(error_GET_GOVERNANCE_ADDRESS_VIEW_NOT_FOUND_IN_VAULT_FACTORY)
+    ];
+
+} with governanceAddress
+
+// ------------------------------------------------------------------------------
+// Getters End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -22,8 +45,11 @@ block {
 function verifySenderIsLendingControllerContract(var s : vaultStorageType) : unit is
 block{
 
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[lendingControllerAddress], error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED)
 
 } with unit
@@ -67,9 +93,9 @@ block {
 function checkSenderIsWhitelistedDepositor(const s : vaultStorageType) : bool is
 block {
 
-    const isAllowedToDeposit : bool = case s.depositors.depositorsConfig of [
-            Any       -> True
-        |   Whitelist -> s.depositors.whitelistedDepositors contains Tezos.get_sender()
+    const isAllowedToDeposit : bool = case s.depositors of [
+            Any                     -> True
+        |   Whitelist(_depositors)  -> _depositors contains Tezos.get_sender()
     ];
 
 } with isAllowedToDeposit
@@ -139,8 +165,11 @@ function getUpdateTokenOperatorsEntrypoint(const tokenContractAddress : address)
 function delegateToSatelliteOperation(const satelliteAddress : address; const s : vaultStorageType) : operation is 
 block {
 
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
     // Get Delegation Address from the General Contracts map on the Governance Contract
-    const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+    const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     const delegateToSatelliteParams : delegateToSatelliteType = record [
         userAddress         = Tezos.get_self_address();
@@ -181,12 +210,60 @@ block {
 // Contract Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to get vault name max length from the factory contract
+function getVaultNameMaxLength(const s : vaultStorageType) : nat is 
+block {
+
+        // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
+    // Get Vault Factory Address from the General Contracts map on the Governance Contract
+    const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Get the vault name max length
+    const configView : option (vaultFactoryConfigType)  = Tezos.call_view ("getConfig", unit, vaultFactoryAddress);
+    const vaultNameMaxLength : nat = case configView of [
+            Some (_config) -> _config.vaultNameMaxLength
+        |   None -> failwith (error_GET_CONFIG_VIEW_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND)
+    ];
+
+} with vaultNameMaxLength
+
+
+
+// helper function to get vault lambda from vault factory
+function getVaultLambdaFromFactory(const lambdaName : string; const s : vaultStorageType) : bytes is 
+block {
+
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
+    // Get Vault Factory Address from the General Contracts map on the Governance Contract
+    const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+
+    // get vault lambda view from vault factory
+    const getVaultLambdaOptView : option(option (bytes)) = Tezos.call_view ("vaultLambdaOpt", lambdaName, vaultFactoryAddress);
+    const vaultLambdaBytes : bytes = case getVaultLambdaOptView of [
+            Some (_viewResult) -> case _viewResult of [
+                    Some (_lambda)  -> _lambda
+                |   None            -> failwith (error_VAULT_LAMBDA_NOT_FOUND_IN_VAULT_FACTORY_VAULT_LAMBDA_LEDGER)
+            ]
+        |   None           -> failwith(error_VAULT_LAMBDA_OPT_NOT_FOUND_IN_VAULT_FACTORY)
+    ];
+
+} with vaultLambdaBytes
+
+
+
 // helper function to get break glass config from lending controller 
 function getBreakGlassConfigFromLendingController(const s : vaultStorageType) : lendingControllerBreakGlassConfigType is 
 block {
 
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // get break glass config from lending controller
     const getBreakGlassConfigView : option (lendingControllerBreakGlassConfigType) = Tezos.call_view ("getBreakGlassConfig", unit, lendingControllerAddress);
@@ -203,8 +280,11 @@ block {
 function getCollateralTokenRecordByName(const tokenName : string; const s : vaultStorageType) : collateralTokenRecordType is 
 block {
 
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // check collateral token contract address exists in Lending Controller collateral token ledger
     const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByNameOpt", tokenName, lendingControllerAddress);
@@ -265,8 +345,11 @@ block {
 function registerDepositInLendingController(const amount : nat; const tokenName : string; const s : vaultStorageType) : operation is 
 block {
 
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // create register deposit params
     const registerDepositParams : registerDepositActionType = record [
@@ -290,8 +373,11 @@ block {
 function registerWithdrawalInLendingController(const amount : nat; const tokenName : string; const s : vaultStorageType) : operation is 
 block {
 
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // create register withdrawal params
     const registerWithdrawalParams : registerDepositActionType = record [

@@ -476,20 +476,14 @@ block {
                 // Make vault handle
                 const handle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
-                // Get loan token record and update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
-                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
-                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
+                // Get loan token record 
+                const loanTokenRecord : loanTokenRecordType = getLoanTokenReference(loanTokenName, s);
                 
-                // init empty collateral balance ledger map
-                var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
-                
-                // Create vault record
+                // Create vault record - loan token borrow index initialised to 0
                 const vault : vaultRecordType = createVaultRecord(
                     vaultAddress,                   // vault address
-                    collateralBalanceLedgerMap,     // collateral balance ledger
                     loanTokenRecord.tokenName,      // loan token name
-                    loanTokenRecord.tokenDecimals,  // loan token decimals
-                    loanTokenRecord.borrowIndex   // loan token borrow index
+                    loanTokenRecord.tokenDecimals   // loan token decimals
                 );
                 
                 // update controller storage with new vault
@@ -756,7 +750,6 @@ block {
                                 vaultOwner,                         // to_
                                 collateralTokenName,                // token name
                                 finalTokenBalance,                  // token amount to be withdrawn
-                                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
                             );
                             operations := withdrawTokenOperation # operations;
@@ -768,7 +761,6 @@ block {
                                 vaultOwner,                         // to_
                                 collateralTokenName,                // token name
                                 finalTokenBalance,                  // token amount to be withdrawn
-                                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
                             );
                             operations := withdrawTokenOperation # operations;
@@ -1288,13 +1280,6 @@ block {
                 // Verify that initiator (sender) matches vault address
                 verifySenderIsVault(vault.address, initiator);
                 
-                // Check if vault is undercollaterized, if not then send withdraw operation
-                const vaultIsUnderCollaterized : (bool * lendingControllerStorageType) = isUnderCollaterized(vault, s);
-                const vaultIsUnderCollaterizedBool = vaultIsUnderCollaterized.0;
-                s := vaultIsUnderCollaterized.1;
-
-                if vaultIsUnderCollaterizedBool then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) else skip;
-
                 // ------------------------------------------------------------------
                 // Register token withdrawal in vault collateral balance ledger
                 // ------------------------------------------------------------------
@@ -1311,6 +1296,13 @@ block {
                 // ------------------------------------------------------------------
                 
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+
+                // Check if vault is undercollaterized at the end
+                const vaultIsUnderCollaterized : (bool * lendingControllerStorageType) = isUnderCollaterized(vault, s);
+                const vaultIsUnderCollaterizedBool = vaultIsUnderCollaterized.0;
+                s := vaultIsUnderCollaterized.1;
+
+                if vaultIsUnderCollaterizedBool then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) else skip;
 
                 // reset vault liquidation levels if vault is no longer liquidatable
                 const vaultIsLiquidatable : bool = isLiquidatable(vault, s);

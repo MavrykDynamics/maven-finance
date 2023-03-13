@@ -92,6 +92,35 @@ block {
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper funtion to prepare new vault storage
+function prepareVaultStorage(const createVaultParams : createVaultType; const vaultOwner : address; const vaultId : nat; const s : vaultFactoryStorageType) : vaultStorageType is 
+block {
+
+    // make vault handle
+    const handle : vaultHandleType = record [
+        id     = vaultId;
+        owner  = vaultOwner;
+    ];
+
+    // verify vault is unique or if it already exists in Lending Controller
+    verifyVaultHandleIsUnique(handle, s);
+
+    // validate vault name does not exceed max length
+    const vaultName : string = createVaultParams.name;
+    validateStringLength(vaultName, s.config.vaultNameMaxLength, error_WRONG_INPUT_PROVIDED);
+
+    // params for vault with storage origination
+    const newVaultStorage : vaultStorageType = record [
+        admin                       = Tezos.get_self_address();
+        name                        = vaultName;
+        handle                      = handle;
+        depositors                  = createVaultParams.depositors;
+    ];
+
+} with newVaultStorage
+
+
+
 function registerVaultCreationOperation(const vaultOwner : address; const vaultId : nat; const vaultAddress : address; const loanTokenName : string; const s : vaultFactoryStorageType) : operation is
 block {
 
