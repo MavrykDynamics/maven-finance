@@ -42,8 +42,8 @@
 
 //     //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
 //     //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
-//     var eveVaultSet = []
-//     var malloryVaultSet = [] 
+//     var eveVaultSet : Array<Number>     = []
+//     var malloryVaultSet : Array<Number> = [] 
     
 //     let updateTokenRewardIndexOperation
 
@@ -107,9 +107,9 @@
 //         governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
 //         governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
 
-//         mTokenUsdtInstance        = await utils.tezos.contract.at(mTokenUsdtAddress.address);
-//         mTokenEurlInstance         = await utils.tezos.contract.at(mTokenEurlAddress.address);
-//         mTokenXtzInstance                  = await utils.tezos.contract.at(mTokenXtzAddress.address);
+//         mTokenUsdtInstance                      = await utils.tezos.contract.at(mTokenUsdtAddress.address);
+//         mTokenEurlInstance                      = await utils.tezos.contract.at(mTokenEurlAddress.address);
+//         mTokenXtzInstance                       = await utils.tezos.contract.at(mTokenXtzAddress.address);
 
 //         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
 //         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
@@ -139,9 +139,9 @@
 //         console.log('Governance Contract deployed at:',         governanceInstance.address);
 //         console.log('Governance Proxy Contract deployed at:',   governanceProxyInstance.address);
 
-//         console.log('mTokenUsdt - deployed at:',   mTokenUsdtInstance.address);
-//         console.log('mTokenEurl - deployed at:',    mTokenEurlInstance.address);
-//         console.log('mTokenXtz - deployed at:',               mTokenXtzInstance.address);
+//         console.log('mTokenUsdt - deployed at:',                mTokenUsdtInstance.address);
+//         console.log('mTokenEurl - deployed at:',                mTokenEurlInstance.address);
+//         console.log('mTokenXtz - deployed at:',                 mTokenXtzInstance.address);
 
 //         console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:',   mockUsdMockFa12TokenAggregatorInstance.address);
 //         console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:',    mockUsdMockFa2TokenAggregatorInstance.address);
@@ -180,7 +180,6 @@
 //                 ]
 //             }]).send();
 //             await updateTokenRewardIndexOperation.confirmation();
-//             console.log('mockfa12 loan token set');
 //         }
 
 //         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
@@ -196,7 +195,6 @@
 //                 ]
 //             }]).send();
 //             await updateTokenRewardIndexOperation.confirmation();
-//             console.log('mockfa2 loan token set');
 //         }
 
 //         if(!(tezLoanToken == undefined || tezLoanToken == null)){
@@ -212,7 +210,6 @@
 //                 ]
 //             }]).send();
 //             await updateTokenRewardIndexOperation.confirmation();
-//             console.log('tez loan token set');
 //         }
 
 //     });
@@ -891,7 +888,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType      = "createCollateralToken";
-//                 const tokenName                         = "mockFa12";
+//                 const tokenName                         = "usdt";
 //                 const tokenContractAddress              = mockFa12TokenAddress.address;
 //                 const tokenType                         = "fa12";
 //                 const tokenId                           = 0;
@@ -983,7 +980,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType          = "createCollateralToken";
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
@@ -1404,6 +1401,7 @@
 //                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
 //                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
 //                 const vaultOwner                = eve.pkh;
+//                 const vaultName                 = "newVault";
 //                 const loanTokenName             = "eurl";
 
 //                 const depositorsConfig          = "whitelist";
@@ -1411,8 +1409,10 @@
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
 //                     eve.pkh,  
 //                     loanTokenName,
+//                     vaultName,
 //                     depositorsConfig,
-//                     ).send();
+//                     []
+//                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
 
 //                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1430,7 +1430,7 @@
 //                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
 //                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-//                 assert.equal(vaultOriginatedContractStorage.admin , governanceProxyAddress.address);
+//                 assert.equal(vaultOriginatedContractStorage.admin , vaultFactoryAddress.address);
 
 //                 // push new vault id to vault set
 //                 eveVaultSet.push(vaultId);
@@ -1472,7 +1472,8 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 //             const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-//             const eveDepositTezOperation  = await eveVaultInstance.methods.deposit(
+//             const eveDepositTezOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmountMutez,                   // amt
 //                 "tez"                                 // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
@@ -1502,7 +1503,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 
-//             const tokenName          = "mockFa12";
+//             const tokenName          = "usdt";
 //             const tokenType          = "fa12";
 //             const depositAmount      = 10000000;   // 10 Mock FA12 Tokens
 
@@ -1547,7 +1548,8 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount,          
 //                 tokenName
 //             ).send();
@@ -1587,7 +1589,7 @@
 //             const vaultId            = eveVaultSet[0];
 //             const vaultOwner         = eve.pkh;
 //             const tokenId            = 0;
-//             const tokenName          = "mockFa2";
+//             const tokenName          = "eurl";
 //             const tokenType          = "fa2";
 //             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -1633,7 +1635,8 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount, 
 //                 tokenName
 //             ).send();
@@ -1926,7 +1929,8 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //             // withdraw operation
-//             const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 tokenName                            
 //             ).send();
@@ -1959,7 +1963,7 @@
 //             const vaultId              = eveVaultSet[0]; 
 //             const vaultOwner           = eve.pkh;
 //             const withdrawAmount       = 1000000; // 1 mockFa12 token
-//             const tokenName            = 'mockFa12';
+//             const tokenName            = 'usdt';
 
 //             const vaultHandle = {
 //                 "id"     : vaultId,
@@ -1984,7 +1988,8 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //             // withdraw operation
-//             const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 tokenName                            
 //             ).send();
@@ -2017,7 +2022,7 @@
 //             const vaultId              = eveVaultSet[0]; 
 //             const vaultOwner           = eve.pkh;
 //             const withdrawAmount       = 1000000; // 1 mockFa2 token
-//             const tokenName            = 'mockFa2';
+//             const tokenName            = 'eurl';
 
 //             const vaultHandle = {
 //                 "id"     : vaultId,
@@ -2042,7 +2047,8 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //             // withdraw operation
-//             const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//             const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                 "withdraw",
 //                 withdrawAmount,                 
 //                 tokenName                            
 //             ).send();
@@ -2221,7 +2227,7 @@
 //                 const updatedMEurlTokenTokenStorage   = await mTokenEurlInstance.storage();
 
 //                 // lendingControllerStorage = await lendingControllerInstance.storage();
-//                 const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get('mockFa2'); 
+//                 const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get('eurl'); 
 
 //                 // Summary - Liquidity Removed for Mock FA2 Token
 //                 // 1) Loan Token Pool Record Balance - decrease
@@ -2274,9 +2280,10 @@
 
 //                 const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
 
-//                 const eveDepositTezOperation   = await eveVaultInstance.methods.deposit(
-//                     depositAmountMutez,                   // amt
-//                     "tez"                                 // token
+//                 const eveDepositTezOperation   = await eveVaultInstance.methods.initVaultAction(
+//                     "deposit",              // vault action type
+//                     depositAmountMutez,     // amt
+//                     "tez"                   // token
 //                 ).send({ mutez : true, amount : depositAmountMutez });
 //                 await eveDepositTezOperation.confirmation();
 
@@ -2326,7 +2333,7 @@
 //                 const vaultId              = eveVaultSet[0]; 
 //                 const vaultOwner           = eve.pkh;
 //                 const withdrawAmount       = 100000; // 0.1 mockFa2 token
-//                 const tokenName            = 'mockFa2';
+//                 const tokenName            = 'eurl';
 
 //                 const vaultHandle = {
 //                     "id"     : vaultId,
@@ -2351,7 +2358,8 @@
 //                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //                 // withdraw operation
-//                 const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//                 const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                     "withdraw",
 //                     withdrawAmount,                 
 //                     tokenName                            
 //                 ).send();
@@ -2395,7 +2403,7 @@
 //                 // init variables
 //                 await signerFactory(bob.sk);
 
-//                 const tokenName                             = "mockFa2";
+//                 const tokenName                             = "eurl";
 
 //                 const updateCollateralTokenActionType       = "updateCollateralToken";
 //                 const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
@@ -2466,7 +2474,8 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve fails to deposit mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
+//             const eveDepositTokenOperation  = await vaultInstance.methods.initVaultAction(
+//                 "deposit",
 //                 depositAmount, 
 //                 tokenName
 //             );
@@ -2482,7 +2491,7 @@
 //                 const vaultId              = eveVaultSet[0]; 
 //                 const vaultOwner           = eve.pkh;
 //                 const withdrawAmount       = 100000; // 0.1 mockFa2 token
-//                 const tokenName            = 'mockFa2';
+//                 const tokenName            = 'eurl';
 
 //                 const vaultHandle = {
 //                     "id"     : vaultId,
@@ -2507,7 +2516,8 @@
 //                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
 //                 // withdraw operation
-//                 const eveWithdrawOperation  = await eveVaultInstance.methods.withdraw(
+//                 const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+//                     "withdraw",
 //                     withdrawAmount,                 
 //                     tokenName                            
 //                 ).send();
