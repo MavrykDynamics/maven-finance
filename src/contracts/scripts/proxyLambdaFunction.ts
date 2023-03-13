@@ -901,6 +901,284 @@ block {
 } with list[contractOperation]`
 };
 
+interface oracleInformation {
+    oracleAddress           : string,
+    oraclePublicKey         : string,
+    oraclePeerId            : string
+}
+
+const createAggregator  = (
+
+    targetContract          : string,
+    aggregatorName          : string,
+    addToGeneralContracts   : boolean,
+    oraclesInformation      : Array<oracleInformation>,
+    decimals                : number,
+    alphaPercentPerThousand : number,
+    percentOracleThreshold  : number,
+    heartBeatSeconds        : number,
+    rewardAmountStakedMvk   : number,
+    rewardAmountXtz         : number,
+    metadata                : string
+
+) => {
+
+    // Create the oracle informations
+    var oracleAddresses: string;
+    oraclesInformation.forEach((information: oracleInformation) => {
+        oracleAddresses += `
+            ("${information.oracleAddress}" : address) -> record [
+                oraclePublicKey = ("${information.oraclePublicKey}" : key);
+                oraclePeerId    = "${information.oraclePeerId}";
+            ];
+        `;
+    });
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record[
+            name                  = "${aggregatorName}";
+            addToGeneralContracts = ${addToGeneralContracts ? "True" : "False"};
+            oracleAddresses       = map[
+                ${oracleAddresses}
+            ];
+            aggregatorConfig      = record [
+                decimals                = ${decimals}n;
+                alphaPercentPerThousand = ${alphaPercentPerThousand}n;
+                percentOracleThreshold  = ${percentOracleThreshold}n;
+                heartBeatSeconds        = ${heartBeatSeconds}n;
+                rewardAmountStakedMvk   = ${rewardAmountStakedMvk}n;
+                rewardAmountXtz         = ${rewardAmountXtz}n;
+            ];
+            metadata              = ("${metadata}": bytes);
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%createAggregator",
+            ("${targetContract}" : address)) : option(contract(createAggregatorParamsType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(createAggregatorParamsType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateInflationRate  = (
+
+    targetContract          : string,
+    inflationRate           : number
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ${inflationRate}n,
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateInflationRate",
+            ("${targetContract}" : address)) : option(contract(nat))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(nat))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const triggerInflation  = (
+
+    targetContract          : string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        unit,
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%triggerInflation",
+            ("${targetContract}" : address)) : option(contract(unit))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(unit))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const trackProductContract  = (
+
+    targetContract          : string,
+    productContractType     : "aggregator" | "farm" | "treasury",
+    productContractAddress  : string
+
+) => {
+
+    // Choose the track entrypoint
+    var trackEntrypoint: string;
+    switch(productContractType){
+        case "aggregator":
+            trackEntrypoint = "%trackAggregator";
+            break;
+        case "farm":
+            trackEntrypoint = "%trackFarm";
+            break;
+        case "treasury":
+            trackEntrypoint = "%trackTreasury";
+            break;
+    }
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${productContractAddress}" : address),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "${trackEntrypoint}",
+            ("${targetContract}" : address)) : option(contract(address))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(address))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const untrackProductContract  = (
+
+    targetContract          : string,
+    productContractType     : "aggregator" | "farm" | "treasury",
+    productContractAddress  : string
+
+) => {
+
+    // Choose the track entrypoint
+    var trackEntrypoint: string;
+    switch(productContractType){
+        case "aggregator":
+            trackEntrypoint = "%untrackAggregator";
+            break;
+        case "farm":
+            trackEntrypoint = "%untrackFarm";
+            break;
+        case "treasury":
+            trackEntrypoint = "%untrackTreasury";
+            break;
+    }
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${productContractAddress}" : address),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "${trackEntrypoint}",
+            ("${targetContract}" : address)) : option(contract(address))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(address))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const addVestee  = (
+
+    targetContract          : string,
+    vesteeAddress           : string,
+    totalAllocatedAmount    : number,
+    cliffInMonths           : number,
+    vestingInMonths         : number
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            vesteeAddress        = ("${vesteeAddress}" : address);
+            totalAllocatedAmount = ${totalAllocatedAmount}n;
+            cliffInMonths        = ${cliffInMonths}n;
+            vestingInMonths      = ${vestingInMonths}n;
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%addVestee",
+            ("${targetContract}" : address)) : option(contract(addVesteeType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(addVesteeType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const removeVestee  = (
+
+    targetContract          : string,
+    vesteeAddress           : string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${vesteeAddress}" : address),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%removeVestee",
+            ("${targetContract}" : address)) : option(contract(address))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(address))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const updateVestee  = (
+
+    targetContract          : string,
+    vesteeAddress           : string,
+    totalAllocatedAmount    : number,
+    cliffInMonths           : number,
+    vestingInMonths         : number
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            vesteeAddress           = ("${vesteeAddress}" : address);
+            newTotalAllocatedAmount = ${totalAllocatedAmount}n;
+            newCliffInMonths        = ${cliffInMonths}n;
+            newVestingInMonths      = ${vestingInMonths}n;
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%updateVestee",
+            ("${targetContract}" : address)) : option(contract(updateVesteeType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(updateVesteeType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+const toggleVesteeLock  = (
+
+    targetContract          : string,
+    vesteeAddress           : string
+
+) => {
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        ("${vesteeAddress}" : address),
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%toggleVesteeLock",
+            ("${targetContract}" : address)) : option(contract(address))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(address))
+        ]
+    );
+} with list[contractOperation]`
+};
+
 interface createLoanToken {
     createLoanToken                         : {
         tokenName                               : string;
@@ -931,12 +1209,12 @@ interface updateLoanToken {
         minRepaymentAmount                      : number;
         isPaused                                : boolean;
     }
-} 
+}
 
 const setLoanToken  = (
 
-    targetContract: string,
-    setLoanTokenAction: createLoanToken | updateLoanToken
+    targetContract          : string,
+    setLoanTokenAction      : createLoanToken | updateLoanToken
 
 ) => {
 
@@ -983,21 +1261,21 @@ const setLoanToken  = (
     }
     else {
         // Cast the action
-        const actionCast            = setLoanTokenAction as updateLoanToken;
-        const updateLoanTokenAction = actionCast.updateLoanToken;
+        const actionCast                    = setLoanTokenAction as updateLoanToken;
+        const updateCollateralTokenAction   = actionCast.updateLoanToken;
 
         // Prepare the loan token record
         loanTokenActionRecord   = `UpdateLoanToken(record [
-                tokenName                               = ("${updateLoanTokenAction.tokenName}" : string);
-                oracleAddress                           = ("${updateLoanTokenAction.oracleAddress}" : address);
-                reserveRatio                            = (${updateLoanTokenAction.reserveRatio}n : nat);
-                optimalUtilisationRate                  = (${updateLoanTokenAction.optimalUtilisationRate}n : nat);
-                baseInterestRate                        = (${updateLoanTokenAction.baseInterestRate}n : nat);
-                maxInterestRate                         = (${updateLoanTokenAction.maxInterestRate}n : nat);
-                interestRateBelowOptimalUtilisation     = (${updateLoanTokenAction.interestRateBelowOptimalUtilisation}n : nat);
-                interestRateAboveOptimalUtilisation     = (${updateLoanTokenAction.interestRateAboveOptimalUtilisation}n : nat);
-                minRepaymentAmount                      = (${updateLoanTokenAction.minRepaymentAmount}n : nat);
-                isPaused                                = (${updateLoanTokenAction.isPaused} : bool);
+                tokenName                               = ("${updateCollateralTokenAction.tokenName}" : string);
+                oracleAddress                           = ("${updateCollateralTokenAction.oracleAddress}" : address);
+                reserveRatio                            = (${updateCollateralTokenAction.reserveRatio}n : nat);
+                optimalUtilisationRate                  = (${updateCollateralTokenAction.optimalUtilisationRate}n : nat);
+                baseInterestRate                        = (${updateCollateralTokenAction.baseInterestRate}n : nat);
+                maxInterestRate                         = (${updateCollateralTokenAction.maxInterestRate}n : nat);
+                interestRateBelowOptimalUtilisation     = (${updateCollateralTokenAction.interestRateBelowOptimalUtilisation}n : nat);
+                interestRateAboveOptimalUtilisation     = (${updateCollateralTokenAction.interestRateAboveOptimalUtilisation}n : nat);
+                minRepaymentAmount                      = (${updateCollateralTokenAction.minRepaymentAmount}n : nat);
+                isPaused                                = (${updateCollateralTokenAction.isPaused} : bool);
             ])`;
     }
 
@@ -1014,6 +1292,110 @@ block {
             ("${targetContract}" : address)) : option(contract(setLoanTokenActionType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(setLoanTokenActionType))
+        ]
+    );
+} with list[contractOperation]`
+};
+
+interface createCollateralToken {
+    createCollateralToken                   : {
+        tokenName                               : string,
+        tokenContractAddress                    : string,
+        tokenDecimals                           : number,
+        oracleAddress                           : string,
+        protected                               : boolean,
+        isScaledToken                           : boolean,
+        isStakedToken                           : boolean,
+        stakingContractAddress                  : string | undefined,
+        maxDepositAmount                        : number | undefined,
+        tokenType                               : fa12 | fa2 | "tez"
+    }
+} 
+
+interface updateCollateralToken {
+    updateCollateralToken                   : {
+        tokenName                               : string,
+        oracleAddress                           : string,
+        isPaused                                : boolean,
+        stakingContractAddress                  : string | undefined,
+        maxDepositAmount                        : number | undefined,
+    }
+}
+
+const setCollateralToken  = (
+
+    targetContract              : string,
+    setCollateralTokenAction    : createCollateralToken | updateCollateralToken
+
+) => {
+
+    // Parse loan token action
+    var loanTokenActionRecord: string;
+
+    if("createCollateralToken" in setCollateralTokenAction){
+        // Cast the action
+        const actionCast                    = setCollateralTokenAction as createCollateralToken;
+        const createCollateralTokenAction   = actionCast.createCollateralToken;
+        
+        // Prepare the token type
+        const tokenTypeFa12 = createCollateralTokenAction.tokenType as fa12;
+        const tokenTypeFa2  = createCollateralTokenAction.tokenType as fa2;
+        var tokenType: any;
+        if(createCollateralTokenAction.tokenType === "tez"){
+            tokenType       = "Tez";
+        }
+        else if(typeof(createCollateralTokenAction.tokenType) === "string"){
+            tokenType       = `Fa12(("${tokenTypeFa12.fa12}": address))`;
+        }
+        else{
+            tokenType       = `Fa2(record[
+                tokenContractAddress    = ("${tokenTypeFa2.fa2.tokenContractAddress}": address);
+                tokenId                 = ${tokenTypeFa2.fa2.tokenId}n;
+            ])`;
+        }
+
+        // Prepare the loan token record
+        loanTokenActionRecord   = `CreateCollateralToken(record [
+                tokenName              = "${createCollateralTokenAction.tokenName}";
+                tokenContractAddress   = ("${createCollateralTokenAction.tokenContractAddress}" : address);
+                tokenDecimals          = ${createCollateralTokenAction.tokenDecimals}n;
+                oracleAddress          = ("${createCollateralTokenAction.oracleAddress}" : address);
+                protected              = ${createCollateralTokenAction.protected ? "True" : "False"};
+                isScaledToken          = ${createCollateralTokenAction.isScaledToken ? "True" : "False"};
+                isStakedToken          = ${createCollateralTokenAction.isStakedToken ? "True" : "False"};
+                stakingContractAddress = ${createCollateralTokenAction.stakingContractAddress ? "Some((" + createCollateralTokenAction.stakingContractAddress + " : address))" : "None"};
+                maxDepositAmount       = ${createCollateralTokenAction.maxDepositAmount ? "Some(" + createCollateralTokenAction.maxDepositAmount + "n)" : "None"};
+                tokenType              = ${tokenType};
+            ]);`;
+    }
+    else {
+        // Cast the action
+        const actionCast            = setCollateralTokenAction as updateCollateralToken;
+        const updateLoanTokenAction = actionCast.updateCollateralToken;
+
+        // Prepare the loan token record
+        loanTokenActionRecord   = `UpdateCollateralToken(record [
+                tokenName              = "${updateLoanTokenAction.tokenName}";
+                oracleAddress          = ("${updateLoanTokenAction.oracleAddress}" : address);
+                isPaused               = ${updateLoanTokenAction.isPaused ? "True" : "False"};
+                stakingContractAddress = ${updateLoanTokenAction.stakingContractAddress ? "Some((" + updateLoanTokenAction.stakingContractAddress + " : address))" : "None"};
+                maxDepositAmount       = ${updateLoanTokenAction.maxDepositAmount ? "Some(" + updateLoanTokenAction.maxDepositAmount + "n)" : "None"};
+            ]);`;
+    }
+
+    return `function lambdaFunction (const _ : unit) : list(operation) is
+block {
+    const contractOperation : operation = Tezos.transaction(
+        record [
+            action = ${loanTokenActionRecord}
+            empty  = Unit;
+        ],
+        0tez,
+        case (Tezos.get_entrypoint_opt(
+            "%setCollateralToken",
+            ("${targetContract}" : address)) : option(contract(setCollateralTokenActionType))) of [
+                    Some(contr) -> contr
+                |   None        -> (failwith(0n) : contract(setCollateralTokenActionType))
         ]
     );
 } with list[contractOperation]`
