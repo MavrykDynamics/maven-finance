@@ -130,8 +130,12 @@ block {
                         // Check if Farm has been initiated
                         verifyFarmIsInitialised(s);
 
+                        // --- Get required inputs from mToken contract
+                        const farmMTokenBalance : nat = getMTokenBalance(s);
+                        // --- --- ---
+
                         // Update Farm storage
-                        s := updateFarm(s);
+                        s := updateFarm(farmMTokenBalance, s);
 
                         // Calculate new total rewards
                         const totalClaimedRewards : nat     = s.claimedRewards.unpaid + s.claimedRewards.paid;
@@ -249,9 +253,13 @@ block{
 
                 // Validate that farm reward blocks has been set (or is an infinite farm)
                 validateFarmRewardBlocks(initFarmParams);
+
+                // --- Get required inputs from mToken contract
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                // --- --- ---
                 
                 // Update Farm Storage and init Farm
-                s := updateFarm(s);
+                s := updateFarm(farmMTokenBalance, s);
                 s := _initFarm(initFarmParams, s);
                 
             }
@@ -276,8 +284,12 @@ block{
 
     case farmLambdaAction of [
         |   LambdaCloseFarm(_parameters) -> {
+
+                // --- Get required inputs from mToken contract
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                // --- --- ---
                 
-                s := updateFarm(s);
+                s := updateFarm(farmMTokenBalance, s);
                 s.open := False ;
                 
             }
@@ -409,8 +421,14 @@ block{
     case farmLambdaAction of [
         |   LambdaDeposit(tokenAmount) -> {
                 
+                // --- Get required inputs from mToken contract and loan token record from Lending Controller
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                // --- --- ---
+
                 // Update pool farmMTokenStorageType
-                s := updateFarm(s);
+                s := updateFarm(farmMTokenBalance, s);
 
                 // Check if farm is closed or not
                 checkFarmIsOpen(s);
@@ -422,13 +440,13 @@ block{
                 const existingDepositor : bool = checkDepositorExists(depositor, s);
 
                 // Prepare new depositor record
-                var depositorRecord : depositorRecordType := createDepositorRecord(s);
+                var depositorRecord : depositorRecordType := createDepositorRecord(latestTokenRewardIndex, s);
 
                 // Get depositor deposit and perform a claim
                 if existingDepositor then {
                     
                     // Update user's unclaimed rewards
-                    s := updateUnclaimedRewards(depositor, s);
+                    s := updateUnclaimedRewards(latestTokenRewardIndex, depositor, s);
 
                     // Refresh depositor deposit with updated unclaimed rewards
                     depositorRecord := getDepositorRecord(depositor, s);
@@ -439,9 +457,6 @@ block{
                 // Update depositor token balance
                 depositorRecord.balance := depositorRecord.balance + tokenAmount;
 
-                // get farm balance from mToken contract
-                const farmMTokenBalance : nat = getMTokenBalance(s);
-        
                 // Update depositor ledger and farmTokenBalance
                 s.config.lpToken.tokenBalance := farmMTokenBalance + tokenAmount;
                 s.depositorLedger[depositor] := depositorRecord;
@@ -488,15 +503,21 @@ block{
 
     case farmLambdaAction of [
         |   LambdaWithdraw(tokenAmount) -> {
+
+                // --- Get required inputs from mToken contract and loan token record from Lending Controller
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                // --- --- ---
                 
                 // Update pool farmMTokenStorageType
-                s := updateFarm(s);     
+                s := updateFarm(farmMTokenBalance, s);     
 
                 // Init depositor address
                 const depositor : depositorType = Tezos.get_sender();
 
                 // Update user's unclaimedRewards if user already deposited tokens
-                s := updateUnclaimedRewards(depositor, s);
+                s := updateUnclaimedRewards(latestTokenRewardIndex, depositor, s);
 
                 // Get depositor record
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
@@ -505,11 +526,8 @@ block{
                 verifySufficientBalance(tokenAmount, depositorRecord.balance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
 
                 // Update depositor record with new balance
-                depositorRecord.balance := abs(depositorRecord.balance - tokenAmount);
+                depositorRecord.balance      := abs(depositorRecord.balance - tokenAmount);
                 s.depositorLedger[depositor] := depositorRecord;
-
-                // get latest latest farm balance from mToken contract
-                const farmMTokenBalance : nat = getMTokenBalance(s);
 
                 // Verify that the farm has enough tokens for withdrawal
                 verifySufficientBalance(tokenAmount, farmMTokenBalance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
@@ -561,12 +579,18 @@ block{
 
     case farmLambdaAction of [
         |   LambdaClaim(depositor) -> {
+
+                // --- Get required inputs from mToken contract and loan token record from Lending Controller
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                // --- --- ---
                 
                 // Update farm
-                s := updateFarm(s);
+                s := updateFarm(farmMTokenBalance, s);
 
                 // Update user's unclaimed rewards
-                s := updateUnclaimedRewards(depositor, s);
+                s := updateUnclaimedRewards(latestTokenRewardIndex, depositor, s);
 
                 // Check if sender is an existing depositor
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
