@@ -1290,4 +1290,7 @@
 [@inline] const error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED                                                  = 912n;
 
 [@inline] const error_GET_BALANCE_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                    = 913n;
-
+[@inline] const error_USER_BALANCE_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                        = 914n;
+[@inline] const error_USER_REWARD_INDEX_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                   = 915n;
+[@inline] const error_GET_REWARD_INDEX_OPT_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                           = 916n;
+[@inline] const error_GET_RAW_BALANCE_OPT_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                            = 917n;
