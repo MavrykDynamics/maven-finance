@@ -748,15 +748,15 @@ describe("Farm mToken", async () => {
                     
                     const firstLpBalance            = await lpTokenStorage.ledger.get(bob.pkh);
                     
-                    const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
-                    const firstDepositBalance       = firstDepositRecord === undefined ? 0 : firstDepositRecord.balance.toNumber();
-                    const firstAmountToDeposit      = 2000000;
+                    const firstDepositRecord              = await farmStorage.depositorLedger.get(bob.pkh);
+                    const firstDepositBalance   : number  = firstDepositRecord === undefined ? 0 : firstDepositRecord.balance.toNumber();
+                    const firstAmountToDeposit  : number  = 1000000;
                     
-                    const secondLpBalance           = await lpTokenStorage.ledger.get(alice.pkh);
+                    const secondLpBalance                 = await lpTokenStorage.ledger.get(alice.pkh);
                     
-                    const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
-                    const secondDepositBalance      = secondDepositRecord === undefined ? 0 : secondDepositRecord.balance.toNumber();
-                    const secondAmountToDeposit     = 1500000;
+                    const secondDepositRecord             = await farmStorage.depositorLedger.get(alice.pkh);
+                    const secondDepositBalance  : number  = secondDepositRecord === undefined ? 0 : secondDepositRecord.balance.toNumber();
+                    const secondAmountToDeposit : number  = 1500000;
 
                     // Update operators for farm
                     await signerFactory(bob.sk);
@@ -772,11 +772,11 @@ describe("Farm mToken", async () => {
                     await updateBobOperatorsOperation.confirmation();
 
                     // Update operators for farm
-                    await signerFactory(eve.sk);
+                    await signerFactory(alice.sk);
                     const updateAliceOperatorsOperation = await lpTokenInstance.methods.update_operators([
                     {
                         add_operator: {
-                            owner: eve.pkh,
+                            owner: alice.pkh,
                             operator: farmAddress.address,
                             token_id: 0,
                         },
@@ -786,34 +786,38 @@ describe("Farm mToken", async () => {
                     
                     // Operations
                     await signerFactory(bob.sk)
-                    var depositOperation  = await farmInstance.methods.deposit(firstAmountToDeposit).send();
+                    var depositOperation         = await farmInstance.methods.deposit(firstAmountToDeposit).send();
                     await depositOperation.confirmation();
                     
-                    const bobDepositParam        = await farmInstance.methods.deposit(firstAmountToDeposit).toTransferParams();
-                    const bobEstimate            = await utils.tezos.estimate.transfer(bobDepositParam);
-                    console.log("BOB DEPOSIT ESTIMATION: ", bobEstimate);
+                    // const bobDepositParam        = await farmInstance.methods.deposit(firstAmountToDeposit).toTransferParams();
+                    // const bobEstimate            = await utils.tezos.estimate.transfer(bobDepositParam);
+                    // console.log("BOB FARM MTOKEN DEPOSIT ESTIMATION: ", bobEstimate);
+                    // console.log("BOB FARM MTOKEN DEPOSIT Total Cost Estimate: ", bobEstimate.totalCost);
 
-                    await signerFactory(eve.sk)
-                    const aliceDepositParam        = await farmInstance.methods.deposit(secondAmountToDeposit).toTransferParams();
-                    const aliceEstimate            = await utils.tezos.estimate.transfer(aliceDepositParam);
-                    console.log("ALICE DEPOSIT ESTIMATION: ", aliceEstimate);
+                    // await signerFactory(alice.sk)
+                    // const aliceDepositParam        = await farmInstance.methods.deposit(secondAmountToDeposit).toTransferParams();
+                    // const aliceEstimate            = await utils.tezos.estimate.transfer(aliceDepositParam);
+                    // console.log("ALICE FARM MTOKEN DEPOSIT ESTIMATION: ", aliceEstimate);
+                    // console.log("ALICE FARM MTOKEN DEPOSIT Total Cost Estimate: ", aliceEstimate.totalCost);
                     
-                    await signerFactory(eve.sk)
+                    await signerFactory(alice.sk)
                     var depositOperation        = await farmInstance.methods.deposit(secondAmountToDeposit).send();
                     await depositOperation.confirmation();
 
-                    console.log('eve deposit');
-
+                    // console.log('alice deposit');
                     
                     // Final values
                     farmStorage = await farmInstance.storage();
                     const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
-                    const firstDepositBalanceEnd    = firstDepositRecordEnd === undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
+                    const firstDepositBalanceEnd : number   = firstDepositRecordEnd === undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
                     
                     const firstLpBalanceEnd          = await lpTokenStorage.ledger.get(bob.pkh);
+
+                    console.log('bob first deposit record');
+                    console.log(firstDepositRecordEnd);
                     
                     const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
-                    const secondDepositBalanceEnd   = secondDepositRecordEnd === undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
+                    const secondDepositBalanceEnd : number  = secondDepositRecordEnd === undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
                     
                     const secondLpBalanceEnd         = await lpTokenStorage.ledger.get(alice.pkh);
 
@@ -825,8 +829,8 @@ describe("Farm mToken", async () => {
                     assert.equal(firstDepositBalanceEnd, firstDepositBalance + firstAmountToDeposit);
                     assert.equal(firstLpBalanceEnd, firstLpBalance - firstAmountToDeposit);
                     
-                    // assert.equal(secondDepositBalanceEnd, secondDepositBalance + secondAmountToDeposit);
-                    // assert.equal(secondLpBalanceEnd, secondLpBalance - secondAmountToDeposit);
+                    assert.equal(secondDepositBalanceEnd, secondDepositBalance + secondAmountToDeposit);
+                    assert.equal(secondLpBalanceEnd, secondLpBalance - secondAmountToDeposit);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -842,15 +846,20 @@ describe("Farm mToken", async () => {
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-                    const lpBalance         = lpLedgerStart;
+                    const lpLedgerStart      = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpBalance : number = lpLedgerStart.toNumber();
 
-                    const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-                    const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+                    const depositRecord      = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositBalance : number = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
                     
-                    const amountToWithdraw  = 100000;
+                    const amountToWithdraw : number = 100000;
 
                     console.log('before withdraw');
+
+                    const bobWithdrawParam        = await farmInstance.methods.withdraw(amountToWithdraw).toTransferParams();
+                    const bobEstimate             = await utils.tezos.estimate.transfer(bobWithdrawParam);
+                    console.log("BOB Withdraw Farm MToken ESTIMATION: ", bobEstimate);
+                    console.log("BOB FARM MTOKEN Withdraw Total Cost Estimate: ", bobEstimate.totalCost);
 
                     // Operation
                     const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
@@ -863,14 +872,17 @@ describe("Farm mToken", async () => {
                     farmStorage             = await farmInstance.storage();
                     
                     const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
-                    const depositBalanceEnd = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
+                    const depositBalanceEnd : number = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
                     
                     const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
-                    const lpBalanceEnd      = lpLedgerEnd;
+                    const lpBalanceEnd : number = lpLedgerEnd.toNumber();
+
+                    console.log(`lpBalanceEnd = ${lpBalanceEnd}`)
+                    console.log(`lpBalance + amountToWithdraw = ${lpBalance + amountToWithdraw}`)
 
                     // Assertions
                     assert.equal(depositBalanceEnd, depositBalance - amountToWithdraw);
-                    assert.equal(lpBalanceEnd, lpBalance + amountToWithdraw);
+                    assert.equal(lpBalanceEnd, (lpBalance + amountToWithdraw));
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -925,7 +937,7 @@ describe("Farm mToken", async () => {
                     const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
                     const firstDepositBalance       = firstDepositRecord === undefined ? 0 : firstDepositRecord.balance.toNumber();
                     
-                    const firstAmountToWithdraw     = 2000000;
+                    const firstAmountToWithdraw     = 500000;
                     
                     const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
                     const secondLpBalance           = secondLpLedgerStart.toNumber();
@@ -940,9 +952,9 @@ describe("Farm mToken", async () => {
                     await withdrawOperation.confirmation();
 
                     // Operations
-                    // await signerFactory(alice.sk)
-                    // var withdrawOperation            = await farmInstance.methods.withdraw(secondAmountToWithdraw).send();
-                    // await withdrawOperation.confirmation();
+                    await signerFactory(alice.sk)
+                    var withdrawOperation            = await farmInstance.methods.withdraw(secondAmountToWithdraw).send();
+                    await withdrawOperation.confirmation();
 
 
                     // Final values
@@ -964,8 +976,8 @@ describe("Farm mToken", async () => {
                     assert.equal(firstDepositBalanceEnd, firstDepositBalance - firstAmountToWithdraw);
                     assert.equal(firstLpBalanceEnd, firstLpBalance + firstAmountToWithdraw);
                     
-                    // assert.equal(secondDepositBalanceEnd, secondDepositBalance - secondAmountToWithdraw);
-                    // assert.equal(secondLpBalanceEnd, secondLpBalance + secondAmountToWithdraw);
+                    assert.equal(secondDepositBalanceEnd, secondDepositBalance - secondAmountToWithdraw);
+                    assert.equal(secondLpBalanceEnd, secondLpBalance + secondAmountToWithdraw);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -975,330 +987,344 @@ describe("Farm mToken", async () => {
 
 
 
-    //     describe('%claim', function() {
-    //         it('User should not be able to claim in a farm if it never deposited into it', async () => {
-    //             try{
-    //                 // Initial values
-    //                 await signerFactory(eve.sk);
-    //                 lpTokenStorage          = await lpTokenInstance.storage();
-    //                 farmStorage             = await farmInstance.storage();
+        // describe('%claim', function() {
+        //     it('User should not be able to claim in a farm if it never deposited into it', async () => {
+        //         try{
+        //             // Initial values
+        //             await signerFactory(eve.sk);
+        //             lpTokenStorage          = await lpTokenInstance.storage();
+        //             farmStorage             = await farmInstance.storage();
 
-    //                 // Operation
-    //                 await chai.expect(farmInstance.methods.claim(eve.pkh).send()).to.be.rejected;
-    //             } catch(e) {
-    //                 console.dir(e, {depth: 5})
-    //             }
-    //         })
+        //             // Operation
+        //             await chai.expect(farmInstance.methods.claim(eve.pkh).send()).to.be.rejected;
+        //         } catch(e) {
+        //             console.dir(e, {depth: 5})
+        //         }
+        //     })
 
-    //         it('User should not be able to claim in a farm if it has no rewards to claim', async () => {
-    //             try{
-    //                 // Initial values
-    //                 await signerFactory(bob.sk);
-    //                 lpTokenStorage              = await lpTokenInstance.storage();
-    //                 farmStorage                 = await farmInstance.storage();
-    //                 const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
+        //     it('User should not be able to claim in a farm if it has no rewards to claim', async () => {
+        //         try{
+        //             // Initial values
+        //             await signerFactory(bob.sk);
+        //             lpTokenStorage              = await lpTokenInstance.storage();
+        //             farmStorage                 = await farmInstance.storage();
+        //             const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
-    //                 // Operations
-    //                 await wait(2 * blockTime * 1000);
-    //                 const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
-    //                 await firstClaimOperation.confirmation();
-    //                 await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+        //             // Operations
+        //             await wait(2 * blockTime * 1000);
+        //             const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
+        //             await firstClaimOperation.confirmation();
+        //             await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
 
-    //             } catch(e) {
-    //                 console.dir(e, {depth: 5})
-    //             }
-    //         })
+        //         } catch(e) {
+        //             console.dir(e, {depth: 5})
+        //         }
+        //     })
 
-    //         it('User should be able to claim rewards from a farm', async () => {
-    //             try{
-    //                 // Initial values
-    //                 await signerFactory(bob.sk);
-    //                 farmStorage                 = await farmInstance.storage();
-    //                 doormanStorage              = await doormanInstance.storage();
-    //                 const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-    //                 const userSMVKBalance       = userSMVKLedger.balance.toNumber()
-    //                 const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
+        //     it('User should be able to claim rewards from a farm', async () => {
+        //         try{
+        //             // Initial values
+        //             await signerFactory(bob.sk);
+        //             farmStorage                 = await farmInstance.storage();
+        //             doormanStorage              = await doormanInstance.storage();
+        //             const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+        //             const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
+        //             const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
-    //                 // Operations
-    //                 await wait(2 * blockTime * 1000);
-    //                 const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
-    //                 await firstClaimOperation.confirmation();
+        //             // Operations
+        //             await wait(2 * blockTime * 1000);
+        //             const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
+        //             await firstClaimOperation.confirmation();
 
-    //                 // Final values
-    //                 farmStorage                 = await farmInstance.storage();
-    //                 doormanStorage              = await doormanInstance.storage();
-    //                 const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-    //                 const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
+        //             // Final values
+        //             farmStorage                 = await farmInstance.storage();
+        //             doormanStorage              = await doormanInstance.storage();
+        //             const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+        //             const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
 
-    //                 // Assertions
-    //                 assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
+        //             console.log(`userSMVKBalance: ${userSMVKBalance}`);
+        //             console.log(`userSMVKBalanceEnd: ${userSMVKBalanceEnd}`);
+
+        //             // Assertions
+        //             assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
                     
-    //             } catch(e) {
-    //                 console.dir(e, {depth: 5})
-    //             }
-    //         })
+        //         } catch(e) {
+        //             console.dir(e, {depth: 5})
+        //         }
+        //     })
 
-    //         it('User should be able to withdraw all its LP Tokens then claim the remaining rewards', async () => {
-    //             try{
-    //                 // Initial values
-    //                 await signerFactory(bob.sk);
-    //                 farmStorage                 = await farmInstance.storage();
-    //                 doormanStorage              = await doormanInstance.storage();
-    //                 lpTokenStorage              = await lpTokenInstance.storage();
-    //                 const userLpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-    //                 const userLpBalance         = userLpLedgerStart;
-    //                 const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-    //                 const userDepositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
-    //                 const userDepositBalanceEnd = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
-    //                 const userSMVKBalance       = userSMVKLedger.balance.toNumber()
-    //                 const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
-
-    //                 // Operations
-    //                 await wait(2 * blockTime * 1000);
-    //                 const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalanceEnd).send();
-    //                 await withdrawOperation.confirmation();
-    //                 const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
-    //                 await firstClaimOperation.confirmation();
-
-    //                 // Final values
-    //                 farmStorage                 = await farmInstance.storage();
-    //                 doormanStorage              = await doormanInstance.storage();
-    //                 lpTokenStorage              = await lpTokenInstance.storage();
-    //                 const userLpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
-    //                 const userLpBalanceEnd      = userLpLedgerEnd;
-    //                 const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-    //                 const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
-
-    //                 // Assertions
-    //                 assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
-    //                 assert.notEqual(userLpBalanceEnd, userLpBalance)
+        //     it('User should be able to withdraw all its LP Tokens then claim the remaining rewards', async () => {
+        //         try{
+        //             // Initial values
+        //             await signerFactory(bob.sk);
+        //             farmStorage                 = await farmInstance.storage();
+        //             doormanStorage              = await doormanInstance.storage();
+        //             lpTokenStorage              = await lpTokenInstance.storage();
+        //             const userLpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+        //             const userLpBalance         = userLpLedgerStart;
                     
-    //             } catch(e) {
-    //                 console.dir(e, {depth: 5})
-    //             }
-    //         })
-    //     })
+        //             const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+        //             const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
+                    
+        //             const userDepositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+        //             const userDepositBalanceEnd = userDepositRecordEnd === undefined ? 0 : userDepositRecordEnd.balance.toNumber();
+                    
+        //             const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
+
+        //             // Operations
+        //             await wait(2 * blockTime * 1000);
+        //             const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalanceEnd).send();
+        //             await withdrawOperation.confirmation();
+                    
+        //             const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
+        //             await firstClaimOperation.confirmation();
+
+        //             // Final values
+        //             farmStorage                 = await farmInstance.storage();
+        //             doormanStorage              = await doormanInstance.storage();
+        //             lpTokenStorage              = await lpTokenInstance.storage();
+        //             const userLpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
+        //             const userLpBalanceEnd      = userLpLedgerEnd;
+                    
+        //             const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+        //             const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+
+        //             console.log(`userSMVKBalance: ${userSMVKBalance}`);
+        //             console.log(`userSMVKBalanceEnd: ${userSMVKBalanceEnd}`);
+
+        //             console.log(`userLpBalance: ${userLpBalance}`);
+        //             console.log(`userLpBalanceEnd: ${userLpBalanceEnd}`);
+
+        //             // Assertions
+        //             assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
+        //             assert.notEqual(userLpBalanceEnd, userLpBalance)
+                    
+        //         } catch(e) {
+        //             console.dir(e, {depth: 5})
+        //         }
+        //     })
+        // })
         
-    //     describe("%pauseAll", async () => {
-    //         beforeEach("Set signer to admin", async () => {
-    //             await signerFactory(bob.sk)
-    //         });
+        // describe("%pauseAll", async () => {
+        //     beforeEach("Set signer to admin", async () => {
+        //         await signerFactory(bob.sk)
+        //     });
 
-    //         it('Admin should be able to call the entrypoint and pause all entrypoints in the contract', async () => {
-    //             try{
-    //                 // Initial Values
-    //                 farmStorage       = await farmInstance.storage();
-    //                 for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
-    //                     assert.equal(value, false);
-    //                 }
+        //     it('Admin should be able to call the entrypoint and pause all entrypoints in the contract', async () => {
+        //         try{
+        //             // Initial Values
+        //             farmStorage       = await farmInstance.storage();
+        //             for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
+        //                 assert.equal(value, false);
+        //             }
 
-    //                 // Operation
-    //                 var pauseOperation = await farmInstance.methods.pauseAll().send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation = await farmInstance.methods.pauseAll().send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Final values
-    //                 farmStorage       = await farmInstance.storage();
-    //                 for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
-    //                     assert.equal(value, true);
-    //                 }
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
-    //         it('Non-admin should not be able to call the entrypoint', async () => {
-    //             try{
-    //                 await signerFactory(alice.sk);
-    //                 await chai.expect(farmInstance.methods.pauseAll().send()).to.be.rejected;
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
-    //     })
+        //             // Final values
+        //             farmStorage       = await farmInstance.storage();
+        //             for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
+        //                 assert.equal(value, true);
+        //             }
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
+        //     it('Non-admin should not be able to call the entrypoint', async () => {
+        //         try{
+        //             await signerFactory(alice.sk);
+        //             await chai.expect(farmInstance.methods.pauseAll().send()).to.be.rejected;
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
+        // })
 
-    //     describe("%unpauseAll", async () => {
-    //         beforeEach("Set signer to admin", async () => {
-    //             await signerFactory(bob.sk)
-    //         });
+        // describe("%unpauseAll", async () => {
+        //     beforeEach("Set signer to admin", async () => {
+        //         await signerFactory(bob.sk)
+        //     });
 
-    //         it('Admin should be able to call the entrypoint and unpause all entrypoints in the contract', async () => {
-    //             try{
-    //                 // Initial Values
-    //                 farmStorage       = await farmInstance.storage();
-    //                 for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
-    //                     assert.equal(value, true);
-    //                 }
+        //     it('Admin should be able to call the entrypoint and unpause all entrypoints in the contract', async () => {
+        //         try{
+        //             // Initial Values
+        //             farmStorage       = await farmInstance.storage();
+        //             for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
+        //                 assert.equal(value, true);
+        //             }
 
-    //                 // Operation
-    //                 var pauseOperation = await farmInstance.methods.unpauseAll().send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation = await farmInstance.methods.unpauseAll().send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Final values
-    //                 farmStorage       = await farmInstance.storage();
-    //                 for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
-    //                     assert.equal(value, false);
-    //                 }
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
-    //         it('Non-admin should not be able to call the entrypoint', async () => {
-    //             try{
-    //                 await signerFactory(alice.sk);
-    //                 await chai.expect(farmInstance.methods.unpauseAll().send()).to.be.rejected;
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
-    //     })
+        //             // Final values
+        //             farmStorage       = await farmInstance.storage();
+        //             for (let [key, value] of Object.entries(farmStorage.breakGlassConfig)){
+        //                 assert.equal(value, false);
+        //             }
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
+        //     it('Non-admin should not be able to call the entrypoint', async () => {
+        //         try{
+        //             await signerFactory(alice.sk);
+        //             await chai.expect(farmInstance.methods.unpauseAll().send()).to.be.rejected;
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
+        // })
 
-    //     describe("%togglePauseEntrypoint", async () => {
-    //         beforeEach("Set signer to admin", async () => {
-    //             await signerFactory(bob.sk)
-    //         });
+        // describe("%togglePauseEntrypoint", async () => {
+        //     beforeEach("Set signer to admin", async () => {
+        //         await signerFactory(bob.sk)
+        //     });
 
-    //         it('Admin should be able to call the entrypoint and pause/unpause the deposit entrypoint', async () => {
-    //             try{
-    //                 // Initial Values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const initState     = farmStorage.breakGlassConfig.depositIsPaused;
+        //     it('Admin should be able to call the entrypoint and pause/unpause the deposit entrypoint', async () => {
+        //         try{
+        //             // Initial Values
+        //             farmStorage         = await farmInstance.storage();
+        //             const initState     = farmStorage.breakGlassConfig.depositIsPaused;
 
-    //                 // Operation
-    //                 var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("deposit", true).send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("deposit", true).send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Mid values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const midState      = farmStorage.breakGlassConfig.depositIsPaused;
-    //                 const lpLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
-    //                 const lpAllowances  = await lpLedgerStart.allowances.get(farmAddress.address);
-    //                 const testAmount    = 1;
+        //             // Mid values
+        //             farmStorage         = await farmInstance.storage();
+        //             const midState      = farmStorage.breakGlassConfig.depositIsPaused;
+        //             const lpLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+        //             // const lpAllowances  = await lpLedgerStart.allowances.get(farmAddress.address);
+        //             const testAmount    = 1;
 
-    //                 // Test operation
-    //                 if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-    //                     const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
-    //                     const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-    //                     await approveOperation.confirmation();
-    //                 }
-    //                 await chai.expect(farmInstance.methods.deposit(testAmount).send()).to.be.rejected;
+        //             // Test operation
+        //             // if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
+        //             //     const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
+        //             //     const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
+        //             //     await approveOperation.confirmation();
+        //             // }
+        //             await chai.expect(farmInstance.methods.deposit(testAmount).send()).to.be.rejected;
 
-    //                 // Operation
-    //                 var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("deposit", false).send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("deposit", false).send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Final values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const endState      = farmStorage.breakGlassConfig.depositIsPaused;
+        //             // Final values
+        //             farmStorage         = await farmInstance.storage();
+        //             const endState      = farmStorage.breakGlassConfig.depositIsPaused;
 
-    //                 // Test operation
-    //                 if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-    //                     const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
-    //                     const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-    //                     await approveOperation.confirmation();
-    //                 }
-    //                 const testOperation = await farmInstance.methods.deposit(testAmount).send();
-    //                 await testOperation.confirmation();
+        //             // Test operation
+        //             // if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
+        //             //     const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
+        //             //     const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
+        //             //     await approveOperation.confirmation();
+        //             // }
+        //             const testOperation = await farmInstance.methods.deposit(testAmount).send();
+        //             await testOperation.confirmation();
 
-    //                 // Assertions
-    //                 assert.equal(initState, false)
-    //                 assert.equal(midState, true)
-    //                 assert.equal(endState, false)
+        //             // Assertions
+        //             assert.equal(initState, false)
+        //             assert.equal(midState, true)
+        //             assert.equal(endState, false)
 
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
 
-    //         it('Admin should be able to call the entrypoint and pause/unpause the withdraw entrypoint', async () => {
-    //             try{
-    //                 // Initial Values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const initState     = farmStorage.breakGlassConfig.withdrawIsPaused;
+        //     it('Admin should be able to call the entrypoint and pause/unpause the withdraw entrypoint', async () => {
+        //         try{
+        //             // Initial Values
+        //             farmStorage         = await farmInstance.storage();
+        //             const initState     = farmStorage.breakGlassConfig.withdrawIsPaused;
 
-    //                 // Operation
-    //                 var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("withdraw", true).send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("withdraw", true).send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Mid values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const midState      = farmStorage.breakGlassConfig.withdrawIsPaused;
-    //                 const testAmount    = 1;
+        //             // Mid values
+        //             farmStorage         = await farmInstance.storage();
+        //             const midState      = farmStorage.breakGlassConfig.withdrawIsPaused;
+        //             const testAmount    = 1;
 
-    //                 // Test operation
-    //                 await chai.expect(farmInstance.methods.withdraw(testAmount).send()).to.be.rejected;
+        //             // Test operation
+        //             await chai.expect(farmInstance.methods.withdraw(testAmount).send()).to.be.rejected;
 
-    //                 // Operation
-    //                 var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("withdraw", false).send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("withdraw", false).send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Final values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const endState      = farmStorage.breakGlassConfig.withdrawIsPaused;
+        //             // Final values
+        //             farmStorage         = await farmInstance.storage();
+        //             const endState      = farmStorage.breakGlassConfig.withdrawIsPaused;
 
-    //                 // Test operation
-    //                 const testOperation = await farmInstance.methods.withdraw(testAmount).send();
-    //                 await testOperation.confirmation();
+        //             // Test operation
+        //             const testOperation = await farmInstance.methods.withdraw(testAmount).send();
+        //             await testOperation.confirmation();
 
-    //                 // Assertions
-    //                 assert.equal(initState, false)
-    //                 assert.equal(midState, true)
-    //                 assert.equal(endState, false)
+        //             // Assertions
+        //             assert.equal(initState, false)
+        //             assert.equal(midState, true)
+        //             assert.equal(endState, false)
 
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
 
-    //         it('Admin should be able to call the entrypoint and pause/unpause the claim entrypoint', async () => {
-    //             try{
-    //                 // Initial Values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const initState     = farmStorage.breakGlassConfig.claimIsPaused;
-    //                 const blockTime     = farmStorage.minBlockTimeSnapshot.toNumber();
+        //     it('Admin should be able to call the entrypoint and pause/unpause the claim entrypoint', async () => {
+        //         try{
+        //             // Initial Values
+        //             farmStorage         = await farmInstance.storage();
+        //             const initState     = farmStorage.breakGlassConfig.claimIsPaused;
+        //             const blockTime     = farmStorage.minBlockTimeSnapshot.toNumber();
 
-    //                 // Operation
-    //                 var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("claim", true).send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("claim", true).send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Mid values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const midState      = farmStorage.breakGlassConfig.claimIsPaused;
+        //             // Mid values
+        //             farmStorage         = await farmInstance.storage();
+        //             const midState      = farmStorage.breakGlassConfig.claimIsPaused;
 
-    //                 // Test operation
-    //                 await wait(2 * blockTime * 1000);
-    //                 await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+        //             // Test operation
+        //             await wait(2 * blockTime * 1000);
+        //             await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
 
-    //                 // Operation
-    //                 var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("claim", false).send();
-    //                 await pauseOperation.confirmation();
+        //             // Operation
+        //             var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("claim", false).send();
+        //             await pauseOperation.confirmation();
 
-    //                 // Final values
-    //                 farmStorage         = await farmInstance.storage();
-    //                 const endState      = farmStorage.breakGlassConfig.claimIsPaused;
+        //             // Final values
+        //             farmStorage         = await farmInstance.storage();
+        //             const endState      = farmStorage.breakGlassConfig.claimIsPaused;
 
-    //                 // Test operation
-    //                 await wait(2 * blockTime * 1000);
-    //                 const testOperation = await farmInstance.methods.claim(bob.pkh).send();
-    //                 await testOperation.confirmation();
+        //             // Test operation
+        //             await wait(2 * blockTime * 1000);
+        //             const testOperation = await farmInstance.methods.claim(bob.pkh).send();
+        //             await testOperation.confirmation();
 
-    //                 // Assertions
-    //                 assert.equal(initState, false)
-    //                 assert.equal(midState, true)
-    //                 assert.equal(endState, false)
+        //             // Assertions
+        //             assert.equal(initState, false)
+        //             assert.equal(midState, true)
+        //             assert.equal(endState, false)
 
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
 
-    //         it('Non-admin should not be able to call the entrypoint', async () => {
-    //             try{
-    //                 await signerFactory(alice.sk);
-    //                 await chai.expect(farmInstance.methods.togglePauseEntrypoint("deposit", true).send()).to.be.rejected;
-    //             } catch(e){
-    //                 console.dir(e, {depth: 5});
-    //             }
-    //         });
-    //     })
+        //     it('Non-admin should not be able to call the entrypoint', async () => {
+        //         try{
+        //             await signerFactory(alice.sk);
+        //             await chai.expect(farmInstance.methods.togglePauseEntrypoint("deposit", true).send()).to.be.rejected;
+        //         } catch(e){
+        //             console.dir(e, {depth: 5});
+        //         }
+        //     });
+        // })
 
     //     describe('%updateConfig', function() {
 

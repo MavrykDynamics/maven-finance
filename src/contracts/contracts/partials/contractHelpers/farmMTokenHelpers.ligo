@@ -246,12 +246,8 @@ block{
 // ------------------------------------------------------------------------------
 
 // helper function to create depositor record
-function createDepositorRecord(const s : farmMTokenStorageType) : depositorRecordType is 
+function createDepositorRecord(const tokenRewardIndex : nat; const s : farmMTokenStorageType) : depositorRecordType is 
 block {
-
-    // get loan token record from Lending Controller through on-chain views
-    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
 
     const newDepositorRecord : depositorRecordType = record [
         balance                         = 0n;
@@ -341,7 +337,6 @@ block {
         s.config.plannedRewards.currentRewardPerBlock   := (newCurrentRewardPerBlock/fixedPointAccuracy);
         s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
 
-
     } else skip;
 
 } with (s)
@@ -367,7 +362,7 @@ block{
 
 
 // helper function to update farm parameters
-function updateFarmParameters(var s: farmMTokenStorageType) : farmMTokenStorageType is
+function updateFarmParameters(const farmMTokenBalance : nat; var s: farmMTokenStorageType) : farmMTokenStorageType is
 block{
 
     // Compute the potential reward of this block
@@ -389,9 +384,6 @@ block{
     // Update farm storage - unpaid amount and accumulatedRewardsPerShare
     s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
 
-    // get latest farm balance from mToken contract
-    const farmMTokenBalance : nat = getMTokenBalance(s);
-
     s.accumulatedRewardsPerShare := s.accumulatedRewardsPerShare + ((reward * fixedPointAccuracy) / farmMTokenBalance);
 
     // Update farm block levels
@@ -402,13 +394,13 @@ block{
 
 
 // helper function to update farm
-function updateFarm(var s : farmMTokenStorageType) : farmMTokenStorageType is
+function updateFarm(const farmMTokenBalance : nat; var s : farmMTokenStorageType) : farmMTokenStorageType is
 block{
     s := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
         |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
                     True -> s
-                |   False -> updateFarmParameters(s)
+                |   False -> updateFarmParameters(farmMTokenBalance, s)
             ]
     ];
     s := updateDurationAndRewards(s);
@@ -432,18 +424,12 @@ block {
 
 
 // helper function to update depositor's unclaimed rewards
-function updateUnclaimedRewards(const depositor : depositorType; var s : farmMTokenStorageType) : farmMTokenStorageType is
+function updateUnclaimedRewards(const tokenRewardIndex : nat; const depositor : depositorType; var s : farmMTokenStorageType) : farmMTokenStorageType is
 block{
 
     // Check if sender as already a record
     var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
     const userBalance : nat = depositorRecord.balance;
-
-    // --- Update user balance with mToken increases ---
-    
-    // get loan token record from Lending Controller through on-chain views
-    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
 
     const userRewardIndex : nat = depositorRecord.tokenRewardIndex;
     
