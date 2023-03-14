@@ -274,6 +274,26 @@ block {
 
 
 
+// helper function to get or create depositor record
+function getOrCreateDepositorRecord(const userAddress : address; const tokenRewardIndex : nat; const s : farmMTokenStorageType) : depositorRecordType is 
+block {
+
+    const depositorRecord : depositorRecordType = case s.depositorLedger[userAddress] of [
+            Some (_depositor)   -> _depositor
+        |   None                -> record [
+                balance                         = 0n;
+                participationRewardsPerShare    = s.accumulatedRewardsPerShare;
+                tokenRewardIndex                = tokenRewardIndex;
+                unclaimedRewards                = 0n;
+                claimedRewards                  = 0n;
+            ]
+    ];
+
+} with depositorRecord 
+
+
+
+
 // helper function to init farm
 function _initFarm(const initFarmParams : initFarmParamsType; var s : farmMTokenStorageType) : farmMTokenStorageType is
 block {
@@ -409,7 +429,7 @@ block{
 
 
 // calculate additional rewards
-function calculateAdditionalRewards(const userRewardIndex : nat; const tokenRewardIndex : nat; const userTokenBalance : nat) : nat is
+function calculateMTokenAdditionalRewards(const userRewardIndex : nat; const tokenRewardIndex : nat; const userTokenBalance : nat) : nat is
 block {
 
     // tokenRewardIndex is monotonically increasing and should always be greater than user reward index
@@ -423,23 +443,30 @@ block {
 
 
 
-// helper function to update depositor's unclaimed rewards
-function updateUnclaimedRewards(const tokenRewardIndex : nat; const depositor : depositorType; var s : farmMTokenStorageType) : farmMTokenStorageType is
-block{
+function updateBalanceWithMTokenAccrual(var depositorRecord : depositorRecordType; const latestTokenRewardIndex : nat) : depositorRecordType is
+block {
 
-    // Check if sender as already a record
-    var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
-    const userBalance : nat = depositorRecord.balance;
-
-    const userRewardIndex : nat = depositorRecord.tokenRewardIndex;
+    // Get depositor record variables
+    const userBalance       : nat = depositorRecord.balance;
+    const userRewardIndex   : nat = depositorRecord.tokenRewardIndex;
     
-    // increment token balance with calculated additional rewards 
-    const additionalRewards : nat = calculateAdditionalRewards(userRewardIndex, tokenRewardIndex, userBalance);
-    const newUserBalance : nat = userBalance + additionalRewards;
+    if userBalance > 0n then {
+        // increment token balance with calculated additional rewards 
+        const additionalRewards : nat = calculateMTokenAdditionalRewards(userRewardIndex, latestTokenRewardIndex, userBalance);
+        const newUserBalance    : nat = userBalance + additionalRewards;
 
-    // update depositor balance with accrued mToken balance and latest token reward index
-    depositorRecord.balance           := newUserBalance;
-    depositorRecord.tokenRewardIndex  := tokenRewardIndex;
+        // update depositor balance with accrued mToken balance and latest token reward index
+        depositorRecord.balance           := newUserBalance;
+    } else skip;
+
+    depositorRecord.tokenRewardIndex  := latestTokenRewardIndex;
+
+} with depositorRecord
+
+
+// helper function to update depositor's unclaimed rewards
+function updateUnclaimedRewards(var depositorRecord : depositorRecordType; var s : farmMTokenStorageType) : (farmMTokenStorageType * depositorRecordType) is
+block{
 
     // Compute depositor reward
     //  -   calculate user's currentMvkPerShare based on difference between his participationRewardsPerShare and farm's accumulatedRewardsPerShare
@@ -450,7 +477,13 @@ block{
     const accumulatedRewardsPerShareEnd : tokenBalanceType = s.accumulatedRewardsPerShare;
     if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
     const currentMvkPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
-    const depositorReward = (currentMvkPerShare * newUserBalance) / fixedPointAccuracy;
+    const depositorReward = (currentMvkPerShare * depositorRecord.balance) / fixedPointAccuracy;
+
+
+    // Update user's unclaimed rewards and participationRewardsPerShare
+    const unclaimedRewards : nat = depositorRecord.unclaimedRewards;
+    depositorRecord.unclaimedRewards                := unclaimedRewards + depositorReward;
+    depositorRecord.participationRewardsPerShare    := accumulatedRewardsPerShareEnd;
 
     // Update paid and unpaid rewards in farm storage 
     //  -   check that user's reward does not exceed total unpaid claimed rewards on the farm
@@ -460,14 +493,10 @@ block{
         paid   = s.claimedRewards.paid + depositorReward;
     ];
 
-    // Update user's unclaimed rewards and participationRewardsPerShare
-    depositorRecord.unclaimedRewards                := depositorRecord.unclaimedRewards + depositorReward;
-    depositorRecord.participationRewardsPerShare    := accumulatedRewardsPerShareEnd;
-
     // Update depositor record
-    s.depositorLedger[depositor] := depositorRecord;
+    // s.depositorLedger[depositor] := depositorRecord;
 
-} with(s)
+} with (s, depositorRecord)
 
 // ------------------------------------------------------------------------------
 // Farm Helper Functions End
