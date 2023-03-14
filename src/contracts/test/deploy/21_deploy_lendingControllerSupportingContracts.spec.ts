@@ -309,7 +309,7 @@ describe('Lending Controller Supporting Contracts', async () => {
                 rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
                 rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
             };
-            aggregatorStorage.oracleAddresses   = oracleMap;
+            aggregatorStorage.oracleLedger   = oracleMap;
             aggregatorStorage.mvkTokenAddress   = mvkTokenAddress.address;
             aggregatorStorage.governanceAddress = governanceAddress.address;
 

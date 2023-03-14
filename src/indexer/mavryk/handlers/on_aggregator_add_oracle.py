@@ -13,7 +13,7 @@ async def on_aggregator_add_oracle(
     # Get operation info
     aggregator_address      = add_oracle.data.target_address
     oracle_address          = add_oracle.parameter.__root__
-    oracle_storage          = add_oracle.storage.oracleAddresses[oracle_address]
+    oracle_storage          = add_oracle.storage.oracleLedger[oracle_address]
     oracle_pk               = oracle_storage.oraclePublicKey
     oracle_peer_id          = oracle_storage.oraclePeerId
     init_round              = int(add_oracle.storage.lastCompletedData.round)

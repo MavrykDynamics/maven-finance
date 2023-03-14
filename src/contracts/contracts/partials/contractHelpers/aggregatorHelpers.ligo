@@ -35,7 +35,7 @@ block {
 function verifySenderIsRegisteredOracle(const s : aggregatorStorageType) : unit is
 block {
 
-    if Map.mem(Tezos.get_sender(), s.oracleAddresses) 
+    if Map.mem(Tezos.get_sender(), s.oracleLedger) 
     then skip 
     else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
@@ -47,7 +47,7 @@ block {
 function verifySatelliteIsRegisteredOracle(const satellite : address; const s : aggregatorStorageType) : unit is
 block {
 
-    if Map.mem(satellite, s.oracleAddresses) 
+    if Map.mem(satellite, s.oracleLedger) 
     then skip 
     else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
@@ -59,7 +59,7 @@ block {
 function verifySatelliteIsNotRegisteredOracle(const satellite : address; const s : aggregatorStorageType) : unit is
 block {
 
-    if Map.mem(satellite, s.oracleAddresses) 
+    if Map.mem(satellite, s.oracleLedger) 
     then failwith(error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR);
 
 } with unit
@@ -365,7 +365,7 @@ function getObservationsDataUtils(const data : nat; const myMap : pivotedObserva
 function getOraclePublicKey(const oracleAddress : address; const s : aggregatorStorageType) : key is
 block {
 
-    const publicKey : key = case s.oracleAddresses[oracleAddress] of [
+    const publicKey : key = case s.oracleLedger[oracleAddress] of [
             Some (_oracle) -> (_oracle.oraclePublicKey)
         |   None           -> failwith(error_ACTION_FAILED_AS_ORACLE_IS_NOT_REGISTERED)
     ]
@@ -402,10 +402,10 @@ function verifyEqualMapSizes(const leaderReponse : updateDataType; const s : agg
 
     // Byzantine faults check
     // see: https://research.chain.link/ocr.pdf
-    // const f: int                = ((Map.size(s.oracleAddresses) - 1) * fixedPointAccuracy) / 3n;
+    // const f: int                = ((Map.size(s.oracleLedger) - 1) * fixedPointAccuracy) / 3n;
     // const signaturesSize: int   = int(Map.size(leaderReponse.signatures)) * fixedPointAccuracy;
     // const observationsSize: int = int(Map.size(leaderReponse.oracleObservations)) * fixedPointAccuracy;
-    const f: int                = ((Map.size(s.oracleAddresses) - 1)) / 3n;
+    const f: int                = ((Map.size(s.oracleLedger) - 1)) / 3n;
     const signaturesSize: int   = int(Map.size(leaderReponse.signatures));
     const observationsSize: int = int(Map.size(leaderReponse.oracleObservations));
     if (signaturesSize < f)
