@@ -440,16 +440,18 @@ block{
                 const existingDepositor : bool = checkDepositorExists(depositor, s);
 
                 // Prepare new depositor record
-                var depositorRecord : depositorRecordType := createDepositorRecord(latestTokenRewardIndex, s);
+                var depositorRecord : depositorRecordType := getOrCreateDepositorRecord(depositor, latestTokenRewardIndex, s);
+
+                // update balance with any accrual to mToken
+                depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
 
                 // Get depositor deposit and perform a claim
                 if existingDepositor then {
                     
                     // Update user's unclaimed rewards
-                    s := updateUnclaimedRewards(latestTokenRewardIndex, depositor, s);
-
-                    // Refresh depositor deposit with updated unclaimed rewards
-                    depositorRecord := getDepositorRecord(depositor, s);
+                    const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
+                    s := updateRewards.0;
+                    depositorRecord := updateRewards.1;
                     
                 }
                 else skip;
@@ -516,11 +518,16 @@ block{
                 // Init depositor address
                 const depositor : depositorType = Tezos.get_sender();
 
-                // Update user's unclaimedRewards if user already deposited tokens
-                s := updateUnclaimedRewards(latestTokenRewardIndex, depositor, s);
-
                 // Get depositor record
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
+
+                // update balance with any accrual to mToken
+                depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
+
+                // Update user's unclaimed rewards
+                const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
+                s := updateRewards.0;
+                depositorRecord := updateRewards.1;
 
                 // Verify that depositor has sufficient balance to withdraw tokens
                 verifySufficientBalance(tokenAmount, depositorRecord.balance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
@@ -589,11 +596,16 @@ block{
                 // Update farm
                 s := updateFarm(farmMTokenBalance, s);
 
-                // Update user's unclaimed rewards
-                s := updateUnclaimedRewards(latestTokenRewardIndex, depositor, s);
-
                 // Check if sender is an existing depositor
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
+
+                // update balance with any accrual to mToken
+                depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
+
+                // Update user's unclaimed rewards
+                const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
+                s := updateRewards.0;
+                depositorRecord := updateRewards.1;
 
                 // Get depositor's unclaimed rewards
                 const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
