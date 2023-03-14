@@ -85,31 +85,15 @@ function lambdaFunction (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record [
-            action = CreateLoanToken(record [
-                tokenName                           = ("Test" : string);
-                tokenDecimals                       = (0n : nat);
-                oracleAddress                       = ("tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM" : address);
-                mTokenAddress                       = ("tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM" : address);
-                reserveRatio                        = (0n : nat);
-                optimalUtilisationRate              = (0n : nat);
-                baseInterestRate                    = (0n : nat);
-                maxInterestRate                     = (0n : nat);
-                interestRateBelowOptimalUtilisation = (0n : nat);
-                interestRateAboveOptimalUtilisation = (0n : nat);
-                minRepaymentAmount                  = (0n : nat);
-                tokenType                           = (Fa2(record[
-                tokenContractAddress    = ("KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE": address);
-                tokenId                 = 0n;
-            ]) : tokenType);
-            ]);
-            empty  = Unit;
+            tokenContractName     = "test";
+            tokenContractAddress  = ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address);
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
-            "%setLoanToken",
-            ("KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE" : address)) : option(contract(setLoanTokenActionType))) of [
+            "%updateWhitelistTokenContracts",
+            ("KT1BSHhi4419AnpB1ZUvRFuK94wR1XDU1BHh" : address)) : option(contract(updateWhitelistTokenContractsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(setLoanTokenActionType))
+                |   None        -> (failwith(0n) : contract(updateWhitelistTokenContractsType))
         ]
     );
 } with list[contractOperation]

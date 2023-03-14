@@ -157,57 +157,10 @@ export const compileLambdaFunction  = async(
     }
 
     // Read the contents of the input file specified in the first command line argument
-    // const generatedContract: string = generateProxyContract(
-    //     lambdaFunctionName,
-    //     lambdaFunctionParameters
-    // );
     const generatedContract: string = generateProxyContract(
-        "setLoanToken",
-        [
-            "KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE",
-            {
-                createLoanToken: {
-                    tokenName                           : "Test",
-                    tokenDecimals                       : 0,
-                    oracleAddress                       : "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
-                    mTokenAddress                       : "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
-                    reserveRatio                        : 0,
-                    optimalUtilisationRate              : 0,
-                    baseInterestRate                    : 0,
-                    maxInterestRate                     : 0,
-                    interestRateBelowOptimalUtilisation : 0,
-                    interestRateAboveOptimalUtilisation : 0,
-                    minRepaymentAmount                  : 0,
-                    tokenType                           : {
-                        fa2: {
-                            tokenContractAddress: "KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE",
-                            tokenId             : 0
-                        }
-                    }
-                }
-            }
-        ]
+        lambdaFunctionName,
+        lambdaFunctionParameters
     );
-    // const generatedContract: string = generateProxyContract(
-    //     "setLoanToken",
-    //     [
-    //         "KT192JZU1foUKFBm3ih6y7Fy8tKrkF1EgfXE",
-    //         {
-    //             updateLoanToken: {
-    //                 tokenName                           : "Test",
-    //                 oracleAddress                       : "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
-    //                 reserveRatio                        : 0,
-    //                 optimalUtilisationRate              : 0,
-    //                 baseInterestRate                    : 0,
-    //                 maxInterestRate                     : 0,
-    //                 interestRateBelowOptimalUtilisation : 0,
-    //                 interestRateAboveOptimalUtilisation : 0,
-    //                 minRepaymentAmount                  : 0,
-    //                 isPaused                            : false
-    //             }
-    //         }
-    //     ]
-    // );
 
     // Write the result to the output file
     fs.writeFileSync(outputFile, generatedContract);

@@ -34,6 +34,6 @@ class CreateAggregatorParameter(BaseModel):
 
     name: str
     addToGeneralContracts: bool
-    oracleAddresses: Dict[str, OracleAddresses]
+    oracleLedger: Dict[str, OracleAddresses]
     aggregatorConfig: AggregatorConfig
     metadata: str

@@ -587,16 +587,12 @@ const createFarm  = (
     addToGeneralContracts   : boolean,
     forceRewardFromTransfer : boolean,
     infinite                : boolean,
-    plannedRewards          : {
-        totalBlocks             : number,
-        currentRewardPerBlock   : number
-    },
+    totalBlocks             : number,
+    currentRewardPerBlock   : number,
     metadata                : string,
-    lpToken                 : {
-        tokenAddress            : string,
-        tokenId                 : number,
-        tokenStandard           : "fa12" | "fa2"
-    }
+    lpTokenAddress          : string,
+    lpTokenId               : number,
+    lpTokenStandard         : "fa12" | "fa2"
 
 ) => {
     return `function lambdaFunction (const _ : unit) : list(operation) is
@@ -608,14 +604,14 @@ block {
             forceRewardFromTransfer  = ${forceRewardFromTransfer ? "True" : "False"};
             infinite                 = ${infinite ? "True" : "False"};
             plannedRewards           = record[
-                totalBlocks              = (${plannedRewards.totalBlocks}n: nat);
-                currentRewardPerBlock    = ${plannedRewards.currentRewardPerBlock}n;
+                totalBlocks              = (${totalBlocks}n: nat);
+                currentRewardPerBlock    = ${currentRewardPerBlock}n;
             ];
             metadata                 = ("${metadata}": bytes);
             lpToken                  = record[
-                tokenAddress             = ("${lpToken.tokenAddress}" : address);
-                tokenId                  = ${lpToken.tokenId}n;
-                tokenStandard            = (${lpToken.tokenStandard == "fa12" ? "Fa12" : "Fa2"}: lpStandardType);
+                tokenAddress             = ("${lpTokenAddress}" : address);
+                tokenId                  = ${lpTokenId}n;
+                tokenStandard            = (${lpTokenStandard == "fa12" ? "Fa12" : "Fa2"}: lpStandardType);
             ];
         ],
         0tez,
@@ -642,10 +638,10 @@ const initFarm  = (
 block {
     const contractOperation : operation = Tezos.transaction(
         record[
-            totalBlocks                 = (${totalBlocks}n: nat);
-            currentRewardPerBlock       = (${currentRewardPerBlock}n: nat);
-            forceRewardFromTransfer     = (${forceRewardFromTransfer ? "True" : "False"}: bool);
-            infinite                    = (${infinite ? "True" : "False"}: bool);
+            totalBlocks                 = ${totalBlocks}n;
+            currentRewardPerBlock       = ${currentRewardPerBlock}n;
+            forceRewardFromTransfer     = ${forceRewardFromTransfer ? "True" : "False"};
+            infinite                    = ${infinite ? "True" : "False"};
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
@@ -924,9 +920,9 @@ const createAggregator  = (
 ) => {
 
     // Create the oracle informations
-    var oracleAddresses: string;
+    var oracleLedger: string;
     oraclesInformation.forEach((information: oracleInformation) => {
-        oracleAddresses += `
+        oracleLedger += `
             ("${information.oracleAddress}" : address) -> record [
                 oraclePublicKey = ("${information.oraclePublicKey}" : key);
                 oraclePeerId    = "${information.oraclePeerId}";
@@ -940,8 +936,8 @@ block {
         record[
             name                  = "${aggregatorName}";
             addToGeneralContracts = ${addToGeneralContracts ? "True" : "False"};
-            oracleAddresses       = map[
-                ${oracleAddresses}
+            oracleLedger          = map[
+                ${oracleLedger}
             ];
             aggregatorConfig      = record [
                 decimals                = ${decimals}n;
@@ -1133,9 +1129,9 @@ const updateVestee  = (
 
     targetContract          : string,
     vesteeAddress           : string,
-    totalAllocatedAmount    : number,
-    cliffInMonths           : number,
-    vestingInMonths         : number
+    newTotalAllocatedAmount : number,
+    newCliffInMonths        : number,
+    newVestingInMonths      : number
 
 ) => {
     return `function lambdaFunction (const _ : unit) : list(operation) is
@@ -1143,9 +1139,9 @@ block {
     const contractOperation : operation = Tezos.transaction(
         record [
             vesteeAddress           = ("${vesteeAddress}" : address);
-            newTotalAllocatedAmount = ${totalAllocatedAmount}n;
-            newCliffInMonths        = ${cliffInMonths}n;
-            newVestingInMonths      = ${vestingInMonths}n;
+            newTotalAllocatedAmount = ${newTotalAllocatedAmount}n;
+            newCliffInMonths        = ${newCliffInMonths}n;
+            newVestingInMonths      = ${newVestingInMonths}n;
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
@@ -1414,7 +1410,7 @@ export const generateProxyContract = (
         var parameterType: string       = typeof(parameter);
         switch(parameterType){
             case "string":
-                formattedParameter = `"${formattedParameter}"`;
+                formattedParameter  = `"${formattedParameter}"`;
                 break;
             case "object":
                 formattedParameter  = (JSON.stringify(parameter));
