@@ -40,7 +40,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         name                                : string,
         addToGeneralContracts               : boolean,
 
-        oracleAddresses                     : MichelsonMap<string, boolean>,
+        oracleLedger                     : MichelsonMap<string, boolean>,
 
         decimals                            : BigNumber,
         numberBlocksDelay                   : BigNumber,

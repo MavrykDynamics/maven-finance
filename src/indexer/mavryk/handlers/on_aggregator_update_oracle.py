@@ -12,7 +12,7 @@ async def on_aggregator_update_oracle(
     # Get operation info
     aggregator_address      = update_oracle.data.target_address
     oracle_address          = update_oracle.data.sender_address
-    oracle_storage          = update_oracle.storage.oracleAddresses[oracle_address]
+    oracle_storage          = update_oracle.storage.oracleLedger[oracle_address]
     oracle_pk               = oracle_storage.oraclePublicKey
     oracle_peer_id          = oracle_storage.oraclePeerId
 

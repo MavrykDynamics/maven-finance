@@ -760,7 +760,7 @@ block {
         record[
             name                  = "TESTAGGREGATOR";
             addToGeneralContracts = True;
-            oracleAddresses       = map[
+            oracleLedger          = map[
                 ("tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n" : address) -> record [
                     oraclePublicKey = ("edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D" : key);
                     oraclePeerId    = "12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1";

@@ -45,9 +45,9 @@
 
 
 
-(* View: get oracle addresses *)
-[@view] function getOracleAddresses(const _ : unit; const s : aggregatorStorageType) : oracleAddressesType is
-    s.oracleAddresses
+(* View: get oracle ledger *)
+[@view] function getOracleLedger(const _ : unit; const s : aggregatorStorageType) : oracleLedgerType is
+    s.oracleLedger
 
 
 (* View: get oracle reward staked MVK *)

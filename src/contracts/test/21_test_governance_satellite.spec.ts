@@ -1130,8 +1130,8 @@
 //             const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
 //             const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 
-//             // check that user is not in aggregator oracleAddresses set
-//             const aggregatorOracles        = await aggregatorStorage.oracleAddresses.get(bob.pkh);
+//             // check that user is not in aggregator oracleLedger set
+//             const aggregatorOracles        = await aggregatorStorage.oracleLedger.get(bob.pkh);
 //             assert.equal(aggregatorOracles,      undefined);
 
 //             // get bob satellite oracle record
@@ -1213,7 +1213,7 @@
 //             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
-//             const updatedAggregatorOracles : any                    = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedAggregatorOracles : any                    = await updatedAggregatorStorage.oracleLedger.get(bob.pkh);
 //             governanceStorage                                       = await governanceInstance.storage();
 //             const currentCycle                                      = governanceStorage.cycleId;
 //             const aliceSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
@@ -1254,7 +1254,7 @@
 //             // check that bob oracle aggregator record is updated
 //             assert.notEqual(bobUsdBtcOracleAggregatorRecord, undefined);
 
-//             // check that bob is now added to aggregator oracleAddresses Set
+//             // check that bob is now added to aggregator oracleLedger Set
 //             assert.equal(updatedAggregatorOracles.oraclePeerId, bob.peerId);
 //             assert.equal(updatedAggregatorOracles.oraclePublicKey, bob.pk);
         
@@ -1278,8 +1278,8 @@
 //             const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
 //             const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 
-//             // check that user is in aggregator oracleAddresses set (from previous test)
-//             const aggregatorOracles : any                   = await aggregatorStorage.oracleAddresses.get(bob.pkh);
+//             // check that user is in aggregator oracleLedger set (from previous test)
+//             const aggregatorOracles : any                   = await aggregatorStorage.oracleLedger.get(bob.pkh);
 //             assert.equal(aggregatorOracles.oraclePeerId, bob.peerId);
 //             assert.equal(aggregatorOracles.oraclePublicKey, bob.pk);
 
@@ -1359,7 +1359,7 @@
 //             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
-//             const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleLedger.get(bob.pkh);
 //             governanceStorage                                       = await governanceInstance.storage();
 //             const currentCycle                                      = governanceStorage.cycleId;
 //             const eveSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
@@ -1395,7 +1395,7 @@
 //             // check that bob oracle aggregator record is updated
 //             assert.equal(bobUsdBtcOracleAggregatorRecord,                           undefined);
 
-//             // check that bob is now removed from aggregator oracleAddresses Set
+//             // check that bob is now removed from aggregator oracleLedger Set
 //             assert.equal(updatedAggregatorOracles, undefined);
 
 //       } catch(e){
@@ -1430,10 +1430,10 @@
 //             const usdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
 //             const usdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
-//             // check that user is not in aggregator oracleAddresses set
-//             const usdBtcAggregatorOracles        = await usdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const usdXtzAggregatorOracles        = await usdXtzAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const usdDogeAggregatorOracles       = await usdDogeAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             // check that user is not in aggregator oracleLedger set
+//             const usdBtcAggregatorOracles        = await usdBtcAggregatorStorage.oracleLedger.get(bob.pkh);
+//             const usdXtzAggregatorOracles        = await usdXtzAggregatorStorage.oracleLedger.get(bob.pkh);
+//             const usdDogeAggregatorOracles       = await usdDogeAggregatorStorage.oracleLedger.get(bob.pkh);
             
 //             assert.equal(usdBtcAggregatorOracles,      undefined);
 //             assert.equal(usdXtzAggregatorOracles,      undefined);
@@ -1621,10 +1621,10 @@
 //             const updatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
 //             const updatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
-//             // check that user is not in aggregator oracleAddresses set
-//             const updatedUsdBtcAggregatorOracles : any        = await updatedUsdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const updatedUsdXtzAggregatorOracles : any        = await updatedUsdXtzAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const updatedUsdDogeAggregatorOracles : any       = await updatedUsdDogeAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             // check that user is not in aggregator oracleLedger set
+//             const updatedUsdBtcAggregatorOracles : any        = await updatedUsdBtcAggregatorStorage.oracleLedger.get(bob.pkh);
+//             const updatedUsdXtzAggregatorOracles : any        = await updatedUsdXtzAggregatorStorage.oracleLedger.get(bob.pkh);
+//             const updatedUsdDogeAggregatorOracles : any       = await updatedUsdDogeAggregatorStorage.oracleLedger.get(bob.pkh);
             
 //             // check that governance action has been executed
 //             assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
@@ -1644,7 +1644,7 @@
 //             assert.notEqual(bobUsdXtzOracleAggregatorRecord,  undefined);
 //             assert.notEqual(bobUsdDogeOracleAggregatorRecord, undefined);
 
-//             // check that bob is now added to aggregator oracleAddresses Set
+//             // check that bob is now added to aggregator oracleLedger Set
 //             assert.equal(updatedUsdBtcAggregatorOracles.oraclePeerId, bob.peerId);
 //             assert.equal(updatedUsdBtcAggregatorOracles.oraclePublicKey, bob.pk);
 //             assert.equal(updatedUsdXtzAggregatorOracles.oraclePeerId, bob.peerId);
@@ -1718,10 +1718,10 @@
 //             const finalUpdatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
 //             const finalUpdatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
-//             // check that user is not in aggregator oracleAddresses set
-//             const finalUpdatedUsdBtcAggregatorOracles        = await finalUpdatedUsdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const finalUpdatedUsdXtzAggregatorOracles        = await finalUpdatedUsdXtzAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const finalUpdatedUsdDogeAggregatorOracles       = await finalUpdatedUsdDogeAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             // check that user is not in aggregator oracleLedger set
+//             const finalUpdatedUsdBtcAggregatorOracles        = await finalUpdatedUsdBtcAggregatorStorage.oracleLedger.get(bob.pkh);
+//             const finalUpdatedUsdXtzAggregatorOracles        = await finalUpdatedUsdXtzAggregatorStorage.oracleLedger.get(bob.pkh);
+//             const finalUpdatedUsdDogeAggregatorOracles       = await finalUpdatedUsdDogeAggregatorStorage.oracleLedger.get(bob.pkh);
             
 //             // check that governance action has been executed
 //             assert.equal(finalUpdatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
@@ -1734,7 +1734,7 @@
 //             assert.equal(finalBobUsdXtzOracleAggregatorRecord,                          undefined);
 //             assert.equal(finalBobUsdDogeOracleAggregatorRecord,                         undefined);
 
-//             // check that bob is now added to aggregator oracleAddresses Set
+//             // check that bob is now added to aggregator oracleLedger Set
 //             assert.equal(finalUpdatedUsdBtcAggregatorOracles,      undefined);
 //             assert.equal(finalUpdatedUsdXtzAggregatorOracles,      undefined);
 //             assert.equal(finalUpdatedUsdDogeAggregatorOracles,     undefined);
