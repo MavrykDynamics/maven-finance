@@ -677,6 +677,7 @@ block {
 const createTreasury  = (
 
     targetContract          : string,
+    treasuryName            : string,
     addToGeneralContracts   : boolean,
     metadata                : string
 
@@ -685,7 +686,7 @@ const createTreasury  = (
 block {
     const contractOperation : operation = Tezos.transaction(
         record[
-            name                    = "${targetContract}";
+            name                    = "${treasuryName}";
             addToGeneralContracts   = ${addToGeneralContracts ? "True" : "False"};
             metadata                = ("${metadata}": bytes);
         ],
@@ -724,10 +725,10 @@ const transfer  = (
         if(transfer.token === "tez"){
             tokenType       = "Tez";
         }
-        else if(typeof(transfer.token) === "string"){
+        else if("fa12" in transfer.token){
             tokenType       = `Fa12(("${tokenTypeFa12.fa12}": address))`;
         }
-        else{
+        else if("fa2" in transfer.token){
             tokenType       = `Fa2(record[
                 tokenContractAddress    = ("${tokenTypeFa2.fa2.tokenContractAddress}": address);
                 tokenId                 = ${tokenTypeFa2.fa2.tokenId}n;
@@ -743,6 +744,7 @@ const transfer  = (
             ];
         `;
     });
+    console.log(transfersRecord)
 
     return `function lambdaFunction (const _ : unit) : list(operation) is
 block {
@@ -816,8 +818,10 @@ const updateMvkOperators  = (
     // Create the update operator list
     var operatorRecord: string;
     operators.forEach((operator) => {
+        console.log("OPERATOR", operator)
         if("addOperator" in operator){
             const addOperatorItem: addOperator  = operator.operatorItem as addOperator;
+            console.log(addOperatorItem)
             operatorRecord  += `
             Add_operator(record[
                 owner    = ("${addOperatorItem.addOperator.owner}" : address);
@@ -1336,6 +1340,8 @@ const setCollateralToken  = (
         // Prepare the token type
         const tokenTypeFa12 = createCollateralTokenAction.tokenType as fa12;
         const tokenTypeFa2  = createCollateralTokenAction.tokenType as fa2;
+        console.log("FA12",tokenTypeFa12)
+        console.log("FA2",tokenTypeFa2)
         var tokenType: any;
         if(createCollateralTokenAction.tokenType === "tez"){
             tokenType       = "Tez";
@@ -1359,7 +1365,7 @@ const setCollateralToken  = (
                 protected              = ${createCollateralTokenAction.protected ? "True" : "False"};
                 isScaledToken          = ${createCollateralTokenAction.isScaledToken ? "True" : "False"};
                 isStakedToken          = ${createCollateralTokenAction.isStakedToken ? "True" : "False"};
-                stakingContractAddress = ${createCollateralTokenAction.stakingContractAddress ? "Some((" + createCollateralTokenAction.stakingContractAddress + " : address))" : "None"};
+                stakingContractAddress = ${createCollateralTokenAction.stakingContractAddress ? "Some((\"" + createCollateralTokenAction.stakingContractAddress + "\" : address))" : "None"};
                 maxDepositAmount       = ${createCollateralTokenAction.maxDepositAmount ? "Some(" + createCollateralTokenAction.maxDepositAmount + "n)" : "None"};
                 tokenType              = ${tokenType};
             ]);`;
@@ -1374,7 +1380,7 @@ const setCollateralToken  = (
                 tokenName              = "${updateLoanTokenAction.tokenName}";
                 oracleAddress          = ("${updateLoanTokenAction.oracleAddress}" : address);
                 isPaused               = ${updateLoanTokenAction.isPaused ? "True" : "False"};
-                stakingContractAddress = ${updateLoanTokenAction.stakingContractAddress ? "Some((" + updateLoanTokenAction.stakingContractAddress + " : address))" : "None"};
+                stakingContractAddress = ${updateLoanTokenAction.stakingContractAddress ? "Some((\"" + updateLoanTokenAction.stakingContractAddress + "\" : address))" : "None"};
                 maxDepositAmount       = ${updateLoanTokenAction.maxDepositAmount ? "Some(" + updateLoanTokenAction.maxDepositAmount + "n)" : "None"};
             ]);`;
     }

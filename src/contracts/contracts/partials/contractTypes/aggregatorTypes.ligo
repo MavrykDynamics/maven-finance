@@ -92,7 +92,7 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 type aggregatorPausableEntrypointType is
-        UpdateData                   of bool
+        UpdateData                    of bool
     |   WithdrawRewardXtz             of bool
     |   WithdrawRewardStakedMvk       of bool
 

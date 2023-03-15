@@ -37,6 +37,8 @@ import governanceSatelliteAddress   from '../deployments/governanceSatelliteAddr
 import lendingControllerAddress     from '../deployments/lendingControllerAddress.json';
 import tokenSaleAddress             from '../deployments/tokenSaleAddress.json';
 import vaultFactoryAddress          from '../deployments/vaultFactoryAddress.json';
+import mavrykFa12TokenAddress       from '../deployments/mavrykFa12TokenAddress.json';
+import mavrykFa2TokenAddress        from '../deployments/mavrykFa2TokenAddress.json';
 
 import { MichelsonMap }             from '@taquito/taquito';
 import { farmStorageType }          from './types/farmStorageType';
@@ -65,6 +67,8 @@ describe('Governance proxy lambdas tests', async () => {
     let lendingControllerInstance;
     let tokenSaleInstance;
     let vaultFactoryInstance;
+    let mavrykFa12TokenInstance;
+    let mavrykFa2TokenInstance;
 
     let governanceProxyStorage;
     let mvkTokenStorage;
@@ -86,6 +90,8 @@ describe('Governance proxy lambdas tests', async () => {
     let lendingControllerStorage;
     let tokenSaleStorage;
     let vaultFactoryStorage;
+    let mavrykFa12TokenStorage;
+    let mavrykFa2TokenStorage;
 
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -118,6 +124,8 @@ describe('Governance proxy lambdas tests', async () => {
             lendingControllerInstance       = await utils.tezos.contract.at(lendingControllerAddress.address);
             tokenSaleInstance               = await utils.tezos.contract.at(tokenSaleAddress.address);
             vaultFactoryInstance            = await utils.tezos.contract.at(vaultFactoryAddress.address);
+            mavrykFa12TokenInstance         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+            mavrykFa2TokenInstance          = await utils.tezos.contract.at(mavrykFa2TokenAddress.address);
 
             governanceProxyStorage          = await governanceProxyInstance.storage();
             mvkTokenStorage                 = await mvkTokenInstance.storage();
@@ -139,6 +147,8 @@ describe('Governance proxy lambdas tests', async () => {
             lendingControllerStorage        = await lendingControllerInstance.storage();
             tokenSaleStorage                = await tokenSaleInstance.storage();
             vaultFactoryStorage             = await vaultFactoryInstance.storage();
+            mavrykFa12TokenStorage          = await mavrykFa12TokenInstance.storage();
+            mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
 
             console.log('-- -- -- -- -- Governance Proxy Tests -- -- -- --')
             console.log('Governance Proxy Contract deployed at:'        , governanceProxyInstance.address);
@@ -161,6 +171,8 @@ describe('Governance proxy lambdas tests', async () => {
             console.log('Lending Controller Contract deployed at:'      , lendingControllerInstance.address);
             console.log('Token Sale Contract deployed at:'              , tokenSaleInstance.address);
             console.log('Vault Factory Contract deployed at:'           , vaultFactoryInstance.address);
+            console.log('Mavryk FA12 Contract deployed at:'             , mavrykFa12TokenInstance.address);
+            console.log('Mavryk FA2 Contract deployed at:'              , mavrykFa2TokenInstance.address);
 
             console.log('Bob address: '         + bob.pkh);
             console.log('Alice address: '       + alice.pkh);
@@ -267,6 +279,74 @@ describe('Governance proxy lambdas tests', async () => {
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
+                }
+            });
+
+            it('%updateInflationRate', async () => {
+                try{
+                    // Initial values
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const initInflationRate             = mvkTokenStorage.inflationRate.toNumber();
+                    const newInflationRate              = initInflationRate * 2;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'updateInflationRate',
+                        [
+                            mvkTokenAddress.address,
+                            newInflationRate
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const finalInflationRate            = mvkTokenStorage.inflationRate.toNumber();
+
+                    // Assertions
+                    assert.notEqual(initInflationRate, finalInflationRate);
+                    assert.equal(newInflationRate, finalInflationRate);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%triggerInflation', async () => {
+                try{
+                    // Initial values
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const initInflationTimestamp        = mvkTokenStorage.nextInflationTimestamp;
+                    const initMaximumSupply             = mvkTokenStorage.maximumSupply;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'triggerInflation',
+                        [
+                            mvkTokenAddress.address
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const finalInflationTimestamp       = mvkTokenStorage.nextInflationTimestamp;
+                    const finalMaximumSupply            = mvkTokenStorage.maximumSupply;
+
+                    // Assertions
+                    assert.notEqual(finalMaximumSupply, initMaximumSupply);
+                    assert.notEqual(finalInflationTimestamp, initInflationTimestamp);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
                 }
             });
     
@@ -539,7 +619,7 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     farmStorage                     = await farmInstance.storage();
-                    const farmNewName               = "FarmTest";
+                    const farmNewName               = "FarmProxyTest";
                     const initFarmName              = farmStorage.name;
                     
                     // Operation
@@ -761,6 +841,43 @@ describe('Governance proxy lambdas tests', async () => {
                     console.dir(e, {depth: 5});
                 }
             });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    farmStorage                         = await farmInstance.storage();
+                    const targetEntrypoint              = "Deposit";
+                    const targetContractType            = "farm";
+                    const initConfigValue               = farmStorage.breakGlassConfig.depositIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            farmAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    farmStorage                         = await farmInstance.storage();
+                    const finalConfigValue              = farmStorage.breakGlassConfig.depositIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
         });
 
         describe('Farm Factory Contract', function() {
@@ -786,7 +903,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     farmFactoryStorage              = await farmFactoryInstance.storage();
                     governanceStorage               = await governanceInstance.storage();
-                    const farmName                  = "FarmTest";
+                    const farmName                  = "FarmProxyTest";
                     const addToGeneralContracts     = true;
                     const forceRewardFromTransfer   = false;
                     const infinite                  = true;
@@ -942,21 +1059,169 @@ describe('Governance proxy lambdas tests', async () => {
                     console.dir(e, {depth: 5});
                 }
             });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const targetEntrypoint              = "CreateFarm";
+                    const targetContractType            = "farmFactory";
+                    const initConfigValue               = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            farmFactoryAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const finalConfigValue              = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%trackFarm', async () => {
+                try{
+                    // Initial values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const targetContractType            = "farm";
+                    const targetContractAddress         = farmAddress.address;
+                    const initTrackProductContracts     = farmFactoryStorage.trackedFarms.length;
+
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'trackProductContract',
+                        [
+                            farmFactoryAddress.address,
+                            targetContractType,
+                            targetContractAddress
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const finalTrackProductContracts    = farmFactoryStorage.trackedFarms.length;
+
+                    // Assertions
+                    assert.notEqual(initTrackProductContracts, finalTrackProductContracts);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%untrackFarm', async () => {
+                try{
+                    // Initial values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const targetContractType            = "farm";
+                    const targetContractAddress         = bob.pkh;
+                    const initTrackProductContracts     = farmFactoryStorage.trackedFarms.length;
+
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'trackProductContract',
+                        [
+                            farmFactoryAddress.address,
+                            targetContractType,
+                            targetContractAddress
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const finalTrackProductContracts    = farmFactoryStorage.trackedFarms.length;
+
+                    // Assertions
+                    assert.notEqual(initTrackProductContracts, finalTrackProductContracts);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
         });
 
         describe('Treasury Contract', function() {
 
-            before('Change the Treasury contract admin', async () => {
+            before('Change the Treasury contract admin and sends token to it', async () => {
                 try{
                     // Initial values
                     await signerFactory(bob.sk)
                     treasuryStorage     = await treasuryInstance.storage();
     
-                    // Operation
+                    // Set Admin Operation
                     if(treasuryStorage.admin !== governanceProxyAddress.address){
                         const operation = await treasuryInstance.methods.setAdmin(governanceProxyAddress.address).send();
                         await operation.confirmation();
                     }
+    
+                    // Set WhitelistContracts Operation
+                    const adminWhitelist        = await treasuryStorage.whitelistContracts.get("admin");
+                    if(adminWhitelist === undefined){
+                        const updateWhitelistContractsOperation    = await treasuryInstance.methods.updateWhitelistContracts("admin", governanceProxyAddress.address).send();
+                        await updateWhitelistContractsOperation.confirmation();
+                    }
+    
+                    // Transfer Operations
+                    // XTX
+                    const transferXTZOperation  = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 50});
+                    await transferXTZOperation.confirmation();
+                    
+                    // FA12
+                    const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get("mavrykFa12");
+                    if(fa12InTreasury === undefined){
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa12", mavrykFa12TokenAddress.address).send();
+                        await updateWhitelistTokenContractsOperation.confirmation();
+                    }
+                    const transferFA12Operation = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, treasuryAddress.address, 50).send();
+                    await transferFA12Operation.confirmation();
+                    
+                    // FA2
+                    const fa2InTreasury         = await treasuryStorage.whitelistTokenContracts.get("mavrykFa2");
+                    if(fa2InTreasury === undefined){
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa2", mavrykFa2TokenAddress.address).send();
+                        await updateWhitelistTokenContractsOperation.confirmation();
+                    }
+                    const transferFA2Operation  = await mavrykFa2TokenInstance.methods.transfer([
+                        {
+                            from_: bob.pkh,
+                            txs: [
+                                {
+                                    to_: treasuryAddress.address,
+                                    token_id: 0,
+                                    amount: 50
+                                }
+                            ]
+                        }
+                    ]).send();
+                    await transferFA2Operation.confirmation();
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
@@ -995,6 +1260,58 @@ describe('Governance proxy lambdas tests', async () => {
 
                     // Assertions
                     assert.equal(finalReceiverMvkBalance, initReceiverMvkBalance + mintedAmount);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%updateMvkOperators', async () => {
+                try{
+                    // Initial values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const initTreasuryOperators         = await mvkTokenStorage.operators.get({
+                        0: treasuryAddress.address,
+                        1: doormanAddress.address,
+                        2: 0
+                    }) as string;
+                    const operators                     = [
+                        {
+                            addOperator: {
+                                owner: treasuryAddress.address,
+                                operator: doormanAddress.address,
+                                tokenId: 0
+                            }
+                        }
+                    ];
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'updateMvkOperators',
+                        [
+                            treasuryAddress.address,
+                            operators
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    const finalTreasuryOperators        = await mvkTokenStorage.operators.get({
+                        0: treasuryAddress.address,
+                        1: doormanAddress.address,
+                        2: 0
+                    }) as string;
+
+                    // Assertions
+                    assert.strictEqual(initTreasuryOperators, undefined);
+                    assert.notStrictEqual(finalTreasuryOperators, undefined);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1074,6 +1391,115 @@ describe('Governance proxy lambdas tests', async () => {
                     console.dir(e, {depth: 5});
                 }
             });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    const targetEntrypoint              = "Transfer";
+                    const targetContractType            = "treasury";
+                    const initConfigValue               = treasuryStorage.breakGlassConfig.transferIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            treasuryAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    const finalConfigValue              = treasuryStorage.breakGlassConfig.transferIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%transfer', async () => {
+                try{
+                    // Initial values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    mavrykFa12TokenStorage              = await mavrykFa12TokenInstance.storage();
+                    mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
+                    const receiver                      = bob.pkh;
+                    const initUserFA12Ledger            = await mavrykFa12TokenStorage.ledger.get(receiver)
+                    const initUserFA12Balance           = initUserFA12Ledger ? initUserFA12Ledger.balance.toNumber() : 0;
+                    const initUserFA2Ledger             = await mavrykFa2TokenStorage.ledger.get(receiver)
+                    const initUserFA2Balance            = initUserFA2Ledger ? initUserFA2Ledger.toNumber() : 0;
+                    const initUserXTZBalance            = (await utils.tezos.tz.getBalance(receiver)).toNumber();
+                    const tokenAmount                   = 50;
+                    const transfers                     = [
+                        {
+                            to_: receiver,
+                            amount: tokenAmount,
+                            token: {
+                                fa12: mavrykFa12TokenAddress.address
+                            }
+                        },
+                        {
+                            to_: receiver,
+                            amount: tokenAmount,
+                            token: {
+                                fa2: {
+                                    tokenContractAddress: mavrykFa2TokenAddress,
+                                    tokenId: 0
+                                }
+                            }
+                        },
+                        {
+                            to_: receiver,
+                            amount: tokenAmount,
+                            token: "tez"
+                        },
+                    ];
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'transfer',
+                        [
+                            treasuryAddress.address,
+                            transfers
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    mavrykFa12TokenStorage              = await mavrykFa12TokenInstance.storage();
+                    mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
+                    const finalUserFA12Ledger           = await mavrykFa12TokenStorage.ledger.get(receiver)
+                    const finalUserFA12Balance          = finalUserFA12Ledger ? finalUserFA12Ledger.balance.toNumber() : 0;
+                    const finalUserFA2Ledger            = await mavrykFa2TokenStorage.ledger.get(receiver)
+                    const finalUserFA2Balance           = finalUserFA2Ledger ? finalUserFA2Ledger.toNumber() : 0;
+                    const finalUserXTZBalance           = (await utils.tezos.tz.getBalance(receiver)).toNumber();
+
+                    // Assertions
+                    assert.equal(finalUserFA12Balance, initUserFA12Balance + tokenAmount);
+                    assert.equal(finalUserFA2Balance, initUserFA2Balance + tokenAmount);
+                    assert.equal(finalUserXTZBalance, initUserXTZBalance + tokenAmount);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
         });
 
         describe('Treasury Factory Contract', function() {
@@ -1099,7 +1525,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
                     governanceStorage                   = await governanceInstance.storage();
-                    const treasuryName                  = "TreasuryTest";
+                    const treasuryName                  = "TreasuryProxyTest";
                     const addToGeneralContracts         = true;
                     const metadataBytes                 = Buffer.from(
                         JSON.stringify({
@@ -1133,6 +1559,7 @@ describe('Governance proxy lambdas tests', async () => {
                         'createTreasury',
                         [
                             treasuryFactoryAddress.address,
+                            treasuryName,
                             addToGeneralContracts,
                             metadataBytes
                         ]
@@ -1153,7 +1580,6 @@ describe('Governance proxy lambdas tests', async () => {
                     assert.equal(initTrackedTreasuryLength, 0);
                     assert.equal(initTreasuryTestGovernance, undefined);
                     assert.equal(finalTrackedFarmsLength, 1);
-                    console.log(await governanceStorage.generalContracts)
                     assert.strictEqual(finalTreasuryTestGovernance, createdTreasuryAddress);
                     assert.strictEqual(createdTreasuryStorage.name, treasuryName);
 
@@ -1195,6 +1621,113 @@ describe('Governance proxy lambdas tests', async () => {
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
                     assert.equal(finalConfigValue, updateConfigNewValue);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const targetEntrypoint              = "CreateTreasury";
+                    const targetContractType            = "treasuryFactory";
+                    const initConfigValue               = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            treasuryFactoryAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const finalConfigValue              = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%trackTreasury', async () => {
+                try{
+                    // Initial values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const targetContractType            = "treasury";
+                    const targetContractAddress         = treasuryAddress.address;
+                    const initTrackProductContracts     = treasuryFactoryStorage.trackedTreasuries.length;
+
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'trackProductContract',
+                        [
+                            treasuryFactoryAddress.address,
+                            targetContractType,
+                            targetContractAddress
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const finalTrackProductContracts    = treasuryFactoryStorage.trackedTreasuries.length;
+
+                    // Assertions
+                    assert.notEqual(initTrackProductContracts, finalTrackProductContracts);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%untrackTreasury', async () => {
+                try{
+                    // Initial values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const targetContractType            = "treasury";
+                    const targetContractAddress         = bob.pkh;
+                    const initTrackProductContracts     = treasuryFactoryStorage.trackedTreasuries.length;
+
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'untrackProductContract',
+                        [
+                            treasuryFactoryAddress.address,
+                            targetContractType,
+                            targetContractAddress
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const finalTrackProductContracts    = treasuryFactoryStorage.trackedTreasuries.length;
+
+                    // Assertions
+                    assert.notEqual(initTrackProductContracts, finalTrackProductContracts);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1279,11 +1812,9 @@ describe('Governance proxy lambdas tests', async () => {
                     // Final values
                     governanceStorage                           = await governanceInstance.storage();
                     const finalGovernanceWhitelistedDevelopers  = await governanceStorage.whitelistDevelopers;
-                    console.log(finalGovernanceWhitelistedDevelopers);
 
                     // Assertions
                     assert.notEqual(initGovernanceWhitelistedDevelopers.length, finalGovernanceWhitelistedDevelopers.length);
-                    assert.equal(newWhistlistedDeveloperAddress in finalGovernanceWhitelistedDevelopers, true);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1384,6 +1915,43 @@ describe('Governance proxy lambdas tests', async () => {
                     console.dir(e, {depth: 5});
                 }
             });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    aggregatorStorage                   = await aggregatorInstance.storage();
+                    const targetEntrypoint              = "UpdateData";
+                    const targetContractType            = "aggregator";
+                    const initConfigValue               = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            aggregatorAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    aggregatorStorage                   = await aggregatorInstance.storage();
+                    const finalConfigValue              = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
         });
 
         describe('AggregatorFactory', function() {
@@ -1436,6 +2004,194 @@ describe('Governance proxy lambdas tests', async () => {
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
                     assert.equal(finalConfigValue, updateConfigNewValue);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%createAggregator', async () => {
+                try{
+                    // Initial values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    const aggregatorName                = "AggregatorProxyTest";
+                    const addToGeneralContracts         = true;
+                    const oraclesInformation            = [
+                        {
+                            oracleAddress: bob.pkh,
+                            oraclePublicKey: bob.pk,
+                            oraclePeerId: bob.peerId
+                        }
+                    ];
+                    const decimals                      = 6;
+                    const alphaPercentPerThousand       = 10;
+                    const percentOracleThreshold        = 10;
+                    const heartBeatSeconds              = 5;
+                    const rewardAmountStakedMvk         = 100;
+                    const rewardAmountXtz               = 100;
+                    const metadata                      = Buffer.from(
+                            JSON.stringify({
+                                name: 'MAVRYK Aggregator Contract',
+                                icon: 'https://logo.chainbit.xyz/xtz',
+                                version: 'v1.0.0',
+                                authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                            }),
+                            'ascii',
+                        ).toString('hex');
+                    const initTrackedAggregatorsLength  = aggregatorFactoryStorage.trackedAggregators.length;
+                    const initAggregatorTestGovernance  = await governanceStorage.generalContracts.get(aggregatorName);
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'createAggregator',
+                        [
+                            aggregatorFactoryAddress.address,
+                            aggregatorName,
+                            addToGeneralContracts,
+                            oraclesInformation,
+                            decimals,
+                            alphaPercentPerThousand,
+                            percentOracleThreshold,
+                            heartBeatSeconds,
+                            rewardAmountStakedMvk,
+                            rewardAmountXtz,
+                            metadata
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    governanceStorage                   = await governanceInstance.storage();
+                    const createdAggregatorAddress      = aggregatorFactoryStorage.trackedAggregators[0];
+                    const createdAggregatorInstance     = await utils.tezos.contract.at(createdAggregatorAddress);
+                    const createdAggregatorStorage: any = await createdAggregatorInstance.storage();
+                    const finalTrackedAggregatorLength  = aggregatorFactoryStorage.trackedAggregators.length;
+                    const finalAggregatorTestGovernance = await governanceStorage.generalContracts.get(aggregatorName);
+
+                    // Assertions
+                    assert.equal(initTrackedAggregatorsLength, 0);
+                    assert.equal(initAggregatorTestGovernance, undefined);
+                    assert.equal(finalTrackedAggregatorLength, 1);
+                    assert.strictEqual(finalAggregatorTestGovernance, createdAggregatorAddress);
+                    assert.strictEqual(createdAggregatorStorage.name, aggregatorName);
+                    assert.strictEqual(createdAggregatorStorage.config.decimals.toNumber(), decimals);
+                    assert.strictEqual(createdAggregatorStorage.config.alphaPercentPerThousand.toNumber(), alphaPercentPerThousand);
+                    assert.strictEqual(createdAggregatorStorage.config.percentOracleThreshold.toNumber(), percentOracleThreshold);
+                    assert.strictEqual(createdAggregatorStorage.config.heartBeatSeconds.toNumber(), heartBeatSeconds);
+                    assert.strictEqual(createdAggregatorStorage.config.rewardAmountStakedMvk.toNumber(), rewardAmountStakedMvk);
+                    assert.strictEqual(createdAggregatorStorage.config.rewardAmountXtz.toNumber(), rewardAmountXtz);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    const targetEntrypoint              = "CreateAggregator";
+                    const targetContractType            = "aggregatorFactory";
+                    const initConfigValue               = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            aggregatorFactoryAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    const finalConfigValue              = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%trackAggregator', async () => {
+                try{
+                    // Initial values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    const targetContractType            = "aggregator";
+                    const targetContractAddress         = aggregatorAddress.address;
+                    const initTrackProductContracts     = aggregatorFactoryStorage.trackedAggregators.length;
+
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'trackProductContract',
+                        [
+                            aggregatorFactoryAddress.address,
+                            targetContractType,
+                            targetContractAddress
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    const finalTrackProductContracts    = aggregatorFactoryStorage.trackedAggregators.length;
+
+                    // Assertions
+                    assert.notEqual(initTrackProductContracts, finalTrackProductContracts);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%untrackAggregator', async () => {
+                try{
+                    // Initial values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    const targetContractType            = "aggregator";
+                    const targetContractAddress         = aggregatorAddress.address;
+                    const initTrackProductContracts     = aggregatorFactoryStorage.trackedAggregators.length;
+
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'untrackProductContract',
+                        [
+                            aggregatorFactoryAddress.address,
+                            targetContractType,
+                            targetContractAddress
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
+                    const finalTrackProductContracts    = aggregatorFactoryStorage.trackedAggregators.length;
+
+                    // Assertions
+                    assert.notEqual(initTrackProductContracts, finalTrackProductContracts);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1612,6 +2368,43 @@ describe('Governance proxy lambdas tests', async () => {
                     console.dir(e, {depth: 5});
                 }
             });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    delegationStorage                   = await delegationInstance.storage();
+                    const targetEntrypoint              = "DelegateToSatellite";
+                    const targetContractType            = "delegation";
+                    const initConfigValue               = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            delegationAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    delegationStorage                   = await delegationInstance.storage();
+                    const finalConfigValue              = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
         });
 
         describe('Doorman', function() {
@@ -1658,12 +2451,49 @@ describe('Governance proxy lambdas tests', async () => {
                     await operation.confirmation();
     
                     // Final values
-                    doormanStorage                      = await delegationInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
                     const finalConfigValue              = doormanStorage.config.minMvkAmount.toNumber();
 
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
                     assert.equal(finalConfigValue, updateConfigNewValue);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    doormanStorage                      = await doormanInstance.storage();
+                    const targetEntrypoint              = "Stake";
+                    const targetContractType            = "doorman";
+                    const initConfigValue               = doormanStorage.breakGlassConfig.stakeIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            doormanAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    doormanStorage                      = await doormanInstance.storage();
+                    const finalConfigValue              = doormanStorage.breakGlassConfig.stakeIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1842,9 +2672,9 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('LendingController', function() {
+        describe('Lending Controller', function() {
 
-            before('Change the LendingController contract admin', async () => {
+            before('Change the Lending Controller contract admin', async () => {
                 try{
                     // Initial values
                     await signerFactory(bob.sk)
@@ -1892,6 +2722,310 @@ describe('Governance proxy lambdas tests', async () => {
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
                     assert.equal(finalConfigValue, updateConfigNewValue);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%setLoanToken (createLoanToken)', async () => {
+                try{
+                    // Initial values
+                    lendingControllerStorage                    = await lendingControllerInstance.storage();
+                    const tokenName                             = "Test";
+                    const tokenDecimals                         = 2;
+                    const oracleAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const mTokenAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const reserveRatio                          = 3;
+                    const optimalUtilisationRate                = 4;
+                    const baseInterestRate                      = 5;
+                    const maxInterestRate                       = 6;
+                    const interestRateBelowOptimalUtilisation   = 7;
+                    const interestRateAboveOptimalUtilisation   = 8;
+                    const minRepaymentAmount                    = 9;
+                    const tokenType                             = {
+                        fa2: {
+                            tokenContractAddress: mavrykFa2TokenAddress.address,
+                            tokenId             : 0
+                        }
+                    };
+                    const setLoanTokenAction            = 
+                    {
+                        createLoanToken: {
+                            tokenName                           : tokenName,
+                            tokenDecimals                       : tokenDecimals,
+                            oracleAddress                       : oracleAddress,
+                            mTokenAddress                       : mTokenAddress,
+                            reserveRatio                        : reserveRatio,
+                            optimalUtilisationRate              : optimalUtilisationRate,
+                            baseInterestRate                    : baseInterestRate,
+                            maxInterestRate                     : maxInterestRate,
+                            interestRateBelowOptimalUtilisation : interestRateBelowOptimalUtilisation,
+                            interestRateAboveOptimalUtilisation : interestRateAboveOptimalUtilisation,
+                            minRepaymentAmount                  : minRepaymentAmount,
+                            tokenType                           : tokenType
+                        }
+                    };
+                    const initLoanToken                 = lendingControllerStorage.loanTokenLedger.get(tokenName);
+
+                    // Operation
+                    const lambdaFunction                = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        "setLoanToken",
+                        [
+                            lendingControllerAddress.address,
+                            setLoanTokenAction
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    lendingControllerStorage            = await lendingControllerInstance.storage();
+                    const finalLoanToken                = lendingControllerStorage.loanTokenLedger.get(tokenName);
+
+                    // Assertions
+                    assert.strictEqual(initLoanToken, undefined);
+                    assert.notStrictEqual(finalLoanToken, undefined);
+                    assert.equal(finalLoanToken.tokenName, tokenName);
+                    assert.equal(finalLoanToken.tokenDecimals.toNumber(), tokenDecimals);
+                    assert.equal(finalLoanToken.oracleAddress, oracleAddress);
+                    assert.equal(finalLoanToken.mTokenAddress, mTokenAddress);
+                    assert.equal(finalLoanToken.reserveRatio.toNumber(), reserveRatio);
+                    assert.equal(finalLoanToken.optimalUtilisationRate.toNumber(), optimalUtilisationRate);
+                    assert.equal(finalLoanToken.baseInterestRate.toNumber(), baseInterestRate);
+                    assert.equal(finalLoanToken.maxInterestRate.toNumber(), maxInterestRate);
+                    assert.equal(finalLoanToken.interestRateBelowOptimalUtilisation.toNumber(), interestRateBelowOptimalUtilisation);
+                    assert.equal(finalLoanToken.interestRateAboveOptimalUtilisation.toNumber(), interestRateAboveOptimalUtilisation);
+                    assert.equal(finalLoanToken.minRepaymentAmount.toNumber(), minRepaymentAmount);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%setLoanToken (updateLoanToken)', async () => {
+                try{
+                    // Initial values
+                    lendingControllerStorage                    = await lendingControllerInstance.storage();
+                    const tokenName                             = "Test";
+                    const tokenDecimals                         = 2;
+                    const oracleAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const mTokenAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const reserveRatio                          = 3;
+                    const optimalUtilisationRate                = 4;
+                    const baseInterestRate                      = 5;
+                    const maxInterestRate                       = 6;
+                    const interestRateBelowOptimalUtilisation   = 7;
+                    const interestRateAboveOptimalUtilisation   = 8;
+                    const minRepaymentAmount                    = 9;
+                    const isPaused                              = true;
+                    const setLoanTokenAction            = 
+                    {
+                        updateLoanToken: {
+                            tokenName                           : tokenName,
+                            tokenDecimals                       : tokenDecimals,
+                            oracleAddress                       : oracleAddress,
+                            reserveRatio                        : reserveRatio,
+                            optimalUtilisationRate              : optimalUtilisationRate,
+                            baseInterestRate                    : baseInterestRate,
+                            maxInterestRate                     : maxInterestRate,
+                            interestRateBelowOptimalUtilisation : interestRateBelowOptimalUtilisation,
+                            interestRateAboveOptimalUtilisation : interestRateAboveOptimalUtilisation,
+                            minRepaymentAmount                  : minRepaymentAmount,
+                            isPaused                            : isPaused
+                        }
+                    };
+                    const initLoanToken                 = lendingControllerStorage.loanTokenLedger.get(tokenName);
+
+                    // Operation
+                    const lambdaFunction                = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        "setLoanToken",
+                        [
+                            lendingControllerAddress.address,
+                            setLoanTokenAction
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    lendingControllerStorage            = await lendingControllerInstance.storage();
+                    const finalLoanToken                = lendingControllerStorage.loanTokenLedger.get(tokenName);
+
+                    // Assertions
+                    assert.notStrictEqual(initLoanToken, undefined);
+                    assert.notStrictEqual(finalLoanToken, undefined);
+                    assert.equal(finalLoanToken.tokenName, tokenName);
+                    assert.equal(finalLoanToken.tokenDecimals.toNumber(), tokenDecimals);
+                    assert.equal(finalLoanToken.oracleAddress, oracleAddress);
+                    assert.equal(finalLoanToken.reserveRatio.toNumber(), reserveRatio);
+                    assert.equal(finalLoanToken.optimalUtilisationRate.toNumber(), optimalUtilisationRate);
+                    assert.equal(finalLoanToken.baseInterestRate.toNumber(), baseInterestRate);
+                    assert.equal(finalLoanToken.maxInterestRate.toNumber(), maxInterestRate);
+                    assert.equal(finalLoanToken.interestRateBelowOptimalUtilisation.toNumber(), interestRateBelowOptimalUtilisation);
+                    assert.equal(finalLoanToken.interestRateAboveOptimalUtilisation.toNumber(), interestRateAboveOptimalUtilisation);
+                    assert.equal(finalLoanToken.minRepaymentAmount.toNumber(), minRepaymentAmount);
+                    assert.equal(finalLoanToken.isPaused, isPaused);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%setCollateralToken (createCollateralToken)', async () => {
+                try{
+                    // Initial values
+                    lendingControllerStorage                    = await lendingControllerInstance.storage();
+                    const tokenName                             = "Test";
+                    const tokenDecimals                         = 2;
+                    const tokenContractAddress                  = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const oracleAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const protectedToken                        = false;
+                    const isScaledToken                         = false;
+                    const isStakedToken                         = false;
+                    const tokenType                             = {
+                        fa12: mavrykFa12TokenAddress.address
+                    };
+                    const setCollateralTokenAction              = 
+                    {
+                        createCollateralToken                   : {
+                            tokenName                               : tokenName,
+                            tokenContractAddress                    : tokenContractAddress,
+                            tokenDecimals                           : tokenDecimals,
+                            oracleAddress                           : oracleAddress,
+                            protected                               : protectedToken,
+                            isScaledToken                           : isScaledToken,
+                            isStakedToken                           : isStakedToken,
+                            tokenType                               : tokenType
+                        }
+                    };
+                    const initCollateralToken                   = lendingControllerStorage.collateralTokenLedger.get(tokenName);
+
+                    // Operation
+                    const lambdaFunction                = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        "setCollateralToken",
+                        [
+                            lendingControllerAddress.address,
+                            setCollateralTokenAction
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    lendingControllerStorage            = await lendingControllerInstance.storage();
+                    const finalCollateralToken          = lendingControllerStorage.loanTokenLedger.get("Test");
+
+                    // Assertions
+                    assert.strictEqual(initCollateralToken, undefined);
+                    assert.notStrictEqual(finalCollateralToken, undefined);
+                    assert.equal(finalCollateralToken.tokenName, tokenName);
+                    assert.equal(finalCollateralToken.tokenContractAddress, tokenContractAddress);
+                    assert.equal(finalCollateralToken.tokenDecimals.toNumber(), tokenDecimals);
+                    assert.equal(finalCollateralToken.protected, protectedToken);
+                    assert.equal(finalCollateralToken.isScaledToken, isScaledToken);
+                    assert.equal(finalCollateralToken.isStakedToken, isStakedToken);
+                    assert.equal(finalCollateralToken.stakingContractAddress, null);
+                    assert.equal(finalCollateralToken.maxDepositAmount, null);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%setCollateralToken (updateCollateralToken)', async () => {
+                try{
+                    // Initial values
+                    lendingControllerStorage                    = await lendingControllerInstance.storage();
+                    const tokenName                             = "Test";
+                    const oracleAddress                         = alice.pkh;
+                    const isPaused                              = true;
+                    const stakingContractAddress                = alice.pkh;
+                    const maxDepositAmount                      = 50;
+                    const setCollateralTokenAction              = 
+                    {
+                        updateCollateralToken                   : {
+                            tokenName                               : tokenName,
+                            oracleAddress                           : oracleAddress,
+                            isPaused                                : isPaused,
+                            stakingContractAddress                  : stakingContractAddress,
+                            maxDepositAmount                        : maxDepositAmount
+                        }
+                    };
+                    const initCollateralToken                   = lendingControllerStorage.collateralTokenLedger.get(tokenName);
+
+                    // Operation
+                    const lambdaFunction                = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        "setCollateralToken",
+                        [
+                            lendingControllerAddress.address,
+                            setCollateralTokenAction
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    lendingControllerStorage            = await lendingControllerInstance.storage();
+                    const finalCollateralToken          = lendingControllerStorage.loanTokenLedger.get("Test");
+
+                    // Assertions
+                    assert.notStrictEqual(initCollateralToken, undefined);
+                    assert.notStrictEqual(finalCollateralToken, undefined);
+                    assert.equal(finalCollateralToken.tokenName, tokenName);
+                    assert.equal(finalCollateralToken.oracleAddress, oracleAddress);
+                    assert.equal(finalCollateralToken.protected, isPaused);
+                    assert.equal(finalCollateralToken.stakingContractAddress, stakingContractAddress);
+                    assert.equal(finalCollateralToken.maxDepositAmount.toNumber(), maxDepositAmount);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    lendingControllerStorage            = await lendingControllerInstance.storage();
+                    const targetEntrypoint              = "SetLoanToken";
+                    const targetContractType            = "lendingController";
+                    const initConfigValue               = lendingControllerStorage.breakGlassConfig.setLoanTokenIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            lendingControllerAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    lendingControllerStorage            = await lendingControllerInstance.storage();
+                    const finalConfigValue              = lendingControllerStorage.breakGlassConfig.setLoanTokenIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -2007,6 +3141,43 @@ describe('Governance proxy lambdas tests', async () => {
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
                     assert.equal(finalConfigValue, updateConfigNewValue);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    vaultFactoryStorage                 = await vaultFactoryInstance.storage();
+                    const targetEntrypoint              = "CreateVault";
+                    const targetContractType            = "vaultFactory";
+                    const initConfigValue               = vaultFactoryStorage.breakGlassConfig.createVaultIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        governanceProxyAddress.address,
+                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        'togglePauseEntrypoint',
+                        [
+                            vaultFactoryAddress.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    vaultFactoryStorage                 = await vaultFactoryInstance.storage();
+                    const finalConfigValue              = vaultFactoryStorage.breakGlassConfig.createVaultIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
