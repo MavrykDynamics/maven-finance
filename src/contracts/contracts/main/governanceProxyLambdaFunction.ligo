@@ -91,7 +91,7 @@ block {
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%updateWhitelistTokenContracts",
-            ("KT1BSHhi4419AnpB1ZUvRFuK94wR1XDU1BHh" : address)) : option(contract(updateWhitelistTokenContractsType))) of [
+            ("KT1Medy8uNRq1XckDoSjDfTr2xnJzPysVq2X" : address)) : option(contract(updateWhitelistTokenContractsType))) of [
                     Some(contr) -> contr
                 |   None        -> (failwith(0n) : contract(updateWhitelistTokenContractsType))
         ]
