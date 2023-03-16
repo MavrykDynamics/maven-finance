@@ -918,15 +918,69 @@
 //                 try{
 
 //                     // Initial values
+//                     // await signerFactory(bob.sk);
+//                     // lpTokenStorage          = await lpTokenInstance.storage();
+//                     // farmStorage             = await farmInstance.storage();
+//                     // const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+//                     // const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+//                     // const amountToWithdraw  = depositBalance + 1000000;
+
+//                     // // Operation
+//                     // await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+
+//                     // Initial values
 //                     await signerFactory(bob.sk);
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
+                    
+//                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const lpBalance         = lpLedgerStart.balance.toNumber();
+
 //                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
 //                     const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
-//                     const amountToWithdraw  = depositBalance + 1000000;
+                    
+//                     const excessAmount      = 100;
+//                     const amountToWithdraw  = depositBalance + excessAmount;
 
 //                     // Operation
-//                     await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+//                     const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
+//                     await withdrawOperation.confirmation();
+
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+                    
+//                     const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+//                     const depositBalanceEnd = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
+                    
+//                     const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
+
+//                     // Assertions
+//                     assert.equal(depositBalanceEnd, depositBalance - depositBalance);
+//                     assert.equal(lpBalanceEnd, lpBalance + amountToWithdraw - excessAmount);
+
+//                     // reset - deposit some lpToken into farm again for subsequent tests
+
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+                    
+//                     const amountToDeposit   = 10000;
+
+//                     await signerFactory(bob.sk);
+//                     const updateBobOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: bob.pkh,
+//                             operator: farmAddress.address,
+//                             token_id: 0,
+//                         },
+//                     }])
+//                     .send()
+//                     await updateBobOperatorsOperation.confirmation();
+
+//                     // Operation
+//                     const depositOperation          = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     await depositOperation.confirmation();
 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
