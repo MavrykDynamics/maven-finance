@@ -20,6 +20,7 @@
 // import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';
 // import { MichelsonMap } from "@taquito/taquito";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
 
 // describe("Delegation tests", async () => {
 //     var utils: Utils;
@@ -492,32 +493,24 @@
 //                 console.log("PRE-OPERATION SATELLITE BOB: ", firstSatelliteRecordStart.unpaid.toNumber(), " | ", firstSatelliteStakeStart.balance.toNumber())
 //                 console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
-//                 // Prepare proposal metadata
-//                 // console.log(governanceProxyInstance.methods)
-//                 const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateContractGeneralMap', doormanAddress.address, 'bob', bob.pkh
-//                 ).toTransferParams();
-//                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                 const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-    
-//                 const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                     data: configSuccessRewardParamValue,
-//                     type: callGovernanceLambdaEntrypointType
-//                 }).catch(e => console.error('error:', e));
-    
-//                 var packedUpdateConfigSuccessRewardParam;
-//                 if (updateConfigSuccessRewardPacked) {
-//                     packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                 } else {
-//                   throw `packing failed`
-//                 };
+//                 // Prepare proposal data
+//                 const lambdaFunction                = await compileLambdaFunction(
+//                     'development',
+//                     governanceProxyAddress.address,
+//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     'updateGeneralContracts',
+//                     [
+//                         doormanAddress.address,
+//                         "bob",
+//                         bob.pkh
+//                     ]
+//                 );
 
 //                 const proposalData      = [
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "Metadata#1",
-//                             encodedCode: packedUpdateConfigSuccessRewardParam,
+//                             encodedCode: lambdaFunction,
 // 						    codeDescription: ""
 //                         }
 //                     }
@@ -655,30 +648,23 @@
 //                 console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
 //                 // Prepare proposal metadata
-//                 const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateContractGeneralMap', doormanAddress.address, 'bob', bob.pkh
-//                 ).toTransferParams();
-//                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                 const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-    
-//                 const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                     data: configSuccessRewardParamValue,
-//                     type: callGovernanceLambdaEntrypointType
-//                 }).catch(e => console.error('error:', e));
-    
-//                 var packedUpdateConfigSuccessRewardParam;
-//                 if (updateConfigSuccessRewardPacked) {
-//                     packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                 } else {
-//                   throw `packing failed`
-//                 };
+//                 const lambdaFunction                = await compileLambdaFunction(
+//                     'development',
+//                     governanceProxyAddress.address,
+//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     'updateGeneralContracts',
+//                     [
+//                         doormanAddress.address,
+//                         "bob",
+//                         bob.pkh
+//                     ]
+//                 );
 
 //                 const proposalData      = [
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "Metadata#1",
-//                             encodedCode: packedUpdateConfigSuccessRewardParam,
+//                             encodedCode: lambdaFunction,
 // 						    codeDescription: ""
 //                         }
 //                     }

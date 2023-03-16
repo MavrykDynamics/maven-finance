@@ -37,6 +37,7 @@
 // import { config } from "yargs";
 // import { aggregatorStorageType } from "./types/aggregatorStorageType";
 // import { mvkStorage } from "storage/mvkTokenStorage";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
 
 // function wait(ms: number) {
 //   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -649,40 +650,31 @@
 //                 ).toString('hex')
 
 //                 // Create a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                 const lambdaFunction        = await compileLambdaFunction(
+//                     'development',
+//                     governanceProxyAddress.address,
+//                     './contracts/main/governanceProxyLambdaFunction.ligo',
 //                     'createFarm',
-//                     "testFarm",
-//                     false,
-//                     false,
-//                     false,
-//                     12000,
-//                     100,
-//                     farmMetadataBase,
-//                     mavrykFa12TokenAddress.address,
-//                     0,
-//                     "fa12",
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     // console.log('packed %createFarm param: ' + packedParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//                     [
+//                         farmFactoryAddress.address,
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         12000,
+//                         100,
+//                         farmMetadataBase,
+//                         mavrykFa12TokenAddress.address,
+//                         0,
+//                         "FA12"
+//                     ]
+//                 );
 
 //                 const proposalData      = [
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "FirstFarm#1",
-//                             encodedCode: packedParam,
+//                             encodedCode: lambdaFunction,
 //                             codeDescription: ""
 //                         }
 //                     }
