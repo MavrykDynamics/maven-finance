@@ -96,7 +96,7 @@ describe("Farm", async () => {
                     const farmInit          = farmStorage.init;
                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
-                    const amountToDeposit   = 2;
+                    const amountToDeposit   = 6;
     
                     // Approval operation
                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
@@ -287,9 +287,11 @@ describe("Farm", async () => {
                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
                     const lpBalance         = lpLedgerStart.balance.toNumber();
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
+                    
                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
-                    const amountToDeposit   = 2;
+                    
+                    const amountToDeposit   = 6;
 
                     // Approval operation
                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
@@ -323,8 +325,8 @@ describe("Farm", async () => {
             it('User should not be able to able to deposit more LP Tokens than it has', async () => {
                 try{
                     // Initial values
-                    lpTokenStorage                  = await lpTokenInstance.storage();
-                    farmStorage                     = await farmInstance.storage();
+                    lpTokenStorage          = await lpTokenInstance.storage();
+                    farmStorage             = await farmInstance.storage();
                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
                     const lpBalance         = lpLedgerStart===undefined ? 0 : lpLedgerStart.balance.toNumber();
@@ -349,17 +351,23 @@ describe("Farm", async () => {
                     // Initial values
                     lpTokenStorage                  = await lpTokenInstance.storage();
                     farmStorage                     = await farmInstance.storage();
+                    
                     const firstLpLedgerStart        = await lpTokenStorage.ledger.get(bob.pkh);
                     const firstLpBalance            = firstLpLedgerStart.balance.toNumber();
                     const firstLpAllowances         = await firstLpLedgerStart.allowances.get(farmAddress.address);
+                    
                     const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
                     const firstDepositBalance       = firstDepositRecord===undefined ? 0 : firstDepositRecord.balance.toNumber();
-                    const firstAmountToDeposit      = 2;
+                    
+                    const firstAmountToDeposit      = 10;
+                    
                     const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
                     const secondLpBalance           = secondLpLedgerStart.balance.toNumber();
                     const secondLpAllowances        = await secondLpLedgerStart.allowances.get(farmAddress.address);
+                    
                     const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
                     const secondDepositBalance      = secondDepositRecord===undefined ? 0 : secondDepositRecord.balance.toNumber();
+                    
                     const secondAmountToDeposit     = 8;
 
                     // Approval operations
@@ -371,7 +379,7 @@ describe("Farm", async () => {
                     }
                     if(secondLpAllowances===undefined || secondLpAllowances.toNumber()<=0){
                         await signerFactory(alice.sk)
-                        const approvals         = secondLpAllowances===undefined ? secondAmountToDeposit : Math.abs(secondLpAllowances.toNumber() - firstAmountToDeposit);
+                        const approvals         = secondLpAllowances===undefined ? secondAmountToDeposit : Math.abs(secondLpAllowances.toNumber() - secondAmountToDeposit);
                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
                         await approveOperation.confirmation();
                     }
@@ -448,6 +456,7 @@ describe("Farm", async () => {
                     // Assertions
                     assert.equal(depositBalanceEnd, depositBalance - amountToWithdraw);
                     assert.equal(lpBalanceEnd, lpBalance + amountToWithdraw);
+
                 } catch(e){
                     console.dir(e, {depth: 5});
                 } 
@@ -474,12 +483,58 @@ describe("Farm", async () => {
                     await signerFactory(bob.sk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
+                    
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpBalance         = lpLedgerStart.balance.toNumber();
+
                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
-                    const amountToWithdraw  = depositBalance + 1;
+                    
+                    const excessAmount      = 100;
+                    const amountToWithdraw  = depositBalance + excessAmount;
 
                     // Operation
-                    await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+                    const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
+                    await withdrawOperation.confirmation();
+
+                    lpTokenStorage          = await lpTokenInstance.storage();
+                    farmStorage             = await farmInstance.storage();
+                    
+                    const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
+                    
+                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
+
+                    // Assertions
+                    assert.equal(depositBalanceEnd, depositBalance - depositBalance);
+                    assert.equal(lpBalanceEnd, lpBalance + amountToWithdraw - excessAmount);
+
+                    // reset - deposit some lpToken into farm again for subsequent tests
+
+                    lpTokenStorage          = await lpTokenInstance.storage();
+                    farmStorage             = await farmInstance.storage();
+                    
+                    const lpLedger          = await lpTokenStorage.ledger.get(bob.pkh);
+                    // const resetLpBalance    = lpLedger.balance.toNumber();
+                    const lpAllowances      = await lpLedger.allowances.get(farmAddress.address);
+                    
+                    // const resetDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+                    // const resetDepositBalance    = resetDepositRecord===undefined ? 0 : resetDepositRecord.balance.toNumber();
+                    
+                    const amountToDeposit   = 10;
+
+                    // Approval operation
+                    if(lpAllowances === undefined || lpAllowances.toNumber() <= amountToDeposit){
+                        const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
+                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
+                        await approveOperation.confirmation();
+                    }
+
+                    // Operation
+                    const depositOperation          = await farmInstance.methods.deposit(amountToDeposit).send();
+                    await depositOperation.confirmation();
+
                 } catch(e){
                     console.dir(e, {depth: 5});
                 } 
@@ -490,15 +545,21 @@ describe("Farm", async () => {
                     // Initial values
                     lpTokenStorage                  = await lpTokenInstance.storage();
                     farmStorage                     = await farmInstance.storage();
+                    
                     const firstLpLedgerStart        = await lpTokenStorage.ledger.get(bob.pkh);
                     const firstLpBalance            = firstLpLedgerStart.balance.toNumber();
+                    
                     const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
-                    const firstDepositBalance       = firstDepositRecord===undefined ? 0 : firstDepositRecord.balance.toNumber();
+                    const firstDepositBalance       = firstDepositRecord === undefined ? 0 : firstDepositRecord.balance.toNumber();
+                    
                     const firstAmountToWithdraw     = 2;
+                    
                     const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
                     const secondLpBalance           = secondLpLedgerStart.balance.toNumber();
+                    
                     const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
                     const secondDepositBalance      = secondDepositRecord===undefined ? 0 : secondDepositRecord.balance.toNumber();
+                    
                     const secondAmountToWithdraw    = 4;
 
                     // Operations
@@ -513,12 +574,16 @@ describe("Farm", async () => {
                     // Final values
                     farmStorage                     = await farmInstance.storage();
                     lpTokenStorage                  = await lpTokenInstance.storage();
+                    
                     const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
                     const firstDepositBalanceEnd    = firstDepositRecordEnd===undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
+                    
                     const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(bob.pkh);
                     const firstLpBalanceEnd         = firstLpLedgerEnd.balance.toNumber();
+                    
                     const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
                     const secondDepositBalanceEnd   = secondDepositRecordEnd===undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
+                    
                     const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(alice.pkh);
                     const secondLpBalanceEnd        = secondLpLedgerEnd.balance.toNumber();
 
@@ -527,6 +592,7 @@ describe("Farm", async () => {
                     assert.equal(firstLpBalanceEnd, firstLpBalance + firstAmountToWithdraw);
                     assert.equal(secondDepositBalanceEnd, secondDepositBalance - secondAmountToWithdraw);
                     assert.equal(secondLpBalanceEnd, secondLpBalance + secondAmountToWithdraw);
+
                 } catch(e){
                     console.dir(e, {depth: 5});
                 } 
@@ -580,7 +646,7 @@ describe("Farm", async () => {
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await wait(4 * blockTime * 1000);
+                    await wait(10 * blockTime * 1000);
                     const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
                     await firstClaimOperation.confirmation();
 
@@ -588,7 +654,7 @@ describe("Farm", async () => {
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-                    const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
+                    const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
 
                     // Assertions
                     assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
@@ -605,27 +671,44 @@ describe("Farm", async () => {
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
+                    
                     const userLpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
                     const userLpBalance         = userLpLedgerStart.balance.toNumber();
+                    
                     const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-                    const userDepositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
-                    const userDepositBalanceEnd = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
+
+                    const userDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const userDepositBalance    = userDepositRecord === undefined ? 0 : userDepositRecord.balance.toNumber();
+
+                    console.log(userDepositRecord);
+                    console.log(`userDepositBalance: ${userDepositBalance}`);
+                    
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await wait(4 * blockTime * 1000);
-                    const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalanceEnd).send();
+                    await wait(10 * blockTime * 1000);
+                    const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalance).send();
                     await withdrawOperation.confirmation();
+
                     const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
                     await firstClaimOperation.confirmation();
 
                     // Final values
+                    await signerFactory(bob.sk)
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
+
+                    const userDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const userDepositBalanceEnd    = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
+
+                    console.log(userDepositRecordEnd);
+                    console.log(`userDepositBalanceEnd: ${userDepositBalanceEnd}`);
+                    
                     const userLpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
                     const userLpBalanceEnd      = userLpLedgerEnd.balance.toNumber();
+                    
                     const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
                     const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
 
@@ -868,65 +951,92 @@ describe("Farm", async () => {
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     mvkTokenStorage         = await mvkTokenInstance.storage();
+                    
                     const mvkTotalSupply    = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupply   = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                    
                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
+
+                    const userDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const userDepositBalance    = userDepositRecord===undefined ? 0 : userDepositRecord.balance.toNumber();
+                    console.log(userDepositRecord);
+                    
                     const toggleTransfer    = farmStorage.config.forceRewardFromTransfer;
                     const blockTime         = farmStorage.minBlockTimeSnapshot.toNumber();
-                    const amountToDeposit   = 7;
+                    const amountToDeposit   = 10;
 
                     // Approval operation
-                    if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-                        const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
+                    await signerFactory(bob.sk);
+                    if(lpAllowances === undefined || lpAllowances.toNumber()<=0){
+                        const approvals         = lpAllowances === undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
                         await approveOperation.confirmation();
+                        console.log(`approval amount: ${approvals}`);
                     }
 
-                    // Operation
+                    // Operation - deposit amount so user balance will be greater than zero
+                    await signerFactory(bob.sk);
                     const depositOperation  = await farmInstance.methods.deposit(amountToDeposit).send();
                     await depositOperation.confirmation();
 
                     // Wait at least one block before claiming rewards
-                    await wait(4 * blockTime * 1000);
+                    await wait(12 * blockTime * 1000);
+
+                    farmStorage                    = await farmInstance.storage();
+                    const userDepositRecordMid     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const userDepositBalanceMid    = userDepositRecordMid === undefined ? 0 : userDepositRecordMid.balance.toNumber();
+                    console.log(userDepositRecordMid);
+
+                    // First claim operation - sMVK rewards should be minted (hence increase in sMVK total supply)
                     var claimOperation  = await farmInstance.methods.claim(bob.pkh).send();
                     await claimOperation.confirmation();
 
+                    await signerFactory(bob.sk);
+                    farmStorage                    = await farmInstance.storage();
+                    const userDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const userDepositBalanceEnd    = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
+                    console.log(userDepositRecordEnd);
+
                     // Updated values
+                    await signerFactory(bob.sk);
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
                     const mvkTotalSupplyFirstUpdate     = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupplyFirstUpdate    = (await mvkTokenStorage.ledger.get(doormanAddress.address)).toNumber();
                     const treasuryFirstUpdate           = (await mvkTokenStorage.ledger.get(treasuryAddress.address)).toNumber();
 
-                    // Operation
+                    // Operation - set forceRewardFromTransfer to TRUE
                     const firstToggleOperation      = await farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send();
                     await firstToggleOperation.confirmation();
 
                     // Updated values
+                    await signerFactory(bob.sk);
                     farmStorage                     = await farmInstance.storage();
                     const toggleTransferFirstUpdate = farmStorage.config.forceRewardFromTransfer;
 
-                    // Do another claim
-                    await wait(4 * blockTime * 1000);
+                    // Do another claim - sMVK rewards should be transferred from Farm Treasury
+                    await wait(12 * blockTime * 1000);
                     claimOperation = await farmInstance.methods.claim(bob.pkh).send();
                     await claimOperation.confirmation();
 
                     // Updated values
+                    await signerFactory(bob.sk);
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
                     const mvkTotalSupplySecondUpdate    = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupplySecondUpdate   = (await mvkTokenStorage.ledger.get(doormanAddress.address)).toNumber();
                     const treasurySecondUpdate          = (await mvkTokenStorage.ledger.get(treasuryAddress.address)).toNumber();
 
-                    // Toggle back to mint 
+                    // Toggle back to mint  
                     const secondToggleOperation = await farmInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
                     await secondToggleOperation.confirmation();
 
                     // Updated values
+                    await signerFactory(bob.sk);
                     farmStorage = await farmInstance.storage();
                     const toggleTransferSecondUpdate = farmStorage.config.forceRewardFromTransfer;
 
                     //Do another claim
-                    await wait(4 * blockTime * 1000);
+                    await wait(12 * blockTime * 1000);
                     claimOperation = await farmInstance.methods.claim(bob.pkh).send();
                     await claimOperation.confirmation();
 
@@ -961,6 +1071,7 @@ describe("Farm", async () => {
                     console.log("Treasury after first mint: ",treasuryFirstUpdate)
                     console.log("Treasury after transfer: ",treasurySecondUpdate)
                     console.log("Treasury after second mint: ",treasuryThirdUpdate)
+
                 } catch(e){
                     console.dir(e, {depth: 5});
                 } 
@@ -991,12 +1102,12 @@ describe("Farm", async () => {
                     assert.notEqual(currentTotalRewards, updatedTotalRewards);
 
                     // Logs
-                    console.log("Initial :")
-                    console.log("  Total rewards:", currentTotalRewards)
-                    console.log("  Rewards per block:", currentRewardsPerBlock)
-                    console.log("Updated :")
-                    console.log("  Total rewards:", updatedTotalRewards)
-                    console.log("  Rewards per block:", updatedRewardsPerBlock)
+                    // console.log("Initial :")
+                    // console.log("  Total rewards:", currentTotalRewards)
+                    // console.log("  Rewards per block:", currentRewardsPerBlock)
+                    // console.log("Updated :")
+                    // console.log("  Total rewards:", updatedTotalRewards)
+                    // console.log("  Rewards per block:", updatedRewardsPerBlock)
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1028,12 +1139,12 @@ describe("Farm", async () => {
                     assert.notEqual(currentTotalRewards, updatedTotalRewards);
 
                     // Logs
-                    console.log("Initial :")
-                    console.log("  Total rewards:", currentTotalRewards)
-                    console.log("  Rewards per block:", currentRewardsPerBlock)
-                    console.log("Updated :")
-                    console.log("  Total rewards:", updatedTotalRewards)
-                    console.log("  Rewards per block:", updatedRewardsPerBlock)
+                    // console.log("Initial :")
+                    // console.log("  Total rewards:", currentTotalRewards)
+                    // console.log("  Rewards per block:", currentRewardsPerBlock)
+                    // console.log("Updated :")
+                    // console.log("  Total rewards:", updatedTotalRewards)
+                    // console.log("  Rewards per block:", updatedRewardsPerBlock)
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1146,47 +1257,62 @@ describe("Farm", async () => {
                 } 
             });
 
-            it('User should not be able to keep getting rewards if it still has LP Token deposited in the farm', async () => {
+            it('User should not see any increase in rewards even if it still has LP Token deposited in the farm', async () => {
                 try{
                     // Initial values
                     await signerFactory(alice.sk);
                     farmStorage                 = await farmInstance.storage();
-                    doormanStorage              = await doormanInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
                     
                     const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
                     const lpBalance             = lpLedgerStart.balance.toNumber();
-                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
-                    const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber();
-                    const farmOpen              = farmStorage.open;
 
-                    const userDepositRecord     = await farmStorage.depositorLedger.get(alice.pkh);
-                    console.log(userDepositRecord);
-
-                    // console.log("LEDGER: ", lpLedgerStart)
+                    const farmOpen                  = farmStorage.open;
+                    const initialAccRewardsPerShare = farmStorage.accumulatedRewardsPerShare;
                     
-                    // Operation
+                    // Operation - let alice claim her eligible rewards 
                     await wait(4 * blockTime * 1000);
-                    // await chai.expect(farmInstance.methods.claim(alice.pkh).send()).to.be.rejected;
                     const claimOperation = await farmInstance.methods.claim(alice.pkh).send();
                     await claimOperation.confirmation();
 
-                    // Final values
-                    doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-                    const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+                    // Update storage
+                    doormanStorage                = await doormanInstance.storage();
+                    farmStorage                   = await farmInstance.storage();
 
-                    farmStorage                 = await farmInstance.storage();
-                    const userDepositRecordEnd  = await farmStorage.depositorLedger.get(alice.pkh);
-                    console.log(userDepositRecordEnd);
+                    var updatedAccRewardsPerShare = farmStorage.accumulatedRewardsPerShare; 
 
-                    console.log(userSMVKBalanceEnd);
+                    const userSMVKLedger          = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                    const userSMVKBalance         = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber();
 
-                    // Assertions
+                    var userDepositRecord     = await farmStorage.depositorLedger.get(alice.pkh);
+
+                    // Assertions - there should be no increase in accumulated rewards per share for the farm
+                    assert.equal(farmOpen, false);
+                    assert.equal(initialAccRewardsPerShare.toNumber(), updatedAccRewardsPerShare.toNumber());
+
+                    // Second operation to check no change in sMVK balance
+                    await wait(4 * blockTime * 1000);
+                    const secondClaimOperation = await farmInstance.methods.claim(alice.pkh).send();
+                    await secondClaimOperation.confirmation();
+
+                    // Update storage
+                    doormanStorage                = await doormanInstance.storage();
+                    farmStorage                   = await farmInstance.storage();
+
+                    const userDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
+
+                    const userSMVKLedgerEnd       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                    const userSMVKBalanceEnd      = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+
+                    // Assertions - user should have no change in unclaimed rewards, claimed rewards and participation rewards per share
                     assert.equal(farmOpen, false);
                     assert.equal(userSMVKBalanceEnd, userSMVKBalance);
+                    
+                    assert.equal(userDepositRecordEnd.unclaimedRewards.toNumber(), userDepositRecord.unclaimedRewards.toNumber());
+                    assert.equal(userDepositRecordEnd.claimedRewards.toNumber(), userDepositRecord.claimedRewards.toNumber());
+                    assert.equal(userDepositRecordEnd.participationRewardsPerShare.toNumber(), userDepositRecord.participationRewardsPerShare.toNumber());
+
                     assert.notEqual(lpBalance, 0);
 
                 } catch(e){

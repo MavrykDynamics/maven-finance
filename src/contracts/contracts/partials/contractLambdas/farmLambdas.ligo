@@ -486,7 +486,7 @@ block{
     var operations : list(operation) := nil;
 
     case farmLambdaAction of [
-        |   LambdaWithdraw(tokenAmount) -> {
+        |   LambdaWithdraw(withdrawAmount) -> {
                 
                 // Update pool farmStorageType
                 s := updateFarm(s);     
@@ -501,23 +501,28 @@ block{
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
                 // Verify that depositor has sufficient balance to withdraw tokens
-                verifySufficientBalance(tokenAmount, depositorRecord.balance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
+                // verifySufficientBalance(tokenAmount, depositorRecord.balance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
+                var finalWithdrawAmount : nat := 0n;
+
+                if withdrawAmount > depositorRecord.balance 
+                then finalWithdrawAmount := depositorRecord.balance 
+                else finalWithdrawAmount := withdrawAmount;
 
                 // Update depositor record with new balance
-                depositorRecord.balance := abs(depositorRecord.balance - tokenAmount);
+                depositorRecord.balance := abs(depositorRecord.balance - finalWithdrawAmount);
                 s.depositorLedger[depositor] := depositorRecord;
 
                 // Verify that the farm has enough tokens for withdrawal
-                verifySufficientBalance(tokenAmount, s.config.lpToken.tokenBalance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
+                verifySufficientBalance(finalWithdrawAmount, s.config.lpToken.tokenBalance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
 
                 // Update farm token balance
-                s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
+                s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - finalWithdrawAmount);
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
                 const transferFarmLpTokenOperation : operation = transferFarmLpTokenOperation(
                     Tezos.get_self_address(),       // from_
                     depositor,                      // to_
-                    tokenAmount,                    // tokenAmount
+                    finalWithdrawAmount,            // tokenAmount
                     s                               // storage
                 );
 
@@ -571,20 +576,22 @@ block{
                 const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
 
                 // Verify that user has more than 0 rewards to claim
-                verifyUnclaimedRewardsExist(unclaimedRewards);
+                // verifyUnclaimedRewardsExist(unclaimedRewards);
 
-                // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
-                depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
-                depositorRecord.unclaimedRewards    := 0n;
+                if unclaimedRewards > 0n then {
 
-                // Update storage with new depositor record
-                s.depositorLedger[depositor] := depositorRecord;
+                    // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
+                    depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
+                    depositorRecord.unclaimedRewards    := 0n;
 
-                // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
-                const transferRewardOperation : operation = transferReward(depositor, unclaimedRewards, s);
+                    // Update storage with new depositor record
+                    s.depositorLedger[depositor] := depositorRecord;
 
-                operations := transferRewardOperation # operations;
+                    // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
+                    const transferRewardOperation : operation = transferReward(depositor, unclaimedRewards, s);
 
+                    operations := transferRewardOperation # operations;
+                }
             }
         |   _ -> skip
     ];
