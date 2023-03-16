@@ -20,13 +20,13 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GovernanceProxy, setGovernanceProxyContractLambdas } from '../contractHelpers/governanceProxyTestTestHelper'
+import { GovernanceProxy, setGovernanceProxyContractLambdas } from '../contractHelpers/governanceProxyTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { governanceProxyStorage } from '../../storage/governanceProxyTestStorage'
+import { governanceProxyStorage } from '../../storage/governanceProxyStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start

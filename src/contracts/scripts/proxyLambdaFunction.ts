@@ -715,7 +715,7 @@ const transfer  = (
 ) => {
 
     // Create the transfer record list
-    var transfersRecord: string;
+    var transfersRecord: string = "";
     transfers.forEach((transfer) => {
         
         // Create the token type
@@ -730,9 +730,9 @@ const transfer  = (
         }
         else if("fa2" in transfer.token){
             tokenType       = `Fa2(record[
-                tokenContractAddress    = ("${tokenTypeFa2.fa2.tokenContractAddress}": address);
-                tokenId                 = ${tokenTypeFa2.fa2.tokenId}n;
-            ])`;
+                    tokenContractAddress    = ("${tokenTypeFa2.fa2.tokenContractAddress}": address);
+                    tokenId                 = ${tokenTypeFa2.fa2.tokenId}n;
+                ])`;
         }
         
         // Create and append the transfer record
@@ -744,7 +744,6 @@ const transfer  = (
             ];
         `;
     });
-    console.log(transfersRecord)
 
     return `function lambdaFunction (const _ : unit) : list(operation) is
 block {
@@ -804,24 +803,18 @@ interface removeOperator {
     }
 }
 
-interface operatorItem {
-    operatorItem: addOperator | removeOperator
-}
-
 const updateMvkOperators  = (
 
     targetContract          : string,
-    operators               : Array<operatorItem>
+    operators               : Array<addOperator | removeOperator>
 
 ) => {
 
     // Create the update operator list
-    var operatorRecord: string;
+    var operatorRecord: string = "";
     operators.forEach((operator) => {
-        console.log("OPERATOR", operator)
         if("addOperator" in operator){
-            const addOperatorItem: addOperator  = operator.operatorItem as addOperator;
-            console.log(addOperatorItem)
+            const addOperatorItem: addOperator  = operator as addOperator;
             operatorRecord  += `
             Add_operator(record[
                 owner    = ("${addOperatorItem.addOperator.owner}" : address);
@@ -831,7 +824,7 @@ const updateMvkOperators  = (
             `
         }
         else {
-            const removeOperatorItem: removeOperator  = operator.operatorItem as removeOperator;
+            const removeOperatorItem: removeOperator  = operator as removeOperator;
             operatorRecord  += `
             Remove_operator(record[
                 owner    = ("${removeOperatorItem.removeOperator.owner}" : address);
@@ -924,24 +917,22 @@ const createAggregator  = (
 ) => {
 
     // Create the oracle informations
-    var oracleLedger: string;
+    var oracleLedger: string = "";
     oraclesInformation.forEach((information: oracleInformation) => {
         oracleLedger += `
             ("${information.oracleAddress}" : address) -> record [
-                oraclePublicKey = ("${information.oraclePublicKey}" : key);
-                oraclePeerId    = "${information.oraclePeerId}";
-            ];
-        `;
+                    oraclePublicKey = ("${information.oraclePublicKey}" : key);
+                    oraclePeerId    = "${information.oraclePeerId}";
+                ];`;
     });
 
-    return `function lambdaFunction (const _ : unit) : list(operation) is
+    const lambda =  `function lambdaFunction (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
-        record[
+        (record[
             name                  = "${aggregatorName}";
             addToGeneralContracts = ${addToGeneralContracts ? "True" : "False"};
-            oracleLedger          = map[
-                ${oracleLedger}
+            oracleLedger          = map[${oracleLedger}
             ];
             aggregatorConfig      = record [
                 decimals                = ${decimals}n;
@@ -952,7 +943,7 @@ block {
                 rewardAmountXtz         = ${rewardAmountXtz}n;
             ];
             metadata              = ("${metadata}": bytes);
-        ],
+        ] : createAggregatorParamsType),
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%createAggregator",
@@ -962,6 +953,7 @@ block {
         ]
     );
 } with list[contractOperation]`
+return lambda
 };
 
 const updateInflationRate  = (
@@ -1233,10 +1225,10 @@ const setLoanToken  = (
         if(createLoanTokenAction.tokenType === "tez"){
             tokenType       = "Tez";
         }
-        else if(typeof(createLoanTokenAction.tokenType) === "string"){
+        else if("fa12" in createLoanTokenAction.tokenType){
             tokenType       = `Fa12(("${tokenTypeFa12.fa12}": address))`;
         }
-        else{
+        else if("fa2" in createLoanTokenAction.tokenType){
             tokenType       = `Fa2(record[
                 tokenContractAddress    = ("${tokenTypeFa2.fa2.tokenContractAddress}": address);
                 tokenId                 = ${tokenTypeFa2.fa2.tokenId}n;
@@ -1340,16 +1332,14 @@ const setCollateralToken  = (
         // Prepare the token type
         const tokenTypeFa12 = createCollateralTokenAction.tokenType as fa12;
         const tokenTypeFa2  = createCollateralTokenAction.tokenType as fa2;
-        console.log("FA12",tokenTypeFa12)
-        console.log("FA2",tokenTypeFa2)
         var tokenType: any;
         if(createCollateralTokenAction.tokenType === "tez"){
             tokenType       = "Tez";
         }
-        else if(typeof(createCollateralTokenAction.tokenType) === "string"){
+        else if("fa12" in createCollateralTokenAction.tokenType){
             tokenType       = `Fa12(("${tokenTypeFa12.fa12}": address))`;
         }
-        else{
+        else if("fa2" in createCollateralTokenAction.tokenType){
             tokenType       = `Fa2(record[
                 tokenContractAddress    = ("${tokenTypeFa2.fa2.tokenContractAddress}": address);
                 tokenId                 = ${tokenTypeFa2.fa2.tokenId}n;

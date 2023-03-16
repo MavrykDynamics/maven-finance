@@ -33,12 +33,6 @@
 // TreasuryFactory Type
 #include "../partials/contractTypes/treasuryFactoryTypes.ligo"
 
-// Aggregator Types
-#include "../partials/contractTypes/aggregatorTypes.ligo"
-
-// Aggregator Factory Types
-#include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
-
 // Vestee Types
 #include "../partials/contractTypes/vestingTypes.ligo"
 
@@ -72,6 +66,12 @@
 // Vault Factory Types
 #include "../partials/contractTypes/vaultFactoryTypes.ligo"
 
+// Aggregator Types
+#include "../partials/contractTypes/aggregatorTypes.ligo"
+
+// Aggregator Factory Types
+#include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
+
 type actionType is 
         // Default Entrypoint to Receive Tez
         Default                       of unit
@@ -84,16 +84,26 @@ type return is list (operation) * unit
 function lambdaFunction (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
-        record [
-            tokenContractName     = "test";
-            tokenContractAddress  = ("tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD" : address);
-        ],
+        (record[
+            name                  = "AggregatorProxyTest";
+            addToGeneralContracts = True;
+            oracleLedger          = map[];
+            aggregatorConfig      = record [
+                decimals                = 6n;
+                alphaPercentPerThousand = 10n;
+                percentOracleThreshold  = 10n;
+                heartBeatSeconds        = 5n;
+                rewardAmountStakedMvk   = 100n;
+                rewardAmountXtz         = 100n;
+            ];
+            metadata              = ("7b226e616d65223a224d415652594b2041676772656761746f7220436f6e7472616374222c2269636f6e223a2268747470733a2f2f6c6f676f2e636861696e6269742e78797a2f78747a222c2276657273696f6e223a2276312e302e30222c22617574686f7273223a5b224d415652594b20446576205465616d203c636f6e74616374406d617672796b2e66696e616e63653e225d7d": bytes);
+        ] : createAggregatorParamsType),
         0tez,
         case (Tezos.get_entrypoint_opt(
-            "%updateWhitelistTokenContracts",
-            ("KT1Medy8uNRq1XckDoSjDfTr2xnJzPysVq2X" : address)) : option(contract(updateWhitelistTokenContractsType))) of [
+            "%createAggregator",
+            ("KT1FZCEsSbmQPWrQgyKnhQG7oEpWdjrZiCfU" : address)) : option(contract(createAggregatorParamsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(updateWhitelistTokenContractsType))
+                |   None        -> (failwith(0n) : contract(createAggregatorParamsType))
         ]
     );
 } with list[contractOperation]

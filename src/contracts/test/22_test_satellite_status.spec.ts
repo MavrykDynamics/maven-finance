@@ -32,6 +32,7 @@
 
 // import { config } from "yargs";
 // import { aggregatorStorageType } from "./types/aggregatorStorageType";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
 
 // function wait(ms: number) {
 //   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -977,32 +978,24 @@
 //                     const proposalDesc              = "Details about new proposal";
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction            = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1031,32 +1024,24 @@
 //                     const proposalDesc              = "Details about new proposal";
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1102,32 +1087,24 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
                     
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Metadata#2",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1168,27 +1145,6 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
-
 //                     const paymentData        = [
 //                         {
 //                             addOrSetPaymentData: {
@@ -1242,32 +1198,24 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
                     
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Metadata#2",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1308,26 +1256,6 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
 
 //                     const paymentData        = [
 //                         {
@@ -1400,26 +1328,6 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1456,26 +1364,6 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1530,32 +1418,24 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1599,32 +1479,24 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1686,32 +1558,24 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1766,32 +1630,24 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -1910,32 +1766,24 @@
 //                         }
 //                     ]
                     
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -2038,32 +1886,24 @@
 //                         }
 //                     ]
                     
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -2183,32 +2023,24 @@
 //                         }
 //                     ]
                     
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
@@ -2282,32 +2114,23 @@
 //                         }
 //                     ]
                     
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         // console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
-
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
-//                                 encodedCode: packedParam,
+//                                 encodedCode: lambdaFunction,
 //                                 codeDescription: ""
 //                             }
 //                         }
