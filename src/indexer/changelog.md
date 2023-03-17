@@ -4,13 +4,31 @@
 
 ### Deployment
 
-- DEV: 0.32
-- PROD: 0.31
-- PROD2: 0.31
+- DEV: 0.34
+- PROD: 0.33
+- PROD2: 0.33
+- DEMO: 0.35
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.34
+
+### What's new
+
+- Vault
+  - Column Name added
+
+### Breaking changes
+
+- Vault
+
+  - Column Governance removed
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.33</summary>
 
 ## Version 0.33
 
@@ -35,7 +53,7 @@
 - LiquidityBakinge1WCandle
   - View added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.32</summary>
 

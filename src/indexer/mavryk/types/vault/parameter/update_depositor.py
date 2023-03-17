@@ -8,24 +8,31 @@ from typing import Any, Dict, Union
 from pydantic import BaseModel, Extra
 
 
-class DepositorsConfigItem(BaseModel):
+class AllowanceItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    any: Dict[str, Any]
+    any: bool
 
 
-class DepositorsConfigItem1(BaseModel):
+class Whitelist(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    whitelist: Dict[str, Any]
+    bool: bool
+    address: str
+
+
+class AllowanceItem1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    whitelist: Whitelist
 
 
 class UpdateDepositorParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    depositorAddress: str
-    addOrRemoveBool: bool
-    depositorsConfig: Union[DepositorsConfigItem, DepositorsConfigItem1]
+    allowance: Union[AllowanceItem, AllowanceItem1]
+    empty: Dict[str, Any]

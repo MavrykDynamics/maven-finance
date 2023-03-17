@@ -8,26 +8,18 @@ from typing import Any, Dict, List, Union
 from pydantic import BaseModel, Extra
 
 
-class DepositorsConfigItem(BaseModel):
+class Depositor(BaseModel):
     class Config:
         extra = Extra.forbid
 
     any: Dict[str, Any]
 
 
-class DepositorsConfigItem1(BaseModel):
+class Depositor1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    whitelist: Dict[str, Any]
-
-
-class Depositors(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    whitelistedDepositors: List[str]
-    depositorsConfig: Union[DepositorsConfigItem, DepositorsConfigItem1]
+    whitelist: List[str]
 
 
 class Handle(BaseModel):
@@ -43,9 +35,6 @@ class VaultStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    depositors: Depositors
-    governanceAddress: str
+    depositors: Union[Depositor, Depositor1]
     handle: Handle
-    lambdaLedger: Dict[str, str]
-    metadata: Dict[str, str]
-    mvkTokenAddress: str
+    name: str
