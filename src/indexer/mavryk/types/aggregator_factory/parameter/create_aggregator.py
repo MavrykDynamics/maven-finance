@@ -8,7 +8,7 @@ from typing import Dict
 from pydantic import BaseModel, Extra
 
 
-class OracleAddresses(BaseModel):
+class OracleLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -34,6 +34,6 @@ class CreateAggregatorParameter(BaseModel):
 
     name: str
     addToGeneralContracts: bool
-    oracleLedger: Dict[str, OracleAddresses]
+    oracleLedger: Dict[str, OracleLedger]
     aggregatorConfig: AggregatorConfig
     metadata: str
