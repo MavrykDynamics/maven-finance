@@ -139,19 +139,11 @@ class TokenTypeItem3(BaseModel):
     fa12: str
 
 
-class Fa21(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    tokenContractAddress: str
-    tokenId: str
-
-
 class TokenTypeItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    fa2: Fa21
+    fa2: Fa2
 
 
 class TokenTypeItem5(BaseModel):

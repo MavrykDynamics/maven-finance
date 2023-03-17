@@ -355,7 +355,7 @@ block {
                     var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
                     // Update or create new rewards record for user (delegate)
-                    var delegateRewardsRecord : satelliteRewardsType := getOrCreateDelegateRewardsRecord(
+                    var delegateRewardsRecord : satelliteRewardsType := getOrCreateUpdatedDelegateRewardsRecord(
                         userAddress,                                                        // user address (delegate)
                         satelliteAddress,                                                   // satellite address
                         satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare,         // satellites's accumulate rewards per share
