@@ -42,3 +42,6 @@ docker exec -it mavryk-sandbox octez-client transfer 2000 from alice to gagarine
 docker exec -it mavryk-sandbox octez-client transfer 2000 from alice to armstrong --burn-cap 0.06425
 
 docker exec -it mavryk-sandbox octez-client list known addresses
+
+# Restart indexer container (needed sometimes)
+docker restart contracts-indexer-1

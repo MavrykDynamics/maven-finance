@@ -29,7 +29,7 @@ class BreakGlassConfig(BaseModel):
     withdrawRewardStakedMvkIsPaused: bool
 
 
-class OracleAddresses(BaseModel):
+class OracleLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -61,7 +61,7 @@ class AggregatorStorage(BaseModel):
     governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
-    oracleLedger: Dict[str, OracleAddresses]
+    oracleLedger: Dict[str, OracleLedger]
     lastCompletedData: LastCompletedData
     oracleRewardStakedMvk: Dict[str, str]
     oracleRewardXtz: Dict[str, str]
