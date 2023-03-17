@@ -500,8 +500,7 @@ block{
                 // Get depositor record
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
-                // Verify that depositor has sufficient balance to withdraw tokens
-                // verifySufficientBalance(tokenAmount, depositorRecord.balance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
+                // Calculation for final withdrawn amount (max is depositor's balance)
                 var finalWithdrawAmount : nat := 0n;
 
                 if withdrawAmount > depositorRecord.balance 
@@ -575,9 +574,7 @@ block{
                 // Get depositor's unclaimed rewards
                 const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
 
-                // Verify that user has more than 0 rewards to claim
-                // verifyUnclaimedRewardsExist(unclaimedRewards);
-
+                // Process unclaimed rewards if user has more than 0 rewards to claim
                 if unclaimedRewards > 0n then {
 
                     // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
