@@ -46,12 +46,11 @@ async def on_council_sign_action(
     # Update the status if there are multiple records (flush)
     if len(sign_action.storage.councilActionsLedger) > 1:
         for single_action_id in sign_action.storage.councilActionsLedger:
-            action_status           = sign_action.storage.councilActionsLedger[single_action_id].status
             single_action_record    = await models.CouncilAction.get(
                 council     = council,
                 id          = single_action_id
             )
-            status                  = action_status.status
+            status                  = sign_action.storage.councilActionsLedger[single_action_id]
             # Select correct status
             status_type = models.ActionStatus.PENDING
             if status == "FLUSHED":
@@ -61,30 +60,31 @@ async def on_council_sign_action(
             single_action_record.status            = status_type
             await single_action_record.save()
 
+    # Delete previous members
+    council_members_records         = await models.CouncilCouncilMember.all()
+    for council_members_record in council_members_records:
+        await council_members_record.delete()
+
     # Update council members
     council_members_records         = await models.CouncilCouncilMember.all()
-    for council_member_record in council_members_records:
-        # Get user from council member
-        member_user     = await council_member_record.user.first()
-        
-        # Check if remove
-        if not member_user.address in council_members:
-            await council_member_record.delete()
-        else:
-            # Change or update records
-            member_info             = council_members[member_user.address]
-            updated_member, _       = await models.CouncilCouncilMember.get_or_create(
-                council     = council,
-                user        = member_user
-            )
-            updated_member.name     = member_info.name
-            updated_member.website  = member_info.website 
-            updated_member.image    = member_info.image
-            await updated_member.save() 
+    for council_member_address in council_members:
+        # Change or update records
+        member_info             = council_members[council_member_address]
+        member_user, _          = await models.MavrykUser.get_or_create(
+            address     = council_member_address
+        )
+        await member_user.save()
+        updated_member, _       = await models.CouncilCouncilMember.get_or_create(
+            council     = council,
+            user        = member_user
+        )
+        updated_member.name     = member_info.name
+        updated_member.website  = member_info.website 
+        updated_member.image    = member_info.image
+        await updated_member.save() 
     
     # Create signature record
-    user, _                 = await models.MavrykUser.get_or_create(address = signer_address)
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=signer_address)
     signer_record           = await models.CouncilActionSigner(
         council_action              = action_record,
         signer                      = user

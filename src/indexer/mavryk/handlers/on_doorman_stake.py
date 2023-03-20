@@ -1,16 +1,16 @@
 
-from mavryk.types.mvk.parameter.transfer import TransferParameter
+from mavryk.types.mvk_token.parameter.transfer import TransferParameter
 from dipdup.models import Transaction
 from mavryk.types.doorman.parameter.stake import StakeParameter
 from dipdup.context import HandlerContext
 from mavryk.types.doorman.storage import DoormanStorage
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 import mavryk.models as models
 
 async def on_doorman_stake(
     ctx: HandlerContext,
     stake: Transaction[StakeParameter, DoormanStorage],
-    transfer: Transaction[TransferParameter, MvkStorage],
+    transfer: Transaction[TransferParameter, MvkTokenStorage],
 ) -> None:
 
     # Get operation info
@@ -27,9 +27,7 @@ async def on_doorman_stake(
     accumulated_fees_per_share          = float(stake.storage.accumulatedFeesPerShare)
 
     # Get or create the interacting user
-    user, _             = await models.MavrykUser.get_or_create(
-        address=sender_address
-    )
+    user                = await models.mavryk_user_cache.get(address=sender_address)
     user.mvk_balance    = mvk_balance
     user.smvk_balance   = smvk_balance
     await user.save()

@@ -182,6 +182,18 @@ block {
 
 
 
+// helper function to verify proposal has been executed
+function verifyProposalExecuted(const proposal : proposalRecordType) : unit is
+block {
+    
+    if proposal.executed 
+    then skip
+    else failwith(error_PROPOSAL_NOT_EXECUTED);
+
+} with unit 
+
+
+
 // helper function to verify proposal is locked
 function verifyProposalIsLocked(const proposal : proposalRecordType) : unit is
 block {

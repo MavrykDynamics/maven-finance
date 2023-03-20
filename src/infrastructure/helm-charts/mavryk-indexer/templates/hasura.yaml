@@ -1,8 +1,10 @@
+{{- range $key, $value := .Values.instances }}
+{{- if $value.hasura.enabled }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: hasura-{{ .Release.Name }}
+  name: hasura-{{ $key }}
 spec:
   ports:
     - name: http
@@ -10,27 +12,36 @@ spec:
       protocol: TCP
       targetPort: http
   selector:
-    app: hasura-{{ .Release.Name }}
+    app: hasura-{{ $key }}
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hasura-{{ .Release.Name }}
+  name: hasura-{{ $key }}
   labels:
-    app: hasura-{{ .Release.Name }}
+    app: hasura-{{ $key }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hasura-{{ .Release.Name }}
+      app: hasura-{{ $key }}
   template:
     metadata:
       labels:
-        app: hasura-{{ .Release.Name }}
+        app: hasura-{{ $key }}
     spec:
       containers:
-        - name: hasura-{{ .Release.Name }}
+        - name: hasura-{{ $key }}
+          {{- if $value.hasura.resources.enabled }}
+          resources:
+            requests:
+              memory: '{{ $value.hasura.resources.requests.memory }}'
+              cpu: '{{ $value.hasura.resources.requests.cpu }}'
+            limits:
+              memory: '{{ $value.hasura.resources.limits.memory }}'
+              cpu: '{{ $value.hasura.resources.limits.cpu }}'
+          {{- end }}
           env:
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
               value: 'true'
@@ -44,23 +55,39 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: '{{ .Values.hasura.databaseURLKeyInSecret }}'
+                  key: '{{ $value.hasura.databaseURLKeyInSecret }}'
             - name: HASURA_GRAPHQL_ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
-          image: '{{ .Values.hasura.image.registry }}/{{ .Values.hasura.image.repository }}:{{ .Values.hasura.image.tag }}'
+          image: '{{ $value.hasura.image.registry }}/{{ $value.hasura.image.repository }}:{{ $value.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
               protocol: TCP
+{{- if $value.hasura.hpa.enabled }}
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hasura-{{ $key }}
+spec:
+  maxReplicas: 3
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hasura-{{ $key }}
+  targetCPUUtilizationPercentage: 80
+{{- end}}
+{{- if $value.hasura.ingress.enabled }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: hasura-{{ .Release.Name }}
+  name: hasura-{{ $key }}
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -71,16 +98,19 @@ metadata:
 spec:
   tls:
     - hosts:
-        - '{{ .Values.hasura.ingress.host }}'
-      secretName: '{{ .Values.hasura.ingress.secretName }}'
+        - '{{ $value.hasura.ingress.host }}'
+      secretName: '{{ $value.hasura.ingress.secretName }}'
   rules:
-    - host: '{{ .Values.hasura.ingress.host }}'
+    - host: '{{ $value.hasura.ingress.host }}'
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: hasura-{{ .Release.Name }}
+                name: '{{ $value.hasura.ingress.service.name }}'
                 port:
                   number: 8080
+{{- end }}
+{{- end }}
+{{- end }}

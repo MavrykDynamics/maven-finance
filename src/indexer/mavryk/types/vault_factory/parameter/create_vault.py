@@ -28,4 +28,5 @@ class CreateVaultParameter(BaseModel):
 
     delegate: Optional[str]
     loanTokenName: str
+    name: str
     depositors: Union[Depositor, Depositor1]

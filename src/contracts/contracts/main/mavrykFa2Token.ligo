@@ -12,7 +12,7 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// LP Token Types
+// FA2 Token Types
 #include "../partials/contractTypes/mavrykFa2TokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ block{
 
             const owner : ownerType = transferParam.from_;
             const txs : list(transferDestination) = transferParam.txs;
-            
+             
             function transferTokens(const accumulator : mavrykFa2TokenStorageType; const destination : transferDestination) : mavrykFa2TokenStorageType is
             block {
 
@@ -419,7 +419,7 @@ block{
 function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mavrykFa2TokenStorageType) : return is
 block {
 
-    // check sender is from cfmm contract
+    // check sender is whitelisted
     if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     const quantity        : int             = mintOrBurnParams.quantity;

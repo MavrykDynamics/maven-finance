@@ -1,3 +1,3 @@
 locals {
-  do_region = "sfo3"
+  do_region = "sgp1"
 }

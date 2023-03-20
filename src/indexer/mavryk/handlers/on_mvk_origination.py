@@ -2,14 +2,14 @@
 from importlib.metadata import metadata
 from dipdup.context import HandlerContext
 from ..utils.persisters import persist_token_metadata
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 from dipdup.models import Origination
 from dateutil import parser 
 import mavryk.models as models
 
 async def on_mvk_origination(
     ctx: HandlerContext,
-    mvk_origination: Origination[MvkStorage],
+    mvk_origination: Origination[MvkTokenStorage],
 ) -> None:
     
     # Get operation info
@@ -46,10 +46,8 @@ async def on_mvk_origination(
     await mvk.save()
     
     # Create first users
-    originated_ledger = mvk_origination.data.storage['ledger']
+    originated_ledger = mvk_origination.storage.ledger
     for address in originated_ledger:
-        new_user, _ = await models.MavrykUser.get_or_create(
-            address=address
-        )
-        new_user.mvk_balance = originated_ledger[address]
+        new_user                = await models.mavryk_user_cache.get(address=address)
+        new_user.mvk_balance    = originated_ledger[address]
         await new_user.save()

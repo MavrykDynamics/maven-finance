@@ -32,17 +32,23 @@ async def on_treasury_origination(
         address = governance_address
     )
     await governance.save()
-    treasury            = models.Treasury(
-        address                         = treasury_address,
-        admin                           = admin,
-        last_updated_at                 = creation_timestamp,
-        governance                      = governance,
-        creation_timestamp              = creation_timestamp,
-        name                            = name,
-        transfer_paused                 = transfer_paused,
-        mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused,
-        stake_mvk_paused                = stake_mvk_paused,
-        unstake_mvk_paused              = unstake_mvk_paused
+
+    # Check treasury does not already exists
+    treasury_exists                     = await models.Treasury.get_or_none(
+        address     = treasury_address
     )
-    await treasury.save()
-    
+
+    if not treasury_exists:
+        treasury            = models.Treasury(
+            address                         = treasury_address,
+            admin                           = admin,
+            last_updated_at                 = creation_timestamp,
+            governance                      = governance,
+            creation_timestamp              = creation_timestamp,
+            name                            = name,
+            transfer_paused                 = transfer_paused,
+            mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused,
+            stake_mvk_paused                = stake_mvk_paused,
+            unstake_mvk_paused              = unstake_mvk_paused
+        )
+        await treasury.save()

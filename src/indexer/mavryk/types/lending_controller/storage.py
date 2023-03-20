@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Extra
 
@@ -44,29 +44,13 @@ class BreakGlassConfig(BaseModel):
     setCollateralTokenIsPaused: bool
     setLoanTokenIsPaused: bool
     vaultDepositIsPaused: bool
-    vaultDepositStakedMvkIsPaused: bool
+    vaultDepositStakedTokenIsPaused: bool
     vaultOnLiquidateIsPaused: bool
     vaultWithdrawIsPaused: bool
-    vaultWithdrawStakedMvkIsPaused: bool
+    vaultWithdrawStakedTokenIsPaused: bool
 
 
 class Key(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    address: str
-    string: str
-
-
-class TokenPoolDepositorLedgerItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Key
-    value: str
-
-
-class Key1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -96,7 +80,7 @@ class Vault(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    key: Key1
+    key: Key
     value: Value
 
 
@@ -138,7 +122,13 @@ class CollateralTokenLedger(BaseModel):
     tokenDecimals: str
     oracleAddress: str
     protected: bool
+    isScaledToken: bool
+    isStakedToken: bool
+    stakingContractAddress: Optional[str]
+    totalDeposited: str
+    maxDepositAmount: Optional[str]
     tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
+    isPaused: bool
 
 
 class TokenTypeItem3(BaseModel):
@@ -148,19 +138,11 @@ class TokenTypeItem3(BaseModel):
     fa12: str
 
 
-class Fa21(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    tokenContractAddress: str
-    tokenId: str
-
-
 class TokenTypeItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    fa2: Fa21
+    fa2: Fa2
 
 
 class TokenTypeItem5(BaseModel):
@@ -178,9 +160,8 @@ class LoanTokenLedger(BaseModel):
     tokenType: Union[TokenTypeItem3, TokenTypeItem4, TokenTypeItem5]
     tokenDecimals: str
     oracleAddress: str
-    lpTokensTotal: str
-    lpTokenContractAddress: str
-    lpTokenId: str
+    mTokensTotal: str
+    mTokenAddress: str
     tokenPoolTotal: str
     totalBorrowed: str
     totalRemaining: str
@@ -196,6 +177,7 @@ class LoanTokenLedger(BaseModel):
     lastUpdatedBlockLevel: str
     accumulatedRewardsPerShare: str
     borrowIndex: str
+    isPaused: bool
 
 
 class LendingControllerStorage(BaseModel):
@@ -211,7 +193,6 @@ class LendingControllerStorage(BaseModel):
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     whitelistTokenContracts: Dict[str, str]
-    tokenPoolDepositorLedger: List[TokenPoolDepositorLedgerItem]
     vaults: List[Vault]
     ownerLedger: Dict[str, List[str]]
     collateralTokenLedger: Dict[str, CollateralTokenLedger]

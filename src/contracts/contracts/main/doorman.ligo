@@ -59,6 +59,11 @@ type doormanAction is
     |   Compound                    of (address)
     |   FarmClaim                   of farmClaimType
 
+        // Vault Entrypoints - callable only by Lending Controller
+    |   OnVaultDepositStake         of onVaultDepositStakeType
+    |   OnVaultWithdrawStake        of onVaultWithdrawStakeType
+    |   OnVaultLiquidateStake       of onVaultLiquidateStakeType
+
         // Lambda Entrypoints
     |   SetLambda                   of setLambdaType
 
@@ -131,6 +136,11 @@ block {
         |   Unstake(parameters)                   -> unstake(parameters, s)
         |   Compound(parameters)                  -> compound(parameters, s)
         |   FarmClaim(parameters)                 -> farmClaim(parameters, s)
+
+            // Vault Entrypoints - callable only by Lending Controller
+        |   OnVaultDepositStake(parameters)       -> onVaultDepositStake(parameters, s)
+        |   OnVaultWithdrawStake(parameters)      -> onVaultWithdrawStake(parameters, s)
+        |   OnVaultLiquidateStake(parameters)     -> onVaultLiquidateStake(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                 -> setLambda(parameters, s)

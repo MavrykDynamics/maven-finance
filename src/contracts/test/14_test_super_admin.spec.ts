@@ -285,7 +285,7 @@
 //                     await signerFactory(bob.sk)
 //                 });
 
-//                 it("Council should not be able to call this entrypoint if the new admin is not a whitelisted developer, the governance contract or the breakGlass contract", async() => {
+//                 it("Break Glass Council should not be able to call this entrypoint if the new admin is not a whitelisted developer, the governance contract or the breakGlass contract", async() => {
 //                     try{
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();
@@ -293,7 +293,7 @@
 //                         const targetContract        = doormanAddress.address;
 //                         const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
 
-//                         console.log("WHITELISTED: ", whitelistedDevelopers);
+//                         console.log("WHITELISTED DEVELOPERS: ", whitelistedDevelopers);
 
 //                         // Operation
 //                         await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
@@ -306,7 +306,7 @@
 //                     }
 //                 })
 
-//                 it("Council should not be able to call this entrypoint if the new admin was a whitelisted developer being removed before executing the action", async() => {
+//                 it("Break Glass Council should not be able to call this entrypoint, if the new admin was a whitelisted developer that was being removed, before the break glass action was executed", async() => {
 //                     try{
 //                         // Reset governance admin to proxy
 //                         const resetAdmin    = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
@@ -349,7 +349,7 @@
 //                         throw `packing failed`
 //                         };
 
-//                         const proposalData      = [
+//                         const proposalData = [
 //                             {
 //                                 addOrSetProposalData: {
 //                                     title: "Metadata#1",
@@ -382,9 +382,9 @@
 //                         await signerFactory(alice.sk);
 //                         votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
 //                         await votingRoundVoteOperation.confirmation();
-//                         await signerFactory(bob.sk);
 
 //                         // Execute proposal
+//                         await signerFactory(bob.sk);
 //                         nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                         await nextRoundOperation.confirmation();
 //                         nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -394,6 +394,10 @@
 //                         governanceStorage   = await governanceInstance.storage();
 //                         const proposal      = await governanceStorage.proposalLedger.get(proposalId);
 //                         const whitelistedDevelopersEnd = await governanceStorage.whitelistDevelopers;
+
+//                         console.log(newAdmin);
+//                         console.log(whitelistedDevelopers);
+//                         console.log(whitelistedDevelopersEnd);
 
 //                         // Assertions
 //                         assert.strictEqual(whitelistedDevelopers.includes(newAdmin), true)
@@ -408,7 +412,7 @@
 //                     }
 //                 })
 
-//                 it("Council should be able to call this entrypoint if the new admin is a whitelisted developer", async() => {
+//                 it("Break Glass Council should be able to call this entrypoint if the new admin is a whitelisted developer", async() => {
 //                     try{
 //                         // Reset delegation address to BreakGlass
 //                         const resetAdmin    = await delegationInstance.methods.setAdmin(breakGlassAddress.address).send();
@@ -444,7 +448,7 @@
 //                     }
 //                 })
 
-//                 it("Council should be able to call this entrypoint if the new admin is the governance contract", async() => {
+//                 it("Break Glass Council should be able to call this entrypoint if the new admin is the governance contract", async() => {
 //                     try{
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();
@@ -455,7 +459,7 @@
 
 //                         // Operation
 //                         councilStorage   = await councilInstance.storage();
-//                         console.log(councilStorage.admin)
+//                         // console.log(councilStorage.admin)
 //                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
@@ -475,7 +479,7 @@
 //                     }
 //                 })
 
-//                 it("Council should be able to call this entrypoint if the new admin is the breakGlass contract", async() => {
+//                 it("Break Glass Council should be able to call this entrypoint if the new admin is the breakGlass contract", async() => {
 //                     try{
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();

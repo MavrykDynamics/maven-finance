@@ -1,54 +1,47 @@
 
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
-from mavryk.types.mvk.storage import MvkStorage
-from mavryk.types.mvk.parameter.update_operators import UpdateOperatorsParameter
+from mavryk.types.mvk_token.storage import MvkTokenStorage
+from mavryk.types.mvk_token.parameter.update_operators import UpdateOperatorsParameter
 import mavryk.models as models
 
 async def on_mvk_update_operators(
     ctx: HandlerContext,
-    update_operators: Transaction[UpdateOperatorsParameter, MvkStorage],
+    update_operators: Transaction[UpdateOperatorsParameter, MvkTokenStorage],
 ) -> None:
 
     # Get operation values
-    operatorChanges = update_operators.parameter.__root__
+    operator_changes    = update_operators.parameter.__root__
+    mvk_token_address   = update_operators.data.target_address
 
-    for operatorChange in operatorChanges:
+    # Update records
+    mvk_token           = await models.MVKToken.get(
+        address = mvk_token_address
+    )
+    for operatorChange in operator_changes:
         if hasattr(operatorChange, 'add_operator'):
-            ownerAddress        = operatorChange.add_operator.owner
-            operatorAddress     = operatorChange.add_operator.operator
+            owner_address       = operatorChange.add_operator.owner
+            operator_address    = operatorChange.add_operator.operator
             
-            owner, _            = await models.MavrykUser.get_or_create(
-                address = ownerAddress
-            )
-            await owner.save()
-            
-            operator, _         = await models.MavrykUser.get_or_create(
-                address = operatorAddress
-            )
-            await operator.save()
+            owner               = await models.mavryk_user_cache.get(address=owner_address)            
+            operator            = await models.mavryk_user_cache.get(address=operator_address)
 
-            operatorRecord, _   = await models.MavrykUserOperator.get_or_create(
+            operator_record, _  = await models.MVKTokenOperator.get_or_create(
+                mvk_token   = mvk_token,
                 owner       = owner,
                 operator    = operator
             )
-            await operatorRecord.save()
+            await operator_record.save()
         elif hasattr(operatorChange, 'remove_operator'):
-            ownerAddress        = operatorChange.remove_operator.owner
-            operatorAddress     = operatorChange.remove_operator.operator
+            owner_address       = operatorChange.remove_operator.owner
+            operator_address    = operatorChange.remove_operator.operator
             
-            owner, _            = await models.MavrykUser.get_or_create(
-                address = ownerAddress
-            )
-            await owner.save()
-            
-            operator, _         = await models.MavrykUser.get_or_create(
-                address = operatorAddress
-            )
-            await operator.save()
+            owner               = await models.mavryk_user_cache.get(address=owner_address)
+            operator            = await models.mavryk_user_cache.get(address=operator_address)
 
-            operatorRecord, _   = await models.MavrykUserOperator.get_or_create(
+            operator_record, _  = await models.MVKTokenOperator.get_or_create(
+                mvk_token   = mvk_token,
                 owner       = owner,
                 operator    = operator
             )
-            await operatorRecord.delete()
+            await operator_record.delete()

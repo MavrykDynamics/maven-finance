@@ -11,46 +11,46 @@ async def on_vault_origination(
 ) -> None:
     
     # Get operation info
-    vault_address       = vault_origination.data.originated_contract_address
-    timestamp           = vault_origination.data.timestamp
-    governance_address  = vault_origination.storage.governanceAddress
-    admin               = vault_origination.storage.admin
-    depositors          = vault_origination.storage.depositors
-    allowance_type      = models.VaultAllowance.ANY
+    vault_address           = vault_origination.data.originated_contract_address
+    timestamp               = vault_origination.data.timestamp
+    admin                   = vault_origination.storage.admin
+    depositors              = vault_origination.storage.depositors
+    name                    = vault_origination.storage.name
+    whitelisted_addresses   = []
+    allowance_type          = models.VaultAllowance.ANY
 
     if type(depositors) == Any:
-        allowance_type  = models.VaultAllowance.ANY
+        allowance_type          = models.VaultAllowance.ANY
     elif type(depositors) == Whitelist:
-        allowance_type  = models.VaultAllowance.WHITELIST
+        allowance_type          = models.VaultAllowance.WHITELIST
+        whitelisted_addresses   = depositors.whitelist
     
     # Persist contract metadata
     await persist_contract_metadata(
         ctx=ctx,
         contract_address=vault_address
     )
-    
-    # Create vault record
-    governance, _       = await models.Governance.get_or_create(
-        address = governance_address
-    )
-    await governance.save()
-    vault, _            = await models.Vault.get_or_create(
-        address             = vault_address,
-        admin               = admin,
-        governance          = governance,
-        allowance           = allowance_type
-    )
-    vault.creation_timestamp    = timestamp
-    vault.last_updated_at       = timestamp
-    await vault.save()
 
-    # Register depositors
-    if type(depositors) == Whitelist:
-        for depositor_address in depositors.whitelist:
-            depositor, _        = await models.MavrykUser.get_or_create(
-                address = depositor_address
-            )
-            await depositor.save()
+    # Check vault does not already exists
+    vault_exists        =  await models.Vault.get_or_none(
+        address     = vault_address
+    )
+
+    if not vault_exists:
+        # Create vault record
+        vault, _            = await models.Vault.get_or_create(
+            address             = vault_address,
+            admin               = admin,
+            allowance           = allowance_type
+        )
+        vault.name                  = name
+        vault.creation_timestamp    = timestamp
+        vault.last_updated_at       = timestamp
+        await vault.save()
+
+        # Register depositors
+        for depositor_address in whitelisted_addresses:
+            depositor           = await models.mavryk_user_cache.get(address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = depositor

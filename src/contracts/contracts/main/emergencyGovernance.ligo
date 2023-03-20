@@ -34,8 +34,8 @@ type emergencyGovernanceAction is
     |   SetGovernance             of (address)
     |   UpdateMetadata            of updateMetadataType
     |   UpdateConfig              of emergencyUpdateConfigParamsType    
-    |   UpdateGeneralContracts    of updateGeneralContractsType
     |   UpdateWhitelistContracts  of updateWhitelistContractsType
+    |   UpdateGeneralContracts    of updateGeneralContractsType
     |   MistakenTransfer          of transferActionType
 
         // Emergency Governance Entrypoints
@@ -94,8 +94,8 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
         |   SetGovernance(parameters)             -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
-        |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
         |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
 
             // Emergency Governance Entrypoints

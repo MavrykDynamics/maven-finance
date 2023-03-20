@@ -8,7 +8,14 @@ from typing import Any, Dict, Union
 from pydantic import BaseModel, Extra
 
 
-class AllowAccount(BaseModel):
+class AllowanceItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    any: bool
+
+
+class Whitelist(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -16,18 +23,11 @@ class AllowAccount(BaseModel):
     address: str
 
 
-class AllowanceItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    allowAccount: AllowAccount
-
-
 class AllowanceItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    allowAny: bool
+    whitelist: Whitelist
 
 
 class UpdateDepositorParameter(BaseModel):

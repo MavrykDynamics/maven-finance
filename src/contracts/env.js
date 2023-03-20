@@ -18,7 +18,8 @@ module.exports = {
   migrationsDir: "migrations",
   michelsonBuildDir : "contracts/compiled",
   contractsDir: "contracts/main",
-  ligoVersion: "0.53.0",
+  contractLambdasDir: "contracts/partials/contractLambdas",
+  ligoVersion: "0.60.0",
   network: "development",
   networks: {
     development: {
@@ -26,6 +27,12 @@ module.exports = {
       network_id: "*",
       secretKey: bob.sk,
       port: 8732,
+    },
+    basenet: {
+      rpc: "https://basenet-baking-full-node.mavryk.network",
+      network_id: "*",
+      secretKey: bob.sk,
+      port: 443,
     },
     ghostnet: {
       rpc: "https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev",

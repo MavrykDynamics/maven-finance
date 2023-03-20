@@ -20,8 +20,7 @@ async def on_break_glass_update_council_member_info(
 
     # Update record
     break_glass             = await models.BreakGlass.get(address   = break_glass_address)
-    user, _                 = await models.MavrykUser.get_or_create(address   = council_member_address)
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=council_member_address)
     council_member          = await models.BreakGlassCouncilMember.get(
         break_glass = break_glass,
         user        = user

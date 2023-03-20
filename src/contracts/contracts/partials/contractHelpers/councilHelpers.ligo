@@ -140,13 +140,13 @@ block {
 function validateAction(const actionRecord : councilActionRecordType) : unit is
 block {
 
-    // Check if governance satellite action has been flushed
+    // Check if council action has been flushed
     if actionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)  else skip;
 
-    // Check if governance satellite action has already been executed
+    // Check if council action has already been executed
     if actionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED) else skip;
 
-    // check that break glass action has not expired
+    // check that council action has not expired
     if Tezos.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
 } with (unit)

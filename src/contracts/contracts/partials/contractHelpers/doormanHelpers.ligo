@@ -19,6 +19,17 @@ block{
 
 
 
+// Allowed Senders: Lending Controller Contract
+function verifySenderIsLendingControllerContract(var s : doormanStorageType) : unit is
+block{
+
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[lendingControllerAddress], error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED)
+
+} with unit
+
+
+
 // helper function to verify all entrypoints are paused
 function verifyAllEntrypointsPaused(const s : doormanStorageType) : unit is 
 block {
@@ -116,6 +127,15 @@ block {
     if s.breakGlassConfig.farmClaimIsPaused then skip
     else s.breakGlassConfig.farmClaimIsPaused := True;
 
+    if s.breakGlassConfig.onVaultDepositStakeIsPaused then skip
+    else s.breakGlassConfig.onVaultDepositStakeIsPaused := True;
+
+    if s.breakGlassConfig.onVaultWithdrawStakeIsPaused then skip
+    else s.breakGlassConfig.onVaultWithdrawStakeIsPaused := True;
+
+    if s.breakGlassConfig.onVaultLiquidateStakeIsPaused then skip
+    else s.breakGlassConfig.onVaultLiquidateStakeIsPaused := True;
+
 } with s
 
 
@@ -135,6 +155,15 @@ block {
     else skip;
     
     if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.onVaultDepositStakeIsPaused then s.breakGlassConfig.onVaultDepositStakeIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.onVaultWithdrawStakeIsPaused then s.breakGlassConfig.onVaultWithdrawStakeIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.onVaultLiquidateStakeIsPaused then s.breakGlassConfig.onVaultLiquidateStakeIsPaused := False
     else skip;
 
 } with s
@@ -455,14 +484,6 @@ block {
         |   None            -> failwith (error_SATELLITE_REWARDS_NOT_FOUND)
     ];
         
-    // const userRewardsRecord : satelliteRewardsType = case satelliteRewardsOptView of [
-    //         Some (optionView) -> case optionView of [
-    //                 Some(_rewardsRecord)      -> _rewardsRecord
-    //             |   None                      -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
-    //         ]
-    //     |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-    // ];
-
 } with userRewardsRecord
 
 // ------------------------------------------------------------------------------

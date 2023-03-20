@@ -11,6 +11,10 @@
 // General Contract Helpers
 // ------------------------------------------------------------------------------
 
+// helper functions - conversions
+function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
+function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
+function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
 
 function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
 block {
@@ -154,7 +158,6 @@ block {
         );
 
 } with (updatedWhitelistTokenContracts)
-
 
 // ------------------------------------------------------------------------------
 // General Helpers
@@ -325,81 +328,6 @@ block {
     if entrypoint = True then skip else failwith(errorCode);
 
 } with unit
-
-
-// ------------------------------------------------------------------------------
-// Entrypoint Helpers
-// ------------------------------------------------------------------------------
-
-
-// helper function to get an entrypoint with nat type on specified contract
-function getEntrypointNatType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(nat) is
-block {
-
-    const contractEntrypoint : contract(nat) = case Tezos.get_entrypoint_opt(entrypointName, contractAddress) of [
-            Some(contr) -> contr
-        |   None        -> (failwith(errorCode) : contract(nat))
-    ];
-
-} with contractEntrypoint
-
-
-
-// helper function to get an entrypoint with address type on specified contract
-function getEntrypointAddressType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(address) is
-block {
-
-    const contractEntrypoint : contract(address) = case (Tezos.get_entrypoint_opt(entrypointName, contractAddress)) of [
-            Some(contr) -> contr
-        |   None        -> (failwith(errorCode) : contract(address))
-    ];
-
-} with contractEntrypoint
-
-
-// function getEntrypointAddressType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(address) is
-//     case (Tezos.get_entrypoint_opt(
-//         "%" ^ entrypointName, 
-//         contractAddress) : option(contract(address))) of [
-//             Some(contr) -> contr
-//         |   None        -> (failwith(errorCode) : contract(address))
-//     ];
-
-
-// helper function to %addVestee entrypoint to add a new vestee on the Vesting contract
-// function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
-// block {
-
-//     case (Tezos.get_entrypoint_opt("%addVestee",contractAddress) : option(contract(addVesteeType))) of [
-//             Some(contr) -> contr
-//         |   None        -> (failwith(error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(addVesteeType))
-//     ];
-// }   
-
-// helper function to get an entrypoint with unit type on specified contract
-function getEntrypointUnitType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(unit) is
-block {
-
-    const contractEntrypoint : contract(unit) = case Tezos.get_entrypoint_opt(entrypointName, contractAddress) of [
-            Some(contr) -> contr
-        |   None        -> (failwith(errorCode) : contract(unit))
-    ];
-
-} with contractEntrypoint
-
-
-
-// helper function to get an entrypoint with bytes type on specified contract
-function getEntrypointBytesType(const entrypointName : string; const contractAddress : address; const errorCode : nat) : contract(bytes) is
-block {
-
-    const contractEntrypoint : contract(bytes) = case Tezos.get_entrypoint_opt(entrypointName,contractAddress) of [
-            Some(contr) -> contr
-        |   None        -> (failwith(errorCode) : contract(bytes))
-    ];
-
-} with contractEntrypoint
-    
 
 
 // ------------------------------------------------------------------------------

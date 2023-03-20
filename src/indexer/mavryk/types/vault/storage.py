@@ -36,8 +36,5 @@ class VaultStorage(BaseModel):
 
     admin: str
     depositors: Union[Depositor, Depositor1]
-    governanceAddress: str
     handle: Handle
-    lambdaLedger: Dict[str, str]
-    metadata: Dict[str, str]
-    mvkTokenAddress: str
+    name: str

@@ -1,13 +1,13 @@
 
-from mavryk.types.mvk.parameter.transfer import TransferParameter
+from mavryk.types.mvk_token.parameter.transfer import TransferParameter
 from dipdup.context import HandlerContext
-from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk_token.storage import MvkTokenStorage
 from dipdup.models import Transaction
 import mavryk.models as models
 
 async def on_mvk_transfer(
     ctx: HandlerContext,
-    transfer: Transaction[TransferParameter, MvkStorage],
+    transfer: Transaction[TransferParameter, MvkTokenStorage],
 ) -> None:
 
     # Get transfer batch
@@ -16,32 +16,29 @@ async def on_mvk_transfer(
     mvk_address         = transfer.data.target_address
     user_ledger         = transfer.storage.ledger
 
+    # Get MVK Token
+    mvk_token = await models.MVKToken.get(address=mvk_address)
+
     for entry in transaction_batch:
         sender_address = entry.from_
         transactions = entry.txs
+
+        # Get or create sender
+        sender    = await models.mavryk_user_cache.get(address=sender_address)
+        sender.mvk_balance = user_ledger[sender_address]
+        await sender.save()
+
         for transaction in transactions:
             receiver_address = transaction.to_
             amount = int(transaction.amount)
 
-            # Get MVK Token
-            mvk_token = await models.MVKToken.get(address=mvk_address)
-
-            # Get or create sender
-            sender, _ = await models.MavrykUser.get_or_create(
-                address=sender_address
-            )
-            sender.mvk_balance = user_ledger[sender_address]
-            await sender.save()
-
             # Get or create receiver
-            receiver, _ = await models.MavrykUser.get_or_create(
-                address=receiver_address
-            )
+            receiver    = await models.mavryk_user_cache.get(address=receiver_address)
             receiver.mvk_balance = user_ledger[receiver_address]
             await receiver.save()
 
             # Create transfer
-            transfer_record = models.MVKTransferHistoryData(
+            transfer_record = models.MVKTokenTransferHistoryData(
                 timestamp=timestamp,
                 mvk_token=mvk_token,
                 from_=sender,
@@ -65,7 +62,7 @@ async def on_mvk_transfer(
                 smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
                 
                 if smvk_users > 0:
-                    avg_smvk_per_user   = smvk_total_supply / smvk_users
+                    avg_smvk_per_user   = float(smvk_total_supply) / float(smvk_users)
                     smvk_history_data   = models.SMVKHistoryData(
                         timestamp           = timestamp,
                         doorman             = doorman,

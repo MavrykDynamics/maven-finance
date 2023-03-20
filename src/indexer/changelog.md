@@ -4,14 +4,329 @@
 
 ### Deployment
 
-- DEV: 0.17
-- PROD: 0.17
+- DEV: 0.34
+- PROD: 0.33
+- PROD2: 0.33
+- DEMO: 0.35
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
-## Version 0.17
+## Version 0.34
+
+### What's new
+
+- Vault
+  - Column Name added
+
+### Breaking changes
+
+- Vault
+
+  - Column Governance removed
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.33</summary>
+
+## Version 0.33
+
+### What's new
+
+- LiquidityBakinge5MCandle
+
+  - View added
+
+- LiquidityBakinge15MCandle
+
+  - View added
+
+- LiquidityBakinge1HCandle
+
+  - View added
+
+- LiquidityBakinge1DCandle
+
+  - View added
+
+- LiquidityBakinge1WCandle
+  - View added
+
+</details>
+
+<details><summary>0.32</summary>
+
+## Version 0.32
+
+### Breaking changes
+
+- LendingControllerLoanToken
+  - Column LPTokenTotal renamed to MTokensTotal
+  - Column LPTokenAddress removed and replaced by a FK to the MToken table called MToken
+
+</details>
+
+<details><summary>0.31</summary>
+
+## Version 0.31
+
+### Breaking changes
+
+- Doorman
+  - Column on_vault_deposit_smvk_paused renamed to on_vault_deposit_stake_paused
+  - Column on_vault_withdraw_smvk_paused renamed to on_vault_withdraw_stake_paused
+  - Column on_vault_liquidate_smvk_paused renamed to on_vault_liquidate_stake_paused
+- LendingController
+  - Column vault_deposit_smvk_paused renamed to vault_deposit_staked_token_paused
+  - Column vault_withdraw_smvk_paused renamed to vault_withdraw_staked_token_paused
+
+### What's new
+
+- LendingControllerCollateralToken
+  - Column is_staked_token added
+  - Column staking_contract_address added
+  - Column total_deposited added
+  - Column max_deposit_amount added
+  - Column paused added
+- LendingControllerLoanToken
+  - Column paused added
+
+</details>
+
+<details><summary>0.29</summary>
+
+## Version 0.29
+
+### What's new
+
+- MTokenAccountHistoryData
+  - Table added
+
+</details>
+
+<details><summary>0.28</summary>
+
+## Version 0.28
+
+### What's new
+
+- LendingControllerCollateralToken
+  - Column token_name added
+  - Column token_contract_standard added
+- LendingControllerLoanToken
+  - Column loan_token_contract_standard added
+
+</details>
+
+<details><summary>0.27</summary>
+
+## Version 0.27
+
+### What's new
+
+- MTokenAccount
+  - Column RewardsEarned added
+
+</details>
+
+<details><summary>0.26</summary>
+
+## Version 0.27
+
+### What's new
+
+- MTokenAccount
+  - Column RewardsEarned added
+
+## Version 0.26
+
+### Breaking changes
+
+- MavrykUserOperator:
+  - Table renamed to MVKTokenOperator
+  - Owner column related name renamed from UsersOwner to MvkTokenUserOwners
+  - Operator column related name renamed from UserOperator to MvkTokenUserOperators
+- MVKTransferHistoryData:
+  - Table renamed to MVKTokenTransferHistoryData
+- MVKMintHistoryData:
+  - Table renamed to MVKTokenMintHistoryData
+
+### What's new
+
+- MToken
+  - Table added
+- MTokenWhitelistContracts
+  - Table added
+- MTokenOperator
+  - Table added
+- MTokenAccount
+  - Table added
+- LendingControllerHistoryData
+  - Column LoanToken added
+
+</details>
+
+<details><summary>0.25</summary>
+
+## Version 0.25
+
+### What's new
+
+- Satellite:
+  - Colmuns PublicKey and PeerId added
+- LendingControllerCollateralToken:
+  - Column IsScaledToken added
+
+</details>
+
+<details><summary>0.24</summary>
+
+## Version 0.24
+
+### What's new
+
+- LendingControllerHistoryData:
+  - Table added: tracks all operations made to vault contracts and to the lending controller contract
+
+</details>
+
+<details><summary>0.23</summary>
+
+## Version 0.23
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+
+  - Values in the TokenPriceUSD column are now fetched asynchronously to speed up the initial indexing process. While
+    the data is not sync, a null value will appear.
+
+- LiquidityBaking:
+
+  - Column SharePriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with
+    the formula: `SharePriceUSD = SharePrice * XTZUSDPrice`)
+
+- LiquidityBakingPosition:
+  - Column AvgPriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with
+    the formula: `AvgPriceUSD = AvgPriceq * XTZUSDPrice`)
+
+</details>
+
+<details><summary>0.22</summary>
+
+## Version 0.22
+
+### What's new
+
+- MavrykUser:
+
+  - Table is now cached (no impact on queries)
+
+- GovernanceProposalData:
+
+  - Table now shows null values
+
+- GovernancePaymentData:
+
+  - Table now shows null values
+
+- LiquidityBaking:
+
+  - Column SharePriceUSD added
+
+- LiquidityBakingPosition:
+
+  - Column AvgSharePriceUSD added
+
+- LiquidityBakingHistoryData:
+  - Column TokenPriceUSD added
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+  - Column Price renamed to TokenPrice
+
+</details>
+
+<details><summary>0.21</summary>
+
+## Version 0.21
+
+### What's new
+
+- AggregatorOracle:
+  - Column InitEpoch added: always equal to the epoch that was currently set when the oracle joined an Aggregator
+  - Column InitRound added: always equal to the round that was currently set when the oracle joined an Aggregator
+- AggregatorOracleObservation:
+  - Table added: tracks all observations made by an AggregatorOracle for each round/epoch it participated
+- LiquidityBaking:
+  - Column SharePrice added
+- LiquidityBakingPosition:
+  - Table added
+- LiquidityBakingHistoryData:
+  - Column Trader added: you can now fetch all operations made by a trader through this foreign key
+  - Column Level added
+  - Column XTZQty added
+  - Column TokenQty added
+  - Column LqtQty added
+  - Column Slippage added
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+  - Column XTZTokenPrice and TokenXTZPrice replaced by Price (BTC price in XTZ)
+
+</details>
+
+<details><summary>0.20</summary>
+
+## Version 0.20
+
+### What's new
+
+- LendingControllerMockTime contract indexed
+- TokenPoolReward contract removed
+
+## Version 0.19
+
+### What's new
+
+- GovernanceProposalData
+  - Column CodeDescription added
+- GovernancePaymentData
+  - Column TokenId added
+- GovernanceSatelliteOracleAggregator
+  - Table added
+
+### Breaking changes
+
+- Aggregator
+  - Token0Symbol and Token1Symbol columns removed
+- GovernanceProposalData
+  - RecordInternalId column renamed to InternalId
+  - Bytes column renamed to EncodedCode
+- GovernancePaymentData
+  - RecordInternalId column renamed to InternalId
+- GovernanceSatelliteAggregator
+  - Table removed entirely
+- GovernanceSatelliteAggregatorOracle
+  - Table removed entirely
+- GovernanceSatelliteSatelliteOracle
+  - Table renamed to GovernanceSatelliteOracle
+  - AggregatorsSubscribed column removed
+  - Oracle column related name renamed from governance_satellite_satellite_oracles to governance_satellite_oracles (
+    relation GovernanceSatelliteOracle->MavrykUser)
+- GovernanceSatelliteSatelliteOracleAggregatorPair
+  - Table removed entirely
+- TokenSaleBuyOption
+  - BuyOptionInternalId column renamed to InternalId
+
+</details>
+
+<details><summary>0.17/0.18</summary>
+
+## Version 0.17/0.18
 
 ### What's new
 
@@ -43,6 +358,10 @@
 - LendingControllerCollateralToken
   - OracleType removed
 
+</details>
+
+<details><summary>0.16</summary>
+
 ## Version 0.16
 
 ### What's new
@@ -53,7 +372,8 @@
 
 ### Breaking changes
 
-- Token table removed and replaced by dipdup_token_metadata table (all FKs to the Token Table have been replaced by token contract addresses)
+- Token table removed and replaced by dipdup_token_metadata table (all FKs to the Token Table have been replaced by
+  token contract addresses)
 - CouncilActionParameter/BreakGlassActionParameter/GovernanceSatelliteActionParameter now contains hex bytes as values
 - Table GovernanceSatelliteActionTransfer removed. Its content is now saved into GovernanceSatelliteActionParameter
 
@@ -62,7 +382,12 @@
 - Aggregator/AggregatorFactory tables + GovernanceSatellite/Council/BreakGlass tables refactored
 - LendingController/Vault/VaultFactory/TokenPoolReward tables
 - dipdup_token_metadata: Metadata of all tokens in the system
-- dipdup_contract_metadata: Metadata of all contracts in the system (due to a BCD bug, some contracts don't have their metadata)
+- dipdup_contract_metadata: Metadata of all contracts in the system (due to a BCD bug, some contracts don't have their
+  metadata)
+
+</details>
+
+<details><summary>0.13</summary>
 
 ## Version 0.13
 
@@ -133,55 +458,48 @@
 ### Dipdup 6.0.0 breaking changes:
 
 - Attribute name refactoring:
-  | Table | Old | New |
-  | ----- | --- | --- |
-  | GovernanceProposalData | governance_proposal_record | governance_proposal |
-  | GovernanceProposalPayment | governance_proposal_record | governance_proposal |
-  | GovernanceProposalVote | governance_proposal_record | governance_proposal |
-  | LendingControllerVaultHandle | lending_controller_vault_record | lending_controller_vault |
-  | LendingControllerVaultCollateralBalance | lending_controller_vault_record | lending_controller_vault |
-  | TokenSaleBuyerOption | buyer_record | buyer |
+  | Table | Old | New | | ----- | --- | --- | | GovernanceProposalData | governance_proposal_record |
+  governance_proposal | | GovernanceProposalPayment | governance_proposal_record | governance_proposal | |
+  GovernanceProposalVote | governance_proposal_record | governance_proposal | | LendingControllerVaultHandle |
+  lending_controller_vault_record | lending_controller_vault | | LendingControllerVaultCollateralBalance |
+  lending_controller_vault_record | lending_controller_vault | | TokenSaleBuyerOption | buyer_record | buyer |
 - Foreign key name refactoring :
-  | Relation | Old | New |
-  | ----- | --- | --- |
-  | MVKToken &rarr; Governance | mvk_token | mvk_tokens |
-  | Doorman &rarr; MavrykUser | doorman_stake_account | doorman_stake_accounts |
-  | Delegation &rarr; MavrykUser | satellite_record | satellite |
-  | Council &rarr; MavrykUser | council_council_member | council_council_members |
-  | CouncilActionParameter &rarr; CouncilAction | council_action_record_parameters | parameters |
-  | CouncilCouncilMember &rarr; Council | council_council_member | member |
-  | CouncilCouncilMember &rarr; MavrykUser | council_council_member | council_council_members |
-  | CouncilAction &rarr; Council | council_action_records | actions |
-  | VestingVestee &rarr; Vesting | vesting_vestee_records | vestees |
-  | BreakGlassCouncilMember &rarr; MavrykUser | break_glass_council_member | break_glass_council_members |
-  | BreakGlassCouncilMember &rarr; BreakGlass | break_glass_council_members | council_members |
-  | BreakGlassAction &rarr; BreakGlass | break_glass_action_records | actions |
-  | BreakGlassActionSigner &rarr; MavrykUser | break_glass_actions_signer | break_glass_action_signers |
-  | BreakGlassActionParameter &rarr; BreakGlass | break_glass_action_parameters | parameters |
-  | GovernanceProposal &rarr; Governance | governance_proposal_records | proposals |
-  | GovernanceProposalData &rarr; GovernanceProposalo | proposal_data | data |
-  | GovernanceProposalPayment &rarr; GovernanceProposal | proposal_payments | payments |
-  | GovernanceSatelliteSnapshot &rarr; Governance | governance_satellite_snapshot_records | satellite_snapshots |
-  | GovernanceSatelliteSnapshot &rarr; MavrykUser | governance_satellite_snapshot_records_votes | governance_satellite_snapshots |
-  | GovernanceFinancialRequest &rarr; GovernanceFinancial | governance_financial_request_records | requests |
-  | GovernanceSatelliteAction &rarr; GovernanceSatellite | governance_satellite_action_records | actions |
-  | GovernanceSatelliteActionParameter &rarr; GovernanceSatelliteAction | governance_satellite_action_parameters | parameters |
-  | GovernanceSatelliteActionTransfer &rarr; GovernanceSatelliteAction | governance_satellite_action_transfers | transfers |
-  | GovernanceSatelliteAggregator &rarr; GovernanceSatellite | governance_satellite_aggregator_records | aggregators |
-  | GovernanceSatelliteAggregatorOracle &rarr; GovernanceSatelliteAggregator | governance_satellite_satellite_oracle_records | oracles |
-  | GovernanceSatelliteSatelliteOracle &rarr; GovernanceSatellite | governance_satellite_satellite_oracle_records | oracles |
-  | MVKTransferHistoryData &rarr; MVKToken | mvk_transfer_history_data | transfer_history_data |
-  | SMVKHistoryData &rarr; Doorman | smvk_history_data | staked_mvk_history_data |
-  | StakeHistoryData &rarr; Doorman | stake_record | stake_history_data |
-  | StakeHistoryData &rarr; MavrykUser | stake_record | stake_history_data |
-  | LendingControllerReward &rarr; LendingController | reward_records | rewards |
-  | LendingControllerLoanToken &rarr; LendingController | loan_token_records | loan_tokens |
-  | LendingControllerLoanToken &rarr; Token #1 | lending_controller_loan_loan_token_records | lending_controller_loan_token |
-  | LendingControllerLoanToken &rarr; Token #2 | lending_controller_loan_loan_token_records | lending_controller_loan_token |
-  | TokenSaleBuyer &rarr; TokenSale | token_sale_buyer_records | token_sale_buyers |
-  | TokenSaleBuyer &rarr; MavrykUser | token_sale_buyer_records | token_sale_buyers |
-  | TokenSaleBuyerOption &rarr; TokenSaleBuyOption | buyer_record_options | buyer_options |
-  | VaultDepositor &rarr; Vault | depositor_records | depositors |
-  | VaultDepositor &rarr; MavrykUser | vault_depositor_records | vault_depositors |
-  | VestingVestee &rarr; Vesting | vestee_records | vestees |
-  | VestingVestee &rarr; MavrykUser | vesting_vestee_records | vesting_vestees |
+  | Relation | Old | New | | ----- | --- | --- | | MVKToken &rarr; Governance | mvk_token | mvk_tokens | | Doorman
+  &rarr; MavrykUser | doorman_stake_account | doorman_stake_accounts | | Delegation &rarr; MavrykUser | satellite_record
+  | satellite | | Council &rarr; MavrykUser | council_council_member | council_council_members | |
+  CouncilActionParameter &rarr; CouncilAction | council_action_record_parameters | parameters | | CouncilCouncilMember
+  &rarr; Council | council_council_member | member | | CouncilCouncilMember &rarr; MavrykUser | council_council_member |
+  council_council_members | | CouncilAction &rarr; Council | council_action_records | actions | | VestingVestee &rarr;
+  Vesting | vesting_vestee_records | vestees | | BreakGlassCouncilMember &rarr; MavrykUser | break_glass_council_member
+  | break_glass_council_members | | BreakGlassCouncilMember &rarr; BreakGlass | break_glass_council_members |
+  council_members | | BreakGlassAction &rarr; BreakGlass | break_glass_action_records | actions | |
+  BreakGlassActionSigner &rarr; MavrykUser | break_glass_actions_signer | break_glass_action_signers | |
+  BreakGlassActionParameter &rarr; BreakGlass | break_glass_action_parameters | parameters | | GovernanceProposal &rarr;
+  Governance | governance_proposal_records | proposals | | GovernanceProposalData &rarr; GovernanceProposalo |
+  proposal_data | data | | GovernanceProposalPayment &rarr; GovernanceProposal | proposal_payments | payments | |
+  GovernanceSatelliteSnapshot &rarr; Governance | governance_satellite_snapshot_records | satellite_snapshots | |
+  GovernanceSatelliteSnapshot &rarr; MavrykUser | governance_satellite_snapshot_records_votes |
+  governance_satellite_snapshots | | GovernanceFinancialRequest &rarr; GovernanceFinancial |
+  governance_financial_request_records | requests | | GovernanceSatelliteAction &rarr; GovernanceSatellite |
+  governance_satellite_action_records | actions | | GovernanceSatelliteActionParameter &rarr; GovernanceSatelliteAction
+  | governance_satellite_action_parameters | parameters | | GovernanceSatelliteActionTransfer &rarr;
+  GovernanceSatelliteAction | governance_satellite_action_transfers | transfers | | GovernanceSatelliteAggregator &rarr;
+  GovernanceSatellite | governance_satellite_aggregator_records | aggregators | | GovernanceSatelliteAggregatorOracle
+  &rarr; GovernanceSatelliteAggregator | governance_satellite_satellite_oracle_records | oracles | |
+  GovernanceSatelliteSatelliteOracle &rarr; GovernanceSatellite | governance_satellite_satellite_oracle_records |
+  oracles | | MVKTransferHistoryData &rarr; MVKToken | mvk_transfer_history_data | transfer_history_data | |
+  SMVKHistoryData &rarr; Doorman | smvk_history_data | staked_mvk_history_data | | StakeHistoryData &rarr; Doorman |
+  stake_record | stake_history_data | | StakeHistoryData &rarr; MavrykUser | stake_record | stake_history_data | |
+  LendingControllerReward &rarr; LendingController | reward_records | rewards | | LendingControllerLoanToken &rarr;
+  LendingController | loan_token_records | loan_tokens | | LendingControllerLoanToken &rarr; Token #1 |
+  lending_controller_loan_loan_token_records | lending_controller_loan_token | | LendingControllerLoanToken &rarr; Token
+  # 2 | lending_controller_loan_loan_token_records | lending_controller_loan_token | | TokenSaleBuyer &rarr; TokenSale |
+  token_sale_buyer_records | token_sale_buyers | | TokenSaleBuyer &rarr; MavrykUser | token_sale_buyer_records |
+  token_sale_buyers | | TokenSaleBuyerOption &rarr; TokenSaleBuyOption | buyer_record_options | buyer_options | |
+  VaultDepositor &rarr; Vault | depositor_records | depositors | | VaultDepositor &rarr; MavrykUser |
+  vault_depositor_records | vault_depositors | | VestingVestee &rarr; Vesting | vestee_records | vestees | |
+  VestingVestee &rarr; MavrykUser | vesting_vestee_records | vesting_vestees |
+
+</details>
+
+</details>

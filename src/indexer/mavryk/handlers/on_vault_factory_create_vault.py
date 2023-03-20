@@ -18,15 +18,17 @@ async def on_vault_factory_create_vault(
     vault_factory_address   = create_vault.data.target_address
     vault_address           = vault_origination.data.originated_contract_address
     timestamp               = vault_origination.data.timestamp
-    governance_address      = vault_origination.storage.governanceAddress
     admin                   = vault_origination.storage.admin
     depositors              = vault_origination.storage.depositors
+    name                    = vault_origination.storage.name
+    whitelisted_addresses   = []
     allowance_type          = models.VaultAllowance.ANY
 
     if type(depositors) == Any:
-        allowance_type  = models.VaultAllowance.ANY
+        allowance_type          = models.VaultAllowance.ANY
     elif type(depositors) == Whitelist:
-        allowance_type  = models.VaultAllowance.WHITELIST
+        allowance_type          = models.VaultAllowance.WHITELIST
+        whitelisted_addresses   = depositors.whitelist
 
     # Check vault does not already exists
     vault_exists            = await models.Vault.get_or_none(
@@ -58,30 +60,22 @@ async def on_vault_factory_create_vault(
         vault_factory       = await models.VaultFactory.get(
             address = vault_factory_address
         )
-        governance, _       = await models.Governance.get_or_create(
-            address = governance_address
-        )
-        await governance.save()
         vault, _            = await models.Vault.get_or_create(
             address             = vault_address
         )
+        vault.name                  = name
         vault.factory               = vault_factory
         vault.admin                 = admin
-        vault.governance            = governance
         vault.allowance             = allowance_type
         vault.creation_timestamp    = timestamp
         vault.last_updated_at       = timestamp
         await vault.save()
 
         # Register depositors
-        if type(depositors) == Whitelist:
-            for depositor_address in depositors.whitelist:
-                depositor, _        = await models.MavrykUser.get_or_create(
-                    address = depositor_address
-                )
-                await depositor.save()
-                vault_depositor, _  = await models.VaultDepositor.get_or_create(
-                    vault       = vault,
-                    depositor   = depositor
-                )
-                await vault_depositor.save()
+        for depositor_address in whitelisted_addresses:
+            depositor           = await models.mavryk_user_cache.get(address=depositor_address)
+            vault_depositor, _  = await models.VaultDepositor.get_or_create(
+                vault       = vault,
+                depositor   = depositor
+            )
+            await vault_depositor.save()

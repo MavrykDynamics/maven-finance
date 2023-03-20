@@ -13,7 +13,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, trudy, susie, oracle0, oracle1, oracle2, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy, susie } from "../scripts/sandbox/accounts";
 
 // import doormanAddress                   from '../deployments/doormanAddress.json';
 // import delegationAddress                from '../deployments/delegationAddress.json';
@@ -227,20 +227,12 @@
 //             // Setup Oracles
 //             await signerFactory(bob.sk);
 
-//             // const oracleMap = MichelsonMap.fromLiteral({
-//             //   [oracle0.pkh] : true,
-//             //   [oracle1.pkh] : true,
-//             //   [oracle2.pkh] : true,
-//             // }) as MichelsonMap<
-//             //     string,
-//             //     boolean
-//             //     >
-
 //             const oracleMap = MichelsonMap.fromLiteral({});
 
 //             const aggregatorMetadataBase = Buffer.from(
 //                 JSON.stringify({
 //                     name: 'MAVRYK Aggregator Contract',
+//                     icon: 'https://logo.chainbit.xyz/xtz',
 //                     version: 'v1.0.0',
 //                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
 //                 }),
@@ -251,7 +243,7 @@
 //             const createAggregatorsBatch = await utils.tezos.wallet
 //             .batch()
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDBTC',
+//                 'USD/BTC',
 //                 true,
 
 //                 oracleMap,
@@ -268,12 +260,12 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDXTZ',
+//                 'USD/XTZ',
 //                 true,
 
 //                 oracleMap,
 
-//                 new BigNumber(8),             // decimals
+//                 new BigNumber(6),             // decimals
 //                 new BigNumber(2),             // alphaPercentPerThousand
 
 //                 new BigNumber(60),            // percentOracleThreshold
@@ -285,7 +277,7 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDDOGE',
+//                 'USD/DOGE',
 //                 true,
 
 //                 oracleMap,
@@ -1447,10 +1439,6 @@
 //             assert.equal(usdXtzAggregatorOracles,      undefined);
 //             assert.equal(usdDogeAggregatorOracles,     undefined);
 
-//             // get bob satellite oracle record
-//             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.size;
-            
 //             const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //             const bobStakeAmount           = MVK(100);
 //             const aliceStakeAmount         = MVK(100);

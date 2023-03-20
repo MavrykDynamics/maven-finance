@@ -153,7 +153,7 @@ block {
 function verifySufficientBalanceToTrigger(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThan(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
 
 } with unit
 
@@ -163,7 +163,7 @@ block {
 function verifySufficientBalanceToVote(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThan(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
 
 } with unit
 
@@ -214,8 +214,8 @@ block {
 
         startDateTime                    = Tezos.get_now();
         startLevel                       = Tezos.get_level();             
-        executedDateTime                 = Tezos.get_now();
-        executedLevel                    = Tezos.get_level();
+        executedDateTime                 = zeroTimestamp;
+        executedLevel                    = 0n;
         expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
     ];
 

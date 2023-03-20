@@ -73,6 +73,12 @@
 // AggregatorFactory Type
 #include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
 
+// Vault Types 
+#include "../partials/contractTypes/vaultTypes.ligo"
+
+// LendingController Type
+#include "../partials/contractTypes/lendingControllerTypes.ligo"
+
 // Governance Proxy Types
 #include "../partials/contractTypes/governanceProxyTypes.ligo"
 
@@ -85,8 +91,8 @@ type governanceProxyAction is
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
     |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     |   UpdateGeneralContracts          of updateGeneralContractsType
+    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
@@ -154,8 +160,8 @@ block {
         |   SetGovernance(parameters)                 -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)                -> updateMetadata(parameters, s)
         |   UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
-        |   UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         |   UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
+        |   UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Main entrypoints

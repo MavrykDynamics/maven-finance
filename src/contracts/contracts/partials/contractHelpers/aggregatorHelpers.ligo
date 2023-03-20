@@ -99,11 +99,11 @@ block {
 
 
 
-// helper function to verify epoch is greater than previous epoch
+// helper function to verify epoch is equal or greater than previous epoch
 function verifyEpochIsEqualOrGreaterThanPreviousEpoch(const currentEpoch : nat; const s : aggregatorStorageType) : unit is
 block {
     
-    verifyGreaterThan(currentEpoch, s.lastCompletedData.epoch, error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
+    verifyGreaterThanOrEqual(currentEpoch, s.lastCompletedData.epoch, error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT);
 
 } with unit
 
@@ -402,11 +402,16 @@ function verifyEqualMapSizes(const leaderReponse : updateDataType; const s : agg
 
     // Byzantine faults check
     // see: https://research.chain.link/ocr.pdf
-    const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
-    if (int(Map.size(leaderReponse.signatures)) < f)
+    // const f: int                = ((Map.size(s.oracleAddresses) - 1) * fixedPointAccuracy) / 3n;
+    // const signaturesSize: int   = int(Map.size(leaderReponse.signatures)) * fixedPointAccuracy;
+    // const observationsSize: int = int(Map.size(leaderReponse.oracleObservations)) * fixedPointAccuracy;
+    const f: int                = ((Map.size(s.oracleAddresses) - 1)) / 3n;
+    const signaturesSize: int   = int(Map.size(leaderReponse.signatures));
+    const observationsSize: int = int(Map.size(leaderReponse.oracleObservations));
+    if (signaturesSize < f)
         then failwith(error_WRONG_SIGNATURES_MAP_SIZE)
     else skip;
-    if (int(Map.size(leaderReponse.oracleObservations)) <= (2 * f))
+    if (observationsSize <= (2 * f))
         then failwith(error_WRONG_OBSERVATIONS_MAP_SIZE)
     else skip
 
@@ -547,26 +552,6 @@ function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) 
 // ------------------------------------------------------------------------------
 // Reward Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to get satellite record view from the delegation contract
-function getSatelliteRecord(const satelliteAddress : address; const s : aggregatorStorageType) : satelliteRecordType is 
-block {
-
-    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-    const satelliteRecord : satelliteRecordType = case satelliteOptView of [
-            Some (optionView) -> case optionView of [
-                    Some(_satelliteRecord)      -> _satelliteRecord
-                |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
-            ]
-        |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-} with satelliteRecord
-
-
 
 // helper function to get delegation ratio from the delegation contract
 function getDelegationRatio(const s : aggregatorStorageType) : nat is 

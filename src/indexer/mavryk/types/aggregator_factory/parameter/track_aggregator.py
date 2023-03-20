@@ -3,13 +3,8 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel
 
 
 class TrackAggregatorParameter(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pairFirst: str
-    pairSecond: str
-    aggregatorAddress: str
+    __root__: str

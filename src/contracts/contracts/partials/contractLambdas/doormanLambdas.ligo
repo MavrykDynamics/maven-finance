@@ -260,6 +260,11 @@ block {
                     |   Unstake (_v)          -> s.breakGlassConfig.unstakeIsPaused     := _v
                     |   Compound (_v)         -> s.breakGlassConfig.compoundIsPaused    := _v
                     |   FarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused   := _v
+
+                        // Vault Entrypoints
+                    |   OnVaultDepositStake (_v)    -> s.breakGlassConfig.onVaultDepositStakeIsPaused    := _v
+                    |   OnVaultWithdrawStake (_v)   -> s.breakGlassConfig.onVaultWithdrawStakeIsPaused   := _v
+                    |   OnVaultLiquidateStake (_v)  -> s.breakGlassConfig.onVaultLiquidateStakeIsPaused  := _v
                 ]
                 
             }
@@ -633,6 +638,210 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
             }
         |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  onVaultDepositStake lambda *)
+function lambdaOnVaultDepositStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
+block{
+
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultDepositStakeIsPaused, error_ON_VAULT_DEPOSIT_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaOnVaultDepositStake(onVaultDepositStakeParams) -> {
+
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
+
+                // init parameters
+                const vaultOwner     : address  = onVaultDepositStakeParams.vaultOwner;
+                const vaultAddress   : address  = onVaultDepositStakeParams.vaultAddress;
+                const depositAmount  : nat      = onVaultDepositStakeParams.depositAmount;
+                
+                // Get Delegation Address from the General Contracts map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+                // Compound rewards for user and vault before any changes in balance takes place
+                s := compoundUserRewards(vaultOwner, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // check that user (vault owner) has a record in stake balance ledger and sufficient balance
+                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
+                        Some(_v) -> _v
+                    |   None     -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // calculate new user staked balance
+                const userStakedBalance : nat = userBalanceInStakeBalanceLedger.balance; 
+                if depositAmount > userStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
+                const newUserStakedBalance : nat = abs(userStakedBalance - depositAmount);
+
+                // find or create vault record in stake balance ledger
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                        Some(_val) -> _val
+                    |   None -> record[
+                            balance                        = 0n;
+                            totalExitFeeRewardsClaimed     = 0n;
+                            totalSatelliteRewardsClaimed   = 0n;
+                            totalFarmRewardsClaimed        = 0n;
+                            participationFeesPerShare      = s.accumulatedFeesPerShare;
+                        ]
+                ];
+
+                // update vault stake balance in stake balance ledger
+                vaultStakeBalanceRecord.balance           := vaultStakeBalanceRecord.balance + depositAmount; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
+
+                // update user stake balance in stake balance ledger
+                userBalanceInStakeBalanceLedger.balance   := newUserStakedBalance;
+                s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const ownerOnStakeChangeOperation : operation = Tezos.transaction((vaultOwner)  , 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+
+                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  onVaultWithdrawStake lambda *)
+function lambdaOnVaultWithdrawStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
+block{
+
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultWithdrawStakeIsPaused, error_ON_VAULT_WITHDRAW_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaOnVaultWithdrawStake(onVaultWithdrawStakeParams) -> {
+
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
+
+                // init parameters
+                const vaultOwner      : address = onVaultWithdrawStakeParams.vaultOwner;
+                const vaultAddress    : address = onVaultWithdrawStakeParams.vaultAddress;
+                const withdrawAmount  : nat     = onVaultWithdrawStakeParams.withdrawAmount;
+
+                // Get Delegation Address from the General Contracts map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+                // Compound rewards for user and vault before any changes in balance takes place
+                s := compoundUserRewards(vaultOwner, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // check that user (vault owner) has a record in stake balance ledger and sufficient balance
+                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // find vault record in stake balance ledger
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // calculate new vault staked balance (check if vault has enough staked MVK to be withdrawn)
+                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
+                if withdrawAmount > vaultStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
+                const newVaultStakedBalance : nat = abs(vaultStakedBalance - withdrawAmount);
+
+                // update vault stake balance in stake balance ledger
+                vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
+
+                // update user stake balance in stake balance ledger
+                userBalanceInStakeBalanceLedger.balance   := userBalanceInStakeBalanceLedger.balance + withdrawAmount;
+                s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const ownerOnStakeChangeOperation : operation = Tezos.transaction((vaultOwner)  , 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+
+                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  onVaultLiquidateStake lambda *)
+function lambdaOnVaultLiquidateStake(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
+block{
+    
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.onVaultLiquidateStakeIsPaused, error_ON_VAULT_LIQUIDATE_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaOnVaultLiquidateStake(onVaultLiquidateStakeParams) -> {
+
+                // verify sender is Lending Controller 
+                verifySenderIsLendingControllerContract(s);
+
+                // init parameters
+                const vaultAddress      : address  = onVaultLiquidateStakeParams.vaultAddress;
+                const liquidator        : address  = onVaultLiquidateStakeParams.liquidator;
+                const liquidatedAmount  : nat      = onVaultLiquidateStakeParams.liquidatedAmount;
+
+                // Get Delegation Address from the General Contracts map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+                // Compound rewards for liquidator, and vault before any changes in balance takes place
+                s := compoundUserRewards(liquidator, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // find vault record in stake balance ledger
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                        Some(_val)  -> _val
+                    |   None        -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
+                ];
+
+                // find or create liquidator record in stake balance ledger 
+                var liquidatorStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
+                        Some(_v) -> _v
+                    |   None -> record[
+                            balance                        = 0n;
+                            totalExitFeeRewardsClaimed     = 0n;
+                            totalSatelliteRewardsClaimed   = 0n;
+                            totalFarmRewardsClaimed        = 0n;
+                            participationFeesPerShare      = s.accumulatedFeesPerShare;
+                        ]
+                ];
+
+                // calculate new vault staked balance (check if vault has enough staked MVK to be liquidated)
+                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
+                if liquidatedAmount > vaultStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
+                const newVaultStakedBalance : nat = abs(vaultStakedBalance - liquidatedAmount);
+
+                // update vault stake balance in stake balance ledger
+                vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
+
+                // update liquidator stake balance in stake balance ledger
+                liquidatorStakeBalanceRecord.balance      := liquidatorStakeBalanceRecord.balance + liquidatedAmount;
+                s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const liquidatorOnStakeChangeOperation    : operation = Tezos.transaction((liquidator)  , 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation         : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+
+                operations  := list [liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
+            }
+        | _ -> skip
     ];
 
 } with (operations, s)
