@@ -92,7 +92,7 @@ block {
         |   MistakenTransfer(parameters)        -> mistakenTransfer(parameters, s)
 
             // Main Entrypoints
-        |   ExecuteGovernanceAction (params)    -> executeGovernanceAction(params, s)
+        |   ExecuteGovernanceAction(params)     -> executeGovernanceAction(params, s)
         |   DataPackingHelper(parameters)       -> dataPackingHelper(parameters, s)
 
             // Lambda Entrypoints

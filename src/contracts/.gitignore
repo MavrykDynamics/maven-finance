@@ -11,3 +11,4 @@ compiled/*.tz
 **/.idea/**
 .VSCodeCounter/
 .ligo-work
+scripts/proxyLambdaFunctionMaker/governanceProxyLambdaFunction.ligo

@@ -1,13 +1,4 @@
-interface fa12 {
-    fa12                                    : string;
-}
-
-interface fa2 {
-    fa2                                     : {
-        tokenContractAddress                    : string;
-        tokenId                                 : number;
-    }
-}
+import { fa12, fa2, transferItem, addOperator, removeOperator, oracleInformation, createLoanToken, updateLoanToken, createCollateralToken, updateCollateralToken } from './proxyLambdaFunctionInterface'
 
 const proxyContract = (
 
@@ -19,74 +10,74 @@ const proxyContract = (
 // ------------------------------------------------------------------------------
 
 // Error Codes
-#include "../partials/errors.ligo"
+#include "../../contracts/partials/errors.ligo"
 
 // Shared Types
-#include "../partials/shared/sharedTypes.ligo"
+#include "../../contracts/partials/shared/sharedTypes.ligo"
 
 // Transfer Helpers
-#include "../partials/shared/transferHelpers.ligo"
+#include "../../contracts/partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // Doorman types
-#include "../partials/contractTypes/doormanTypes.ligo"
+#include "../../contracts/partials/contractTypes/doormanTypes.ligo"
 
 // Delegation Types
-#include "../partials/contractTypes/delegationTypes.ligo"
+#include "../../contracts/partials/contractTypes/delegationTypes.ligo"
 
 // Farm types
-#include "../partials/contractTypes/farmTypes.ligo"
+#include "../../contracts/partials/contractTypes/farmTypes.ligo"
 
 // FarmFactory Types
-#include "../partials/contractTypes/farmFactoryTypes.ligo"
+#include "../../contracts/partials/contractTypes/farmFactoryTypes.ligo"
 
 // Treasury Type
-#include "../partials/contractTypes/treasuryTypes.ligo"
+#include "../../contracts/partials/contractTypes/treasuryTypes.ligo"
 
 // TreasuryFactory Type
-#include "../partials/contractTypes/treasuryFactoryTypes.ligo"
+#include "../../contracts/partials/contractTypes/treasuryFactoryTypes.ligo"
 
 // Aggregator Types
-#include "../partials/contractTypes/aggregatorTypes.ligo"
+#include "../../contracts/partials/contractTypes/aggregatorTypes.ligo"
 
 // Aggregator Factory Types
-#include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
+#include "../../contracts/partials/contractTypes/aggregatorFactoryTypes.ligo"
 
 // Vestee Types
-#include "../partials/contractTypes/vestingTypes.ligo"
+#include "../../contracts/partials/contractTypes/vestingTypes.ligo"
 
 // Vault Types 
-#include "../partials/contractTypes/vaultTypes.ligo"
+#include "../../contracts/partials/contractTypes/vaultTypes.ligo"
 
 // Lending Controller Types
-#include "../partials/contractTypes/lendingControllerTypes.ligo"
+#include "../../contracts/partials/contractTypes/lendingControllerTypes.ligo"
 
 // Governance Types
-#include "../partials/contractTypes/governanceTypes.ligo"
+#include "../../contracts/partials/contractTypes/governanceTypes.ligo"
 
 // Council Types
-#include "../partials/contractTypes/councilTypes.ligo"
+#include "../../contracts/partials/contractTypes/councilTypes.ligo"
 
 // Emergency Governance Types
-#include "../partials/contractTypes/emergencyGovernanceTypes.ligo"
+#include "../../contracts/partials/contractTypes/emergencyGovernanceTypes.ligo"
 
 // BreakGlass Types
-#include "../partials/contractTypes/breakGlassTypes.ligo"
+#include "../../contracts/partials/contractTypes/breakGlassTypes.ligo"
 
 // Governance Financial Types
-#include "../partials/contractTypes/governanceFinancialTypes.ligo"
+#include "../../contracts/partials/contractTypes/governanceFinancialTypes.ligo"
 
 // Governance Satellite Types
-#include "../partials/contractTypes/governanceSatelliteTypes.ligo"
+#include "../../contracts/partials/contractTypes/governanceSatelliteTypes.ligo"
 
 // Token Sale Types
-#include "../partials/contractTypes/tokenSaleTypes.ligo"
+#include "../../contracts/partials/contractTypes/tokenSaleTypes.ligo"
 
 // Vault Factory Types
-#include "../partials/contractTypes/vaultFactoryTypes.ligo"
+#include "../../contracts/partials/contractTypes/vaultFactoryTypes.ligo"
 
 type actionType is 
         // Default Entrypoint to Receive Tez
@@ -94,7 +85,7 @@ type actionType is
     |   Empty                         of unit
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * unit
+type return is list (operation) * unit;
 
 (* lamdda function *)
 ${lambdaFunction}
@@ -701,12 +692,6 @@ block {
 } with list[contractOperation]`
 };
 
-interface transferItem {
-    to_     : string;
-    amount  : number;
-    token   : fa12 | fa2 | "tez"
-}
-
 const transfer  = (
 
     targetContract          : string,
@@ -786,22 +771,6 @@ block {
     );
 } with list[contractOperation]`
 };
-
-interface addOperator {
-    addOperator: {
-        owner: string,
-        operator: string,
-        tokenId: number
-    }
-}
-
-interface removeOperator {
-    removeOperator: {
-        owner: string,
-        operator: string,
-        tokenId: number
-    }
-}
 
 const updateMvkOperators  = (
 
@@ -893,12 +862,6 @@ block {
     );
 } with list[contractOperation]`
 };
-
-interface oracleInformation {
-    oracleAddress           : string,
-    oraclePublicKey         : string,
-    oraclePeerId            : string
-}
 
 const createAggregator  = (
 
@@ -1171,38 +1134,6 @@ block {
 } with list[contractOperation]`
 };
 
-interface createLoanToken {
-    createLoanToken                         : {
-        tokenName                               : string;
-        tokenDecimals                           : number;
-        oracleAddress                           : string;
-        mTokenAddress                           : string;
-        reserveRatio                            : number;
-        optimalUtilisationRate                  : number;
-        baseInterestRate                        : number;
-        maxInterestRate                         : number;
-        interestRateBelowOptimalUtilisation     : number;
-        interestRateAboveOptimalUtilisation     : number;
-        minRepaymentAmount                      : number;
-        tokenType                               : fa12 | fa2 | "tez"; 
-    }
-} 
-
-interface updateLoanToken {
-    updateLoanToken                         : {
-        tokenName                               : string;
-        oracleAddress                           : string;
-        reserveRatio                            : number;
-        optimalUtilisationRate                  : number;
-        baseInterestRate                        : number;
-        maxInterestRate                         : number;
-        interestRateBelowOptimalUtilisation     : number;
-        interestRateAboveOptimalUtilisation     : number;
-        minRepaymentAmount                      : number;
-        isPaused                                : boolean;
-    }
-}
-
 const setLoanToken  = (
 
     targetContract          : string,
@@ -1288,31 +1219,6 @@ block {
     );
 } with list[contractOperation]`
 };
-
-interface createCollateralToken {
-    createCollateralToken                   : {
-        tokenName                               : string,
-        tokenContractAddress                    : string,
-        tokenDecimals                           : number,
-        oracleAddress                           : string,
-        protected                               : boolean,
-        isScaledToken                           : boolean,
-        isStakedToken                           : boolean,
-        stakingContractAddress                  : string | undefined,
-        maxDepositAmount                        : number | undefined,
-        tokenType                               : fa12 | fa2 | "tez"
-    }
-} 
-
-interface updateCollateralToken {
-    updateCollateralToken                   : {
-        tokenName                               : string,
-        oracleAddress                           : string,
-        isPaused                                : boolean,
-        stakingContractAddress                  : string | undefined,
-        maxDepositAmount                        : number | undefined,
-    }
-}
 
 const setCollateralToken  = (
 

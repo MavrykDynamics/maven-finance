@@ -24,7 +24,7 @@
 // import vestingAddress from '../deployments/vestingAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';
 // import { MichelsonMap } from "@taquito/taquito";
-// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Break Glass Super Admin tests", async () => {
 //     var utils: Utils;
@@ -334,7 +334,7 @@
 //                         const lambdaFunction        = await compileLambdaFunction(
 //                             'development',
 //                             governanceProxyAddress.address,
-//                             './contracts/main/governanceProxyLambdaFunction.ligo',
+//                             
 //                             'updateWhitelistDevelopers',
 //                             [
 //                                 governanceAddress.address,

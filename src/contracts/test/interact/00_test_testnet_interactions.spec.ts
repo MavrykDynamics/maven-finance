@@ -1,6 +1,6 @@
 const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
 const { InMemorySigner, importKey } = require("@taquito/signer");
-import { compileLambdaFunction } from '../../scripts/proxyLambdaFunctionPacker'
+import { compileLambdaFunction } from '../../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
 import assert, { ok, rejects, strictEqual } from "assert";
 import { MVK, Utils, zeroAddress } from "../helpers/Utils";
 import { createHash } from "crypto";
@@ -2840,9 +2840,9 @@ describe("Testnet interactions helper", async () => {
 
                 // Create a farm compiled params
                 const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                    'ghostnet',
                     governanceProxyAddress.address,
-                    './contracts/main/governanceProxyLambdaFunction.ligo',
+                    
                     'createFarm',
                     [
                         farmFactoryAddress.address,
@@ -2929,6 +2929,25 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
+        it('Admin claims rewards for the past proposal', async () => {
+            try{
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+                // Operation
+                const distributeRewardsOperation    = await governanceInstance.methods.distributeProposalRewards(
+                    bob.pkh,
+                    [
+                        proposalId
+                    ]
+                ).send();
+                await distributeRewardsOperation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
         it('Admin executes an entire proposal (with %processProposalSingleData)', async () => {
             try{
                 // Initial values
@@ -2941,9 +2960,9 @@ describe("Testnet interactions helper", async () => {
 
                 // Create a farm compiled params
                 const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                    'ghostnet',
                     governanceProxyAddress.address,
-                    './contracts/main/governanceProxyLambdaFunction.ligo',
+                    
                     'createFarm',
                     [
                         farmFactoryAddress.address,
@@ -3045,9 +3064,9 @@ describe("Testnet interactions helper", async () => {
 
                 // Create a farm compiled params
                 const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                    'ghostnet',
                     governanceProxyAddress.address,
-                    './contracts/main/governanceProxyLambdaFunction.ligo',
+                    
                     'createFarm',
                     [
                         farmFactoryAddress.address,

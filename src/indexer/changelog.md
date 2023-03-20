@@ -17,6 +17,10 @@
 
 ### What's new
 
+- GovernanceProposalVote
+
+  - Column VotingRewardClaimed added
+
 ### Breaking changes
 
 - GovernanceProxyProxyLambda

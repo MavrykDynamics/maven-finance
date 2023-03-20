@@ -24,7 +24,7 @@
     "start-sandbox-old": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230203 limabox start && bash ./sandbox-init.sh",
     "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name mavryk-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230203 limabox start && bash ./sandbox-init.sh",
     "generate-error-codes": "bash ./generate-error-codes.sh",
-    "compile-lambda-function": "ts-node scripts/proxyLambdaFunctionPacker.ts",
+    "compile-lambda-function": "ts-node scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker.ts",
     "pre-compile": "ts-node scripts/cli.ts compile -o contracts/compiled -c",
     "pre-compile-m1": "ts-node scripts/cli.ts compile -o contracts/compiled -m true -c",
     "pre-compile-all": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",

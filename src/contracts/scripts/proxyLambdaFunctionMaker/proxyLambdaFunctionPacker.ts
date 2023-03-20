@@ -1,8 +1,8 @@
-import env from '../env';
+import env from '../../env';
 import * as fs from 'fs'
 import { execSync } from 'child_process';
 import { TezosToolkit } from '@taquito/taquito'
-import { generateProxyContract } from './proxyLambdaFunction'
+import { generateProxyContract } from './proxyLambdaFunctionLibrary'
 
 const packLambdaFunction    = async(
 
@@ -33,42 +33,6 @@ const packLambdaFunction    = async(
     }
     return packedParam;
 
-}
-
-// Fix special characters in regex string
-const escapeRegExp = (
-
-    string: string
-
-) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
-
-// Format stdin args for pascaligo
-const formatArgs = (
-    
-    type: string, 
-    lambdaVar: string | undefined=undefined
-    
-) => {
-    switch(type){
-        case "address":
-            return lambdaVar ? "\""+lambdaVar+"\"" : "\"tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg\"";
-        case "aggregatorUpdateConfigActionType":
-            return lambdaVar ? lambdaVar : "ConfigDecimals";
-        case "bytes":
-            return lambdaVar ? "\""+lambdaVar+"\"" : "\"74657a6f732d73746f726167653a64617461\"";
-        case "bool":
-            return lambdaVar ? (lambdaVar.toUpperCase() === "TRUE" ? "True" : "False") : "False" ;
-        case "nat":
-            return lambdaVar ? lambdaVar + "n" : "0n";
-        case "string":
-            return lambdaVar ? "\""+lambdaVar+"\"" : "\"null\"";
-        case "tokenType":
-            return lambdaVar ? lambdaVar : "Tez";
-        default: 
-            return null;
-    }
 }
 
 function getLigo (
@@ -126,7 +90,7 @@ const compileLambdaFunctionContract = async(
     const ligo = getLigo(true, ligoVersion, isAppleSilicon);
 
     const jsonFormat = execSync(
-        `${ligo} compile contract $PWD/${contractPath} --michelson-format json --protocol lima`,
+        `${ligo} compile contract ${contractPath} --michelson-format json --protocol lima`,
         { 
             maxBuffer: 1024 * 1024,
             timeout: 1024 * 1024
@@ -140,8 +104,7 @@ const compileLambdaFunctionContract = async(
 export const compileLambdaFunction  = async(
 
     network: string = 'development',
-    governanceProxyContractAddress: string = 'KT1RAuWGnxyYx7i1VZafrNt4zLdLUgQdJQe5',
-    outputFile: string   = './contracts/main/governanceProxyLambdaFunction.ligo',
+    governanceProxyContractAddress: string = "",
     lambdaFunctionName: string = "",
     lambdaFunctionParameters: Array<any> = []
 
@@ -151,9 +114,11 @@ export const compileLambdaFunction  = async(
     var args: string[] = [];
     if (require.main === module) {
         // Script called from terminal
-        lambdaFunctionName          = process.argv[2];
-        args                        = process.argv.slice(3);
-        lambdaFunctionParameters    = args;
+        network                         = process.argv[2];
+        governanceProxyContractAddress  = process.argv[3];
+        lambdaFunctionName              = process.argv[4];
+        args                            = process.argv.slice(5);
+        lambdaFunctionParameters        = args;
     }
 
     // Read the contents of the input file specified in the first command line argument
@@ -163,6 +128,7 @@ export const compileLambdaFunction  = async(
     );
 
     // Write the result to the output file
+    const outputFile: string        = __dirname + "/governanceProxyLambdaFunction.ligo";
     fs.writeFileSync(outputFile, generatedContract);
 
     // Start the compiling process
