@@ -26,7 +26,7 @@ type createAggregatorParamsType is [@layout:comb] record[
     name                    : string;
     addToGeneralContracts   : bool;
 
-    oracleAddresses         : oracleAddressesType;
+    oracleLedger            : oracleLedgerType;
     
     aggregatorConfig        : aggregatorConfigType;
     metadata                : bytes;

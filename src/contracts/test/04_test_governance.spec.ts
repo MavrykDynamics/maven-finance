@@ -26,6 +26,7 @@
 // // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 // import { config } from "yargs";
 // import { MichelsonMap } from "@taquito/taquito";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Governance tests", async () => {
 //     var utils: Utils;
@@ -853,32 +854,24 @@
 //                     const proposalIpfs          = "ipfs://QM123456789";
 //                     const proposalSourceCode    = "Proposal Source Code";
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                     throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const proposalData      = [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -925,7 +918,7 @@
 //                     assert.notStrictEqual(proposalDataStorage, undefined);
 //                     assert.notStrictEqual(paymentDataStorage, undefined);
 //                     assert.strictEqual(proposalDataStorage.title, "Data#1");
-//                     assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam);
+//                     assert.strictEqual(proposalDataStorage.encodedCode, lambdaFunction);
 //                     assert.strictEqual(paymentDataStorage.title,  "Payment#0");
 //                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
 //                     assert.notEqual(cycleProposal, undefined);
@@ -1032,33 +1025,25 @@
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 //                     const proposalDebug         = await governanceStorage.proposalLedger.get(proposalId);
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                     throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     // Operation
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -1072,7 +1057,7 @@
 
 //                     // Assertions
 //                     assert.strictEqual(proposalDataStorage.title, "Data#1")
-//                     assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(proposalDataStorage.encodedCode, lambdaFunction)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1084,31 +1069,25 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateGovernanceConfig', 1200, 'configSuccessReward'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                     throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             governanceAddress.address,
+//                             "governance",
+//                             "ConfigSuccessReward",
+//                             1200
+//                         ]
+//                     );
 
 //                     // Operation
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1.1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: "",
 //                                 index: "1"
 //                             },
@@ -1123,7 +1102,7 @@
 
 //                     // Assertions
 //                     assert.strictEqual(proposalDataStorage.title, "Data#1.1")
-//                     assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(proposalDataStorage.encodedCode, lambdaFunction)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1135,31 +1114,25 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateGovernanceConfig', 1300, 'configSuccessReward'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                     throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             governanceAddress.address,
+//                             "governance",
+//                             "ConfigSuccessReward",
+//                             1300
+//                         ]
+//                     );
 
 //                     // Operation
 //                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1.2",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: "",
 //                                 index: "2"
 //                             },
@@ -1214,51 +1187,39 @@
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
 //                     // Pack first data
-//                     var configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateGovernanceConfig', 1200, 'configSuccessReward'
-//                     ).toTransferParams();
-//                     var configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     var callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     var updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var firstPackedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         firstPackedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunctionFirst   = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             governanceAddress.address,
+//                             "governance",
+//                             "ConfigSuccessReward",
+//                             1200
+//                         ]
+//                     );
 
 //                     // Pack second data
-//                     configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateGovernanceConfig', 1600, 'configSuccessReward'
-//                     ).toTransferParams();
-//                     configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var secondPackedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         secondPackedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunctionSecond  = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             governanceAddress.address,
+//                             "governance",
+//                             "ConfigSuccessReward",
+//                             1600
+//                         ]
+//                     );
 
 //                     // Operation
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1.2",
-//                                 encodedCode: firstPackedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunctionFirst,
 // 								codeDescription: "",
 //                                 index: "1"
 //                             }
@@ -1266,7 +1227,7 @@
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#2",
-//                                 encodedCode: secondPackedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunctionSecond,
 // 								codeDescription: ""
 //                             }
 //                         },
@@ -1276,14 +1237,14 @@
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#3",
-//                                 encodedCode: firstPackedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunctionFirst,
 // 								codeDescription: ""
 //                             }
 //                         },
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#2.1",
-//                                 encodedCode: secondPackedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunctionSecond,
 // 								codeDescription: "",
 //                                 index: "2"
 //                             }
@@ -1300,11 +1261,11 @@
 
 //                     // Assertions
 //                     assert.strictEqual(firstProposalDataStorage.title, "Data#1.2")
-//                     assert.strictEqual(firstProposalDataStorage.encodedCode, firstPackedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(firstProposalDataStorage.encodedCode, lambdaFunctionFirst)
 //                     assert.strictEqual(secondProposalDataStorage.title, "Data#2.1")
-//                     assert.strictEqual(secondProposalDataStorage.encodedCode, secondPackedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(secondProposalDataStorage.encodedCode, lambdaFunctionSecond)
 //                     assert.strictEqual(thirdProposalDataStorage.title,  "Data#3")
-//                     assert.strictEqual(thirdProposalDataStorage.encodedCode, firstPackedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(thirdProposalDataStorage.encodedCode, lambdaFunctionFirst)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1500,24 +1461,18 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateGovernanceConfig', 1200, 'configSuccessReward'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                     throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             governanceAddress.address,
+//                             "governance",
+//                             "ConfigSuccessReward",
+//                             1200
+//                         ]
+//                     );
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1525,7 +1480,7 @@
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#4",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -1541,31 +1496,25 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const proposalId            = 9999;
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateGovernanceConfig', 1200, 'configSuccessReward'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                     throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             governanceAddress.address,
+//                             "governance",
+//                             "ConfigSuccessReward",
+//                             1200
+//                         ]
+//                     );
 
 //                     // Operation
 //                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#4",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -1581,24 +1530,18 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateGovernanceConfig', 1200, 'configSuccessReward'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                     } else {
-//                     throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             governanceAddress.address,
+//                             "governance",
+//                             "ConfigSuccessReward",
+//                             1200
+//                         ]
+//                     );
 
 //                     // Operation
 //                     await signerFactory(alice.sk);
@@ -1606,7 +1549,7 @@
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#4",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -1852,31 +1795,24 @@
 //                     const previousProposalVoteCount = await previousProposal.proposalVoteCount;
 
 //                     // Add data to proposal for later execution
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -2255,10 +2191,10 @@
 //                     governanceStorage = await governanceInstance.storage();
 
 //                     // Operation
-//                     if(governanceStorage.currentCycleInfo.cycleEndLevel == 0){
-//                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-//                         await startNextRoundOperation.confirmation();
-//                     }
+//                     // if(governanceStorage.currentCycleInfo.cycleEndLevel == 0){
+//                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+//                     await startNextRoundOperation.confirmation();
+//                     // }
 //                     await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
 
 //                     // Reset config
@@ -2307,6 +2243,8 @@
 //                     const firstProposalSourceCode    = "Proposal Source Code";
 
 //                     // Operation
+//                     const firstProposalOperation     = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
+//                     await firstProposalOperation.confirmation();
 //                     await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1})).to.be.rejected; 
 
 //                 } catch(e){
@@ -2473,24 +2411,18 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     governanceStorage           = await governanceInstance.storage();
 //                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
@@ -2503,7 +2435,7 @@
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -2542,32 +2474,25 @@
 //                     await lockOperation.confirmation();
 
 //                     // Test
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     // Operation
 //                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -2872,31 +2797,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3020,31 +2938,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3121,31 +3032,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3237,31 +3141,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3341,31 +3238,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3436,31 +3326,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     var addDataOperation = await governanceInstance.methods.updateProposalData(firstProposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3500,18 +3383,11 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
         
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
-
 //                     addDataOperation = await governanceInstance.methods.updateProposalData(secondProposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3584,31 +3460,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3661,31 +3530,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -3750,31 +3612,24 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
-//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                         data: configSuccessRewardParamValue,
-//                         type: callGovernanceLambdaEntrypointType
-//                     }).catch(e => console.error('error:', e));
-        
-//                     var packedUpdateConfigSuccessRewardParam;
-//                     if (updateConfigSuccessRewardPacked) {
-//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     } else {
-//                       throw `packing failed`
-//                     };
+//                     const lambdaFunction        = await compileLambdaFunction(
+//                         'development',
+//                         governanceProxyAddress.address,
+//                         
+//                         'updateConfig',
+//                         [
+//                             councilAddress.address,
+//                             "council",
+//                             "ConfigActionExpiryDays",
+//                             1234
+//                         ]
+//                     );
 
 //                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
-//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+//                                 encodedCode: lambdaFunction,
 // 								codeDescription: ""
 //                             },
 //                         }
@@ -4001,6 +3856,10 @@
 //                 await emergencyControlOperation.confirmation();
 //                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
 
+//                 // Reset general contracts
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+
 //                 // Check if glass was broken
 //                 breakGlassStorage       = await breakGlassInstance.storage();
 //                 const glassBroken       = breakGlassStorage.glassBroken;
@@ -4027,10 +3886,6 @@
 //                         }
 //                     }
 //                 }
-
-//                 // Reset general contracts
-//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
-//                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }

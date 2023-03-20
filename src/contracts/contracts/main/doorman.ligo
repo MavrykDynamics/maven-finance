@@ -51,7 +51,7 @@ type doormanAction is
         // Pause / Break Glass Entrypoints
     |   PauseAll                    of (unit)
     |   UnpauseAll                  of (unit)
-    |   TogglePauseEntrypoint      of doormanTogglePauseEntrypointType
+    |   TogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
         // Doorman Entrypoints
     |   Stake                       of (nat)

@@ -36,6 +36,7 @@
 // import vaultFactoryAddress                      from '../deployments/vaultFactoryAddress.json';
 
 // import { vaultStorageType } from "./types/vaultStorageType"
+// import { compileLambdaFunction } from 'scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker';
 
 // describe("Lending Controller tests", async () => {
     
@@ -4830,32 +4831,22 @@
 //     //             const proposalSourceCode    = "Proposal Source Code";
 
 //     //             // Set a contract admin compiled params
-//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//     //                 'setContractAdmin',
-//     //                 lendingControllerInstance.address,
-//     //                 bob.pkh,
-//     //             ).toTransferParams();
-//     //             const lambdaParamsValue = lambdaParams.parameter.value;
-//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
-//     //                 data: lambdaParamsValue,
-//     //                 type: proxyDataPackingHelperType
-//     //             }).catch(e => console.error('error:', e));
-
-//     //             var packedParam;
-//     //             if (referenceDataPacked) {
-//     //                 packedParam = referenceDataPacked.packed
-//     //                 console.log('packed %setContractAdmin param: ' + packedParam);
-//     //             } else {
-//     //                 throw `packing failed`
-//     //             };
+//     //             const lambdaFunction        = await compileLambdaFunction(
+//     //                 'development',
+//     //                 governanceProxyAddress.address,
+//     //                 
+//     //                 'setAdmin',
+//     //                 [
+//     //                     lendingControllerInstance.address,
+//     //                     bob.pkh
+//     //                 ]
+//     //             );
 
 //     //             const proposalData      = [
 //     //                 {
 //     //                     addOrSetProposalData: {
 //     //                         title: "SetAdmin#1",
-//     //                         encodedCode: packedParam,
+//     //                         encodedCode: lambdaFunction,
 // 	// 					    codeDescription: ""
 //     //                     }
 //     //                 }

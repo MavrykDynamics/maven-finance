@@ -80,10 +80,7 @@ async def persist_council_action(action):
     actionID                    = councilActionCounter - 1
     await council.save()
 
-    initiator, _ = await models.MavrykUser.get_or_create(
-        address = councilActionInitiator
-    )
-    await initiator.save()
+    initiator   = await models.mavryk_user_cache.get(address=councilActionInitiator)
 
     councilActionRecord = await models.CouncilAction.get_or_none(
         id                              = actionID
@@ -114,10 +111,7 @@ async def persist_council_action(action):
 
         # Signers
         for signer in councilActionSigners:
-            user, _ = await models.MavrykUser.get_or_create(
-                address = signer
-            )
-            await user.save()
+            user    = await models.mavryk_user_cache.get(address=signer)
             councilActionRecordSigner = models.CouncilActionSigner(
                 signer                  = user,
                 council_action          = councilActionRecord
@@ -155,10 +149,7 @@ async def persist_break_glass_action(action):
     actionID                    = breakGlassActionCounter - 1
     await breakGlass.save()
 
-    initiator, _ = await models.MavrykUser.get_or_create(
-        address = breakGlassActionInitiator
-    )
-    await initiator.save()
+    initiator    = await models.mavryk_user_cache.get(address=breakGlassActionInitiator)
 
     breakGlassActionRecord = await models.BreakGlassAction.get_or_none(
         id                              = actionID
@@ -189,10 +180,8 @@ async def persist_break_glass_action(action):
 
         # Signers
         for signer in breakGlassActionSigners:
-            user, _ = await models.MavrykUser.get_or_create(
-                address = signer
-            )
-            await user.save()
+            user    = await models.mavryk_user_cache.get(address=signer)
+
             breakGlassActionRecordSigner = models.BreakGlassActionSigner(
                 signer                      = user,
                 break_glass_action          = breakGlassActionRecord
@@ -254,9 +243,7 @@ async def persist_financial_request(ctx, action):
                 token_id=str(token_id)
             )
 
-            requester, _            = await models.MavrykUser.get_or_create(
-                address = requesterAddress
-            )
+            requester               = await models.mavryk_user_cache.get(address=requesterAddress)
             requestRecord           = models.GovernanceFinancialRequest(
                 id                              = int(requestID),
                 governance_financial            = governanceFinancial,
@@ -317,9 +304,7 @@ async def persist_governance_satellite_action(ctx, action):
             start_datetime                  = parser.parse(action_record_storage.startDateTime)
             data                            = action_record_storage.dataMap
 
-            initiator, _                    = await models.MavrykUser.get_or_create(
-                address = initiator_address
-            )
+            initiator                       = await models.mavryk_user_cache.get(address=initiator_address)
             action_record                   = models.GovernanceSatelliteAction(
                 governance_satellite            = governance_satellite,
                 initiator                       = initiator,
