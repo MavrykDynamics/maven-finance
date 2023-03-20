@@ -8,12 +8,6 @@ export type governanceProxyStorageType = {
     
     mvkTokenAddress           : string;
     governanceAddress         : string;
-    
-    whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
-    generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
-    whitelistTokenContracts   : MichelsonMap<MichelsonMapKey, unknown>;
-
-    proxyLambdaLedger         : MichelsonMap<MichelsonMapKey, unknown>;
 
     lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
     

@@ -1,5 +1,6 @@
 const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
 const { InMemorySigner, importKey } = require("@taquito/signer");
+import { compileLambdaFunction } from '../../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
 import assert, { ok, rejects, strictEqual } from "assert";
 import { MVK, Utils, zeroAddress } from "../helpers/Utils";
 import { createHash } from "crypto";
@@ -2838,40 +2839,30 @@ describe("Testnet interactions helper", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
 
                 // Create a farm compiled params
-                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                const lambdaFunction        = await compileLambdaFunction(
+                    'ghostnet',
+                    governanceProxyAddress.address,
+                    
                     'createFarm',
-                    "testFarm",
-                    false,
-                    false,
-                    false,
-                    12000,
-                    100,
-                    farmMetadataBase,
-                    mavrykFa12TokenAddress.address,
-                    0,
-                    "fa12",
-                ).toTransferParams();
-                const lambdaParamsValue = lambdaParams.parameter.value;
-                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-                const referenceDataPacked = await utils.tezos.rpc.packData({
-                    data: lambdaParamsValue,
-                    type: proxyDataPackingHelperType
-                }).catch(e => console.error('error:', e));
-
-                var packedParam;
-                if (referenceDataPacked) {
-                    packedParam = referenceDataPacked.packed
-                    console.log('packed %createFarm param: ' + packedParam);
-                } else {
-                throw `packing failed`
-                };
-
+                    [
+                        farmFactoryAddress.address,
+                        "testFarm",
+                        false,
+                        false,
+                        false,
+                        12000,
+                        100,
+                        farmMetadataBase,
+                        mavrykFa12TokenAddress.address,
+                        0,
+                        "FA12"
+                    ]
+                );
                 const proposalData      = [
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#1",
-                            encodedCode: packedParam,
+                            encodedCode: lambdaFunction,
                             codeDescription: ""
                         }
                     }
@@ -2938,6 +2929,25 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
+        it('Admin claims rewards for the past proposal', async () => {
+            try{
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+                // Operation
+                const distributeRewardsOperation    = await governanceInstance.methods.distributeProposalRewards(
+                    bob.pkh,
+                    [
+                        proposalId
+                    ]
+                ).send();
+                await distributeRewardsOperation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
         it('Admin executes an entire proposal (with %processProposalSingleData)', async () => {
             try{
                 // Initial values
@@ -2949,68 +2959,58 @@ describe("Testnet interactions helper", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
 
                 // Create a farm compiled params
-                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                const lambdaFunction        = await compileLambdaFunction(
+                    'ghostnet',
+                    governanceProxyAddress.address,
+                    
                     'createFarm',
-                    "testFarm",
-                    false,
-                    false,
-                    false,
-                    12000,
-                    100,
-                    farmMetadataBase,
-                    mavrykFa12TokenAddress.address,
-                    0,
-                    "fa12",
-                ).toTransferParams();
-                const lambdaParamsValue = lambdaParams.parameter.value;
-                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-                const referenceDataPacked = await utils.tezos.rpc.packData({
-                    data: lambdaParamsValue,
-                    type: proxyDataPackingHelperType
-                }).catch(e => console.error('error:', e));
-
-                var packedParam;
-                if (referenceDataPacked) {
-                    packedParam = referenceDataPacked.packed
-                    console.log('packed %createFarm param: ' + packedParam);
-                } else {
-                throw `packing failed`
-                };
-
+                    [
+                        farmFactoryAddress.address,
+                        "testFarm",
+                        false,
+                        false,
+                        false,
+                        12000,
+                        100,
+                        farmMetadataBase,
+                        mavrykFa12TokenAddress.address,
+                        0,
+                        "FA12"
+                    ]
+                );
                 const proposalData      = [
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#1",
-                            encodedCode: packedParam,
+                            encodedCode: lambdaFunction,
                             codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#2",
-                            encodedCode: packedParam,
+                            encodedCode: lambdaFunction,
                             codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#3",
-                            encodedCode: packedParam,
+                            encodedCode: lambdaFunction,
                             codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#4",
-                            encodedCode: packedParam,
+                            encodedCode: lambdaFunction,
                             codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#5",
-                            encodedCode: packedParam,
+                            encodedCode: lambdaFunction,
                             codeDescription: ""
                         }
                     }
@@ -3063,40 +3063,31 @@ describe("Testnet interactions helper", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
 
                 // Create a farm compiled params
-                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                const lambdaFunction        = await compileLambdaFunction(
+                    'ghostnet',
+                    governanceProxyAddress.address,
+                    
                     'createFarm',
-                    "testFarm",
-                    false,
-                    false,
-                    false,
-                    12000,
-                    100,
-                    farmMetadataBase,
-                    mavrykFa12TokenAddress.address,
-                    0,
-                    "fa12",
-                ).toTransferParams();
-                const lambdaParamsValue = lambdaParams.parameter.value;
-                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-                const referenceDataPacked = await utils.tezos.rpc.packData({
-                    data: lambdaParamsValue,
-                    type: proxyDataPackingHelperType
-                }).catch(e => console.error('error:', e));
-
-                var packedParam;
-                if (referenceDataPacked) {
-                    packedParam = referenceDataPacked.packed
-                    console.log('packed %createFarm param: ' + packedParam);
-                } else {
-                throw `packing failed`
-                };
+                    [
+                        farmFactoryAddress.address,
+                        "testFarm",
+                        false,
+                        false,
+                        false,
+                        12000,
+                        100,
+                        farmMetadataBase,
+                        mavrykFa12TokenAddress.address,
+                        0,
+                        "FA12"
+                    ]
+                );
 
                 const proposalData      = [
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#1",
-                            encodedCode: packedParam,
+                            encodedCode: lambdaFunction,
                             codeDescription: ""
                         }
                     }

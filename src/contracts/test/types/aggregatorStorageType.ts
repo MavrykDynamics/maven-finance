@@ -30,7 +30,7 @@ export type aggregatorStorageType = {
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
-    oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
+    oracleLedger              : MichelsonMap<MichelsonMapKey, unknown>;
     
     lastCompletedData: {
         round                 : BigNumber;

@@ -24,6 +24,7 @@
 // import vestingAddress from '../deployments/vestingAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';
 // import { MichelsonMap } from "@taquito/taquito";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Break Glass Super Admin tests", async () => {
 //     var utils: Utils;
@@ -330,30 +331,22 @@
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Remove User from whitelisted dev
-//                         const updateWhitelistDevelopersParam = governanceProxyInstance.methods.dataPackingHelper(
-//                             'updateWhitelistDevelopersSet', newAdmin
-//                         ).toTransferParams();
-//                         const updateWhitelistDevelopersParamValue = updateWhitelistDevelopersParam.parameter.value;
-//                         const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-            
-//                         const updateUpdateWhitelistDevelopersPacked = await utils.tezos.rpc.packData({
-//                             data: updateWhitelistDevelopersParamValue,
-//                             type: callGovernanceLambdaEntrypointType
-//                         }).catch(e => console.error('error:', e));
-            
-//                         var packedUpdateUpdateWhitelistDevelopersParam;
-//                         if (updateUpdateWhitelistDevelopersPacked) {
-//                             packedUpdateUpdateWhitelistDevelopersParam = updateUpdateWhitelistDevelopersPacked.packed
-//                             // console.log('packed success reward param: ' + packedUpdateUpdateWhitelistDevelopersParam);
-//                         } else {
-//                         throw `packing failed`
-//                         };
+//                         const lambdaFunction        = await compileLambdaFunction(
+//                             'development',
+//                             governanceProxyAddress.address,
+//                             
+//                             'updateWhitelistDevelopers',
+//                             [
+//                                 governanceAddress.address,
+//                                 newAdmin
+//                             ]
+//                         );
 
 //                         const proposalData = [
 //                             {
 //                                 addOrSetProposalData: {
 //                                     title: "Metadata#1",
-//                                     encodedCode: packedUpdateUpdateWhitelistDevelopersParam,
+//                                     encodedCode: lambdaFunction,
 //                                     codeDescription: ""
 //                                 }
 //                             }

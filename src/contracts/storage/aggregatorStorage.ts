@@ -43,7 +43,7 @@ const metadata = MichelsonMap.fromLiteral({
 //     oraclesMap[oracle.pkh] = true
 // }
 
-const oracleAddresses = MichelsonMap.fromLiteral({});
+const oracleLedger = MichelsonMap.fromLiteral({});
 
 
 const lastCompletedData = {
@@ -68,7 +68,7 @@ export const aggregatorStorage: aggregatorStorageType = {
     whitelistContracts        : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),
 
-    oracleAddresses           : oracleAddresses,
+    oracleLedger              : oracleLedger,
     
     lastCompletedData         : lastCompletedData,
 

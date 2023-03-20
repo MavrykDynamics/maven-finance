@@ -13,11 +13,7 @@ class GovernanceProxyStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    generalContracts: Dict[str, str]
     governanceAddress: str
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
     mvkTokenAddress: str
-    proxyLambdaLedger: Dict[str, str]
-    whitelistContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, str]

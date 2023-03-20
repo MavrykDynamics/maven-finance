@@ -245,7 +245,7 @@ block {
                 const oracleInformation : oracleInformationType = getOracleInformation(oracleAddress, s);
                 
                 // update storage
-                s.oracleAddresses[oracleAddress] := oracleInformation;
+                s.oracleLedger[oracleAddress] := oracleInformation;
 
             }
         |   _ -> skip
@@ -269,7 +269,7 @@ block {
                 const oracleInformation : oracleInformationType = getOracleInformation(Tezos.get_sender(), s);
                 
                 // Update storage
-                s.oracleAddresses[Tezos.get_sender()] := oracleInformation;
+                s.oracleLedger[Tezos.get_sender()] := oracleInformation;
 
             }
         |   _ -> skip
@@ -293,7 +293,7 @@ block {
                 verifySatelliteIsRegisteredOracle(oracleAddress, s);
 
                 // Remove oracle from oracle addresses
-                s.oracleAddresses := Map.remove(oracleAddress, s.oracleAddresses);
+                s.oracleLedger := Map.remove(oracleAddress, s.oracleLedger);
 
             }
         |   _ -> skip
@@ -427,13 +427,14 @@ block{
                 // get median
                 const median: nat = getMedianFromMap(pivotObservationMap(params.oracleObservations), Map.size (params.oracleObservations));
 
-                // todo: fix percent oracle response
+                // calculate percent oracle response
+                const percentOracleResponse: nat    = Map.size (params.oracleObservations) * 100_00n / Map.size (s.oracleLedger);
 
                 var newlastCompletedData := record [
                     round                   = epochAndRound.1;
                     epoch                   = epochAndRound.0;
                     data                    = median;
-                    percentOracleResponse   = Map.size (params.oracleObservations);
+                    percentOracleResponse   = percentOracleResponse;
                     lastUpdatedAt           = Tezos.get_now();
                 ];
 

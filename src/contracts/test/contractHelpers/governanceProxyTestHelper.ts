@@ -1,34 +1,14 @@
-import {
-    ContractAbstraction,
-    ContractMethod,
-    ContractMethodObject,
-    ContractProvider,
-    ContractView,
-    OriginationOperation,
-    TezosToolkit,
-    Wallet
-} from "@taquito/taquito";
+import governanceProxyLambdas from "../../build/lambdas/governanceProxyLambdas.json";
+import { ContractAbstraction, ContractMethod, ContractMethodObject, ContractProvider, ContractView, OriginationOperation, TezosToolkit, Wallet } from "@taquito/taquito";
+import { OnChainView } from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { governanceProxyStorageType } from "../types/governanceProxyStorageType";
 
-import governanceProxyLambdas from "../../build/lambdas/governanceProxyLambdas.json";
-
-import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
-
 type GovernanceProxyContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
-    setProxyLambda: (number, string) => ContractMethod<T>;
-    updateWhitelistContracts: (
-        whitelistContractName:string,
-        whitelistContractAddress:string
-    ) => ContractMethod<T>;
-    updateGeneralContracts: (
-        generalContractName:string,
-        generalContractAddress:string
-    ) => ContractMethod<T>;  
 };
 
 type GovernanceProxyContractMethodObject<T extends ContractProvider | Wallet> =
@@ -48,54 +28,18 @@ type GovernanceProxyContractAbstraction<T extends ContractProvider | Wallet = an
     governanceProxyStorageType>;
 
 
-export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, lastIndex : number) => {
+export const setGovernanceProxyContractLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction) => {
 
     const batch = tezosToolkit.wallet.batch();
-    var index   = 0
 
     for (let lambdaName in governanceProxyLambdas) {
         let bytes   = governanceProxyLambdas[lambdaName]
-        if(index < lastIndex){
-            batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
-        }
-        index++;
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
     }
 
     const setupGovernanceProxyLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupGovernanceProxyLambdasOperation.opHash);
 
-};
-
-export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceProxyContractAbstraction, startIndex : number) => {
-
-    const lambdasPerBatch = 10;
-
-    const lambdasCount = Object.keys(governanceProxyLambdas).length;
-    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
-
-    for(let i = 0; i < batchesCount; i++) {
-    
-        const batch = tezosToolkit.wallet.batch();
-        var index   = 0
-
-        for (let lambdaName in governanceProxyLambdas) {
-            let bytes   = governanceProxyLambdas[lambdaName]
-            if(index >= startIndex){
-            
-                // since contract lambdas and proxy lambdas are sharing the same index json - separate the two
-                const newIndex = index - startIndex;
-
-                if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-                    batch.withContractCall(contract.methods.setProxyLambda(newIndex, bytes))
-                }
-            }
-            index++;
-        }
-
-        const setupGovernanceProxyLambdasOperation = await batch.send()
-        await confirmOperation(tezosToolkit, setupGovernanceProxyLambdasOperation.opHash);
-
-    }
 };
 
 
