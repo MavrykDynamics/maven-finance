@@ -224,7 +224,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
             percentOracleResponse   : new BigNumber(100),
             lastUpdatedAt           : '1'
         };
-        aggregatorStorage.oracleLedger   = oracleMap;
+        aggregatorStorage.oracleLedger      = oracleMap;
         aggregatorStorage.mvkTokenAddress   = mvkTokenAddress.address;
         aggregatorStorage.governanceAddress = governanceAddress.address;
         mockUsdMockFa12TokenAggregator = await Aggregator.originate(
