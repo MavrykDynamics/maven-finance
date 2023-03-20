@@ -5,7 +5,7 @@ import { Utils, MVK } from './helpers/Utils';
 import fs from 'fs';
 import { confirmOperation } from '../scripts/confirmation';
 import { BigNumber } from 'bignumber.js'
-import { compileLambdaFunction } from '../scripts/proxyLambdaFunctionPacker'
+import { compileLambdaFunction } from '../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
 import * as doormanLambdas from '../build/lambdas/doormanLambdas.json';
 
 const chai = require('chai');
@@ -293,7 +293,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateInflationRate',
                         [
                             mvkTokenAddress.address,
@@ -327,7 +327,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'triggerInflation',
                         [
                             mvkTokenAddress.address
@@ -360,7 +360,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'setGovernance',
                         [
                             mvkTokenAddress.address,
@@ -395,7 +395,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'setAdmin',
                         [
                             mvkTokenAddress.address,
@@ -453,7 +453,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'addVestee',
                         [
                             vestingAddress.address,
@@ -496,7 +496,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateVestee',
                         [
                             vestingAddress.address,
@@ -536,7 +536,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'toggleVesteeLock',
                         [
                             vestingAddress.address,
@@ -573,7 +573,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'removeVestee',
                         [
                             vestingAddress.address,
@@ -626,7 +626,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'setName',
                         [
                             farmAddress.address,
@@ -665,7 +665,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'initFarm',
                         [
                             farmAddress.address,
@@ -708,7 +708,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'closeFarm',
                         [
                             farmAddress.address
@@ -740,7 +740,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'pauseAll',
                         [
                             farmAddress.address
@@ -777,7 +777,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'unpauseAll',
                         [
                             farmAddress.address
@@ -817,7 +817,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             farmAddress.address,
@@ -854,7 +854,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             farmAddress.address,
@@ -940,7 +940,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'createFarm',
                         [
                             farmFactoryAddress.address,
@@ -998,7 +998,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'setProductLambda',
                         [
                             farmFactoryAddress.address,
@@ -1035,7 +1035,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             farmFactoryAddress.address,
@@ -1072,7 +1072,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             farmFactoryAddress.address,
@@ -1109,7 +1109,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'trackProductContract',
                         [
                             farmFactoryAddress.address,
@@ -1144,7 +1144,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'trackProductContract',
                         [
                             farmFactoryAddress.address,
@@ -1241,7 +1241,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'mintMvkAndTransfer',
                         [
                             treasuryAddress.address,
@@ -1297,7 +1297,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateMvkOperators',
                         [
                             treasuryAddress.address,
@@ -1338,7 +1338,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'stakeMvk',
                         [
                             treasuryAddress.address,
@@ -1375,7 +1375,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'unstakeMvk',
                         [
                             treasuryAddress.address,
@@ -1411,7 +1411,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             treasuryAddress.address,
@@ -1478,7 +1478,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'transfer',
                         [
                             treasuryAddress.address,
@@ -1562,7 +1562,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'createTreasury',
                         [
                             treasuryFactoryAddress.address,
@@ -1609,7 +1609,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             treasuryFactoryAddress.address,
@@ -1646,7 +1646,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             treasuryFactoryAddress.address,
@@ -1683,7 +1683,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'trackProductContract',
                         [
                             treasuryFactoryAddress.address,
@@ -1718,7 +1718,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'untrackProductContract',
                         [
                             treasuryFactoryAddress.address,
@@ -1771,7 +1771,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'setGovernanceProxy',
                         [
                             governanceAddress.address,
@@ -1806,7 +1806,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateWhitelistDevelopers',
                         [
                             governanceAddress.address,
@@ -1841,7 +1841,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             governanceAddress.address,
@@ -1867,7 +1867,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('Aggregator', function() {
+        describe('Aggregator Contract', function() {
 
             before('Change the Aggregator contract admin', async () => {
                 try{
@@ -1898,7 +1898,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             aggregatorAddress.address,
@@ -1935,7 +1935,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             aggregatorAddress.address,
@@ -1961,7 +1961,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('AggregatorFactory', function() {
+        describe('Aggregator Factory Contract', function() {
 
             before('Change the AggregatorFactory contract admin', async () => {
                 try{
@@ -1992,7 +1992,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             aggregatorFactoryAddress.address,
@@ -2052,7 +2052,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'createAggregator',
                         [
                             aggregatorFactoryAddress.address,
@@ -2110,7 +2110,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             aggregatorFactoryAddress.address,
@@ -2147,7 +2147,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'trackProductContract',
                         [
                             aggregatorFactoryAddress.address,
@@ -2182,7 +2182,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'untrackProductContract',
                         [
                             aggregatorFactoryAddress.address,
@@ -2206,7 +2206,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('BreakGlass', function() {
+        describe('Break Glass Contract', function() {
 
             before('Change the BreakGlass contract admin', async () => {
                 try{
@@ -2237,7 +2237,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             breakGlassAddress.address,
@@ -2263,7 +2263,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('Council', function() {
+        describe('Council Contract', function() {
 
             before('Change the Council contract admin', async () => {
                 try{
@@ -2294,7 +2294,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             councilAddress.address,
@@ -2320,7 +2320,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('Delegation', function() {
+        describe('Delegation Contract', function() {
 
             before('Change the Delegation contract admin', async () => {
                 try{
@@ -2351,7 +2351,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             delegationAddress.address,
@@ -2388,7 +2388,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             delegationAddress.address,
@@ -2414,7 +2414,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('Doorman', function() {
+        describe('Doorman Contract', function() {
 
             before('Change the Doorman contract admin', async () => {
                 try{
@@ -2445,7 +2445,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             doormanAddress.address,
@@ -2482,7 +2482,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             doormanAddress.address,
@@ -2508,7 +2508,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('EmergencyGovernance', function() {
+        describe('Emergency Governance Contract', function() {
 
             before('Change the EmergencyGovernance contract admin', async () => {
                 try{
@@ -2539,7 +2539,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             emergencyGovernanceAddress.address,
@@ -2565,7 +2565,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('GovernanceFinancial', function() {
+        describe('Governance Financial Contract', function() {
 
             before('Change the GovernanceFinancial contract admin', async () => {
                 try{
@@ -2596,7 +2596,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             governanceFinancialAddress.address,
@@ -2622,7 +2622,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('GovernanceSatellite', function() {
+        describe('Governance Satellite Contract', function() {
 
             before('Change the GovernanceSatellite contract admin', async () => {
                 try{
@@ -2653,7 +2653,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             governanceSatelliteAddress.address,
@@ -2679,7 +2679,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('Lending Controller', function() {
+        describe('Lending Controller Contract', function() {
 
             before('Change the Lending Controller contract admin', async () => {
                 try{
@@ -2710,7 +2710,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             lendingControllerAddress.address,
@@ -2779,7 +2779,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         "setLoanToken",
                         [
                             lendingControllerAddress.address,
@@ -2851,7 +2851,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         "setLoanToken",
                         [
                             lendingControllerAddress.address,
@@ -2918,7 +2918,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         "setCollateralToken",
                         [
                             lendingControllerAddress.address,
@@ -2974,7 +2974,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         "setCollateralToken",
                         [
                             lendingControllerAddress.address,
@@ -3014,7 +3014,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             lendingControllerAddress.address,
@@ -3040,7 +3040,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('TokenSale', function() {
+        describe('Token Sale Contract', function() {
 
             before('Change the TokenSale contract admin', async () => {
                 try{
@@ -3071,7 +3071,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             tokenSaleAddress.address,
@@ -3098,7 +3098,7 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('VaultFactory', function() {
+        describe('Vault Factory Contract', function() {
 
             before('Change the VaultFactory contract admin', async () => {
                 try{
@@ -3129,7 +3129,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateConfig',
                         [
                             vaultFactoryAddress.address,
@@ -3166,7 +3166,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'togglePauseEntrypoint',
                         [
                             vaultFactoryAddress.address,
@@ -3206,7 +3206,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'setLambda',
                         [
                             doormanAddress.address,
@@ -3262,7 +3262,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateMetadata',
                         [
                             doormanAddress.address,
@@ -3298,7 +3298,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateWhitelistContracts',
                         [
                             doormanAddress.address,
@@ -3334,7 +3334,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateGeneralContracts',
                         [
                             doormanAddress.address,
@@ -3370,7 +3370,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lambdaFunction                                = await compileLambdaFunction(
                         'development',
                         governanceProxyAddress.address,
-                        './contracts/main/governanceProxyLambdaFunction.ligo',
+                        
                         'updateWhitelistTokenContracts',
                         [
                             treasuryFactoryAddress.address,

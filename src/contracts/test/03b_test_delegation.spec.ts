@@ -20,7 +20,7 @@
 // import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';
 // import { MichelsonMap } from "@taquito/taquito";
-// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Delegation tests", async () => {
 //     var utils: Utils;
@@ -497,7 +497,7 @@
 //                 const lambdaFunction                = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateGeneralContracts',
 //                     [
 //                         doormanAddress.address,
@@ -651,7 +651,7 @@
 //                 const lambdaFunction                = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateGeneralContracts',
 //                     [
 //                         doormanAddress.address,

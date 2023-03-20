@@ -37,7 +37,7 @@
 // import { config } from "yargs";
 // import { aggregatorStorageType } from "./types/aggregatorStorageType";
 // import { mvkStorage } from "storage/mvkTokenStorage";
-// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // function wait(ms: number) {
 //   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -653,7 +653,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'createFarm',
 //                     [
 //                         farmFactoryAddress.address,

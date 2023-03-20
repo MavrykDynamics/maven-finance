@@ -57,10 +57,7 @@ async def on_lending_controller_mock_time_remove_liquidity(
     await lending_controller_loan_token.save()
 
     # Save history data
-    sender, _                               = await models.MavrykUser.get_or_create(
-        address             = sender_address
-    )
-    await sender.save()
+    sender                                  = await models.mavryk_user_cache.get(address=sender_address)
     history_data                            = models.LendingControllerHistoryData(
         lending_controller  = lending_controller,
         sender              = sender,

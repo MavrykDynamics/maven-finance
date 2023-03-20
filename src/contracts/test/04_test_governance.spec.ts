@@ -26,7 +26,7 @@
 // // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 // import { config } from "yargs";
 // import { MichelsonMap } from "@taquito/taquito";
-// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Governance tests", async () => {
 //     var utils: Utils;
@@ -857,7 +857,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -1028,7 +1028,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -1072,7 +1072,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             governanceAddress.address,
@@ -1117,7 +1117,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             governanceAddress.address,
@@ -1190,7 +1190,7 @@
 //                     const lambdaFunctionFirst   = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             governanceAddress.address,
@@ -1204,7 +1204,7 @@
 //                     const lambdaFunctionSecond  = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             governanceAddress.address,
@@ -1464,7 +1464,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             governanceAddress.address,
@@ -1499,7 +1499,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             governanceAddress.address,
@@ -1533,7 +1533,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             governanceAddress.address,
@@ -1798,7 +1798,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -2414,7 +2414,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -2477,7 +2477,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -2800,7 +2800,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -2941,7 +2941,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -3035,7 +3035,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -3144,7 +3144,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -3241,7 +3241,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -3329,7 +3329,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -3463,7 +3463,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -3533,7 +3533,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
@@ -3615,7 +3615,7 @@
 //                     const lambdaFunction        = await compileLambdaFunction(
 //                         'development',
 //                         governanceProxyAddress.address,
-//                         './contracts/main/governanceProxyLambdaFunction.ligo',
+//                         
 //                         'updateConfig',
 //                         [
 //                             councilAddress.address,
