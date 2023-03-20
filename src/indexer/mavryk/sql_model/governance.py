@@ -141,6 +141,7 @@ class GovernanceProposalVote(Model):
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY, index=True)
     voting_power                            = fields.FloatField(default=0.0)
     current_round_vote                      = fields.BooleanField(default=True, index=True)
+    voting_reward_claimed                   = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'governance_proposal_vote'

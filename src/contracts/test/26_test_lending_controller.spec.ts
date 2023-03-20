@@ -36,7 +36,7 @@
 // import vaultFactoryAddress                      from '../deployments/vaultFactoryAddress.json';
 
 // import { vaultStorageType } from "./types/vaultStorageType"
-// import { compileLambdaFunction } from 'scripts/proxyLambdaFunctionPacker';
+// import { compileLambdaFunction } from 'scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker';
 
 // describe("Lending Controller tests", async () => {
     
@@ -4834,7 +4834,7 @@
 //     //             const lambdaFunction        = await compileLambdaFunction(
 //     //                 'development',
 //     //                 governanceProxyAddress.address,
-//     //                 './contracts/main/governanceProxyLambdaFunction.ligo',
+//     //                 
 //     //                 'setAdmin',
 //     //                 [
 //     //                     lendingControllerInstance.address,

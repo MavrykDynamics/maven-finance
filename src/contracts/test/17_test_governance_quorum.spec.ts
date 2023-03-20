@@ -32,7 +32,7 @@
 // import doormanLambdas from '../build/lambdas/doormanLambdas.json'
 // import { MichelsonMap } from "@taquito/taquito";
 // import { farmStorageType } from "./types/farmStorageType";
-// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Governance quorum tests", async () => {
 //     var utils: Utils;
@@ -275,7 +275,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateConfig',
 //                     [
 //                         councilAddress.address,
@@ -381,7 +381,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateConfig',
 //                     [
 //                         councilAddress.address,
@@ -491,7 +491,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateConfig',
 //                     [
 //                         councilAddress.address,
@@ -607,7 +607,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateConfig',
 //                     [
 //                         councilAddress.address,
@@ -717,7 +717,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateConfig',
 //                     [
 //                         councilAddress.address,
@@ -831,7 +831,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateConfig',
 //                     [
 //                         councilAddress.address,

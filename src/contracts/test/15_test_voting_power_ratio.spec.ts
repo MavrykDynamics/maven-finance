@@ -26,7 +26,7 @@
 // // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 // import { config } from "yargs";
 // import { MichelsonMap } from "@taquito/taquito";
-// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionPacker";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Governance - Voting Power Ratio - tests", async () => {
 //     var utils: Utils;
@@ -505,7 +505,7 @@
 //                 const lambdaFunction        = await compileLambdaFunction(
 //                     'development',
 //                     governanceProxyAddress.address,
-//                     './contracts/main/governanceProxyLambdaFunction.ligo',
+//                     
 //                     'updateConfig',
 //                     [
 //                         councilAddress.address,
