@@ -610,6 +610,10 @@ indexes:
       pattern:
       - destination: governance
         entrypoint: dropProposal
+    - callback: on_governance_distribute_proposal_rewards
+      pattern:
+      - destination: governance
+        entrypoint: distributeProposalRewards
     - callback: on_governance_set_lambda
       pattern:
       - destination: governance
