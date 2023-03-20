@@ -7,7 +7,7 @@ type oracleInformationType is [@layout:comb] record [
     oraclePublicKey  : key;
     oraclePeerId     : string;
 ];
-type oracleAddressesType         is map (address, oracleInformationType);
+type oracleLedgerType            is map (address, oracleInformationType);
 type oracleRewardStakedMvkType   is map (address, nat);
 type oracleRewardXtzType         is map (address, nat);
 
@@ -92,7 +92,7 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 type aggregatorPausableEntrypointType is
-        UpdateData                   of bool
+        UpdateData                    of bool
     |   WithdrawRewardXtz             of bool
     |   WithdrawRewardStakedMvk       of bool
 
@@ -156,7 +156,7 @@ type aggregatorStorageType is [@layout:comb] record [
     whitelistContracts        : whitelistContractsType;      
     generalContracts          : generalContractsType;
 
-    oracleAddresses           : oracleAddressesType;
+    oracleLedger              : oracleLedgerType;
     
     lastCompletedData         : lastCompletedDataType;
 

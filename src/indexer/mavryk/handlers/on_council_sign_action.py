@@ -70,10 +70,7 @@ async def on_council_sign_action(
     for council_member_address in council_members:
         # Change or update records
         member_info             = council_members[council_member_address]
-        member_user, _          = await models.MavrykUser.get_or_create(
-            address     = council_member_address
-        )
-        await member_user.save()
+        member_user             = await models.mavryk_user_cache.get(address=council_member_address)
         updated_member, _       = await models.CouncilCouncilMember.get_or_create(
             council     = council,
             user        = member_user
