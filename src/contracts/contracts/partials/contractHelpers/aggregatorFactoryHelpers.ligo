@@ -244,9 +244,9 @@ block {
         whitelistContracts        = aggregatorWhitelistContracts;      
         generalContracts          = aggregatorGeneralContracts;
 
-        oracleAddresses           = createAggregatorParams.oracleAddresses;
+        oracleLedger              = createAggregatorParams.oracleLedger;
         
-        lastCompletedData        = lastCompletedData;
+        lastCompletedData         = lastCompletedData;
                             
         oracleRewardXtz           = oracleRewardXtz;
         oracleRewardStakedMvk     = oracleRewardStakedMvk;      

@@ -57,82 +57,82 @@ contracts:
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1L8J4WAsiM1ZYp95Jpsq4ezoKGDFeChZzx
+    address: KT1RVBWXyjmJHx2BnfQSJYehaRsSw9iCqbgP
     typename: mvk_token
   governance_proxy:
-    address: KT1NyWyhu96hR4CuhfCxWGYoar2Eko1Sd6uf
+    address: KT1RGVkwD1dbP9SWAcTkz6mEUgNeKpnACGa9
     typename: governance_proxy
   governance:
-    address: KT1DCnwVbprwyKQLBoNYeJ4gDEUPmxLDcmXk
+    address: KT1EWECHjoQtDfJXQpXxdHTCk73t3TJbSPNc
     typename: governance
   doorman:
-    address: KT1AMTVLgkG3ePGkETMKiPw2PS2rhhssLpW9
+    address: KT1WPAN5DGY7rad4yFdCHiR4fgHbEVj5MNnW
     typename: doorman
   farm:
-    code_hash: KT1EbD5TgvuJdFTKwo6X4UnoMaVkoiasvns4
+    code_hash: KT1DJTkWUVXxFZ2WwzLkAECjmayFbxQ2XfNJ
     typename: farm
   farm_factory:
-    address: KT1NPKSekxnzEZMdgZk2969vfxWiZYRkFn8m
+    address: KT1GBgJuGBLNPhCG98BNYWg8DBubsRmtt49q
     typename: farm_factory
   delegation:
-    address: KT1SiCGg56VwuJEo1sjmrRbe98E6zFfaoJRE
+    address: KT19j3zuWoeojzMCTSWekcHhFkt165TJFA5C
     typename: delegation
   vesting:
-    address: KT1L9fqj31VXoNE6dpZCGJZUFCQUzPf5YYdD
+    address: KT1JktR2nFDy4dfKYuTHpD5Vt3mwR2vjS4kS
     typename: vesting
   emergency_governance:
-    address: KT1EoyV9B6wWN7cmdsGgFiAbJztcyfX7biPP
+    address: KT1PzWoVz9SH6mPmDiwKmVSAjvWnERLKrLk2
     typename: emergency_governance
   council:
-    address: KT19Czi94ow2JoJdTPpuXJhL6D1RNNXG9EG3
+    address: KT1XETWJYL1Brch36BE1Mde3mhyTqRMwoiRv
     typename: council
   break_glass:
-    address: KT1GB2NE6oQkJ5w7ScrReEfHEN6xKzh3ExEi
+    address: KT19DYQposqeRRnqNkD5dmFhN9r12HkDhYCB
     typename: break_glass
   governance_financial:
-    address: KT1Xd6smJvR8VxhySg8bNxdaQD1t86NscD4T
+    address: KT194wrcQ7Kdqu5wP3TVgzcVfwrzbUSTjK5W
     typename: governance_financial
   governance_satellite:
-    address: KT1H6fexFXAF9RYHYfrqw356yRYCecSKRzD4
+    address: KT1RNzcmFoUNFsFqMQEreH2M6TzkXEskiYWs
     typename: governance_satellite
   aggregator:
-    code_hash: KT1TqH6DRn7Zr6YxrgdCJ2QwwSTSeAGzhzqe
+    code_hash: KT1PznLhJtSf7cMwyxZp3hxqgFHp1DsvzuRT
     typename: aggregator
   aggregator_factory:
-    address: KT1J6hy8RPEGqiGqtqwTadAp4qxv2qJSWv2p
+    address: KT1P125ZfzcAszVMJsKU5dMeZ37u6P3fJckc
     typename: aggregator_factory
   treasury:
-    code_hash: KT1TX6NUx6LTvnf6mf1agwnjErZtpaxj4T36
+    code_hash: KT1UG4sSRumccMr9jEx7yXSaNxVNMni3xKhK
     typename: treasury
   treasury_factory:
-    address: KT19Gs53GGJvQBuZ4YDhucu7ALpaJ28qKq7Q
+    address: KT1KB776xV4x6axSw3MNeraMkPfsyejYwmwT
     typename: treasury_factory
   token_sale:
-    address: KT1TKLTWhtwkQMVTsWE7Cn4nY7eRZyfLEUrt
+    address: KT1XERTaUN1FJeuBFaSS3JQe8vr661Qh85gQ
     typename: token_sale
   lending_controller:
-    address: KT1ApgaRiZrRp3ynqZ9MvTSiHRgF9NQE9tWq
+    address: KT1THEpP9RmC9cDpCJW7MAebCgHYKmMeDrAu
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1V8Bvsn8JN5H7yfsCJabXVdNHUycBvQabR
+    address: KT1LQP794tXj4UWGXZ8CdV3AcBzCT14BTV9T
     typename: lending_controller_mock_time
   m_token_xtz:
-    address: KT1CRqkynE2rayCCrapBsbAm7R8nGnsdjBTR
+    address: KT1HL4p2tgkJaQS4LW1GkVZzJVSsgaVDPhUR
     typename: m_token
   m_token_eurl:
-    address: KT1VVU3CjEBJRxKJQDt5Msc6ps9yZNjmAQFs
+    address: KT1D1iCFsUUGoXPgbff2vd6Xo2t2bpnRYWkR
     typename: m_token
   m_token_tzbtc:
-    address: KT1CzjpAqPbSha7yWdmcAvSMsRtWTAKMtzG7
+    address: KT1A8wkMbnZ7EEitY1t6xHRa38HxNnnCotfn
     typename: m_token
   m_token_usdt:
-    address: KT1AUCdcGBZ7CJmtvVhPKxoC12wtivW9pKgH
+    address: KT19mMi3UM8KJVGt9gwCXiTQDAiScZdhVsH5
     typename: m_token
   vault:
     code_hash: KT1PPP3SrtxAWfL2FHT3e1cR4ANfL7EVKeP5
     typename: vault
   vault_factory:
-    address: KT19rKRLnE1XazdH3A7sxKkzXi2yW8GD7JYp
+    address: KT1M6dsNihKFk4B5aWyvo3mQSccaGGwuTyGR
     typename: vault_factory
 
 hooks:
@@ -525,26 +525,10 @@ indexes:
       pattern:
       - destination: governance_proxy
         entrypoint: setGovernance
-    - callback: on_governance_proxy_update_whitelist_contracts
-      pattern:
-      - destination: governance_proxy
-        entrypoint: updateWhitelistContracts
-    - callback: on_governance_proxy_update_whitelist_token_contracts
-      pattern:
-      - destination: governance_proxy
-        entrypoint: updateWhitelistTokenContracts
-    - callback: on_governance_proxy_update_general_contracts
-      pattern:
-      - destination: governance_proxy
-        entrypoint: updateGeneralContracts
     - callback: on_governance_proxy_set_lambda
       pattern:
       - destination: governance_proxy
         entrypoint: setLambda
-    - callback: on_governance_proxy_set_proxy_lambda
-      pattern:
-      - destination: governance_proxy
-        entrypoint: setProxyLambda
   governance:
     kind: operation
     datasource: tzkt_ghostnet
@@ -626,6 +610,10 @@ indexes:
       pattern:
       - destination: governance
         entrypoint: dropProposal
+    - callback: on_governance_distribute_proposal_rewards
+      pattern:
+      - destination: governance
+        entrypoint: distributeProposalRewards
     - callback: on_governance_set_lambda
       pattern:
       - destination: governance

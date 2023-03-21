@@ -91,10 +91,7 @@ async def on_lending_controller_liquidate_vault(
                 await lending_controller_collateral_balance.save()
 
             # Save history data
-            sender, _                               = await models.MavrykUser.get_or_create(
-                address             = sender_address
-            )
-            await sender.save()
+            sender                                  = await models.mavryk_user_cache.get(address=sender_address)
             history_data                            = models.LendingControllerHistoryData(
                 lending_controller  = lending_controller,
                 loan_token          = loan_token,

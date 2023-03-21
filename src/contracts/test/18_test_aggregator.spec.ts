@@ -279,21 +279,21 @@
 //         // bob as admin
 //         await signerFactory(bob.sk);
 
-//         if(aggregatorStorage.oracleAddresses.get(bob.pkh) === undefined){
+//         if(aggregatorStorage.oracleLedger.get(bob.pkh) === undefined){
 //             const addBobOracle = await aggregatorInstance.methods.addOracle(
 //                 bob.pkh
 //             ).send();
 //             await addBobOracle.confirmation();
 //         }
 
-//         if(aggregatorStorage.oracleAddresses.get(eve.pkh) === undefined){
+//         if(aggregatorStorage.oracleLedger.get(eve.pkh) === undefined){
 //             const addEveOracle = await aggregatorInstance.methods.addOracle(
 //                 eve.pkh
 //             ).send();
 //             await addEveOracle.confirmation();
 //         }
 
-//         if(aggregatorStorage.oracleAddresses.get(mallory.pkh) === undefined){
+//         if(aggregatorStorage.oracleLedger.get(mallory.pkh) === undefined){
 //             const addMalloryOracle = await aggregatorInstance.methods.addOracle(
 //                 mallory.pkh
 //             ).send();
@@ -390,7 +390,7 @@
 //                 aggregatorStorage       = await aggregatorInstance.storage();
                 
 //                 // Assertions
-//                 assert.deepEqual(aggregatorStorage.oracleAddresses?.has(oracleAddress),true);
+//                 assert.deepEqual(aggregatorStorage.oracleLedger?.has(oracleAddress),true);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
@@ -430,7 +430,7 @@
                 
 //                 // Final values
 //                 aggregatorStorage       = await aggregatorInstance.storage();
-//                 const susieOracleInfo   = aggregatorStorage.oracleAddresses.get(oracleAddress);
+//                 const susieOracleInfo   = aggregatorStorage.oracleLedger.get(oracleAddress);
                 
 //                 const publicKey = susieOracleInfo.oraclePublicKey;
 //                 const peerId = susieOracleInfo.oraclePeerId;
@@ -490,7 +490,7 @@
 //                 aggregatorStorage   = await aggregatorInstance.storage();
 
 //                 // Assertion
-//                 assert.deepEqual(aggregatorStorage.oracleAddresses?.has(susie.pkh), false);
+//                 assert.deepEqual(aggregatorStorage.oracleLedger?.has(susie.pkh), false);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
