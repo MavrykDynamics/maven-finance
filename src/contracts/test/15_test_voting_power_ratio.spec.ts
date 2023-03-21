@@ -26,6 +26,7 @@
 // // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 // import { config } from "yargs";
 // import { MichelsonMap } from "@taquito/taquito";
+// import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // describe("Governance - Voting Power Ratio - tests", async () => {
 //     var utils: Utils;
@@ -501,32 +502,24 @@
 //                 const proposalIpfs          = "ipfs://QM123456789";
 //                 const proposalSourceCode    = "Proposal Source Code";
 
-//                 const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                 'updateCouncilConfig',
-//                 1234,
-//                 'configActionExpiryDays'
-//                 ).toTransferParams();
-//                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//                 const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-    
-//                 const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
-//                     data: configSuccessRewardParamValue,
-//                     type: callGovernanceLambdaEntrypointType
-//                 }).catch(e => console.error('error:', e));
-    
-//                 var packedUpdateConfigSuccessRewardParam;
-//                 if (updateConfigSuccessRewardPacked) {
-//                     packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-//                     // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//                 const lambdaFunction        = await compileLambdaFunction(
+//                     'development',
+//                     governanceProxyAddress.address,
+//                     
+//                     'updateConfig',
+//                     [
+//                         councilAddress.address,
+//                         "council",
+//                         "ConfigActionExpiryDays",
+//                         1234
+//                     ]
+//                 );
 
 //                 const proposalData      = [
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "Metadata#1",
-//                             encodedCode: packedUpdateConfigSuccessRewardParam,
+//                             encodedCode: lambdaFunction,
 //                             codeDescription: ""
 //                         }
 //                     }
@@ -557,7 +550,7 @@
 
 //                 // Assertions
 //                 assert.notStrictEqual(proposalDataStorage, undefined);
-//                 assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam);
+//                 assert.strictEqual(proposalDataStorage.encodedCode, lambdaFunction);
 //                 assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
 //                 assert.notStrictEqual(newCurrentRoundProposal, undefined);
 //                 assert.notStrictEqual(newProposal, undefined);
