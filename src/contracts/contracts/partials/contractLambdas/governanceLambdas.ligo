@@ -837,6 +837,9 @@ block {
                 // Check that proposal is not locked
                 verifyProposalIsNotLocked(proposalRecord);
 
+                // Verify that there is at least one proposal metadata to execute
+                verifyAtLeastOneProposalData(proposalRecord);
+
                 // Lock proposal and update proposal ledger
                 proposalRecord.locked        := True; 
                 s.proposalLedger[proposalId] := proposalRecord;
