@@ -240,7 +240,7 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerAddress.address))
 
       // uncomment if lending controller mock time contract is used
-      // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerMockTimeAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , lendingControllerMockTimeAddress.address))
   
       // whitelist contracts
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory'        , vaultFactoryAddress.address))

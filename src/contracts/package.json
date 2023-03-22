@@ -62,10 +62,10 @@
   "author": "matej.sima@stove-labs.com",
   "license": "MIT",
   "dependencies": {
-    "@taquito/signer": "^15.1.0",
-    "@taquito/taquito": "^15.1.0",
+    "@taquito/signer": "^16.0.0",
+    "@taquito/taquito": "^16.0.0",
     "@taquito/tezbridge-signer": "^14.2.0",
-    "@taquito/utils": "^15.1.0",
+    "@taquito/utils": "^16.0.0",
     "@types/expect": "^24.3.0",
     "assert": "^2.0.0",
     "convert-string": "^0.1.0",

@@ -21,6 +21,7 @@ class BreakGlassConfig(BaseModel):
         extra = Extra.forbid
 
     createFarmIsPaused: bool
+    createFarmMTokenIsPaused: bool
     trackFarmIsPaused: bool
     untrackFarmIsPaused: bool
 
