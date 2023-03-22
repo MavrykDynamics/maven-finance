@@ -20,9 +20,10 @@ type vaultFactoryConfigType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 type createVaultType is [@layout:comb] record[
-    delegate                    : option(key_hash); 
+    // delegate                    : option(key_hash); 
     loanTokenName               : string;            // use string, not variant, to account for future loan types using the same controller contract
     name                        : string;
+    collateral                  : option(list(depositType));
     depositors                  : depositorsType;
 ]
 

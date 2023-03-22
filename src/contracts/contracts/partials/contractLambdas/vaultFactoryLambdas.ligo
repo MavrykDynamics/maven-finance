@@ -12,6 +12,8 @@
 function lambdaSetAdmin(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
@@ -30,6 +32,8 @@ block {
 function lambdaSetGovernance(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
@@ -48,6 +52,7 @@ block {
 function lambdaUpdateMetadata(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
     
     case vaultFactoryLambdaAction of [
@@ -69,6 +74,7 @@ block {
 function lambdaUpdateConfig(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is 
 block {
 
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case vaultFactoryLambdaAction of [
@@ -93,6 +99,7 @@ block {
 function lambdaUpdateWhitelistContracts(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vaultFactoryLambdaAction of [
@@ -110,6 +117,7 @@ block {
 function lambdaUpdateGeneralContracts(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vaultFactoryLambdaAction of [
@@ -130,6 +138,8 @@ block {
     // Steps Overview:    
     // 1. Check that sender is admin or from the Governance Satellite Contract
     // 2. Create and execute transfer operations based on the params sent
+
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
 
     var operations : list(operation) := nil;
 
@@ -177,6 +187,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Pause entrypoints in Vault Factory
 
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
@@ -205,6 +217,8 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Unpause entrypoints in Vault Factory
 
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
 
@@ -229,6 +243,7 @@ block {
 function lambdaTogglePauseEntrypoint(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
 
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin
 
     case vaultFactoryLambdaAction of [
@@ -244,8 +259,6 @@ block {
     ];
 
 } with (noOperations, s)
-
-
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas Begin
@@ -275,9 +288,19 @@ block{
         |   LambdaCreateVault(createVaultParams) -> {
 
                 // init variables
-                const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
-                const vaultOwner : address = Tezos.get_sender();
-                const newVaultId : vaultIdType = s.vaultCounter;
+                // const vaultDelegate         : option(key_hash) = createVaultParams.delegate; // delegate
+                const vaultLoanTokenName    : string = createVaultParams.loanTokenName; // e.g. USDT, EURL 
+                const vaultOwner            : address = Tezos.get_sender();
+                const newVaultId            : vaultIdType = s.vaultCounter;
+
+                // Get deposits if any
+                const collateralDepositList : list(depositType) = case createVaultParams.collateral of [
+                        Some(_list) -> _list
+                    |   None        -> list[]
+                ];
+
+                // Get Lending Controller Address from the General Contracts map on the Governance Contract
+                const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
                 // Prepare new vault storage
                 const originateVaultStorage : vaultStorageType = prepareVaultStorage(
@@ -294,14 +317,54 @@ block{
                     originateVaultStorage
                 );
 
+                // get vault address
+                const vaultAddress : address = vaultOrigination.1;
+
                 // register vault creation operation in lending controller
                 const registerVaultCreationOperation : operation = registerVaultCreationOperation(
-                    vaultOwner,             // vault owner address
-                    newVaultId,             // vault id
-                    vaultOrigination.1,     // vault address
-                    vaultLoanTokenName,     // vault loan token name
-                    s                       // storage
+                    vaultOwner,                 // vault owner address
+                    newVaultId,                 // vault id
+                    vaultAddress,               // vault address
+                    vaultLoanTokenName,         // vault loan token name
+                    lendingControllerAddress  
                 ); 
+
+                // FILO (First-In, Last-Out) - registerDeposit operation will occur after registerVaultCreation operation in lending controller
+                function processNewVaultCollateralDeposit(const collateralDeposit : depositType; var operationList: list(operation)) : list(operation) is 
+                block {
+
+                    const amount     : nat      = collateralDeposit.amount;  
+                    const tokenName  : string   = collateralDeposit.tokenName;
+
+                    // get collateral token record from Lending Controller through on-chain view
+                    const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, lendingControllerAddress);
+                    const tokenType : tokenType = collateralTokenRecord.tokenType;
+
+                    operationList := registerDepositInLendingController(
+                        vaultOwner,
+                        newVaultId,
+                        amount, 
+                        tokenName, 
+                        lendingControllerAddress
+                    ) # operationList;
+
+                    // process deposit from sender to vault address
+                    if tokenName = "tez" then {
+                        if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                    } else {
+                        
+                        const processVaultDepositOperation : operation = processVaultCollateralTransfer(
+                            Tezos.get_sender(),         // from_
+                            vaultAddress,               // to_
+                            amount,                     // amount
+                            tokenType                   // tokenType
+                        );
+                        operationList := processVaultDepositOperation # operationList;
+                    };
+
+                } with operationList;
+
+                operations := List.fold_right(processNewVaultCollateralDeposit, collateralDepositList, operations);
 
                 // FILO (First-In, Last-Out) - originate vault first then register vault creation in lending controller
                 operations := registerVaultCreationOperation # operations;
