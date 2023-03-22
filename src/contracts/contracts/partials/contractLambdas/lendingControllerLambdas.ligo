@@ -1180,7 +1180,7 @@ block {
                 const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
                 const depositAmount   : nat               = registerDepositParams.amount;
                 const tokenName       : string            = registerDepositParams.tokenName;
-                const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
+                // const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
@@ -1195,12 +1195,12 @@ block {
                 // Update vault state
                 // ------------------------------------------------------------------
 
-                const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
+                const updatedVaultState : (vaultRecordType*loanTokenRecordType)  = updateVaultState(vaultHandle, s);
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
 
-                // Verify that initiator (sender) matches vault address
-                verifySenderIsVault(vault.address, initiator);
+                // Verify that sender is vault or vault factory
+                verifySenderIsVaultOrVaultFactory(vault.address, s);
 
                 // ------------------------------------------------------------------
                 // Register token deposit in vault collateral balance ledger

@@ -104,11 +104,6 @@ type vaultFactoryUnpackLambdaFunctionType is (vaultFactoryLambdaActionType * vau
 
 (* main entrypoint *)
 function main (const action : vaultFactoryAction; var s : vaultFactoryStorageType) : return is
-block{
-    
-    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
-
-} with (
 
     case action of [
         
@@ -128,9 +123,9 @@ block{
 
             // Vault Factory Entrypoints
         |   CreateVault (params)                    -> createVault(params, s)
-    
+
             // Lambda Entrypoints
         |   SetLambda (parameters)                  -> setLambda(parameters, s)
         |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
     ]
-)
+
