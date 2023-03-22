@@ -53,3 +53,12 @@ class TreasuryTransferHistoryData(Model):
 
     class Meta:
         table = 'treasury_transfer_history_data'
+
+class TreasuryBalance(Model):
+    id                                      = fields.BigIntField(pk=True)
+    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances', index=True)
+    token_address                           = fields.CharField(max_length=36, default="", index=True)
+    balance                                 = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'treasury_balance'
