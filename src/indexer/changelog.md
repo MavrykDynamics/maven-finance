@@ -21,6 +21,19 @@
 
   - Column VotingRewardClaimed added
 
+- FarmFactory
+
+  - Column CreateFarmMTokenPaused added
+
+- Farm
+
+  - Column LoanTokenName added
+  - Column IsMFarm added
+
+- FarmAccount
+
+  - Column TokenRewardIndex added
+
 ### Breaking changes
 
 - GovernanceProxyProxyLambda

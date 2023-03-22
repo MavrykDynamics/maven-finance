@@ -9,6 +9,7 @@ class FarmFactory(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farm_factories')
     farm_name_max_length                    = fields.SmallIntField(default=0)
     create_farm_paused                      = fields.BooleanField(default=False)
+    create_farm_m_token_paused              = fields.BooleanField(default=False)
     track_farm_paused                       = fields.BooleanField(default=False)
     untrack_farm_paused                     = fields.BooleanField(default=False)
 
