@@ -27,6 +27,17 @@ block{
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to %registerDeposit entrypoint in the Lending Controller
+function getRegisterDepositEntrypointInLendingController(const contractAddress : address) : contract(registerDepositActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%registerDeposit",
+        contractAddress) : option(contract(registerDepositActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(registerDepositActionType))
+        ];
+
+
+
 // helper function to get %registerVaultCreation entrypoint in Lending Controller Creation
 function getRegisterVaultCreationEntrypointInLendingController(const contractAddress : address) : contract(registerVaultCreationActionType) is
     case (Tezos.get_entrypoint_opt(
@@ -121,11 +132,8 @@ block {
 
 
 
-function registerVaultCreationOperation(const vaultOwner : address; const vaultId : nat; const vaultAddress : address; const loanTokenName : string; const s : vaultFactoryStorageType) : operation is
+function registerVaultCreationOperation(const vaultOwner : address; const vaultId : nat; const vaultAddress : address; const loanTokenName : string; const lendingControllerAddress : address) : operation is
 block {
-
-    // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
     
     const registerVaultCreationParams : registerVaultCreationActionType = record [ 
         vaultOwner     = vaultOwner;
@@ -141,6 +149,71 @@ block {
     );
 
 } with registerVaultCreationOperation
+
+
+
+// helper function to get collateral token record by name from Lending Controller through on-chain view
+function getCollateralTokenRecordByName(const tokenName : string; const lendingControllerAddress : address) : collateralTokenRecordType is 
+block {
+
+    // check collateral token contract address exists in Lending Controller collateral token ledger
+    const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByNameOpt", tokenName, lendingControllerAddress);
+    const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
+            Some (_opt)    -> _opt
+        |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_NAME_OPT_VIEW_NOT_FOUND)
+    ];
+    const collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
+            Some(_record)  -> _record
+        |   None           -> failwith (error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with collateralTokenRecord
+
+
+// helper function to register deposit in lending controller
+function registerDepositInLendingController(const vaultOwner : address; const vaultId : nat; const amount : nat; const tokenName : string; const lendingControllerAddress : address) : operation is 
+block {
+
+    const vaultHandle : vaultHandleType = record [
+        id      = vaultId;
+        owner   = vaultOwner;
+    ];
+
+    // create register deposit params
+    const registerDepositParams : registerDepositActionType = record [
+        handle          = vaultHandle;
+        amount          = amount;
+        tokenName       = tokenName;
+    ];
+    
+    // create operation to register deposit on the lending controller
+    const registerDepositOperation : operation = Tezos.transaction(
+        registerDepositParams,
+        0mutez,
+        getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
+    );
+
+} with registerDepositOperation
+
+
+
+// helper function to process vault collateral transfer (for deposit/withdrawal)
+function processVaultCollateralTransfer(const from_ : address; const to_ : address; const amount : nat; const tokenType : tokenType) : operation is 
+block {
+
+    const processVaultCollateralTransferOperation : operation = case tokenType of [
+            Tez(_tez)   -> transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amount * 1mutez)
+        |   Fa12(token) -> {
+                verifyNoAmountSent(unit);
+                const transferOperation : operation = transferFa12Token(from_, to_, amount, token)
+            } with transferOperation
+        |   Fa2(token)  -> {
+                verifyNoAmountSent(unit);
+                const transferOperation : operation = transferFa2Token(from_, to_, amount, token.tokenId, token.tokenContractAddress)
+            } with transferOperation
+    ];
+
+} with processVaultCollateralTransferOperation
 
 // ------------------------------------------------------------------------------
 // General Helper Functions End
