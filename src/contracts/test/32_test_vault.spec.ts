@@ -957,26 +957,6 @@ describe("Vault tests", async () => {
                 const depositorsConfig      = "any";
                 const depositAmountMutez    = 1030000;
 
-                // console.log('vault factory parameter schema');
-                // const contractParameterSchema = vaultFactoryInstance.parameterSchema.ExtractSchema();
-                // console.log(JSON.stringify(contractParameterSchema,null,2));
-
-                // const transferParams = await vaultFactoryInstance.methods.createVault(
-                //     // delegate: null,              // delegate to
-                //     loanTokenName,          // loan token type
-                //     vaultName,              // vault name
-                //     [
-                //         {
-                //             amount: depositAmountMutez,
-                //             tokenName: "tez"
-                //         }
-                //     ],
-                //     depositorsConfig,       // depositors config type - any / whitelist
-                // ).toTransferParams();
-
-                // console.log('transfer params');
-                // console.log(transferParams.parameter.value.args);
-
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     // delegate: null,              // delegate to
                     loanTokenName,          // loan token type
@@ -1004,9 +984,7 @@ describe("Vault tests", async () => {
                 assert.equal(vaultRecord.loanInterestTotal      , 0);
 
                 const vaultTezCollateralBalance = vaultRecord.collateralBalanceLedger.get("tez");
-
-                console.log(vaultRecord);
-                console.log(vaultTezCollateralBalance);
+                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMutez);
 
                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
@@ -1024,7 +1002,79 @@ describe("Vault tests", async () => {
         });    
 
 
-        it('user (bob) can create a new vault (depositors: any) with multiple collateral deposits - LOAN TOKEN: MockFA12', async () => {
+        it('user (alice) cannot create a new vault with collateral deposit tez if no tez is sent', async () => {
+            try{        
+                
+                // init variables
+                await signerFactory(alice.sk);
+                // await utils.tezos.contract.registerDelegate({});
+
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
+                const vaultOwner            = alice.pkh;
+                const loanTokenName         = "usdt";
+                const vaultName             = "failVaultAlice";
+                const depositorsConfig      = "any";
+                const depositAmountMutez    = 1030000;
+
+                const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                    // delegate: null,              // delegate to
+                    loanTokenName,          // loan token type
+                    vaultName,              // vault name
+                    [
+                        {
+                            amount: depositAmountMutez,
+                            tokenName: "tez"
+                        }
+                    ],
+                    depositorsConfig       // depositors config type - any / whitelist
+                );
+                await chai.expect(userCreatesNewVaultOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+
+        });    
+
+
+        it('user (alice) cannot create a new vault with collateral deposit tez if tez amount is wrongly specified', async () => {
+            try{        
+                
+                // init variables
+                await signerFactory(alice.sk);
+                // await utils.tezos.contract.registerDelegate({});
+
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
+                const vaultOwner            = alice.pkh;
+                const loanTokenName         = "usdt";
+                const vaultName             = "failVaultAlice";
+                const depositorsConfig      = "any";
+                
+                const depositAmountMutez      = 1500000;
+                const wrongDepositAmountMutez = 1000000;
+
+                const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                    // delegate: null,              // delegate to
+                    loanTokenName,          // loan token type
+                    vaultName,              // vault name
+                    [
+                        {
+                            amount: depositAmountMutez,
+                            tokenName: "tez"
+                        }
+                    ],
+                    depositorsConfig       // depositors config type - any / whitelist
+                );
+                await chai.expect(userCreatesNewVaultOperation.send({ mutez : true, amount : wrongDepositAmountMutez })).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+
+        });    
+
+
+        it('user (bob) can create a new vault (depositors: any) with two collateral token deposits - LOAN TOKEN: MockFA12', async () => {
             try{        
                 
                 // init variables
@@ -1037,12 +1087,14 @@ describe("Vault tests", async () => {
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
                 
-                const depositAmountMutez    = 1030000;
                 const depositAmountToken    = 900000;
 
-                // console.log('vault factory parameter schema');
-                // const contractParameterSchema = vaultFactoryInstance.parameterSchema.ExtractSchema();
-                // console.log(JSON.stringify(contractParameterSchema,null,2));
+                // reset token allowance
+                const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                    vaultFactoryAddress.address,
+                    0
+                ).send();
+                await resetTokenAllowance.confirmation();
 
                 // set new token allowance
                 const setNewTokenAllowanceForDeposit = await mockFa12TokenInstance.methods.approve(
@@ -1088,12 +1140,16 @@ describe("Vault tests", async () => {
                 };
                 const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
-                console.log(vaultRecord);
-
                 assert.equal(vaultRecord.loanToken              , loanTokenName);
                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
                 assert.equal(vaultRecord.loanPrincipalTotal     , 0);
                 assert.equal(vaultRecord.loanInterestTotal      , 0);
+
+                const vaultMockFa12TokenCollateralBalance = vaultRecord.collateralBalanceLedger.get("mockFa12");
+                const vaultMockFa2TokenCollateralBalance  = vaultRecord.collateralBalanceLedger.get("mockFa2");
+                
+                assert.equal(vaultMockFa12TokenCollateralBalance.toNumber(), depositAmountToken);
+                assert.equal(vaultMockFa2TokenCollateralBalance.toNumber(), depositAmountToken);
 
                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
@@ -1109,6 +1165,249 @@ describe("Vault tests", async () => {
             } 
 
         });    
+
+
+        it('user (bob) can create a new vault (depositors: any) with tez deposit and two collateral token deposits - LOAN TOKEN: MockFA12', async () => {
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+                // await utils.tezos.contract.registerDelegate({});
+
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
+                const vaultOwner            = bob.pkh;
+                const loanTokenName         = "usdt";
+                const vaultName             = "newVaultBob";
+                const depositorsConfig      = "any";
+                
+                const depositAmountMutez    = 1030000;
+                const depositAmountToken    = 900000;
+
+                // reset token allowance
+                const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                    vaultFactoryAddress.address,
+                    0
+                ).send();
+                await resetTokenAllowance.confirmation();
+
+                // set new token allowance
+                const setNewTokenAllowanceForDeposit = await mockFa12TokenInstance.methods.approve(
+                    vaultFactoryAddress.address,
+                    depositAmountToken
+                ).send();
+                await setNewTokenAllowanceForDeposit.confirmation();
+
+                // update operators for vault
+                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner: bob.pkh,
+                        operator: vaultFactoryAddress.address,
+                        token_id: 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+
+                const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                    // delegate: null,              // delegate to
+                    loanTokenName,          // loan token type
+                    vaultName,              // vault name
+                    [
+                        {
+                            amount: depositAmountMutez,
+                            tokenName: "tez"
+                        },
+                        {
+                            amount: depositAmountToken,
+                            tokenName: "mockFa12"
+                        },
+                        {
+                            amount: depositAmountToken,
+                            tokenName: "mockFa2"
+                        },
+                    ],
+                    depositorsConfig,       // depositors config type - any / whitelist
+                ).send({ mutez : true, amount : depositAmountMutez });
+                await userCreatesNewVaultOperation.confirmation();
+
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                const vaultHandle = {
+                    "id"    : vaultId,
+                    "owner" : vaultOwner
+                };
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+
+                assert.equal(vaultRecord.loanToken              , loanTokenName);
+                assert.equal(vaultRecord.loanOutstandingTotal   , 0);
+                assert.equal(vaultRecord.loanPrincipalTotal     , 0);
+                assert.equal(vaultRecord.loanInterestTotal      , 0);
+
+                const vaultTezCollateralBalance           = vaultRecord.collateralBalanceLedger.get("tez");
+                const vaultMockFa12TokenCollateralBalance = vaultRecord.collateralBalanceLedger.get("mockFa12");
+                const vaultMockFa2TokenCollateralBalance  = vaultRecord.collateralBalanceLedger.get("mockFa2");
+
+                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMutez);
+                assert.equal(vaultMockFa12TokenCollateralBalance.toNumber(), depositAmountToken);
+                assert.equal(vaultMockFa2TokenCollateralBalance.toNumber(), depositAmountToken);
+
+                const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
+                const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
+
+                assert.equal(vaultOriginatedContractStorage.admin, vaultFactoryAddress.address);
+                assert.equal(Object.keys(vaultOriginatedContractStorage.depositors)[0], depositorsConfig);
+
+                // push new vault id to vault set
+                bobVaultSet.push(vaultId);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+
+        });    
+
+
+        it('user (bob) cannot create a new vault with tez deposit and two collateral token deposits if no tez is sent', async () => {
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+                // await utils.tezos.contract.registerDelegate({});
+
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
+                const vaultOwner            = bob.pkh;
+                const loanTokenName         = "usdt";
+                const vaultName             = "newVaultBob";
+                const depositorsConfig      = "any";
+                
+                const depositAmountMutez    = 1030000;
+                const depositAmountToken    = 900000;
+
+                // reset token allowance
+                const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                    vaultFactoryAddress.address,
+                    0
+                ).send();
+                await resetTokenAllowance.confirmation();
+
+                // set new token allowance
+                const setNewTokenAllowanceForDeposit = await mockFa12TokenInstance.methods.approve(
+                    vaultFactoryAddress.address,
+                    depositAmountToken
+                ).send();
+                await setNewTokenAllowanceForDeposit.confirmation();
+
+                // update operators for vault
+                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner: bob.pkh,
+                        operator: vaultFactoryAddress.address,
+                        token_id: 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+
+                const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                    // delegate: null,              // delegate to
+                    loanTokenName,          // loan token type
+                    vaultName,              // vault name
+                    [
+                        {
+                            amount: depositAmountMutez,
+                            tokenName: "tez"
+                        },
+                        {
+                            amount: depositAmountToken,
+                            tokenName: "mockFa12"
+                        },
+                        {
+                            amount: depositAmountToken,
+                            tokenName: "mockFa2"
+                        },
+                    ],
+                    depositorsConfig,       // depositors config type - any / whitelist
+                );
+                await chai.expect(userCreatesNewVaultOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+
+        });  
+        
+        
+        it('user (bob) cannot create a new vault with tez deposit and two collateral token deposits if tez amount is wrongly specified', async () => {
+            try{        
+                
+                // init variables
+                await signerFactory(bob.sk);
+                // await utils.tezos.contract.registerDelegate({});
+
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
+                const vaultOwner            = bob.pkh;
+                const loanTokenName         = "usdt";
+                const vaultName             = "newVaultBob";
+                const depositorsConfig      = "any";
+                
+                const depositAmountMutez        = 1500000;
+                const wrongDepositAmountMutez   = 1000000;
+                const depositAmountToken        = 900000;
+
+                // reset token allowance
+                const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                    vaultFactoryAddress.address,
+                    0
+                ).send();
+                await resetTokenAllowance.confirmation();
+
+                // set new token allowance
+                const setNewTokenAllowanceForDeposit = await mockFa12TokenInstance.methods.approve(
+                    vaultFactoryAddress.address,
+                    depositAmountToken
+                ).send();
+                await setNewTokenAllowanceForDeposit.confirmation();
+
+                // update operators for vault
+                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner: bob.pkh,
+                        operator: vaultFactoryAddress.address,
+                        token_id: 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+
+                const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                    // delegate: null,              // delegate to
+                    loanTokenName,          // loan token type
+                    vaultName,              // vault name
+                    [
+                        {
+                            amount: depositAmountMutez,
+                            tokenName: "tez"
+                        },
+                        {
+                            amount: depositAmountToken,
+                            tokenName: "mockFa12"
+                        },
+                        {
+                            amount: depositAmountToken,
+                            tokenName: "mockFa2"
+                        },
+                    ],
+                    depositorsConfig,       // depositors config type - any / whitelist
+                );
+                await chai.expect(userCreatesNewVaultOperation.send({ mutez : true, amount : wrongDepositAmountMutez })).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+
+        });  
 
 
         it('user (eve) can create a new vault (depositors: any) - LOAN TOKEN: MockFA12', async () => {
