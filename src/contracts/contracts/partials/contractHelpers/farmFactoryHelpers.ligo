@@ -210,7 +210,7 @@ block {
         ("", ("74657a6f732d73746f726167653a64617461": bytes));
         ("data", createFarmMTokenParams.metadata);
     ]); 
-    const farmLambdaLedger : lambdaLedgerType = s.farmLambdaLedger;
+    const farmLambdaLedger : lambdaLedgerType = s.mFarmLambdaLedger;
 
     // Check whether the farm is infinite or its total blocks has been set
     validateFarmRewardBlocks(createFarmMTokenParams.infinite, createFarmMTokenParams.plannedRewards.totalBlocks);
