@@ -313,7 +313,7 @@ block{
                 // originate vault func with delegate option
                 const vaultOrigination : (operation * address) = createVaultFunc(
                     (None : option(key_hash)),  
-                    0tez,                       
+                    Tezos.get_amount(),                       
                     originateVaultStorage
                 );
 
@@ -340,6 +340,11 @@ block{
                     const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, lendingControllerAddress);
                     const tokenType : tokenType = collateralTokenRecord.tokenType;
 
+                    // if tez is sent, check that it matches the amount listed
+                    if tokenName = "tez" then {
+                        if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                    } else skip;
+
                     operationList := registerDepositInLendingController(
                         vaultOwner,
                         newVaultId,
@@ -349,9 +354,7 @@ block{
                     ) # operationList;
 
                     // process deposit from sender to vault address
-                    if tokenName = "tez" then {
-                        if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
-                    } else {
+                    if tokenName =/= "tez" then {
                         
                         const processVaultDepositOperation : operation = processVaultCollateralTransfer(
                             Tezos.get_sender(),         // from_
