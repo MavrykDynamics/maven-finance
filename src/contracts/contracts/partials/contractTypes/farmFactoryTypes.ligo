@@ -76,6 +76,12 @@ type farmFactoryTogglePauseEntrypointType is [@layout:comb] record [
 ];
 
 
+type setFarmLambdaType is [@layout:comb] record [
+    farmType              : string;
+    name                  : string;
+    func_bytes            : bytes;
+]
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -126,4 +132,5 @@ type farmFactoryStorageType is [@layout:comb] record[
 
     lambdaLedger           : lambdaLedgerType;
     farmLambdaLedger       : lambdaLedgerType;
+    mFarmLambdaLedger      : lambdaLedgerType;
 ]

@@ -21,7 +21,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas } from "../contractHelpers/farmFactoryTestHelper"
+import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas, setFarmFactoryMFarmProductLambdas } from "../contractHelpers/farmFactoryTestHelper"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -76,9 +76,13 @@ describe('Farm Factory', async () => {
       await setFarmFactoryLambdas(tezos, farmFactory.contract)
       console.log("Farm Factory Lambdas Setup")
 
-      // Farm Factory Setup Product Lambdas
+      // Farm Factory Setup Product Lambdas - Standard Farm Lambdas
       await setFarmFactoryProductLambdas(tezos, farmFactory.contract)
-      console.log("Farm Factory Product Lambdas Setup")
+      console.log("Farm Factory Product (Farm) Lambdas Setup")
+
+      // Farm Factory Setup Product Lambdas - mFarm Lambdas
+      await setFarmFactoryMFarmProductLambdas(tezos, farmFactory.contract)
+      console.log("Farm Factory Product (Farm mToken) Lambdas Setup")
 
     } catch(e){
       console.dir(e, {depth: 5})

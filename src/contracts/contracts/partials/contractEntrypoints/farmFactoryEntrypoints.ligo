@@ -289,16 +289,22 @@ block{
 
 
 (* setProductLambda entrypoint *)
-function setProductLambda(const setLambdaParams : setLambdaType; var s : farmFactoryStorageType) : return is
+function setProductLambda(const setLambdaParams : setFarmLambdaType; var s : farmFactoryStorageType) : return is
 block{
     
     // verify that sender is admin
     verifySenderIsAdmin(s.admin);
     
     // assign params to constants for better code readability
-    const lambdaName    = setLambdaParams.name;
+    const farmType : string     = setLambdaParams.farmType;
+    const lambdaName            = setLambdaParams.name;
     const lambdaBytes   = setLambdaParams.func_bytes;
-    s.farmLambdaLedger[lambdaName] := lambdaBytes;
+
+    if farmType = "farm" then 
+        s.farmLambdaLedger[lambdaName] := lambdaBytes
+    else if farmType = "mFarm" then
+        s.mFarmLambdaLedger[lambdaName] := lambdaBytes
+    else skip;
 
 } with (noOperations, s)
 

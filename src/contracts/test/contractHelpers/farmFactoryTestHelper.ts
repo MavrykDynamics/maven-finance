@@ -18,9 +18,11 @@ import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods
 import {farmStorageType} from "../types/farmStorageType";
 import farmFactoryLambdas from '../../build/lambdas/farmFactoryLambdas.json'
 import farmLambdas from '../../build/lambdas/farmLambdas.json'
+import farmMTokenLambdas from '../../build/lambdas/farmMTokenLambdas.json'
 import {MichelsonMap} from "@taquito/michelson-encoder";
 import {BigNumber} from "bignumber.js";
 
+type FarmType = string
 type Fa12 = string
 type Fa2  = string
 type lpStandardType = Fa12 | Fa2;
@@ -35,7 +37,7 @@ type FarmFactoryContractMethods<T extends ContractProvider | Wallet> = {
         generalContractName:string,
         generalContractAddress:string
     ) => ContractMethod<T>;
-    setProductLambda: (number, string) => ContractMethod<T>;
+    setProductLambda: (FarmType, number, string) => ContractMethod<T>;
     createFarm: (
         forceRewardFromTransfer: boolean,
         infinite: boolean,
@@ -88,7 +90,21 @@ export const setFarmFactoryProductLambdas = async (tezosToolkit: TezosToolkit, c
 
     for (let lambdaName in farmLambdas) {
         let bytes   = farmLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+        batch.withContractCall(contract.methods.setProductLambda("farm", lambdaName, bytes))
+    }
+
+    const op = await batch.send()
+    await confirmOperation(tezosToolkit, op.opHash);
+}
+
+
+export const setFarmFactoryMFarmProductLambdas = async (tezosToolkit: TezosToolkit, contract: FarmFactoryContractAbstraction) => {
+    const batch = tezosToolkit.wallet
+        .batch();
+
+    for (let lambdaName in farmMTokenLambdas) {
+        let bytes   = farmMTokenLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setProductLambda("mFarm", lambdaName, bytes))
     }
 
     const op = await batch.send()
