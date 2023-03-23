@@ -80,7 +80,7 @@ type farmFactoryAction is
 
         // Lambda Entrypoints
     |   SetLambda                   of setLambdaType
-    |   SetProductLambda            of setLambdaType
+    |   SetProductLambda            of setFarmLambdaType
 
 
 type return is list (operation) * farmFactoryStorageType
