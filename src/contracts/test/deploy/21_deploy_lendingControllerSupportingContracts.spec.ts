@@ -25,8 +25,7 @@ import lendingControllerMockTimeAddress from '../../deployments/lendingControlle
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Aggregator, setAggregatorLambdas } from '../contractHelpers/aggregatorTestHelper'
-import { MToken } from '../contractHelpers/mTokenTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -42,14 +41,15 @@ import { mTokenStorage } from '../../storage/mTokenStorage'
 describe('Lending Controller Supporting Contracts', async () => {
   
     var utils: Utils
-    var mTokenUsdt                      : MToken
-    var mTokenEurl                      : MToken
-    var mTokenXtz                       : MToken
+    var mTokenUsdt                      
+    var mTokenEurl                      
+    var mTokenXtz                       
+    var mTokenTzBtc
 
-    var mockUsdXtzAggregator            : Aggregator
-    var mockUsdMockFa12TokenAggregator  : Aggregator
-    var mockUsdMockFa2TokenAggregator   : Aggregator
-    var mockUsdMvkAggregator            : Aggregator
+    var mockUsdXtzAggregator            
+    var mockUsdMockFa12TokenAggregator  
+    var mockUsdMockFa2TokenAggregator   
+    var mockUsdMvkAggregator            
 
     var tezos
 
@@ -111,13 +111,9 @@ describe('Lending Controller Supporting Contracts', async () => {
                     }),
                 },
             })
-            mTokenUsdt = await MToken.originate(
-                utils.tezos,
-                mTokenStorage
-            );
-        
+
+            mTokenUsdt = await GeneralContract.originate(utils.tezos, "mTokenUsdt", mTokenStorage);
             await saveContractAddress("mTokenUsdtAddress", mTokenUsdt.contract.address)
-            console.log("mTokenUsdt Contract deployed at:", mTokenUsdt.contract.address);
 
 
 
@@ -164,14 +160,9 @@ describe('Lending Controller Supporting Contracts', async () => {
                     }),
                 },
             })
-            mTokenEurl = await MToken.originate(
-                utils.tezos,
-                mTokenStorage
-            );
-        
+            
+            mTokenEurl = await GeneralContract.originate(utils.tezos, "mTokenEurl", mTokenStorage);
             await saveContractAddress("mTokenEurlAddress", mTokenEurl.contract.address)
-            console.log("mTokenEurl Contract deployed at:", mTokenEurl.contract.address);
-
 
 
             // mToken for XTZ in Lending Controller Token Pool 
@@ -217,17 +208,12 @@ describe('Lending Controller Supporting Contracts', async () => {
                     }),
                 },
             })
-            mTokenXtz= await MToken.originate(
-                utils.tezos,
-                mTokenStorage
-            );
-        
+
+            mTokenXtz = await GeneralContract.originate(utils.tezos, "mTokenXtz", mTokenStorage);
             await saveContractAddress("mTokenXtzAddress", mTokenXtz.contract.address)
-            console.log("mTokenXtz Contract deployed at:", mTokenXtz.contract.address);
 
 
-
-            // mToken for XTZ in Lending Controller Token Pool 
+            // mToken for tzBtc in Lending Controller Token Pool 
             mTokenStorage.loanToken = "tzbtc"; 
             mTokenStorage.metadata  = MichelsonMap.fromLiteral({
                 '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -270,13 +256,9 @@ describe('Lending Controller Supporting Contracts', async () => {
                     }),
                 },
             })
-            mTokenXtz= await MToken.originate(
-                utils.tezos,
-                mTokenStorage
-            );
-        
-            await saveContractAddress("mTokenTzbtcAddress", mTokenXtz.contract.address)
-            console.log("mTokenTzbtc Contract deployed at:", mTokenXtz.contract.address);
+
+            mTokenTzBtc = await GeneralContract.originate(utils.tezos, "mTokenTzBtc", mTokenStorage);
+            await saveContractAddress("mTokenTzbtcAddress", mTokenTzBtc.contract.address)
 
 
             //----------------------------
@@ -321,13 +303,10 @@ describe('Lending Controller Supporting Contracts', async () => {
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
             };
-            mockUsdMockFa12TokenAggregator = await Aggregator.originate(
-                utils.tezos,
-                aggregatorStorage
-            )
-        
+            
+            mockUsdMockFa12TokenAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMockFa12TokenAggregatorAddress', mockUsdMockFa12TokenAggregator.contract.address)
-            console.log('Mock USD/MockFA12Token Aggregator Contract deployed at:', mockUsdMockFa12TokenAggregator.contract.address)
+            // console.log('Mock USD/MockFA12Token Aggregator Contract deployed at:', mockUsdMockFa12TokenAggregator.contract.address)
 
 
 
@@ -339,14 +318,10 @@ describe('Lending Controller Supporting Contracts', async () => {
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
             };
-            mockUsdMockFa2TokenAggregator = await Aggregator.originate(
-                utils.tezos,
-                aggregatorStorage
-            )
-        
+            
+            mockUsdMockFa2TokenAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMockFa2TokenAggregatorAddress', mockUsdMockFa2TokenAggregator.contract.address)
-            console.log('Mock USD/MockFA2Token Aggregator Contract deployed at:', mockUsdMockFa2TokenAggregator.contract.address)
-
+            // console.log('Mock USD/MockFA2Token Aggregator Contract deployed at:', mockUsdMockFa2TokenAggregator.contract.address)
 
 
             // Mock USD/Xtz Aggregator
@@ -357,12 +332,10 @@ describe('Lending Controller Supporting Contracts', async () => {
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
             };
-            mockUsdXtzAggregator = await Aggregator.originate(
-                utils.tezos,
-                aggregatorStorage
-            )
+
+            mockUsdXtzAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
-            console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
+            // console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
 
 
             //----------------------------
@@ -378,13 +351,10 @@ describe('Lending Controller Supporting Contracts', async () => {
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
             };
-            mockUsdMvkAggregator = await Aggregator.originate(
-                utils.tezos,
-                aggregatorStorage
-            )
 
+            mockUsdMvkAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMvkAggregatorAddress', mockUsdMvkAggregator.contract.address)
-            console.log('Mock USD/MVK Aggregator Contract deployed at:', mockUsdMvkAggregator.contract.address)
+            // console.log('Mock USD/MVK Aggregator Contract deployed at:', mockUsdMvkAggregator.contract.address)
 
             //----------------------------
             // Set Lambdas
@@ -393,22 +363,22 @@ describe('Lending Controller Supporting Contracts', async () => {
             tezos = mockUsdMockFa12TokenAggregator.tezos
 
             // Aggregator Setup Lambdas
-            await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
-            await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
-            await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
-            await setAggregatorLambdas(tezos, mockUsdMvkAggregator.contract);
+            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa12TokenAggregator.contract);
+            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa2TokenAggregator.contract);
+            await setGeneralContractLambdas(tezos, "aggregator", mockUsdXtzAggregator.contract);
+            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMvkAggregator.contract);
           
         } catch(e){
-        console.dir(e, {depth: 5})
+            console.dir(e, {depth: 5})
         }
 
     })
 
     it(`lending controller supporting contracts deployed`, async () => {
         try {
-        console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
         } catch (e) {
-        console.log(e)
+            console.log(e)
         }
     })
 

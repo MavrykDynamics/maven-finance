@@ -21,7 +21,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { LendingControllerMockTime, setLendingControllerLambdas } from '../contractHelpers/lendingControllerMockTimeTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -37,7 +37,7 @@ describe('Lending Controller Mock Time', async () => {
   
     var tezos
     var utils: Utils
-    var lendingControllerMockTime: LendingControllerMockTime
+    var lendingControllerMockTime
 
     const signerFactory = async (pk) => {
         await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -55,23 +55,18 @@ describe('Lending Controller Mock Time', async () => {
 
             lendingControllerMockTimeStorage.governanceAddress = governanceAddress.address
             lendingControllerMockTimeStorage.mvkTokenAddress   = mvkTokenAddress.address
-            lendingControllerMockTime = await LendingControllerMockTime.originate(
-                utils.tezos,
-                lendingControllerMockTimeStorage
-            )
-
+            lendingControllerMockTime = await GeneralContract.originate(utils.tezos, "lendingControllerMockTime", lendingControllerMockTimeStorage);
             await saveContractAddress('lendingControllerMockTimeAddress', lendingControllerMockTime.contract.address)
-            console.log('Lending Controller (Mock Time) Contract deployed at:', lendingControllerMockTime.contract.address)
 
             //----------------------------
             // Set Lambdas
             //----------------------------
 
             tezos = lendingControllerMockTime.tezos
-
-            // Lending Controller Lambdas
-            await setLendingControllerLambdas(tezos, lendingControllerMockTime.contract);
-            console.log("Lending Controller (Mock Time) Lambdas Setup")
+            await signerFactory(bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "lendingControllerMockTime", lendingControllerMockTime.contract);
 
         } catch(e){
             

@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Doorman, setDoormanLambdas } from '../contractHelpers/doormanTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,56 +34,51 @@ import { doormanStorage } from '../../storage/doormanStorage'
 
 describe('Doorman', async () => {
   
-  var utils: Utils
-  var doorman: Doorman
-  var tezos
-  
+    var utils: Utils
+    var doorman
+    var tezos
+    
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
-
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      doormanStorage.governanceAddress  = governanceAddress.address
-      doormanStorage.mvkTokenAddress    = mvkTokenAddress.address
-      doorman = await Doorman.originate(utils.tezos, doormanStorage)
-  
-      await saveContractAddress('doormanAddress', doorman.contract.address)
-      console.log('Doorman Contract deployed at:', doorman.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = doorman.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-
-      // Doorman Setup Lambdas
-      await setDoormanLambdas(tezos, doorman.contract)
-      console.log("Doorman Lambdas Setup")
-
-    } catch(e){
-      console.dir(e, {depth: 5})
+    const signerFactory = async (pk) => {
+        await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
+        return tezos
     }
 
-  })
+    before('setup', async () => {
+        try{
 
-  it(`doorman contract deployment`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            doormanStorage.governanceAddress  = governanceAddress.address
+            doormanStorage.mvkTokenAddress    = mvkTokenAddress.address
+            doorman = await GeneralContract.originate(utils.tezos, "doorman", doormanStorage);
+            await saveContractAddress('doormanAddress', doorman.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = doorman.tezos
+            await signerFactory(bob.sk);
+
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "doorman", doorman.contract)
+
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
+
+    })
+
+    it(`doorman contract deployment`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

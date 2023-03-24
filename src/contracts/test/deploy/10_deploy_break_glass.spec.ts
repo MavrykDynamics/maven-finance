@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { BreakGlass, setBreakGlassLambdas } from '../contractHelpers/breakGlassTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,72 +34,67 @@ import { breakGlassStorage } from '../../storage/breakGlassStorage'
 
 describe('Break Glass', async () => {
   
-  var utils: Utils
-  var breakGlass: BreakGlass
-  var tezos
-  
+    var utils: Utils
+    var breakGlass
+    var tezos
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
-
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      breakGlassStorage.governanceAddress = governanceAddress.address
-      breakGlassStorage.mvkTokenAddress  = mvkTokenAddress.address
-  
-      breakGlassStorage.councilMembers.set(bob.pkh, {
-        name: "Bob",
-        image: "Bob image",
-        website: "Bob website"
-      })
-      breakGlassStorage.councilMembers.set(alice.pkh, {
-        name: "Alice",
-        image: "Alice image",
-        website: "Alice website"
-      })
-      breakGlassStorage.councilMembers.set(eve.pkh, {
-        name: "Eve",
-        image: "Eve image",
-        website: "Eve website"
-      })
-      breakGlass = await BreakGlass.originate(utils.tezos, breakGlassStorage)
-  
-      await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
-      console.log('BreakGlass Contract deployed at:', breakGlass.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = breakGlass.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-
-      // Council Setup Lambdas
-      await setBreakGlassLambdas(tezos, breakGlass.contract);
-      console.log("Break Glass Lambdas Setup")
-  
-    } catch(e){
-      console.dir(e, {depth: 5})
+    const signerFactory = async (pk) => {
+        await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
+        return tezos
     }
 
-  })
+    before('setup', async () => {
+        try{
+            
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            breakGlassStorage.governanceAddress = governanceAddress.address
+            breakGlassStorage.mvkTokenAddress  = mvkTokenAddress.address
+        
+            breakGlassStorage.councilMembers.set(bob.pkh, {
+                name: "Bob",
+                image: "Bob image",
+                website: "Bob website"
+            })
+            breakGlassStorage.councilMembers.set(alice.pkh, {
+                name: "Alice",
+                image: "Alice image",
+                website: "Alice website"
+            })
+            breakGlassStorage.councilMembers.set(eve.pkh, {
+                name: "Eve",
+                image: "Eve image",
+                website: "Eve website"
+            })
+            
+            breakGlass = await GeneralContract.originate(utils.tezos, "breakGlass", breakGlassStorage);
+            await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = breakGlass.tezos
+            await signerFactory(bob.sk);
 
-  it(`break glass contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "breakGlass", breakGlass.contract);
+    
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
+
+    })
+
+    it(`break glass contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })
