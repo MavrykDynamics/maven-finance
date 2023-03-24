@@ -1,22 +1,23 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-import { confirmOperation } from "../../scripts/confirmation";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
+import { BigNumber } from "bignumber.js"
 import { MichelsonMap } from '@taquito/michelson-encoder'
-import {BigNumber} from "bignumber.js";
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { alice, bob, eve, mallory, oscar} from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json'
+import contractDeployments from '../contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import {bob, eve, mallory} from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -24,196 +25,185 @@ import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress
 
 describe('Oracle Setup', async () => {
   
-  var utils: Utils
-  var tezos
+    var utils: Utils
+    var tezos
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-      
-      //----------------------------
-      // Retrieve all contracts
-      //----------------------------
+    before('setup', async () => {
+        try{
+            
+            utils = new Utils()
+            await utils.init(bob.sk)
+            
+            //----------------------------
+            // Retrieve all contracts
+            //----------------------------
 
-      const aggregatorFactoryInstance: any     	= await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+            const aggregatorFactoryInstance: any = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+            
+            //----------------------------
+            // For Oracle/Aggregator test net deployment if needed
+            //----------------------------
+        
+            if(utils.network != "development"){
+        
+                console.log("Setup Oracles")
 
-      //----------------------------
-      // For Oracle/Aggregator test net deployment if needed
-      //----------------------------
-  
-      console.log("Setup Oracles")
+                const oracleMap = MichelsonMap.fromLiteral({
+                    [bob.pkh]              : {
+                                                oraclePublicKey: bob.pk,
+                                                oraclePeerId: bob.peerId
+                                            },
+                    [eve.pkh]              : {
+                                                oraclePublicKey: eve.pk,
+                                                oraclePeerId: eve.peerId
+                                            },
+                    [mallory.pkh]          : {
+                                                oraclePublicKey: mallory.pk,
+                                                oraclePeerId: eve.peerId
+                                            }
+                });
 
-      const oracleMap = MichelsonMap.fromLiteral({
-        [bob.pkh]       : {
-            oraclePublicKey: bob.pk,
-            oraclePeerId: bob.peerId
-        },
-        [eve.pkh]       : {
-            oraclePublicKey: eve.pk,
-            oraclePeerId: eve.peerId
-        },
-        [mallory.pkh]   : {
-            oraclePublicKey: mallory.pk,
-            oraclePeerId: mallory.peerId
-        },
-        [alice.pkh]     : {
-            oraclePublicKey: alice.pk,
-            oraclePeerId: alice.peerId
-        },
-        [oscar.pkh]     : {
-            oraclePublicKey: oscar.pk,
-            oraclePeerId: oscar.peerId
-        }
-      });
+                const btcUsdMetadata = Buffer.from(
+                    JSON.stringify({
+                        name: 'BTC/USD Aggregator Contract',
+                        icon: 'https://infura-ipfs.io/ipfs/QmNyMFPuh43K9wkYHV6shtLYMusqXf3YCkes9aWAgird6u',
+                        version: 'v1.0.0',
+                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                                    category: 'cryptocurrency'
+                    }),
+                    'ascii',
+                ).toString('hex')
 
-      const btcUsdMetadata = Buffer.from(
-        JSON.stringify({
-            name: 'BTC/USD Aggregator Contract',
-            icon: 'https://infura-ipfs.io/ipfs/QmNyMFPuh43K9wkYHV6shtLYMusqXf3YCkes9aWAgird6u',
-            version: 'v1.0.0',
-            authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                const xtzUsdMetadata = Buffer.from(
+                    JSON.stringify({
+                        name: 'XTZ/USD Aggregator Contract',
+                        icon: 'https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW',
+                        version: 'v1.0.0',
+                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
                         category: 'cryptocurrency'
-        }),
-        'ascii',
-      ).toString('hex')
+                    }),
+                    'ascii',
+                ).toString('hex')
 
-      const xtzUsdMetadata = Buffer.from(
-          JSON.stringify({
-              name: 'XTZ/USD Aggregator Contract',
-              icon: 'https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW',
-              version: 'v1.0.0',
-              authors: ['Mavryk Dev Team <info@mavryk.io>'],
-              category: 'cryptocurrency'
-          }),
-          'ascii',
-      ).toString('hex')
+                const usdtUsdMetadata = Buffer.from(
+                    JSON.stringify({
+                        name: 'USDT/USD Aggregator Contract',
+                        icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
+                        version: 'v1.0.0',
+                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                                    category: 'stablecoin'
+                    }),
+                    'ascii',
+                ).toString('hex')
 
-      const usdtUsdMetadata = Buffer.from(
-        JSON.stringify({
-            name: 'USDT/USD Aggregator Contract',
-            icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
-            version: 'v1.0.0',
-            authors: ['Mavryk Dev Team <info@mavryk.io>'],
-                        category: 'stablecoin'
-        }),
-        'ascii',
-      ).toString('hex')
+                const eurocUsdMetadata = Buffer.from(
+                    JSON.stringify({
+                        name: 'EUROC/USD Aggregator Contract',
+                        icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
+                        version: 'v1.0.0',
+                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                                    category: 'stablecoin'
+                    }),
+                    'ascii',
+                ).toString('hex')
+        
+                const createAggregatorsBatch = await utils.tezos.wallet
+                    .batch()
+                    .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
 
-      const eurocUsdMetadata = Buffer.from(
-        JSON.stringify({
-            name: 'EUROC/USD Aggregator Contract',
-            icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
-            version: 'v1.0.0',
-            authors: ['Mavryk Dev Team <info@mavryk.io>'],
-                        category: 'stablecoin'
-        }),
-        'ascii',
-    ).toString('hex')
+                        'BTC/USD',
+                        true,
+                        
+                        oracleMap,
 
-      const createAggregatorsBatch = await utils.tezos.wallet
-          .batch()
-          .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+                        new BigNumber(8),             // decimals
+                        new BigNumber(2),             // alphaPercentPerThousand
+                        
+                        new BigNumber(60),            // percentOracleThreshold
+                        new BigNumber(300),            // heartBeatSeconds
 
-              'BTC/USD',
-              true,
-              
-              oracleMap,
+                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(1300),          // rewardAmountXtz
+                        
+                        btcUsdMetadata                // metadata
 
-              new BigNumber(8),             // decimals
-              new BigNumber(2),             // alphaPercentPerThousand
-              
-              new BigNumber(60),            // percentOracleThreshold
-              new BigNumber(300),            // heartBeatSeconds
+                    ))
+                    .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+        
+                        'XTZ/USD',
+                        true,
+                        
+                        oracleMap,
 
-              new BigNumber(10000000),      // rewardAmountStakedMvk
-              new BigNumber(1300),          // rewardAmountXtz
-              
-              btcUsdMetadata                // metadata
+                        new BigNumber(6),             // decimals
+                        new BigNumber(2),             // alphaPercentPerThousand
+                        
+                        new BigNumber(60),            // percentOracleThreshold
+                        new BigNumber(300),           // heartBeatSeconds
 
-          ))
-          .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(1300),          // rewardAmountXtz
+                        
+                        xtzUsdMetadata                // metadata
 
-              'XTZ/USD',
-              true,
-              
-              oracleMap,
+                    ))
+                    .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+        
+                        'USDT/USD',
+                        true,
+                        
+                        oracleMap,
 
-              new BigNumber(6),             // decimals
-              new BigNumber(2),             // alphaPercentPerThousand
-              
-              new BigNumber(60),            // percentOracleThreshold
-              new BigNumber(300),           // heartBeatSeconds
+                        new BigNumber(6),             // decimals
+                        new BigNumber(2),             // alphaPercentPerThousand
+                        
+                        new BigNumber(60),            // percentOracleThreshold
+                        new BigNumber(300),           // heartBeatSeconds
 
-              new BigNumber(10000000),      // rewardAmountStakedMvk
-              new BigNumber(1300),          // rewardAmountXtz
-              
-              xtzUsdMetadata                // metadata
+                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(1300),          // rewardAmountXtz
+                        
+                        usdtUsdMetadata               // metadata bytes
+                        
+                    ))
+                    .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+        
+                        'EUROC/USD',
+                        true,
+                        
+                        oracleMap,
+        
+                        new BigNumber(6),             // decimals
+                        new BigNumber(2),             // alphaPercentPerThousand
+                        
+                        new BigNumber(60),            // percentOracleThreshold
+                        new BigNumber(300),           // heartBeatSeconds
 
-          ))
-          .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(1300),          // rewardAmountXtz
+                        
+                        eurocUsdMetadata              // metadata
+                        
+                    ))
+        
+                const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+                await createAggregatorsBatchOperation.confirmation();
+        
+                console.log("Aggregators deployed")
+            }
 
-              'USDT/USD',
-              true,
-              
-              oracleMap,
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-              new BigNumber(6),             // decimals
-              new BigNumber(2),             // alphaPercentPerThousand
-              
-              new BigNumber(60),            // percentOracleThreshold
-              new BigNumber(300),           // heartBeatSeconds
+    })
 
-              new BigNumber(10000000),      // rewardAmountStakedMvk
-              new BigNumber(1300),          // rewardAmountXtz
-              
-              usdtUsdMetadata               // metadata bytes
-              
-          ))
-          .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-
-              'EUROC/USD',
-              true,
-              
-              oracleMap,
-
-              new BigNumber(6),             // decimals
-              new BigNumber(2),             // alphaPercentPerThousand
-              
-              new BigNumber(60),            // percentOracleThreshold
-              new BigNumber(300),           // heartBeatSeconds
-
-              new BigNumber(10000000),      // rewardAmountStakedMvk
-              new BigNumber(1300),          // rewardAmountXtz
-              
-              eurocUsdMetadata              // metadata
-              
-          ))
-
-        const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
-        await createAggregatorsBatchOperation.confirmation();
-
-        console.log("Aggregators deployed")
-        const aggregatorFactoryStorage: any     	= await aggregatorFactoryInstance.storage();
-        const aggregatorAddresses: Array<string>    = await aggregatorFactoryStorage.trackedAggregators;
-        var aggregatorAddressesConfigString         = "";
-        aggregatorAddresses.forEach((address) => {
-            aggregatorAddressesConfigString += address + ","
-        })
-        console.log(aggregatorAddressesConfigString);
-
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
-
-  })
-
-  it(`oracle setup`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    it(`oracle setup`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

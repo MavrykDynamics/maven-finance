@@ -74,7 +74,7 @@ const currentTimestamp        = new Date();
 currentTimestamp.setDate(currentTimestamp.getDate() + 365);
 const nextInflationTimestamp  = Math.round(currentTimestamp.getTime() / 1000);
 
-export const mvkStorage: mvkStorageType = {
+export const mvkTokenStorage: mvkTokenStorageType = {
     
     admin: bob.pkh,
     governanceAddress: bob.pkh,

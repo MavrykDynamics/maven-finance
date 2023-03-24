@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Vesting, setVestingLambdas } from '../contractHelpers/vestingTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,56 +34,51 @@ import { vestingStorage } from '../../storage/vestingStorage'
 
 describe('Vesting', async () => {
   
-  var utils: Utils
-  var vesting: Vesting
-  var tezos
-  
+    var utils: Utils
+    var vesting
+    var tezos
+    
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
-
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-
-      vestingStorage.governanceAddress  = governanceAddress.address
-      vestingStorage.mvkTokenAddress    = mvkTokenAddress.address
-      vesting = await Vesting.originate(utils.tezos,vestingStorage);
-  
-      await saveContractAddress('vestingAddress', vesting.contract.address)
-      console.log('Vesting Contract deployed at:', vesting.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = vesting.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-  
-      // Vesting Setup Lambdas      
-      await setVestingLambdas(tezos, vesting.contract);
-      console.log("Vesting Lambdas Setup")
-
-    } catch(e){
-      console.dir(e, {depth: 5})
+    const signerFactory = async (pk) => {
+        await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
+        return tezos
     }
 
-  })
+    before('setup', async () => {
+        try{
 
-  it(`vesting contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+
+            vestingStorage.governanceAddress  = governanceAddress.address
+            vestingStorage.mvkTokenAddress    = mvkTokenAddress.address
+            vesting = await GeneralContract.originate(utils.tezos, "vesting", vestingStorage);
+            await saveContractAddress('vestingAddress', vesting.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = vesting.tezos
+            await signerFactory(bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "vesting", vesting.contract);
+
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
+
+    })
+
+    it(`vesting contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })
