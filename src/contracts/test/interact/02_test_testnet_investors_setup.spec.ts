@@ -192,49 +192,49 @@ describe("Testnet setup helper", async () => {
         it('Creation of 3 Satellites', async () => {
             try{
                 // Bob Satellite
-                // await signerFactory(bob.sk);
-                // var updateOperatorsOperation    = await mvkTokenInstance.methods
-                //     .update_operators([
-                //     {
-                //         add_operator: {
-                //             owner: bob.pkh,
-                //             operator: doormanAddress.address,
-                //             token_id: 0,
-                //         },
-                //     },
-                //     ])
-                //     .send()
-                // await updateOperatorsOperation.confirmation();
-                // var stakeOperation              = await doormanInstance.methods.stake(MVK(1000)).send();
-                // await stakeOperation.confirmation();
-                // var registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                //     "Mavryk Dynamics", 
-                //     "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
-                //     "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
-                //     "https://mavryk.finance/", 
-                //     500,
-                //     bob.pk,
-                //     bob.peerId
-                // ).send();
-                // await registerOperation.confirmation();
-
-                // // Eve Satellite
-                await signerFactory(eve.sk);
-                // updateOperatorsOperation    = await mvkTokenInstance.methods
-                //     .update_operators([
-                //     {
-                //         add_operator: {
-                //             owner: eve.pkh,
-                //             operator: doormanAddress.address,
-                //             token_id: 0,
-                //         },
-                //     },
-                //     ])
-                //     .send()
-                // await updateOperatorsOperation.confirmation();
-                // stakeOperation              = await doormanInstance.methods.stake(MVK(200)).send();
-                // await stakeOperation.confirmation();
+                await signerFactory(bob.sk);
+                var updateOperatorsOperation    = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+                var stakeOperation              = await doormanInstance.methods.stake(MVK(1000)).send();
+                await stakeOperation.confirmation();
                 var registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                    "Mavryk Dynamics", 
+                    "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
+                    "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+                    "https://mavryk.finance/", 
+                    500,
+                    bob.pk,
+                    bob.peerId
+                ).send();
+                await registerOperation.confirmation();
+
+                // Eve Satellite
+                await signerFactory(eve.sk);
+                updateOperatorsOperation    = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: eve.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+                stakeOperation              = await doormanInstance.methods.stake(MVK(200)).send();
+                await stakeOperation.confirmation();
+                registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "Buzz Lightyear", 
                     "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger. While Buzz Lightyear's sole mission used to be defeating the evil Emperor Zurg, what he now cares about most is keeping Andy's toy family together. After he feature-film Lightyear starring Chris Evans, Buzz has decided to operate a satellite of the Mavryk Finance network and sign oracle price feeds to further grow and secure the future of financial independence.", 
                     "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ", 
@@ -247,7 +247,7 @@ describe("Testnet setup helper", async () => {
 
                 // Mallory Satellite
                 await signerFactory(mallory.sk);
-                var updateOperatorsOperation    = await mvkTokenInstance.methods
+                updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
@@ -259,7 +259,7 @@ describe("Testnet setup helper", async () => {
                     ])
                     .send()
                 await updateOperatorsOperation.confirmation();
-                var stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
+                stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "Captain Kirk", 
