@@ -1,27 +1,24 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
-const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
+import { Utils } from "../helpers/Utils"
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas, setFarmFactoryMFarmProductLambdas } from "../contractHelpers/farmFactoryTestHelper"
+import { GeneralContract, setGeneralContractLambdas, setGeneralContractProductLambdas }  from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -35,67 +32,49 @@ import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 
 describe('Farm Factory', async () => {
   
-  var utils: Utils
-  var farmFactory: FarmFactory;
-  var tezos
-  
+    var utils: Utils
+    var farmFactory
+    var tezos
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
+    before('setup', async () => {
+        try{
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      farmFactoryStorage.governanceAddress = governanceAddress.address
-      farmFactoryStorage.mvkTokenAddress  = mvkTokenAddress.address
-      farmFactory = await FarmFactory.originate(
-        utils.tezos,
-        farmFactoryStorage
-      );
-  
-      await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
-      console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            farmFactoryStorage.governanceAddress = contractDeployments.governance.address
+            farmFactoryStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            farmFactory = await GeneralContract.originate(utils.tezos, "farmFactory", farmFactoryStorage);
+            await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
 
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = farmFactory.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = farmFactory.tezos
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
-      // Farm Factory Setup Lambdas
-      await setFarmFactoryLambdas(tezos, farmFactory.contract)
-      console.log("Farm Factory Lambdas Setup")
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "farmFactory", farmFactory.contract)
+            
+            // Set Product Lambdas for Farm and Farm mToken
+            await setGeneralContractProductLambdas(tezos, "farmFactory", farmFactory.contract)
+            await setGeneralContractProductLambdas(tezos, "farmFactoryMToken", farmFactory.contract)
 
-      // Farm Factory Setup Product Lambdas - Standard Farm Lambdas
-      await setFarmFactoryProductLambdas(tezos, farmFactory.contract)
-      console.log("Farm Factory Product (Farm) Lambdas Setup")
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-      // Farm Factory Setup Product Lambdas - mFarm Lambdas
-      await setFarmFactoryMFarmProductLambdas(tezos, farmFactory.contract)
-      console.log("Farm Factory Product (Farm mToken) Lambdas Setup")
+    })
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
-
-  })
-
-  it(`farm factory contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    it(`farm factory contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

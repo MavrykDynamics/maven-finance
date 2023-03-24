@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from '../contractHelpers/vaultFactoryTestHelper'
+import { GeneralContract, setGeneralContractLambdas, setGeneralContractProductLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -36,7 +36,7 @@ describe('Vault Factory', async () => {
   
     var tezos
     var utils: Utils
-    var vaultFactory: VaultFactory
+    var vaultFactory
 
     const signerFactory = async (pk) => {
         await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -45,6 +45,7 @@ describe('Vault Factory', async () => {
 
     before('setup', async () => {
         try{
+            
             utils = new Utils()
             await utils.init(bob.sk)
         
@@ -54,27 +55,19 @@ describe('Vault Factory', async () => {
 
             vaultFactoryStorage.governanceAddress = governanceAddress.address
             vaultFactoryStorage.mvkTokenAddress   = mvkTokenAddress.address
-            vaultFactory = await VaultFactory.originate(
-                utils.tezos,
-                vaultFactoryStorage
-            )
-
+            vaultFactory = await GeneralContract.originate(utils.tezos, "vaultFactory", vaultFactoryStorage);
             await saveContractAddress('vaultFactoryAddress', vaultFactory.contract.address)
-            console.log('Vault Factory Contract deployed at:', vaultFactory.contract.address)
 
             //----------------------------
             // Set Lambdas
             //----------------------------
 
             tezos = vaultFactory.tezos
-
-            // Vault Factory Lambdas
-            await setVaultFactoryLambdas(tezos, vaultFactory.contract);
-            console.log("Vault Factory Lambdas Setup")
-
-            // Vault Factory Setup Vault Lambdas
-            await setVaultFactoryProductLambdas(tezos, vaultFactory.contract)
-            console.log("Vault Factory - Vault Lambdas Setup")
+            await signerFactory(bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "vaultFactory", vaultFactory.contract);
+            await setGeneralContractProductLambdas(tezos, "vaultFactory", vaultFactory.contract)
 
         } catch(e){
             

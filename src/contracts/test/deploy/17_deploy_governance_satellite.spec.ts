@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GovernanceSatellite, setGovernanceSatelliteLambdas } from '../contractHelpers/governanceSatelliteTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,56 +34,51 @@ import { governanceSatelliteStorage } from '../../storage/governanceSatelliteSto
 
 describe('Governance Satellite', async () => {
   
-  var utils: Utils
-  var governanceSatellite: GovernanceSatellite
-  var tezos
-  
+    var utils: Utils
+    var governanceSatellite
+    var tezos
+    
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
-
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-      
-      governanceSatelliteStorage.mvkTokenAddress     = mvkTokenAddress.address
-      governanceSatelliteStorage.governanceAddress   = governanceAddress.address
-      governanceSatellite = await GovernanceSatellite.originate(utils.tezos,governanceSatelliteStorage);
-  
-      await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
-      console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
-
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = governanceSatellite.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-
-      // Governance Satellite Setup Lambdas      
-      await setGovernanceSatelliteLambdas(tezos, governanceSatellite.contract)
-      console.log("Governance Satellite Lambdas Setup")
-
-    } catch(e){
-      console.dir(e, {depth: 5})
+    const signerFactory = async (pk) => {
+        await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
+        return tezos
     }
 
-  })
+    before('setup', async () => {
+        try{
+            
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+            
+            governanceSatelliteStorage.mvkTokenAddress     = mvkTokenAddress.address
+            governanceSatelliteStorage.governanceAddress   = governanceAddress.address
+            governanceSatellite = await GeneralContract.originate(utils.tezos, "governanceSatellite", governanceSatelliteStorage);
+            await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
 
-  it(`governance satellite contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = governanceSatellite.tezos
+            await signerFactory(bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "governanceSatellite", governanceSatellite.contract)
+
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
+
+    })
+
+    it(`governance satellite contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })
