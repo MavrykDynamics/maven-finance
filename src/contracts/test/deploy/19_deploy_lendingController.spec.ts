@@ -21,7 +21,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { LendingController, setLendingControllerLambdas } from '../contractHelpers/lendingControllerTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -37,7 +37,7 @@ describe('Lending Controller', async () => {
   
     var tezos
     var utils: Utils
-    var lendingController: LendingController
+    var lendingController
 
     const signerFactory = async (pk) => {
         await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -55,23 +55,18 @@ describe('Lending Controller', async () => {
 
             lendingControllerStorage.governanceAddress = governanceAddress.address
             lendingControllerStorage.mvkTokenAddress   = mvkTokenAddress.address
-            lendingController = await LendingController.originate(
-                utils.tezos,
-                lendingControllerStorage
-            )
-
+            lendingController = await GeneralContract.originate(utils.tezos, "lendingController", lendingControllerStorage);
             await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
-            console.log('Lending Controller Contract deployed at:', lendingController.contract.address)
 
             //----------------------------
             // Set Lambdas
             //----------------------------
 
             tezos = lendingController.tezos
-
-            // Lending Controller Lambdas
-            await setLendingControllerLambdas(tezos, lendingController.contract);
-            console.log("Lending Controller Lambdas Setup")
+            await signerFactory(bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "lendingController", lendingController.contract);
 
         } catch(e){
             

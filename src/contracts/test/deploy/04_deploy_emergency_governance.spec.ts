@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../contractHelpers/emergencyGovernanceTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -35,7 +35,7 @@ import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceSto
 describe('Emergency Governance', async () => {
   
   var utils: Utils
-  var emergencyGovernance: EmergencyGovernance
+  var emergencyGovernance
   var tezos
   
 
@@ -44,46 +44,41 @@ describe('Emergency Governance', async () => {
     return tezos
   }
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      emergencyGovernanceStorage.governanceAddress = governanceAddress.address
-      emergencyGovernanceStorage.mvkTokenAddress  = mvkTokenAddress.address
-      emergencyGovernance = await EmergencyGovernance.originate(utils.tezos, emergencyGovernanceStorage)
-  
-      await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
-      console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = emergencyGovernance.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-  
-      // Emergency Governance Setup Lambdas
-      await setEmergencyGovernanceLambdas(tezos, emergencyGovernance.contract)
-      console.log("Emergency Governance Lambdas Setup")
+    before('setup', async () => {
+        try{
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            emergencyGovernanceStorage.governanceAddress = governanceAddress.address
+            emergencyGovernanceStorage.mvkTokenAddress  = mvkTokenAddress.address
+            emergencyGovernance = await GeneralContract.originate(utils.tezos, "emergencyGovernance", emergencyGovernanceStorage);
+            await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = emergencyGovernance.tezos
+            await signerFactory(bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "emergencyGovernance", emergencyGovernance.contract)
 
-  })
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-  it(`emergency governance contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
-  
+    })
+
+    it(`emergency governance contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
+    
 })
