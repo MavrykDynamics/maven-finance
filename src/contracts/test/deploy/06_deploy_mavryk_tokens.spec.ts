@@ -18,8 +18,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { MavrykFa12Token } from '../contractHelpers/mavrykFa12TokenTestHelper'
-import { MavrykFa2Token } from '../contractHelpers/mavrykFa2TokenTestHelper'
+import { GeneralContract }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -33,50 +32,41 @@ import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
 // ------------------------------------------------------------------------------
 
 describe('Mavryk Token', async () => {
-  
-  var utils: Utils
-  var mavrykFa12Token : MavrykFa12Token
-  var mavrykFa2Token : MavrykFa2Token
+    
+    var utils: Utils
+    var mavrykFa12Token 
+    var mavrykFa2Token 
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      mavrykFa12TokenStorage.governanceAddress  = governanceAddress.address;
-      mavrykFa12Token = await MavrykFa12Token.originate(
-        utils.tezos,
-        mavrykFa12TokenStorage
-      )
-  
-      await saveContractAddress('mavrykFa12TokenAddress', mavrykFa12Token.contract.address)
-      console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12Token.contract.address)
-  
-      mavrykFa2TokenStorage.governanceAddress  = governanceAddress.address;
-      mavrykFa2Token = await MavrykFa2Token.originate(
-        utils.tezos,
-        mavrykFa2TokenStorage
-      )
-  
-      await saveContractAddress('mavrykFa2TokenAddress', mavrykFa2Token.contract.address)
-      console.log('Mavryk Fa2 Token Contract deployed at:', mavrykFa2Token.contract.address)
+    before('setup', async () => {
+        try{
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            mavrykFa12TokenStorage.governanceAddress  = governanceAddress.address;
+            mavrykFa12Token = await GeneralContract.originate(utils.tezos, "mavrykFa12Token", mavrykFa12TokenStorage);
+            await saveContractAddress('mavrykFa12TokenAddress', mavrykFa12Token.contract.address)
+        
+            mavrykFa2TokenStorage.governanceAddress  = governanceAddress.address;
+            mavrykFa2Token = await GeneralContract.originate(utils.tezos, "mavrykFa2Token", mavrykFa2TokenStorage);
+            await saveContractAddress('mavrykFa2TokenAddress', mavrykFa2Token.contract.address)
 
-  })
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-  it(`mavryk token contracts deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    })
+
+    it(`mavryk token contracts deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

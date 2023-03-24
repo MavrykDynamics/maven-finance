@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import {Aggregator, setAggregatorLambdas} from '../contractHelpers/aggregatorTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,60 +34,52 @@ import { aggregatorStorage } from '../../storage/aggregatorStorage'
 
 describe('Aggregator', async () => {
   
-  var utils: Utils
+    var utils: Utils
 
-  var aggregator: Aggregator
-  var tezos
-  
+    var aggregator
+    var tezos
+    
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
-
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      aggregatorStorage.mvkTokenAddress = mvkTokenAddress.address
-      aggregatorStorage.governanceAddress = governanceAddress.address
-      aggregator = await Aggregator.originate(
-        utils.tezos,
-        aggregatorStorage
-      )
-  
-      await saveContractAddress('aggregatorAddress', aggregator.contract.address)
-      console.log('Aggregator Contract deployed at:', aggregator.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = aggregator.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-  
-      // Aggregator Setup Lambdas
-      await setAggregatorLambdas(tezos, aggregator.contract);
-      console.log("Aggregator Lambdas Setup")
-
-    } catch(e){
-      console.dir(e, {depth: 5})
+    const signerFactory = async (pk) => {
+        await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
+        return tezos
     }
 
-  })
+    before('setup', async () => {
+        try{
+            
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            aggregatorStorage.mvkTokenAddress = mvkTokenAddress.address
+            aggregatorStorage.governanceAddress = governanceAddress.address
+            aggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
+            await saveContractAddress('aggregatorAddress', aggregator.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = aggregator.tezos
+            await signerFactory(bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "aggregator", aggregator.contract);
 
-  it(`aggregator contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
+
+    })
+
+    it(`aggregator contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })
