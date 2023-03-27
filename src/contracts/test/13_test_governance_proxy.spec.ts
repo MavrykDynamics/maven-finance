@@ -35,7 +35,6 @@ import emergencyGovernanceAddress   from '../deployments/emergencyGovernanceAddr
 import governanceFinancialAddress   from '../deployments/governanceFinancialAddress.json';
 import governanceSatelliteAddress   from '../deployments/governanceSatelliteAddress.json';
 import lendingControllerAddress     from '../deployments/lendingControllerAddress.json';
-import tokenSaleAddress             from '../deployments/tokenSaleAddress.json';
 import vaultFactoryAddress          from '../deployments/vaultFactoryAddress.json';
 import mavrykFa12TokenAddress       from '../deployments/mavrykFa12TokenAddress.json';
 import mavrykFa2TokenAddress        from '../deployments/mavrykFa2TokenAddress.json';
@@ -65,7 +64,6 @@ describe('Governance proxy lambdas tests', async () => {
     let governanceFinancialInstance;
     let governanceSatelliteInstance;
     let lendingControllerInstance;
-    let tokenSaleInstance;
     let vaultFactoryInstance;
     let mavrykFa12TokenInstance;
     let mavrykFa2TokenInstance;
@@ -88,7 +86,6 @@ describe('Governance proxy lambdas tests', async () => {
     let governanceFinancialStorage;
     let governanceSatelliteStorage;
     let lendingControllerStorage;
-    let tokenSaleStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
     let mavrykFa2TokenStorage;
@@ -122,7 +119,6 @@ describe('Governance proxy lambdas tests', async () => {
             governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
             governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             lendingControllerInstance       = await utils.tezos.contract.at(lendingControllerAddress.address);
-            tokenSaleInstance               = await utils.tezos.contract.at(tokenSaleAddress.address);
             vaultFactoryInstance            = await utils.tezos.contract.at(vaultFactoryAddress.address);
             mavrykFa12TokenInstance         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
             mavrykFa2TokenInstance          = await utils.tezos.contract.at(mavrykFa2TokenAddress.address);
@@ -145,7 +141,6 @@ describe('Governance proxy lambdas tests', async () => {
             governanceFinancialStorage      = await governanceFinancialInstance.storage();
             governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
             lendingControllerStorage        = await lendingControllerInstance.storage();
-            tokenSaleStorage                = await tokenSaleInstance.storage();
             vaultFactoryStorage             = await vaultFactoryInstance.storage();
             mavrykFa12TokenStorage          = await mavrykFa12TokenInstance.storage();
             mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
@@ -169,7 +164,6 @@ describe('Governance proxy lambdas tests', async () => {
             console.log('Governance Financial Contract deployed at:'    , governanceFinancialInstance.address);
             console.log('Governance Satellite Contract deployed at:'    , governanceSatelliteInstance.address);
             console.log('Lending Controller Contract deployed at:'      , lendingControllerInstance.address);
-            console.log('Token Sale Contract deployed at:'              , tokenSaleInstance.address);
             console.log('Vault Factory Contract deployed at:'           , vaultFactoryInstance.address);
             console.log('Mavryk FA12 Contract deployed at:'             , mavrykFa12TokenInstance.address);
             console.log('Mavryk FA2 Contract deployed at:'              , mavrykFa2TokenInstance.address);
@@ -3040,63 +3034,6 @@ describe('Governance proxy lambdas tests', async () => {
             });
         });
 
-        describe('Token Sale Contract', function() {
-
-            before('Change the TokenSale contract admin', async () => {
-                try{
-                    // Initial values
-                    await signerFactory(bob.sk)
-                    tokenSaleStorage          = await tokenSaleInstance.storage();
-    
-                    // Operation
-                    if(tokenSaleStorage.admin !== governanceProxyAddress.address){
-                        const operation     = await tokenSaleInstance.methods.setAdmin(governanceProxyAddress.address).send();
-                        await operation.confirmation();
-                    }
-                } catch(e) {
-                    console.dir(e, {depth: 5})
-                }
-            });
-
-            it('%updateConfig', async () => {
-                try{
-                    // Initial values
-                    tokenSaleStorage                    = await tokenSaleInstance.storage();
-                    const updateConfigAction            = "ConfigMaxAmountCap";
-                    const targetContractType            = "tokenSale";
-                    const updateConfigNewValue          = 1010;
-                    const initConfigValue               = (await tokenSaleStorage.config.buyOptions.get("1")).maxAmountCap.toNumber();
-                    
-                    // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
-                        governanceProxyAddress.address,
-                        
-                        'updateConfig',
-                        [
-                            tokenSaleAddress.address,
-                            targetContractType,
-                            updateConfigAction,
-                            updateConfigNewValue,
-                            1
-                        ]
-                    );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
-    
-                    // Final values
-                    tokenSaleStorage                    = await tokenSaleInstance.storage();
-                    const finalConfigValue              = (await tokenSaleStorage.config.buyOptions.get("1")).maxAmountCap.toNumber();
-
-                    // Assertions
-                    assert.notEqual(initConfigValue, finalConfigValue);
-                    assert.equal(finalConfigValue, updateConfigNewValue);
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-        });
 
         describe('Vault Factory Contract', function() {
 
