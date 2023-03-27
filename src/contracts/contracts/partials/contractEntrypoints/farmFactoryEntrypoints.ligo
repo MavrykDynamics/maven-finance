@@ -296,15 +296,14 @@ block{
     verifySenderIsAdmin(s.admin);
     
     // assign params to constants for better code readability
-    const farmType : string     = setLambdaParams.farmType;
-    const lambdaName            = setLambdaParams.name;
-    const lambdaBytes   = setLambdaParams.func_bytes;
+    const farmType : farmTypeType   = setLambdaParams.farmType;
+    const lambdaName                = setLambdaParams.name;
+    const lambdaBytes               = setLambdaParams.func_bytes;
 
-    if farmType = "farm" then 
-        s.farmLambdaLedger[lambdaName] := lambdaBytes
-    else if farmType = "mFarm" then
-        s.mFarmLambdaLedger[lambdaName] := lambdaBytes
-    else skip;
+    case farmType of [
+            Farm    -> s.farmLambdaLedger[lambdaName]   := lambdaBytes
+        |   MFarm   -> s.mFarmLambdaLedger[lambdaName]  := lambdaBytes
+    ];
 
 } with (noOperations, s)
 

@@ -75,9 +75,12 @@ type farmFactoryTogglePauseEntrypointType is [@layout:comb] record [
     empty             : unit
 ];
 
+type farmTypeType is 
+        Farm    of unit
+    |   MFarm   of unit
 
 type setFarmLambdaType is [@layout:comb] record [
-    farmType              : string;
+    farmType              : farmTypeType;
     name                  : string;
     func_bytes            : bytes;
 ]
