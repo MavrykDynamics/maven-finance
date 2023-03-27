@@ -12,7 +12,8 @@ import { bob, alice } from '../../scripts/sandbox/accounts'
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
+
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -52,7 +53,7 @@ describe('Governance', async () => {
             //----------------------------
         
             governanceStorage.whitelistDevelopers = [alice.pkh, bob.pkh]
-            governanceStorage.mvkTokenAddress     = mvkTokenAddress.address
+            governanceStorage.mvkTokenAddress     = contractDeployments.mvkToken.address
             governance = await GeneralContract.originate(utils.tezos, "governance", governanceStorage);
             await saveContractAddress('governanceAddress', governance.contract.address)
         

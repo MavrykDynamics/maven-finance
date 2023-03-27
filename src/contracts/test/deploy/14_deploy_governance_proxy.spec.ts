@@ -13,8 +13,7 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -53,8 +52,8 @@ describe('Governance Proxy', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            governanceProxyStorage.governanceAddress  = governanceAddress.address;
-            governanceProxyStorage.mvkTokenAddress    = mvkTokenAddress.address;
+            governanceProxyStorage.governanceAddress  = contractDeployments.governance.address;
+            governanceProxyStorage.mvkTokenAddress    = contractDeployments.mvkToken.address;
             governanceProxy = await GeneralContract.originate(utils.tezos, "governanceProxy", governanceProxyStorage);
             await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
         

@@ -16,8 +16,7 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -57,8 +56,8 @@ describe('Aggregator Factory', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            aggregatorFactoryStorage.mvkTokenAddress   = mvkTokenAddress.address;
-            aggregatorFactoryStorage.governanceAddress = governanceAddress.address;
+            aggregatorFactoryStorage.mvkTokenAddress   = contractDeployments.mvkToken.address;
+            aggregatorFactoryStorage.governanceAddress = contractDeployments.governance.address;
             aggregatorFactory = await GeneralContract.originate(utils.tezos, "aggregatorFactory", aggregatorFactoryStorage);
             await saveContractAddress('aggregatorFactoryAddress', aggregatorFactory.contract.address)
         
