@@ -1,4 +1,3 @@
-import { InMemorySigner } from "@taquito/signer"
 import { MVK, Utils } from "../helpers/Utils";
 
 const chai = require("chai");
