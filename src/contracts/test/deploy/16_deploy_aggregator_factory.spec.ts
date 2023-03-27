@@ -1,7 +1,7 @@
 const { InMemorySigner } = require("@taquito/signer");
 import { Utils } from "../helpers/Utils";
 import { confirmOperation } from "../../scripts/confirmation";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+const saveContractAddress = require("../helpers/saveContractAddress")
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import {BigNumber} from "bignumber.js";
 
