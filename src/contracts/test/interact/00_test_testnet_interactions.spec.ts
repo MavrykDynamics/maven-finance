@@ -1635,6 +1635,16 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
+        it('Admin sets baker', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.setBaker(null).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
@@ -4467,6 +4477,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors
     //             ).send();
     //             await operation.confirmation();
@@ -4492,6 +4503,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors              // depositors type
     //             ).send();
     //             await createVaultOperation.confirmation();
@@ -5175,6 +5187,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await operation.confirmation();
@@ -5200,6 +5213,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await createVaultOperation.confirmation();
@@ -5825,6 +5839,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     "whitelist",
                     whitelistedUsers
                 ).send();

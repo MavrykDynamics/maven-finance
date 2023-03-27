@@ -9,6 +9,7 @@ from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, Cont
 class Treasury(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries', null=True)
     factory                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
+    baker                                   = fields.ForeignKeyField('models.MavrykUser', related_name='delegated_treasuries', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True, index=True)
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
