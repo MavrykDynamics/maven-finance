@@ -13,10 +13,7 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
-import fa12LpTokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
-import fa2LpTokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -57,9 +54,9 @@ describe('Farms', async () => {
             //----------------------------
         
             // Farm FA12 Token
-            farmStorage.governanceAddress           = governanceAddress.address;
-            farmStorage.mvkTokenAddress             = mvkTokenAddress.address;
-            farmStorage.config.lpToken.tokenAddress = fa12LpTokenAddress.address;
+            farmStorage.governanceAddress           = contractDeployments.governance.address;
+            farmStorage.mvkTokenAddress             = contractDeployments.mvkToken.address;
+            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavrykFa12Token.address;
             farmStorage.config.tokenPair = {
                 token0Address: "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb",
                 token1Address: "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"
@@ -69,7 +66,7 @@ describe('Farms', async () => {
             await saveContractAddress("farmAddress", farm.contract.address)
         
             // Farm FA2 Token
-            farmStorage.config.lpToken.tokenAddress = fa2LpTokenAddress.address;
+            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavrykFa2Token.address;
             farmStorage.config.lpToken.tokenStandard = {
                 fa2: ""
             };
@@ -77,7 +74,7 @@ describe('Farms', async () => {
             farmFA2 = await GeneralContract.originate(utils.tezos, "farm", farmStorage);
             await saveContractAddress("farmFa2Address", farmFA2.contract.address)
         
-            farmStorage.config.lpToken.tokenAddress = fa12LpTokenAddress.address;
+            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavrykFa12Token.address;
             farmStorage.config.infinite = true
             farmStorage.config.lpToken.tokenStandard = {
                 fa12: ""
