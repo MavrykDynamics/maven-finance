@@ -1,7 +1,7 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
 import { bob } from '../scripts/sandbox/accounts'
-import { delegationStorageType } from "./storageTypes/delegationStorageType";
+import { delegationStorageType } from "./storageTypes/delegationStorageType"
 
 const config = {
     minimumStakedMvkBalance             : 100000000,
