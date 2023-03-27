@@ -330,7 +330,7 @@ block{
 
                 // Create operation to originate Treasury
                 const treasuryOrigination: (operation * address) = createTreasuryFunc(
-                    (None: option(key_hash)), 
+                    createTreasuryParams.baker, 
                     0tez,
                     originatedTreasuryStorage
                 );

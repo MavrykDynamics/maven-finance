@@ -12,7 +12,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+// import { alice, baker, bob, eve, mallory } from "../scripts/sandbox/accounts";
 
 // import doormanAddress           from '../deployments/doormanAddress.json';
 // import delegationAddress        from '../deployments/delegationAddress.json';
@@ -1665,7 +1665,7 @@
 //             const depositorsConfig      = "any";
 
 //             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
-//                 eve.pkh,                // delegate to
+//                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
 //                 depositorsConfig        // depositors config type - any / whitelist
