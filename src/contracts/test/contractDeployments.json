@@ -51,37 +51,37 @@
         "address": "KT1W2qXBb5bFLt4b25YUt9G8YfV4hsihbyhb"
     },
     "aggregator": {
-        "address": "KT1CTwXmQCPKA22tnEMMk8QB8WdRdQh5zKj1"
+        "address": "KT1RWsKbDZ9QTq66E7abd55pjg8fREkNnR6o"
     },
     "aggregatorFactory": {
-        "address": "KT1Pa62qtznp1YtPMJgzMwb1sk5cnRBmzcfd"
+        "address": "KT1BurTzta1muJAnSPHLm6pFAgM3aceSiXhd"
     },
     "governanceSatellite": {
-        "address": "KT1N8dEoEW436GJeZV6skrKVLNVk4CD94BhU"
+        "address": "KT1WywPWxyy1qfFhyxJEepiQs9LCaKjp9A87"
     },
     "lendingController": {
-        "address": "KT1Wn8sBHA46sac1VoyF8ejeycxHNtksvPrn"
+        "address": "KT1U5ywaUxCLrdnfUiLHasB71DqhRcjSieX7"
     },
     "mTokenUsdt": {
-        "address": "KT1X2EuXiBacxyRA3VLpR6Qhm4vMfWx6Lrre"
+        "address": "KT1Nnt3T6eBjHLBEk26ZhF76rsk1EXQUm94K"
     },
     "mTokenEurl": {
-        "address": "KT1Um4nGRM9WV1QjxixHdCU5JdHA5FQABb2b"
+        "address": "KT1Qxv3kfbkdNcxvEm8cViYzgKSatk3yW9Q9"
     },
     "mTokenXtz": {
-        "address": "KT1TiW9hBWqjUpLN6N9gg5AHtGNHaPPfkiBw"
+        "address": "KT1AH66SPDg9Kut63MkZgKn4MeNqVxTXkWkT"
     },
     "mTokenTzbtc": {
-        "address": "KT1AuFKNso3TR4r4mKddfWhwg4S6BqPWCmsh"
+        "address": "KT1EHjhA5PVLEufR69VkBBoQd3XkSG2yRHYZ"
     },
     "mockUsdMockFa12TokenAggregator": {
-        "address": "KT1PrPSw7WBuWVogJVAwA5z87JXXyyn8bkf8"
+        "address": "KT1QDrcsPsNjT81Whpem3BN9F7DdNuYnDzM8"
     },
     "mockUsdMockFa2TokenAggregator": {
-        "address": "KT1QNpR9vvgL4DrVMqqGe5WqghLQ4JEmt39b"
+        "address": "KT19usxRxdKuNSrBkxzcLuQAjqGVH7psiDaW"
     },
     "mockUsdXtzAggregator": {
-        "address": "KT1WUkGX2emMpreMBn5vwfvbEvibVhkY9pre"
+        "address": "KT1QitE9Uv1hC9w9LV4SwtYEkyJkdvEQhn95"
     },
     "mockUsdMvkAggregator": {
         "address": "KT1BuJ5u1951b74Sx9fTmJXsWGyrBhsNCn6i"
