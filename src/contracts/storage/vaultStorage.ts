@@ -1,6 +1,6 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from "@taquito/michelson-encoder"
 import { bob } from '../scripts/sandbox/accounts'
-import { vaultStorageType } from "./storageTypes/vaultStorageType";
+import { vaultStorageType } from "./storageTypes/vaultStorageType"
 
 const vaultHandle = {
     id     : 1,   

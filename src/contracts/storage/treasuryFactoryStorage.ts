@@ -1,7 +1,7 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
 import { bob } from '../scripts/sandbox/accounts'
-import { treasuryFactoryStorageType } from "./storageTypes/treasuryFactoryStorageType";
+import { treasuryFactoryStorageType } from "./storageTypes/treasuryFactoryStorageType"
 
 const breakGlassConfig = {
     createTreasuryIsPaused   : false,

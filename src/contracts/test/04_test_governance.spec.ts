@@ -4,8 +4,7 @@
 // import { MVK, Utils, zeroAddress } from "./helpers/Utils";
 // import fs from "fs";
 // import { confirmOperation } from "../scripts/confirmation";
-// import { BigNumber } from "bignumber.js";
-// import { RpcClient } from '@taquito/rpc';
+// import { BigNumber } from "bignumber.js"
 
 // const chai = require("chai");
 // const chaiAsPromised = require('chai-as-promised');

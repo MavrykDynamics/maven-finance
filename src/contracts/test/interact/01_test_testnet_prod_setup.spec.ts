@@ -1,8 +1,8 @@
-import { InMemorySigner } from "@taquito/signer";
-import { Utils } from "../helpers/Utils";
+import { InMemorySigner } from "@taquito/signer"
+import { Utils } from "../helpers/Utils"
 
-const chai = require("chai");
-const chaiAsPromised = require('chai-as-promised');
+const chai = require("chai")
+const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised);   
 chai.should();
 
@@ -18,13 +18,16 @@ import contractDeployments from '../contractDeployments.json'
 
 import { bob } from "../../scripts/sandbox/accounts";
 import accounts from "../../scripts/sandbox/accounts";
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
 // ------------------------------------------------------------------------------
 
 describe("Testnet setup helper", async () => {
+    
     var utils: Utils;
+    var tezos
 
     let doormanInstance;
     let delegationInstance;
@@ -73,16 +76,13 @@ describe("Testnet setup helper", async () => {
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
-    
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
 
     before("setup", async () => {
         try{
+            
             utils = new Utils();
             await utils.init(bob.sk);
+            tezos = utils.tezos;
             
             doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -158,7 +158,7 @@ describe("Testnet setup helper", async () => {
     describe("PROD ENVIRONMENT SETUP", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin gets all MVK', async () => {
@@ -168,7 +168,7 @@ describe("Testnet setup helper", async () => {
                     let balance = await mvkTokenStorage.ledger.get(account.pkh);
                     if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== bob.pkh){
                         // Transfer all funds to bob
-                        await signerFactory(account.sk);
+                        await helperFunctions.signerFactory(tezos, account.sk);
                         console.log("account:", account)
                         console.log("balance:", balance)
                         let operation = await mvkTokenInstance.methods.transfer([

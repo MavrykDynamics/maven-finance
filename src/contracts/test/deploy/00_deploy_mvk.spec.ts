@@ -1,21 +1,18 @@
-import { Utils } from "../helpers/Utils";
-
+import { Utils } from "../helpers/Utils"
 const saveContractAddress = require("../helpers/saveContractAddress")
-const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
+const saveMVKDecimals     = require('../../helpers/saveMVKDecimals')
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
-
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
 import { GeneralContract }  from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
