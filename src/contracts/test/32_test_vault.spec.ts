@@ -1910,7 +1910,7 @@
 //     // 
 //     // Test: Delegate Mvk To Satellite
 //     //
-//     describe('%delegateMvkToSatellite', function () {
+//     describe('%delegateToSatellite', function () {
 
 //         it('user (eve) delegates MVK to oscar\'s satellite', async () => {
             
@@ -2033,7 +2033,7 @@
             
 //             // delegate vault staked mvk to oscar's satellite
 //             const delegationOperation   = await eveVaultInstance.methods.initVaultAction(
-//                 "delegateMvkToSatellite",
+//                 "delegateToSatellite",
 //                 satelliteAddress
 //             ).send();
 //             await delegationOperation.confirmation();
@@ -2081,7 +2081,7 @@
 
 //             // redelegate from oscar to bob
 //             const delegationOperation   = await eveVaultInstance.methods.initVaultAction(
-//                 "delegateMvkToSatellite",
+//                 "delegateToSatellite",
 //                 newSatelliteAddress
 //             ).send();
 //             await delegationOperation.confirmation();

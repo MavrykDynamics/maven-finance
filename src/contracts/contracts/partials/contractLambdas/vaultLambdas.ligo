@@ -64,7 +64,7 @@ block {
         |   LambdaInitVaultAction(initVaultAction) -> {
 
                 case initVaultAction of [
-                    |   DelegateTezToBaker(optionKeyHash) -> {
+                    |   SetBaker(optionKeyHash) -> {
 
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
@@ -75,7 +75,7 @@ block {
                             operations := delegateToTezBakerOperation # operations;
 
                         }
-                    |   DelegateMvkToSatellite(satelliteAddress) -> {
+                    |   DelegateToSatellite(satelliteAddress) -> {
 
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
