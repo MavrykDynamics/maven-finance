@@ -28,6 +28,7 @@
     "generate-error-codes": "bash ./generate-error-codes.sh",
     "generate-lambda-indexes": "ts-node scripts/cli.ts generate-lambda-indexes",
     
+    "compile-raw": "./bash-compile-contracts.sh",
     "compile": "./bash-compile-contracts.sh -c",
     "deploy": "bash ./bash-deploy-contracts.sh -c",
     "test": "bash ./bash-test-contracts.sh -c",
@@ -35,7 +36,6 @@
     "compile-lambdas": "./bash-compile-contracts.sh --lambdas-only",
     "compile-contract-lambdas": "./bash-compile-contracts.sh --lambdas-only -c",
     "compile-contract-no-lambdas": "./bash-compile-contracts.sh --contracts-only -c",
-
     
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ghostnet ./deploy-contracts.sh",
     "test-net-deploy-prod": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ghostnet PRODUCTION=true ./deploy-contracts.sh",
