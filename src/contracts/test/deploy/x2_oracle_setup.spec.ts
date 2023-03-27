@@ -16,7 +16,7 @@ import {bob, eve, mallory} from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json'
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -37,7 +37,7 @@ describe('Oracle Setup', async () => {
             // Retrieve all contracts
             //----------------------------
 
-            const aggregatorFactoryInstance: any     = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+            const aggregatorFactoryInstance: any = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             
             //----------------------------
             // For Oracle/Aggregator test net deployment if needed
