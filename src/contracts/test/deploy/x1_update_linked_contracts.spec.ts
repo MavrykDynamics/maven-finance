@@ -33,7 +33,6 @@ import aggregatorAddress from '../../deployments/aggregatorAddress.json'
 import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json'
 import farmAddress from '../../deployments/farmAddress.json'
 import farmFa2Address from '../../deployments/farmFa2Address.json'
-import tokenSaleAddress from '../../deployments/tokenSaleAddress.json'
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json'
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json'
 import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json'
@@ -286,7 +285,6 @@ describe('Linked contracts updates for Tests', async () => {
             .withContractCall(treasuryInstance.methods.updateWhitelistContracts('governanceProxy', governanceProxyAddress.address))
             .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactoryAddress.address))
             .withContractCall(treasuryInstance.methods.updateWhitelistContracts("treasuryFactory", treasuryFactoryAddress.address))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts("tokenSale", tokenSaleAddress.address))
             .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", doormanAddress.address))
             .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", delegationAddress.address))
             .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governanceFinancial", governanceFinancialAddress.address))
