@@ -14,15 +14,6 @@ import env from "../../env"
 import { confirmOperation } from "../../scripts/confirmation"
 import { OnChainView } from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view"
 
-
-// import { doormanStorage }                       from "../../storage/doormanStorage"
-// import { governanceStorage }                    from "../../storage/governanceStorage"
-// import { delegationStorage }                    from "../../storage/delegationStorage"
-// import { aggregatorStorage }                    from "../../storage/aggregatorStorage"
-// import { vestingStorage }                       from "../../storage/vestingStorage"
-// import { farmStorage }                          from "../../storage/farmStorage"
-// import { emergencyGovernanceStorage }           from "../../storage/emergencyGovernanceStorage"
-
 // Contracts Storage Type
 import { governanceStorageType }                from "../types/governanceStorageType"
 import { governanceProxyStorageType }           from "../types/governanceProxyStorageType"

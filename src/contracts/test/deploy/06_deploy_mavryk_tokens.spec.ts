@@ -18,7 +18,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GeneralContract }  from '../contractHelpers/deploymentTestHelper'
+import { GeneralContract }  from '../helpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
