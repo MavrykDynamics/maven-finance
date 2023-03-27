@@ -1,49 +1,27 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import assert, { ok, rejects, strictEqual } from "assert";
-import { MVK, Utils, zeroAddress } from "../helpers/Utils";
-import { createHash } from "crypto";
-import fs from "fs";
-import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
-import { confirmOperation } from "../../scripts/confirmation";
-import { BigNumber } from "bignumber.js";
+import { InMemorySigner } from "@taquito/signer";
+import { Utils } from "../helpers/Utils";
 
 const chai = require("chai");
-const salt          = 'azerty';
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);   
 chai.should();
 
-import env from "../../env";
-import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
-import * as accounts from "../../scripts/sandbox/accounts";
+// ------------------------------------------------------------------------------
+// Contract Address
+// ------------------------------------------------------------------------------
 
-import doormanAddress from '../../deployments/doormanAddress.json';
-import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
-import delegationAddress from '../../deployments/delegationAddress.json';
-import councilAddress from '../../deployments/councilAddress.json'
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
-import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
-import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
-import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import mTokenUsdtAddress from '../../deployments/mTokenUsdtAddress.json';
-import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
-import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
-import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
-import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
-import mavrykFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
-import treasuryAddress from '../../deployments/treasuryAddress.json';
-import vestingAddress from '../../deployments/vestingAddress.json';
-import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
-import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json';
-import farmAddress from '../../deployments/farmAddress.json';
-import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
-import aggregatorAddress from '../../deployments/aggregatorAddress.json';
-import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
-import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
-import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
-import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json';
+import contractDeployments from '../contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import { bob } from "../../scripts/sandbox/accounts";
+import accounts from "../../scripts/sandbox/accounts";
+
+// ------------------------------------------------------------------------------
+// Testnet Setup
+// ------------------------------------------------------------------------------
 
 describe("Testnet setup helper", async () => {
     var utils: Utils;
@@ -106,28 +84,28 @@ describe("Testnet setup helper", async () => {
             utils = new Utils();
             await utils.init(bob.sk);
             
-            doormanInstance                         = await utils.tezos.contract.at(doormanAddress.address);
-            delegationInstance                      = await utils.tezos.contract.at(delegationAddress.address);
-            mvkTokenInstance                        = await utils.tezos.contract.at(mvkTokenAddress.address);
-            governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
-            governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
-            emergencyGovernanceInstance             = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
-            breakGlassInstance                      = await utils.tezos.contract.at(breakGlassAddress.address);
-            councilInstance                         = await utils.tezos.contract.at(councilAddress.address);
-            farmFactoryInstance                     = await utils.tezos.contract.at(farmFactoryAddress.address);
-            vestingInstance                         = await utils.tezos.contract.at(vestingAddress.address);
-            governanceFinancialInstance             = await utils.tezos.contract.at(governanceFinancialAddress.address);
-            treasuryFactoryInstance                 = await utils.tezos.contract.at(treasuryFactoryAddress.address);
-            treasuryInstance                        = await utils.tezos.contract.at(treasuryAddress.address);
-            farmInstance                            = await utils.tezos.contract.at(farmAddress.address);
-            lpTokenInstance                         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
-            governanceSatelliteInstance             = await utils.tezos.contract.at(governanceSatelliteAddress.address);
-            aggregatorInstance                      = await utils.tezos.contract.at(aggregatorAddress.address);
-            aggregatorFactoryInstance               = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
-            lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
-            lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
-            vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
-            mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+            doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
+            delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
+            mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
+            governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
+            emergencyGovernanceInstance             = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
+            breakGlassInstance                      = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
+            councilInstance                         = await utils.tezos.contract.at(contractDeployments.council.address);
+            farmFactoryInstance                     = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
+            vestingInstance                         = await utils.tezos.contract.at(contractDeployments.vesting.address);
+            governanceFinancialInstance             = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
+            treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
+            treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
+            farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
+            lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+            governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
+            aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
+            aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+            lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
+            lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
+            vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
+            mavrykFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
     
             doormanStorage                          = await doormanInstance.storage();
             delegationStorage                       = await delegationInstance.storage();
@@ -153,24 +131,24 @@ describe("Testnet setup helper", async () => {
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
     
             console.log('-- -- -- -- -- Testnet Environment Setup -- -- -- --')
-            console.log('Doorman Contract deployed at:', doormanInstance.address);
-            console.log('Delegation Contract deployed at:', delegationInstance.address);
-            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-            console.log('Governance Contract deployed at:', governanceInstance.address);
-            console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-            console.log('Vesting Contract deployed at:', vestingInstance.address);
-            console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
-            console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
-            console.log('Treasury Contract deployed at:', treasuryInstance.address);
-            console.log('Farm Contract deployed at:', farmInstance.address);
-            console.log('LP Token Contract deployed at:', lpTokenInstance.address);
-            console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
-            console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
-            console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
-            console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
-            console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
-            console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
-            console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+            console.log('Doorman Contract deployed at:'                         , contractDeployments.doorman.address);
+            console.log('Delegation Contract deployed at:'                      , contractDeployments.delegation.address);
+            console.log('MVK Token Contract deployed at:'                       , contractDeployments.mvkToken.address);
+            console.log('Governance Contract deployed at:'                      , contractDeployments.governance.address);
+            console.log('Emergency Governance Contract deployed at:'            , contractDeployments.emergencyGovernance.address);
+            console.log('Vesting Contract deployed at:'                         , contractDeployments.vesting.address);
+            console.log('Governance Financial Contract deployed at:'            , contractDeployments.governanceFinancial.address);
+            console.log('Treasury Factory Contract deployed at:'                , contractDeployments.treasuryFactory.address);
+            console.log('Treasury Contract deployed at:'                        , contractDeployments.treasury.address);
+            console.log('Farm Contract deployed at:'                            , contractDeployments.farm.address);
+            console.log('LP Token Contract deployed at:'                        , contractDeployments.mavrykFa12Token.address);
+            console.log('Governance Satellite Contract deployed at:'            , contractDeployments.governanceSatellite.address);
+            console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
+            console.log('Aggregator Factory Contract deployed at:'              , contractDeployments.aggregatorFactory.address);
+            console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
+            console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
+            console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
+            console.log('Mavryk FA12 Token Contract deployed at:'               , contractDeployments.mavrykFa12Token.address);
 
         } catch(e){
             console.log(e)
@@ -225,8 +203,8 @@ describe("Testnet setup helper", async () => {
                     var storage:any     = await contract.storage();
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                         await setAdminOperation.confirmation()
                     }
                 }
@@ -240,19 +218,19 @@ describe("Testnet setup helper", async () => {
                     var storage:any     = await contract.storage();
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                         await setAdminOperation.confirmation()
                     }
 
                     // Check whitelist [Council, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
                         if(storage.whitelistContracts.get("council") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('council', councilAddress.address).send()
+                            var operation   = await contract.methods.updateWhitelistContracts('council', contractDeployments.council.address).send()
                             await operation.confirmation()
                         }
                         if(storage.whitelistContracts.get("farmFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('farmFactory', farmFactoryAddress.address).send()
+                            var operation   = await contract.methods.updateWhitelistContracts('farmFactory', contractDeployments.farmFactory.address).send()
                             await operation.confirmation()
                         }
                     }
@@ -267,19 +245,19 @@ describe("Testnet setup helper", async () => {
                     var storage:any     = await contract.storage();
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                         await setAdminOperation.confirmation()
                     }
 
                     // Check whitelist [Gov proxy, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
                         if(storage.whitelistContracts.get("governanceProxy") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('governanceProxy', governanceProxyAddress.address).send()
+                            var operation   = await contract.methods.updateWhitelistContracts('governanceProxy', contractDeployments.governanceProxy.address).send()
                             await operation.confirmation()
                         }
                         if(storage.whitelistContracts.get("treasuryFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('treasuryFactory', treasuryFactoryAddress.address).send()
+                            var operation   = await contract.methods.updateWhitelistContracts('treasuryFactory', contractDeployments.treasuryFactory.address).send()
                             await operation.confirmation()
                         }
                     }
@@ -294,30 +272,30 @@ describe("Testnet setup helper", async () => {
                     var storage:any     = await contract.storage();
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                         await setAdminOperation.confirmation()
                     }
 
                     // Check whitelist [Gov satellite, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
                         if(storage.whitelistContracts.get("governanceSatellite") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatelliteAddress.address).send()
+                            var operation   = await contract.methods.updateWhitelistContracts('governanceSatellite', contractDeployments.governanceSatellite.address).send()
                             await operation.confirmation()
                         }
                         if(storage.whitelistContracts.get("aggregatorFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactoryAddress.address).send()
+                            var operation   = await contract.methods.updateWhitelistContracts('aggregatorFactory', contractDeployments.aggregatorFactory.address).send()
                             await operation.confirmation()
                         }
                     }
                 }
 
                 // Set governance proxy admin, governance admin and mvkToken admin
-                setAdminOperation   = await governanceProxyInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
-                setAdminOperation   = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
-                setAdminOperation   = await mvkTokenInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                setAdminOperation   = await mvkTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
                 
             } catch(e){
