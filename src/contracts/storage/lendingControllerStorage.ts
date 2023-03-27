@@ -1,11 +1,8 @@
 import { MichelsonMap } from "@taquito/michelson-encoder"
 import { BigNumber } from "bignumber.js"
-
-const { alice, bob } = require('../scripts/sandbox/accounts')
-
+import { bob } from '../scripts/sandbox/accounts'
 import { zeroAddress } from "../test/helpers/Utils"
-
-import { lendingControllerStorageType } from "../test/types/lendingControllerStorageType"
+import { lendingControllerStorageType } from "./storageTypes/lendingControllerStorageType"
 
 const config = {
 

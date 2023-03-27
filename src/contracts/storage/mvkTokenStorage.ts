@@ -1,13 +1,9 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
-
-const { bob, alice, eve, mallory, oscar, trudy, susie } = require('../scripts/sandbox/accounts')
-
+import { bob, alice, eve, mallory, oscar, trudy, susie } from '../scripts/sandbox/accounts'
 import { MVK } from '../test/helpers/Utils'
-
-import { mvkStorageType } from '../test/types/mvkTokenStorageType'
+import { mvkTokenStorageType } from './storageTypes/mvkTokenStorageType'
 
 export const mvkTokenDecimals = 9
 

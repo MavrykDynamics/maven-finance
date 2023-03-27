@@ -40,8 +40,8 @@ import mavrykFa12TokenAddress       from '../deployments/mavrykFa12TokenAddress.
 import mavrykFa2TokenAddress        from '../deployments/mavrykFa2TokenAddress.json';
 
 import { MichelsonMap }             from '@taquito/taquito';
-import { farmStorageType }          from './types/farmStorageType';
-import { aggregatorStorageType }    from './types/aggregatorStorageType';
+import { farmStorageType }          from '../storage/storageTypes/farmStorageType';
+import { aggregatorStorageType }    from '../storage/storageTypes/aggregatorStorageType';
 
 describe('Governance proxy lambdas tests', async () => {
     var utils: Utils;
