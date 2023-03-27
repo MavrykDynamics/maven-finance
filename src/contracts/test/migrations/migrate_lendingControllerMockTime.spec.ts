@@ -3,7 +3,7 @@ import assert, { ok, rejects, strictEqual } from "assert";
 import { MVK, Utils, zeroAddress } from "../helpers/Utils";
 import fs from "fs";
 import { confirmOperation } from "../../scripts/confirmation";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+const saveContractAddress = require("../helpers/saveContractAddress")
 const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import {TezosToolkit, TransactionOperation} from "@taquito/taquito";
