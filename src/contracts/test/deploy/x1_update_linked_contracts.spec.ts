@@ -1,19 +1,23 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { MVK, Utils } from "../helpers/Utils";
-import {TransactionOperation} from "@taquito/taquito";
+import { MVK, Utils } from "../helpers/Utils"
+import {TransactionOperation} from "@taquito/taquito"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
 import contractDeployments from '../contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -23,12 +27,6 @@ describe('Linked contracts updates for Tests', async () => {
   
     var utils: Utils
     var tezos
-    
-
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-        return utils.tezos
-    }
 
     before('setup', async () => {
         try{
@@ -62,7 +60,7 @@ describe('Linked contracts updates for Tests', async () => {
             // Set remaining contract addresses - post-deployment
             //----------------------------
 
-            await signerFactory(bob.sk);
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
             // Break Glass Contract - set whitelist contract addresses [emergencyGovernance]
             const breakGlassContractOperation = await breakGlassInstance.methods.updateWhitelistContracts("emergencyGovernance", contractDeployments.emergencyGovernance.address).send();

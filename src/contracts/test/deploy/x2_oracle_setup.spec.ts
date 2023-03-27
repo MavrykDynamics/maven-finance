@@ -1,22 +1,23 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-import { confirmOperation } from "../../scripts/confirmation";
-const saveContractAddress = require("../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
+import { BigNumber } from "bignumber.js"
 import { MichelsonMap } from '@taquito/michelson-encoder'
-import {BigNumber} from "bignumber.js";
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import {bob, eve, mallory} from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
 import contractDeployments from '../contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import {bob, eve, mallory} from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start

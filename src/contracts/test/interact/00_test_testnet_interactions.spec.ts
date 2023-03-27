@@ -1,12 +1,11 @@
-const { InMemorySigner } = require("@taquito/signer");
 import { compileLambdaFunction } from '../../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
-import { MVK, Utils, zeroAddress } from "../helpers/Utils";
-import { BigNumber } from "bignumber.js";
-import { MichelsonMap } from "@taquito/taquito";
+import { MVK, Utils, zeroAddress } from "../helpers/Utils"
+import { BigNumber } from "bignumber.js"
+import { MichelsonMap } from "@taquito/taquito"
 // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 
-const chai = require("chai");
-const chaiAsPromised = require('chai-as-promised');
+const chai = require("chai")
+const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised);   
 chai.should();
 
@@ -21,6 +20,7 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -38,7 +38,9 @@ function wait(ms: number) {
 }
 
 describe("Testnet interactions helper", async () => {
+    
     var utils: Utils;
+    var tezos
 
     let doormanInstance;
     let delegationInstance;
@@ -132,16 +134,12 @@ describe("Testnet interactions helper", async () => {
     const oneDayLevelBlocks = 4320
     const oneMonthLevelBlocks = 129600
     const oneYearLevelBlocks = 1576800
-    
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
 
     before("setup", async () => {
         try{
             utils = new Utils();
             await utils.init(bob.sk);
+            tezos = utils.tezos;
             
             doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -220,7 +218,7 @@ describe("Testnet interactions helper", async () => {
     describe("MVK TOKEN", async () => {
 
         before("Send XTZ to treasury", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
             // Admin sends 2000XTZ to treasury contract
             const transferOperation = await utils.tezos.contract.transfer({ to: contractDeployments.treasury.address, amount: 500});
@@ -228,7 +226,7 @@ describe("Testnet interactions helper", async () => {
         });
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -345,7 +343,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("DOORMAN", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin add Doorman as an operator', async () => {
@@ -541,7 +539,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("DELEGATION", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -811,7 +809,7 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 // Delegate Part
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 var delegationOperation = await mvkTokenInstance.methods
                 .update_operators([
                 {
@@ -848,7 +846,7 @@ describe("Testnet interactions helper", async () => {
         it('User undelegates from satellite', async () => {
             try{
                 // Operation
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 const operation = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
                 await operation.confirmation();
             await operation.confirmation();
@@ -860,7 +858,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("COUNCIL", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1031,7 +1029,7 @@ describe("Testnet interactions helper", async () => {
                 var operation   = await councilInstance.methods.councilActionAddVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation       = await councilInstance.methods.signAction(actionId).send()
                 await operation.confirmation();
 
@@ -1068,7 +1066,7 @@ describe("Testnet interactions helper", async () => {
                 var operation   = await councilInstance.methods.councilActionRemoveVestee(bob.pkh).send()
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation       = await councilInstance.methods.signAction(actionId).send()
                 await operation.confirmation();
             } catch(e){
@@ -1161,7 +1159,7 @@ describe("Testnet interactions helper", async () => {
                 ).send()
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation = await councilInstance.methods.signAction(actionId).send()
                 await operation.confirmation();
             } catch(e){
@@ -1184,7 +1182,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("VESTING", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1281,7 +1279,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("GOVERNANCE FINANCIAL", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1359,7 +1357,7 @@ describe("Testnet interactions helper", async () => {
                     "For testing purposes"
                 ).send()
                 await operation.confirmation();
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation               = await councilInstance.methods.signAction(actionCounter).send()
                 await operation.confirmation();
             } catch(e){
@@ -1378,7 +1376,7 @@ describe("Testnet interactions helper", async () => {
                     "For testing purposes"
                 ).send()
                 await operation.confirmation();
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation               = await councilInstance.methods.signAction(actionCounter).send()
                 await operation.confirmation();
             } catch(e){
@@ -1395,7 +1393,7 @@ describe("Testnet interactions helper", async () => {
                 const actionCounter         = councilStorage.actionCounter
                 var operation               = await councilInstance.methods.councilActionDropFinancialReq(requestToDrop).send()
                 await operation.confirmation();
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation                   = await councilInstance.methods.signAction(actionCounter).send()
                 await operation.confirmation();
             } catch(e){
@@ -1409,7 +1407,7 @@ describe("Testnet interactions helper", async () => {
                 councilStorage              = await councilInstance.storage()
                 governanceFinancialStorage  = await governanceFinancialInstance.storage()
                 const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 2
-                await signerFactory(bob.sk)
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 const operation             = await governanceFinancialInstance.methods.voteForRequest(requestToDrop, "yay").send()
                 await operation.confirmation();
             } catch(e){
@@ -1420,7 +1418,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("TREASURY FACTORY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1573,7 +1571,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("TREASURY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1689,7 +1687,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("FARM FACTORY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1865,7 +1863,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("FARM", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -2040,7 +2038,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("AGGREGATOR FACTORY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -2304,7 +2302,7 @@ describe("Testnet interactions helper", async () => {
     describe("AGGREGATOR", async () => {
 
         before("AggregatorFactory tracks aggregator", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
             
             // Operation
             const operation = await aggregatorFactoryInstance.methods.trackAggregator(contractDeployments.aggregator.address).send();
@@ -2312,7 +2310,7 @@ describe("Testnet interactions helper", async () => {
         });
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -2470,7 +2468,7 @@ describe("Testnet interactions helper", async () => {
        
                 const signatures = new MichelsonMap<string, string>();
        
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);;
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
        
                 // Operation
@@ -2576,7 +2574,7 @@ describe("Testnet interactions helper", async () => {
         })
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -3083,7 +3081,7 @@ describe("Testnet interactions helper", async () => {
 
         before("Register another satellite for testing purposes", async () => {
             // Operation
-            await signerFactory(alice.sk)
+            await helperFunctions.signerFactory(tezos, alice.sk);
             const operation = await delegationInstance.methods
             .registerAsSatellite(
                 "Alice Satellite", 
@@ -3095,11 +3093,11 @@ describe("Testnet interactions helper", async () => {
                 alice.peerId
             ).send();
             await operation.confirmation();
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         })
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -3354,7 +3352,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("EMERGENCY GOVERNANCE", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -3494,7 +3492,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("BREAK GLASS", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -3705,7 +3703,7 @@ describe("Testnet interactions helper", async () => {
                 var operation = await breakGlassInstance.methods.flushAction(1).send();
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation = await breakGlassInstance.methods.signAction(recordId).send();
                 await operation.confirmation();
             } catch(e){
@@ -3717,7 +3715,7 @@ describe("Testnet interactions helper", async () => {
 
     // describe("LENDING CONTROLLER", async () => {
     //     beforeEach("Set signer to admin", async () => {
-    //         await signerFactory(bob.sk)
+    //         await helperFunctions.signerFactory(tezos, bob.sk);
     //     });
 
     //     it('Admin sets admin', async () => {
@@ -4410,7 +4408,7 @@ describe("Testnet interactions helper", async () => {
     describe("LENDING CONTROLLER MOCK TIME", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -5165,7 +5163,7 @@ describe("Testnet interactions helper", async () => {
     describe("MToken", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -5253,7 +5251,7 @@ describe("Testnet interactions helper", async () => {
     describe("VAULT FACTORY", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
         
         it('Admin sets admin', async () => {
@@ -5360,7 +5358,7 @@ describe("Testnet interactions helper", async () => {
     describe("VAULT", async () => {
 
         before("Initialize vault variables", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
             // Save the vault address
             lendingControllerMockTimeStorage    = await lendingControllerMockTimeInstance.storage();
@@ -5376,7 +5374,7 @@ describe("Testnet interactions helper", async () => {
         });
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
         
         it('Admin updates the depositor', async () => {
