@@ -1,6 +1,6 @@
 import { Utils } from "../helpers/Utils";
 
-const saveContractAddress = require("../../helpers/saveContractAddress")
+const saveContractAddress = require("../helpers/saveContractAddress")
 const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 
 const chai = require('chai')
