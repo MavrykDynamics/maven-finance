@@ -84,10 +84,10 @@
         "address": "KT1QitE9Uv1hC9w9LV4SwtYEkyJkdvEQhn95"
     },
     "mockUsdMvkAggregator": {
-        "address": "KT1BuJ5u1951b74Sx9fTmJXsWGyrBhsNCn6i"
+        "address": "KT1PQGjAWRpzncyjXgqbXpN9aUphdD7dKFHa"
     },
     "vaultFactory": {
-        "address": "KT1FDVxHVeUP6H8LjGVhh7BS4eaJofUFpdCG"
+        "address": "KT1F5ueS6dzq27zHqkCL6sWfNwj2ydXYNjTt"
     },
     "lendingControllerMockTime": {
         "address": "KT1MbgVJ92WkSngRwwYfLwD7AuY5BmNQsxU7"

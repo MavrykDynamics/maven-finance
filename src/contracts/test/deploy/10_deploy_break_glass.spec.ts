@@ -1,13 +1,10 @@
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
+import { Utils } from "../helpers/Utils"
 const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
-
-import { bob, alice, eve } from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -19,7 +16,9 @@ import contractDeployments from '../contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GeneralContract, setGeneralContractLambdas }  from '../helpers/deploymentTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob, alice, eve } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -36,11 +35,6 @@ describe('Break Glass', async () => {
     var utils: Utils
     var breakGlass
     var tezos
-
-    const signerFactory = async (pk) => {
-        await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-        return tezos
-    }
 
     before('setup', async () => {
         try{
@@ -77,7 +71,7 @@ describe('Break Glass', async () => {
             /* ---- ---- ---- ---- ---- */
         
             tezos = breakGlass.tezos
-            await signerFactory(bob.sk);
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
             // Set Lambdas
             await setGeneralContractLambdas(tezos, "breakGlass", breakGlass.contract);

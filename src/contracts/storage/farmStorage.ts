@@ -1,7 +1,7 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
 import { bob } from '../scripts/sandbox/accounts'
-import { farmStorageType } from "./storageTypes/farmStorageType";
+import { farmStorageType } from "./storageTypes/farmStorageType"
 
 const totalBlocks = new BigNumber(0);
 const currentRewardPerBlock = new BigNumber(0);
