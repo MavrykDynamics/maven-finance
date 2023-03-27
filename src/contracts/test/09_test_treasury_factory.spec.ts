@@ -11,7 +11,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, oscar, trudy, isaac, david } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, oscar, trudy, isaac, david, baker } from "../scripts/sandbox/accounts";
 
 // import treasuryAddress from '../deployments/treasuryAddress.json';
 // import treasuryFactoryAddress from '../deployments/treasuryFactoryAddress.json';
@@ -161,6 +161,7 @@
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
 //                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         baker.pkh,
 //                         "testTreasury",
 //                         true,
 //                         treasuryMetadataBase
@@ -342,6 +343,7 @@
 //                 try{
 //                     // Operation
 //                     const operation = await treasuryFactoryInstance.methods.createTreasury(
+//                         baker.pkh,
 //                         "testTreasury1",
 //                         true,
 //                         treasuryMetadataBase).send();
@@ -365,6 +367,7 @@
 //                     // Operation
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         baker.pkh,
 //                         "testTreasury",
 //                         false,
 //                         treasuryMetadataBase).send()).to.be.eventually.rejected;
@@ -388,6 +391,7 @@
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
 //                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         baker.pkh,
 //                         "testTreasury",
 //                         false,
 //                         treasuryMetadataBase
