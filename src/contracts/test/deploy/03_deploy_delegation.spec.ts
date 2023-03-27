@@ -22,7 +22,7 @@ import doormanAddress from '../../deployments/doormanAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GeneralContract, setGeneralContractLambdas }  from '../contractHelpers/deploymentTestHelper'
+import { GeneralContract, setGeneralContractLambdas }  from '../helpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
