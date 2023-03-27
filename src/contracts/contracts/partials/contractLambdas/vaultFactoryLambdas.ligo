@@ -288,7 +288,7 @@ block{
         |   LambdaCreateVault(createVaultParams) -> {
 
                 // init variables
-                // const vaultDelegate         : option(key_hash) = createVaultParams.delegate; // delegate
+                const vaultDelegate         : option(key_hash) = createVaultParams.baker;
                 const vaultLoanTokenName    : string = createVaultParams.loanTokenName; // e.g. USDT, EURL 
                 const vaultOwner            : address = Tezos.get_sender();
                 const newVaultId            : vaultIdType = s.vaultCounter;
@@ -312,7 +312,7 @@ block{
 
                 // originate vault func with delegate option
                 const vaultOrigination : (operation * address) = createVaultFunc(
-                    (None : option(key_hash)),  
+                    vaultDelegate,  
                     Tezos.get_amount(),                       
                     originateVaultStorage
                 );

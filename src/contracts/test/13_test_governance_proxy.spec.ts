@@ -14,7 +14,7 @@
 // chai.should();
 
 // import env from '../env';
-// import { bob, alice, eve, mallory, oscar, trudy } from '../scripts/sandbox/accounts';
+// import { bob, alice, eve, mallory, oscar, trudy, baker } from '../scripts/sandbox/accounts';
 
 // import governanceProxyAddress       from '../deployments/governanceProxyAddress.json';
 // import mvkTokenAddress              from '../deployments/mvkTokenAddress.json';
@@ -1565,6 +1565,7 @@
                         
 //                         'createTreasury',
 //                         [
+//                             baker.pkh,
 //                             treasuryFactoryAddress.address,
 //                             treasuryName,
 //                             addToGeneralContracts,
