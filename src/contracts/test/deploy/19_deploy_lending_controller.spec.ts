@@ -1,7 +1,7 @@
 import { Utils } from "../helpers/Utils";
 
 const { InMemorySigner } = require("@taquito/signer");
-const saveContractAddress = require("../../helpers/saveContractAddress")
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -27,17 +27,17 @@ import { GeneralContract, setGeneralContractLambdas }  from '../helpers/deployme
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { lendingControllerMockTimeStorage } from '../../storage/lendingControllerMockTimeStorage'
+import { lendingControllerStorage } from '../../storage/lendingControllerStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('Lending Controller Mock Time', async () => {
+describe('Lending Controller', async () => {
   
     var tezos
     var utils: Utils
-    var lendingControllerMockTime
+    var lendingController
 
     const signerFactory = async (pk) => {
         await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -53,20 +53,20 @@ describe('Lending Controller Mock Time', async () => {
             // Originate and deploy contracts
             //----------------------------
 
-            lendingControllerMockTimeStorage.governanceAddress = governanceAddress.address
-            lendingControllerMockTimeStorage.mvkTokenAddress   = mvkTokenAddress.address
-            lendingControllerMockTime = await GeneralContract.originate(utils.tezos, "lendingControllerMockTime", lendingControllerMockTimeStorage);
-            await saveContractAddress('lendingControllerMockTimeAddress', lendingControllerMockTime.contract.address)
+            lendingControllerStorage.governanceAddress = governanceAddress.address
+            lendingControllerStorage.mvkTokenAddress   = mvkTokenAddress.address
+            lendingController = await GeneralContract.originate(utils.tezos, "lendingController", lendingControllerStorage);
+            await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
 
             //----------------------------
             // Set Lambdas
             //----------------------------
 
-            tezos = lendingControllerMockTime.tezos
+            tezos = lendingController.tezos
             await signerFactory(bob.sk);
         
             // Set Lambdas
-            await setGeneralContractLambdas(tezos, "lendingControllerMockTime", lendingControllerMockTime.contract);
+            await setGeneralContractLambdas(tezos, "lendingController", lendingController.contract);
 
         } catch(e){
             
@@ -76,7 +76,7 @@ describe('Lending Controller Mock Time', async () => {
 
     })
 
-    it(`lending controller mock time contract deployed`, async () => {
+    it(`lending controller contract deployed`, async () => {
         try {
         
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
