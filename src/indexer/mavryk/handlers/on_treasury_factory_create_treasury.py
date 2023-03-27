@@ -16,6 +16,7 @@ async def on_treasury_factory_create_treasury(
 
     # Get operation info
     treasury_address                = treasury_origination.data.originated_contract_address
+    baker_address                   = create_treasury.parameter.baker
     treasury_factory_address        = create_treasury.data.target_address
     admin                           = treasury_origination.storage.admin
     governance_address              = treasury_origination.storage.governanceAddress
@@ -71,4 +72,10 @@ async def on_treasury_factory_create_treasury(
         treasury.mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused
         treasury.stake_mvk_paused                = stake_mvk_paused
         treasury.unstake_mvk_paused              = unstake_mvk_paused
+
+        # Create a baker or not
+        if baker_address:
+            baker       = await models.mavryk_user_cache.get(address=baker_address)
+            treasury.baker = baker
+
         await treasury.save()
