@@ -16,10 +16,7 @@ import { bob, eve, mallory, oscar } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
-import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
-import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -63,10 +60,10 @@ describe('Lending Controller Supporting Contracts', async () => {
             //----------------------------
 
             // mToken for Mock FA12 Token in Lending Controller Token Pool 
-            mTokenStorage.governanceAddress = governanceAddress.address;
+            mTokenStorage.governanceAddress = contractDeployments.governance.address;
             mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                "lendingControllerMockTime"     : lendingControllerMockTimeAddress.address, // to be removed in prod
-                "lendingController"             : lendingControllerAddress.address,
+                "lendingControllerMockTime"     : contractDeployments.lendingControllerMockTime.address, // to be removed in prod
+                "lendingController"             : contractDeployments.lendingController.address,
             })
 
             mTokenStorage.loanToken = "usdt";  // should correspond to loan token record in lending controller
@@ -292,8 +289,8 @@ describe('Lending Controller Supporting Contracts', async () => {
                 rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
             };
             aggregatorStorage.oracleLedger      = oracleMap;
-            aggregatorStorage.mvkTokenAddress   = mvkTokenAddress.address;
-            aggregatorStorage.governanceAddress = governanceAddress.address;
+            aggregatorStorage.mvkTokenAddress   = contractDeployments.mvkToken.address;
+            aggregatorStorage.governanceAddress = contractDeployments.governance.address;
 
             // Mock USD/MockFa12Token Aggregator
             aggregatorStorage.lastCompletedData = {

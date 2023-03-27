@@ -13,8 +13,7 @@ import { bob, alice, eve } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -53,8 +52,8 @@ describe('Council', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            councilStorage.governanceAddress = governanceAddress.address
-            councilStorage.mvkTokenAddress  = mvkTokenAddress.address
+            councilStorage.governanceAddress = contractDeployments.governance.address
+            councilStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
             councilStorage.councilMembers.set(bob.pkh, {
                 name: "Bob",
                 image: "Bob image",
