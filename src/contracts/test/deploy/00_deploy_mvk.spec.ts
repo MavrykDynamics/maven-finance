@@ -15,7 +15,7 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GeneralContract }  from '../contractHelpers/deploymentTestHelper'
+import { GeneralContract }  from '../helpers/deploymentTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
