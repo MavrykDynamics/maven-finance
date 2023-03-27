@@ -33,7 +33,8 @@ describe('Linked contracts updates for Tests', async () => {
 
             utils = new Utils()
             await utils.init(bob.sk)
-        
+            tezos = utils.tezos;
+
             //----------------------------
             // Retrieve all contracts
             //----------------------------
@@ -53,7 +54,7 @@ describe('Linked contracts updates for Tests', async () => {
             const aggregatorInstance: any                   = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             const aggregatorFactoryInstance: any            = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             const lendingControllerInstance: any            = await utils.tezos.contract.at(contractDeployments.lendingController.address);
-            const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
+            // const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             const vaultFactoryInstance: any                 = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
             
             //----------------------------
