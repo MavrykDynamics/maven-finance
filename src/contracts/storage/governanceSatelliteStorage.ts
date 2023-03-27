@@ -1,12 +1,8 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
-
-const { bob } = require('../scripts/sandbox/accounts')
-
+import { bob } from '../scripts/sandbox/accounts'
 import { zeroAddress } from '../test/helpers/Utils'
-
-import { governanceSatelliteStorageType } from '../test/types/governanceSatelliteStorageType'
+import { governanceSatelliteStorageType } from './storageTypes/governanceSatelliteStorageType'
 
 const config = {
     governanceSatelliteApprovalPercentage  : 6700,

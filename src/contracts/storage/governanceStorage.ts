@@ -1,11 +1,8 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
-
-const { bob, alice } = require('../scripts/sandbox/accounts')
-
+import { bob } from '../scripts/sandbox/accounts'
 import { MVK, zeroAddress } from '../test/helpers/Utils'
-
-import { governanceStorageType } from '../test/types/governanceStorageType'
+import { governanceStorageType } from './storageTypes/governanceStorageType'
 
 const config = {
     successReward                       : MVK(10),
