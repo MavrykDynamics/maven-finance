@@ -8,6 +8,7 @@ from mavryk.sql_model.parents import ContractLambda, MavrykContract
 
 class Vault(MavrykContract, Model):
     factory                                 = fields.ForeignKeyField('models.VaultFactory', related_name='vaults', null=True)
+    baker                                   = fields.ForeignKeyField('models.MavrykUser', related_name='delegated_vaults', null=True)
     name                                    = fields.TextField(default='')
     creation_timestamp                      = fields.DatetimeField(null=True, index=True)
     allowance                               = fields.IntEnumField(enum_type=VaultAllowance, default=VaultAllowance.ANY, index=True)
