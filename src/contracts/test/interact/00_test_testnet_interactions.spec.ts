@@ -1,53 +1,30 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
 import { compileLambdaFunction } from '../../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
-import assert, { ok, rejects, strictEqual } from "assert";
-import { MVK, Utils, zeroAddress } from "../helpers/Utils";
-import { createHash } from "crypto";
-import fs from "fs";
-import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
-import { confirmOperation } from "../../scripts/confirmation";
-import { BigNumber } from "bignumber.js";
+import { MVK, Utils, zeroAddress } from "../helpers/Utils"
+import { BigNumber } from "bignumber.js"
+import { MichelsonMap } from "@taquito/taquito"
+// import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 
-const chai = require("chai");
-const salt          = 'azerty';
-const chaiAsPromised = require('chai-as-promised');
+const chai = require("chai")
+const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised);   
 chai.should();
 
-import env from "../../env";
+// ------------------------------------------------------------------------------
+// Contract Address
+// ------------------------------------------------------------------------------
+
+import contractDeployments from '../contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
+import * as helperFunctions from '../helpers/helperFunctions'
 
-import doormanAddress from '../../deployments/doormanAddress.json';
-import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
-import delegationAddress from '../../deployments/delegationAddress.json';
-import councilAddress from '../../deployments/councilAddress.json'
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
-import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
-import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
-import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import mTokenUsdtAddress from "../../deployments/mTokenUsdtAddress.json";
-import mTokenXtzAddress from "../../deployments/mTokenXtzAddress.json";
-import mTokenEurlAddress from "../../deployments/mTokenEurlAddress.json";
-import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
-import mavrykFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
-import treasuryAddress from '../../deployments/treasuryAddress.json';
-import vestingAddress from '../../deployments/vestingAddress.json';
-import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
-import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json';
-import farmAddress from '../../deployments/farmAddress.json';
-import farmMTokenAddress from '../../deployments/farmMTokenAddress.json';
-import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
-import aggregatorAddress from '../../deployments/aggregatorAddress.json';
-import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
-import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
-import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
-import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json';
-
-// import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
-import { config } from "yargs";
-import { MichelsonMap } from "@taquito/taquito";
+// ------------------------------------------------------------------------------
+// Testnet Setup
+// ------------------------------------------------------------------------------
 
 interface IOracleObservationType {
     data                : BigNumber;
@@ -61,7 +38,9 @@ function wait(ms: number) {
 }
 
 describe("Testnet interactions helper", async () => {
+    
     var utils: Utils;
+    var tezos
 
     let doormanInstance;
     let delegationInstance;
@@ -77,7 +56,6 @@ describe("Testnet interactions helper", async () => {
     let treasuryFactoryInstance;
     let treasuryInstance;
     let farmInstance;
-    let farmMTokenInstance;
     let lpTokenInstance;
     let governanceSatelliteInstance;
     let aggregatorInstance;
@@ -85,7 +63,6 @@ describe("Testnet interactions helper", async () => {
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
     let mTokenEurlInstance;
-    let mTokenUsdtInstance;
     let vaultInstance;
     let vaultFactoryInstance;
     let mavrykFa12TokenInstance;
@@ -104,7 +81,6 @@ describe("Testnet interactions helper", async () => {
     let treasuryFactoryStorage;
     let treasuryStorage;
     let farmStorage;
-    let farmMTokenStorage;
     let lpTokenStorage;
     let governanceSatelliteStorage;
     let aggregatorStorage;
@@ -112,12 +88,12 @@ describe("Testnet interactions helper", async () => {
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
     let mTokenEurlStorage;
-    let mTokenUsdtStorage;
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
 
     let createdTreasuryAddress;
+
     const treasuryMetadataBase = Buffer.from(
         JSON.stringify({
           name: 'MAVRYK Farm Treasury',
@@ -158,42 +134,36 @@ describe("Testnet interactions helper", async () => {
     const oneDayLevelBlocks = 4320
     const oneMonthLevelBlocks = 129600
     const oneYearLevelBlocks = 1576800
-    
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
 
     before("setup", async () => {
         try{
             utils = new Utils();
             await utils.init(bob.sk);
+            tezos = utils.tezos;
             
-            doormanInstance                         = await utils.tezos.contract.at(doormanAddress.address);
-            delegationInstance                      = await utils.tezos.contract.at(delegationAddress.address);
-            mvkTokenInstance                        = await utils.tezos.contract.at(mvkTokenAddress.address);
-            governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
-            governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
-            emergencyGovernanceInstance             = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
-            breakGlassInstance                      = await utils.tezos.contract.at(breakGlassAddress.address);
-            councilInstance                         = await utils.tezos.contract.at(councilAddress.address);
-            farmFactoryInstance                     = await utils.tezos.contract.at(farmFactoryAddress.address);
-            vestingInstance                         = await utils.tezos.contract.at(vestingAddress.address);
-            governanceFinancialInstance             = await utils.tezos.contract.at(governanceFinancialAddress.address);
-            treasuryFactoryInstance                 = await utils.tezos.contract.at(treasuryFactoryAddress.address);
-            treasuryInstance                        = await utils.tezos.contract.at(treasuryAddress.address);
-            farmInstance                            = await utils.tezos.contract.at(farmAddress.address);
-            farmMTokenInstance                      = await utils.tezos.contract.at(farmMTokenAddress.address);
-            lpTokenInstance                         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
-            governanceSatelliteInstance             = await utils.tezos.contract.at(governanceSatelliteAddress.address);
-            aggregatorInstance                      = await utils.tezos.contract.at(aggregatorAddress.address);
-            aggregatorFactoryInstance               = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
-            lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
-            lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
-            mTokenEurlInstance                      = await utils.tezos.contract.at(mTokenEurlAddress.address);
-            mTokenUsdtInstance                      = await utils.tezos.contract.at(mTokenUsdtAddress.address);
-            vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
-            mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+            doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
+            delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
+            mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
+            governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
+            emergencyGovernanceInstance             = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
+            breakGlassInstance                      = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
+            councilInstance                         = await utils.tezos.contract.at(contractDeployments.council.address);
+            farmFactoryInstance                     = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
+            vestingInstance                         = await utils.tezos.contract.at(contractDeployments.vesting.address);
+            governanceFinancialInstance             = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
+            treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
+            treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
+            farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
+            lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+            governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
+            aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
+            aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+            lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
+            lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
+            mTokenEurlInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
+            vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
+            mavrykFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
     
             doormanStorage                          = await doormanInstance.storage();
             delegationStorage                       = await delegationInstance.storage();
@@ -209,7 +179,6 @@ describe("Testnet interactions helper", async () => {
             treasuryFactoryStorage                  = await treasuryFactoryInstance.storage();
             treasuryStorage                         = await treasuryInstance.storage();
             farmStorage                             = await farmInstance.storage();
-            farmMTokenStorage                       = await farmMTokenInstance.storage();
             lpTokenStorage                          = await lpTokenInstance.storage();
             governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
             aggregatorStorage                       = await aggregatorInstance.storage();
@@ -217,32 +186,29 @@ describe("Testnet interactions helper", async () => {
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
             mTokenEurlStorage                       = await mTokenEurlInstance.storage();
-            mTokenUsdtStorage                       = await mTokenUsdtInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
     
             console.log('-- -- -- -- -- Testnet Interactions Helper -- -- -- --')
-            console.log('Doorman Contract deployed at:', doormanInstance.address);
-            console.log('Delegation Contract deployed at:', delegationInstance.address);
-            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-            console.log('Governance Contract deployed at:', governanceInstance.address);
-            console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-            console.log('Vesting Contract deployed at:', vestingInstance.address);
-            console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
-            console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
-            console.log('Treasury Contract deployed at:', treasuryInstance.address);
-            console.log('Farm Contract deployed at:', farmInstance.address);
-            console.log('Farm mToken Contract deployed at:', farmMTokenInstance.address);
-            console.log('LP Token Contract deployed at:', lpTokenInstance.address);
-            console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
-            console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
-            console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
-            console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
-            console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
-            console.log('MToken EURL Contract deployed at:', mTokenEurlInstance.address);
-            console.log('MToken USDT Contract deployed at:', mTokenUsdtInstance.address);
-            console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
-            console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+            console.log('Doorman Contract deployed at:'                         , contractDeployments.doorman.address);
+            console.log('Delegation Contract deployed at:'                      , contractDeployments.delegation.address);
+            console.log('MVK Token Contract deployed at:'                       , contractDeployments.mvkToken.address);
+            console.log('Governance Contract deployed at:'                      , contractDeployments.governance.address);
+            console.log('Emergency Governance Contract deployed at:'            , contractDeployments.emergencyGovernance.address);
+            console.log('Vesting Contract deployed at:'                         , contractDeployments.vesting.address);
+            console.log('Governance Financial Contract deployed at:'            , contractDeployments.governanceFinancial.address);
+            console.log('Treasury Factory Contract deployed at:'                , contractDeployments.treasuryFactory.address);
+            console.log('Treasury Contract deployed at:'                        , contractDeployments.treasury.address);
+            console.log('Farm Contract deployed at:'                            , contractDeployments.farm.address);
+            console.log('LP Token Contract deployed at:'                        , contractDeployments.mavrykFa12Token.address);
+            console.log('Governance Satellite Contract deployed at:'            , contractDeployments.governanceSatellite.address);
+            console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
+            console.log('Aggregator Factory Contract deployed at:'              , contractDeployments.aggregatorFactory.address);
+            console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
+            console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
+            console.log('MToken Contract deployed at:'                          , contractDeployments.mTokenEurl.address);
+            console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
+            console.log('Mavryk FA12 Token Contract deployed at:'               , contractDeployments.mavrykFa12Token.address);
 
         } catch(e){
             console.log(e)
@@ -252,15 +218,15 @@ describe("Testnet interactions helper", async () => {
     describe("MVK TOKEN", async () => {
 
         before("Send XTZ to treasury", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
             // Admin sends 2000XTZ to treasury contract
-            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 500});
+            const transferOperation = await utils.tezos.contract.transfer({ to: contractDeployments.treasury.address, amount: 500});
             await transferOperation.confirmation();
         });
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -276,7 +242,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await mvkTokenInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -342,7 +308,7 @@ describe("Testnet interactions helper", async () => {
                     {
                         add_operator: {
                             owner: bob.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -377,7 +343,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("DOORMAN", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin add Doorman as an operator', async () => {
@@ -388,7 +354,7 @@ describe("Testnet interactions helper", async () => {
                     {
                         add_operator: {
                             owner: bob.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -443,7 +409,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await doormanInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -573,7 +539,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("DELEGATION", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -589,7 +555,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await delegationInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -843,13 +809,13 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 // Delegate Part
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 var delegationOperation = await mvkTokenInstance.methods
                 .update_operators([
                 {
                     add_operator: {
                         owner: alice.pkh,
-                        operator: doormanAddress.address,
+                        operator: contractDeployments.doorman.address,
                         token_id: 0,
                     },
                 },
@@ -880,7 +846,7 @@ describe("Testnet interactions helper", async () => {
         it('User undelegates from satellite', async () => {
             try{
                 // Operation
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 const operation = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
                 await operation.confirmation();
             await operation.confirmation();
@@ -892,7 +858,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("COUNCIL", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -908,7 +874,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await councilInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await councilInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1063,7 +1029,7 @@ describe("Testnet interactions helper", async () => {
                 var operation   = await councilInstance.methods.councilActionAddVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation       = await councilInstance.methods.signAction(actionId).send()
                 await operation.confirmation();
 
@@ -1100,7 +1066,7 @@ describe("Testnet interactions helper", async () => {
                 var operation   = await councilInstance.methods.councilActionRemoveVestee(bob.pkh).send()
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation       = await councilInstance.methods.signAction(actionId).send()
                 await operation.confirmation();
             } catch(e){
@@ -1113,7 +1079,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 const operation = await councilInstance.methods.councilActionTransfer(
                     bob.pkh,
-                    mvkTokenAddress.address,
+                    contractDeployments.mvkToken.address,
                     MVK(20),
                     "FA2",
                     0,
@@ -1129,8 +1095,8 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await councilInstance.methods.councilActionRequestTokens(
-                    treasuryAddress.address,
-                    mvkTokenAddress.address,
+                    contractDeployments.treasury.address,
+                    contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
                     "FA2",
@@ -1147,7 +1113,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await councilInstance.methods.councilActionRequestMint(
-                    treasuryAddress.address,
+                    contractDeployments.treasury.address,
                     MVK(20),
                     "For testing purposes"
                 ).send()
@@ -1160,7 +1126,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets another contract baker', async () => {
             try{
                 // Operation
-                const operation = await councilInstance.methods.councilActionSetContractBaker(treasuryAddress.address).send()
+                const operation = await councilInstance.methods.councilActionSetContractBaker(contractDeployments.treasury.address).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1183,8 +1149,8 @@ describe("Testnet interactions helper", async () => {
                 councilStorage  = await councilInstance.storage();
                 const actionId  = councilStorage.actionCounter;
                 var operation = await councilInstance.methods.councilActionRequestTokens(
-                    treasuryAddress.address,
-                    mvkTokenAddress.address,
+                    contractDeployments.treasury.address,
+                    contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
                     "FA2",
@@ -1193,7 +1159,7 @@ describe("Testnet interactions helper", async () => {
                 ).send()
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation = await councilInstance.methods.signAction(actionId).send()
                 await operation.confirmation();
             } catch(e){
@@ -1216,7 +1182,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("VESTING", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1232,7 +1198,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await vestingInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await vestingInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1313,7 +1279,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("GOVERNANCE FINANCIAL", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1329,7 +1295,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await governanceFinancialInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await governanceFinancialInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1382,8 +1348,8 @@ describe("Testnet interactions helper", async () => {
                 councilStorage          = await councilInstance.storage()
                 const actionCounter     = councilStorage.actionCounter
                 var operation           = await councilInstance.methods.councilActionRequestTokens(
-                    treasuryAddress.address,
-                    mvkTokenAddress.address,
+                    contractDeployments.treasury.address,
+                    contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
                     "FA2",
@@ -1391,7 +1357,7 @@ describe("Testnet interactions helper", async () => {
                     "For testing purposes"
                 ).send()
                 await operation.confirmation();
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation               = await councilInstance.methods.signAction(actionCounter).send()
                 await operation.confirmation();
             } catch(e){
@@ -1405,12 +1371,12 @@ describe("Testnet interactions helper", async () => {
                 councilStorage          = await councilInstance.storage()
                 const actionCounter     = councilStorage.actionCounter
                 var operation = await councilInstance.methods.councilActionRequestMint(
-                    treasuryAddress.address,
+                    contractDeployments.treasury.address,
                     MVK(20),
                     "For testing purposes"
                 ).send()
                 await operation.confirmation();
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation               = await councilInstance.methods.signAction(actionCounter).send()
                 await operation.confirmation();
             } catch(e){
@@ -1427,7 +1393,7 @@ describe("Testnet interactions helper", async () => {
                 const actionCounter         = councilStorage.actionCounter
                 var operation               = await councilInstance.methods.councilActionDropFinancialReq(requestToDrop).send()
                 await operation.confirmation();
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation                   = await councilInstance.methods.signAction(actionCounter).send()
                 await operation.confirmation();
             } catch(e){
@@ -1441,7 +1407,7 @@ describe("Testnet interactions helper", async () => {
                 councilStorage              = await councilInstance.storage()
                 governanceFinancialStorage  = await governanceFinancialInstance.storage()
                 const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 2
-                await signerFactory(bob.sk)
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 const operation             = await governanceFinancialInstance.methods.voteForRequest(requestToDrop, "yay").send()
                 await operation.confirmation();
             } catch(e){
@@ -1452,7 +1418,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("TREASURY FACTORY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1468,7 +1434,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await treasuryFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await treasuryFactoryInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1606,7 +1572,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("TREASURY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1622,17 +1588,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin sets baker', async () => {
-            try{
-                // Operation
-                const operation = await treasuryInstance.methods.setBaker(null).send();
+                const operation = await treasuryInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1732,7 +1688,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("FARM FACTORY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1748,7 +1704,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await farmFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await farmFactoryInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1789,16 +1745,6 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses create farm mToken entrypoint', async () => {
-            try{
-                // Operation
-                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1882,57 +1828,9 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase2,
-                    mavrykFa12TokenAddress.address,
+                    contractDeployments.mavrykFa12Token.address,
                     0,
                     "fa12",
-                ).send();
-                await operation.confirmation()
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin creates a mToken farm', async () => {
-            try{
-                // Operation
-                const farmMetadataBase2 = Buffer.from(
-                    JSON.stringify({
-                    name: "MAVRYK USDT.e-USDC.e Farm",
-                    description: "Mavryk Farm Contract for USDT.e-USDC.e",
-                    version: "v1.0.0",
-                    liquidityPairToken: {
-                        tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
-                        origin: ["Mavryk Finance"],
-                        symbol: ["MLP"],
-                        thumbnailUri: "https://infura-ipfs.io/ipfs/QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
-                        decimals: 15,
-                        token0: {
-                            symbol: ["USDT.e"],
-                            tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
-                            thumbnailUri: "https://infura-ipfs.io/ipfs/QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
-                        },
-                        token1: {
-                            symbol: ["USDC.e"],
-                            tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
-                            thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
-                        }
-                    },
-                    authors: ["MAVRYK Dev Team <contact@mavryk.finance>"]
-                    }),
-                    'ascii',
-                ).toString('hex')
-                const operation = await farmFactoryInstance.methods.createFarmMToken(
-                    "testFarm",
-                    "usdt",
-                    false,
-                    false,
-                    false,
-                    12000,
-                    100,
-                    farmMetadataBase2,
-                    mTokenUsdtAddress.address,
-                    0,
-                    "fa2"
                 ).send();
                 await operation.confirmation()
             } catch(e){
@@ -1966,7 +1864,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("FARM", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -1982,7 +1880,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await farmInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await farmInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2097,7 +1995,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin deposits 2LP into the farm', async () => {
             try{
                 // Operation
-                var operation = await lpTokenInstance.methods.approve(farmAddress.address, 2).send()
+                var operation = await lpTokenInstance.methods.approve(contractDeployments.farm.address, 2).send()
                 await operation.confirmation();
                 operation = await farmInstance.methods.deposit(2).send();
                 await operation.confirmation();
@@ -2119,7 +2017,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin claims from the farm', async () => {
             try{
                 // Operation
-                var operation   = await farmFactoryInstance.methods.trackFarm(farmAddress.address).send()
+                var operation   = await farmFactoryInstance.methods.trackFarm(contractDeployments.farm.address).send()
                 await operation.confirmation();
                 operation       = await farmInstance.methods.claim(bob.pkh).send()
                 await operation.confirmation();
@@ -2141,7 +2039,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("AGGREGATOR FACTORY", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -2157,7 +2055,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await aggregatorFactoryInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2405,15 +2303,15 @@ describe("Testnet interactions helper", async () => {
     describe("AGGREGATOR", async () => {
 
         before("AggregatorFactory tracks aggregator", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
             
             // Operation
-            const operation = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorAddress.address).send();
+            const operation = await aggregatorFactoryInstance.methods.trackAggregator(contractDeployments.aggregator.address).send();
             await operation.confirmation();
         });
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -2429,7 +2327,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await aggregatorInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2565,13 +2463,13 @@ describe("Testnet interactions helper", async () => {
                        data,
                        epoch,
                        round,
-                       aggregatorAddress: aggregatorAddress.address
+                       aggregatorAddress: contractDeployments.aggregator.address
                      });
                 };
        
                 const signatures = new MichelsonMap<string, string>();
        
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);;
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
        
                 // Operation
@@ -2672,12 +2570,12 @@ describe("Testnet interactions helper", async () => {
 
         before("Set FarmFactory admin", async () => {
             // Set the farm factory admin
-            const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+            const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
             await setAdminOperation.confirmation()
         })
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -2693,7 +2591,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance proxy', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.setGovernanceProxy(governanceProxyAddress.address).send();
+                const operation = await governanceInstance.methods.setGovernanceProxy(contractDeployments.governanceProxy.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2885,7 +2783,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets other contract admin', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.setContractAdmin(doormanAddress.address, bob.pkh).send();
+                const operation = await governanceInstance.methods.setContractAdmin(contractDeployments.doorman.address, bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2895,7 +2793,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets other contract governance', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.setContractGovernance(doormanAddress.address, governanceAddress.address).send();
+                const operation = await governanceInstance.methods.setContractGovernance(contractDeployments.doorman.address, contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2915,11 +2813,11 @@ describe("Testnet interactions helper", async () => {
                 // Create a farm compiled params
                 const lambdaFunction        = await compileLambdaFunction(
                     'ghostnet',
-                    governanceProxyAddress.address,
+                    contractDeployments.governanceProxy.address,
                     
                     'createFarm',
                     [
-                        farmFactoryAddress.address,
+                        contractDeployments.farmFactory.address,
                         "testFarm",
                         false,
                         false,
@@ -2927,7 +2825,7 @@ describe("Testnet interactions helper", async () => {
                         12000,
                         100,
                         farmMetadataBase,
-                        mavrykFa12TokenAddress.address,
+                        contractDeployments.mavrykFa12Token.address,
                         0,
                         "FA12"
                     ]
@@ -2950,7 +2848,7 @@ describe("Testnet interactions helper", async () => {
                                 "to_"    : bob.pkh,
                                 "token"  : {
                                     "fa2" : {
-                                        "tokenContractAddress" : mvkTokenAddress.address,
+                                        "tokenContractAddress" : contractDeployments.mvkToken.address,
                                         "tokenId" : 0
                                     }
                                 },
@@ -2965,7 +2863,7 @@ describe("Testnet interactions helper", async () => {
                                 "to_"    : bob.pkh,
                                 "token"  : {
                                     "fa2" : {
-                                        "tokenContractAddress" : mvkTokenAddress.address,
+                                        "tokenContractAddress" : contractDeployments.mvkToken.address,
                                         "tokenId" : 0
                                     }
                                 },
@@ -3035,11 +2933,11 @@ describe("Testnet interactions helper", async () => {
                 // Create a farm compiled params
                 const lambdaFunction        = await compileLambdaFunction(
                     'ghostnet',
-                    governanceProxyAddress.address,
+                    contractDeployments.governanceProxy.address,
                     
                     'createFarm',
                     [
-                        farmFactoryAddress.address,
+                        contractDeployments.farmFactory.address,
                         "testFarm",
                         false,
                         false,
@@ -3047,7 +2945,7 @@ describe("Testnet interactions helper", async () => {
                         12000,
                         100,
                         farmMetadataBase,
-                        mavrykFa12TokenAddress.address,
+                        contractDeployments.mavrykFa12Token.address,
                         0,
                         "FA12"
                     ]
@@ -3139,11 +3037,11 @@ describe("Testnet interactions helper", async () => {
                 // Create a farm compiled params
                 const lambdaFunction        = await compileLambdaFunction(
                     'ghostnet',
-                    governanceProxyAddress.address,
+                    contractDeployments.governanceProxy.address,
                     
                     'createFarm',
                     [
-                        farmFactoryAddress.address,
+                        contractDeployments.farmFactory.address,
                         "testFarm",
                         false,
                         false,
@@ -3151,7 +3049,7 @@ describe("Testnet interactions helper", async () => {
                         12000,
                         100,
                         farmMetadataBase,
-                        mavrykFa12TokenAddress.address,
+                        contractDeployments.mavrykFa12Token.address,
                         0,
                         "FA12"
                     ]
@@ -3184,7 +3082,7 @@ describe("Testnet interactions helper", async () => {
 
         before("Register another satellite for testing purposes", async () => {
             // Operation
-            await signerFactory(alice.sk)
+            await helperFunctions.signerFactory(tezos, alice.sk);
             const operation = await delegationInstance.methods
             .registerAsSatellite(
                 "Alice Satellite", 
@@ -3196,11 +3094,11 @@ describe("Testnet interactions helper", async () => {
                 alice.peerId
             ).send();
             await operation.confirmation();
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         })
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -3216,7 +3114,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await governanceSatelliteInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await governanceSatelliteInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3323,7 +3221,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "For tests purposes", "unpauseAll").send();
+                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(contractDeployments.aggregator.address, "For tests purposes", "unpauseAll").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3338,7 +3236,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address,"For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, contractDeployments.aggregator.address,"For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3368,7 +3266,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var contractAccount         = await mvkTokenStorage.ledger.get(aggregatorFactoryAddress.address)
+                var contractAccount         = await mvkTokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
                 var userAccount             = await mvkTokenStorage.ledger.get(bob.pkh)
                 const tokenAmount           = MVK(200);
                 const purpose               = "Transfer made by mistake to the aggregator factory"
@@ -3379,7 +3277,7 @@ describe("Testnet interactions helper", async () => {
                         from_: bob.pkh,
                         txs: [
                             {
-                                to_: aggregatorFactoryAddress.address,
+                                to_: contractDeployments.aggregatorFactory.address,
                                 token_id: 0,
                                 amount: tokenAmount
                             }
@@ -3390,14 +3288,14 @@ describe("Testnet interactions helper", async () => {
 
                 // Satellite Bob creates a governance action
                 const governanceSatelliteOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
-                        aggregatorFactoryAddress.address,
+                        contractDeployments.aggregatorFactory.address,
                         purpose,
                         [
                             {
                                 "to_"    : bob.pkh,
                                 "token"  : {
                                     "fa2" : {
-                                        "tokenContractAddress": mvkTokenAddress.address,
+                                        "tokenContractAddress": contractDeployments.mvkToken.address,
                                         "tokenId" : 0
                                     }
                                 },
@@ -3419,7 +3317,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "For tests purposes", "unpauseAll").send();
+                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(contractDeployments.aggregator.address, "For tests purposes", "unpauseAll").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
@@ -3434,7 +3332,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 var actionId                = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address, "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, contractDeployments.aggregator.address, "For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3442,7 +3340,7 @@ describe("Testnet interactions helper", async () => {
                 
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 actionId                    = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.removeOracleInAggregator(alice.pkh, aggregatorAddress.address, "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.removeOracleInAggregator(alice.pkh, contractDeployments.aggregator.address, "For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3455,7 +3353,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("EMERGENCY GOVERNANCE", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -3471,7 +3369,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await emergencyGovernanceInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3595,7 +3493,7 @@ describe("Testnet interactions helper", async () => {
 
     describe("BREAK GLASS", async () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -3611,7 +3509,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await breakGlassInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3741,7 +3639,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets single contract admin', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.setSingleContractAdmin(governanceAddress.address, bob.pkh).send();
+                const operation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.governance.address, bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3806,7 +3704,7 @@ describe("Testnet interactions helper", async () => {
                 var operation = await breakGlassInstance.methods.flushAction(1).send();
                 await operation.confirmation();
 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 operation = await breakGlassInstance.methods.signAction(recordId).send();
                 await operation.confirmation();
             } catch(e){
@@ -3818,7 +3716,7 @@ describe("Testnet interactions helper", async () => {
 
     // describe("LENDING CONTROLLER", async () => {
     //     beforeEach("Set signer to admin", async () => {
-    //         await signerFactory(bob.sk)
+    //         await helperFunctions.signerFactory(tezos, bob.sk);
     //     });
 
     //     it('Admin sets admin', async () => {
@@ -3834,7 +3732,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin sets governance', async () => {
     //         try{
     //             // Operation
-    //             const operation = await lendingControllerInstance.methods.setGovernance(governanceAddress.address).send();
+    //             const operation = await lendingControllerInstance.methods.setGovernance(contractDeployments.governance.address).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -4145,12 +4043,12 @@ describe("Testnet interactions helper", async () => {
     //         try{
     //             // Initial values
     //             const tokenName                             = "usdt";
-    //             const tokenContractAddress                  = mavrykFa12TokenAddress.address;
+    //             const tokenContractAddress                  = contractDeployments.mavrykFa12Token.address;
     //             const tokenType                             = "fa12";
     //             const tokenDecimals                         = 6;
 
     //             const oracleType                            = "oracle";
-    //             const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+    //             const oracleAddress                         = mockUsdMockFa12TokencontractDeployments.aggregator.address;
 
     //             const mTokenAddress                         = mTokenAddress.address;
 
@@ -4238,12 +4136,12 @@ describe("Testnet interactions helper", async () => {
     //         try{
     //             // Initial values
     //             const tokenName                  = "usdt";
-    //             const tokenContractAddress       = mavrykFa12TokenAddress.address;
+    //             const tokenContractAddress       = contractDeployments.mavrykFa12Token.address;
     //             const tokenType                  = "fa12";
 
     //             const tokenDecimals              = 6;
     //             const oracleType                 = "oracle";
-    //             const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
+    //             const oracleAddress              = mockUsdMockFa12TokencontractDeployments.aggregator.address;
 
     //             // Operation
     //             const operation = await lendingControllerInstance.methods.setCollateralToken(
@@ -4282,7 +4180,6 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
-    //                 null,
     //                 depositors
     //             ).send();
     //             await operation.confirmation();
@@ -4308,7 +4205,6 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
-    //                 null,
     //                 depositors              // depositors type
     //             ).send();
     //             await createVaultOperation.confirmation();
@@ -4331,7 +4227,7 @@ describe("Testnet interactions helper", async () => {
     //             const tokenId                               = 0;
 
     //             const tokenDecimals                         = 6;
-    //             const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+    //             const oracleAddress                         = mockUsdXtzcontractDeployments.aggregator.address;
 
     //             // Operation
     //             const updateCollateralOperation = await lendingControllerInstance.methods.setCollateralToken(
@@ -4427,12 +4323,12 @@ describe("Testnet interactions helper", async () => {
     //             const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
     //             const depositAmount                     = 1000;
     //             const tokenName                         = "smvk";
-    //             const tokenContractAddress              = mvkTokenAddress.address;
+    //             const tokenContractAddress              = contractDeployments.mvkToken.address;
     //             const tokenType                         = "fa2";
     //             const tokenId                           = 0;
 
     //             const tokenDecimals                     = 9;
-    //             const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+    //             const oracleAddress                     = mockUsdMvkcontractDeployments.aggregator.address;
     //             const tokenProtected                    = true; // sMVK is protected
 
     //             // Add SMVK as collateral
@@ -4447,7 +4343,7 @@ describe("Testnet interactions helper", async () => {
     //                 tokenProtected,
     //                 false,
     //                 true,
-    //                 doormanAddress.address,
+    //                 contractDeployments.doorman.address,
     //                 MVK(10), // Max deposit amount
 
     //                 // fa2 token type - token contract address
@@ -4513,7 +4409,7 @@ describe("Testnet interactions helper", async () => {
     describe("LENDING CONTROLLER MOCK TIME", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -4529,7 +4425,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await lendingControllerMockTimeInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await lendingControllerMockTimeInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4850,14 +4746,13 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Initial values
                 const tokenName                             = "usdt";
-                const tokenContractAddress                  = mTokenUsdtAddress.address;
-                const tokenType                             = "fa2";
+                const tokenContractAddress                  = contractDeployments.mavrykFa12Token.address;
+                const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
-                const tokenId                               = 0;
 
-                const oracleAddress                         = aggregatorAddress.address;
+                const oracleAddress                         = contractDeployments.aggregator.address;
 
-                const mTokenAddress                         = mTokenUsdtAddress.address;
+                const mTokenAddress                         = contractDeployments.mTokenUsdt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -4888,10 +4783,9 @@ describe("Testnet interactions helper", async () => {
                     interestRateAboveOptimalUtilisation,
                     minRepaymentAmount,
 
-                    // fa2 token type - token contract address
+                    // fa12 token type - token contract address
                     tokenType,
-                    tokenContractAddress,
-                    tokenId
+                    tokenContractAddress
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -4902,22 +4796,16 @@ describe("Testnet interactions helper", async () => {
         it('Admin adds liquidity', async () => {
             try{
                 // Initial values
-                const loanTokenName             = "usdt";
-                const liquidityAmount           = 20000; // 0.2 Mock FA12 Tokens
+                const loanTokenName = "usdt";
+                const liquidityAmount = 20000; // 0.2 Mock FA12 Tokens
 
                 // Operation
-                var operation = await mTokenUsdtInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: lendingControllerMockTimeAddress.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await operation.confirmation();
-                operation = await lendingControllerMockTimeInstance.methods.addLiquidity(
+                const approveOperation = await lpTokenInstance.methods.approve(
+                    contractDeployments.lendingControllerMockTime.address,
+                    liquidityAmount
+                ).send();
+                await approveOperation.confirmation();
+                const operation = await lendingControllerMockTimeInstance.methods.addLiquidity(
                     loanTokenName,
                     liquidityAmount, 
                 ).send();
@@ -4948,11 +4836,11 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Initial values
                 const tokenName                  = "musdt";
-                const tokenContractAddress       = mTokenUsdtAddress.address;
+                const tokenContractAddress       = contractDeployments.mTokenUsdt.address;
                 const tokenType                  = "fa12";
 
                 const tokenDecimals              = 6;
-                const oracleAddress              = aggregatorAddress.address;
+                const oracleAddress              = contractDeployments.aggregator.address;
 
                 // Operation
                 const operation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
@@ -4992,7 +4880,6 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
-                    null,
                     depositors              // depositors type
                 ).send();
                 await operation.confirmation();
@@ -5018,7 +4905,6 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
-                    null,
                     depositors              // depositors type
                 ).send();
                 await createVaultOperation.confirmation();
@@ -5041,7 +4927,7 @@ describe("Testnet interactions helper", async () => {
                 const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
-                const oracleAddress                         = aggregatorAddress.address;
+                const oracleAddress                         = contractDeployments.aggregator.address;
 
                 // Operation
                 const updateCollateralOperation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
@@ -5139,7 +5025,7 @@ describe("Testnet interactions helper", async () => {
                 const repayAmount           = 1000;
 
                 // Operation
-                const approveOperation  = await mavrykFa12TokenInstance.methods.approve(lendingControllerMockTimeAddress.address, repayAmount).send()
+                const approveOperation  = await mavrykFa12TokenInstance.methods.approve(contractDeployments.lendingControllerMockTime.address, repayAmount).send()
                 await approveOperation.confirmation();
                 const operation         = await lendingControllerMockTimeInstance.methods.repay(vaultId, repayAmount).send();
                 await operation.confirmation();
@@ -5155,12 +5041,12 @@ describe("Testnet interactions helper", async () => {
                 const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
                 const depositAmount                     = 1000;
                 const tokenName                         = "smvk";
-                const tokenContractAddress              = mvkTokenAddress.address;
+                const tokenContractAddress              = contractDeployments.mvkToken.address;
                 const tokenType                         = "fa2";
                 const tokenId                           = 0;
 
                 const tokenDecimals                     = 9;
-                const oracleAddress                     = aggregatorAddress.address;
+                const oracleAddress                     = contractDeployments.aggregator.address;
                 const tokenProtected                    = true; // sMVK is protected
 
                 // Add SMVK as collateral
@@ -5175,7 +5061,7 @@ describe("Testnet interactions helper", async () => {
                     tokenProtected,
                     false,
                     true,
-                    doormanAddress.address,
+                    contractDeployments.doorman.address,
                     null, // Max deposit amount
 
                     // fa2 token type - token contract address
@@ -5263,7 +5149,7 @@ describe("Testnet interactions helper", async () => {
                 await updateConfigOperation.confirmation();
 
                 // Approve
-                const approveOperation  = await mavrykFa12TokenInstance.methods.approve(lendingControllerMockTimeAddress.address, 100).send()
+                const approveOperation  = await mavrykFa12TokenInstance.methods.approve(contractDeployments.lendingControllerMockTime.address, 100).send()
                 await approveOperation.confirmation();
 
                 // Operation
@@ -5275,194 +5161,10 @@ describe("Testnet interactions helper", async () => {
         });
     });
 
-    describe("FARM MTOKEN", async () => {
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
-
-        it('Admin sets admin', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin sets governance', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin init a farm', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.initFarm(
-                    12000,
-                    100,
-                    false,
-                    false
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates the rewards from transfer boolean', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates rewards per block', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.updateConfig(new BigNumber(MVK(2)), "configRewardPerBlock").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates whitelist contracts', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates general contracts', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses deposit entrypoint', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("deposit", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses withdraw entrypoint', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("withdraw", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses claim entrypoint', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("claim", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses all entrypoints', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.pauseAll().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin unpauses all entrypoints', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.unpauseAll().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin deposits 2LP into the farm', async () => {
-            try{
-                // Operation
-                var operation = await mTokenUsdtInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: farmMTokenAddress.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await operation.confirmation();
-                operation = await farmMTokenInstance.methods.deposit(2).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin withdraw 1LP from the farm', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.withdraw(1).send();
-                await operation.confirmation()
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin claims from the farm', async () => {
-            try{
-                // Operation
-                var operation   = await farmFactoryInstance.methods.trackFarm(farmMTokenAddress.address).send()
-                await operation.confirmation();
-                operation       = await farmMTokenInstance.methods.claim(bob.pkh).send()
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin closes a farm', async () => {
-            try{
-                // Operation
-                const operation = await farmMTokenInstance.methods.closeFarm().send()
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    })
-
     describe("MToken", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Admin sets admin', async () => {
@@ -5478,7 +5180,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await mTokenEurlInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5550,7 +5252,7 @@ describe("Testnet interactions helper", async () => {
     describe("VAULT FACTORY", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
         
         it('Admin sets admin', async () => {
@@ -5566,7 +5268,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await vaultFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+                const operation = await vaultFactoryInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5644,7 +5346,6 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
-                    null,
                     "whitelist",
                     whitelistedUsers
                 ).send();
@@ -5658,7 +5359,7 @@ describe("Testnet interactions helper", async () => {
     describe("VAULT", async () => {
 
         before("Initialize vault variables", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
             // Save the vault address
             lendingControllerMockTimeStorage    = await lendingControllerMockTimeInstance.storage();
@@ -5674,17 +5375,7 @@ describe("Testnet interactions helper", async () => {
         });
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
-        
-        it('Admin delegates vault tez to baker', async () => {
-            try{
-                // Operation
-                const operation = await vaultInstance.methods.initVaultAction("setBaker", null).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
         
         it('Admin updates the depositor', async () => {
