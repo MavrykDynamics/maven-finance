@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
 
     // verify that sender is admin or the Governance Contract address
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaSetGovernance(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
     
     // verify that sender is admin or the Governance Contract address
@@ -45,7 +45,7 @@ block {
 
 
 (* settName lambda - update the contract name *)
-function lambdaSetName(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaSetName(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
 
     // Steps Overview:
@@ -85,7 +85,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
     
     verifySenderIsAdmin(s.admin); // verify that sender is admin
@@ -106,7 +106,7 @@ block {
 
 
 (*  updateConfig lambda *)
-function lambdaUpdateConfig(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 
+function lambdaUpdateConfig(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is 
 block {
 
   verifySenderIsAdmin(s.admin); // verify that sender is admin
@@ -130,8 +130,12 @@ block {
                         // Check if Farm has been initiated
                         verifyFarmIsInitialised(s);
 
+                        // --- Get required inputs from mToken contract
+                        const farmMTokenBalance : nat = getMTokenBalance(s);
+                        // --- --- ---
+
                         // Update Farm storage
-                        s := updateFarm(s);
+                        s := updateFarm(farmMTokenBalance, s);
 
                         // Calculate new total rewards
                         const totalClaimedRewards : nat     = s.claimedRewards.unpaid + s.claimedRewards.paid;
@@ -153,7 +157,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaUpdateWhitelistContracts(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
     
     verifySenderIsAdmin(s.admin); // verify that sender is admin
@@ -170,7 +174,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaUpdateGeneralContracts(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
@@ -187,7 +191,7 @@ block {
 
 
 (*  mistaken lambda *)
-function lambdaMistakenTransfer(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaMistakenTransfer(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -228,10 +232,8 @@ block {
 // Farm Admin Lambdas End
 // ------------------------------------------------------------------------------
 
-
-
 (* initFarm lambda *)
-function lambdaInitFarm(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaInitFarm(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block{
 
     // Steps Overview:
@@ -251,9 +253,13 @@ block{
 
                 // Validate that farm reward blocks has been set (or is an infinite farm)
                 validateFarmRewardBlocks(initFarmParams);
+
+                // --- Get required inputs from mToken contract
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                // --- --- ---
                 
                 // Update Farm Storage and init Farm
-                s := updateFarm(s);
+                s := updateFarm(farmMTokenBalance, s);
                 s := _initFarm(initFarmParams, s);
                 
             }
@@ -265,7 +271,7 @@ block{
 
 
 (* closeFarm lambda *)
-function lambdaCloseFarm(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaCloseFarm(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block{
     
     // Steps Overview:
@@ -278,8 +284,12 @@ block{
 
     case farmLambdaAction of [
         |   LambdaCloseFarm(_parameters) -> {
+
+                // --- Get required inputs from mToken contract
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                // --- --- ---
                 
-                s := updateFarm(s);
+                s := updateFarm(farmMTokenBalance, s);
                 s.open := False ;
                 
             }
@@ -299,7 +309,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -324,7 +334,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaUnpauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -349,7 +359,7 @@ block {
 
 
 (*  togglePauseEntrypoint lambda *)
-function lambdaTogglePauseEntrypoint(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaTogglePauseEntrypoint(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -386,7 +396,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* deposit lambda *)
-function lambdaDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block{
 
     // Steps Overview:    
@@ -411,8 +421,14 @@ block{
     case farmLambdaAction of [
         |   LambdaDeposit(tokenAmount) -> {
                 
-                // Update pool farmStorageType
-                s := updateFarm(s);
+                // --- Get required inputs from mToken contract and loan token record from Lending Controller
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                // --- --- ---
+
+                // Update pool farmMTokenStorageType
+                s := updateFarm(farmMTokenBalance, s);
 
                 // Check if farm is closed or not
                 checkFarmIsOpen(s);
@@ -424,16 +440,18 @@ block{
                 const existingDepositor : bool = checkDepositorExists(depositor, s);
 
                 // Prepare new depositor record
-                var depositorRecord : depositorRecordType := createDepositorRecord(s);
+                var depositorRecord : depositorRecordType := getOrCreateDepositorRecord(depositor, latestTokenRewardIndex, s);
+
+                // update balance with any accrual to mToken
+                depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
 
                 // Get depositor deposit and perform a claim
                 if existingDepositor then {
                     
                     // Update user's unclaimed rewards
-                    s := updateUnclaimedRewards(depositor, s);
-
-                    // Refresh depositor deposit with updated unclaimed rewards
-                    depositorRecord := getDepositorRecord(depositor, s);
+                    const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
+                    s := updateRewards.0;
+                    depositorRecord := updateRewards.1;
                     
                 }
                 else skip;
@@ -442,7 +460,7 @@ block{
                 depositorRecord.balance := depositorRecord.balance + tokenAmount;
 
                 // Update depositor ledger and farmTokenBalance
-                s.config.lpToken.tokenBalance := s.config.lpToken.tokenBalance + tokenAmount;
+                s.config.lpToken.tokenBalance := farmMTokenBalance + tokenAmount;
                 s.depositorLedger[depositor] := depositorRecord;
 
                 // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
@@ -464,7 +482,7 @@ block{
 
 
 (* withdraw lambda *)
-function lambdaWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block{
 
     // Steps Overview:    
@@ -487,18 +505,29 @@ block{
 
     case farmLambdaAction of [
         |   LambdaWithdraw(withdrawAmount) -> {
+
+                // --- Get required inputs from mToken contract and loan token record from Lending Controller
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                // --- --- ---
                 
-                // Update pool farmStorageType
-                s := updateFarm(s);     
+                // Update pool farmMTokenStorageType
+                s := updateFarm(farmMTokenBalance, s);     
 
                 // Init depositor address
                 const depositor : depositorType = Tezos.get_sender();
 
-                // Update user's unclaimedRewards if user already deposited tokens
-                s := updateUnclaimedRewards(depositor, s);
-
                 // Get depositor record
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
+
+                // update balance with any accrual to mToken
+                depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
+
+                // Update user's unclaimed rewards
+                const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
+                s := updateRewards.0;
+                depositorRecord := updateRewards.1;
 
                 // Calculation for final withdrawn amount (max is depositor's balance)
                 var finalWithdrawAmount : nat := 0n;
@@ -508,14 +537,14 @@ block{
                 else finalWithdrawAmount := withdrawAmount;
 
                 // Update depositor record with new balance
-                depositorRecord.balance := abs(depositorRecord.balance - finalWithdrawAmount);
+                depositorRecord.balance      := abs(depositorRecord.balance - finalWithdrawAmount);
                 s.depositorLedger[depositor] := depositorRecord;
 
                 // Verify that the farm has enough tokens for withdrawal
-                verifySufficientBalance(finalWithdrawAmount, s.config.lpToken.tokenBalance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
+                verifySufficientBalance(finalWithdrawAmount, farmMTokenBalance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
 
                 // Update farm token balance
-                s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - finalWithdrawAmount);
+                s.config.lpToken.tokenBalance := abs(farmMTokenBalance - finalWithdrawAmount);
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
                 const transferFarmLpTokenOperation : operation = transferFarmLpTokenOperation(
@@ -536,7 +565,7 @@ block{
 
 
 (* claim lambda *)
-function lambdaClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+function lambdaClaim(const farmLambdaAction : farmLambdaActionType; var s : farmMTokenStorageType) : return is
 block{
 
     // Steps Overview:    
@@ -561,15 +590,26 @@ block{
 
     case farmLambdaAction of [
         |   LambdaClaim(depositor) -> {
+
+                // --- Get required inputs from mToken contract and loan token record from Lending Controller
+                const farmMTokenBalance : nat = getMTokenBalance(s);
+                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                // --- --- ---
                 
                 // Update farm
-                s := updateFarm(s);
-
-                // Update user's unclaimed rewards
-                s := updateUnclaimedRewards(depositor, s);
+                s := updateFarm(farmMTokenBalance, s);
 
                 // Check if sender is an existing depositor
                 var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
+
+                // update balance with any accrual to mToken
+                depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
+
+                // Update user's unclaimed rewards
+                const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
+                s := updateRewards.0;
+                depositorRecord := updateRewards.1;
 
                 // Get depositor's unclaimed rewards
                 const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
@@ -588,7 +628,9 @@ block{
                     const transferRewardOperation : operation = transferReward(depositor, unclaimedRewards, s);
 
                     operations := transferRewardOperation # operations;
-                }
+
+                } else skip;
+
             }
         |   _ -> skip
     ];

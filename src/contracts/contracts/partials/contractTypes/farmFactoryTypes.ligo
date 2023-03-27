@@ -4,9 +4,10 @@
 
 
 type farmFactoryBreakGlassConfigType is [@layout:comb] record [
-    createFarmIsPaused      : bool;
-    trackFarmIsPaused       : bool;
-    untrackFarmIsPaused     : bool;
+    createFarmIsPaused          : bool;
+    createFarmMTokenIsPaused    : bool;
+    trackFarmIsPaused           : bool;
+    untrackFarmIsPaused         : bool;
 ]
 
 
@@ -40,6 +41,17 @@ type createFarmType is [@layout:comb] record[
     lpToken                  : farmLpTokenType;
 ]
 
+type createFarmMTokenType is [@layout:comb] record[
+    name                     : string;
+    loanToken                : string;
+    addToGeneralContracts    : bool;
+    forceRewardFromTransfer  : bool;
+    infinite                 : bool;
+    plannedRewards           : farmPlannedRewardsType;
+    metadata                 : bytes;
+    lpToken                  : farmLpTokenType;
+]
+
 
 type farmFactoryUpdateConfigNewValueType is nat
 type farmFactoryUpdateConfigActionType is 
@@ -54,6 +66,7 @@ type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
 
 type farmFactoryPausableEntrypointType is
         CreateFarm         of bool
+    |   CreateFarmMToken   of bool
     |   UntrackFarm        of bool
     |   TrackFarm          of bool
 
@@ -62,6 +75,15 @@ type farmFactoryTogglePauseEntrypointType is [@layout:comb] record [
     empty             : unit
 ];
 
+type farmTypeType is 
+        Farm    of unit
+    |   MFarm   of unit
+
+type setFarmLambdaType is [@layout:comb] record [
+    name                  : string;
+    func_bytes            : bytes;
+    farmType              : farmTypeType;
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -86,6 +108,7 @@ type farmFactoryLambdaActionType is
 
         // Farm Factory Entrypoints
     |   LambdaCreateFarm                  of createFarmType
+    |   LambdaCreateFarmMToken            of createFarmMTokenType
     |   LambdaTrackFarm                   of (address)
     |   LambdaUntrackFarm                 of (address)
 
@@ -112,4 +135,5 @@ type farmFactoryStorageType is [@layout:comb] record[
 
     lambdaLedger           : lambdaLedgerType;
     farmLambdaLedger       : lambdaLedgerType;
+    mFarmLambdaLedger      : lambdaLedgerType;
 ]

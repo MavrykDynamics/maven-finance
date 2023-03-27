@@ -14,14 +14,21 @@
 // import env from "../env";
 // import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
-// import farmAddress from '../deployments/farmAddress.json';
-// import farmfactoryAddress from '../deployments/farmFactoryAddress.json';
-// import lpAddress from '../deployments/mavrykFa12TokenAddress.json';
-// import mvkAddress from '../deployments/mvkTokenAddress.json';
-// import doormanAddress from '../deployments/doormanAddress.json';
-// import treasuryAddress from '../deployments/treasuryAddress.json';
+// import farmAddress          from '../deployments/farmMTokenAddress.json'; // farmMToken address
+// import farmfactoryAddress   from '../deployments/farmFactoryAddress.json';
+// import mvkAddress           from '../deployments/mvkTokenAddress.json';
+// import doormanAddress       from '../deployments/doormanAddress.json';
+// import treasuryAddress      from '../deployments/treasuryAddress.json';
 
-// describe("Farm", async () => {
+// import lpAddress                                from '../deployments/mTokenUsdtAddress.json'; // same as mToken
+// import mTokenUsdtAddress                        from '../deployments/mTokenUsdtAddress.json';
+
+// import mockFa12TokenAddress                     from '../deployments/mavrykFa12TokenAddress.json';
+// import mockUsdMockFa12TokenAggregatorAddress    from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
+
+// import lendingControllerAddress from '../deployments/lendingControllerAddress.json';
+
+// describe("Farm mToken", async () => {
 //     var utils: Utils;
 
 //     let farmInstance;
@@ -42,6 +49,14 @@
 //     let doormanInstance;
 //     let doormanStorage;
 
+//     let lendingControllerInstance;
+//     let lendingControllerStorage;
+
+//     let mockFa12TokenInstance
+//     let mTokenUsdtInstance
+
+//     let depositOperation
+
 //     function wait(ms: number) {
 //         return new Promise((resolve) => setTimeout(resolve, ms));
 //     }
@@ -60,14 +75,24 @@
 
 //         farmFactoryInstance     = await utils.tezos.contract.at(farmfactoryAddress.address);
 //         farmFactoryStorage      = await farmFactoryInstance.storage();
+        
 //         mvkTokenInstance        = await utils.tezos.contract.at(mvkAddress.address);
 //         mvkTokenStorage         = await mvkTokenInstance.storage();
+        
 //         lpTokenInstance         = await utils.tezos.contract.at(lpAddress.address);
 //         lpTokenStorage          = await lpTokenInstance.storage();
+        
 //         treasuryInstance        = await utils.tezos.contract.at(treasuryAddress.address);
 //         treasuryStorage         = await treasuryInstance.storage();
+        
 //         doormanInstance         = await utils.tezos.contract.at(doormanAddress.address);
 //         doormanStorage          = await doormanInstance.storage();
+        
+//         lendingControllerInstance         = await utils.tezos.contract.at(lendingControllerAddress.address);
+//         lendingControllerStorage          = await lendingControllerInstance.storage();
+
+//         mockFa12TokenInstance             = await utils.tezos.contract.at(mockFa12TokenAddress.address);
+//         mTokenUsdtInstance                = await utils.tezos.contract.at(mTokenUsdtAddress.address);
 
 //         // Make farm factory track the farm
 //         if(!farmFactoryStorage.trackedFarms.includes(farmAddress.address)){
@@ -77,13 +102,350 @@
 //     });
 
 //     beforeEach("storage", async () => {
-//         farmStorage = await farmInstance.storage();
-//         farmFactoryStorage = await farmFactoryInstance.storage();
-//         mvkTokenStorage = await mvkTokenInstance.storage();
-//         lpTokenStorage = await lpTokenInstance.storage();
 
-//         await signerFactory(bob.sk)
+//         farmStorage         = await farmInstance.storage();
+//         farmFactoryStorage  = await farmFactoryInstance.storage();
+//         mvkTokenStorage     = await mvkTokenInstance.storage();
+//         lpTokenStorage      = await lpTokenInstance.storage();
+
+//         await signerFactory(bob.sk);
 //     })
+
+
+//     describe('%setLoanToken - setup and test lending controller %setLoanToken entrypoint', function () {
+
+//         it('admin can set mock FA12 as a loan token', async () => {
+
+//             try{        
+                
+//                 // init variables
+//                 await signerFactory(bob.sk);
+
+//                 const setLoanTokenActionType                = "createLoanToken";
+
+//                 const tokenName                             = "usdt";
+//                 const tokenContractAddress                  = mockFa12TokenAddress.address;
+//                 const tokenType                             = "fa12";
+//                 const tokenDecimals                         = 6;
+
+//                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+
+//                 const mTokenContractAddress                = mTokenUsdtAddress.address;
+
+//                 const interestRateDecimals                  = 27;
+//                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
+//                 const optimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+//                 const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+//                 const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+//                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+//                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+//                 const minRepaymentAmount                    = 10000;
+
+//                 // check if loan token exists
+//                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+//                 if(checkLoanTokenExists === undefined){
+
+//                     const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                        
+//                         setLoanTokenActionType,
+
+//                         tokenName,
+//                         tokenDecimals,
+
+//                         oracleAddress,
+
+//                         mTokenContractAddress,
+                        
+//                         reserveRatio,
+//                         optimalUtilisationRate,
+//                         baseInterestRate,
+//                         maxInterestRate,
+//                         interestRateBelowOptimalUtilisation,
+//                         interestRateAboveOptimalUtilisation,
+
+//                         minRepaymentAmount,
+
+//                         // fa12 token type - token contract address
+//                         tokenType,
+//                         tokenContractAddress,
+
+//                     ).send();
+//                     await adminSetMockFa12LoanTokenOperation.confirmation();
+
+//                     lendingControllerStorage  = await lendingControllerInstance.storage();
+//                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+    
+//                     assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
+//                     assert.equal(mockFa12LoanToken.mTokenAddress         , mTokenContractAddress);
+    
+//                     assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
+//                     assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
+//                     assert.equal(mockFa12LoanToken.totalBorrowed          , 0);
+//                     assert.equal(mockFa12LoanToken.totalRemaining         , 0);
+    
+//                     assert.equal(mockFa12LoanToken.optimalUtilisationRate , optimalUtilisationRate);
+//                     assert.equal(mockFa12LoanToken.baseInterestRate       , baseInterestRate);
+//                     assert.equal(mockFa12LoanToken.maxInterestRate        , maxInterestRate);
+                    
+//                     assert.equal(mockFa12LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+//                     assert.equal(mockFa12LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+    
+//                 } else {
+
+//                     lendingControllerStorage  = await lendingControllerInstance.storage();
+//                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                
+//                     // other variables will be affected by repeated tests
+//                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
+
+//                 }
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+//     })
+
+//     // 
+//     // Test: Add Liquidity into Lending Pool
+//     //
+//     describe('%addLiquidity', function () {
+    
+//         it('user (bob) can add liquidity for mock FA12 (usdt) token into Lending Controller token pool (30 MockFA12 Tokens) and receive mUSDT tokens', async () => {
+//             try{
+
+//             // init variables
+//             await signerFactory(bob.sk);
+//             const loanTokenName   = "usdt";
+//             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
+
+//             lendingControllerStorage = await lendingControllerInstance.storage();
+            
+//             // get mock fa12 token storage and lp token pool mock fa12 token storage
+//             const mockFa12TokenStorage                = await mockFa12TokenInstance.storage();
+//             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
+            
+//             // get initial bob's Mock FA12 Token balance
+//             const bobMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(bob.pkh);            
+//             const bobInitialMockFa12TokenBalance      = bobMockFa12Ledger == undefined ? 0 : bobMockFa12Ledger.balance.toNumber();
+
+//             // get initial bob's mEurl Token - Mock FA12 Token - balance
+//             const bobMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(bob.pkh);            
+//             const bobInitialMUsdtTokenTokenBalance    = bobMUsdtTokenLedger == undefined ? 0 : bobMUsdtTokenLedger.toNumber();
+
+//             // get initial lending controller's Mock FA12 Token balance
+//             const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
+
+//             // get initial lending controller token pool total
+//             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
+
+//             // bob resets mock FA12 tokens allowance then set new allowance to deposit amount
+//             // reset token allowance
+//             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+//                 lendingControllerAddress.address,
+//                 0
+//             ).send();
+//             await resetTokenAllowance.confirmation();
+
+//             // set new token allowance
+//             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+//                 lendingControllerAddress.address,
+//                 liquidityAmount
+//             ).send();
+//             await setNewTokenAllowance.confirmation();
+
+//             // bob deposits mock FA12 tokens into lending controller token pool
+//             const bobDepositTokenOperation  = await lendingControllerInstance.methods.addLiquidity(
+//                 loanTokenName,
+//                 liquidityAmount
+//             ).send();
+//             await bobDepositTokenOperation.confirmation();
+
+//             // get updated storages
+//             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
+//             const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
+//             const updatedMUsdtTokenTokenStorage           = await mTokenUsdtInstance.storage();
+
+//             // check new balance for loan token pool total
+//             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
+
+//             // check Bob's Mock FA12 Token balance
+//             const updatedBobMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(bob.pkh);            
+//             assert.equal(updatedBobMockFa12Ledger.balance, bobInitialMockFa12TokenBalance - liquidityAmount);
+
+//             // check Lending Controller's Mock FA12 Token Balance
+//             const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
+
+//             // check Bob's mUsdt Token Token balance
+//             const updatedBobMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(bob.pkh);            
+//             assert.equal(updatedBobMUsdtTokenLedger, bobInitialMUsdtTokenTokenBalance + liquidityAmount);        
+
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+
+//         it('user (alice) can add liquidity for mock FA12 (usdt) token into Lending Controller token pool (30 MockFA12 Tokens) and receive mUSDT tokens', async () => {
+//             try{
+
+//             // init variables
+//             await signerFactory(alice.sk);
+//             const loanTokenName   = "usdt";
+//             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
+
+//             lendingControllerStorage = await lendingControllerInstance.storage();
+            
+//             // get mock fa12 token storage and lp token pool mock fa12 token storage
+//             const mockFa12TokenStorage                = await mockFa12TokenInstance.storage();
+//             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
+            
+//             // get initial alice's Mock FA12 Token balance
+//             const aliceMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(alice.pkh);            
+//             const aliceInitialMockFa12TokenBalance      = aliceMockFa12Ledger == undefined ? 0 : aliceMockFa12Ledger.balance.toNumber();
+
+//             // get initial alice's mEurl Token - Mock FA12 Token - balance
+//             const aliceMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(alice.pkh);            
+//             const aliceInitialMUsdtTokenTokenBalance    = aliceMUsdtTokenLedger == undefined ? 0 : aliceMUsdtTokenLedger.toNumber();
+
+//             // get initial lending controller's Mock FA12 Token balance
+//             const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
+
+//             // get initial lending controller token pool total
+//             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
+
+//             // alice resets mock FA12 tokens allowance then set new allowance to deposit amount
+//             // reset token allowance
+//             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+//                 lendingControllerAddress.address,
+//                 0
+//             ).send();
+//             await resetTokenAllowance.confirmation();
+
+//             // set new token allowance
+//             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+//                 lendingControllerAddress.address,
+//                 liquidityAmount
+//             ).send();
+//             await setNewTokenAllowance.confirmation();
+
+//             // alice deposits mock FA12 tokens into lending controller token pool
+//             const aliceDepositTokenOperation  = await lendingControllerInstance.methods.addLiquidity(
+//                 loanTokenName,
+//                 liquidityAmount
+//             ).send();
+//             await aliceDepositTokenOperation.confirmation();
+
+//             // get updated storages
+//             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
+//             const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
+//             const updatedMUsdtTokenTokenStorage           = await mTokenUsdtInstance.storage();
+
+//             // check new balance for loan token pool total
+//             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
+
+//             // check alice's Mock FA12 Token balance
+//             const updatedAliceMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(alice.pkh);            
+//             assert.equal(updatedAliceMockFa12Ledger.balance, aliceInitialMockFa12TokenBalance - liquidityAmount);
+
+//             // check Lending Controller's Mock FA12 Token Balance
+//             const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
+
+//             // check alice's mUsdt Token Token balance
+//             const updatedAliceMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(alice.pkh);            
+//             assert.equal(updatedAliceMUsdtTokenLedger, aliceInitialMUsdtTokenTokenBalance + liquidityAmount);        
+
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('user (eve) can add liquidity for mock FA12 (usdt) token into Lending Controller token pool (30 MockFA12 Tokens) and receive mUSDT tokens', async () => {
+    
+//             // init variables
+//             await signerFactory(eve.sk);
+//             const loanTokenName = "usdt";
+//             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
+
+//             lendingControllerStorage = await lendingControllerInstance.storage();
+            
+//             // get mock fa12 token storage and lp token pool mock fa12 token storage
+//             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
+//             const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
+            
+//             // get initial eve's Mock FA12 Token balance
+//             const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+//             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
+
+//             // get initial eve's mEurl Token - Mock FA12 Token - balance
+//             const eveMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
+//             const eveInitialMUsdtTokenTokenBalance    = eveMUsdtTokenLedger == undefined ? 0 : eveMUsdtTokenLedger.toNumber();
+
+//             // get initial lending controller's Mock FA12 Token balance
+//             const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
+
+//             // get initial lending controller token pool total
+//             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
+
+//             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
+//             // reset token allowance
+//             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+//                 lendingControllerAddress.address,
+//                 0
+//             ).send();
+//             await resetTokenAllowance.confirmation();
+
+//             // set new token allowance
+//             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+//                 lendingControllerAddress.address,
+//                 liquidityAmount
+//             ).send();
+//             await setNewTokenAllowance.confirmation();
+
+//             // eve deposits mock FA12 tokens into lending controller token pool
+//             const eveDepositTokenOperation  = await lendingControllerInstance.methods.addLiquidity(
+//                 loanTokenName,
+//                 liquidityAmount, 
+//             ).send();
+//             await eveDepositTokenOperation.confirmation();
+
+//             // get updated storages
+//             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
+//             const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
+//             const updatedMUsdtTokenTokenStorage  = await mTokenUsdtInstance.storage();
+
+//             // check new balance for loan token pool total
+//             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+//             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
+
+//             // check Eve's Mock FA12 Token balance
+//             const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+//             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - liquidityAmount);
+
+//             // check Lending Controller's Mock FA12 Token Balance
+//             const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+//             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
+
+//             // check Eve's mUsdt Token Token balance
+//             const updatedEveMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(eve.pkh);            
+//             assert.equal(updatedEveMUsdtTokenLedger, eveInitialMUsdtTokenTokenBalance + liquidityAmount);        
+
+//         });
+
+//     });
+
 
 //     describe("Non-initialized farm", function() {
 
@@ -93,23 +455,32 @@
 //                     // Initial values
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
+                    
 //                     const farmInit          = farmStorage.init;
-//                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
-//                     const amountToDeposit   = 6;
+//                     const amountToDeposit   = 2000000;
     
-//                     // Approval operation
-//                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-//                         const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
-    
-//                     // Operation
-//                     await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
+//                     if(farmInit == false){
 
-//                     // Assertion
-//                     assert.equal(farmInit, false);
+//                         // Update operators for farm
+//                         const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                         {
+//                             add_operator: {
+//                                 owner: bob.pkh,
+//                                 operator: farmAddress.address,
+//                                 token_id: 0,
+//                             },
+//                         }])
+//                         .send()
+//                         await updateOperatorsOperation.confirmation();
+        
+//                         // Operation
+//                         await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
+
+//                         // Assertion
+//                         assert.equal(farmInit, false);
+
+//                     }
+
 //                 } catch(e) {
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -123,13 +494,15 @@
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
 //                     const farmInit          = farmStorage.init;
-//                     const amountToWithdraw  = 1;
+//                     const amountToWithdraw  = 1000000;
     
 //                     // Operation
-//                     await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+//                     if(farmInit == false){
+//                         await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+//                         // Assertion
+//                         assert.equal(farmInit, false);
+//                     }
 
-//                     // Assertion
-//                     assert.equal(farmInit, false);
 //                 } catch(e) {
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -145,10 +518,13 @@
 //                     const farmInit          = farmStorage.init;
     
 //                     // Operation
-//                     await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+//                     if(farmInit == false){
+//                         await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+                        
+//                         // Assertion
+//                         assert.equal(farmInit, false);
+//                     }
 
-//                     // Assertion
-//                     assert.equal(farmInit, false);
 //                 } catch(e) {
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -157,10 +533,12 @@
 
 //     })
 
+
 //     describe("Initialized farm", function() {
 //         describe('%setAdmin', function() {
 //             it('Admin should be able to set a new admin', async() => {
 //                 try{
+
 //                     // Initial values
 //                     const previousAdmin = farmStorage.admin;
 
@@ -179,6 +557,7 @@
 //                     await signerFactory(alice.sk);
 //                     const resetOperation = await farmInstance.methods.setAdmin(bob.pkh).send();
 //                     await resetOperation.confirmation();
+
 //                 }catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -186,6 +565,7 @@
 
 //             it('Non-admin should not be able to set a new admin', async() => {
 //                 try{
+                    
 //                     // Create a transaction for initiating a farm
 //                     await signerFactory(eve.sk)
 //                     const operation = farmInstance.methods.setAdmin(bob.pkh);
@@ -196,6 +576,7 @@
 
 //                     // Assertion
 //                     assert.strictEqual(farmStorage.admin,bob.pkh)
+
 //                 }catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -238,26 +619,31 @@
 
 //             it('Admin should be able to initialize a farm', async () => {
 //                 try{
-//                     // Operation
-//                     const operation = await farmInstance.methods.initFarm(
-//                         12000,
-//                         100,
-//                         false,
-//                         false
-//                     ).send();
-//                     await operation.confirmation()
-
-//                     // Final values
+                    
 //                     farmStorage    = await farmInstance.storage();
-//                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
-//                     // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
+                    
+//                     if(farmStorage.open == false){
+//                         // Operation
+//                         const operation = await farmInstance.methods.initFarm(
+//                             12000,
+//                             100,
+//                             false,
+//                             false
+//                         ).send();
+//                         await operation.confirmation()
 
-//                     // Assertions
-//                     assert.equal(farmStorage.open, true);
-//                     assert.equal(farmStorage.init, true);
-//                     assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
-//                     assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+//                         // Final values
+//                         farmStorage    = await farmInstance.storage();
+                        
+//                         // console.log("REWARDS: ", farmStorage.config.plannedRewards)
+//                         // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
 
+//                         // Assertions
+//                         assert.equal(farmStorage.open, true);
+//                         assert.equal(farmStorage.init, true);
+//                         assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
+//                         assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+//                     }
 //                 }catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -279,167 +665,251 @@
 //         });
 
 //         describe('%deposit', function() {
-//             it('User should be able to deposit LP Tokens into a farm', async () => {
+            
+//             it('User (bob) should be able to deposit LP Tokens into a farm', async () => {
 //                 try{
 //                     // Initial values
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
-//                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpBalance         = lpLedgerStart.balance.toNumber();
-//                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
+//                     lendingControllerStorage = await lendingControllerInstance.storage();
+                    
+//                     const lpBalanceStart    = await lpTokenStorage.ledger.get(bob.pkh);
                     
 //                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
-                    
-//                     const amountToDeposit   = 6;
+//                     const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+//                     const amountToDeposit   = 1000000;
 
-//                     // Approval operation
-//                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-//                         const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
+//                     // Update operators for farm
+//                     const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: bob.pkh,
+//                             operator: farmAddress.address,
+//                             token_id: 0,
+//                         },
+//                     }])
+//                     .send()
+//                     await updateOperatorsOperation.confirmation();
 
 //                     // Operation
-//                     const depositOperation          = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
 //                     await depositOperation.confirmation();
 
 //                     // Final values
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
+                    
 //                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
 //                     // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
+                    
 //                     const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
-//                     const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
+//                     const depositBalanceEnd = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
+//                     const lpBalanceEnd      = await lpTokenStorage.ledger.get(bob.pkh);
 
 //                     // Assertions
 //                     assert.equal(depositBalanceEnd, depositBalance + amountToDeposit);
-//                     assert.equal(lpBalanceEnd, lpBalance - amountToDeposit);
+//                     assert.equal(lpBalanceEnd, lpBalanceStart - amountToDeposit);
+
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 } 
 //             });
 
-//             it('User should not be able to able to deposit more LP Tokens than it has', async () => {
+//             it('User (alice) should be able to deposit LP Tokens into a farm', async () => {
 //                 try{
 //                     // Initial values
+//                     await signerFactory(alice.sk)
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
-//                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
-//                     const lpBalance         = lpLedgerStart===undefined ? 0 : lpLedgerStart.balance.toNumber();
-//                     const amountToDeposit   = lpBalance + 1;
+//                     lendingControllerStorage = await lendingControllerInstance.storage();
+                    
+//                     const lpBalanceStart    = await lpTokenStorage.ledger.get(alice.pkh);
+                    
+//                     const depositRecord     = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+//                     const amountToDeposit   = 1000000;
 
-//                     // Approval operation
-//                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-//                         const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
+//                     // Update operators for farm
+//                     const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: alice.pkh,
+//                             operator: farmAddress.address,
+//                             token_id: 0,
+//                         },
+//                     }])
+//                     .send()
+//                     await updateOperatorsOperation.confirmation();
 
 //                     // Operation
-//                     await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 } 
-//             })
+//                     depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     await depositOperation.confirmation();
 
-//             it('Multiple users should be able to deposit in a farm', async () => {
+//                     // Final values
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+                    
+//                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
+//                     // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
+                    
+//                     const depositRecordEnd  = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const depositBalanceEnd = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
+//                     const lpBalanceEnd      = await lpTokenStorage.ledger.get(alice.pkh);
+
+//                     // Assertions
+//                     assert.equal(depositBalanceEnd, depositBalance + amountToDeposit);
+//                     assert.equal(lpBalanceEnd, lpBalanceStart - amountToDeposit);
+
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 } 
+//             });
+
+//             it('Multiple users should be able to deposit LP Tokens into a farm', async () => {
+//                 try{
+
+//                     // Initial values
+//                     await signerFactory(bob.sk);
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+//                     lendingControllerStorage = await lendingControllerInstance.storage();
+                    
+//                     const lpBalanceStart    = await lpTokenStorage.ledger.get(bob.pkh);
+                    
+//                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+//                     const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+//                     const amountToDeposit   = 1000000;
+
+//                     // Update operators for farm
+//                     const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: bob.pkh,
+//                             operator: farmAddress.address,
+//                             token_id: 0,
+//                         },
+//                     }])
+//                     .send()
+//                     await updateOperatorsOperation.confirmation();
+
+//                     // Operation
+//                     depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     await depositOperation.confirmation();
+
+//                     // Final values
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+                    
+//                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
+//                     // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
+                    
+//                     const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+//                     const depositBalanceEnd = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
+//                     const lpBalanceEnd      = await lpTokenStorage.ledger.get(bob.pkh);
+
+//                     // Assertions
+//                     assert.equal(depositBalanceEnd, depositBalance + amountToDeposit);
+//                     assert.equal(lpBalanceEnd, lpBalanceStart - amountToDeposit);
+
+//                     await signerFactory(alice.sk)
+//                     lpTokenStorage           = await lpTokenInstance.storage();
+//                     farmStorage              = await farmInstance.storage();
+//                     lendingControllerStorage = await lendingControllerInstance.storage();
+                    
+//                     const aliceLpBalanceStart    = await lpTokenStorage.ledger.get(alice.pkh);
+                    
+//                     const aliceDepositRecord     = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const aliceDepositBalance    = aliceDepositRecord === undefined ? 0 : aliceDepositRecord.balance.toNumber();
+//                     const aliceAmountToDeposit   = 1000000;
+
+//                     // Update operators for farm
+//                     const aliceUpdateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: alice.pkh,
+//                             operator: farmAddress.address,
+//                             token_id: 0,
+//                         },
+//                     }])
+//                     .send()
+//                     await aliceUpdateOperatorsOperation.confirmation();
+
+//                     // Operation
+//                     depositOperation = await farmInstance.methods.deposit(aliceAmountToDeposit).send();
+//                     await depositOperation.confirmation();
+
+//                     // Final values
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+                    
+//                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
+//                     // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
+                    
+//                     const aliceDepositRecordEnd  = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const aliceDepositBalanceEnd = aliceDepositRecordEnd === undefined ? 0 : aliceDepositRecordEnd.balance.toNumber();
+//                     const aliceLpBalanceEnd      = await lpTokenStorage.ledger.get(alice.pkh);
+
+//                     // Assertions
+//                     assert.equal(aliceDepositBalanceEnd, aliceDepositBalance + aliceAmountToDeposit);
+//                     assert.equal(aliceLpBalanceEnd, aliceLpBalanceStart - aliceAmountToDeposit);
+
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 } 
+//             });
+
+//             it('User should not be able to able to deposit more LP Tokens than he has', async () => {
 //                 try{
 //                     // Initial values
 //                     lpTokenStorage                  = await lpTokenInstance.storage();
 //                     farmStorage                     = await farmInstance.storage();
                     
-//                     const firstLpLedgerStart        = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const firstLpBalance            = firstLpLedgerStart.balance.toNumber();
-//                     const firstLpAllowances         = await firstLpLedgerStart.allowances.get(farmAddress.address);
-                    
-//                     const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const firstDepositBalance       = firstDepositRecord===undefined ? 0 : firstDepositRecord.balance.toNumber();
-                    
-//                     const firstAmountToDeposit      = 10;
-                    
-//                     const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
-//                     const secondLpBalance           = secondLpLedgerStart.balance.toNumber();
-//                     const secondLpAllowances        = await secondLpLedgerStart.allowances.get(farmAddress.address);
-                    
-//                     const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
-//                     const secondDepositBalance      = secondDepositRecord===undefined ? 0 : secondDepositRecord.balance.toNumber();
-                    
-//                     const secondAmountToDeposit     = 8;
+//                     const lpBalanceStart     = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const amountToDeposit   = lpBalanceStart + 1000000;
 
-//                     // Approval operations
-//                     if(firstLpAllowances===undefined || firstLpAllowances.toNumber()<=0){
-//                         await signerFactory(bob.sk)
-//                         const approvals         = firstLpAllowances===undefined ? firstAmountToDeposit : Math.abs(firstLpAllowances.toNumber() - firstAmountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
-//                     if(secondLpAllowances===undefined || secondLpAllowances.toNumber()<=0){
-//                         await signerFactory(alice.sk)
-//                         const approvals         = secondLpAllowances===undefined ? secondAmountToDeposit : Math.abs(secondLpAllowances.toNumber() - secondAmountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
+//                     // Update operators for farm
+//                     const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                         {
+//                             add_operator: {
+//                                 owner: bob.pkh,
+//                                 operator: farmAddress.address,
+//                                 token_id: 0,
+//                             },
+//                         }])
+//                         .send()
+//                         await updateOperatorsOperation.confirmation();
 
-//                     // const bobDepositParam        = await farmInstance.methods.deposit(firstAmountToDeposit).toTransferParams();
-//                     // const bobEstimate            = await utils.tezos.estimate.transfer(bobDepositParam);
-//                     // console.log("BOB FARM DEPOSIT ESTIMATION: ", bobEstimate);
+//                     // Operation
+//                     await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
 
-//                     // await signerFactory(alice.sk)
-//                     // const aliceDepositParam        = await farmInstance.methods.deposit(secondAmountToDeposit).toTransferParams();
-//                     // const aliceEstimate            = await utils.tezos.estimate.transfer(aliceDepositParam);
-//                     // console.log("ALICE FARM DEPOSIT ESTIMATION: ", aliceEstimate);
-
-
-//                     // Operations
-//                     await signerFactory(bob.sk)
-//                     var depositOperation        = await farmInstance.methods.deposit(firstAmountToDeposit).send();
-//                     await depositOperation.confirmation();
-                    
-//                     await signerFactory(alice.sk)
-//                     var depositOperation        = await farmInstance.methods.deposit(secondAmountToDeposit).send();
-//                     await depositOperation.confirmation();
-
-//                     // Final values
-//                     farmStorage = await farmInstance.storage();
-//                     const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const firstDepositBalanceEnd    = firstDepositRecordEnd===undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
-//                     const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const firstLpBalanceEnd         = firstLpLedgerEnd.balance.toNumber();
-//                     const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
-//                     const secondDepositBalanceEnd   = secondDepositRecordEnd===undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
-//                     const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(alice.pkh);
-//                     const secondLpBalanceEnd        = secondLpLedgerEnd.balance.toNumber();
-
-//                     // Assertions
-//                     assert.equal(firstDepositBalanceEnd, firstDepositBalance + firstAmountToDeposit);
-//                     assert.equal(firstLpBalanceEnd, firstLpBalance - firstAmountToDeposit);
-//                     assert.equal(secondDepositBalanceEnd, secondDepositBalance + secondAmountToDeposit);
-//                     assert.equal(secondLpBalanceEnd, secondLpBalance - secondAmountToDeposit);
 //                 } catch(e){
-//                     console.dir(e, {depth: 5});
-//                 }
-//             });
+//                     console.dir(e, {depth: 5})
+//                 } 
+//             })
+
+
 //         })
 
 //         describe('%withdraw', function() {
-//             it('User should be able to withdraw LP Tokens from a farm', async () => {
+//             it('User (bob) should be able to withdraw LP Tokens from a farm', async () => {
 //                 try{
+
 //                     // Initial values
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
-//                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpBalance         = lpLedgerStart.balance.toNumber();
-//                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
-//                     const amountToWithdraw  = 1;
+                    
+//                     const lpLedgerStart      = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const lpBalance : number = lpLedgerStart.toNumber();
+
+//                     const depositRecord      = await farmStorage.depositorLedger.get(bob.pkh);
+//                     const depositBalance : number = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+                    
+//                     const amountToWithdraw : number = 100000;
 
 //                     // const bobWithdrawParam        = await farmInstance.methods.withdraw(amountToWithdraw).toTransferParams();
-//                     // const bobEstimate            = await utils.tezos.estimate.transfer(bobWithdrawParam);
-//                     // console.log("BOB Withdraw Farm ESTIMATION: ", bobEstimate);
+//                     // const bobEstimate             = await utils.tezos.estimate.transfer(bobWithdrawParam);
+//                     // console.log("BOB Withdraw Farm MToken ESTIMATION: ", bobEstimate);
+//                     // console.log("BOB FARM MTOKEN Withdraw Total Cost Estimate: ", bobEstimate.totalCost);
 
 //                     // Operation
 //                     const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
@@ -448,14 +918,55 @@
 //                     // Final values
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
+                    
 //                     const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
+//                     const depositBalanceEnd : number = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
+                    
 //                     const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
+//                     const lpBalanceEnd : number = lpLedgerEnd.toNumber();
 
 //                     // Assertions
 //                     assert.equal(depositBalanceEnd, depositBalance - amountToWithdraw);
-//                     assert.equal(lpBalanceEnd, lpBalance + amountToWithdraw);
+//                     assert.equal(lpBalanceEnd, (lpBalance + amountToWithdraw));
+
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 } 
+//             });
+
+//             it('User (alice) should be able to withdraw LP Tokens from a farm', async () => {
+//                 try{
+
+//                     // Initial values
+//                     await signerFactory(alice.sk);
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+                    
+//                     const lpLedgerStart      = await lpTokenStorage.ledger.get(alice.pkh);
+//                     const lpBalance : number = lpLedgerStart.toNumber();
+
+//                     const depositRecord      = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const depositBalance : number = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+                    
+//                     const amountToWithdraw : number = 10000;
+
+//                     // Operation
+//                     const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
+//                     await withdrawOperation.confirmation();
+
+//                     // Final values
+//                     lpTokenStorage          = await lpTokenInstance.storage();
+//                     farmStorage             = await farmInstance.storage();
+                    
+//                     const depositRecordEnd  = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const depositBalanceEnd : number = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
+                    
+//                     const lpLedgerEnd       = await lpTokenStorage.ledger.get(alice.pkh);
+//                     const lpBalanceEnd : number = lpLedgerEnd.toNumber();
+
+//                     // Assertions
+//                     assert.equal(depositBalanceEnd, depositBalance - amountToWithdraw);
+//                     assert.equal(lpBalanceEnd, (lpBalance + amountToWithdraw));
 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -464,6 +975,7 @@
 
 //             it('User should not be able to withdraw LP Tokens from a farm if it never deposited into it', async () => {
 //                 try{
+
 //                     // Initial values
 //                     await signerFactory(eve.sk);
 //                     lpTokenStorage          = await lpTokenInstance.storage();
@@ -472,6 +984,72 @@
 
 //                     // Operation
 //                     await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 } 
+//             });
+
+
+//             it('Multiple users should be able to withdraw tokens', async () => {
+//                 try{
+
+//                     // Initial values
+//                     lpTokenStorage                  = await lpTokenInstance.storage();
+//                     farmStorage                     = await farmInstance.storage();
+//                     const firstLpLedgerStart        = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const firstLpBalance            = firstLpLedgerStart.toNumber();
+                    
+//                     const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
+//                     const firstDepositBalance       = firstDepositRecord === undefined ? 0 : firstDepositRecord.balance.toNumber();
+                    
+//                     const firstAmountToWithdraw     = 500000;
+                    
+//                     const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
+//                     const secondLpBalance           = secondLpLedgerStart.toNumber();
+
+//                     const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const secondDepositBalance      = secondDepositRecord === undefined ? 0 : secondDepositRecord.balance.toNumber();
+                    
+//                     const secondAmountToWithdraw    = 4;
+
+//                     await signerFactory(bob.sk)
+//                     var withdrawOperation            = await farmInstance.methods.withdraw(firstAmountToWithdraw).send();
+//                     await withdrawOperation.confirmation();
+
+//                     // Final values
+//                     await signerFactory(bob.sk)
+//                     farmStorage                     = await farmInstance.storage();
+//                     lpTokenStorage                  = await lpTokenInstance.storage();
+                    
+//                     const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
+//                     const firstDepositBalanceEnd    = firstDepositRecordEnd === undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
+                    
+//                     const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const firstLpBalanceEnd         = firstLpLedgerEnd.toNumber();
+
+//                     // Operations
+//                     await signerFactory(alice.sk)
+//                     var withdrawOperation            = await farmInstance.methods.withdraw(secondAmountToWithdraw).send();
+//                     await withdrawOperation.confirmation();
+
+//                     await signerFactory(alice.sk)
+//                     farmStorage                     = await farmInstance.storage();
+//                     lpTokenStorage                  = await lpTokenInstance.storage();
+
+//                     const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
+//                     const secondDepositBalanceEnd   = secondDepositRecordEnd === undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
+                    
+//                     const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(alice.pkh);
+//                     const secondLpBalanceEnd        = secondLpLedgerEnd.toNumber();
+
+//                     // Assertions
+//                     assert.equal(firstDepositBalanceEnd, firstDepositBalance - firstAmountToWithdraw);
+//                     assert.equal(firstLpBalanceEnd, firstLpBalance + firstAmountToWithdraw);
+                    
+//                     assert.equal(secondDepositBalanceEnd, secondDepositBalance - secondAmountToWithdraw);
+//                     assert.equal(secondLpBalanceEnd, secondLpBalance + secondAmountToWithdraw);
+
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 } 
@@ -479,16 +1057,29 @@
 
 //             it('User should not be able to withdraw more LP Tokens than it deposited', async () => {
 //                 try{
+
 //                     // Initial values
 //                     await signerFactory(bob.sk);
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
                     
 //                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpBalance         = lpLedgerStart.balance.toNumber();
+//                     const lpBalance         = lpLedgerStart === undefined ? 0 : lpLedgerStart.toNumber();
+
+//                     // const farmLpLedgerStart     = await lpTokenStorage.ledger.get(farmAddress.address);
+//                     // const farmLpBalance         = farmLpLedgerStart === undefined ? 0 : farmLpLedgerStart.toNumber();
+
+//                     // console.log('bob lpLedgerStart');
+//                     // console.log(lpLedgerStart);
+
+//                     // console.log('farm lpLedgerStart');
+//                     // console.log(farmLpLedgerStart);
 
 //                     const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
+//                     const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
+
+//                     // console.log('bob depositRecord');
+//                     // console.log(depositRecord);
                     
 //                     const excessAmount      = 100;
 //                     const amountToWithdraw  = depositBalance + excessAmount;
@@ -501,10 +1092,10 @@
 //                     farmStorage             = await farmInstance.storage();
                     
 //                     const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
+//                     const depositBalanceEnd = depositRecordEnd === undefined ? 0 : depositRecordEnd.balance.toNumber();
                     
 //                     const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
+//                     const lpBalanceEnd      = lpLedgerEnd === undefined ? 0 : lpLedgerEnd.toNumber();
 
 //                     // Assertions
 //                     assert.equal(depositBalanceEnd, depositBalance - depositBalance);
@@ -515,83 +1106,23 @@
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
                     
-//                     const lpLedger          = await lpTokenStorage.ledger.get(bob.pkh);
-//                     // const resetLpBalance    = lpLedger.balance.toNumber();
-//                     const lpAllowances      = await lpLedger.allowances.get(farmAddress.address);
-                    
-//                     // const resetDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     // const resetDepositBalance    = resetDepositRecord===undefined ? 0 : resetDepositRecord.balance.toNumber();
-                    
-//                     const amountToDeposit   = 10;
+//                     const amountToDeposit   = 10000;
 
-//                     // Approval operation
-//                     if(lpAllowances === undefined || lpAllowances.toNumber() <= amountToDeposit){
-//                         const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
+//                     await signerFactory(bob.sk);
+//                     const updateBobOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: bob.pkh,
+//                             operator: farmAddress.address,
+//                             token_id: 0,
+//                         },
+//                     }])
+//                     .send()
+//                     await updateBobOperatorsOperation.confirmation();
 
 //                     // Operation
 //                     const depositOperation          = await farmInstance.methods.deposit(amountToDeposit).send();
 //                     await depositOperation.confirmation();
-
-//                 } catch(e){
-//                     console.dir(e, {depth: 5});
-//                 } 
-//             });
-
-//             it('Multiple users should be able to withdraw tokens', async () => {
-//                 try{
-//                     // Initial values
-//                     lpTokenStorage                  = await lpTokenInstance.storage();
-//                     farmStorage                     = await farmInstance.storage();
-                    
-//                     const firstLpLedgerStart        = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const firstLpBalance            = firstLpLedgerStart.balance.toNumber();
-                    
-//                     const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const firstDepositBalance       = firstDepositRecord === undefined ? 0 : firstDepositRecord.balance.toNumber();
-                    
-//                     const firstAmountToWithdraw     = 2;
-                    
-//                     const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
-//                     const secondLpBalance           = secondLpLedgerStart.balance.toNumber();
-                    
-//                     const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
-//                     const secondDepositBalance      = secondDepositRecord===undefined ? 0 : secondDepositRecord.balance.toNumber();
-                    
-//                     const secondAmountToWithdraw    = 4;
-
-//                     // Operations
-//                     await signerFactory(alice.sk)
-//                     var withdrawOperation            = await farmInstance.methods.withdraw(secondAmountToWithdraw).send();
-//                     await withdrawOperation.confirmation();
-
-//                     await signerFactory(bob.sk)
-//                     var withdrawOperation            = await farmInstance.methods.withdraw(firstAmountToWithdraw).send();
-//                     await withdrawOperation.confirmation();
-
-//                     // Final values
-//                     farmStorage                     = await farmInstance.storage();
-//                     lpTokenStorage                  = await lpTokenInstance.storage();
-                    
-//                     const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const firstDepositBalanceEnd    = firstDepositRecordEnd===undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
-                    
-//                     const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const firstLpBalanceEnd         = firstLpLedgerEnd.balance.toNumber();
-                    
-//                     const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
-//                     const secondDepositBalanceEnd   = secondDepositRecordEnd===undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
-                    
-//                     const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(alice.pkh);
-//                     const secondLpBalanceEnd        = secondLpLedgerEnd.balance.toNumber();
-
-//                     // Assertions
-//                     assert.equal(firstDepositBalanceEnd, firstDepositBalance - firstAmountToWithdraw);
-//                     assert.equal(firstLpBalanceEnd, firstLpBalance + firstAmountToWithdraw);
-//                     assert.equal(secondDepositBalanceEnd, secondDepositBalance - secondAmountToWithdraw);
-//                     assert.equal(secondLpBalanceEnd, secondLpBalance + secondAmountToWithdraw);
 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -625,7 +1156,7 @@
 //                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
 //                     // Operations
-//                     await wait(4 * blockTime * 1000);
+//                     await wait(2 * blockTime * 1000);
 //                     // const firstClaimOperation   = await farmInstance.methods.claim(mallory.pkh).send();
 //                     // await firstClaimOperation.confirmation();
 //                     await chai.expect(farmInstance.methods.claim(mallory.pkh).send()).to.be.rejected;
@@ -646,7 +1177,7 @@
 //                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
 //                     // Operations
-//                     await wait(10 * blockTime * 1000);
+//                     await wait(2 * blockTime * 1000);
 //                     const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
 //                     await firstClaimOperation.confirmation();
 
@@ -655,6 +1186,9 @@
 //                     doormanStorage              = await doormanInstance.storage();
 //                     const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                     const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+
+//                     // console.log(`userSMVKBalance: ${userSMVKBalance}`);
+//                     // console.log(`userSMVKBalanceEnd: ${userSMVKBalanceEnd}`);
 
 //                     // Assertions
 //                     assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
@@ -671,46 +1205,40 @@
 //                     farmStorage                 = await farmInstance.storage();
 //                     doormanStorage              = await doormanInstance.storage();
 //                     lpTokenStorage              = await lpTokenInstance.storage();
-                    
 //                     const userLpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const userLpBalance         = userLpLedgerStart.balance.toNumber();
+//                     const userLpBalance         = userLpLedgerStart;
                     
 //                     const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
-
-//                     const userDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const userDepositBalance    = userDepositRecord === undefined ? 0 : userDepositRecord.balance.toNumber();
-
-//                     console.log(userDepositRecord);
-//                     console.log(`userDepositBalance: ${userDepositBalance}`);
+                    
+//                     const userDepositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+//                     const userDepositBalanceEnd = userDepositRecordEnd === undefined ? 0 : userDepositRecordEnd.balance.toNumber();
                     
 //                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
 //                     // Operations
-//                     await wait(10 * blockTime * 1000);
-//                     const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalance).send();
+//                     await wait(12 * blockTime * 1000);
+//                     const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalanceEnd).send();
 //                     await withdrawOperation.confirmation();
-
+                    
 //                     const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
 //                     await firstClaimOperation.confirmation();
 
 //                     // Final values
-//                     await signerFactory(bob.sk)
 //                     farmStorage                 = await farmInstance.storage();
 //                     doormanStorage              = await doormanInstance.storage();
 //                     lpTokenStorage              = await lpTokenInstance.storage();
-
-//                     const userDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const userDepositBalanceEnd    = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
-
-//                     console.log(userDepositRecordEnd);
-//                     console.log(`userDepositBalanceEnd: ${userDepositBalanceEnd}`);
-                    
 //                     const userLpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const userLpBalanceEnd      = userLpLedgerEnd.balance.toNumber();
+//                     const userLpBalanceEnd      = userLpLedgerEnd;
                     
 //                     const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//                     const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
+//                     const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+
+//                     // console.log(`userSMVKBalance: ${userSMVKBalance}`);
+//                     // console.log(`userSMVKBalanceEnd: ${userSMVKBalanceEnd}`);
+
+//                     // console.log(`userLpBalance: ${userLpBalance}`);
+//                     // console.log(`userLpBalanceEnd: ${userLpBalanceEnd}`);
 
 //                     // Assertions
 //                     assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
@@ -723,6 +1251,7 @@
 //         })
         
 //         describe("%pauseAll", async () => {
+
 //             beforeEach("Set signer to admin", async () => {
 //                 await signerFactory(bob.sk)
 //             });
@@ -759,6 +1288,7 @@
 //         })
 
 //         describe("%unpauseAll", async () => {
+
 //             beforeEach("Set signer to admin", async () => {
 //                 await signerFactory(bob.sk)
 //             });
@@ -795,6 +1325,7 @@
 //         })
 
 //         describe("%togglePauseEntrypoint", async () => {
+            
 //             beforeEach("Set signer to admin", async () => {
 //                 await signerFactory(bob.sk)
 //             });
@@ -813,15 +1344,21 @@
 //                     farmStorage         = await farmInstance.storage();
 //                     const midState      = farmStorage.breakGlassConfig.depositIsPaused;
 //                     const lpLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpAllowances  = await lpLedgerStart.allowances.get(farmAddress.address);
 //                     const testAmount    = 1;
 
-//                     // Test operation
-//                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-//                         const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
+//                     // Update operators for farm
+//                     await signerFactory(bob.sk);
+//                     const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                         {
+//                             add_operator: {
+//                                 owner: bob.pkh,
+//                                 operator: farmAddress.address,
+//                                 token_id: 0,
+//                             },
+//                         }])
+//                     .send()
+//                     await updateOperatorsOperation.confirmation();
+
 //                     await chai.expect(farmInstance.methods.deposit(testAmount).send()).to.be.rejected;
 
 //                     // Operation
@@ -832,12 +1369,6 @@
 //                     farmStorage         = await farmInstance.storage();
 //                     const endState      = farmStorage.breakGlassConfig.depositIsPaused;
 
-//                     // Test operation
-//                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-//                         const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
 //                     const testOperation = await farmInstance.methods.deposit(testAmount).send();
 //                     await testOperation.confirmation();
 
@@ -907,7 +1438,7 @@
 //                     const midState      = farmStorage.breakGlassConfig.claimIsPaused;
 
 //                     // Test operation
-//                     await wait(4 * blockTime * 1000);
+//                     await wait(2 * blockTime * 1000);
 //                     await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
 
 //                     // Operation
@@ -919,7 +1450,7 @@
 //                     const endState      = farmStorage.breakGlassConfig.claimIsPaused;
 
 //                     // Test operation
-//                     await wait(4 * blockTime * 1000);
+//                     await wait(2 * blockTime * 1000);
 //                     const testOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await testOperation.confirmation();
 
@@ -951,33 +1482,28 @@
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
 //                     mvkTokenStorage         = await mvkTokenInstance.storage();
-                    
 //                     const mvkTotalSupply    = mvkTokenStorage.totalSupply.toNumber();
 //                     const smvkTotalSupply   = await mvkTokenStorage.ledger.get(doormanAddress.address);
                     
-//                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
-
-//                     const userDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const userDepositBalance    = userDepositRecord===undefined ? 0 : userDepositRecord.balance.toNumber();
-//                     console.log(userDepositRecord);
-                    
 //                     const toggleTransfer    = farmStorage.config.forceRewardFromTransfer;
 //                     const blockTime         = farmStorage.minBlockTimeSnapshot.toNumber();
-//                     const amountToDeposit   = 10;
+//                     const amountToDeposit   = 10000;
 
 //                     // Approval operation
 //                     await signerFactory(bob.sk);
-//                     if(lpAllowances === undefined || lpAllowances.toNumber()<=0){
-//                         const approvals         = lpAllowances === undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                         console.log(`approval amount: ${approvals}`);
-//                     }
+//                     const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                         {
+//                             add_operator: {
+//                                 owner: bob.pkh,
+//                                 operator: farmAddress.address,
+//                                 token_id: 0,
+//                             },
+//                         }])
+//                     .send()
+//                     await updateOperatorsOperation.confirmation();
 
 //                     // Operation - deposit amount so user balance will be greater than zero
-//                     await signerFactory(bob.sk);
-//                     const depositOperation  = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     depositOperation  = await farmInstance.methods.deposit(amountToDeposit).send();
 //                     await depositOperation.confirmation();
 
 //                     // Wait at least one block before claiming rewards
@@ -986,31 +1512,22 @@
 //                     farmStorage                    = await farmInstance.storage();
 //                     const userDepositRecordMid     = await farmStorage.depositorLedger.get(bob.pkh);
 //                     const userDepositBalanceMid    = userDepositRecordMid === undefined ? 0 : userDepositRecordMid.balance.toNumber();
-//                     console.log(userDepositRecordMid);
 
 //                     // First claim operation - sMVK rewards should be minted (hence increase in sMVK total supply)
 //                     var claimOperation  = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 
-//                     await signerFactory(bob.sk);
-//                     farmStorage                    = await farmInstance.storage();
-//                     const userDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
-//                     const userDepositBalanceEnd    = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
-//                     console.log(userDepositRecordEnd);
-
 //                     // Updated values
-//                     await signerFactory(bob.sk);
 //                     mvkTokenStorage                     = await mvkTokenInstance.storage();
 //                     const mvkTotalSupplyFirstUpdate     = mvkTokenStorage.totalSupply.toNumber();
 //                     const smvkTotalSupplyFirstUpdate    = (await mvkTokenStorage.ledger.get(doormanAddress.address)).toNumber();
 //                     const treasuryFirstUpdate           = (await mvkTokenStorage.ledger.get(treasuryAddress.address)).toNumber();
 
-//                     // Operation - set forceRewardFromTransfer to TRUE
+//                     // Operation  - set forceRewardFromTransfer to TRUE
 //                     const firstToggleOperation      = await farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send();
 //                     await firstToggleOperation.confirmation();
 
 //                     // Updated values
-//                     await signerFactory(bob.sk);
 //                     farmStorage                     = await farmInstance.storage();
 //                     const toggleTransferFirstUpdate = farmStorage.config.forceRewardFromTransfer;
 
@@ -1020,18 +1537,16 @@
 //                     await claimOperation.confirmation();
 
 //                     // Updated values
-//                     await signerFactory(bob.sk);
 //                     mvkTokenStorage                     = await mvkTokenInstance.storage();
 //                     const mvkTotalSupplySecondUpdate    = mvkTokenStorage.totalSupply.toNumber();
 //                     const smvkTotalSupplySecondUpdate   = (await mvkTokenStorage.ledger.get(doormanAddress.address)).toNumber();
 //                     const treasurySecondUpdate          = (await mvkTokenStorage.ledger.get(treasuryAddress.address)).toNumber();
 
-//                     // Toggle back to mint  
+//                     // Toggle back to mint 
 //                     const secondToggleOperation = await farmInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
 //                     await secondToggleOperation.confirmation();
 
 //                     // Updated values
-//                     await signerFactory(bob.sk);
 //                     farmStorage = await farmInstance.storage();
 //                     const toggleTransferSecondUpdate = farmStorage.config.forceRewardFromTransfer;
 
@@ -1059,18 +1574,18 @@
 //                     assert.notEqual(smvkTotalSupplyFirstUpdate,smvkTotalSupplySecondUpdate);
 //                     assert.notEqual(smvkTotalSupplySecondUpdate,smvkTotalSupplyThirdUpdate);
 
-//                     console.log("MVK total supply at beginning: ",mvkTotalSupply)
-//                     console.log("MVK total supply after first mint: ",mvkTotalSupplyFirstUpdate)
-//                     console.log("MVK total supply after transfer: ",mvkTotalSupplySecondUpdate)
-//                     console.log("MVK total supply after second mint: ",mvkTotalSupplyThirdUpdate)
-//                     console.log("Transfer forced after first toggling: ",toggleTransferFirstUpdate)
-//                     console.log("Transfer forced after second toggling: ",toggleTransferSecondUpdate)
-//                     console.log("SMVK total supply after first mint: ", smvkTotalSupplyFirstUpdate)
-//                     console.log("SMVK total supply after transfer: ", smvkTotalSupplySecondUpdate)
-//                     console.log("SMVK total supply after second mint: ", smvkTotalSupplyThirdUpdate)
-//                     console.log("Treasury after first mint: ",treasuryFirstUpdate)
-//                     console.log("Treasury after transfer: ",treasurySecondUpdate)
-//                     console.log("Treasury after second mint: ",treasuryThirdUpdate)
+//                     // console.log("MVK total supply at beginning: ",mvkTotalSupply)
+//                     // console.log("MVK total supply after first mint: ",mvkTotalSupplyFirstUpdate)
+//                     // console.log("MVK total supply after transfer: ",mvkTotalSupplySecondUpdate)
+//                     // console.log("MVK total supply after second mint: ",mvkTotalSupplyThirdUpdate)
+//                     // console.log("Transfer forced after first toggling: ",toggleTransferFirstUpdate)
+//                     // console.log("Transfer forced after second toggling: ",toggleTransferSecondUpdate)
+//                     // console.log("SMVK total supply after first mint: ", smvkTotalSupplyFirstUpdate)
+//                     // console.log("SMVK total supply after transfer: ", smvkTotalSupplySecondUpdate)
+//                     // console.log("SMVK total supply after second mint: ", smvkTotalSupplyThirdUpdate)
+//                     // console.log("Treasury after first mint: ",treasuryFirstUpdate)
+//                     // console.log("Treasury after transfer: ",treasurySecondUpdate)
+//                     // console.log("Treasury after second mint: ",treasuryThirdUpdate)
 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -1205,16 +1720,20 @@
 //                     lpTokenStorage          = await lpTokenInstance.storage();
 //                     farmStorage             = await farmInstance.storage();
 //                     const farmOpen          = farmStorage.open;
-//                     const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress.address);
 //                     const amountToDeposit   = 1;
 
 //                     // Approval operation
-//                     if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-//                         const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-//                         const approveOperation  = await lpTokenInstance.methods.approve(farmAddress.address,approvals).send();
-//                         await approveOperation.confirmation();
-//                     }
+//                     await signerFactory(bob.sk);
+//                     const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
+//                         {
+//                             add_operator: {
+//                                 owner: bob.pkh,
+//                                 operator: farmAddress.address,
+//                                 token_id: 0,
+//                             },
+//                         }])
+//                     .send()
+//                     await updateOperatorsOperation.confirmation();
                     
 //                     // Operation
 //                     await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
@@ -1239,14 +1758,14 @@
 //                     const farmOpen              = farmStorage.open;
                     
 //                     // Operation
-//                     await wait(4 * blockTime * 1000);
+//                     await wait(10 * blockTime * 1000);
 //                     const claimOperation        = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 
 //                     // Final values
 //                     doormanStorage              = await doormanInstance.storage();
 //                     const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//                     const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
+//                     const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
 
 //                     // Assertions
 //                     assert.equal(farmOpen, false);
@@ -1259,13 +1778,13 @@
 
 //             it('User should not see any increase in rewards even if it still has LP Token deposited in the farm', async () => {
 //                 try{
-//                     // Initial values
+
 //                     await signerFactory(alice.sk);
 //                     farmStorage                 = await farmInstance.storage();
 //                     lpTokenStorage              = await lpTokenInstance.storage();
                     
 //                     const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
-//                     const lpBalance             = lpLedgerStart.balance.toNumber();
+//                     const lpBalance             = lpLedgerStart.toNumber();
 //                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
 //                     const farmOpen                  = farmStorage.open;
@@ -1315,6 +1834,7 @@
 
 //                     assert.notEqual(lpBalance, 0);
 
+
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 } 
@@ -1327,7 +1847,7 @@
 //                     farmStorage                 = await farmInstance.storage();
 //                     lpTokenStorage              = await lpTokenInstance.storage();
 //                     const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
-//                     const lpBalance             = lpLedgerStart.balance.toNumber();
+//                     const lpBalance             = lpLedgerStart === undefined ? 0 : lpLedgerStart.toNumber();
 //                     const amountToWithdraw      = 1;
 //                     const farmOpen              = farmStorage.open;
                     
@@ -1338,7 +1858,7 @@
 //                     // Final values
 //                     lpTokenStorage              = await lpTokenInstance.storage();
 //                     const lpLedgerStartEnd      = await lpTokenStorage.ledger.get(alice.pkh);
-//                     const lpBalanceEnd          = lpLedgerStartEnd.balance.toNumber();
+//                     const lpBalanceEnd          = lpLedgerStartEnd.balance;
 
 //                     // Assertions
 //                     assert.equal(farmOpen, false);
