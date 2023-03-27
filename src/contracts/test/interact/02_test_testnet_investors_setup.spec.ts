@@ -41,7 +41,6 @@ import farmAddress from '../../deployments/farmAddress.json';
 import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
 import aggregatorAddress from '../../deployments/aggregatorAddress.json';
 import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
-import tokenSaleAddress from '../../deployments/tokenSaleAddress.json';
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
 import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json';
@@ -67,7 +66,6 @@ describe("Testnet setup helper", async () => {
     let governanceSatelliteInstance;
     let aggregatorInstance;
     let aggregatorFactoryInstance;
-    let tokenSaleInstance;
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
     let vaultInstance;
@@ -92,7 +90,6 @@ describe("Testnet setup helper", async () => {
     let governanceSatelliteStorage;
     let aggregatorStorage;
     let aggregatorFactoryStorage;
-    let tokenSaleStorage;
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
     let vaultStorage;
@@ -127,7 +124,6 @@ describe("Testnet setup helper", async () => {
             governanceSatelliteInstance             = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             aggregatorInstance                      = await utils.tezos.contract.at(aggregatorAddress.address);
             aggregatorFactoryInstance               = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
-            tokenSaleInstance                       = await utils.tezos.contract.at(tokenSaleAddress.address);
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
@@ -151,7 +147,6 @@ describe("Testnet setup helper", async () => {
             governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
             aggregatorStorage                       = await aggregatorInstance.storage();
             aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
-            tokenSaleStorage                        = await tokenSaleInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
@@ -172,7 +167,6 @@ describe("Testnet setup helper", async () => {
             console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
             console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
             console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
-            console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
             console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
