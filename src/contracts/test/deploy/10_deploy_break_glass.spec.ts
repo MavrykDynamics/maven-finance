@@ -13,8 +13,7 @@ import { bob, alice, eve } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -53,8 +52,8 @@ describe('Break Glass', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            breakGlassStorage.governanceAddress = governanceAddress.address
-            breakGlassStorage.mvkTokenAddress  = mvkTokenAddress.address
+            breakGlassStorage.governanceAddress = contractDeployments.governance.address
+            breakGlassStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
         
             breakGlassStorage.councilMembers.set(bob.pkh, {
                 name: "Bob",

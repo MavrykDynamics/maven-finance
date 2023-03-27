@@ -14,9 +14,7 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
-import doormanAddress from '../../deployments/doormanAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -54,10 +52,10 @@ describe('Delegation', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            delegationStorage.governanceAddress = governanceAddress.address
-            delegationStorage.mvkTokenAddress   = mvkTokenAddress.address
+            delegationStorage.governanceAddress = contractDeployments.governance.address
+            delegationStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
             delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                doorman: doormanAddress.address,
+                doorman: contractDeployments.doorman.address,
             })
             delegation = await GeneralContract.originate(utils.tezos, "delegation", delegationStorage);
             await saveContractAddress('delegationAddress', delegation.contract.address)

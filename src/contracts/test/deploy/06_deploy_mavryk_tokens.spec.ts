@@ -12,7 +12,7 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -47,11 +47,11 @@ describe('Mavryk Token', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            mavrykFa12TokenStorage.governanceAddress  = governanceAddress.address;
+            mavrykFa12TokenStorage.governanceAddress  = contractDeployments.governance.address;
             mavrykFa12Token = await GeneralContract.originate(utils.tezos, "mavrykFa12Token", mavrykFa12TokenStorage);
             await saveContractAddress('mavrykFa12TokenAddress', mavrykFa12Token.contract.address)
         
-            mavrykFa2TokenStorage.governanceAddress  = governanceAddress.address;
+            mavrykFa2TokenStorage.governanceAddress  = contractDeployments.governance.address;
             mavrykFa2Token = await GeneralContract.originate(utils.tezos, "mavrykFa2Token", mavrykFa2TokenStorage);
             await saveContractAddress('mavrykFa2TokenAddress', mavrykFa2Token.contract.address)
 
