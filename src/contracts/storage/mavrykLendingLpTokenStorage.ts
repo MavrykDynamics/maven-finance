@@ -1,9 +1,9 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
-import { Buffer } from "buffer";
-import { zeroAddress } from "../test/helpers/Utils";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
+import { Buffer } from "buffer"
+import { zeroAddress } from "../test/helpers/Utils"
 import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
-import { mavrykLendingLpTokenStorageType } from "./storageTypes/mavrykLendingLpTokenStorageType";
+import { mavrykLendingLpTokenStorageType } from "./storageTypes/mavrykLendingLpTokenStorageType"
 
 const totalSupply      = 20000000000;
 const initialSupply    = new BigNumber(totalSupply); // 20,000 MOCK FA2 Tokens in mu (10^6)

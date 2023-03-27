@@ -1,13 +1,10 @@
-import { Utils } from "../helpers/Utils";
-const { InMemorySigner } = require("@taquito/signer");
+import { Utils } from "../helpers/Utils"
 const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
-
-import { bob } from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -20,6 +17,8 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { GeneralContract, setGeneralContractLambdas, setGeneralContractProductLambdas }  from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -36,11 +35,6 @@ describe('Vault Factory', async () => {
     var tezos
     var utils: Utils
     var vaultFactory
-
-    const signerFactory = async (pk) => {
-        await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-        return tezos
-    }
 
     before('setup', async () => {
         try{
@@ -62,7 +56,7 @@ describe('Vault Factory', async () => {
             //----------------------------
 
             tezos = vaultFactory.tezos
-            await signerFactory(bob.sk);
+            await helperFunctions.signerFactory(tezos, bob.sk);
         
             // Set Lambdas
             await setGeneralContractLambdas(tezos, "vaultFactory", vaultFactory.contract);
