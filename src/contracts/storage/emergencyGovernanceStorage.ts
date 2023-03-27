@@ -1,7 +1,7 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 import { bob } from '../scripts/sandbox/accounts'
-import { MVK, zeroAddress } from "../test/helpers/Utils";
+import { MVK, zeroAddress } from "../test/helpers/Utils"
 import { emergencyGovernanceStorageType } from './storageTypes/emergencyGovernanceStorageType'
 
 const config = {

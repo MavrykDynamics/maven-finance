@@ -17,13 +17,16 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, eve, mallory, alice, oscar } from "../../scripts/sandbox/accounts";
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
 // ------------------------------------------------------------------------------
 
 describe("Testnet setup helper", async () => {
-    var utils: Utils;
+    
+    var utils: Utils
+    var tezos
 
     let doormanInstance;
     let delegationInstance;
@@ -72,16 +75,12 @@ describe("Testnet setup helper", async () => {
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
-    
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
 
     before("setup", async () => {
         try{
             utils = new Utils();
             await utils.init(bob.sk);
+            tezos = utils.tezos;
             
             doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -157,13 +156,13 @@ describe("Testnet setup helper", async () => {
     describe("INVESTOR ENVIRONMENT SETUP", async () => {
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
         it('Creation of 5 Satellites', async () => {
             try{
                 // Bob Satellite
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 var updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
@@ -189,8 +188,8 @@ describe("Testnet setup helper", async () => {
                 ).send();
                 await registerOperation.confirmation();
 
-                // Eve Satellite
-                await signerFactory(eve.sk);
+                // // Eve Satellite
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
@@ -217,7 +216,7 @@ describe("Testnet setup helper", async () => {
                 await registerOperation.confirmation();
 
                 // Mallory Satellite
-                await signerFactory(mallory.sk);
+                await helperFunctions.signerFactory(tezos, mallory.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
@@ -244,7 +243,7 @@ describe("Testnet setup helper", async () => {
                 await registerOperation.confirmation();
 
                 // Alice Satellite
-                await signerFactory(alice.sk);
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
@@ -271,7 +270,7 @@ describe("Testnet setup helper", async () => {
                 await registerOperation.confirmation();
 
                 // Oscar Satellite
-                await signerFactory(oscar.sk);
+                await helperFunctions.signerFactory(tezos, oscar.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {

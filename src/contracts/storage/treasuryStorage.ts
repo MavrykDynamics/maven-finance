@@ -1,6 +1,6 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from "@taquito/michelson-encoder"
 import { bob } from '../scripts/sandbox/accounts'
-import { treasuryStorageType } from "./storageTypes/treasuryStorageType";
+import { treasuryStorageType } from "./storageTypes/treasuryStorageType"
 
 const config = {
     minMvkAmount            : 0,

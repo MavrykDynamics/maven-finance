@@ -1,8 +1,8 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
 import { bob } from '../scripts/sandbox/accounts'
-import { MVK } from "../test/helpers/Utils";
-import { doormanStorageType } from "./storageTypes/doormanStorageType";
+import { MVK } from "../test/helpers/Utils"
+import { doormanStorageType } from "./storageTypes/doormanStorageType"
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),

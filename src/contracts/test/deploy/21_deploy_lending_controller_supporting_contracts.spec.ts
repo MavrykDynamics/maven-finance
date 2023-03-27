@@ -1,16 +1,12 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-import { BigNumber } from "bignumber.js";
-
-import { Utils } from "../helpers/Utils";
-
+import { BigNumber } from "bignumber.js"
+import { Utils } from "../helpers/Utils"
 const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
-
-import { bob, eve, mallory, oscar } from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -22,7 +18,8 @@ import contractDeployments from '../contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GeneralContract, setGeneralContractLambdas }  from '../helpers/deploymentTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob, eve, mallory } from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
