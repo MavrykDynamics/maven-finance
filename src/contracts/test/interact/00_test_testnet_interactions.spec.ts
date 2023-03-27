@@ -1575,6 +1575,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await treasuryFactoryInstance.methods.createTreasury(
+                    null,
                     "treasuryInteraction",
                     true,
                     treasuryMetadataBase
@@ -1628,6 +1629,16 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await treasuryInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets baker', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.setBaker(null).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4466,6 +4477,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors
     //             ).send();
     //             await operation.confirmation();
@@ -4491,6 +4503,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors              // depositors type
     //             ).send();
     //             await createVaultOperation.confirmation();
@@ -5174,6 +5187,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await operation.confirmation();
@@ -5199,6 +5213,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await createVaultOperation.confirmation();
@@ -5824,6 +5839,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     "whitelist",
                     whitelistedUsers
                 ).send();

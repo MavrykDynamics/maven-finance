@@ -38,6 +38,14 @@
 
   - Table added
 
+- Treasury
+
+  - Column Baker added
+
+- Vault
+
+  - Column Baker added
+
 ### Breaking changes
 
 - GovernanceProxyProxyLambda

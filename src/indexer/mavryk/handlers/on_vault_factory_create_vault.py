@@ -16,6 +16,7 @@ async def on_vault_factory_create_vault(
 
     # Get operation info
     vault_factory_address   = create_vault.data.target_address
+    baker_address           = create_vault.parameter.baker
     vault_address           = vault_origination.data.originated_contract_address
     timestamp               = vault_origination.data.timestamp
     admin                   = vault_origination.storage.admin
@@ -69,6 +70,13 @@ async def on_vault_factory_create_vault(
         vault.allowance             = allowance_type
         vault.creation_timestamp    = timestamp
         vault.last_updated_at       = timestamp
+
+        # Create a baker or not
+        if baker_address:
+            baker       = await models.mavryk_user_cache.get(address=baker_address)
+            vault.baker = baker
+
+        # Save vault
         await vault.save()
 
         # Register depositors
