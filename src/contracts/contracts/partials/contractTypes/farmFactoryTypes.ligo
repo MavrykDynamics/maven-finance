@@ -80,9 +80,9 @@ type farmTypeType is
     |   MFarm   of unit
 
 type setFarmLambdaType is [@layout:comb] record [
-    farmType              : farmTypeType;
     name                  : string;
     func_bytes            : bytes;
+    farmType              : farmTypeType;
 ]
 
 // ------------------------------------------------------------------------------
