@@ -1,51 +1,51 @@
 {
     "mvkToken": {
-        "address": "KT1T77rKhaRRvKQCdra3YWr9bsZbpWxAqJCa"
+        "address": "KT1CvJvb3jVoMijcRdSDoEqJkrqG1bL829mD"
     },
     "governance": {
-        "address": "KT1G6VedGFMuTVmhcEj8PMa5XNnbEsjHpzSY"
+        "address": "KT1TysT5ETnJ9XzEGPEt6q8UjqzeLU3DTYrM"
     },
     "doorman": {
-        "address": "KT1EucNbK6qAYvgTyNJeWSHSWaSSVhx5ekDd"
+        "address": "KT1BgriZKN1h67JZXCznjQ6xLEmVRFaT3Lmc"
     },
     "delegation": {
-        "address": "KT1HdqwtjrLvGGKF1enJ8H8YQfSHXXFjFwkc"
+        "address": "KT1RVY1CfwKvmsz4iEYYnUqtxRa46ebaqghJ"
     },
     "emergencyGovernance": {
-        "address": "KT1VxipqtY4qoE48XWX7FvWiHbcZJ2M7522j"
+        "address": "KT1MUTzxrUdgg6J21B439m6B4BtkA36t1rsg"
     },
     "vesting": {
-        "address": "KT1BfpdcPYN8LErXsKEMiBB4GzSkgq1Go5k7"
+        "address": "KT19fs3PKeKgW5QocbRpju4hYxkGTirh42dm"
     },
     "mavrykFa12Token": {
-        "address": "KT1H2JzRsaJojCpJ48KuZEn69Lnp5aEkawMu"
+        "address": "KT1NvQWpQJikn2Tj2WAAqdGyvNnNfDK7TZeM"
     },
     "mavrykFa2Token": {
-        "address": "KT1XaiLbQm3Y6vvcCdMEBMv3emGECxNPZ3xs"
+        "address": "KT1UM7rkxL4LNpyBneQVhZtRNUAsekYrD7h5"
     },
     "farm": {
-        "address": "KT19p5LzzNq1EyH8HSiQ8n7Ps5KY48ehDisi"
+        "address": "KT19Xm8m3AyWDWqqhHBm6JjMWYicGyUpPr1R"
     },
     "farmFa2": {
-        "address": "KT1PfDwnx1somoFwafmvnzsXdWUcbU3aMziT"
+        "address": "KT1LYVySgoCBcggn15JX73G8ukGMbtHLdJJt"
     },
     "farmFactory": {
-        "address": "KT1GVy1gbZj4AdvU4nhJ6XSdPiCU5f7agsUw"
+        "address": "KT1NdpSi1NRvNicoFJYVSpg3Qmb4uBqZ6658"
     },
     "council": {
-        "address": "KT1EgrtGQKmESmB2WQkAQgx5rc4DMVDXuHpx"
+        "address": "KT1MpQLNYtu4joHv3DUXaWNRFwgtTmhg6SSj"
     },
     "breakGlass": {
-        "address": "KT1DUnGDwLDQWMopPvHTY6DkzSZNyR9AnePg"
+        "address": "KT1Ssou8nk8TSDTvoyxJEKBVHf8Ls6996S2n"
     },
     "governanceFinancial": {
-        "address": "KT1NsMAfANbFwiTLGXfZChFtugpXHeqjCyQc"
+        "address": "KT1G86bEUrbjSMfRRW7EEJG8VaYnfArxUBga"
     },
     "treasury": {
-        "address": "KT1GzSFDMbYAVjysiCenb95MrtpjAfUwcCV8"
+        "address": "KT19tVG7CHzbVnXiKhgtJQacZVex8Kqh1s6G"
     },
     "treasuryFactory": {
-        "address": "KT19ZTvr32Gb4say3uEhYz3rY6ZVVgd2YqFz"
+        "address": "KT1PLWBqeJkzjvA5f67BFCdXtnAWhJzQ1Kfe"
     },
     "governanceProxy": {
         "address": "KT1XfG75sAAZxuAWbYXrbfywJuovNXib3DV5"

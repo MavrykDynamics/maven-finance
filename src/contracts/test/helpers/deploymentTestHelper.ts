@@ -15,32 +15,32 @@ import { confirmOperation } from "../../scripts/confirmation"
 import { OnChainView } from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view"
 
 // Contracts Storage Type
-import { governanceStorageType }                from "../types/governanceStorageType"
-import { governanceProxyStorageType }           from "../types/governanceProxyStorageType"
-import { governanceFinancialStorageType }       from "../types/governanceFinancialStorageType"
-import { governanceSatelliteStorageType }       from "../types/governanceSatelliteStorageType"
-import { doormanStorageType }                   from "../types/doormanStorageType"
-import { delegationStorageType }                from "../types/delegationStorageType"
-import { emergencyGovernanceStorageType }       from "../types/emergencyGovernanceStorageType"
-import { vestingStorageType }                   from "../types/vestingStorageType"
-import { councilStorageType }                   from "../types/councilStorageType"
-import { breakGlassStorageType }                from "../types/breakGlassStorageType"
-import { aggregatorStorageType }                from "../types/aggregatorStorageType"
-import { aggregatorFactoryStorageType }         from "../types/aggregatorFactoryStorageType"
-import { farmStorageType }                      from "../types/farmStorageType"
-import { farmFactoryStorageType }               from "../types/farmFactoryStorageType"
-import { treasuryStorageType }                  from "../types/treasuryStorageType"
-import { treasuryFactoryStorageType }           from "../types/treasuryFactoryStorageType"
-import { vaultStorageType }                     from "../types/vaultStorageType"
-import { vaultFactoryStorageType }              from "../types/vaultFactoryStorageType"
-import { lendingControllerStorageType }         from "../types/lendingControllerStorageType"
-import { lendingControllerMockTimeStorageType } from "../types/lendingControllerMockTimeStorageType"
+import { governanceStorageType }                from "../../storage/storageTypes/governanceStorageType"
+import { governanceProxyStorageType }           from "../../storage/storageTypes/governanceProxyStorageType"
+import { governanceFinancialStorageType }       from "../../storage/storageTypes/governanceFinancialStorageType"
+import { governanceSatelliteStorageType }       from "../../storage/storageTypes/governanceSatelliteStorageType"
+import { doormanStorageType }                   from "../../storage/storageTypes/doormanStorageType"
+import { delegationStorageType }                from "../../storage/storageTypes/delegationStorageType"
+import { emergencyGovernanceStorageType }       from "../../storage/storageTypes/emergencyGovernanceStorageType"
+import { vestingStorageType }                   from "../../storage/storageTypes/vestingStorageType"
+import { councilStorageType }                   from "../../storage/storageTypes/councilStorageType"
+import { breakGlassStorageType }                from "../../storage/storageTypes/breakGlassStorageType"
+import { aggregatorStorageType }                from "../../storage/storageTypes/aggregatorStorageType"
+import { aggregatorFactoryStorageType }         from "../../storage/storageTypes/aggregatorFactoryStorageType"
+import { farmStorageType }                      from "../../storage/storageTypes/farmStorageType"
+import { farmFactoryStorageType }               from "../../storage/storageTypes/farmFactoryStorageType"
+import { treasuryStorageType }                  from "../../storage/storageTypes/treasuryStorageType"
+import { treasuryFactoryStorageType }           from "../../storage/storageTypes/treasuryFactoryStorageType"
+import { vaultStorageType }                     from "../../storage/storageTypes/vaultStorageType"
+import { vaultFactoryStorageType }              from "../../storage/storageTypes/vaultFactoryStorageType"
+import { lendingControllerStorageType }         from "../../storage/storageTypes/lendingControllerStorageType"
+import { lendingControllerMockTimeStorageType } from "../../storage/storageTypes/lendingControllerMockTimeStorageType"
 
 // Token Storage Type
-import { mvkTokenStorageType }                  from "../types/mvkTokenStorageType"
-import { mavrykFa2TokenStorageType }            from "../types/mavrykFa2TokenStorageType";
-import { mavrykFa12TokenStorageType }           from "../types/mavrykFa12TokenStorageType";
-import { mTokenStorageType }                    from "../types/mTokenStorageType";
+import { mvkTokenStorageType }                  from "../../storage/storageTypes/mvkTokenStorageType"
+import { mavrykFa2TokenStorageType }            from "../../storage/storageTypes/mavrykFa2TokenStorageType";
+import { mavrykFa12TokenStorageType }           from "../../storage/storageTypes/mavrykFa12TokenStorageType";
+import { mTokenStorageType }                    from "../../storage/storageTypes/mTokenStorageType";
 
 // Contract Lambdas
 import governanceLambdas                        from "../../build/lambdas/governanceLambdas.json"

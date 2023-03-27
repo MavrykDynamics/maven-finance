@@ -1,11 +1,8 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
-
-const { bob, alice } = require('../scripts/sandbox/accounts')
-
+import { bob } from '../scripts/sandbox/accounts'
 import { zeroAddress } from '../test/helpers/Utils'
-
-import { governanceFinancialStorageType } from '../test/types/governanceFinancialStorageType'
+import { governanceFinancialStorageType } from './storageTypes/governanceFinancialStorageType'
 
 const config = {
     financialRequestApprovalPercentage  : 6700,
