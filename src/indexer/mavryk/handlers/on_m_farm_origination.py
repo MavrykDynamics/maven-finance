@@ -4,6 +4,7 @@ from ..utils.persisters import persist_token_metadata
 from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.m_farm.storage import MFarmStorage
 import mavryk.models as models
+import json
 
 async def on_m_farm_origination(
     ctx: HandlerContext,

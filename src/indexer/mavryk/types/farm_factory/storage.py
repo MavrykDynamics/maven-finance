@@ -41,3 +41,4 @@ class FarmFactoryStorage(BaseModel):
     trackedFarms: List[str]
     lambdaLedger: Dict[str, str]
     farmLambdaLedger: Dict[str, str]
+    mFarmLambdaLedger: Dict[str, str]

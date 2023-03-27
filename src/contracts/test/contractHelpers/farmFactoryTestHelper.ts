@@ -90,7 +90,7 @@ export const setFarmFactoryProductLambdas = async (tezosToolkit: TezosToolkit, c
 
     for (let lambdaName in farmLambdas) {
         let bytes   = farmLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setProductLambda("farm", lambdaName, bytes))
+        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes, "farm"))
     }
 
     const op = await batch.send()
@@ -104,7 +104,7 @@ export const setFarmFactoryMFarmProductLambdas = async (tezosToolkit: TezosToolk
 
     for (let lambdaName in farmMTokenLambdas) {
         let bytes   = farmMTokenLambdas[lambdaName]
-        batch.withContractCall(contract.methods.setProductLambda("mFarm", lambdaName, bytes))
+        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes, "mFarm"))
     }
 
     const op = await batch.send()

@@ -34,6 +34,10 @@
 
   - Column TokenRewardIndex added
 
+- FarmFactoryMFarmLambda
+
+  - Table added
+
 ### Breaking changes
 
 - GovernanceProxyProxyLambda
@@ -51,6 +55,22 @@
 - GovernanceProxyWhitelistTokenContract
 
   - Table removed
+
+- AggregatorFactoryProductLambda
+
+  - Table renamed to AggregatorFactoryAggregatorLambda
+
+- FarmFactoryProductLambda
+
+  - Table renamed to FarmFactoryFarmLambda
+
+- TreasuryFactoryProductLambda
+
+  - Table renamed to TreasuryFactoryTreasuryLambda
+
+- VaultFactoryProductLambda
+
+  - Table renamed to VaultFactoryVaultLambda
 
 <details><summary>Previous versions</summary>
 
