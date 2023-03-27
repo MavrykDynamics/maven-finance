@@ -1,12 +1,7 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
-
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { zeroAddress } from '../test/helpers/Utils'
-
-import { vestingStorageType } from '../test/types/vestingStorageType'
+import { bob } from '../scripts/sandbox/accounts'
+import { vestingStorageType } from './storageTypes/vestingStorageType'
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),

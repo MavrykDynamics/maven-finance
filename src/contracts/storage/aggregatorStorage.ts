@@ -1,12 +1,9 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
+import { bob } from '../scripts/sandbox/accounts'
+import { zeroAddress } from '../test/helpers/Utils'
+import { aggregatorStorageType } from './storageTypes/aggregatorStorageType'
 
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
-
-import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-import governanceAddress from '../deployments/governanceAddress.json';
 
 const breakGlassConfig = {
     updateDataIsPaused                 : false,
@@ -37,14 +34,7 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
 })
 
-// const oraclesMap = {};
-
-// for (const oracle of oracles) {
-//     oraclesMap[oracle.pkh] = true
-// }
-
 const oracleLedger = MichelsonMap.fromLiteral({});
-
 
 const lastCompletedData = {
     round                   : new BigNumber(0),
@@ -62,8 +52,8 @@ export const aggregatorStorage: aggregatorStorageType = {
     config                    : config,
     breakGlassConfig          : breakGlassConfig,
     
-    mvkTokenAddress           : mvkTokenAddress.address,
-    governanceAddress         : governanceAddress.address,
+    mvkTokenAddress           : zeroAddress,
+    governanceAddress         : zeroAddress,
 
     whitelistContracts        : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),
