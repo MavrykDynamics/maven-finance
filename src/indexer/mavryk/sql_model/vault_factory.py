@@ -19,11 +19,11 @@ class VaultFactoryLambda(ContractLambda, Model):
     class Meta:
         table = 'vault_factory_lambda'
 
-class VaultFactoryProductLambda(ContractLambda, Model):
-    contract                                = fields.ForeignKeyField('models.VaultFactory', related_name='product_lambdas')
+class VaultFactoryVaultLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.VaultFactory', related_name='vault_lambdas')
 
     class Meta:
-        table = 'vault_factory_product_lambda'
+        table = 'vault_factory_vault_lambda'
 
 class VaultFactoryGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.VaultFactory', related_name='general_contracts')
