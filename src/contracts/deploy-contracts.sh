@@ -25,8 +25,9 @@ ts-mocha --paths test/deploy/16*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/17*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/18*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/19*.spec.ts --bail --timeout 9000000 && \
-ts-mocha --paths test/deploy/20*.spec.ts --bail --timeout 9000000 && \
+# ts-mocha --paths test/deploy/20*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/21*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/22*.spec.ts --bail --timeout 9000000 && \
+ts-mocha --paths test/deploy/23*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/x1*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/x2*.spec.ts --bail --timeout 9000000

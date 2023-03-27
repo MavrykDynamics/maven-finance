@@ -25,6 +25,9 @@
 // Farm Types
 #include "../partials/contractTypes/farmTypes.ligo"
 
+// Farm mToken Types
+#include "../partials/contractTypes/farmMTokenTypes.ligo"
+
 // FarmFactory Types
 #include "../partials/contractTypes/farmFactoryTypes.ligo"
 
@@ -40,6 +43,16 @@ const createFarmFunc: createFarmFuncType =
         ;
           PAIR } |}
 : createFarmFuncType)];
+
+
+type createFarmMTokenFuncType is (option(key_hash) * tez * farmMTokenStorageType) -> (operation * address)
+const createFarmMTokenFunc: createFarmMTokenFuncType =
+[%Michelson ( {| { UNPPAIIR ;
+                  CREATE_CONTRACT
+#include "../compiled/farmMToken.tz"
+        ;
+          PAIR } |}
+: createFarmMTokenFuncType)];
 
 // ------------------------------------------------------------------------------
 
@@ -61,12 +74,13 @@ type farmFactoryAction is
 
         // Farm Factory Entrypoints
     |   CreateFarm                  of createFarmType
+    |   CreateFarmMToken            of createFarmMTokenType
     |   TrackFarm                   of (address)
     |   UntrackFarm                 of (address)
 
         // Lambda Entrypoints
     |   SetLambda                   of setLambdaType
-    |   SetProductLambda            of setLambdaType
+    |   SetProductLambda            of setFarmLambdaType
 
 
 type return is list (operation) * farmFactoryStorageType
@@ -133,6 +147,7 @@ block{
 
             // Farm Factory Entrypoints
         |   CreateFarm (params)                     -> createFarm(params, s)
+        |   CreateFarmMToken (params)               -> createFarmMToken(params, s)
         |   TrackFarm (params)                      -> trackFarm(params, s)
         |   UntrackFarm (params)                    -> untrackFarm(params, s)
 

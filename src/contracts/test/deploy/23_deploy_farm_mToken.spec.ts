@@ -1,7 +1,6 @@
 const { InMemorySigner } = require("@taquito/signer");
 import { Utils } from "../helpers/Utils";
 const saveContractAddress = require("../../helpers/saveContractAddress")
-const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -16,29 +15,29 @@ import { bob } from '../../scripts/sandbox/accounts'
 
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 import governanceAddress from '../../deployments/governanceAddress.json';
+import mTokenUsdtAddress from '../../deployments/mTokenUsdtAddress.json';
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas, setFarmFactoryMFarmProductLambdas } from "../contractHelpers/farmFactoryTestHelper"
+import { FarmMToken, setFarmMTokenLambdas } from "../contractHelpers/farmMTokenTestHelper"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
+import { farmMTokenStorage } from "../../storage/farmMTokenStorage";
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('Farm Factory', async () => {
+describe('Farms mToken', async () => {
   
   var utils: Utils
-  var farmFactory: FarmFactory;
+  var farmMToken: FarmMToken;
   var tezos
-  
 
   const signerFactory = async (pk) => {
     await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -53,36 +52,32 @@ describe('Farm Factory', async () => {
       //----------------------------
       // Originate and deploy contracts
       //----------------------------
-  
-      farmFactoryStorage.governanceAddress = governanceAddress.address
-      farmFactoryStorage.mvkTokenAddress  = mvkTokenAddress.address
-      farmFactory = await FarmFactory.originate(
+
+      // Deploy Farm mToken
+
+      farmMTokenStorage.governanceAddress           = governanceAddress.address;
+      farmMTokenStorage.mvkTokenAddress             = mvkTokenAddress.address;
+      farmMTokenStorage.config.loanToken            = "usdt";
+      farmMTokenStorage.config.lpToken.tokenAddress = mTokenUsdtAddress.address;
+      
+      farmMToken = await FarmMToken.originate(
         utils.tezos,
-        farmFactoryStorage
+        farmMTokenStorage
       );
   
-      await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
-      console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
-
-      /* ---- ---- ---- ---- ---- */
+      await saveContractAddress("farmMTokenAddress", farmMToken.contract.address)
+      console.log("Farm mToken USDT Contract deployed at:", farmMToken.contract.address);
   
-      tezos = farmFactory.tezos
+  
+      tezos = farmMToken.tezos
   
       // Set Lambdas
   
       await signerFactory(bob.sk);
 
-      // Farm Factory Setup Lambdas
-      await setFarmFactoryLambdas(tezos, farmFactory.contract)
-      console.log("Farm Factory Lambdas Setup")
-
-      // Farm Factory Setup Product Lambdas - Standard Farm Lambdas
-      await setFarmFactoryProductLambdas(tezos, farmFactory.contract)
-      console.log("Farm Factory Product (Farm) Lambdas Setup")
-
-      // Farm Factory Setup Product Lambdas - mFarm Lambdas
-      await setFarmFactoryMFarmProductLambdas(tezos, farmFactory.contract)
-      console.log("Farm Factory Product (Farm mToken) Lambdas Setup")
+      // Farm FA12 Setup Lambdas
+      await setFarmMTokenLambdas(tezos, farmMToken.contract)
+      console.log("Farm mToken USDT Lambdas Setup")
 
     } catch(e){
       console.dir(e, {depth: 5})
@@ -90,7 +85,7 @@ describe('Farm Factory', async () => {
 
   })
 
-  it(`farm factory contract deployed`, async () => {
+  it(`farm mToken contract deployed`, async () => {
     try {
       console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
     } catch (e) {

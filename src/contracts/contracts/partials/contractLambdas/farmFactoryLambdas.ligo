@@ -179,6 +179,9 @@ block {
                 if s.breakGlassConfig.createFarmIsPaused then skip
                 else s.breakGlassConfig.createFarmIsPaused := True;
 
+                if s.breakGlassConfig.createFarmMTokenIsPaused then skip
+                else s.breakGlassConfig.createFarmMTokenIsPaused := True;
+
                 if s.breakGlassConfig.trackFarmIsPaused then skip
                 else s.breakGlassConfig.trackFarmIsPaused := True;
 
@@ -222,6 +225,9 @@ block {
                 if s.breakGlassConfig.createFarmIsPaused then s.breakGlassConfig.createFarmIsPaused := False
                 else skip;
 
+                if s.breakGlassConfig.createFarmMTokenIsPaused then s.breakGlassConfig.createFarmMTokenIsPaused := False
+                else skip;
+
                 if s.breakGlassConfig.trackFarmIsPaused then s.breakGlassConfig.trackFarmIsPaused := False
                 else skip;
 
@@ -255,6 +261,7 @@ block {
 
                 case params.targetEntrypoint of [
                         CreateFarm (_v)           -> s.breakGlassConfig.createFarmIsPaused := _v
+                    |   CreateFarmMToken (_v)     -> s.breakGlassConfig.createFarmMTokenIsPaused := _v
                     |   UntrackFarm (_v)          -> s.breakGlassConfig.untrackFarmIsPaused := _v
                     |   TrackFarm (_v)            -> s.breakGlassConfig.trackFarmIsPaused := _v
                 ]
@@ -332,6 +339,70 @@ block{
                 else skip;
 
                 operations := farmOrigination.0 # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* createFarmMToken lambda *)
+function lambdaCreateFarmMToken(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is 
+block{
+
+    // Steps Overview:    
+    // 1. Check that sender is admin
+    // 2. Check that %createFarm entrypoint is not paused (e.g. glass broken)
+    // 3. Create Farm parameters
+    //      -   Validate inputs - Farm name does not exceed max length
+    //      -   Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
+    //      -   Init empty General Contracts map (local contract scope, to be used if necessary)
+    //      -   Create needed records for Farm contract
+    //      -   Init break glass config and farm config
+    //      -   Prepare Farm Metadata
+    //      -   Check whether the farm is infinite or its total blocks has been set
+    // 4. Create operation to originate new Farm
+    // 5. Add newly created Farm to tracked Farms
+    // 6. Add newly created Farm to the Governance Contract - General Contracts map
+
+    verifySenderIsAdmin(s.admin);   // verify that sender is admin
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.createFarmMTokenIsPaused, error_CREATE_FARM_M_TOKEN_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED);
+
+    var operations : list(operation) := nil;
+
+    case farmFactoryLambdaAction of [
+        |   LambdaCreateFarmMToken(createFarmMTokenParams) -> {
+
+                // Prepare new Farm mToken storage
+                const originatedFarmMTokenStorage : farmMTokenStorageType = prepareFarmMTokenStorage(createFarmMTokenParams, s);
+
+                // Create operation to originate Farm mToken
+                const farmMTokenOrigination : (operation * address) = createFarmMTokenFunc(
+                    (None: option(key_hash)), 
+                    0tez,
+                    originatedFarmMTokenStorage
+                );
+
+                // Add newly created Farm to tracked Farms
+                s.trackedFarms := trackFarm(farmMTokenOrigination.1, s);
+
+                // Add newly created Farm to the Governance Contract - General Contracts map
+                if createFarmMTokenParams.addToGeneralContracts then {
+
+                    // Create and send updateGeneralContractsMap operation to the Governance Contract
+                    const updateGeneralContractsOperation : operation = updateGeneralContractsOperation(
+                        createFarmMTokenParams.name,  // farm name
+                        farmMTokenOrigination.1,      // farm contract address
+                        s                             // storage
+                    );
+                    operations := updateGeneralContractsOperation # operations;
+
+                }
+                else skip;
+
+                operations := farmMTokenOrigination.0 # operations;
 
             }
         |   _ -> skip
