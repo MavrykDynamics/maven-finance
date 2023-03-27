@@ -1,12 +1,7 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
-
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { zeroAddress } from '../test/helpers/Utils'
-
-import { breakGlassStorageType } from '../test/types/breakGlassStorageType'
+import { bob } from '../scripts/sandbox/accounts'
+import { breakGlassStorageType } from './storageTypes/breakGlassStorageType'
 
 const config = {
     threshold                       : 3,

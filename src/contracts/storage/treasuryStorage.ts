@@ -1,12 +1,6 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-
-import { BigNumber } from "bignumber.js";
-
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { zeroAddress } from "../test/helpers/Utils";
-
-import { treasuryStorageType } from "../test/types/treasuryStorageType";
+import { bob } from '../scripts/sandbox/accounts'
+import { treasuryStorageType } from "./storageTypes/treasuryStorageType";
 
 const config = {
     minMvkAmount            : 0,
