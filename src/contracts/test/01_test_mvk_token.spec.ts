@@ -31,13 +31,6 @@ describe('MVK Token', async () => {
     let tokenInstance
     let tokenStorage
 
-    let bobTokenLedgerBase
-    let aliceTokenLedgerBase
-    let eveTokenLedgerBase
-    let malloryTokenLedgerBase
-
-    let totalSupplyBase
-
     // init variables
     let sender
     let receiver 
@@ -68,6 +61,10 @@ describe('MVK Token', async () => {
     let removeOperatorsOperation
     let setAdminOperation
     let resetAdminOperation
+    let mintOperation
+    let updateWhitelistContractsOperation
+    let updateWhitelistTokenContractsOperation
+    let updateGeneralContractsOperation
 
     before('setup', async () => {
         
@@ -78,25 +75,10 @@ describe('MVK Token', async () => {
         tokenInstance = await utils.tezos.contract.at(contractDeployments.mvkToken.address)
         tokenStorage  = await tokenInstance.storage()
 
-        // init variables
-
-        console.log('-- -- -- -- -- MVK Token Tests -- -- -- --')
-        console.log('Token Contract deployed at:', tokenInstance.address)
-        console.log('Bob address: ' + bob.pkh)
-        console.log('Alice address: ' + alice.pkh)
-        console.log('Eve address: ' + eve.pkh)
-        console.log('Mallory address: ' + mallory.pkh)
     })
 
     beforeEach('storage', async () => {
-
         tokenStorage            = await tokenInstance.storage()
-        bobTokenLedgerBase      = await tokenStorage.ledger.get(bob.pkh)
-        aliceTokenLedgerBase    = await tokenStorage.ledger.get(alice.pkh)
-        eveTokenLedgerBase      = await tokenStorage.ledger.get(eve.pkh)
-        malloryTokenLedgerBase  = await tokenStorage.ledger.get(mallory.pkh)
-        totalSupplyBase         = await tokenStorage.totalSupply
-
         await helperFunctions.signerFactory(tezos, bob.sk);
     })
 
@@ -300,11 +282,8 @@ describe('MVK Token', async () => {
                 updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
 
                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Bob shouldn't be able to send more than she has")
-                assert.equal(
-                    initialSenderTokenBalance.toNumber(),
-                    updatedSenderTokenBalance.toNumber(),
-                    "Bob MVK balance shouldn't have changed: " + updatedSenderTokenBalance + 'MVK',
-                )
+                assert.equal(updatedSenderTokenBalance.toNumber(), initialSenderTokenBalance.toNumber());
+
             }
         })
 
@@ -696,8 +675,7 @@ describe('MVK Token', async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
 
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                transferOperation = await tokenInstance.methods
-                .transfer([
+                transferOperation = await tokenInstance.methods.transfer([
                     {
                         from_: alice.pkh,
                         txs: [
@@ -718,8 +696,7 @@ describe('MVK Token', async () => {
                             }
                         ]
                     }
-                ])
-                .send()
+                ]).send()
                 await transferOperation.confirmation()
 
                 // updated storage
@@ -1271,8 +1248,7 @@ describe('MVK Token', async () => {
 
                 // transfer operation
                 await helperFunctions.signerFactory(tezos, eve.sk);
-                transferOperation = await tokenInstance.methods
-                .transfer([
+                transferOperation = await tokenInstance.methods.transfer([
                     {
                     from_: alice.pkh,
                     txs: [
@@ -1293,8 +1269,7 @@ describe('MVK Token', async () => {
                         },
                     ],
                     },
-                ])
-                .send()
+                ]).send()
                 await transferOperation.confirmation()
 
                 // updated storage
@@ -1423,24 +1398,22 @@ describe('MVK Token', async () => {
 
                 // bob sets alice as operator, and removes alice as operator, in the same transaction
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateOperatorsOperation = await tokenInstance.methods
-                .update_operators([
+                updateOperatorsOperation = await tokenInstance.methods.update_operators([
                     {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: alice.pkh,
-                        token_id: 0,
-                    },
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: alice.pkh,
+                            token_id: 0,
+                        }
                     },
                     {
-                    remove_operator: {
-                        owner: bob.pkh,
-                        operator: alice.pkh,
-                        token_id: 0,
-                    },
-                    },
-                ])
-                .send()
+                        remove_operator: {
+                            owner: bob.pkh,
+                            operator: alice.pkh,
+                            token_id: 0,
+                        }
+                    }
+                ]).send()
                 await updateOperatorsOperation.confirmation()
                 
                 // check that operator should be undefined
@@ -1487,8 +1460,7 @@ describe('MVK Token', async () => {
             try {
                 
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateOperatorsOperation = await tokenInstance.methods
-                .update_operators([
+                updateOperatorsOperation = await tokenInstance.methods.update_operators([
                     {
                         add_operator: {
                             owner: bob.pkh,
@@ -1510,8 +1482,7 @@ describe('MVK Token', async () => {
                             token_id: 0
                         }
                     }
-                ])
-                .send()
+                ]).send()
                 await updateOperatorsOperation.confirmation()
 
                 // check that alice is set as bob's operator
@@ -1577,8 +1548,8 @@ describe('MVK Token', async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                const mintAliceOperation = await tokenInstance.methods.mint(receiver, 20000).send()
-                await mintAliceOperation.confirmation()
+                mintOperation = await tokenInstance.methods.mint(receiver, tokenAmount).send()
+                await mintOperation.confirmation()
 
             } catch (e) {
                 
@@ -1598,8 +1569,8 @@ describe('MVK Token', async () => {
         it("Bob tries to mint 20000MVK to Alice's address being whitelisted", async () => {
             try {
                 
-                const whitelistBobOperationAdd = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
-                await whitelistBobOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
                 // init variables
                 const mintAmount = 20000;
@@ -1610,11 +1581,11 @@ describe('MVK Token', async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                const mintAlice = await tokenInstance.methods.mint(alice.pkh, mintAmount).send()
-                await mintAlice.confirmation()
+                mintOperation = await tokenInstance.methods.mint(alice.pkh, mintAmount).send()
+                await mintOperation.confirmation()
 
-                const whitelistBobOperationRemove = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
-                await whitelistBobOperationRemove.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
                 updatedBobTokenBalance      = await tokenStorage.ledger.get(bob.pkh);
@@ -1633,12 +1604,13 @@ describe('MVK Token', async () => {
         it("Bob tries to mint 20000MVK to Alice's address being whitelisted and sending 5XTZ in the process", async () => {
             try {
                 
-                const whitelistBobOperationAdd = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
-                await whitelistBobOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
+                
                 await chai.expect(tokenInstance.methods.mint(alice.pkh, 20000).send({ amount: 5 })).to.be.rejected;
 
-                const whitelistBobOperationRemove = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
-                await whitelistBobOperationRemove.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -1657,8 +1629,8 @@ describe('MVK Token', async () => {
                 initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                const mintMalloryOperation = await tokenInstance.methods.mint(mallory.pkh, 20000).send()
-                await mintMalloryOperation.confirmation()
+                mintOperation = await tokenInstance.methods.mint(mallory.pkh, 20000).send()
+                await mintOperation.confirmation()
 
             } catch (e) {
 
@@ -1687,8 +1659,8 @@ describe('MVK Token', async () => {
                 initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
                 
-                const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
-                await whitelistEveOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
             } catch (e) {
                 
@@ -1712,8 +1684,9 @@ describe('MVK Token', async () => {
         it("Eve tries to mint 20000MVK to Mallory's address being whitelisted and sending 5XTZ in the process", async () => {
             try {
 
-                const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
-                await whitelistEveOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
+
                 await chai.expect(tokenInstance.methods.mint(mallory.pkh, 20000).send({ amount: 5 })).to.be.rejected;
 
             } catch (e) {
@@ -1729,17 +1702,19 @@ describe('MVK Token', async () => {
                 const amountToMint       = maximumSupply.minus(currentTotalSupply).plus(1);
 
                 // Fake a whitelist contract for minting - add
-                const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-                await whitelistOperationAdd.confirmation()
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
                 // Mint token
                 await helperFunctions.signerFactory(tezos, eve.sk);
-                await chai.expect(tokenInstance.methods.mint(eve.pkh,amountToMint).send()).to.be.rejected;
+                mintOperation = await tokenInstance.methods.mint(eve.pkh,amountToMint);
+                await chai.expect(mintOperation.send()).to.be.rejected;
 
                 // Fake a whitelist contract for minting - remove
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-                await whitelistOperationRemove.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
                 
                 // Refresh variables
                 tokenStorage = await tokenInstance.storage();
@@ -1758,8 +1733,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
-                const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
-                await whitelistEveOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
@@ -1776,8 +1751,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
-                const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
-                await whitelistEveOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
@@ -1794,8 +1769,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send()
-                await whitelistAliceOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
@@ -1812,8 +1787,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send()
-                await whitelistAliceOperationAdd.confirmation()
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send()
+                await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
@@ -1832,8 +1807,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
-                const AddressesBobOperationAdd = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
-                await AddressesBobOperationAdd.confirmation()
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
+                await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
@@ -1850,8 +1825,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
-                const AddressesBobOperationAdd = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
-                await AddressesBobOperationAdd.confirmation()
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
+                await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
@@ -1868,8 +1843,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
-                const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', bob.pkh).send()
-                await AddressesAliceOperationAdd.confirmation()
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('alice', bob.pkh).send()
+                await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
@@ -1886,8 +1861,8 @@ describe('MVK Token', async () => {
             try {
 
                 const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
-                const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', bob.pkh).send()
-                await AddressesAliceOperationAdd.confirmation()
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('alice', bob.pkh).send()
+                await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
                 const newAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
@@ -1955,7 +1930,7 @@ describe('MVK Token', async () => {
                         ],
                     }),
                     'ascii',
-                    ).toString('hex')
+                ).toString('hex')
                 const operation = await tokenInstance.methods.assertMetadata('data', metadata).send()
                 await operation.confirmation()
 
