@@ -20,7 +20,7 @@ import contractDeployments from '../contractDeployments.json'
 
 import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
 import { bob, eve, mallory } from '../../scripts/sandbox/accounts'
-import { mTokenMockData } from "../helpers/mockData"
+import { mTokenMockData } from "../helpers/mockSampleData"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
