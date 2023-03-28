@@ -22,6 +22,13 @@ export async function signerFactory (tezos, pk) {
 // Common Functions
 // ------------------------------------------------------------------------------
 
+export const almostEqual = (actual, expected, delta) => {
+    let greaterLimit  = expected + expected * delta
+    let lowerLimit    = expected - expected * delta
+    return actual <= greaterLimit && actual >= lowerLimit
+}
+
+
 export async function updateWhitelistContracts (contractInstance, key, address) {
     const updateWhitelistContractsOperation = await contractInstance.methods.updateWhitelistContracts(key, address).send();
     return updateWhitelistContractsOperation;
