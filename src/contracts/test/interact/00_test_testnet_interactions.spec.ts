@@ -1564,6 +1564,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await treasuryFactoryInstance.methods.createTreasury(
+                    null,
                     "treasuryInteraction",
                     true,
                     treasuryMetadataBase
