@@ -1,7 +1,8 @@
-import { MichelsonMap } from "@taquito/michelson-encoder"
-import { BigNumber } from "bignumber.js"
+import { MichelsonMap } from "@taquito/michelson-encoder";
+import { BigNumber } from "bignumber.js";
+
 import { bob } from '../scripts/sandbox/accounts'
-import { farmStorageType } from "./storageTypes/farmStorageType"
+import { farmMTokenStorageType } from "./storageTypes/farmMTokenStorageType";
 
 const totalBlocks = new BigNumber(0);
 const currentRewardPerBlock = new BigNumber(0);
@@ -21,17 +22,13 @@ const claimedRewards = {
 
 const lpTokenId = new BigNumber(0);
 const lpTokenStandard = {
-    fa12: ""
+    fa2 : ""
 };
 const lpToken = {
     tokenAddress: "",
     tokenId: lpTokenId,
     tokenStandard: lpTokenStandard,
     tokenBalance: new BigNumber(0)
-}
-const tokenPair = {
-    token0Address: "",
-    token1Address: ""
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -64,7 +61,7 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
 })
 
-export const farmStorage: farmStorageType = {
+export const farmMTokenStorage: farmMTokenStorageType = {
     admin                     : bob.pkh,
     mvkTokenAddress           : "",
     governanceAddress         : "",
@@ -72,7 +69,7 @@ export const farmStorage: farmStorageType = {
     metadata                  : metadata,
     config                    : {
                                     lpToken                  : lpToken,
-                                    tokenPair                : tokenPair,
+                                    loanToken                : "nil",
                                     infinite                 : false,
                                     forceRewardFromTransfer  : false,
                                     plannedRewards           : plannedRewards,
@@ -88,7 +85,7 @@ export const farmStorage: farmStorageType = {
                                 },
 
     lastBlockUpdate           : new BigNumber(0),
-    accumulatedRewardsPerShare : new BigNumber(0),
+    accumulatedRewardsPerShare    : new BigNumber(0),
     claimedRewards            : claimedRewards,
     depositorLedger           : MichelsonMap.fromLiteral({}),
     open                      : false,

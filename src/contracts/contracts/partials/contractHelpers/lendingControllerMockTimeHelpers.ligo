@@ -41,6 +41,17 @@ block {
 
 
 
+// verify that sender is vault or vault factory
+function verifySenderIsVaultOrVaultFactory(const vaultAddress : address; const s : lendingControllerStorageType) : unit is 
+block {
+
+    // Get Vault Factory Address from the General Contracts map on the Governance Contract
+    const vaultFactoryAddress: address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[vaultFactoryAddress; vaultAddress], error_ONLY_VAULT_OR_VAULT_FACTORY_CONTRACT_ALLOWED)
+
+} with unit
+
+
 // verify that collateral token is not protected
 function verifyCollateralTokenIsNotProtected(const collateralTokenRecord : collateralTokenRecordType; const errorCode : nat) : unit is
 block {
