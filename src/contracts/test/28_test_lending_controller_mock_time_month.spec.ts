@@ -1263,6 +1263,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1538,6 +1539,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -1815,6 +1817,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2093,6 +2096,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2372,6 +2376,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2650,6 +2655,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -2928,6 +2934,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3205,6 +3212,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3488,6 +3496,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -3753,6 +3762,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -4019,6 +4029,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
@@ -4284,6 +4295,7 @@
 //                 baker.pkh,              // delegate to
 //                 loanTokenName,          // loan token type
 //                 vaultName,              // vault name
+//                 null,                   // collateral tokens
 //                 depositorsConfig        // depositors config type - any / whitelist
 //             ).send();
 //             await userCreatesNewVaultOperation.confirmation();
