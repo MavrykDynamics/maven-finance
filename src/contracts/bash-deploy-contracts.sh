@@ -70,6 +70,11 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/deploy/07_deploy_farm.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
+        farmMToken)
+            echo "Deploying farmMToken"
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/23_deploy_farm_mToken.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
+            ;;
         farmFactory)
             echo "Deploying farmFactory"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/08_deploy_farm_factory.spec.ts --bail --timeout 300000")
@@ -181,6 +186,7 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/deploy/05_deploy_vesting.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/06_deploy_mavryk_tokens.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/07_deploy_farm.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/23_deploy_farm_mToken.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/08_deploy_farm_factory.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/09_deploy_council.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/10_deploy_break_glass.spec.ts --bail --timeout 300000")
