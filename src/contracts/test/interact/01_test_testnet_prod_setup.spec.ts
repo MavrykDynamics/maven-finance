@@ -292,8 +292,10 @@ describe("Testnet setup helper", async () => {
                 // Set governance proxy admin, governance admin and mvkToken admin
                 setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
+
                 setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
+                
                 setAdminOperation   = await mvkTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
                 
