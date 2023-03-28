@@ -33,88 +33,109 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
         mvkToken)
             echo "Deploying mvkToken"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/00_deploy_mvk.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         governance)
             echo "Deploying governance"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/01_deploy_governance.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         doorman)
             echo "Deploying doorman"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/02_deploy_doorman.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         delegation)
             echo "Deploying delegation"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/03_deploy_delegation.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         emergencyGovernance)
             echo "Deploying emergencyGovernance"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/04_deploy_emergency_governance.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         vesting)
             echo "Deploying vesting"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/05_deploy_vesting.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         mavrykTokens)
             echo "Deploying mavrykTokens"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/06_deploy_mavryk_tokens.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         farm)
             echo "Deploying farm"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/07_deploy_farm.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         farmFactory)
             echo "Deploying farmFactory"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/08_deploy_farm_factory.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         council)
             echo "Deploying council"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/09_deploy_council.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         breakGlass)
             echo "Deploying breakGlass"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/10_deploy_break_glass.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         governanceFinancial)
             echo "Deploying stakingController"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/11_deploy_governance_financial.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         treasury)
             echo "Deploying treasury"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/12_deploy_treasury.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         treasuryFactory)
             echo "Deploying treasuryFactory"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/13_deploy_treasury_factory.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         governanceProxy)
             echo "Deploying governanceProxy"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/14_deploy_governance_proxy.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         aggregator)
             echo "Deploying aggregator"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/15_deploy_aggregator.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         aggregatorFactory)
             echo "Deploying aggregatorFactory"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/16_deploy_aggregator_factory.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         governanceSatellite)
             echo "Deploying governanceSatellite"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/17_deploy_governance_satellite.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         lendingController)
             echo "Deploying lendingController"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/19_deploy_lending_controller.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/21_deploy_lending_controller_supporting_contracts.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         lendingControllerMockTime)
             echo "Deploying lendingControllerMockTime"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/20_deploy_lending_controller_mock_time.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/21_deploy_lending_controller_supporting_contracts.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         vaultFactory)
             echo "Deploying vaultFactory"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/22_deploy_vault_factory.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 300000")
             ;;
         oracleSetup)
             echo "Deploying oracleSetup"
