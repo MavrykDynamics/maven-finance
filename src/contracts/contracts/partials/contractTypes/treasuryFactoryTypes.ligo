@@ -21,6 +21,7 @@ type treasuryFactoryConfigType is [@layout:comb] record [
 
 
 type createTreasuryType is [@layout:comb] record[
+    baker                   : option(key_hash); 
     name                    : string;
     addToGeneralContracts   : bool;
     metadata                : bytes;

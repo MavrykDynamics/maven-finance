@@ -26,8 +26,8 @@ type vaultHandleType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
-type delegateTezToBakerType is option(key_hash)
-type delegateMvkToSatelliteType is address
+type setBakerType is option(key_hash)
+type delegateToSatelliteType is address
 
 type updateDepositorAllowanceType is
     |   Any         of bool
@@ -62,8 +62,8 @@ type updateTokenOperatorsType is [@layout:comb] record [
 
 
 type initVaultActionType is 
-    |   DelegateTezToBaker      of delegateTezToBakerType
-    |   DelegateMvkToSatellite  of delegateMvkToSatelliteType
+    |   SetBaker                of setBakerType
+    |   DelegateToSatellite     of delegateToSatelliteType
     |   Deposit                 of depositType
     |   Withdraw                of withdrawType
     |   OnLiquidate             of onLiquidateType

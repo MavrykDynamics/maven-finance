@@ -668,6 +668,7 @@ block {
 const createTreasury  = (
 
     targetContract          : string,
+    delegate                : string | undefined,
     treasuryName            : string,
     addToGeneralContracts   : boolean,
     metadata                : string
@@ -677,6 +678,7 @@ const createTreasury  = (
 block {
     const contractOperation : operation = Tezos.transaction(
         record[
+            delegate                = ${delegate ? "Some((\"" + delegate + "\": key_hash))" : "None"};
             name                    = "${treasuryName}";
             addToGeneralContracts   = ${addToGeneralContracts ? "True" : "False"};
             metadata                = ("${metadata}": bytes);

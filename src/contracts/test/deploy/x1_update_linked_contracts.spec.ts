@@ -76,9 +76,9 @@ describe('Linked contracts updates for Tests', async () => {
       const farmFA2Instance: any                      = await utils.tezos.contract.at(farmFA2Address.address);
       const aggregatorInstance: any                   = await utils.tezos.contract.at(aggregatorAddress.address);
       const aggregatorFactoryInstance: any            = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
-      const lendingControllerInstance: any            = await utils.tezos.contract.at(lendingControllerAddress.address);
+      // const lendingControllerInstance: any            = await utils.tezos.contract.at(lendingControllerAddress.address);
       // const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
-      const vaultFactoryInstance: any                 = await utils.tezos.contract.at(vaultFactoryAddress.address);
+      // const vaultFactoryInstance: any                 = await utils.tezos.contract.at(vaultFactoryAddress.address);
       
       //----------------------------
       // Set remaining contract addresses - post-deployment
