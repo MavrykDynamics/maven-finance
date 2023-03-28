@@ -1418,18 +1418,10 @@
 //                     baker.pkh,              // delegate to
 //                     loanTokenName,          // loan token name
 //                     vaultName,              // vault name
+//                     null,                   // collateral tokens
 //                     depositorsConfig        // depositors config type - any / whitelist
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
-
-//                 // const createVaultParam        = await vaultFactoryInstance.methods.createVault(
-//                 //     baker.pkh,              // delegate to
-//                 //     loanTokenName,          // loan token name
-//                 //     vaultName,              // vault name
-//                 //     depositorsConfig        // depositors config type - any / whitelist
-//                 // ).toTransferParams();
-//                 // const estimate              = await utils.tezos.estimate.transfer(createVaultParam);
-//                 // console.log("CREATE VAULT ESTIMATION: ", estimate)
 
 //                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
 //                 const vaultHandle = {
@@ -1474,6 +1466,7 @@
 //                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig,
 //                     []
 //                 ).send();
@@ -1524,6 +1517,7 @@
 //                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -1571,6 +1565,7 @@
 //                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig,
 //                     []
 //                 ).send();
@@ -1621,6 +1616,7 @@
 //                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig,
 //                     []
 //                 ).send();
