@@ -17,6 +17,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
+import { mockTokenData } from './helpers/mockSampleData'
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -133,6 +134,7 @@ describe('MVK Token', async () => {
 
                 // Assertions
                 assert.strictEqual(newAdmin, currentAdmin);
+
             } catch(e){
                 console.log(e);
             }
@@ -1698,8 +1700,8 @@ describe('MVK Token', async () => {
             try {
                 // Initial values
                 const maximumSupply      = await tokenStorage.maximumSupply;
-                const currentTotalSupply = await tokenStorage.totalSupply;
-                const amountToMint       = maximumSupply.minus(currentTotalSupply).plus(1);
+                initialTotalSupply       = await tokenStorage.totalSupply;
+                const amountToMint       = maximumSupply.minus(initialTotalSupply).plus(1);
 
                 // Fake a whitelist contract for minting - add
                 await helperFunctions.signerFactory(tezos, bob.sk);
@@ -1717,10 +1719,10 @@ describe('MVK Token', async () => {
                 await updateWhitelistContractsOperation.confirmation()
                 
                 // Refresh variables
-                tokenStorage = await tokenInstance.storage();
-                const currentTotalSupplyEnd = await tokenStorage.totalSupply;
+                tokenStorage       = await tokenInstance.storage();
+                updatedTotalSupply = await tokenStorage.totalSupply;
 
-                assert.equal(currentTotalSupply.toNumber(), currentTotalSupplyEnd.toNumber());
+                assert.equal(initialTotalSupply.toNumber(), updatedTotalSupply.toNumber());
 
             } catch (e) {
                 console.log(e)
@@ -1906,31 +1908,8 @@ describe('MVK Token', async () => {
 
         it('Checks a value with a correct key and a correct hash in the metadata', async () => {
             try {
-                const metadata = Buffer.from(
-                    JSON.stringify({
-                        name: 'MAVRYK',
-                        description: 'MAVRYK Token',
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-                        source: {
-                        tools: ['Ligo', 'Flextesa'],
-                        location: 'https://ligolang.org/',
-                        },
-                        interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-                        errors: [],
-                        views: [],
-                        assets: [
-                        {
-                            symbol: Buffer.from('MVK').toString('hex'),
-                            name: Buffer.from('MAVRYK').toString('hex'),
-                            decimals: Buffer.from("9").toString('hex'),
-                            icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
-                            shouldPreferSymbol: true,
-                            thumbnailUri: 'https://mavryk.finance/logo192.png',
-                        },
-                        ],
-                    }),
-                    'ascii',
-                ).toString('hex')
+                
+                const metadata = mockTokenData.mvkToken.metadata;
                 const operation = await tokenInstance.methods.assertMetadata('data', metadata).send()
                 await operation.confirmation()
 
