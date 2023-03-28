@@ -31,8 +31,8 @@ block {
                 const isOwner : bool = checkSenderIsOwner(s);
                 const isWhitelistedDepositor : bool = checkSenderIsWhitelistedDepositor(s);
 
-                // verify that sender is either the vault owner or a whitelisted depositor
-                verifyDepositAllowed(isOwner, isWhitelistedDepositor);
+                // verify that sender is either the vault owner or a whitelisted depositor or the vault factory
+                verifyDepositAllowed(isOwner, isWhitelistedDepositor, s);
 
                 // register deposit in Lending Controller
                 const registerDepositOperation : operation = registerDepositInLendingController(
@@ -64,7 +64,7 @@ block {
         |   LambdaInitVaultAction(initVaultAction) -> {
 
                 case initVaultAction of [
-                    |   DelegateTezToBaker(optionKeyHash) -> {
+                    |   SetBaker(optionKeyHash) -> {
 
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
@@ -75,7 +75,7 @@ block {
                             operations := delegateToTezBakerOperation # operations;
 
                         }
-                    |   DelegateMvkToSatellite(satelliteAddress) -> {
+                    |   DelegateToSatellite(satelliteAddress) -> {
 
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
@@ -111,8 +111,8 @@ block {
                             const isOwner : bool = checkSenderIsOwner(s);
                             const isWhitelistedDepositor : bool = checkSenderIsWhitelistedDepositor(s);
 
-                            // verify that sender is either the vault owner or a whitelisted depositor
-                            verifyDepositAllowed(isOwner, isWhitelistedDepositor);
+                            // verify that sender is either the vault owner or a whitelisted depositor or vault factory
+                            verifyDepositAllowed(isOwner, isWhitelistedDepositor, s);
 
                             // register deposit in Lending Controller
                             const registerDepositOperation : operation = registerDepositInLendingController(

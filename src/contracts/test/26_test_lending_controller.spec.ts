@@ -12,7 +12,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+// import { alice, baker, bob, eve, mallory } from "../scripts/sandbox/accounts";
 
 // import doormanAddress           from '../deployments/doormanAddress.json';
 // import delegationAddress        from '../deployments/delegationAddress.json';
@@ -1415,21 +1415,13 @@
 //                 const depositorsConfig      = "any";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
-//                     eve.pkh,                // delegate to
+//                     baker.pkh,              // delegate to
 //                     loanTokenName,          // loan token name
 //                     vaultName,              // vault name
+//                     null,                   // collateral tokens
 //                     depositorsConfig        // depositors config type - any / whitelist
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
-
-//                 // const createVaultParam        = await vaultFactoryInstance.methods.createVault(
-//                 //     eve.pkh,                // delegate to
-//                 //     loanTokenName,          // loan token name
-//                 //     vaultName,              // vault name
-//                 //     depositorsConfig        // depositors config type - any / whitelist
-//                 // ).toTransferParams();
-//                 // const estimate              = await utils.tezos.estimate.transfer(createVaultParam);
-//                 // console.log("CREATE VAULT ESTIMATION: ", estimate)
 
 //                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
 //                 const vaultHandle = {
@@ -1471,9 +1463,10 @@
 //                 const depositorsConfig          = "whitelist";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
-//                     mallory.pkh,  
+//                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig,
 //                     []
 //                 ).send();
@@ -1521,9 +1514,10 @@
 //                 const depositorsConfig          = "any";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
-//                     mallory.pkh,  
+//                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig
 //                 ).send();
 //                 await userCreatesNewVaultOperation.confirmation();
@@ -1568,9 +1562,10 @@
 //                 const depositorsConfig          = "whitelist";
 
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
-//                     eve.pkh,  
+//                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig,
 //                     []
 //                 ).send();
@@ -1618,9 +1613,10 @@
 
 //                 // user (eve) creates a new vault
 //                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
-//                     eve.pkh,  
+//                     baker.pkh,  
 //                     loanTokenName,
 //                     vaultName,
+//                     null,
 //                     depositorsConfig,
 //                     []
 //                 ).send();
