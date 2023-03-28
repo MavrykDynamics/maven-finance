@@ -10,7 +10,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import {bob, eve, mallory} from '../../scripts/sandbox/accounts'
+import { alice, bob, eve, mallory, oscar} from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -45,18 +45,26 @@ describe('Oracle Setup', async () => {
       console.log("Setup Oracles")
 
       const oracleMap = MichelsonMap.fromLiteral({
-        [bob.pkh]              : {
-                                    oraclePublicKey: bob.pk,
-                                    oraclePeerId: bob.peerId
-                                },
-        [eve.pkh]              : {
-                                    oraclePublicKey: eve.pk,
-                                    oraclePeerId: eve.peerId
-                                },
-        [mallory.pkh]          : {
-                                    oraclePublicKey: mallory.pk,
-                                    oraclePeerId: eve.peerId
-                                }
+        [bob.pkh]       : {
+            oraclePublicKey: bob.pk,
+            oraclePeerId: bob.peerId
+        },
+        [eve.pkh]       : {
+            oraclePublicKey: eve.pk,
+            oraclePeerId: eve.peerId
+        },
+        [mallory.pkh]   : {
+            oraclePublicKey: mallory.pk,
+            oraclePeerId: mallory.peerId
+        },
+        [alice.pkh]     : {
+            oraclePublicKey: alice.pk,
+            oraclePeerId: alice.peerId
+        },
+        [oscar.pkh]     : {
+            oraclePublicKey: oscar.pk,
+            oraclePeerId: oscar.peerId
+        }
       });
 
       const btcUsdMetadata = Buffer.from(
