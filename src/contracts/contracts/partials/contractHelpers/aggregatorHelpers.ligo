@@ -402,9 +402,6 @@ function verifyEqualMapSizes(const leaderReponse : updateDataType; const s : agg
 
     // Byzantine faults check
     // see: https://research.chain.link/ocr.pdf
-    // const f: int                = ((Map.size(s.oracleLedger) - 1) * fixedPointAccuracy) / 3n;
-    // const signaturesSize: int   = int(Map.size(leaderReponse.signatures)) * fixedPointAccuracy;
-    // const observationsSize: int = int(Map.size(leaderReponse.oracleObservations)) * fixedPointAccuracy;
     const f: int                = ((Map.size(s.oracleLedger) - 1)) / 3n;
     const signaturesSize: int   = int(Map.size(leaderReponse.signatures));
     const observationsSize: int = int(Map.size(leaderReponse.oracleObservations));
