@@ -1,4 +1,41 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
+export const mvkTokenDecimals = 9
+
+export const mockTokenData = {
+
+    "mvkToken" : {
+
+        "metadata": MichelsonMap.fromLiteral({
+            '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+            data: Buffer.from(
+                JSON.stringify({
+                    name: 'MAVRYK',
+                    description: 'MAVRYK Token',
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    source: {
+                        tools: ['Ligo', 'Flextesa'],
+                        location: 'https://ligolang.org/',
+                    },
+                    interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
+                    errors: [],
+                    views: [],
+                    assets: [
+                        {
+                        symbol: Buffer.from('MVK').toString('hex'),
+                        name: Buffer.from('MAVRYK').toString('hex'),
+                        decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
+                        icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+                        shouldPreferSymbol: true,
+                        thumbnailUri: 'https://mavryk.finance/logo192.png',
+                        },
+                    ],
+                }),
+                'ascii',
+            ).toString('hex'),
+        })
+    }
+
+}
 
 export const mTokenMockData = {
 
