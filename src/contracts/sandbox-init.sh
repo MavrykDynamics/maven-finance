@@ -1,6 +1,6 @@
 #!/bin/bash
-MAIN_SANDBOX_V="739cc356"
-APPLE_SANDBOX_V="739cc356"
+MAIN_SANDBOX_V="3e9dad7a"
+APPLE_SANDBOX_V="3e9dad7a"
 TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox octez-node --version)
 NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox octez-client bootstrapped)
 until [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]];
