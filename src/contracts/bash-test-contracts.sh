@@ -55,9 +55,17 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Running tests for farm"
             COMMANDS+=("yarn ts-mocha --paths test/06_test_farm.spec.ts --bail --timeout 300000")
             ;;
+        farmMToken)
+            echo "Running tests for farm mToken"
+            COMMANDS+=("yarn ts-mocha --paths test/06a_test_farm_mToken.spec.ts --bail --timeout 300000")
+            ;;
         farmFactory)
             echo "Running tests for farmFactory"
             COMMANDS+=("yarn ts-mocha --paths test/07_test_farm_factory.spec.ts --bail --timeout 300000")
+            ;;
+        farmFactoryMToken)
+            echo "Running tests for farmFactoryMToken"
+            COMMANDS+=("yarn ts-mocha --paths test/07a_test_mFarm_factory.spec.ts --bail --timeout 300000")
             ;;
         treasury)
             echo "Running tests for treasury"
@@ -160,7 +168,9 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/04_test_governance.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/05_test_council.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/06_test_farm.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/06a_test_farm_mToken.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/07_test_farm_factory.spec.ts --bail --timeout 300000")
+            COMMANDS+=("yarn ts-mocha --paths test/07a_test_mFarm_factory.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/08_test_treasury.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/09_test_treasury_factory.spec.ts --bail --timeout 300000")
             COMMANDS+=("yarn ts-mocha --paths test/10_test_emergency_governance.spec.ts --bail --timeout 300000")

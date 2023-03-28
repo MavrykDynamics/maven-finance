@@ -58,7 +58,10 @@ describe('Farm Factory', async () => {
 
             // Set Lambdas
             await setGeneralContractLambdas(tezos, "farmFactory", farmFactory.contract)
+            
+            // Set Product Lambdas for Farm and Farm mToken
             await setGeneralContractProductLambdas(tezos, "farmFactory", farmFactory.contract)
+            await setGeneralContractProductLambdas(tezos, "farmFactoryMToken", farmFactory.contract)
 
         } catch(e){
             console.dir(e, {depth: 5})

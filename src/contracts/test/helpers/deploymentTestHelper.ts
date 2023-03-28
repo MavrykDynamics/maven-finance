@@ -28,6 +28,7 @@ import { breakGlassStorageType }                from "../../storage/storageTypes
 import { aggregatorStorageType }                from "../../storage/storageTypes/aggregatorStorageType"
 import { aggregatorFactoryStorageType }         from "../../storage/storageTypes/aggregatorFactoryStorageType"
 import { farmStorageType }                      from "../../storage/storageTypes/farmStorageType"
+import { farmMTokenStorageType }                from "../../storage/storageTypes/farmMTokenStorageType"
 import { farmFactoryStorageType }               from "../../storage/storageTypes/farmFactoryStorageType"
 import { treasuryStorageType }                  from "../../storage/storageTypes/treasuryStorageType"
 import { treasuryFactoryStorageType }           from "../../storage/storageTypes/treasuryFactoryStorageType"
@@ -56,6 +57,7 @@ import breakGlassLambdas                        from "../../build/lambdas/breakG
 import aggregatorLambdas                        from "../../build/lambdas/aggregatorLambdas.json"
 import aggregatorFactoryLambdas                 from "../../build/lambdas/aggregatorFactoryLambdas.json"
 import farmLambdas                              from "../../build/lambdas/farmLambdas.json"
+import farmMTokenLambdas                        from "../../build/lambdas/farmMTokenLambdas.json"
 import farmFactoryLambdas                       from "../../build/lambdas/farmFactoryLambdas.json"
 import treasuryLambdas                          from "../../build/lambdas/treasuryLambdas.json"
 import treasuryFactoryLambdas                   from "../../build/lambdas/treasuryFactoryLambdas.json"
@@ -79,6 +81,7 @@ const generalContractLambdas = {
     "aggregator"                : aggregatorLambdas,
     "aggregatorFactory"         : aggregatorFactoryLambdas,
     "farm"                      : farmLambdas,
+    "farmMToken"                : farmMTokenLambdas,
     "farmFactory"               : farmFactoryLambdas,
     "treasury"                  : treasuryLambdas,
     "treasuryFactory"           : treasuryFactoryLambdas,
@@ -104,6 +107,7 @@ type generalContractStorageType =
     aggregatorStorageType | 
     aggregatorFactoryStorageType | 
     farmStorageType | 
+    farmMTokenStorageType | 
     farmFactoryStorageType |
     treasuryStorageType | 
     treasuryFactoryStorageType |
@@ -119,9 +123,12 @@ type generalContractStorageType =
     mTokenStorageType    
 
 
+type farmTypeType = "Farm" | "MFarm"
+
 type GeneralContractContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
     setProductLambda: (number, string) => ContractMethod<T>;
+    setFarmProductLambda: (number, string, farmTypeType) => ContractMethod<T>;
     updateWhitelistContracts: (
         whitelistContractName       : string,
         whitelistContractAddress    : string
@@ -205,22 +212,48 @@ export const setGeneralContractProductLambdas = async (tezosToolkit: TezosToolki
     const lambdasCount  = Object.keys(lambdas).length;
     const batchesCount  = Math.ceil(lambdasCount / lambdasPerBatch);
 
-    for(let i = 0; i < batchesCount; i++) {
-        
-        const batch = tezosToolkit.wallet.batch();
-        var index   = 0;
+    if(contractName == "farmFactory" || contractName == "farmFactoryMToken"){
 
-        for (let lambdaName in lambdas) {
-            let bytes   = lambdas[lambdaName]
-            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-                batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+        const farmTypeType = contractName == "farmFactory" ? "farm" : "farmMToken";
+
+        for(let i = 0; i < batchesCount; i++) {
+        
+            const batch = tezosToolkit.wallet.batch();
+            var index   = 0;
+    
+            for (let lambdaName in lambdas) {
+                let bytes   = lambdas[lambdaName]
+                if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                    batch.withContractCall(contract.methods.setFarmProductLambda(lambdaName, bytes, farmTypeType))
+                }
+                index++;
             }
-            index++;
+    
+            const setupGeneralContractLambdasOperation = await batch.send()
+            await confirmOperation(tezosToolkit, setupGeneralContractLambdasOperation.opHash);
         }
 
-        const setupGeneralContractLambdasOperation = await batch.send()
-        await confirmOperation(tezosToolkit, setupGeneralContractLambdasOperation.opHash);
+    } else {
+
+        for(let i = 0; i < batchesCount; i++) {
+        
+            const batch = tezosToolkit.wallet.batch();
+            var index   = 0;
+    
+            for (let lambdaName in lambdas) {
+                let bytes   = lambdas[lambdaName]
+                if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                    batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+                }
+                index++;
+            }
+    
+            const setupGeneralContractLambdasOperation = await batch.send()
+            await confirmOperation(tezosToolkit, setupGeneralContractLambdasOperation.opHash);
+        }
+
     }
+    
 
     // console log contract name in Title Case
     const rawName = contractName.substring(0, contractName.length);
