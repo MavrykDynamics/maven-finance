@@ -392,6 +392,10 @@ templates:
       pattern:
       - destination: <vault_contract>
         entrypoint: updateDepositor
+    - callback: on_vault_set_baker
+      pattern:
+      - destination: <vault_contract>
+        entrypoint: setBaker
     - callback: on_vault_update_vault_name
       pattern:
       - destination: <vault_contract>

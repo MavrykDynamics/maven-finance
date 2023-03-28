@@ -16,7 +16,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../../env";
-import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, trudy, oscar } from "../../scripts/sandbox/accounts";
 import * as accounts from "../../scripts/sandbox/accounts";
 
 import doormanAddress from '../../deployments/doormanAddress.json';
@@ -189,7 +189,7 @@ describe("Testnet setup helper", async () => {
             await signerFactory(bob.sk)
         });
 
-        it('Creation of 3 Satellites', async () => {
+        it('Creation of 5 Satellites', async () => {
             try{
                 // Bob Satellite
                 await signerFactory(bob.sk);
@@ -269,6 +269,60 @@ describe("Testnet setup helper", async () => {
                     700,
                     mallory.pk,
                     mallory.peerId
+                ).send();
+                await registerOperation.confirmation();
+
+                // Alice Satellite
+                await signerFactory(alice.sk);
+                updateOperatorsOperation    = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: alice.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+                stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
+                await stakeOperation.confirmation();
+                registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                    "Captain Kirk", 
+                    "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history. The highly decorated Kirk served as the commanding officer of the Constitution-class starships USS Enterprise and USS Enterprise-A, where he served Federation interests as an explorer, soldier, diplomat, and time traveler. He currently spends his time as a Mavryk Satellite and signs Oracle price feeds for the Mavryk Finance network.", 
+                    "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn", 
+                    "https://intl.startrek.com/",
+                    700,
+                    alice.pk,
+                    alice.peerId
+                ).send();
+                await registerOperation.confirmation();
+
+                // Oscar Satellite
+                await signerFactory(oscar.sk);
+                updateOperatorsOperation    = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: oscar.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperatorsOperation.confirmation();
+                stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
+                await stakeOperation.confirmation();
+                registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                    "Captain Kirk", 
+                    "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history. The highly decorated Kirk served as the commanding officer of the Constitution-class starships USS Enterprise and USS Enterprise-A, where he served Federation interests as an explorer, soldier, diplomat, and time traveler. He currently spends his time as a Mavryk Satellite and signs Oracle price feeds for the Mavryk Finance network.", 
+                    "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn", 
+                    "https://intl.startrek.com/",
+                    700,
+                    oscar.pk,
+                    oscar.peerId
                 ).send();
                 await registerOperation.confirmation();
             } catch(e){

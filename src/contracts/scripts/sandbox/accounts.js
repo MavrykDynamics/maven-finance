@@ -9,7 +9,7 @@ module.exports = {
         pkh: "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
         sk: "edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz",
         pk: "edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd",
-        peerId: "alicePeerId"
+        peerId: "12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34"
     },
     bob: {
         pkh: "tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD",
@@ -33,7 +33,7 @@ module.exports = {
         pkh: "tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw",
         sk: "edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs",
         pk: "edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP",
-        peerId: "oscarPeerId"
+        peerId: "12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5"
     },
     trudy: {
         pkh: "tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq",

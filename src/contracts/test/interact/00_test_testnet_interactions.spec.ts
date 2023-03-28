@@ -5872,6 +5872,16 @@ describe("Testnet interactions helper", async () => {
             await signerFactory(bob.sk)
         });
         
+        it('Admin delegates vault tez to baker', async () => {
+            try{
+                // Operation
+                const operation = await vaultInstance.methods.initVaultAction("setBaker", null).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
         it('Admin updates the depositor', async () => {
             try{
                 // Operation
