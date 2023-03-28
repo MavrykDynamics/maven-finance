@@ -244,10 +244,32 @@
     "lambdaTogglePauseEntrypoint",
 
     "lambdaCreateFarm",
+    "lambdaCreateFarmMToken",
     "lambdaTrackFarm",
     "lambdaUntrackFarm"
   ],
   "farm": [
+    "lambdaSetAdmin",
+    "lambdaSetGovernance",
+    "lambdaSetName",
+    "lambdaUpdateMetadata",
+    "lambdaUpdateConfig",
+    "lambdaUpdateWhitelistContracts",
+    "lambdaUpdateGeneralContracts",
+    "lambdaMistakenTransfer",
+
+    "lambdaInitFarm",
+    "lambdaCloseFarm",
+
+    "lambdaPauseAll",
+    "lambdaUnpauseAll",
+    "lambdaTogglePauseEntrypoint",
+
+    "lambdaDeposit",
+    "lambdaWithdraw",
+    "lambdaClaim"
+  ],
+  "farmMToken": [
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaSetName",

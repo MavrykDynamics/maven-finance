@@ -67,10 +67,16 @@ block {
 
 
 // verify that deposit is allowed
-function verifyDepositAllowed(const isOwnerCheck : bool; const isAbleToDeposit : bool) : unit is
+function verifyDepositAllowed(const isOwnerCheck : bool; const isAbleToDeposit : bool; const s : vaultStorageType) : unit is
 block {
 
-    if isOwnerCheck = True or isAbleToDeposit = True 
+    // Get Governance Address from vault factory
+    const governanceAddress : address = getGovernanceAddress(s);
+
+    // Get Vault Factory Address from the General Contracts map on the Governance Contract
+    const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+
+    if isOwnerCheck = True or isAbleToDeposit = True or Tezos.get_sender() = vaultFactoryAddress
     then skip 
     else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT)
 

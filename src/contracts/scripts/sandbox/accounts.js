@@ -1,4 +1,10 @@
 module.exports = {
+    baker: {
+        pkh: "tz1YPSCGWXwBdTncK2aCctSZAXWvGsGwVJqU",
+        sk: "edsk3RFgDiCt7tWB2oe96w1eRw72iYiiqZPLu9nnEY23MYRp2d8Kkx",
+        pk: "edpkuTpUWcNgn4QYcBVGDLy6rmpJ3WSTSV2bdiJFwyoDk5fSwxyV5k",
+        peerId: "bakerPeerId"
+    },
     alice: {
         pkh: "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
         sk: "edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz",

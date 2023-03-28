@@ -213,6 +213,23 @@ block{
 
 
 
+(* createFarmMToken entrypoint *)
+function createFarmMToken(const createFarmMTokenParams : createFarmMTokenType; var s : farmFactoryStorageType) : return is 
+block{
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCreateFarmMToken", s.lambdaLedger);
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaCreateFarmMToken(createFarmMTokenParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
 (* trackFarm entrypoint *)
 function trackFarm (const farmContract : address; var s : farmFactoryStorageType) : return is 
 block{
@@ -272,16 +289,21 @@ block{
 
 
 (* setProductLambda entrypoint *)
-function setProductLambda(const setLambdaParams : setLambdaType; var s : farmFactoryStorageType) : return is
+function setProductLambda(const setLambdaParams : setFarmLambdaType; var s : farmFactoryStorageType) : return is
 block{
     
     // verify that sender is admin
     verifySenderIsAdmin(s.admin);
     
     // assign params to constants for better code readability
-    const lambdaName    = setLambdaParams.name;
-    const lambdaBytes   = setLambdaParams.func_bytes;
-    s.farmLambdaLedger[lambdaName] := lambdaBytes;
+    const farmType : farmTypeType   = setLambdaParams.farmType;
+    const lambdaName                = setLambdaParams.name;
+    const lambdaBytes               = setLambdaParams.func_bytes;
+
+    case farmType of [
+            Farm    -> s.farmLambdaLedger[lambdaName]   := lambdaBytes
+        |   MFarm   -> s.mFarmLambdaLedger[lambdaName]  := lambdaBytes
+    ];
 
 } with (noOperations, s)
 

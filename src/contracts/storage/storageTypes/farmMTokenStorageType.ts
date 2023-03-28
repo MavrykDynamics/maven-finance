@@ -1,7 +1,7 @@
-import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder"
-import { BigNumber } from "bignumber.js"
+import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
+import { BigNumber } from "bignumber.js";
 
-export type farmStorageType = {
+export type farmMTokenStorageType = {
 
   admin                     : string;
   mvkTokenAddress           : string;
@@ -16,11 +16,7 @@ export type farmStorageType = {
                                   tokenBalance  : BigNumber;
                                 },
 
-                                tokenPair : {
-                                  token0Address : String;
-                                  token1Address : String;
-                                },
-
+                                loanToken               : string,
                                 infinite                : Boolean;
                                 forceRewardFromTransfer : Boolean;
 
@@ -52,7 +48,7 @@ export type farmStorageType = {
   init                      : Boolean;
   initBlock                 : BigNumber;
 
-  minBlockTimeSnapshot      : BigNumber;
+  minBlockTimeSnapshot              : BigNumber;
 
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 
