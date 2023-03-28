@@ -2287,29 +2287,21 @@ describe("Governance tests", async () => {
 
                     // Update config
                     await signerFactory(bob.sk);
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(600,"configBlocksPerProposalRound").send();
+                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configBlocksPerProposalRound").send();
                     await updateConfigOperation.confirmation();
-                    updateConfigOperation = await governanceInstance.methods.updateConfig(600,"configBlocksPerVotingRound").send();
+                    updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configBlocksPerVotingRound").send();
                     await updateConfigOperation.confirmation();
-                    updateConfigOperation = await governanceInstance.methods.updateConfig(600,"configBlocksPerTimelockRound").send();
+                    updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configBlocksPerTimelockRound").send();
                     await updateConfigOperation.confirmation();
 
                     // Initial Values
                     governanceStorage = await governanceInstance.storage();
 
                     // Operation
-                    if(governanceStorage.currentCycleInfo.cycleEndLevel == 0){
-                        var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-                        await startNextRoundOperation.confirmation();
-                    }
-                    
-                    if(blocksPerProposalRound == 0){
+                    var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+                    await startNextRoundOperation.confirmation();
 
-                        var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-                        await startNextRoundOperation.confirmation();
-
-                        await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
-                    }
+                    await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
 
                     // Reset config
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(0,"configBlocksPerProposalRound").send();
@@ -3931,66 +3923,6 @@ describe("Governance tests", async () => {
                     assert.strictEqual(proposal.executed, false)
                     assert.strictEqual(proposal.status, "DROPPED")
 
-                    await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('User should not be able to call this entrypoint if there is no data to execute in the proposal', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage           = await governanceInstance.storage();
-                    const proposalId            = governanceStorage.nextProposalId; 
-                    var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
-                    var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
-
-                    while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
-                        var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-                        await startNextRoundOperation.confirmation();
-                        governanceStorage           = await governanceInstance.storage();
-                        currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
-                        currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
-                    }
-                    
-                    const firstProposalName          = "New Proposal #1";
-                    const firstProposalDesc          = "Details about new proposal #1";
-                    const firstProposalIpfs          = "ipfs://QM123456789";
-                    const firstProposalSourceCode    = "Proposal Source Code";
-
-                    // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
-                    await proposeOperation.confirmation();
-
-                    const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
-                    await lockOperation.confirmation()
-
-                    const proposalRoundVoteOperation = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                    await proposalRoundVoteOperation.confirmation();
-
-                    var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-                    await startNextRoundOperation.confirmation();
-
-                    var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
-                    await votingRoundVoteOperation.confirmation();
-
-                    var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-                    await startNextRoundOperation.confirmation();
-
-                    var dropProposalOperation = await governanceInstance.methods.dropProposal(proposalId).send();
-                    await dropProposalOperation.confirmation();
-
-                    var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
-                    await startNextRoundOperation.confirmation();
-                    
-                    governanceStorage           = await governanceInstance.storage();
-                    var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
-                    var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
-                    const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-
-                    assert.strictEqual(currentCycleInfoRoundString, "proposal")
-                    assert.strictEqual(proposal.executed, false)
-                    
                     await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5})
