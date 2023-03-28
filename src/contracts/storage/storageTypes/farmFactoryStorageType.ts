@@ -23,5 +23,6 @@ export type farmFactoryStorageType = {
 
     lambdaLedger          : MichelsonMap<MichelsonMapKey, unknown>;
     farmLambdaLedger      : MichelsonMap<MichelsonMapKey, unknown>;
+    mFarmLambdaLedger     : MichelsonMap<MichelsonMapKey, unknown>;
 
 };

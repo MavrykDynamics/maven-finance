@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 // Allowed Senders: Vault Factory Contract
-function verifySenderIsVaultFactoryContract(var s : lendingControllerStorageType) : unit is
+function verifySenderIsVaultFactoryContract(const s : lendingControllerStorageType) : unit is
 block{
 
     // Get Vault Factory Address from the General Contracts map on the Governance Contract
@@ -25,6 +25,18 @@ function verifySenderIsVault(const vaultAddress : address; const sender : addres
 block {
 
     if vaultAddress =/= sender then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip; 
+
+} with unit
+
+
+
+// verify that sender is vault or vault factory
+function verifySenderIsVaultOrVaultFactory(const vaultAddress : address; const s : lendingControllerStorageType) : unit is 
+block {
+
+    // Get Vault Factory Address from the General Contracts map on the Governance Contract
+    const vaultFactoryAddress: address = getContractAddressFromGovernanceContract("vaultFactory", s.governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
+    verifySenderIsAllowed(set[vaultFactoryAddress; vaultAddress], error_ONLY_VAULT_OR_VAULT_FACTORY_CONTRACT_ALLOWED)
 
 } with unit
 
@@ -1358,7 +1370,7 @@ block {
 // Vault Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function updateVaultState(const vaultHandle : vaultHandleType; var s : lendingControllerStorageType) : (vaultRecordType*loanTokenRecordType) is
+function updateVaultState(const vaultHandle : vaultHandleType; var s : lendingControllerStorageType) : (vaultRecordType * loanTokenRecordType) is
 block {
 
     // get vault
