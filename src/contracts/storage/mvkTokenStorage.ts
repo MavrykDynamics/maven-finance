@@ -4,6 +4,7 @@ import { Buffer } from 'buffer'
 import { bob, alice, eve, mallory, oscar, trudy, susie } from '../scripts/sandbox/accounts'
 import { MVK } from '../test/helpers/Utils'
 import { mvkTokenStorageType } from './storageTypes/mvkTokenStorageType'
+import { mockTokenData } from 'test/helpers/mockSampleData'
 
 export const mvkTokenDecimals = 9
 
@@ -12,34 +13,7 @@ const maximumSupply     = MVK(10**9)
 const initialSupply     = new BigNumber(totalSupply)        // 1,400,000 MVK Tokens (1e9)
 const singleUserSupply  = new BigNumber(totalSupply / 7)    // 200,000 MVK Tokens (1e9)
 
-const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
-    data: Buffer.from(
-        JSON.stringify({
-            name: 'MAVRYK',
-            description: 'MAVRYK Token',
-            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            source: {
-                tools: ['Ligo', 'Flextesa'],
-                location: 'https://ligolang.org/',
-            },
-            interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-            errors: [],
-            views: [],
-            assets: [
-                {
-                symbol: Buffer.from('MVK').toString('hex'),
-                name: Buffer.from('MAVRYK').toString('hex'),
-                decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
-                icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
-                shouldPreferSymbol: true,
-                thumbnailUri: 'https://mavryk.finance/logo192.png',
-                },
-            ],
-        }),
-        'ascii',
-    ).toString('hex'),
-})
+const metadata = mockTokenData.mvkToken.metadata
 
 const ledger = MichelsonMap.fromLiteral({
     [bob.pkh]       : singleUserSupply,
