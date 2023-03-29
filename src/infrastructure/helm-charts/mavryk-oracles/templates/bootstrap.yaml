@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bootstrap
+  labels:
+    app: bootstrap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bootstrap
+  template:
+    metadata:
+      labels:
+        app: bootstrap
+    spec:
+      imagePullSecrets:
+        - name: '{{ $.Values.image.pullSecret }}'
+      containers:
+        - name: bootstrap
+          image: 'docker.io/mavrykdynamics/mavryk-oracle:v0.0.1'
+          imagePullPolicy: 'Always'
+          ports:
+            - name: p2p
+              containerPort: 23456
+              protocol: TCP
