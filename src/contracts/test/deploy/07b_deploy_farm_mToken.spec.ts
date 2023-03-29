@@ -1,27 +1,24 @@
-const { InMemorySigner } = require("@taquito/signer");
 import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
-import mTokenUsdtAddress from '../../deployments/mTokenUsdtAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { FarmMToken, setFarmMTokenLambdas } from "../contractHelpers/farmMTokenTestHelper"
+import { GeneralContract, setGeneralContractLambdas }  from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -36,13 +33,8 @@ import { farmMTokenStorage } from "../../storage/farmMTokenStorage";
 describe('Farms mToken', async () => {
   
   var utils: Utils
-  var farmMToken: FarmMToken;
+  var farmMToken
   var tezos
-
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
 
   before('setup', async () => {
     try{
@@ -55,29 +47,20 @@ describe('Farms mToken', async () => {
 
       // Deploy Farm mToken
 
-      farmMTokenStorage.governanceAddress           = governanceAddress.address;
-      farmMTokenStorage.mvkTokenAddress             = mvkTokenAddress.address;
+      farmMTokenStorage.governanceAddress           = contractDeployments.governance.address;
+      farmMTokenStorage.mvkTokenAddress             = contractDeployments.mvkToken.address;
       farmMTokenStorage.config.loanToken            = "usdt";
-      farmMTokenStorage.config.lpToken.tokenAddress = mTokenUsdtAddress.address;
-      
-      farmMToken = await FarmMToken.originate(
-        utils.tezos,
-        farmMTokenStorage
-      );
+      farmMTokenStorage.config.lpToken.tokenAddress = contractDeployments.mTokenUsdt.address;
   
+      farmMToken = await GeneralContract.originate(utils.tezos, "farmMToken", farmMTokenStorage);
       await saveContractAddress("farmMTokenAddress", farmMToken.contract.address)
-      console.log("Farm mToken USDT Contract deployed at:", farmMToken.contract.address);
   
   
       tezos = farmMToken.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
+      await helperFunctions.signerFactory(tezos, bob.sk);
 
-      // Farm FA12 Setup Lambdas
-      await setFarmMTokenLambdas(tezos, farmMToken.contract)
-      console.log("Farm mToken USDT Lambdas Setup")
+      // Set Lambdas
+      await setGeneralContractLambdas(tezos, "farmMToken", farmMToken.contract)
 
     } catch(e){
       console.dir(e, {depth: 5})

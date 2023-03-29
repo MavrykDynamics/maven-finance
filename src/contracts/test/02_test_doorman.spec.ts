@@ -1,5 +1,4 @@
 import { BigNumber } from 'bignumber.js'
-const { InMemorySigner } = require("@taquito/signer");
 import assert from "assert";
 import { Utils, MVK } from "./helpers/Utils";
 
@@ -25,24 +24,46 @@ import * as helperFunctions from './helpers/helperFunctions'
 // Contract Tests
 // ------------------------------------------------------------------------------
 
-describe("Doorman tests", async () => {
+describe("Test: Doorman Contract", async () => {
     
-    var utils: Utils;
+    // default
+    var utils: Utils
     var tezos
 
+    // basic inputs for updating operators
+    let doormanAddress
+    let tokenId = 0
+
+    // contract instances
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
 
+    // contract storages
     let doormanStorage;
     let delegationStorage;
     let mvkTokenStorage;
+
+    // operations
+    let stakeOperation
+    let unstakeOperation
+    let compoundOperation
+    let transferOperation
+    let updateOperatorsOperation
+    let removeOperatorsOperation
+    let setAdminOperation
+    let resetAdminOperation
+    let pauseOperation
+    let unpauseOperation
+    let migrateOperation
 
     before("setup", async () => {
 
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos;
+
+        doormanAddress     = contractDeployments.doorman.address;
         
         doormanInstance    = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -51,6 +72,8 @@ describe("Doorman tests", async () => {
         doormanStorage     = await doormanInstance.storage();
         delegationStorage  = await delegationInstance.storage();
         mvkTokenStorage    = await mvkTokenInstance.storage();
+
+        console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
     });
 
@@ -61,24 +84,18 @@ describe("Doorman tests", async () => {
     describe("%stake", async () => {
         it("user should not be able to stake less than 1MVK", async() => {
             try{
+                
                 // Initial values
-                const userStake = 10**8;
+                const userStake = MVK(0.1);
 
-                // Operator set
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                // update operators operation
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
-                const stakeOperation = await doormanInstance.methods.stake(userStake);
+                stakeOperation = await doormanInstance.methods.stake(userStake);
                 await chai.expect(stakeOperation.send()).to.be.rejected;
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -86,25 +103,19 @@ describe("Doorman tests", async () => {
 
         it("user should not be able to stake more MVK than he has", async() => {
             try{
+
                 // Initial values
                 const userMVKBalance = (await mvkTokenStorage.ledger.get(bob.pkh)).toNumber();
-                const userStake = userMVKBalance + MVK(1);
+                const userStake      = userMVKBalance + MVK(1);
 
-                // Operator set
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                // update operators operation
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
-                const stakeOperation = await doormanInstance.methods.stake(userStake);
+                stakeOperation = await doormanInstance.methods.stake(userStake);
                 await chai.expect(stakeOperation.send()).to.be.rejected;
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -112,27 +123,20 @@ describe("Doorman tests", async () => {
 
         it("user should be able to stake less than his maximum amount of MVK but at least 1MVK", async() => {
             try{
+
                 // Initial values
-                const userStake = MVK(10);
-                const userMVKBalance = (await mvkTokenStorage.ledger.get(bob.pkh)).toNumber();
-                const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-                const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber()
+                const userStake         = MVK(10);
+                const userMVKBalance    = (await mvkTokenStorage.ledger.get(bob.pkh)).toNumber();
+                const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber()
                 const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
-                // Operator set
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                // update operators operation
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
-                const stakeOperation = await doormanInstance.methods.stake(userStake).send();
+                stakeOperation = await doormanInstance.methods.stake(userStake).send();
                 await stakeOperation.confirmation();
 
                 // Update storage
@@ -149,6 +153,7 @@ describe("Doorman tests", async () => {
                 assert.equal(doormanSMVKTotalSupply + userStake, doormanSMVKTotalSupplyEnd);
                 assert.equal(userMVKBalance - userStake, userMVKBalanceEnd);
                 assert.equal(userStakeBalance + userStake, userStakeBalanceEnd);
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -158,12 +163,14 @@ describe("Doorman tests", async () => {
     describe("%unstake", async () => {
         it("user should not be able to unstake less than 1MVK", async() => {
             try{
+                
                 // Initial values
-                const userUnstake = 10**8;
+                const userUnstake = MVK(0.1);
 
                 // Operation
-                const unstakeOperation = await doormanInstance.methods.unstake(userUnstake);
+                unstakeOperation = await doormanInstance.methods.unstake(userUnstake);
                 await chai.expect(unstakeOperation.send()).to.be.rejected;
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -171,14 +178,16 @@ describe("Doorman tests", async () => {
 
         it("user should not be able to unstake more MVK than he has staked before", async() => {
             try{
+
                 // Initial values
-                const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-                const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber()
-                const userUnstake = userStakeBalance +  MVK();
+                const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber()
+                const userUnstake       = userStakeBalance +  MVK(1);
 
                 // Operation
-                const unstakeOperation = await doormanInstance.methods.unstake(userUnstake);
+                unstakeOperation = await doormanInstance.methods.unstake(userUnstake);
                 await chai.expect(unstakeOperation.send()).to.be.rejected;
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -186,8 +195,9 @@ describe("Doorman tests", async () => {
 
         it("user should not be able to unstake if he never staked", async() => {
             try{
+
                 // Switch signer
-                await helperFunctions.signerFactory(tezos, alice.sk);;
+                await helperFunctions.signerFactory(tezos, alice.sk);
 
                 // Initial values
                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
@@ -197,8 +207,9 @@ describe("Doorman tests", async () => {
                 assert.strictEqual(userStakeLedger,undefined);
 
                 // Operation
-                const unstakeOperation = await doormanInstance.methods.unstake(userUnstake);
+                unstakeOperation = await doormanInstance.methods.unstake(userUnstake);
                 await chai.expect(unstakeOperation.send()).to.be.rejected;
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -215,18 +226,18 @@ describe("Doorman tests", async () => {
                 const userUnstake = userStakeBalance - MVK();
 
                 // Operation
-                const unstakeOperation = await doormanInstance.methods.unstake(userUnstake).send();
+                unstakeOperation = await doormanInstance.methods.unstake(userUnstake).send();
                 await unstakeOperation.confirmation();
 
                 // Update storage
-                doormanStorage = await doormanInstance.storage();
+                doormanStorage  = await doormanInstance.storage();
                 mvkTokenStorage = await mvkTokenInstance.storage();
 
                 // Test values
-                const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
-                const exitFee = (((300_000 * 10**36) - (5_250 * mli)) * 10**36 + 25*mli*mli) / (10_000 * 10**36)
-                const paidFee = Math.trunc(userUnstake * (exitFee/100));
-                const expectedFinalAmount = userUnstake - (paidFee/10**36);
+                const mli                   = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
+                const exitFee               = (((300_000 * 10**36) - (5_250 * mli)) * 10**36 + 25 * mli * mli) / (10_000 * 10**36)
+                const paidFee               = Math.trunc(userUnstake * (exitFee/100));
+                const expectedFinalAmount   = userUnstake - (paidFee/10**36);
 
                 // Final Values
                 const userMVKBalanceEnd = (await mvkTokenStorage.ledger.get(bob.pkh)).toNumber();
@@ -242,8 +253,10 @@ describe("Doorman tests", async () => {
                 // Compound for next tests
                 var compoundOperation   = await doormanInstance.methods.compound(bob.pkh).send();
                 await compoundOperation.confirmation();
+                
                 var compoundOperation   = await doormanInstance.methods.compound(eve.pkh).send();
                 await compoundOperation.confirmation();
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -258,37 +271,29 @@ describe("Doorman tests", async () => {
                 const secondUserstake       = MVK(2);
                 const firstUserUnstake      = MVK(1);
 
-                // Operator set
-                const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await firstUpdateOperatorsOperation.confirmation();
+                // --------------------------------
+                // Update Operators Operation
+                // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await secondUpdateOperatorsOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
-                // Operation part-1
-                const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserstake).send();
-                await secondUserStakeOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
-                await firstUserStakeOperation.confirmation();
+                // --------------------------------
+                // Stake Operation
+                // --------------------------------
+
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                stakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
+                await stakeOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                stakeOperation = await doormanInstance.methods.stake(secondUserstake).send();
+                await stakeOperation.confirmation();
 
                 // Balances before unstaking
                 doormanStorage              = await doormanInstance.storage();
@@ -305,15 +310,20 @@ describe("Doorman tests", async () => {
                 console.log("EVE SMVK: ", initSecondSMVKBalance.balance.toNumber())
                 console.log("BOB MVK: ", initFirstMVKBalance.toNumber())
                 
-                // First user unstake
-                const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
-                await firstUserUnstakeOperation.confirmation()
+                // --------------------------------
+                // Unstake and Compound Operation
+                // --------------------------------
 
-                // Compound operations
-                const firstUserCompoundOperation    = await doormanInstance.methods.compound(bob.pkh).send();
-                await firstUserCompoundOperation.confirmation()
-                const secondUserCompoundOperation    = await doormanInstance.methods.compound(eve.pkh).send();
-                await secondUserCompoundOperation.confirmation()
+                // First user (bob) unstake
+                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
+                await unstakeOperation.confirmation()
+
+                // compound operations
+                compoundOperation    = await doormanInstance.methods.compound(bob.pkh).send();
+                await compoundOperation.confirmation()
+
+                compoundOperation    = await doormanInstance.methods.compound(eve.pkh).send();
+                await compoundOperation.confirmation()
 
                 // Refresh variables
                 doormanStorage                      = await doormanInstance.storage();
@@ -338,6 +348,7 @@ describe("Doorman tests", async () => {
 
                 // Assertions
                 assert.equal(helperFunctions.almostEqual(combinedRewards, exitFee, 0.001), true)
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -348,50 +359,47 @@ describe("Doorman tests", async () => {
         it("user should not be able to earn rewards without having staked MVK before", async() => {
             try{
                 // Initial values
-                const firstUserStake = MVK(2)
-                const secondUserStake = MVK()
+                const firstUserStake   = MVK(2)
+                const secondUserStake  = MVK()
                 const firstUserUnstake = MVK()
 
-                // Operator set
-                const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await firstUpdateOperatorsOperation.confirmation();
+                // --------------------------------
+                // Update Operators Operation
+                // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await secondUpdateOperatorsOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
-                // Operations
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
-                await firstUserStakeOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
-                await secondUserStakeOperation.confirmation();
+                // --------------------------------
+                // Stake Operation
+                // --------------------------------
+
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                stakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
+                await stakeOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                stakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
+                await stakeOperation.confirmation();
                 
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
-                await firstUserUnstakeOperation.confirmation();
+                // --------------------------------
+                // Unstake and Compound Operation
+                // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, mallory.sk);;
-                const thirdUserCompoundOperation = await doormanInstance.methods.compound(mallory.pkh).send();
-                await thirdUserCompoundOperation.confirmation();
+                // unstake operation
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
+                await unstakeOperation.confirmation();
+
+                // compound operation
+                await helperFunctions.signerFactory(tezos, mallory.sk);
+                compoundOperation = await doormanInstance.methods.compound(mallory.pkh).send();
+                await compoundOperation.confirmation();
 
                 // Update storage
                 doormanStorage = await doormanInstance.storage();
@@ -403,12 +411,15 @@ describe("Doorman tests", async () => {
                 assert.equal(0,thirdUserStakedMVKBalance)
 
                 // Compound for next test
-                var compoundOperation   = await doormanInstance.methods.compound(bob.pkh).send();
+                compoundOperation   = await doormanInstance.methods.compound(bob.pkh).send();
                 await compoundOperation.confirmation();
-                var compoundOperation   = await doormanInstance.methods.compound(eve.pkh).send();
+                
+                compoundOperation   = await doormanInstance.methods.compound(eve.pkh).send();
                 await compoundOperation.confirmation();
-                var compoundOperation   = await doormanInstance.methods.compound(mallory.pkh).send();
+                
+                compoundOperation   = await doormanInstance.methods.compound(mallory.pkh).send();
                 await compoundOperation.confirmation();
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -417,41 +428,32 @@ describe("Doorman tests", async () => {
         it("user should not be able to compound after unstaking everything", async() => {
             try{
                 // Initial values
-                const firstUserStake = MVK(2)
+                const firstUserStake  = MVK(2)
                 const secondUserStake = MVK(3)
 
-                // Operator set
-                const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await firstUpdateOperatorsOperation.confirmation();
+                // --------------------------------
+                // Update Operators Operation
+                // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await secondUpdateOperatorsOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
+                
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
-                // Operations
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
-                await firstUserStakeOperation.confirmation();
+                // --------------------------------
+                // Stake Operation
+                // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
-                await secondUserStakeOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                stakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
+                await stakeOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                stakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
+                await stakeOperation.confirmation();
                 
                 // Refresh values
                 doormanStorage              = await doormanInstance.storage()
@@ -459,12 +461,13 @@ describe("Doorman tests", async () => {
                 const firstUserUnstake      = firstUserSMVKBalance.balance.toNumber()
                 console.log("UNSTAKE AMOUNT: ", firstUserUnstake)
 
-                // Unstake and compound operation
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
-                await firstUserUnstakeOperation.confirmation();
-                const firstUserCompoundOperation = await doormanInstance.methods.compound(bob.pkh).send();
-                await firstUserCompoundOperation.confirmation();
+                // unstake and compound operations
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
+                await unstakeOperation.confirmation();
+
+                compoundOperation = await doormanInstance.methods.compound(bob.pkh).send();
+                await compoundOperation.confirmation();
 
                 // Final value
                 doormanStorage              = await doormanInstance.storage()
@@ -472,65 +475,64 @@ describe("Doorman tests", async () => {
                 
                 // Assertion
                 assert.equal(finalUserSMVKBalance.balance.toNumber(), 0)
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
         })
 
-        it("user should not be able to compound twice", async() => {
+        it("user should not see any increase in rewards when compounding twice in quick succession", async() => {
             try{
+
                 // Initial values
-                const firstUserStake = MVK(2)
-                const secondUserStake = MVK(3)
+                const firstUserStake   = MVK(2)
+                const secondUserStake  = MVK(3)
                 const firstUserUnstake = MVK()
 
-                // Operator set
-                const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await firstUpdateOperatorsOperation.confirmation();
-
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await secondUpdateOperatorsOperation.confirmation();
-
-                // Operations
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
-                await firstUserStakeOperation.confirmation();
-
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
-                await secondUserStakeOperation.confirmation();
+                // --------------------------------
+                // Update Operators Operation
+                // --------------------------------
                 
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
-                await firstUserUnstakeOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUserCompoundOperation = await doormanInstance.methods.compound(eve.pkh).send();
-                await secondUserCompoundOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
+                // --------------------------------
+                // Stake Operation
+                // --------------------------------
+
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                stakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
+                await stakeOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                stakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
+                await stakeOperation.confirmation();
+                
+                // --------------------------------
+                // Unstake and Compound Operation
+                // --------------------------------
+
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
+                await unstakeOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                compoundOperation = await doormanInstance.methods.compound(eve.pkh).send();
+                await compoundOperation.confirmation();
+
+                // get pre-compound storage and values
                 doormanStorage = await doormanInstance.storage();
                 const secondUserPreCompoundLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
                 const secondUserPreCompoundBalance = secondUserPreCompoundLedger === undefined ? 0 : secondUserPreCompoundLedger.balance.toNumber()
 
-                const secondUserSecondCompoundOperation = await doormanInstance.methods.compound(eve.pkh).send();
-                await secondUserSecondCompoundOperation.confirmation();
+                // compound operation
+                compoundOperation = await doormanInstance.methods.compound(eve.pkh).send();
+                await compoundOperation.confirmation();
 
                 // Update storage
                 doormanStorage = await doormanInstance.storage();
@@ -540,6 +542,7 @@ describe("Doorman tests", async () => {
                 const secondUserPostCompoundBalance = secondUserPostCompoundLedger.balance.toNumber()
 
                 assert.equal(secondUserPreCompoundBalance,secondUserPostCompoundBalance)
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -554,25 +557,17 @@ describe("Doorman tests", async () => {
                 const firstUserStake        = MVK(100)
                 const firstUserUnstake      = MVK(2) // Unstake all but 1MVK
 
-                // Operator set
-                const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await firstUpdateOperatorsOperation.confirmation();
+                // update operators operation 
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
 
-                // Operations
-                const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
-                await firstUserStakeOperation.confirmation();
+                // stake operation
+                stakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
+                await stakeOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
-                await firstUserUnstakeOperation.confirmation();
+                // unstake operation
+                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
+                await unstakeOperation.confirmation();
 
                 // Final values
                 doormanStorage = await doormanInstance.storage();
@@ -594,50 +589,46 @@ describe("Doorman tests", async () => {
                 const secondUserStake = MVK(3)
                 const firstUserUnstake = MVK()
 
-                // Operator set
-                const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await firstUpdateOperatorsOperation.confirmation();
+                // --------------------------------
+                // Update Operators Operation
+                // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await secondUpdateOperatorsOperation.confirmation();
-
-                // Operations
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
-                await firstUserStakeOperation.confirmation();
-
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
-                await secondUserStakeOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
                 
-                await helperFunctions.signerFactory(tezos, bob.sk);;
-                const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
-                await firstUserUnstakeOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
+
+                // --------------------------------
+                // Stake Operation
+                // --------------------------------
+
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                stakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
+                await stakeOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                stakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
+                await stakeOperation.confirmation();
+
+                // --------------------------------
+                // Unstake and Compound Operation
+                // --------------------------------
+                
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
+                await unstakeOperation.confirmation();
 
                 doormanStorage = await doormanInstance.storage();
                 const secondUserPreCompoundLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
                 const secondUserPreCompoundBalance = secondUserPreCompoundLedger === undefined ? 0 : secondUserPreCompoundLedger.balance.toNumber()
 
-                await helperFunctions.signerFactory(tezos, eve.sk);;
-                const secondUserCompoundOperation = await doormanInstance.methods.compound(eve.pkh).send();
-                await secondUserCompoundOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                compoundOperation = await doormanInstance.methods.compound(eve.pkh).send();
+                await compoundOperation.confirmation();
 
                 // Update storage
                 doormanStorage = await doormanInstance.storage();
@@ -647,6 +638,7 @@ describe("Doorman tests", async () => {
                 const secondUserPostCompoundBalance = secondUserPostCompoundLedger.balance.toNumber()
 
                 assert.notEqual(secondUserPreCompoundBalance,secondUserPostCompoundBalance)
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -676,7 +668,8 @@ describe("Doorman tests", async () => {
                 await pauseOperation.confirmation();
 
                 // Operations
-                await chai.expect(doormanInstance.methods.migrateFunds(alice.pkh).send()).to.be.rejected;
+                migrateOperation = await doormanInstance.methods.migrateFunds(alice.pkh);
+                await chai.expect(migrateOperation.send()).to.be.rejected;
 
                 // Final values
                 doormanStorage              = await doormanInstance.storage()
@@ -684,6 +677,7 @@ describe("Doorman tests", async () => {
                 const endCompoundPaused     = doormanStorage.breakGlassConfig.compoundIsPaused
                 const stakePaused           = doormanStorage.breakGlassConfig.stakeIsPaused
                 const unstakePaused         = doormanStorage.breakGlassConfig.unstakeIsPaused
+
                 assert.equal(initCompoundPaused, endCompoundPaused)
                 assert.equal(endCompoundPaused, false)
                 assert.equal(stakePaused, true)
@@ -692,6 +686,7 @@ describe("Doorman tests", async () => {
                 // Reset compound
                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("compound", true).send();
                 await pauseOperation.confirmation();
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -699,9 +694,13 @@ describe("Doorman tests", async () => {
 
         it("Non-admin should not be able to migrate the Doorman contract MVK funds", async() => {
             try{
+                
                 // Operations
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                await chai.expect(doormanInstance.methods.migrateFunds(alice.pkh).send()).to.be.rejected;
+
+                migrateOperation = doormanInstance.methods.migrateFunds(alice.pkh); 
+                await chai.expect(migrateOperation.send()).to.be.rejected;
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -709,6 +708,7 @@ describe("Doorman tests", async () => {
 
         it("Admin should be able to migrate the Doorman contract MVK funds", async() => {
             try{
+
                 // Initial values
                 doormanStorage              = await doormanInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
@@ -720,7 +720,7 @@ describe("Doorman tests", async () => {
                 const compoundPaused        = doormanStorage.breakGlassConfig.unstakeIsPaused
 
                 // Operation
-                const migrateOperation  = await doormanInstance.methods.migrateFunds(newDoormanAddress).send();
+                migrateOperation = await doormanInstance.methods.migrateFunds(newDoormanAddress).send();
                 await migrateOperation.confirmation();
 
                 // Final values
