@@ -9,7 +9,7 @@ oracles:
       peerId: 12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
       peerPublicKey: CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
       peerPrivateKey: CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
-      bootstrapPeers: /ip4/localhost/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/localhost/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      bootstrapPeers: /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
     alphavantage:
       secretName: api-keys
       key: ALPHAVANTAGE_API_KEY
@@ -26,7 +26,7 @@ oracles:
       peerId: 12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
       peerPublicKey: CAESIB3LuOsvQXa/QtLkCtHqfEdDnXDiDtGIKB42deJZQSZb
       peerPrivateKey: CAESQJhgTKhCqif5bg/4RS4mPfjIp/TNA6c7licLcTFumPchHcu46y9Bdr9C0uQK0ep8R0OdcOIO0YgoHjZ14llBJls=
-      bootstrapPeers: /ip4/localhost/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/localhost/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      bootstrapPeers: /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
     alphavantage:
       secretName: api-keys
       key: ALPHAVANTAGE_API_KEY
@@ -43,7 +43,7 @@ oracles:
       peerId: 12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       peerPublicKey: CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
       peerPrivateKey: CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
-      bootstrapPeers: /ip4/localhost/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/localhost/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      bootstrapPeers: /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
     alphavantage:
       secretName: api-keys
       key: ALPHAVANTAGE_API_KEY
@@ -60,7 +60,7 @@ oracles:
       peerId: 12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
       peerPublicKey: CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
       peerPrivateKey: CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
-      bootstrapPeers: /ip4/localhost/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/localhost/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      bootstrapPeers: /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
     alphavantage:
       secretName: api-keys
       key: ALPHAVANTAGE_API_KEY
@@ -77,7 +77,7 @@ oracles:
       peerId: 12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
       peerPublicKey: CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
       peerPrivateKey: CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
-      bootstrapPeers: /ip4/localhost/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/localhost/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      bootstrapPeers: /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/0.0.0.0/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
     alphavantage:
       secretName: api-keys
       key: ALPHAVANTAGE_API_KEY
