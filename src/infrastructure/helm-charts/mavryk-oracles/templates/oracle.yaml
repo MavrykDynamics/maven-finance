@@ -48,24 +48,26 @@ spec:
                   key: {{ .valueFrom.secretKeyRef.key }}
               {{- end }}
           {{- end }}
+            - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
+              value: '2000'
             - name: RPC_URL
-              value: {{ $value.rpcUrl }}
+              value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
-              value: '{{ include "p2pBootstrapPeers" (list $.Values.oracles $value.p2p.peerId) }}'
+              value: '{{ $value.p2p.bootstrapPeers }}'
             - name: P2P_PEER_ID
-              value: {{ $value.p2p.peerId }}
+              value: '{{ $value.p2p.peerId }}'
             - name: P2P_PEER_PUBLIC_KEY
-              value: {{ $value.p2p.peerPublicKey }}
+              value: '{{ $value.p2p.peerPublicKey }}'
             - name: P2P_PEER_PRIVATE_KEY
-              value: {{ $value.p2p.peerPrivateKey }}
+              value: '{{ $value.p2p.peerPrivateKey }}'
             - name: TEZOS_ADDRESS
-              value: {{ $value.tezos.address }}
+              value: '{{ $value.tezos.address }}'
             - name: TEZOS_PUBLIC_KEY
-              value: {{ $value.tezos.publicKey }}
+              value: '{{ $value.tezos.publicKey }}'
             - name: TEZOS_SECRET_KEY
-              value: {{ $value.tezos.secretKey }}
+              value: '{{ $value.tezos.secretKey }}'
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
-              value: {{ join "," $.Values.aggregatorsAddresses }}
+              value: '{{ join "," $.Values.aggregatorsAddresses }}'
             - name: ALPHAVANTAGE_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -76,8 +78,6 @@ spec:
                 secretKeyRef:
                   name: {{ $value.messari.secretName }}
                   key: {{ $value.messari.key }}
-            - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
-              value: '2000'
             - name: LOG_LEVEL
               value: 'verbose'
             - name: USE_FAKE_DATA
