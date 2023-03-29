@@ -56,6 +56,11 @@ describe('MVK Token', async () => {
     let updatedMalloryTokenBalance
     let updatedTotalSupply
 
+    // contract map value
+    let contractMapKey
+    let initialContractMapValue
+    let updatedContractMapValue
+
     // operations
     let transferOperation
     let updateOperatorsOperation
@@ -66,6 +71,8 @@ describe('MVK Token', async () => {
     let updateWhitelistContractsOperation
     let updateWhitelistTokenContractsOperation
     let updateGeneralContractsOperation
+
+    
 
     before('setup', async () => {
         
@@ -1734,15 +1741,17 @@ describe('MVK Token', async () => {
         it('Adds Eve to the Whitelisted Contracts map', async () => {
             try {
 
-                const oldWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
-                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+                contractMapKey          = "eve";
+                initialContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
+
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, eve.pkh).send()
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
+                updatedContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldWhitelistContractsMapEve, undefined, 'Eve should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(newWhitelistContractsMapEve, eve.pkh,  'Eve should be in the Whitelist Contracts map after adding her to it')
+                assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
+                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.log(e)
@@ -1752,15 +1761,17 @@ describe('MVK Token', async () => {
         it('Removes Eve from the Whitelisted Contracts map', async () => {
             try {
 
-                const oldWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
-                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+                contractMapKey          = "eve";
+                initialContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
+
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, eve.pkh).send()
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
+                updatedContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldWhitelistContractsMapEve, eve.pkh, 'Eve should be in the Whitelist Contracts map before adding her to it');
-                assert.strictEqual(newWhitelistContractsMapEve, undefined, 'Eve should not be in the Whitelist Contracts map after adding her to it');
+                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
                 console.log(e)
@@ -1770,15 +1781,17 @@ describe('MVK Token', async () => {
         it('Adds Alice to the Whitelisted Contracts map', async () => {
             try {
 
-                const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
-                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send()
+                contractMapKey          = "alice";
+                initialContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
+
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh).send()
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
+                updatedContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldWhitelistContractsMapAlice, undefined, 'Alice should not be in the Whitelist Contracts map before adding him to it');
-                assert.strictEqual(newWhitelistContractsMapAlice, alice.pkh, 'Alice should be in the Whitelist Contracts map after adding him to it');
+                assert.strictEqual(initialContractMapValue, undefined, 'Alice (key) should not be in the Whitelist Contracts map before adding him to it');
+                assert.strictEqual(updatedContractMapValue, alice.pkh, 'Alice (key) should be in the Whitelist Contracts map after adding him to it');
 
             } catch (e) {
                 console.log(e)
@@ -1788,15 +1801,17 @@ describe('MVK Token', async () => {
         it('Removes Alice from the Whitelisted Contracts map', async () => {
             try {
 
-                const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
-                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send()
+                contractMapKey          = "alice";
+                initialContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
+
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh).send()
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice')
+                updatedContractMapValue = await tokenStorage['whitelistContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldWhitelistContractsMapAlice, alice.pkh, 'Alice should be in the Whitelist Contracts map before adding him to it');
-                assert.strictEqual(newWhitelistContractsMapAlice, undefined, 'Alice should not be in the Whitelist Contracts map after adding him to it');
+                assert.strictEqual(initialContractMapValue, alice.pkh, 'Alice (key) should be in the Whitelist Contracts map before adding him to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Alice (key) should not be in the Whitelist Contracts map after adding him to it');
 
             } catch (e) {
                 console.log(e)
@@ -1808,15 +1823,17 @@ describe('MVK Token', async () => {
         it('Adds Bob to the General Contracts map', async () => {
             try {
 
-                const oldAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
-                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
+                contractMapKey          = "bob";
+                initialContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
+
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, bob.pkh).send()
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
+                updatedContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldAddressesContractsMapBob, undefined, 'Bob should not be in the General Contracts map before adding her to it');
-                assert.strictEqual(newAddressesContractsMapBob, bob.pkh, 'Bob should be in the General Contracts map after adding her to it');
+                assert.strictEqual(initialContractMapValue, undefined, 'Bob (key) should not be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, bob.pkh, 'Bob (key) should be in the General Contracts map after adding her to it');
 
             } catch (e) {
                 console.log(e)
@@ -1826,15 +1843,17 @@ describe('MVK Token', async () => {
         it('Removes Bob from the General Contracts map', async () => {
             try {
 
-                const oldAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
-                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
+                contractMapKey          = "bob";
+                initialContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
+
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, bob.pkh).send()
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
+                updatedContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldAddressesContractsMapBob, bob.pkh, 'Bob should be in the General Contracts map before adding her to it');
-                assert.strictEqual(newAddressesContractsMapBob, undefined, 'Bob should not be in the General Contracts map after adding her to it');
+                assert.strictEqual(initialContractMapValue, bob.pkh, 'Bob (key) should be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Bob (key) should not be in the General Contracts map after adding her to it');
 
             } catch (e) {
                 console.log(e)
@@ -1844,15 +1863,17 @@ describe('MVK Token', async () => {
         it('Adds Alice to the General Contracts map', async () => {
             try {
 
-                const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
-                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('alice', bob.pkh).send()
+                contractMapKey          = "alice";
+                initialContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
+                
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, bob.pkh).send()
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
+                updatedContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldAddressesContractsMapAlice, undefined, 'Alice should not be in the General Contracts map before adding him to it');
-                assert.strictEqual(newAddressesContractsMapAlice, bob.pkh, 'Alice should be in the General Contracts map after adding alice to it');
+                assert.strictEqual(initialContractMapValue, undefined, 'Alice (key) should not be in the General Contracts map before adding him to it');
+                assert.strictEqual(updatedContractMapValue, bob.pkh, 'Alice (key) should be in the General Contracts map after adding alice to it');
 
             } catch (e) {
                 console.log(e)
@@ -1862,15 +1883,17 @@ describe('MVK Token', async () => {
         it('Removes Alice from the General Contracts map', async () => {
             try {
 
-                const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
-                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts('alice', bob.pkh).send()
+                contractMapKey          = "alice";
+                initialContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
+
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, bob.pkh).send()
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                const newAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
+                updatedContractMapValue = await tokenStorage['generalContracts'].get(contractMapKey)
 
-                assert.strictEqual(oldAddressesContractsMapAlice, bob.pkh, 'Bob should be in the General Contracts map before adding him to it');
-                assert.strictEqual(newAddressesContractsMapAlice, undefined, 'Alice should not be in the General Contracts map after adding him to it');
+                assert.strictEqual(initialContractMapValue, bob.pkh, 'Alice (key) should be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Alice (key) should not be in the General Contracts map after adding her to it');
 
             } catch (e) {
                 console.log(e)
