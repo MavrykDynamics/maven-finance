@@ -55,10 +55,6 @@ spec:
               value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
               value: '{{ include "p2pBootstrapPeers" (list $.Values.oracles $value.p2p.peerId) }}'
-            - name: P2P_LISTEN_PROTOCOL
-              value: '{{ $value.p2p.listenProtocol }}'
-            - name: P2P_LISTEN_ADDRESS
-              value: '{{ $value.p2p.listenAddress }}'
             - name: P2P_PEER_ID
               value: '{{ $value.p2p.peerId }}'
             - name: P2P_PEER_PUBLIC_KEY
