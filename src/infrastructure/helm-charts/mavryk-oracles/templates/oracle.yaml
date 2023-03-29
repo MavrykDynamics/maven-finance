@@ -79,7 +79,7 @@ spec:
                   name: {{ $value.messari.secretName }}
                   key: {{ $value.messari.key }}
             - name: LOG_LEVEL
-              value: 'verbose'
+              value: 'debug'
             - name: USE_FAKE_DATA
               value: 'false'
           image: '{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}'
