@@ -29,6 +29,12 @@ export const almostEqual = (actual, expected, delta) => {
 }
 
 
+export async function getStorageMapValue (contractStorage, mapName, key) {
+    const storageMapValue = await contractStorage[mapName].get(key);
+    return storageMapValue;
+}
+
+
 export async function updateWhitelistContracts (contractInstance, key, address) {
     const updateWhitelistContractsOperation = await contractInstance.methods.updateWhitelistContracts(key, address).send();
     return updateWhitelistContractsOperation;
