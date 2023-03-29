@@ -1,25 +1,41 @@
+{{ range $key, $value := .Values.oracles }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle-{{ $key }}
+  labels:
+    app: oracle-{{ $key }}
+spec:
+  ports:
+    - name: p2p
+      port: 23456
+      protocol: TCP
+      targetPort: p2p
+  selector:
+    app: oracle-{{ $key }}
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oracle
+  name: oracle-{{ $key }}
   labels:
-    app: oracle
+    app: oracle-{{ $key }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: oracle
+      app: oracle-{{ $key }}
   template:
     metadata:
       labels:
-        app: oracle
+        app: oracle-{{ $key }}
     spec:
       imagePullSecrets:
         - name: '{{ $.Values.image.pullSecret }}'
       containers:
-      {{ range $key, $value := .Values.oracles }}
-        - name: oracle-{{ $key }}
+        - name: oracle
           env:
           {{- range $value.env }}
             - name: {{ .name }}
@@ -72,4 +88,4 @@ spec:
             - name: p2p
               containerPort: 23456
               protocol: TCP
-        {{ end }}
+{{ end }}
