@@ -38,8 +38,10 @@ spec:
               value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
               value: '{{ include "p2pBootstrapPeers" (list $.Values.oracles $value.p2p.peerId) }}'
+            - name: P2P_LISTEN_PROTOCOL
+              value: 'dns4'
             - name: P2P_LISTEN_ADDRESS
-              value: '0.0.0.0'
+              value: 'localhost'
             - name: P2P_LISTEN_PORT
               value: '{{ $value.p2p.listenPort }}'
             - name: P2P_PEER_ID
