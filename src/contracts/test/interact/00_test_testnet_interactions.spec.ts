@@ -3821,195 +3821,195 @@ describe("Testnet interactions helper", async () => {
         });
     })
 
-    describe("TOKEN SALE", async () => {
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
+    // describe("TOKEN SALE", async () => {
+    //     beforeEach("Set signer to admin", async () => {
+    //         await signerFactory(bob.sk)
+    //     });
 
-        it('Admin sets admin', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin sets admin', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.setAdmin(bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin sets governance', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin sets governance', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.setGovernance(governanceAddress.address).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the vesting period duration in sec', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(2628000, "configVestingPeriodDurationSec").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the vesting period duration in sec', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(2628000, "configVestingPeriodDurationSec").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the max amount per wallet total of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(MVK(2000), "configMaxAmountPerWalletTotal", "3").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the max amount per wallet total of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(MVK(2000), "configMaxAmountPerWalletTotal", "3").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the whitelist max amount total of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(MVK(1000), "configWhitelistMaxAmountTotal", "2").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the whitelist max amount total of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(MVK(1000), "configWhitelistMaxAmountTotal", "2").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the max amount cap of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(MVK(11000000), "configMaxAmountCap", "1").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the max amount cap of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(MVK(11000000), "configMaxAmountCap", "1").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the vesting periods of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(13, "configVestingPeriods", "3").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the vesting periods of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(13, "configVestingPeriods", "3").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the token price of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "2").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the token price of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "2").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the min MVK amount of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "1").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the min MVK amount of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "1").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the whitelist duation', async () => {
-            try{
-                // Initial values
-                const currentTimestamp      = new Date();
-                const desiredStart          = Math.round(currentTimestamp.getTime() / 1000);
-                currentTimestamp.setDate(currentTimestamp.getDate() + 1);
-                const desiredEnd            = Math.round(currentTimestamp.getTime() / 1000);
+    //     it('Admin updates the whitelist duation', async () => {
+    //         try{
+    //             // Initial values
+    //             const currentTimestamp      = new Date();
+    //             const desiredStart          = Math.round(currentTimestamp.getTime() / 1000);
+    //             currentTimestamp.setDate(currentTimestamp.getDate() + 1);
+    //             const desiredEnd            = Math.round(currentTimestamp.getTime() / 1000);
 
-                // Operation
-                const setOperation          = await tokenSaleInstance.methods.setWhitelistTimestamp(desiredStart.toString(), desiredEnd.toString()).send();
-                await setOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const setOperation          = await tokenSaleInstance.methods.setWhitelistTimestamp(desiredStart.toString(), desiredEnd.toString()).send();
+    //             await setOperation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin adds addresses to whitelist', async () => {
-            try{
-                // Operation
-                const operation             = await tokenSaleInstance.methods.addToWhitelist([bob.pkh, alice.pkh]).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin adds addresses to whitelist', async () => {
+    //         try{
+    //             // Operation
+    //             const operation             = await tokenSaleInstance.methods.addToWhitelist([bob.pkh, alice.pkh]).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin removes an address from whitelist', async () => {
-            try{
-                // Operation
-                const operation             = await tokenSaleInstance.methods.removeFromWhitelist([alice.pkh]).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin removes an address from whitelist', async () => {
+    //         try{
+    //             // Operation
+    //             const operation             = await tokenSaleInstance.methods.removeFromWhitelist([alice.pkh]).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin starts the sale', async () => {
-            try{
-                // Operation
-                const operation             = await tokenSaleInstance.methods.startSale().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin starts the sale', async () => {
+    //         try{
+    //             // Operation
+    //             const operation             = await tokenSaleInstance.methods.startSale().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin buys tokens', async () => {
-            try{
-                // Initial values
-                tokenSaleStorage            = await tokenSaleInstance.storage();
-                const buyOptionIndex        = "1";
-                const buyOption             = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
-                const tokenXTZPrice         = buyOption.tokenXtzPrice.toNumber();
-                const amountToBuy           = MVK(3000);
-                const amountToPay           = (amountToBuy / MVK() * tokenXTZPrice) / 10**6;
+    //     it('Admin buys tokens', async () => {
+    //         try{
+    //             // Initial values
+    //             tokenSaleStorage            = await tokenSaleInstance.storage();
+    //             const buyOptionIndex        = "1";
+    //             const buyOption             = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+    //             const tokenXTZPrice         = buyOption.tokenXtzPrice.toNumber();
+    //             const amountToBuy           = MVK(3000);
+    //             const amountToPay           = (amountToBuy / MVK() * tokenXTZPrice) / 10**6;
 
-                // Operation
-                const buyOperation          = await tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay});
-                await buyOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const buyOperation          = await tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay});
+    //             await buyOperation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses token sale', async () => {
-            try{
-                // Operation
-                const operation                 = await tokenSaleInstance.methods.pauseSale().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses token sale', async () => {
+    //         try{
+    //             // Operation
+    //             const operation                 = await tokenSaleInstance.methods.pauseSale().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin closes token sale', async () => {
-            try{
-                // Operation
-                const operation                 = await tokenSaleInstance.methods.closeSale().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin closes token sale', async () => {
+    //         try{
+    //             // Operation
+    //             const operation                 = await tokenSaleInstance.methods.closeSale().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin claims tokens', async () => {
-            try{
-                // Operation
-                const operation                 = await tokenSaleInstance.methods.claimTokens(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    })
+    //     it('Admin claims tokens', async () => {
+    //         try{
+    //             // Operation
+    //             const operation                 = await tokenSaleInstance.methods.claimTokens(bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+    // })
 
     // describe("LENDING CONTROLLER", async () => {
     //     beforeEach("Set signer to admin", async () => {

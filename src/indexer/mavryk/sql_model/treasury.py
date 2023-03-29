@@ -59,7 +59,13 @@ class TreasuryBalance(Model):
     id                                      = fields.BigIntField(pk=True)
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances', index=True)
     token_address                           = fields.CharField(max_length=36, default="", index=True)
+    token_id                                = fields.SmallIntField(null=True)
+    token_standard                          = fields.CharField(max_length=4, null=True)
+    tzkt_token_id                           = fields.BigIntField(default=0)
     balance                                 = fields.FloatField(default=0.0)
+    metadata                                = fields.JSONField(null=True)
+    name                                    = fields.TextField(null=True)
+    icon                                    = fields.TextField(null=True)
 
     class Meta:
         table = 'treasury_balance'
