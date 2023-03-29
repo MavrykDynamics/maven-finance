@@ -38,6 +38,10 @@
 
   - Table added
 
+- TreasuryBalance
+
+  - Table added but not filled yet (https://github.com/dipdup-io/dipdup/issues/636)
+
 - Treasury
 
   - Column Baker added
