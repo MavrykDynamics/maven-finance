@@ -19,7 +19,7 @@ spec:
         - name: '{{ $.Values.image.pullSecret }}'
       containers:
         {{ range $key, $value := .Values.oracles }}
-        - name: oracle
+        - name: oracle-{{ $key }}
           env:
           {{- range $value.env }}
             - name: {{ .name }}
