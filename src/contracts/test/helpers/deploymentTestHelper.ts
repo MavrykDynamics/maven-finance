@@ -123,12 +123,12 @@ type generalContractStorageType =
     mTokenStorageType    
 
 
-type farmTypeType = "Farm" | "MFarm"
+// for Farm Factory -> farm product lambdas
+type farmTypeType = "farm" | "mFarm"
 
 type GeneralContractContractMethods<T extends ContractProvider | Wallet> = {
-    setLambda: (number, string) => ContractMethod<T>;
-    setProductLambda: (number, string) => ContractMethod<T>;
-    setFarmProductLambda: (number, string, farmTypeType) => ContractMethod<T>;
+    setLambda: (lambdaName: string, lambdaBytes: string) => ContractMethod<T>;
+    setProductLambda: (lambdaName: string, lambdaBytes: string, type?: farmTypeType)  => ContractMethod<T>;
     updateWhitelistContracts: (
         whitelistContractName       : string,
         whitelistContractAddress    : string
@@ -214,7 +214,7 @@ export const setGeneralContractProductLambdas = async (tezosToolkit: TezosToolki
 
     if(contractName == "farmFactory" || contractName == "farmFactoryMToken"){
 
-        const farmTypeType = contractName == "farmFactory" ? "farm" : "farmMToken";
+        const farmTypeType = contractName == "farmFactory" ? "farm" : "mFarm";
 
         for(let i = 0; i < batchesCount; i++) {
         
@@ -224,7 +224,7 @@ export const setGeneralContractProductLambdas = async (tezosToolkit: TezosToolki
             for (let lambdaName in lambdas) {
                 let bytes   = lambdas[lambdaName]
                 if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-                    batch.withContractCall(contract.methods.setFarmProductLambda(lambdaName, bytes, farmTypeType))
+                    batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes, farmTypeType))
                 }
                 index++;
             }
