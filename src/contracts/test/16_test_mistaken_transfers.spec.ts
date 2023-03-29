@@ -228,20 +228,20 @@
 //                 await transferOperation.confirmation();
                 
 //                 // Treasury Transfer Operation
-//                 await chai.expect(doormanInstance.methods.mistakenTransfer(
-//                     [
-//                         {
-//                             "to_"    : bob.pkh,
-//                             "token"  : {
-//                                 "fa2" : {
-//                                     "tokenContractAddress": mvkTokenAddress.address,
-//                                     "tokenId" : 0
-//                                 }
-//                             },
-//                             "amount" : tokenAmount
-//                         }
-//                     ]
-//                     ).send()).to.be.rejected;
+                // await chai.expect(doormanInstance.methods.mistakenTransfer(
+                //     [
+                //         {
+                //             "to_"    : bob.pkh,
+                //             "token"  : {
+                //                 "fa2" : {
+                //                     "tokenContractAddress": mvkTokenAddress.address,
+                //                     "tokenId" : 0
+                //                 }
+                //             },
+                //             "amount" : tokenAmount
+                //         }
+                //     ]
+                //     ).send()).to.be.rejected;
 
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
