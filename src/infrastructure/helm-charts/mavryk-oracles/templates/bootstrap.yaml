@@ -21,6 +21,7 @@ spec:
         - name: bootstrap
           image: 'docker.io/mavrykdynamics/mavryk-oracle-bootstrap-node:v0.0.1'
           imagePullPolicy: 'Always'
+          command: sleep 3600
           ports:
             - name: p2p
               containerPort: 23456
