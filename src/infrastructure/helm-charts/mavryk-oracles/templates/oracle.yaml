@@ -1,25 +1,41 @@
+{{ range $key, $value := .Values.oracles }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle-{{ $key }}
+  labels:
+    app: oracle-{{ $key }}
+spec:
+  ports:
+    - name: p2p
+      port: 23456
+      protocol: TCP
+      targetPort: p2p
+  selector:
+    app: oracle-{{ $key }}
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oracle
+  name: oracle-{{ $key }}
   labels:
-    app: oracle
+    app: oracle-{{ $key }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: oracle
+      app: oracle-{{ $key }}
   template:
     metadata:
       labels:
-        app: oracle
+        app: oracle-{{ $key }}
     spec:
       imagePullSecrets:
         - name: '{{ $.Values.image.pullSecret }}'
       containers:
-        {{ range $key, $value := .Values.oracles }}
-        - name: oracle-{{ $key }}
+        - name: oracle
           env:
           {{- range $value.env }}
             - name: {{ .name }}
@@ -37,13 +53,11 @@ spec:
             - name: RPC_URL
               value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
-              value: '{{ include "p2pBootstrapPeers" (list $.Values.oracles $value.p2p.peerId) }}'
+              value: '{{ $value.p2p.bootstrapPeers }}'
             - name: P2P_LISTEN_PROTOCOL
-              value: 'dns4'
+              value: '{{ $value.p2p.listenProtocol }}'
             - name: P2P_LISTEN_ADDRESS
-              value: 'localhost'
-            - name: P2P_LISTEN_PORT
-              value: '{{ $value.p2p.listenPort }}'
+              value: '{{ $value.p2p.listenAddress }}'
             - name: P2P_PEER_ID
               value: '{{ $value.p2p.peerId }}'
             - name: P2P_PEER_PUBLIC_KEY
@@ -74,4 +88,8 @@ spec:
               value: 'false'
           image: '{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}'
           imagePullPolicy: '{{ $.Values.image.pullPolicy }}'
-        {{ end }}
+          ports:
+            - name: p2p
+              containerPort: 23456
+              protocol: TCP
+{{ end }}
