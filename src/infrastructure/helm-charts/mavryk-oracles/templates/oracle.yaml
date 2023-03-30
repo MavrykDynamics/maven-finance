@@ -9,8 +9,8 @@ metadata:
 spec:
   clusterIP: None
   ports:
-    - port: 80
-      name: http
+    - port: 23456
+      name: p2p
   type: ClusterIP
   selector:
     app: oracle-{{ $key }}
