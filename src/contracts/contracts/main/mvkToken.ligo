@@ -39,6 +39,7 @@ type action is
     |   Balance_of                of balanceOfType
     |   Update_operators          of updateOperatorsType
     |   Mint                      of mintType
+    |   Burn                      of nat
 
         // Additional Entrypoints (Token Supply Inflation)
     |   UpdateInflationRate       of nat
@@ -439,7 +440,6 @@ block{
 
 
 
-
 (* balance_of entrypoint *)
 function balanceOf(const balanceOfParams : balanceOfType; const store : mvkTokenStorageType) : return is
 block{
@@ -509,6 +509,28 @@ block {
 
 } with (noOperations, store)
 
+
+
+(* burn entrypoint *)
+function burn(const burnTokenAmount : nat; var store : mvkTokenStorageType) : return is
+block {
+
+    const senderAddress : ownerType = Tezos.get_sender();
+
+    // Get sender's balance
+    const senderBalance : tokenBalanceType = get_balance((senderAddress, 0n), store);
+
+    // Validate that sender has enough tokens to burn
+    checkBalance(senderBalance, burnTokenAmount);
+
+    const senderNewBalance : tokenBalanceType = abs(senderBalance - burnTokenAmount);
+
+    // Update mvkTokenStorageType
+    store.totalSupply           := abs(store.totalSupply - burnTokenAmount);
+    store.ledger[senderAddress] := senderNewBalance;
+
+} with (noOperations, store)
+
 // ------------------------------------------------------------------------------
 // FA2 Entrypoints End
 // ------------------------------------------------------------------------------
@@ -549,11 +571,11 @@ block {
     // And at least 90% of the maximum supply has been minted
     if store.nextInflationTimestamp < Tezos.get_now() and mintedMvkPercentage > 90_00n then {
       
-      // Set the new maximumSupply
-      store.maximumSupply           := store.maximumSupply + inflation;
+        // Set the new maximumSupply
+        store.maximumSupply           := store.maximumSupply + inflation;
 
-      // Update the next change date
-      store.nextInflationTimestamp  := Tezos.get_now() + one_year;
+        // Update the next change date
+        store.nextInflationTimestamp  := Tezos.get_now() + one_year;
 
     }
     else failwith(error_CANNOT_TRIGGER_INFLATION_NOW);
@@ -595,6 +617,7 @@ block{
         |   Balance_of (params)                 -> balanceOf(params, store)
         |   Update_operators (params)           -> updateOperators(params, store)
         |   Mint (params)                       -> mint(params, store)
+        |   Burn (params)                       -> burn(params, store)
 
             // Additional Entrypoints (Token Supply Inflation)
         |   UpdateInflationRate (params)        -> updateInflationRate(params, store)
