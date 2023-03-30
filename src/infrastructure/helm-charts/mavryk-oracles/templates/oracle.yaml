@@ -14,11 +14,13 @@ spec:
       app: oracle-{{ $key }}
   serviceName: oracle-{{ $key }}
   template:
+    volumeClaimTemplates:
     metadata:
       labels:
         app: oracle-{{ $key }}
-    imagePullSecrets:
-        - name: '{{ $.Values.image.pullSecret }}'
+    spec:
+      imagePullSecrets:
+          - name: '{{ $.Values.image.pullSecret }}'
       containers:
         - name: oracle
           env:
