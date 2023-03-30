@@ -111,6 +111,7 @@ describe('Linked contracts updates for Tests', async () => {
                 .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts("doorman", contractDeployments.doorman.address))
                 .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts('vesting', contractDeployments.vesting.address))
                 .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts('treasury', contractDeployments.treasury.address))
+                
             const mvkContractsBatchOperation = await mvkContractsBatch.send()
             await mvkContractsBatchOperation.confirmation();
         
