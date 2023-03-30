@@ -9,11 +9,13 @@ metadata:
 spec:
   clusterIP: None
   ports:
-    - port: 23456
-      name: p2p
-  type: ClusterIP
+    - name: p2p
+      port: 23456
+      protocol: TCP
+      targetPort: p2p
   selector:
     app: oracle-{{ $key }}
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: StatefulSet
