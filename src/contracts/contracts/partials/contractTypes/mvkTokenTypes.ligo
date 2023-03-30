@@ -19,6 +19,9 @@ type tokenMetadataType is big_map(tokenIdType, tokenMetadataInfoType);
 (* Mint entrypoint inputs *)
 type mintType is (ownerType * tokenBalanceType)
 
+(* Burn entrypoint inputs *)
+type burnType is nat
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
