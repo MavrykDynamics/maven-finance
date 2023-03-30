@@ -68,7 +68,7 @@ function verifyUnstakeAmountLessThanStakedTotalSupply(const unstakeAmount : nat;
 block {
 
     // verify first value (unstakeAmount) is less than second value (staked MVK total supply)
-    verifyLessThanOrEqual(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_ERROR);
+    verifyLessThanOrEqual(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_CANNOT_BE_GREATER_THAN_STAKED_MVK_TOTAL_SUPPLY);
 
 } with unit
 
