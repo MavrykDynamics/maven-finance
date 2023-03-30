@@ -19,6 +19,7 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
 import { mockTokenData } from './helpers/mockSampleData'
 import * as helperFunctions from './helpers/helperFunctions'
+import { help } from 'yargs'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -35,6 +36,7 @@ describe('Test: MVK Token Contract', async () => {
     let tokenStorage
 
     // common inputs 
+    let user
     let sender
     let receiver 
     let tokenId = 0
@@ -43,6 +45,7 @@ describe('Test: MVK Token Contract', async () => {
     let operatorKey
 
     // initial token balances
+    let initialUserTokenBalance
     let initialSenderTokenBalance
     let initialReceiverTokenBalance
     let initialBobTokenBalance
@@ -52,6 +55,7 @@ describe('Test: MVK Token Contract', async () => {
     let initialTotalSupply
 
     // updated token balances
+    let updatedUserTokenBalance
     let updatedSenderTokenBalance
     let updatedReceiverTokenBalance
     let updatedBobTokenBalance
@@ -74,6 +78,7 @@ describe('Test: MVK Token Contract', async () => {
     let setGovernanceOperation
     let resetAdminOperation
     let mintOperation
+    let burnOperation
     let updateWhitelistContractsOperation
     let updateGeneralContractsOperation
 
@@ -218,66 +223,6 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('user (eve) should not be able to send more MVK than what she has to herself', async () => {
-            try {
-
-                // init variables
-                sender        = eve.pkh;
-                receiver      = eve.pkh;
-                tokenAmount   = 250000001;
-
-                // initial storage
-                tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-
-                // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
-                await transferOperation.confirmation();
-
-            } catch (e) {
-
-                // updated storage
-                tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-
-                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
-                assert.equal(updatedSenderTokenBalance.toNumber(), initialSenderTokenBalance.toNumber());
-
-            }
-        })
-
-        it('user (eve) should not be able to send more MVK than what she has to another user (mallory)', async () => {
-            try {
-
-                // init variables
-                sender        = eve.pkh;
-                receiver      = mallory.pkh;
-                tokenAmount   = 250000001;
-
-                // initial storage
-                tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
-
-                // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
-                await transferOperation.confirmation();
-
-            } catch (e) {
-                
-                // updated storage
-                tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
-
-                // check balances
-                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
-                assert.equal(updatedSenderTokenBalance.toNumber()   , initialSenderTokenBalance.toNumber());
-                assert.equal(updatedReceiverTokenBalance.toNumber() , initialReceiverTokenBalance.toNumber());
-
-            }
-        })
-
         it('user (eve) should be able to send variable amounts of MVK (including zero) to multiple users (alice, mallory, herself) in a single transaction', async () => {
             try {
 
@@ -358,22 +303,67 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('user (eve) should not be able to send MVK with the wrong token id to another user (mallory)', async () => {
+        it('user (eve) should be able to send all her MVK to another user (mallory)', async () => {
             try {
 
                 // init variables
-                sender             = eve.pkh;
-                receiver           = mallory.pkh;
-                tokenAmount        = 100;
-                const wrongTokenId = 1;
+                sender   = eve.pkh;
+                receiver = mallory.pkh;
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
+                tokenAmount = initialSenderTokenBalance;
+
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, wrongTokenId, tokenAmount);
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+                // updated storage
+                tokenStorage                = await tokenInstance.storage()
+                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                
+                assert.equal(updatedSenderTokenBalance.toNumber()   , +initialSenderTokenBalance.toNumber()   -  +tokenAmount);
+                assert.equal(updatedReceiverTokenBalance.toNumber() , +initialReceiverTokenBalance.toNumber() +  +tokenAmount);
+
+                // --------------------------------------------------------------------------
+                // reset token balance for eve for subsequent retesting if needed
+                // --------------------------------
+
+                // set signer to mallory
+                await helperFunctions.signerFactory(tezos, mallory.sk);
+                sender   = mallory.pkh;
+                receiver = eve.pkh;
+
+                // transfer tokens back to eve
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+                // --------------------------------------------------------------------------
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+
+        it('user (eve) should not be able to send more MVK than what she has to herself', async () => {
+            try {
+
+                // init variables
+                sender        = eve.pkh;
+                receiver      = eve.pkh;
+                tokenAmount   = 250000001;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+
+                // transfer operation
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -381,19 +371,46 @@ describe('Test: MVK Token Contract', async () => {
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
                 updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+
+                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
+                assert.equal(updatedSenderTokenBalance.toNumber(), initialSenderTokenBalance.toNumber());
+
+            }
+        })
+
+        it('user (eve) should not be able to send more MVK than what she has in a single transaction to another user (mallory)', async () => {
+            try {
+
+                // init variables
+                sender        = eve.pkh;
+                receiver      = mallory.pkh;
+                tokenAmount   = 250000001;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+
+                // transfer operation
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+            } catch (e) {
+                
+                // updated storage
+                tokenStorage                = await tokenInstance.storage()
+                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
                 updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
-                // check error message
-                assert.equal(e.message, 'FA2_TOKEN_UNDEFINED', "Mallory shouldn't be able to send a token from a token id that does not exist on the contract",);
-
-                // no changes in balances
+                // check balances
+                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
                 assert.equal(updatedSenderTokenBalance.toNumber()   , initialSenderTokenBalance.toNumber());
                 assert.equal(updatedReceiverTokenBalance.toNumber() , initialReceiverTokenBalance.toNumber());
 
             }
         })
 
-        it('user (eve) should not be able to send more than MVK what she has to another user (mallory)', async () => {
+        it('user (eve) should not be able to send more MVK than what she has in a multi-transfer transaction to another user (mallory)', async () => {
             try {
 
                 // init variables
@@ -434,217 +451,42 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it("user (eve) should not be able to make transfers on another user's (alice, mallory) behalf without being their operators", async () => {
+
+        it('user (eve) should not be able to send MVK with the wrong token id to another user (mallory)', async () => {
             try {
 
                 // init variables
-                const amountSentToMallory  = 35;
-                const amountSentToEve  = 200;
+                sender             = eve.pkh;
+                receiver           = mallory.pkh;
+                tokenAmount        = 100;
+                const wrongTokenId = 1;
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-
-                transferOperation = await tokenInstance.methods.transfer([
-                    {
-                        from_: mallory.pkh,
-                        txs: [
-                            {
-                                to_: eve.pkh,
-                                token_id: 0,
-                                amount: amountSentToEve
-                            }
-                        ]
-                    },
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: mallory.pkh,
-                                token_id: 0,
-                                amount: amountSentToMallory
-                            }
-                        ]
-                    }
-                ]).send()
-                await transferOperation.confirmation()
-
-            } catch (e) {
-
-                // updated storage
-                tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-
-                // check error message
-                assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Alice and Eve")
-
-                // no changes in balance
-                assert.equal(updatedEveTokenBalance.toNumber()      , initialEveTokenBalance.toNumber())
-                assert.equal(updatedMalloryTokenBalance.toNumber()  , initialMalloryTokenBalance.toNumber())
-                assert.equal(updatedAliceTokenBalance.toNumber()    , initialAliceTokenBalance.toNumber());
-            }
-        })
-
-        it("user (eve) should be able to make transfers on another user's (mallory) behalf if they are set as operators", async () => {
-            try {
-
-                // mallory sets eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
-                await updateOperatorsOperation.confirmation();
-
-                // init variables 
-                const from  = mallory.pkh;
-                const to    = alice.pkh;
-                tokenAmount = 200;
-
-                // initial storage
-                tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-
-                // transfer operation - eve transfer on mallory's behalf
-                await helperFunctions.signerFactory(tezos, eve.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
-                await transferOperation.confirmation();
-
-                // updated storage
-                tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-
-                // check balances
-                assert.equal(updatedMalloryTokenBalance.toNumber()  , +initialMalloryTokenBalance.toNumber() - +tokenAmount);
-                assert.equal(updatedAliceTokenBalance.toNumber()    , +initialAliceTokenBalance.toNumber() + +tokenAmount);
-                assert.equal(updatedEveTokenBalance.toNumber()      , initialEveTokenBalance.toNumber());
-
-            } catch (e) {
-                console.log(e)
-            }
-        })
-
-        it("user (eve) should not be able to make transfers on another user's (mallory) behalf if they are removed as operators", async () => {
-            try {
-
-                // mallory removes eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
-                await removeOperatorsOperation.confirmation();
-                
-                // init variables 
-                const from  = mallory.pkh;
-                const to    = alice.pkh;
-                tokenAmount = 200;
-
-                // initial storage
-                tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-
-                // transfer operation - eve transfer on mallory's behalf
-                await helperFunctions.signerFactory(tezos, eve.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
-                await transferOperation.confirmation();
-
-            } catch (e) {
-
-                // updated storage
-                tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-
-                // check error message
-                assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Mallory")
-
-                // check no change in balances
-                assert.equal(updatedEveTokenBalance.toNumber()      , initialEveTokenBalance.toNumber());
-                assert.equal(updatedMalloryTokenBalance.toNumber()  , initialMalloryTokenBalance.toNumber());
-                assert.equal(updatedAliceTokenBalance.toNumber()    , initialAliceTokenBalance.toNumber());
-                
-            }
-        })
-
-        it("user (eve) should be able to make multiple transfers on multiple users' (alice, mallory) behalf if she is set as operators", async () => {
-            try {
-
-                // alice sets eve as operator
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
-                await updateOperatorsOperation.confirmation();
-                
-                // mallory sets eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
-                await updateOperatorsOperation.confirmation();
-                
-                // init variables 
-                tokenAmount = 300;
-
-                // initial storage
-                tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
                 // transfer operation
-                await helperFunctions.signerFactory(tezos, eve.sk);
-                transferOperation = await tokenInstance.methods.transfer([
-                    {
-                    from_: alice.pkh,
-                    txs: [
-                        {
-                            to_: eve.pkh,
-                            token_id: 0,
-                            amount: tokenAmount,
-                        },
-                    ],
-                    },
-                    {
-                    from_: mallory.pkh,
-                    txs: [
-                        {
-                            to_: eve.pkh,
-                            token_id: 0,
-                            amount: tokenAmount,
-                        },
-                    ],
-                    },
-                ]).send()
-                await transferOperation.confirmation()
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, wrongTokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+            } catch (e) {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
-                // check balances
-                assert.equal(updatedEveTokenBalance.toNumber()      , +initialEveTokenBalance.toNumber()      +  +tokenAmount + +tokenAmount);
-                assert.equal(updatedMalloryTokenBalance.toNumber()  , +initialMalloryTokenBalance.toNumber()  -  +tokenAmount);
-                assert.equal(updatedAliceTokenBalance.toNumber()    , +initialAliceTokenBalance.toNumber()    -  +tokenAmount);
+                // check error message
+                assert.equal(e.message, 'FA2_TOKEN_UNDEFINED', "Mallory shouldn't be able to send a token from a token id that does not exist on the contract",);
 
-                // alice removes eve as operator
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
-                await removeOperatorsOperation.confirmation();
-                
-                // mallory removes eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
-                await removeOperatorsOperation.confirmation();
-                
-            } catch (e) {
-                console.log(e)
+                // no changes in balances
+                assert.equal(updatedSenderTokenBalance.toNumber()   , initialSenderTokenBalance.toNumber());
+                assert.equal(updatedReceiverTokenBalance.toNumber() , initialReceiverTokenBalance.toNumber());
+
             }
-            })
+        })
+
     })
 
     describe('%update_operators', function () {
@@ -889,41 +731,231 @@ describe('Test: MVK Token Contract', async () => {
         
     })
 
-    describe('%mint', function () {
+    describe('%transfer and %update_operators', function () {
 
         beforeEach("Set signer to user (eve)", async () => {
             await helperFunctions.signerFactory(tezos, eve.sk);
         });
 
-        it("user (eve) should not be able to mint without being whitelisted", async () => {
+        it("user (eve) should be able to make multiple transfers on multiple users' (alice, mallory) behalf if she is set as an operator", async () => {
             try {
+
+                // alice sets eve as operator
+                await helperFunctions.signerFactory(tezos, alice.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
+                await updateOperatorsOperation.confirmation();
                 
-                receiver    = alice.pkh;
-                tokenAmount = 20000;
+                // mallory sets eve as operator
+                await helperFunctions.signerFactory(tezos, mallory.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await updateOperatorsOperation.confirmation();
+                
+                // init variables 
+                tokenAmount = 300;
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
                 initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-                initialTotalSupply          = await tokenStorage.totalSupply;
 
-                mintOperation = await tokenInstance.methods.mint(receiver, tokenAmount).send()
-                await mintOperation.confirmation()
+                // transfer operation
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                transferOperation = await tokenInstance.methods.transfer([
+                    {
+                    from_: alice.pkh,
+                    txs: [
+                        {
+                            to_: eve.pkh,
+                            token_id: 0,
+                            amount: tokenAmount,
+                        },
+                    ],
+                    },
+                    {
+                    from_: mallory.pkh,
+                    txs: [
+                        {
+                            to_: eve.pkh,
+                            token_id: 0,
+                            amount: tokenAmount,
+                        },
+                    ],
+                    },
+                ]).send()
+                await transferOperation.confirmation()
 
-            } catch (e) {
-                
+                // updated storage
                 tokenStorage                = await tokenInstance.storage()
                 updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
                 updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-                updatedTotalSupply          = await tokenStorage.totalSupply;
 
-                assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "Eve address isn't in the whitelistContracts map")
-                assert.equal(updatedEveTokenBalance.toNumber()    , initialEveTokenBalance.toNumber());
-                assert.equal(updatedAliceTokenBalance.toNumber()  , initialAliceTokenBalance.toNumber());
-                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
+                // check balances
+                assert.equal(updatedEveTokenBalance.toNumber()      , +initialEveTokenBalance.toNumber()      +  +tokenAmount + +tokenAmount);
+                assert.equal(updatedMalloryTokenBalance.toNumber()  , +initialMalloryTokenBalance.toNumber()  -  +tokenAmount);
+                assert.equal(updatedAliceTokenBalance.toNumber()    , +initialAliceTokenBalance.toNumber()    -  +tokenAmount);
 
+                // alice removes eve as operator
+                await helperFunctions.signerFactory(tezos, alice.sk);
+                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
+                await removeOperatorsOperation.confirmation();
+                
+                // mallory removes eve as operator
+                await helperFunctions.signerFactory(tezos, mallory.sk);
+                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await removeOperatorsOperation.confirmation();
+                
+            } catch (e) {
+                console.log(e)
             }
         })
+
+        it("user (eve) should be able to make transfers on another user's (mallory) behalf if she is set as an operator", async () => {
+            try {
+
+                // mallory sets eve as operator
+                await helperFunctions.signerFactory(tezos, mallory.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await updateOperatorsOperation.confirmation();
+
+                // init variables 
+                const from  = mallory.pkh;
+                const to    = alice.pkh;
+                tokenAmount = 200;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+
+                // transfer operation - eve transfer on mallory's behalf
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+                // updated storage
+                tokenStorage                = await tokenInstance.storage()
+                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+
+                // check balances
+                assert.equal(updatedMalloryTokenBalance.toNumber()  , +initialMalloryTokenBalance.toNumber() - +tokenAmount);
+                assert.equal(updatedAliceTokenBalance.toNumber()    , +initialAliceTokenBalance.toNumber() + +tokenAmount);
+                assert.equal(updatedEveTokenBalance.toNumber()      , initialEveTokenBalance.toNumber());
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it("user (eve) should not be able to make transfers on another user's (mallory) behalf if she is removed as an operator", async () => {
+            try {
+
+                // mallory removes eve as operator
+                await helperFunctions.signerFactory(tezos, mallory.sk);
+                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await removeOperatorsOperation.confirmation();
+                
+                // init variables 
+                const from  = mallory.pkh;
+                const to    = alice.pkh;
+                tokenAmount = 200;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+
+                // transfer operation - eve transfer on mallory's behalf
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+            } catch (e) {
+
+                // updated storage
+                tokenStorage                = await tokenInstance.storage()
+                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+
+                // check error message
+                assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Mallory")
+
+                // check no change in balances
+                assert.equal(updatedEveTokenBalance.toNumber()      , initialEveTokenBalance.toNumber());
+                assert.equal(updatedMalloryTokenBalance.toNumber()  , initialMalloryTokenBalance.toNumber());
+                assert.equal(updatedAliceTokenBalance.toNumber()    , initialAliceTokenBalance.toNumber());
+                
+            }
+        })
+
+        it("user (eve) should not be able to make transfers on another user's (alice, mallory) if she is not their operator", async () => {
+            try {
+
+                // init variables
+                const amountSentToMallory  = 35;
+                const amountSentToEve  = 200;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+
+                transferOperation = await tokenInstance.methods.transfer([
+                    {
+                        from_: mallory.pkh,
+                        txs: [
+                            {
+                                to_: eve.pkh,
+                                token_id: 0,
+                                amount: amountSentToEve
+                            }
+                        ]
+                    },
+                    {
+                        from_: alice.pkh,
+                        txs: [
+                            {
+                                to_: mallory.pkh,
+                                token_id: 0,
+                                amount: amountSentToMallory
+                            }
+                        ]
+                    }
+                ]).send()
+                await transferOperation.confirmation()
+
+            } catch (e) {
+
+                // updated storage
+                tokenStorage                = await tokenInstance.storage()
+                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+
+                // check error message
+                assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Alice and Eve")
+
+                // no changes in balance
+                assert.equal(updatedEveTokenBalance.toNumber()      , initialEveTokenBalance.toNumber())
+                assert.equal(updatedMalloryTokenBalance.toNumber()  , initialMalloryTokenBalance.toNumber())
+                assert.equal(updatedAliceTokenBalance.toNumber()    , initialAliceTokenBalance.toNumber());
+            }
+        })
+
+    })
+
+    describe('%mint', function () {
+
+        beforeEach("Set signer to user (eve)", async () => {
+            await helperFunctions.signerFactory(tezos, eve.sk);
+        });
 
         it("user (eve) should be able to mint to another user (alice) if she is whitelisted", async () => {
             try {
@@ -965,6 +997,36 @@ describe('Test: MVK Token Contract', async () => {
 
             } catch (e) {
                 console.log(e)
+            }
+        })
+
+        it("user (eve) should not be able to mint without being whitelisted", async () => {
+            try {
+                
+                receiver    = alice.pkh;
+                tokenAmount = 20000;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                mintOperation = await tokenInstance.methods.mint(receiver, tokenAmount).send()
+                await mintOperation.confirmation()
+
+            } catch (e) {
+                
+                tokenStorage                = await tokenInstance.storage()
+                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
+                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "Eve address isn't in the whitelistContracts map")
+                assert.equal(updatedEveTokenBalance.toNumber()    , initialEveTokenBalance.toNumber());
+                assert.equal(updatedAliceTokenBalance.toNumber()  , initialAliceTokenBalance.toNumber());
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
+
             }
         })
 
@@ -1030,6 +1092,207 @@ describe('Test: MVK Token Contract', async () => {
                 console.log(e)
             }
         })
+
+        it("admin (bob) should not be able to mint without being whitelisted", async () => {
+            try {
+
+                // set signer to admin (bob)
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                
+                receiver    = alice.pkh;
+                tokenAmount = 20000;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialBobTokenBalance      = await tokenStorage.ledger.get(bob.pkh);
+                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                mintOperation = await tokenInstance.methods.mint(receiver, tokenAmount).send()
+                await mintOperation.confirmation()
+
+            } catch (e) {
+                
+                tokenStorage                = await tokenInstance.storage()
+                updatedBobTokenBalance      = await tokenStorage.ledger.get(bob.pkh);
+                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "Bob address isn't in the whitelistContracts map")
+                assert.equal(updatedBobTokenBalance.toNumber()    , initialBobTokenBalance.toNumber());
+                assert.equal(updatedAliceTokenBalance.toNumber()  , initialAliceTokenBalance.toNumber());
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
+
+            }
+        })
+        
+    })
+
+    describe('%burn', function () {
+
+        beforeEach("Set signer to user (eve)", async () => {
+            await helperFunctions.signerFactory(tezos, eve.sk);
+        });
+
+        it("user (eve) should be able to burn a non-zero amount of her MVK balance but not exceeding what she has", async () => {
+            try {
+                
+                user        = eve.pkh;
+                tokenAmount = 2000;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                burnOperation = await tokenInstance.methods.burn(tokenAmount).send()
+                await burnOperation.confirmation()
+
+                tokenStorage                = await tokenInstance.storage()
+                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                // check that user token balance and total supply have decreased by token amount
+                assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber() - tokenAmount);
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber() - tokenAmount);
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it("user (eve) should be able to burn a zero amount of her MVK balance", async () => {
+            try {
+                
+                user        = eve.pkh;
+                tokenAmount = 0;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                burnOperation = await tokenInstance.methods.burn(tokenAmount).send()
+                await burnOperation.confirmation()
+
+                tokenStorage                = await tokenInstance.storage()
+                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                // check that there are no changes to user token balance and total supply 
+                assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber());
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it("user (eve) should be able to burn all the MVK than she has", async () => {
+            try {
+                
+                user = eve.pkh;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                tokenAmount                 = initialUserTokenBalance.toNumber();
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                burnOperation = await tokenInstance.methods.burn(tokenAmount).send()
+                await burnOperation.confirmation()
+
+                tokenStorage                = await tokenInstance.storage()
+                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                // check that user token balance and total supply have decreased by token amount
+                assert.equal(updatedUserTokenBalance.toNumber()   , +initialUserTokenBalance.toNumber() - +tokenAmount);
+                assert.equal(updatedTotalSupply.toNumber()        , +initialTotalSupply.toNumber() - +tokenAmount);
+
+                // --------------------------------------------------------------------------
+                // reset token balance for eve for subsequent retesting if needed
+                // --------------------------------
+
+                // set signer to admin (bob)
+                contractMapKey  = "bob";
+                storageMap      = "whitelistContracts";
+                await helperFunctions.signerFactory(tezos, bob.sk);
+
+                // set admin (bob) as a whitelisted contract
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, bob.pkh);
+                await updateWhitelistContractsOperation.confirmation()
+
+                // mint burned tokens back to user (eve)
+                mintOperation = await tokenInstance.methods.mint(user, tokenAmount).send()
+                await mintOperation.confirmation()
+
+                // remove admin (bob) as a whitelisted contract
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, bob.pkh);
+                await updateWhitelistContractsOperation.confirmation()
+
+                // --------------------------------------------------------------------------
+                
+            } catch (e) {
+                console.log(e)   
+            }
+        })
+
+        it("user (eve) should not be able to burn more MVK than what she has", async () => {
+            try {
+                
+                user = eve.pkh;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                tokenAmount                 = initialUserTokenBalance + 1000;
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                burnOperation = await tokenInstance.methods.burn(tokenAmount)
+                await chai.expect(burnOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                
+                tokenStorage                = await tokenInstance.storage()
+                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                // check message
+                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to burn more MVK than she has")
+
+                // check that there are no changes to user token balance and total supply 
+                assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber());
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
+            }
+        })
+
+        it("user (eve) should not be able to burn a negative amount of MVK", async () => {
+            try {
+                
+                user = eve.pkh;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                tokenAmount                 = -10000;
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                burnOperation = await tokenInstance.methods.burn(tokenAmount)
+                await chai.expect(burnOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                
+                tokenStorage                = await tokenInstance.storage()
+                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                // check that there are no changes to user token balance and total supply 
+                assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber());
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
+            }
+        })
+
     })
 
     describe('%assertMetadata', function () {
@@ -1037,6 +1300,18 @@ describe('Test: MVK Token Contract', async () => {
         beforeEach("Set signer to user (eve)", async () => {
             await helperFunctions.signerFactory(tezos, eve.sk);
         });
+
+        it('user (eve) should be able to call assertMetadata with the correct key and correct hash', async () => {
+            try {
+                
+                const metadata = mockTokenData.mvkToken.metadataHex;
+                const operation = await tokenInstance.methods.assertMetadata('data', metadata).send()
+                await operation.confirmation()
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
 
         it('user (eve) should not be able to call assertMetadata with the wrong key and hash', async () => {
             try {
@@ -1060,22 +1335,10 @@ describe('Test: MVK Token Contract', async () => {
                 await operation.confirmation()
 
             } catch (e) {
-
                 assert.strictEqual(e.message, 'METADATA_HAS_A_WRONG_HASH', 'The metadata of the provided key does not match the provided metadata');
             }
         })
 
-        it('user (eve) should be able to call assertMetadata with the correct key and correct hash', async () => {
-            try {
-                
-                const metadata = mockTokenData.mvkToken.metadataHex;
-                const operation = await tokenInstance.methods.assertMetadata('data', metadata).send()
-                await operation.confirmation()
-
-            } catch (e) {
-                console.log(e)
-            }
-        })
     })
 
 
@@ -1085,7 +1348,7 @@ describe('Test: MVK Token Contract', async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
-        it('%setAdmin - admin (bob) should be able to update the contract admin address', async () => {
+        it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
             try{
                 
                 // Initial Values
@@ -1115,7 +1378,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         });
 
-        it('%setGovernance - admin (bob) should be able to update the contract governance address', async () => {
+        it('%setGovernance            - admin (bob) should be able to update the contract governance address', async () => {
             try{
                 
                 // Initial Values
@@ -1190,7 +1453,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%updateGeneralContracts - admin (bob) should be able to add user (eve) to the General Contracts map', async () => {
+        it('%updateGeneralContracts   - admin (bob) should be able to add user (eve) to the General Contracts map', async () => {
             try {
 
                 // init values
@@ -1213,7 +1476,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%updateGeneralContracts - admin (bob) should be able to remove user (eve) from the General Contracts map', async () => {
+        it('%updateGeneralContracts   - admin (bob) should be able to remove user (eve) from the General Contracts map', async () => {
             try {
 
                 // init values
@@ -1244,7 +1507,7 @@ describe('Test: MVK Token Contract', async () => {
             await helperFunctions.signerFactory(tezos, mallory.sk);
         });
 
-        it('%setAdmin - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
                 tokenStorage        = await tokenInstance.storage();
@@ -1266,7 +1529,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         });
 
-        it('%setGovernance - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%setGovernance            - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
                 tokenStorage        = await tokenInstance.storage();
@@ -1310,7 +1573,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%updateGeneralContracts - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%updateGeneralContracts   - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 // init values
@@ -1332,7 +1595,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%mistakenTransfer - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%mistakenTransfer         - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 // Initial values
@@ -1362,7 +1625,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%mint - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%mint                     - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 tokenAmount = 100;
@@ -1374,7 +1637,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%updateInflationRate - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%updateInflationRate      - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 const updateInflationRateOperation = await tokenInstance.methods.updateInflationRate(1000);
@@ -1385,7 +1648,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%triggerInflation - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%triggerInflation         - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 const triggerInflationOperation = await tokenInstance.methods.triggerInflation();
