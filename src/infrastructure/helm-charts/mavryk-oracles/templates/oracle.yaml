@@ -1,39 +1,23 @@
 {{ range $key, $value := .Values.oracles }}
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: oracle-{{ $key }}
-  labels:
-    app: oracle-{{ $key }}
-spec:
-  clusterIP: None
-  ports:
-    - name: p2p
-      port: 23456
-      protocol: TCP
-      targetPort: p2p
-  selector:
-    app: oracle-{{ $key }}
-  type: ClusterIP
----
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: oracle-{{ $key }}
   labels:
     app: oracle-{{ $key }}
 spec:
+  podManagementPolicy: Parallel
   replicas: 1
   selector:
     matchLabels:
       app: oracle-{{ $key }}
+  serviceName: oracle-{{ $key }}
   template:
     metadata:
       labels:
         app: oracle-{{ $key }}
-    spec:
-      imagePullSecrets:
+    imagePullSecrets:
         - name: '{{ $.Values.image.pullSecret }}'
       containers:
         - name: oracle
@@ -54,7 +38,7 @@ spec:
             - name: RPC_URL
               value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
-              value: '{{ $value.p2p.bootstrapPeers }}'
+              value: '{{ include "p2pBootstrapPeers" (list $.Values.oracles $value.p2p.peerId) }}'
             - name: P2P_PEER_ID
               value: '{{ $value.p2p.peerId }}'
             - name: P2P_PEER_PUBLIC_KEY
