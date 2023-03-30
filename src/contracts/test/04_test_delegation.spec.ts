@@ -23,7 +23,7 @@ import * as helperFunctions from './helpers/helperFunctions'
 // Contract Tests
 // ------------------------------------------------------------------------------
 
-describe("Delegation tests", async () => {
+describe("Test: Delegation Contract", async () => {
     
     // default
     var utils: Utils
@@ -79,14 +79,7 @@ describe("Delegation tests", async () => {
         mvkTokenStorage   = await mvkTokenInstance.storage();
         governanceStorage = await governanceInstance.storage();
 
-        console.log('-- -- -- -- -- Delegation Tests -- -- -- --')
-        console.log('Doorman Contract deployed at:', doormanInstance.address);
-        console.log('Delegation Contract deployed at:', delegationInstance.address);
-        console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        console.log('Governance Contract deployed at:', governanceInstance.address);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Eve address: ' + eve.pkh);
+        console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
     });
 

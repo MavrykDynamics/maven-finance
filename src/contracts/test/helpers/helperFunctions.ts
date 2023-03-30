@@ -22,6 +22,11 @@ export async function signerFactory (tezos, pk) {
 // Common Functions
 // ------------------------------------------------------------------------------
 
+export async function wait(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  
 export const almostEqual = (actual, expected, delta) => {
     let greaterLimit  = expected + expected * delta
     let lowerLimit    = expected - expected * delta
@@ -81,6 +86,12 @@ export async function removeOperators (tokenContractInstance, owner, operator, t
         }
     ]).send();
     return updateOperatorsOperation;
+}
+
+
+export async function fa12Transfer (tokenContractInstance, from, to, tokenAmount) {
+    const transferOperation = await tokenContractInstance.methods.transfer(from, to, tokenAmount).send()
+    return transferOperation;
 }
 
 
