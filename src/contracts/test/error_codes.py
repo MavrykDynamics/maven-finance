@@ -285,7 +285,7 @@ error_MVK_ACCESS_AMOUNT_NOT_REACHED                                             
 
 error_USER_STAKE_RECORD_NOT_FOUND                                                                       = 201
 error_VAULT_STAKE_RECORD_NOT_FOUND                                                                      = 202
-error_NOT_ENOUGH_SMVK_BALANCE                                                                           = 203
+error_INSUFFICIENT_STAKED_MVK_BALANCE                                                                           = 203
 error_UNSTAKE_AMOUNT_ERROR                                                                              = 204
 
 error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER                                                 = 205
