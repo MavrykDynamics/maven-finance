@@ -487,6 +487,37 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
+        it('user (eve) should not be able to send negative amounts of MVK to another user (mallory)', async () => {
+            try {
+
+                // init variables
+                sender             = eve.pkh;
+                receiver           = mallory.pkh;
+                tokenAmount        = -100;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+
+                // transfer operation
+                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+            } catch (e) {
+
+                // updated storage
+                tokenStorage                = await tokenInstance.storage()
+                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+
+                // no changes in balances
+                assert.equal(updatedSenderTokenBalance.toNumber()   , initialSenderTokenBalance.toNumber());
+                assert.equal(updatedReceiverTokenBalance.toNumber() , initialReceiverTokenBalance.toNumber());
+
+            }
+        })
+
     })
 
     describe('%update_operators', function () {

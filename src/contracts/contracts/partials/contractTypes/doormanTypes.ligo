@@ -107,6 +107,7 @@ type doormanLambdaActionType is
         // Doorman Lambdas
     |   LambdaStake                       of (nat)
     |   LambdaUnstake                     of (nat)
+    |   LambdaExit                        of (unit)
     |   LambdaCompound                    of (address)
     |   LambdaFarmClaim                   of farmClaimType
 
