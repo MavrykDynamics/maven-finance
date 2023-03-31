@@ -5,7 +5,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -77,7 +77,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -176,7 +176,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -275,7 +275,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
