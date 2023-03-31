@@ -1,6 +1,12 @@
 const { InMemorySigner } = require("@taquito/signer");
 
 // ------------------------------------------------------------------------------
+// Constants
+// ------------------------------------------------------------------------------
+
+export const fixedPointAccuracy = 10**27;
+
+// ------------------------------------------------------------------------------
 // RPC Nodes
 // ------------------------------------------------------------------------------
 
@@ -160,3 +166,34 @@ export async function fa2MultiTransfer (tokenContractInstance, from, transferDes
 //     return transferOperation;
 // }
 
+
+// ------------------------------------------------------------------------------
+// Doorman Helpers
+// ------------------------------------------------------------------------------
+
+export const calculateMavrykLoyaltyIndex = (stakedMvkTotal : number, mvkTotalSupply : number) => {
+    return Math.trunc((stakedMvkTotal * 100 * fixedPointAccuracy) / mvkTotalSupply);
+}
+
+
+export const calculateExitFeePercent = (mavrykLoyaltyIndex : number) => {
+    return ( ((300_000 * fixedPointAccuracy) - (5_250 * mavrykLoyaltyIndex)) * fixedPointAccuracy + 25 * mavrykLoyaltyIndex * mavrykLoyaltyIndex) / (10_000 * fixedPointAccuracy)
+}
+
+
+export const calculateExitFeeRewards = (initialStakedMvkBalance : number, updatedParticipationFeesPerShare : number, updatedAccumulatedFeesPerShare : number) => {
+    const currentFeesPerShare = Math.abs(updatedAccumulatedFeesPerShare - updatedParticipationFeesPerShare);
+    const exitFeeRewards = Math.trunc(currentFeesPerShare * initialStakedMvkBalance / fixedPointAccuracy);
+    return exitFeeRewards
+}
+
+
+export const incrementAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvkTotalSupply : number, accumulatedFeesPerShare : number) => {
+
+    const stakedTotalWithoutUnstakeAmount = Math.abs(stakedMvkTotalSupply - unstakeAmount);
+    if(stakedTotalWithoutUnstakeAmount > 0){
+        accumulatedFeesPerShare = accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstakeAmount);
+    }
+    return accumulatedFeesPerShare
+
+}

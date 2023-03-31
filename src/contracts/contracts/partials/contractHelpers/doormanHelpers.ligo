@@ -57,7 +57,7 @@ function verifySufficientWithdrawalBalance(const unstakeAmount : nat; const user
 block {
 
     // verify first value (unstakeAmount) is less than second value (user balance)
-    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_NOT_ENOUGH_SMVK_BALANCE);
+    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_INSUFFICIENT_STAKED_MVK_BALANCE);
 
 } with unit
 
