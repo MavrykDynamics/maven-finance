@@ -1,4 +1,5 @@
 const { InMemorySigner } = require("@taquito/signer");
+import { BigNumber } from "bignumber.js"
 
 // ------------------------------------------------------------------------------
 // Constants
@@ -188,12 +189,25 @@ export const calculateExitFeeRewards = (initialStakedMvkBalance : number, update
 }
 
 
-export const incrementAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvkTotalSupply : number, accumulatedFeesPerShare : number) => {
+export const calcUpdatedAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvkTotalSupply : number, accumulatedFeesPerShare : BigNumber) => {
 
     const stakedTotalWithoutUnstakeAmount = Math.abs(stakedMvkTotalSupply - unstakeAmount);
+    let newAccumulatedFeesPerShare = accumulatedFeesPerShare.toNumber();
+
     if(stakedTotalWithoutUnstakeAmount > 0){
-        accumulatedFeesPerShare = accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstakeAmount);
+        newAccumulatedFeesPerShare = accumulatedFeesPerShare.toNumber() + Number(Math.trunc(paidFee / stakedTotalWithoutUnstakeAmount));
     }
-    return accumulatedFeesPerShare
+    return newAccumulatedFeesPerShare
 
 }
+
+export const calcIncrementAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvkTotalSupply : number) => {
+
+    const stakedTotalWithoutUnstakeAmount = Math.abs(stakedMvkTotalSupply - unstakeAmount);
+    
+    if(stakedTotalWithoutUnstakeAmount > 0){
+        return Number(Math.trunc(paidFee / stakedTotalWithoutUnstakeAmount));
+    }
+
+}
+
