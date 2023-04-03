@@ -57,7 +57,7 @@ services:
     container_name: mavryk-sandbox
     restart: always
     image: oxheadalpha/flextesa:20230313
-    command: mumbaibox start
+    command: limabox start
     environment:
       - block_time=3
       - flextesa_node_cors_origin=*
