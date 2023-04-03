@@ -19,7 +19,6 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
 import { mockTokenData } from './helpers/mockSampleData'
 import * as helperFunctions from './helpers/helperFunctions'
-import { help } from 'yargs'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
