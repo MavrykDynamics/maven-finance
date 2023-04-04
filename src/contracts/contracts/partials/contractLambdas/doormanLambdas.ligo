@@ -258,6 +258,7 @@ block {
                 case params.targetEntrypoint of [
                         Stake (_v)            -> s.breakGlassConfig.stakeIsPaused       := _v
                     |   Unstake (_v)          -> s.breakGlassConfig.unstakeIsPaused     := _v
+                    |   Exit (_v)             -> s.breakGlassConfig.exitIsPaused        := _v
                     |   Compound (_v)         -> s.breakGlassConfig.compoundIsPaused    := _v
                     |   FarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused   := _v
 
@@ -513,7 +514,7 @@ block {
     //      -   Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.exitIsPaused, error_EXIT_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 

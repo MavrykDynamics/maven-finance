@@ -121,6 +121,9 @@ block {
     if s.breakGlassConfig.unstakeIsPaused then skip
     else s.breakGlassConfig.unstakeIsPaused := True;
 
+    if s.breakGlassConfig.exitIsPaused then skip
+    else s.breakGlassConfig.exitIsPaused := True;
+
     if s.breakGlassConfig.compoundIsPaused then skip
     else s.breakGlassConfig.compoundIsPaused := True;
 
@@ -149,6 +152,9 @@ block {
     else skip;
 
     if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.exitIsPaused then s.breakGlassConfig.exitIsPaused := False
     else skip;
     
     if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
