@@ -469,6 +469,7 @@ indexes:
     - transaction
     contracts:
     - liquidity_baking
+    - sirius
     handlers:
     - callback: on_liquidity_baking_add_liquidity
       pattern:
@@ -508,20 +509,11 @@ indexes:
       pattern:
       - destination: liquidity_baking
         entrypoint: tokenToToken
-  sirius:
-    kind: operation
-    datasource: tzkt_mainnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - sirius
-    handlers:
     - callback: on_sirius_transfer
       pattern:
       - destination: sirius
         entrypoint: transfer
-  mvk_token:
+  mavryk_finance:
     kind: operation
     datasource: tzkt_ghostnet
     types:
@@ -529,6 +521,25 @@ indexes:
     - transaction
     contracts:
     - mvk_token
+    - governance_proxy
+    - governance
+    - doorman
+    - farm_factory
+    - farm
+    - delegation
+    - vesting
+    - emergency_governance
+    - council
+    - break_glass
+    - governance_financial
+    - governance_satellite
+    - aggregator_factory
+    - treasury_factory
+    - treasury
+    - vault_factory
+    - lending_controller
+    - lending_controller_mock_time
+    - token_sale
     handlers:
     - callback: on_mvk_origination
       pattern:
@@ -570,15 +581,6 @@ indexes:
       pattern:
       - destination: mvk_token
         entrypoint: triggerInflation
-  governance_proxy:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - governance_proxy
-    handlers:
     - callback: on_governance_proxy_origination
       pattern:
       - type: origination
@@ -595,15 +597,6 @@ indexes:
       pattern:
       - destination: governance_proxy
         entrypoint: setLambda
-  governance:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - governance
-    handlers:
     - callback: on_governance_origination
       pattern:
       - type: origination
@@ -684,16 +677,6 @@ indexes:
       pattern:
       - destination: governance
         entrypoint: setLambda
-  doorman:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - doorman
-    - mvk_token
-    handlers:
     - callback: on_doorman_origination
       pattern:
       - type: origination
@@ -768,16 +751,6 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: setLambda
-  farm_factory:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - farm_factory
-    - farm
-    handlers:
     - callback: on_farm_factory_origination
       pattern:
       - type: origination
@@ -844,15 +817,6 @@ indexes:
       pattern:
       - destination: farm_factory
         entrypoint: setProductLambda
-  delegation:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - delegation
-    handlers:
     - callback: on_delegation_origination
       pattern:
       - type: origination
@@ -925,15 +889,6 @@ indexes:
       pattern:
       - destination: delegation
         entrypoint: setLambda
-  vesting:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - vesting
-    handlers:
     - callback: on_vesting_origination
       pattern:
       - type: origination
@@ -978,15 +933,6 @@ indexes:
       pattern:
       - destination: vesting
         entrypoint: setLambda
-  emergency_governance:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - emergency_governance
-    handlers:
     - callback: on_emergency_governance_origination
       pattern:
       - type: origination
@@ -1027,15 +973,6 @@ indexes:
       pattern:
       - destination: emergency_governance
         entrypoint: setLambda
-  council:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - council
-    handlers:
     - callback: on_council_origination
       pattern:
       - type: origination
@@ -1128,15 +1065,6 @@ indexes:
       pattern:
       - destination: council
         entrypoint: setLambda
-  break_glass:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - break_glass
-    handlers:
     - callback: on_break_glass_break_glass
       pattern:
       - destination: break_glass
@@ -1217,15 +1145,6 @@ indexes:
       pattern:
       - destination: break_glass
         entrypoint: setLambda
-  governance_financial:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - governance_financial
-    handlers:
     - callback: on_governance_financial_origination
       pattern:
       - type: origination
@@ -1278,15 +1197,6 @@ indexes:
       pattern:
       - destination: governance_financial
         entrypoint: setLambda
-  governance_satellite:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - governance_satellite
-    handlers:
     - callback: on_governance_satellite_origination
       pattern:
       - type: origination
@@ -1355,15 +1265,6 @@ indexes:
       pattern:
       - destination: governance_satellite
         entrypoint: setLambda
-  aggregator_factory:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - aggregator_factory
-    handlers:
     - callback: on_aggregator_factory_origination
       pattern:
       - type: origination
@@ -1423,16 +1324,6 @@ indexes:
       pattern:
       - destination: aggregator_factory
         entrypoint: setProductLambda
-  treasury_factory:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - treasury_factory
-    - treasury
-    handlers:
     - callback: on_treasury_factory_origination
       pattern:
       - type: origination
@@ -1496,73 +1387,6 @@ indexes:
       pattern:
       - destination: treasury_factory
         entrypoint: setProductLambda
-  token_sale:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - token_sale
-    handlers:
-    - callback: on_token_sale_origination
-      pattern:
-      - type: origination
-        originated_contract: token_sale
-    - callback: on_token_sale_set_admin
-      pattern:
-      - destination: token_sale
-        entrypoint: setAdmin
-    - callback: on_token_sale_set_governance
-      pattern:
-      - destination: token_sale
-        entrypoint: setGovernance
-    - callback: on_token_sale_update_config
-      pattern:
-      - destination: token_sale
-        entrypoint: updateConfig
-    - callback: on_token_sale_set_whitelist_timestamp
-      pattern:
-      - destination: token_sale
-        entrypoint: setWhitelistTimestamp
-    - callback: on_token_sale_add_to_whitelist
-      pattern:
-      - destination: token_sale
-        entrypoint: addToWhitelist
-    - callback: on_token_sale_remove_from_whitelist
-      pattern:
-      - destination: token_sale
-        entrypoint: removeFromWhitelist
-    - callback: on_token_sale_start_sale
-      pattern:
-      - destination: token_sale
-        entrypoint: startSale
-    - callback: on_token_sale_close_sale
-      pattern:
-      - destination: token_sale
-        entrypoint: closeSale
-    - callback: on_token_sale_pause_sale
-      pattern:
-      - destination: token_sale
-        entrypoint: pauseSale
-    - callback: on_token_sale_buy_tokens
-      pattern:
-      - destination: token_sale
-        entrypoint: buyTokens
-    - callback: on_token_sale_claim_tokens
-      pattern:
-      - destination: token_sale
-        entrypoint: claimTokens
-  vault_factory:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - vault_factory
-    - treasury
-    handlers:
     - callback: on_vault_factory_origination
       pattern:
       - type: origination
@@ -1614,15 +1438,6 @@ indexes:
       pattern:
       - destination: vault_factory
         entrypoint: setProductLambda
-  lending_controller:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - lending_controller
-    handlers:
     - callback: on_lending_controller_origination
       pattern:
       - type: origination
@@ -1715,15 +1530,6 @@ indexes:
       pattern:
       - destination: lending_controller
         entrypoint: setLambda
-  lending_controller_mock_time:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - lending_controller_mock_time
-    handlers:
     - callback: on_lending_controller_mock_time_origination
       pattern:
       - type: origination
@@ -1816,6 +1622,54 @@ indexes:
       pattern:
       - destination: lending_controller_mock_time
         entrypoint: setLambda
+    - callback: on_token_sale_origination
+      pattern:
+      - type: origination
+        originated_contract: token_sale
+    - callback: on_token_sale_set_admin
+      pattern:
+      - destination: token_sale
+        entrypoint: setAdmin
+    - callback: on_token_sale_set_governance
+      pattern:
+      - destination: token_sale
+        entrypoint: setGovernance
+    - callback: on_token_sale_update_config
+      pattern:
+      - destination: token_sale
+        entrypoint: updateConfig
+    - callback: on_token_sale_set_whitelist_timestamp
+      pattern:
+      - destination: token_sale
+        entrypoint: setWhitelistTimestamp
+    - callback: on_token_sale_add_to_whitelist
+      pattern:
+      - destination: token_sale
+        entrypoint: addToWhitelist
+    - callback: on_token_sale_remove_from_whitelist
+      pattern:
+      - destination: token_sale
+        entrypoint: removeFromWhitelist
+    - callback: on_token_sale_start_sale
+      pattern:
+      - destination: token_sale
+        entrypoint: startSale
+    - callback: on_token_sale_close_sale
+      pattern:
+      - destination: token_sale
+        entrypoint: closeSale
+    - callback: on_token_sale_pause_sale
+      pattern:
+      - destination: token_sale
+        entrypoint: pauseSale
+    - callback: on_token_sale_buy_tokens
+      pattern:
+      - destination: token_sale
+        entrypoint: buyTokens
+    - callback: on_token_sale_claim_tokens
+      pattern:
+      - destination: token_sale
+        entrypoint: claimTokens
   m_token_xtz:
     template: m_token_template
     values:
