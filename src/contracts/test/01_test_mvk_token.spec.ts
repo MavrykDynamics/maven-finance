@@ -30,12 +30,20 @@ describe('Test: MVK Token Contract', async () => {
     let utils: Utils
     let tezos
 
+    // contract addresses
+    let tokenAddress
+    let mavrykFa2TokenAddress
+
     // contract instances and storage
     let tokenInstance
     let tokenStorage
 
+    let mavrykFa2TokenInstance
+    let mavrykFa2TokenStorage
+
     // common inputs 
     let user
+    let userSk
     let sender
     let receiver 
     let tokenId = 0
@@ -71,6 +79,7 @@ describe('Test: MVK Token Contract', async () => {
 
     // operations
     let transferOperation
+    let mistakenTransferOperation
     let updateOperatorsOperation
     let removeOperatorsOperation
     let setAdminOperation
@@ -87,8 +96,14 @@ describe('Test: MVK Token Contract', async () => {
         await utils.init(bob.sk)
         tezos = utils.tezos;
 
-        tokenInstance = await utils.tezos.contract.at(contractDeployments.mvkToken.address)
-        tokenStorage  = await tokenInstance.storage()
+        tokenAddress            = contractDeployments.mvkToken.address
+        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address
+
+        tokenInstance           = await utils.tezos.contract.at(tokenAddress)
+        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
+
+        tokenStorage            = await tokenInstance.storage()
+        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
@@ -1529,6 +1544,38 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
+        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint for mock FA2 tokens', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+                user              = mallory.pkh;
+                userSk            = mallory.sk;
+
+                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                await helperFunctions.signerFactory(tezos, userSk);
+                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+                
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await mistakenTransferOperation.confirmation();
+
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+
+                // increase in updated balance
+                assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+
     });
 
     describe('Access Control Checks', function () {
@@ -1629,25 +1676,14 @@ describe('Test: MVK Token Contract', async () => {
             try {
 
                 // Initial values
+                user = mallory.pkh;
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MVK to MVK Token Contract
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, mallory.pkh, contractDeployments.mvkToken.address, tokenId, tokenAmount);
+                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
-                const mistakenTransferOperation = await tokenInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : mallory.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress": contractDeployments.mvkToken.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]);
+                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
