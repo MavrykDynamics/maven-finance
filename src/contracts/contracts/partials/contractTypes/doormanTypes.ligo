@@ -16,6 +16,7 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
+    exitIsPaused            : bool;
     compoundIsPaused        : bool;
     farmClaimIsPaused       : bool;
 
@@ -70,6 +71,7 @@ type onVaultLiquidateStakeType is [@layout:comb] record [
 type doormanPausableEntrypointType is
         Stake                         of bool
     |   Unstake                       of bool
+    |   Exit                          of bool
     |   Compound                      of bool
     |   FarmClaim                     of bool
     |   OnVaultDepositStake           of bool

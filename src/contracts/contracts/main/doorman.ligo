@@ -56,7 +56,7 @@ type doormanAction is
         // Doorman Entrypoints
     |   Stake                       of (nat)
     |   Unstake                     of (nat)
-    |   Exit                        of (nat)
+    |   Exit                        of (unit)
     |   Compound                    of (address)
     |   FarmClaim                   of farmClaimType
 
