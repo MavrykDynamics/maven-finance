@@ -1,4 +1,3 @@
-const { InMemorySigner } = require("@taquito/signer");
 import assert from "assert";
 import { Utils } from "./helpers/Utils";
 
