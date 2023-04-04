@@ -13,6 +13,18 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## 0.36
+
+### What's new
+
+- TreasuryBalance
+
+  - Table added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.35</summary>
+
 ## 0.35
 
 ### What's new
@@ -84,7 +96,7 @@
 
   - Table renamed to VaultFactoryVaultLambda
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.34</summary>
 
