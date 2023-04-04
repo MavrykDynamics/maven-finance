@@ -37,7 +37,13 @@ export const doormanStorage: doormanStorageType = {
     breakGlassConfig: {
         stakeIsPaused           : false,
         unstakeIsPaused         : false,
-        compoundIsPaused        : false
+        exitIsPaused            : false,
+        compoundIsPaused        : false,
+        farmClaimIsPaused       : false,
+
+        onVaultDepositStakeIsPaused    : false,
+        onVaultWithdrawStakeIsPaused   : false,
+        onVaultLiquidateStakeIsPaused  : false
     },
     userStakeBalanceLedger    : MichelsonMap.fromLiteral({}),
     
