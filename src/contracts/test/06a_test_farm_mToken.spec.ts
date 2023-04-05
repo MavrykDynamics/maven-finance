@@ -135,7 +135,7 @@ describe("Farm mToken", async () => {
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
-                const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+                const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
 
                 const mTokenContractAddress                = mTokenUsdtAddress;
 

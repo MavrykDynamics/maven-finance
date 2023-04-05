@@ -1,28 +1,31 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import assert, { ok, rejects, strictEqual } from "assert";
-import { Utils, zeroAddress, MVK } from "./helpers/Utils";
-import fs from "fs";
-import { confirmOperation } from "../scripts/confirmation";
+import assert from "assert";
+import { Utils, MVK } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);   
 chai.should();
 
-import env from "../env";
-import { bob, alice, eve, mallory, oscar, trudy } from "../scripts/sandbox/accounts";
+// ------------------------------------------------------------------------------
+// Contract Address
+// ------------------------------------------------------------------------------
 
-import doormanAddress from '../deployments/doormanAddress.json';
-import delegationAddress from '../deployments/delegationAddress.json';
-import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-import governanceAddress from '../deployments/governanceAddress.json';
-import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
-import treasuryAddress from '../deployments/treasuryAddress.json';
-import { MichelsonMap } from "@taquito/taquito";
+import contractDeployments from './contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import { bob, alice, eve, mallory, oscar, trudy } from "../scripts/sandbox/accounts";
 import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import * as helperFunctions from './helpers/helperFunctions'
+
+// ------------------------------------------------------------------------------
+// Contract Tests
+// ------------------------------------------------------------------------------
 
 describe("Delegation tests", async () => {
+    
     var utils: Utils;
     var tezos;
 
@@ -36,31 +39,18 @@ describe("Delegation tests", async () => {
     let delegationStorage;
     let mvkTokenStorage;
     let governanceStorage;
-    
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
-
-    const almostEqual = (actual, expected, delta) => {
-        let greaterLimit  = expected + expected * delta
-        console.log("GREATER: ", greaterLimit) 
-        let lowerLimit    = expected - expected * delta
-        console.log("LOWER: ", lowerLimit)
-        console.log("STUDIED: ", actual)
-        return actual <= greaterLimit && actual >= lowerLimit
-    }
 
     before("setup", async () => {
 
         utils = new Utils();
         await utils.init(bob.sk);
+        tezos = utils.tezos
         
-        doormanInstance         = await utils.tezos.contract.at(doormanAddress.address);
-        delegationInstance      = await utils.tezos.contract.at(delegationAddress.address);
-        mvkTokenInstance        = await utils.tezos.contract.at(mvkTokenAddress.address);
-        governanceInstance      = await utils.tezos.contract.at(governanceAddress.address);
-        governanceProxyInstance = await utils.tezos.contract.at(governanceProxyAddress.address);
+        doormanInstance         = await utils.tezos.contract.at(contractDeployments.doorman.address);
+        delegationInstance      = await utils.tezos.contract.at(contractDeployments.delegation.address);
+        mvkTokenInstance        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+        governanceInstance      = await utils.tezos.contract.at(contractDeployments.governance.address);
+        governanceProxyInstance = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
             
         doormanStorage    = await doormanInstance.storage();
         delegationStorage = await delegationInstance.storage();
@@ -76,8 +66,6 @@ describe("Delegation tests", async () => {
         console.log('Alice address: ' + alice.pkh);
         console.log('Eve address: ' + eve.pkh);
 
-        tezos = doormanInstance.tezos;
-
     });
 
     describe("%distributeRewards", async () => {
@@ -85,7 +73,7 @@ describe("Delegation tests", async () => {
         before("Set admin to whitelist and init satellite and delegators", async () => {
             try{
                 // Set Whitelist
-                await signerFactory(bob.sk)
+                await helperFunctions.signerFactory(tezos, bob.sk)
                 const updateWhitelistOperation  = await delegationInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
                 await updateWhitelistOperation.confirmation();
 
@@ -107,7 +95,7 @@ describe("Delegation tests", async () => {
                 {
                     add_operator: {
                         owner    : bob.pkh,
-                        operator : doormanAddress.address,
+                        operator : contractDeployments.doorman.address,
                         token_id : 0,
                     },
                 }])
@@ -128,12 +116,12 @@ describe("Delegation tests", async () => {
                 await registerAsSatelliteOperation.confirmation();
 
                 // Register Mallory Satellite
-                await signerFactory(mallory.sk);
+                await helperFunctions.signerFactory(tezos, mallory.sk);
                 var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
                         owner    : mallory.pkh,
-                        operator : doormanAddress.address,
+                        operator : contractDeployments.doorman.address,
                         token_id : 0,
                     },
                 }])
@@ -154,12 +142,12 @@ describe("Delegation tests", async () => {
                 await registerAsSatelliteOperation.confirmation();
 
                 // Delegate Alice to Bob's Satellite
-                await signerFactory(alice.sk);
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
                         owner    : alice.pkh,
-                        operator : doormanAddress.address,
+                        operator : contractDeployments.doorman.address,
                         token_id : 0,
                     },
                 }])
@@ -173,12 +161,12 @@ describe("Delegation tests", async () => {
                 await delegationOperation.confirmation();
 
                 // Delegate Eve to Bob's Satellite
-                await signerFactory(eve.sk);
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
                         owner    : eve.pkh,
-                        operator : doormanAddress.address,
+                        operator : contractDeployments.doorman.address,
                         token_id : 0,
                     },
                 }])
@@ -192,12 +180,12 @@ describe("Delegation tests", async () => {
                 await delegationOperation.confirmation();
 
                 // Delegate Oscar to Mallory's Satellite
-                await signerFactory(oscar.sk);
+                await helperFunctions.signerFactory(tezos, oscar.sk);
                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
                         owner    : oscar.pkh,
-                        operator : doormanAddress.address,
+                        operator : contractDeployments.doorman.address,
                         token_id : 0,
                     },
                 }])
@@ -211,12 +199,12 @@ describe("Delegation tests", async () => {
                 await delegationOperation.confirmation();
 
                 // Delegate Trudy to Mallory's Satellite
-                await signerFactory(trudy.sk);
+                await helperFunctions.signerFactory(tezos, trudy.sk);
                 updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
                         owner    : trudy.pkh,
-                        operator : doormanAddress.address,
+                        operator : contractDeployments.doorman.address,
                         token_id : 0,
                     },
                 }])
@@ -229,10 +217,10 @@ describe("Delegation tests", async () => {
                 delegationOperation   = await delegationInstance.methods.delegateToSatellite(trudy.pkh, mallory.pkh).send();
                 await delegationOperation.confirmation();
 
-                await signerFactory(bob.sk)
+                await helperFunctions.signerFactory(tezos, bob.sk)
 
                 // Set delegation admin in order for the packed data to work
-                const setDoormanAdmin        = await doormanInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                const setDoormanAdmin        = await doormanInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setDoormanAdmin.confirmation();
 
             } catch (e){
@@ -241,7 +229,7 @@ describe("Delegation tests", async () => {
         });
 
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk)
         });
         
         it('Reward distribution tests #1', async () => {
@@ -267,7 +255,7 @@ describe("Delegation tests", async () => {
                 satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
                 console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
-                await signerFactory(alice.sk);
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 claimOperation = await doormanInstance.methods.compound(alice.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
@@ -276,7 +264,7 @@ describe("Delegation tests", async () => {
                 var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
                 console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
-                await signerFactory(eve.sk);
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 claimOperation = await doormanInstance.methods.compound(eve.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
@@ -307,7 +295,7 @@ describe("Delegation tests", async () => {
                 var eveTest                 = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
 
                 const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(bob.pkh);
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                const initDoormanBalance    = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
                 const satelliteVotingPower  = initSatelliteRecord.totalDelegatedAmount.toNumber() + initSatelliteRecord.stakedMvkBalance.toNumber();
                 const satelliteFee          = initSatelliteRecord.satelliteFee.toNumber();
 
@@ -326,7 +314,7 @@ describe("Delegation tests", async () => {
                 var unpaidRewards               = initSatelliteRewards.unpaid.toNumber() + satelliteFeeReward
                 var satelliteRewards            = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
                 var satelliteStake              = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
-                var doormanBalance              = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                var doormanBalance              = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
                 satelliteTest                   = await delegationStorage.satelliteLedger.get(bob.pkh);
                 aliceTest                       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
                 eveTest                         = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
@@ -354,7 +342,7 @@ describe("Delegation tests", async () => {
                 console.log("POST-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Undelegate operation
-                await signerFactory(alice.sk);
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 const initAliceSMVK     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh) 
                 const initAliceRewards  = await delegationStorage.satelliteRewardsLedger.get(alice.pkh)
                 const undelegateOperation = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
@@ -393,7 +381,7 @@ describe("Delegation tests", async () => {
                 console.log("POST-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Alice redelegate operation
-                await signerFactory(alice.sk);
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 const delegateOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh, mallory.pkh).send();
                 await delegateOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
@@ -420,7 +408,7 @@ describe("Delegation tests", async () => {
                 assert.equal(initAliceSMVK.balance.toNumber() + paidRewards, delegateStake.balance.toNumber())
                 console.log("POST-CLAIM ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
-                await signerFactory(eve.sk);
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 const initEveSMVK     = await doormanStorage.userStakeBalanceLedger.get(eve.pkh) 
                 const initEveRewards  = await delegationStorage.satelliteRewardsLedger.get(eve.pkh)
                 claimOperation = await doormanInstance.methods.compound(eve.pkh).send();
@@ -437,7 +425,7 @@ describe("Delegation tests", async () => {
                 assert.equal(initEveSMVK.balance.toNumber() + paidRewards, delegateStake.balance.toNumber())
 
                 // Reset -> Re-register as a Satellite
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 const bobSatelliteName                  = "New Satellite (Bob)";
                 const bobSatelliteDescription           = "New Satellite Description (Bob)";
                 const bobSatelliteImage                 = "https://placeholder.com/300";
@@ -465,7 +453,7 @@ describe("Delegation tests", async () => {
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 console.log(governanceStorage.lambdaLedger)
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                const initDoormanBalance    = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "New Proposal #1";
                 const proposalDesc          = "Details about new proposal #1";
@@ -496,11 +484,11 @@ describe("Delegation tests", async () => {
                 // Prepare proposal data
                 const lambdaFunction                = await compileLambdaFunction(
                     'development',
-                    governanceProxyAddress.address,
+                    contractDeployments.governanceProxy.address,
                     
                     'updateGeneralContracts',
                     [
-                        doormanAddress.address,
+                        contractDeployments.doorman.address,
                         "bob",
                         bob.pkh
                     ]
@@ -536,20 +524,20 @@ describe("Delegation tests", async () => {
                 await lockOperation.confirmation();
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await signerFactory(mallory.sk);
+                await helperFunctions.signerFactory(tezos, mallory.sk);
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
 
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("nay").send();
                 await votingRoundVoteOperation.confirmation();
-                await signerFactory(mallory.sk);
+                await helperFunctions.signerFactory(tezos, mallory.sk);
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("pass").send();
                 await votingRoundVoteOperation.confirmation();
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
 
                 // Restart proposal round
                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
@@ -569,7 +557,7 @@ describe("Delegation tests", async () => {
                 delegationStorage                       = await delegationInstance.storage();
                 doormanStorage                          = await doormanInstance.storage();
                 mvkTokenStorage                         = await mvkTokenInstance.storage();
-                const finalDoormanBalance               = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                const finalDoormanBalance               = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
                 const firstSatelliteRecordNoClaim       = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
                 const firstSatelliteStakeNoClaim        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
                 const secondSatelliteRecordNoClaim      = await delegationStorage.satelliteRewardsLedger.get(mallory.pkh)
@@ -581,10 +569,10 @@ describe("Delegation tests", async () => {
                 console.log("POST-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordNoClaim.unpaid.toNumber(), " | ", secondSatelliteStakeNoClaim.balance.toNumber())
 
                 // Claim operations
-                await signerFactory(bob.sk)
+                await helperFunctions.signerFactory(tezos, bob.sk)
                 var claimOperation              = await doormanInstance.methods.compound(bob.pkh).send();
                 await claimOperation.confirmation();
-                await signerFactory(mallory.sk)
+                await helperFunctions.signerFactory(tezos, mallory.sk)
                 claimOperation                  = await doormanInstance.methods.compound(mallory.pkh).send();
                 await claimOperation.confirmation();
 
@@ -601,8 +589,8 @@ describe("Delegation tests", async () => {
                 // Assertions
                 assert.equal(firstSatelliteRecordEnd.unpaid.toNumber(), 0)
                 assert.equal(secondSatelliteRecordEnd.unpaid.toNumber(), 0)
-                assert.equal(almostEqual(firstSatelliteStakeEnd.balance.toNumber(),firstSatelliteStakeStart.balance.toNumber() + firstSatelliteReward, 0.01), true)
-                assert.equal(almostEqual(secondSatelliteStakeEnd.balance.toNumber(),secondSatelliteStakeStart.balance.toNumber() + secondSatelliteReward, 0.01), true)
+                assert.equal(helperFunctions.almostEqual(firstSatelliteStakeEnd.balance.toNumber(),firstSatelliteStakeStart.balance.toNumber() + firstSatelliteReward, 0.01), true)
+                assert.equal(helperFunctions.almostEqual(secondSatelliteStakeEnd.balance.toNumber(),secondSatelliteStakeStart.balance.toNumber() + secondSatelliteReward, 0.01), true)
                 console.log("POST-CLAIM SATELLITE BOB: ", firstSatelliteRecordEnd.unpaid.toNumber(), " | ", firstSatelliteStakeEnd.balance.toNumber())
                 console.log("POST-CLAIM SATELLITE MALLORY: ", secondSatelliteRecordEnd.unpaid.toNumber(), " | ", secondSatelliteStakeEnd.balance.toNumber()) 
             } catch(e){
@@ -618,7 +606,7 @@ describe("Delegation tests", async () => {
                 doormanStorage              = await doormanInstance.storage();
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                const initDoormanBalance    = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "New Proposal #1";
                 const proposalDesc          = "Details about new proposal #1";
@@ -650,11 +638,11 @@ describe("Delegation tests", async () => {
                 // Prepare proposal metadata
                 const lambdaFunction                = await compileLambdaFunction(
                     'development',
-                    governanceProxyAddress.address,
+                    contractDeployments.governanceProxy.address,
                     
                     'updateGeneralContracts',
                     [
-                        doormanAddress.address,
+                        contractDeployments.doorman.address,
                         "bob",
                         bob.pkh
                     ]
@@ -690,20 +678,20 @@ describe("Delegation tests", async () => {
                 await lockOperation.confirmation();
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await signerFactory(mallory.sk);
+                await helperFunctions.signerFactory(tezos, mallory.sk);
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
 
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await signerFactory(mallory.sk);
+                await helperFunctions.signerFactory(tezos, mallory.sk);
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
 
                 // Restart proposal round
                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
@@ -723,7 +711,7 @@ describe("Delegation tests", async () => {
                 delegationStorage                       = await delegationInstance.storage();
                 doormanStorage                          = await doormanInstance.storage();
                 mvkTokenStorage                         = await mvkTokenInstance.storage();
-                const finalDoormanBalance               = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                const finalDoormanBalance               = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
                 const firstSatelliteRecordNoClaim       = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
                 const firstSatelliteStakeNoClaim        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
                 const secondSatelliteRecordNoClaim      = await delegationStorage.satelliteRewardsLedger.get(mallory.pkh)
@@ -753,8 +741,8 @@ describe("Delegation tests", async () => {
                 // Assertions
                 assert.equal(firstSatelliteRecordEnd.unpaid.toNumber(), 0)
                 assert.equal(secondSatelliteRecordEnd.unpaid.toNumber(), 0)
-                assert.equal(almostEqual(firstSatelliteStakeEnd.balance.toNumber(),firstSatelliteStakeStart.balance.toNumber() + firstSatelliteReward, 0.01), true)
-                assert.equal(almostEqual(secondSatelliteStakeEnd.balance.toNumber(),secondSatelliteStakeStart.balance.toNumber() + secondSatelliteReward, 0.01), true)
+                assert.equal(helperFunctions.almostEqual(firstSatelliteStakeEnd.balance.toNumber(),firstSatelliteStakeStart.balance.toNumber() + firstSatelliteReward, 0.01), true)
+                assert.equal(helperFunctions.almostEqual(secondSatelliteStakeEnd.balance.toNumber(),secondSatelliteStakeStart.balance.toNumber() + secondSatelliteReward, 0.01), true)
                 console.log("POST-CLAIM SATELLITE BOB: ", firstSatelliteRecordEnd.unpaid.toNumber(), " | ", firstSatelliteStakeEnd.balance.toNumber())
                 console.log("POST-CLAIM SATELLITE MALLORY: ", secondSatelliteRecordEnd.unpaid.toNumber(), " | ", secondSatelliteStakeEnd.balance.toNumber()) 
             } catch(e){
@@ -768,7 +756,7 @@ describe("Delegation tests", async () => {
                 delegationStorage = await delegationInstance.storage();
 
                 // Distribute Operation
-                await signerFactory(alice.sk);
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -781,14 +769,14 @@ describe("Delegation tests", async () => {
                 delegationStorage = await delegationInstance.storage();
 
                 // Preparation operation
-                var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+                var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address).send();
                 await updateGeneralContractsOperation.confirmation();
 
                 // Distribute Operation
                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
 
                 // Reset operation
-                updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+                updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address).send();
                 await updateGeneralContractsOperation.confirmation();
             }
             catch(e) {
@@ -802,14 +790,14 @@ describe("Delegation tests", async () => {
                 delegationStorage = await delegationInstance.storage();
 
                 // Preparation operation
-                var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+                var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", contractDeployments.treasury.address).send();
                 await updateGeneralContractsOperation.confirmation();
 
                 // Distribute Operation
                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
 
                 // Reset operation
-                updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+                updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", contractDeployments.treasury.address).send();
                 await updateGeneralContractsOperation.confirmation();
             }
             catch(e) {
