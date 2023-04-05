@@ -1,5 +1,5 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-import { bob, eve, mallory } from "../../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory, oscar } from "../../scripts/sandbox/accounts";
 export const mvkTokenDecimals = 9
 
 // ------------------------------------------------------------------------------
@@ -265,6 +265,16 @@ export const aggregatorMockData = {
 
 export const mockSatelliteData = {
 
+    "alice" : {
+        name            : "Alice Dynamics",
+        desc            : "The Alice Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
+        image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+        website         : "https://mavryk.finance/", 
+        satelliteFee    : 500,
+        oraclePublicKey : alice.pk,
+        oraclePeerId    : alice.peerId
+    },
+
     "bob" : {
         name            : "Mavryk Dynamics",
         desc            : "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
@@ -293,6 +303,16 @@ export const mockSatelliteData = {
         satelliteFee    : 700,
         oraclePublicKey : mallory.pk,
         oraclePeerId    : mallory.peerId
+    },
+
+    "oscar" : {
+        name            : "Oscar Wilde",
+        desc            : "Oscar Fingal O'Fflahertie Wills Wilde was an Irish poet and playwright. After writing in different forms throughout the 1880s, he became one of the most popular playwrights in London in the early 1890s",
+        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        website         : "https://intl.startrek.com/",
+        satelliteFee    : 700,
+        oraclePublicKey : oscar.pk,
+        oraclePeerId    : oscar.peerId
     }
     
 }

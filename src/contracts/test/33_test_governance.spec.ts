@@ -1,36 +1,33 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import assert, { ok, rejects, strictEqual } from "assert";
-import { MVK, Utils, zeroAddress } from "./helpers/Utils";
-import fs from "fs";
-import { confirmOperation } from "../scripts/confirmation";
-import { BigNumber } from "bignumber.js";
-import { RpcClient } from '@taquito/rpc';
+import assert from "assert";
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);   
 chai.should();
 
-import env from "../env";
+// ------------------------------------------------------------------------------
+// Contract Address
+// ------------------------------------------------------------------------------
+
+import contractDeployments from './contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
-
-import doormanAddress from '../deployments/doormanAddress.json';
-import delegationAddress from '../deployments/delegationAddress.json';
-import councilAddress from '../deployments/councilAddress.json'
-import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-import governanceAddress from '../deployments/governanceAddress.json';
-import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
-import emergencyGovernanceAddress from '../deployments/emergencyGovernanceAddress.json';
-import breakGlassAddress from '../deployments/breakGlassAddress.json';
-
-// import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
-import { config } from "yargs";
-import { MichelsonMap } from "@taquito/taquito";
 import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import * as helperFunctions from './helpers/helperFunctions'
+
+// ------------------------------------------------------------------------------
+// Contract Tests
+// ------------------------------------------------------------------------------
 
 describe("Governance tests", async () => {
+    
     var utils: Utils;
+    let tezos
 
     let doormanInstance;
     let delegationInstance;
@@ -49,44 +46,41 @@ describe("Governance tests", async () => {
     let emergencyGovernanceStorage;
     let breakGlassStorage;
     let councilStorage;
-    
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
 
     before("setup", async () => {
         try {
+            
             utils = new Utils();
             await utils.init(bob.sk);
+            let tezos
             
-            doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
-            delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
-            mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
-            governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
-            governanceProxyInstance = await utils.tezos.contract.at(governanceProxyAddress.address);
-            emergencyGovernanceInstance = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
-            breakGlassInstance = await utils.tezos.contract.at(breakGlassAddress.address);
-            councilInstance = await utils.tezos.contract.at(councilAddress.address);
+            doormanInstance             = await utils.tezos.contract.at(contractDeployments.doorman.address);
+            delegationInstance          = await utils.tezos.contract.at(contractDeployments.delegation.address);
+            mvkTokenInstance            = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            governanceInstance          = await utils.tezos.contract.at(contractDeployments.governance.address);
+            governanceProxyInstance     = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
+            emergencyGovernanceInstance = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
+            breakGlassInstance          = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
+            councilInstance             = await utils.tezos.contract.at(contractDeployments.council.address);
                 
-            doormanStorage    = await doormanInstance.storage();
-            delegationStorage = await delegationInstance.storage();
-            mvkTokenStorage   = await mvkTokenInstance.storage();
-            governanceStorage = await governanceInstance.storage();
-            governanceProxyStorage  = await governanceProxyInstance.storage();
-            emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-            breakGlassStorage = await breakGlassInstance.storage();
-            councilStorage  = await councilInstance.storage();
+            doormanStorage              = await doormanInstance.storage();
+            delegationStorage           = await delegationInstance.storage();
+            mvkTokenStorage             = await mvkTokenInstance.storage();
+            governanceStorage           = await governanceInstance.storage();
+            governanceProxyStorage      = await governanceProxyInstance.storage();
+            emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+            breakGlassStorage           = await breakGlassInstance.storage();
+            councilStorage              = await councilInstance.storage();
     
-            console.log('-- -- -- -- -- Governance Tests -- -- -- --')
-            console.log('Doorman Contract deployed at:', doormanInstance.address);
-            console.log('Delegation Contract deployed at:', delegationInstance.address);
-            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-            console.log('Governance Contract deployed at:', governanceInstance.address);
-            console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-            console.log('Bob address: ' + bob.pkh);
-            console.log('Alice address: ' + alice.pkh);
-            console.log('Eve address: ' + eve.pkh);
+            // console.log('-- -- -- -- -- Governance Tests -- -- -- --')
+            // console.log('Doorman Contract deployed at:', doormanInstance.address);
+            // console.log('Delegation Contract deployed at:', delegationInstance.address);
+            // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+            // console.log('Governance Contract deployed at:', governanceInstance.address);
+            // console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
+            // console.log('Bob address: ' + bob.pkh);
+            // console.log('Alice address: ' + alice.pkh);
+            // console.log('Eve address: ' + eve.pkh);
     
             // Init multiple satellites
             delegationStorage       = await delegationInstance.storage();
@@ -97,7 +91,7 @@ describe("Governance tests", async () => {
                     {
                         add_operator: {
                             owner: bob.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -107,13 +101,13 @@ describe("Governance tests", async () => {
                 var stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
                 await stakeOperation.confirmation();
                 
-                await signerFactory(alice.sk)
+                await helperFunctions.signerFactory(tezos, alice.sk)
                 updateOperators = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
                             owner: alice.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -133,13 +127,13 @@ describe("Governance tests", async () => {
                 ).send();
                 await registerAsSatellite.confirmation();
     
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 updateOperators = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
                             owner: eve.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -159,10 +153,10 @@ describe("Governance tests", async () => {
                 await registerAsSatellite.confirmation();
     
                 // Reset signer
-                await signerFactory(bob.sk)
+                await helperFunctions.signerFactory(tezos, bob.sk)
         
                 // Set council contract admin to governance proxy for later tests
-                const setAdminOperation = await councilInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                const setAdminOperation = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
             }
         } catch (e) {
@@ -175,7 +169,7 @@ describe("Governance tests", async () => {
             before("Configure delegation ratio on delegation contract", async () => {
                 try{
                     // Initial Values
-                    await signerFactory(bob.sk)
+                    await helperFunctions.signerFactory(tezos, bob.sk)
                     delegationStorage   = await delegationInstance.storage();
                     const newConfigValue = 10;
 
@@ -194,7 +188,7 @@ describe("Governance tests", async () => {
                 }
             });
             beforeEach("Set signer to admin", async () => {
-                await signerFactory(bob.sk)
+                await helperFunctions.signerFactory(tezos, bob.sk)
             });
             it('Admin should be able to call the entrypoint and configure the success reward', async () => {
                 try{
@@ -509,7 +503,7 @@ describe("Governance tests", async () => {
                     const newConfigValue = 1;
 
                     // Operation
-                    await signerFactory(alice.sk)
+                    await helperFunctions.signerFactory(tezos, alice.sk)
                     await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send()).to.be.rejected;
 
                     // Final values
@@ -527,7 +521,7 @@ describe("Governance tests", async () => {
         describe("%startNextRound", async () => {
 
             beforeEach("Set signer to standard user", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('User should be able to start the proposal round if no round has been initiated yet', async () => {
@@ -624,11 +618,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -685,11 +679,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -772,11 +766,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -853,7 +847,7 @@ describe("Governance tests", async () => {
 
         describe("%propose", async () => {
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should be able to call this entrypoint and create a proposal without metadata', async () => {
@@ -869,11 +863,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -954,11 +948,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -983,7 +977,7 @@ describe("Governance tests", async () => {
                                     "to_"    : bob.pkh,
                                     "token"  : {
                                         "fa2" : {
-                                            "tokenContractAddress" : mvkTokenAddress.address,
+                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
                                             "tokenId" : 0
                                         }
                                     },
@@ -1062,7 +1056,7 @@ describe("Governance tests", async () => {
                     const proposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    await signerFactory(bob.sk);
+                    await helperFunctions.signerFactory(tezos, bob.sk);
                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: 0.1})).to.be.rejected;
 
                     // Final values
@@ -1087,7 +1081,7 @@ describe("Governance tests", async () => {
                     const proposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    await signerFactory(bob.sk);
+                    await helperFunctions.signerFactory(tezos, bob.sk);
                     const registerAsSatellite = await delegationInstance.methods
                     .registerAsSatellite(
                         "Bob Satellite", 
@@ -1114,7 +1108,7 @@ describe("Governance tests", async () => {
         describe("%updateProposalData", async () => {
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should be able to add data to an existing proposal', async () => {
@@ -1126,11 +1120,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -1170,11 +1164,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            governanceAddress.address,
+                            contractDeployments.governance.address,
                             "governance",
                             "ConfigSuccessReward",
                             1200
@@ -1215,11 +1209,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            governanceAddress.address,
+                            contractDeployments.governance.address,
                             "governance",
                             "ConfigSuccessReward",
                             1300
@@ -1288,11 +1282,11 @@ describe("Governance tests", async () => {
                     // Pack first data
                     const lambdaFunctionFirst   = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            governanceAddress.address,
+                            contractDeployments.governance.address,
                             "governance",
                             "ConfigSuccessReward",
                             1200
@@ -1302,11 +1296,11 @@ describe("Governance tests", async () => {
                     // Pack second data
                     const lambdaFunctionSecond  = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            governanceAddress.address,
+                            contractDeployments.governance.address,
                             "governance",
                             "ConfigSuccessReward",
                             1600
@@ -1381,7 +1375,7 @@ describe("Governance tests", async () => {
                         "to_"    : bob.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
+                                "tokenContractAddress" : contractDeployments.mvkToken.address,
                                 "tokenId" : 0
                             }
                         },
@@ -1424,7 +1418,7 @@ describe("Governance tests", async () => {
                         "to_"    : alice.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
+                                "tokenContractAddress" : contractDeployments.mvkToken.address,
                                 "tokenId" : 0
                             }
                         },
@@ -1493,7 +1487,7 @@ describe("Governance tests", async () => {
                         "to_"    : alice.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
+                                "tokenContractAddress" : contractDeployments.mvkToken.address,
                                 "tokenId" : 0
                             }
                         },
@@ -1503,7 +1497,7 @@ describe("Governance tests", async () => {
                         "to_"    : bob.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
+                                "tokenContractAddress" : contractDeployments.mvkToken.address,
                                 "tokenId" : 0
                             }
                         },
@@ -1562,11 +1556,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            governanceAddress.address,
+                            contractDeployments.governance.address,
                             "governance",
                             "ConfigSuccessReward",
                             1200
@@ -1574,7 +1568,7 @@ describe("Governance tests", async () => {
                     );
 
                     // Operation
-                    await signerFactory(bob.sk);
+                    await helperFunctions.signerFactory(tezos, bob.sk);
                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
                         {
                             addOrSetProposalData: {
@@ -1597,11 +1591,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            governanceAddress.address,
+                            contractDeployments.governance.address,
                             "governance",
                             "ConfigSuccessReward",
                             1200
@@ -1631,11 +1625,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            governanceAddress.address,
+                            contractDeployments.governance.address,
                             "governance",
                             "ConfigSuccessReward",
                             1200
@@ -1643,7 +1637,7 @@ describe("Governance tests", async () => {
                     );
 
                     // Operation
-                    await signerFactory(alice.sk);
+                    await helperFunctions.signerFactory(tezos, alice.sk);
                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
                         {
                             addOrSetProposalData: {
@@ -1662,7 +1656,7 @@ describe("Governance tests", async () => {
         describe("%lockProposal", async () => {
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should be able to call this entrypoint and lock a proposal', async () => {
@@ -1693,7 +1687,7 @@ describe("Governance tests", async () => {
                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
                     // Operation
-                    await signerFactory(bob.sk);
+                    await helperFunctions.signerFactory(tezos, bob.sk);
                     await chai.expect(governanceInstance.methods.lockProposal(proposalId).send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -1740,7 +1734,7 @@ describe("Governance tests", async () => {
                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
                     // Operation
-                    await signerFactory(alice.sk);
+                    await helperFunctions.signerFactory(tezos, alice.sk);
                     await chai.expect(governanceInstance.methods.lockProposal(proposalId).send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -1750,7 +1744,7 @@ describe("Governance tests", async () => {
 
         describe("%proposalRoundVote", async () => {
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should be able to call this entrypoint and vote for a proposal', async () => {
@@ -1789,7 +1783,7 @@ describe("Governance tests", async () => {
                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
                     // Operation
-                    await signerFactory(bob.sk)
+                    await helperFunctions.signerFactory(tezos, bob.sk)
                     await chai.expect(governanceInstance.methods.proposalRoundVote(proposalId).send()).to.be.rejected;
 
                     // Final values
@@ -1814,13 +1808,13 @@ describe("Governance tests", async () => {
                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
                     // Operation
-                    await signerFactory(mallory.sk)
+                    await helperFunctions.signerFactory(tezos, mallory.sk)
                     const updateOperators = await mvkTokenInstance.methods
                         .update_operators([
                         {
                             add_operator: {
                                 owner: mallory.pkh,
-                                operator: doormanAddress.address,
+                                operator: contractDeployments.doorman.address,
                                 token_id: 0,
                             },
                         },
@@ -1897,11 +1891,11 @@ describe("Governance tests", async () => {
                     // Add data to proposal for later execution
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -1949,7 +1943,7 @@ describe("Governance tests", async () => {
 
         describe("%dropProposal", async () => {
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Proposer should be able to call this entrypoint and drop its proposal', async () => {
@@ -1980,7 +1974,7 @@ describe("Governance tests", async () => {
                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
 
                     // Operation
-                    await signerFactory(trudy.sk)
+                    await helperFunctions.signerFactory(tezos, trudy.sk)
                     await chai.expect(governanceInstance.methods.dropProposal(proposalId).send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -1994,7 +1988,7 @@ describe("Governance tests", async () => {
                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
 
                     // Operation
-                    await signerFactory(alice.sk)
+                    await helperFunctions.signerFactory(tezos, alice.sk)
                     await chai.expect(governanceInstance.methods.dropProposal(proposalId).send()).to.be.rejected;
 
                     // Final values
@@ -2037,7 +2031,7 @@ describe("Governance tests", async () => {
             })
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should be able to call this entrypoint and vote', async () => {
@@ -2057,7 +2051,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
 
-                    await signerFactory(bob.sk)
+                    await helperFunctions.signerFactory(tezos, bob.sk)
                     await chai.expect(governanceInstance.methods.votingRoundVote("yay").send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -2069,7 +2063,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
 
-                    await signerFactory(mallory.sk)
+                    await helperFunctions.signerFactory(tezos, mallory.sk)
                     await chai.expect(governanceInstance.methods.votingRoundVote("yay").send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -2080,7 +2074,7 @@ describe("Governance tests", async () => {
         describe("%executeProposal", async () => {
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('User should not be able to call this entrypoint if it’s the voting round', async () => {
@@ -2155,7 +2149,7 @@ describe("Governance tests", async () => {
         describe("%distributeProposalRewards", async () => {
 
             beforeEach("Set signer to standard user", async () => {
-                await signerFactory(trudy.sk)
+                await helperFunctions.signerFactory(tezos, trudy.sk)
             });
 
             it('User should not be able to call this entrypoint if it did not vote on the proposal', async () => {
@@ -2186,12 +2180,12 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode       = "Proposal Source Code";
 
                     // Propose a new proposal
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     const proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
                     await proposeOperation.confirmation();
 
                     // Operation
-                    await signerFactory(trudy.sk)
+                    await helperFunctions.signerFactory(tezos, trudy.sk)
                     await chai.expect(governanceInstance.methods.distributeProposalRewards(mallory.pkh, [proposalId]).send()).to.be.rejected;
 
                     // Final values
@@ -2274,7 +2268,7 @@ describe("Governance tests", async () => {
     describe("Second Cycle", async () => {
 
         beforeEach("Set signer to satellite", async () => {
-            await signerFactory(eve.sk)
+            await helperFunctions.signerFactory(tezos, eve.sk)
         });
 
         describe("%startNextRound", async () => {
@@ -2286,7 +2280,7 @@ describe("Governance tests", async () => {
                     const blocksPerProposalRound = governanceStorage.config.blocksPerProposalRound;
 
                     // Update config
-                    await signerFactory(bob.sk);
+                    await helperFunctions.signerFactory(tezos, bob.sk);
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configBlocksPerProposalRound").send();
                     await updateConfigOperation.confirmation();
                     updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configBlocksPerVotingRound").send();
@@ -2320,18 +2314,18 @@ describe("Governance tests", async () => {
         describe("%propose", async () => {
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should not be able to call this entrypoint and create a proposal if it has already created enough proposals this cycle', async () => {
                 try{
                     // Update config
-                    await signerFactory(bob.sk);
+                    await helperFunctions.signerFactory(tezos, bob.sk);
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMaxProposalsPerSatellite").send();
                     await updateConfigOperation.confirmation();
 
                     // Initial Values
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     governanceStorage               = await governanceInstance.storage();
                     var currentCycleInfoRound       = governanceStorage.currentCycleInfo.round
                     var currentCycleInfoRoundString = Object.keys(currentCycleInfoRound)[0]
@@ -2365,7 +2359,7 @@ describe("Governance tests", async () => {
             it('Satellite should not be able to call this entrypoint if it registered during the current cycle', async () => {
                 try{
                     // Initial Values
-                    await signerFactory(trudy.sk)
+                    await helperFunctions.signerFactory(tezos, trudy.sk)
                     governanceStorage                   = await governanceInstance.storage();
                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round
                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0]
@@ -2390,7 +2384,7 @@ describe("Governance tests", async () => {
                     {
                         add_operator: {
                             owner: trudy.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -2429,12 +2423,12 @@ describe("Governance tests", async () => {
             it('Satellite should not be able to call this entrypoint if it is not the proposal round', async () => {
                 try{
                     // Update config
-                    await signerFactory(bob.sk);
+                    await helperFunctions.signerFactory(tezos, bob.sk);
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(25,"configMaxProposalsPerSatellite").send();
                     await updateConfigOperation.confirmation();
 
                     // Initial Values
-                    await signerFactory(eve.sk);
+                    await helperFunctions.signerFactory(tezos, eve.sk);
                     governanceStorage           = await governanceInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId; 
                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
@@ -2461,11 +2455,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -2512,7 +2506,7 @@ describe("Governance tests", async () => {
         describe("%updateProposalData", async () => {
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should not be able to call this entrypoint if it is not the proposal round', async () => {
@@ -2539,11 +2533,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -2619,11 +2613,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -2667,7 +2661,7 @@ describe("Governance tests", async () => {
         describe("%lockProposal", async () => {
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Satellite should not be able to call this entrypoint if it is not the proposal round', async () => {
@@ -2694,11 +2688,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -2763,11 +2757,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -2848,12 +2842,12 @@ describe("Governance tests", async () => {
                     await stakeOperation.confirmation();
 
                     // User delegates to satellite
-                    await signerFactory(oscar.sk)
+                    await helperFunctions.signerFactory(tezos, oscar.sk)
                     const updateOperators = await mvkTokenInstance.methods.update_operators([
                     {
                         add_operator: {
                             owner: oscar.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -2873,11 +2867,11 @@ describe("Governance tests", async () => {
                     // add proposal data
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -2895,7 +2889,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: 0.1});
                     await proposeOperation.confirmation();
 
@@ -2954,11 +2948,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3018,7 +3012,7 @@ describe("Governance tests", async () => {
             it('Satellite should not be able to call this entrypoint if the proposal was executed', async () => {
                 try{
                     // UpdateConfig
-                    await signerFactory(bob.sk)
+                    await helperFunctions.signerFactory(tezos, bob.sk)
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotePct").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotesReq").send();
@@ -3030,7 +3024,7 @@ describe("Governance tests", async () => {
                     var updateConfigOperation = await delegationInstance.methods.updateConfig(1,"configDelegationRatio").send();
                     await updateConfigOperation.confirmation();
                     // Initial Values
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     governanceStorage           = await governanceInstance.storage()
                     governanceStorage           = await governanceInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId; 
@@ -3056,11 +3050,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3106,13 +3100,13 @@ describe("Governance tests", async () => {
         describe("%dropProposal", async () => {
             
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
 
             it('Proposer should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map or the getSatelliteOpt view doesn’t exist', async () => {
                 try{
                     // Initial Values
-                    await signerFactory(eve.sk);
+                    await helperFunctions.signerFactory(tezos, eve.sk);
                     governanceStorage           = await governanceInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId; 
                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
@@ -3136,16 +3130,16 @@ describe("Governance tests", async () => {
                     await proposeOperation.confirmation();
 
                     // Update config
-                    await signerFactory(bob.sk);
-                    var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", contractDeployments.delegation.address).send();
                     await updateGeneralContractOperation.confirmation();
 
-                    await signerFactory(eve.sk);
+                    await helperFunctions.signerFactory(tezos, eve.sk);
                     await chai.expect(governanceInstance.methods.dropProposal(proposalId).send()).to.be.rejected;
 
                     // Reset
-                    await signerFactory(bob.sk);
-                    updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", contractDeployments.delegation.address).send();
                     await updateGeneralContractOperation.confirmation();
 
                     governanceStorage           = await governanceInstance.storage();
@@ -3158,7 +3152,7 @@ describe("Governance tests", async () => {
             it('Proposer should not be able to call this entrypoint if the selected proposal was already executed', async () => {
                 try{
                     // UpdateConfig
-                    await signerFactory(bob.sk)
+                    await helperFunctions.signerFactory(tezos, bob.sk)
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotePct").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotesReq").send();
@@ -3171,7 +3165,7 @@ describe("Governance tests", async () => {
                     await updateConfigOperation.confirmation();
 
                     // Initial Values
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     governanceStorage           = await governanceInstance.storage()
                     governanceStorage           = await governanceInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId; 
@@ -3197,11 +3191,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3291,11 +3285,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3347,7 +3341,7 @@ describe("Governance tests", async () => {
         describe("%votingRoundVote", async () => {
 
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
             
             it('Satellite should not be able to call this entrypoint if it is not the voting round', async () => {
@@ -3400,11 +3394,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3433,16 +3427,16 @@ describe("Governance tests", async () => {
 
 
                     // Update config
-                    await signerFactory(bob.sk);
-                    var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", contractDeployments.delegation.address).send();
                     await updateGeneralContractOperation.confirmation();
 
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     await chai.expect(governanceInstance.methods.votingRoundVote("yay").send()).to.be.rejected;
 
                     // Reset
-                    await signerFactory(bob.sk)
-                    updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", contractDeployments.delegation.address).send();
                     await updateGeneralContractOperation.confirmation();
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -3453,13 +3447,13 @@ describe("Governance tests", async () => {
         describe("%executeProposal", async () => {
             
             beforeEach("Set signer to satellite", async () => {
-                await signerFactory(eve.sk)
+                await helperFunctions.signerFactory(tezos, eve.sk)
             });
             
             it('User should be able to call this entrypoint automatically when switching from the timelock round to the new round', async () => {
                 try{
                     // UpdateConfig
-                    await signerFactory(bob.sk)
+                    await helperFunctions.signerFactory(tezos, bob.sk)
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotePct").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotesReq").send();
@@ -3472,7 +3466,7 @@ describe("Governance tests", async () => {
                     await updateConfigOperation.confirmation();
 
                     // Initial Values
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     governanceStorage           = await governanceInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId; 
                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
@@ -3497,11 +3491,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3531,11 +3525,11 @@ describe("Governance tests", async () => {
                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
-                    await signerFactory(alice.sk)
+                    await helperFunctions.signerFactory(tezos, alice.sk)
                     votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
@@ -3560,7 +3554,7 @@ describe("Governance tests", async () => {
                 try{
 
                     // Initial Values
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
                     governanceStorage                       = await governanceInstance.storage();
                     const firstProposalId                   = governanceStorage.nextProposalId; 
                     var currentCycleInfoRound               = governanceStorage.currentCycleInfo.round;
@@ -3585,11 +3579,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3619,11 +3613,11 @@ describe("Governance tests", async () => {
                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
-                    await signerFactory(alice.sk)
+                    await helperFunctions.signerFactory(tezos, alice.sk)
                     votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
                     await startNextRoundOperation.confirmation();
@@ -3663,11 +3657,11 @@ describe("Governance tests", async () => {
                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
-                    await signerFactory(alice.sk)
+                    await helperFunctions.signerFactory(tezos, alice.sk)
                     votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
-                    await signerFactory(eve.sk)
+                    await helperFunctions.signerFactory(tezos, eve.sk)
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
                     await startNextRoundOperation.confirmation();
@@ -3719,11 +3713,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3789,11 +3783,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -3871,11 +3865,11 @@ describe("Governance tests", async () => {
 
                     const lambdaFunction        = await compileLambdaFunction(
                         'development',
-                        governanceProxyAddress.address,
+                        contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
                         [
-                            councilAddress.address,
+                            contractDeployments.council.address,
                             "council",
                             "ConfigActionExpiryDays",
                             1234
@@ -4002,7 +3996,7 @@ describe("Governance tests", async () => {
     describe("%breakGlass", async () => {
 
         before("Update emergency config", async () => {
-            await signerFactory(bob.sk)
+            await helperFunctions.signerFactory(tezos, bob.sk)
             var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
             await updateConfigOperation.confirmation();
             updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
@@ -4010,13 +4004,13 @@ describe("Governance tests", async () => {
         });
 
         beforeEach("Set signer to satellite", async () => {
-            await signerFactory(eve.sk)
+            await helperFunctions.signerFactory(tezos, eve.sk)
         });
 
         it('Other contracts should not be able to call this entrypoint', async () => {
             try{
                 // Set all contracts admin to governance address if it is not
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 await chai.expect(governanceInstance.methods.breakGlass().send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4026,12 +4020,12 @@ describe("Governance tests", async () => {
         it('Emergency Governance contract should not be able to call this entrypoint is the breakGlass contract does not exist in the generalContracts map', async () => {
             try{
                 // Set all contracts admin to governance address if it is not
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 governanceStorage             = await governanceInstance.storage();
                 var generalContracts          = governanceStorage.generalContracts.entries();
 
                 // Update general contracts
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
+                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address).send();
                 await updateGeneralContractOperation.confirmation();
                 for (let entry of generalContracts){
                     // Get contract storage
@@ -4039,8 +4033,8 @@ describe("Governance tests", async () => {
                     var storage:any     = await contract.storage();
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                         await setAdminOperation.confirmation()
                     }
                 }
@@ -4068,7 +4062,7 @@ describe("Governance tests", async () => {
 
                     // Check admin
                     if(storage.hasOwnProperty('admin')){
-                        assert.equal(storage.admin, governanceProxyAddress.address)
+                        assert.equal(storage.admin, contractDeployments.governanceProxy.address)
                     }
 
                     // Check pause
@@ -4081,7 +4075,7 @@ describe("Governance tests", async () => {
                 }
 
                 // Reset general contracts
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
+                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address).send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4091,7 +4085,7 @@ describe("Governance tests", async () => {
         it('Emergency Governance contract should be able to call this entrypoint and call set the governance admin to the breakGlass address', async () => {
             try{
                 // Set all contracts admin to governance address if it is not
-                await signerFactory(bob.sk);
+                await helperFunctions.signerFactory(tezos, bob.sk);
                 governanceStorage             = await governanceInstance.storage();
                 var generalContracts          = governanceStorage.generalContracts.entries();
 
@@ -4101,8 +4095,8 @@ describe("Governance tests", async () => {
                     var storage:any     = await contract.storage();
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address && storage.admin!==contractDeployments.breakGlass.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                         await setAdminOperation.confirmation()
                     }
                 }
@@ -4118,7 +4112,7 @@ describe("Governance tests", async () => {
 
                 // Check admin and pause in all contracts
                 governanceStorage       = await governanceInstance.storage();
-                assert.strictEqual(governanceStorage.admin, breakGlassAddress.address);
+                assert.strictEqual(governanceStorage.admin, contractDeployments.breakGlass.address);
             } catch(e){
                 console.dir(e, {depth: 5})
             }
