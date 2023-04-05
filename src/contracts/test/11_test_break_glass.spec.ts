@@ -99,7 +99,7 @@ describe("Test: Break Glass Contract", async () => {
             beforeEach("Set signer to admin", async () => {
                 await helperFunctions.signerFactory(tezos, bob.sk)
             });
-            
+
             it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
                 try{
                     // Initial Values
@@ -821,15 +821,8 @@ describe("Test: Break Glass Contract", async () => {
                     // User stake more to trigger break glass
                     await helperFunctions.signerFactory(tezos, mallory.sk);
                     const stakeAmount           = MVK(10)
-                    const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: mallory.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
+
+                    const updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, contractDeployments.doorman.address, 0);
                     await updateOperatorsOperation.confirmation();
         
                     const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();

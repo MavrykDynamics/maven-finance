@@ -67,12 +67,7 @@ describe("Test: Council Contract", async () => {
     let resetAdminOperation
     let updateWhitelistContractsOperation
     let updateGeneralContractsOperation
-    let togglePauseOperation
-    let pauseOperation
-    let pauseAllOperation
-    let unpauseOperation
-    let unpauseAllOperation
-
+    
     // contract map value
     let storageMap
     let contractMapKey

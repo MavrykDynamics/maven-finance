@@ -29,6 +29,9 @@ describe("Break Glass Super Admin tests", async () => {
     var utils: Utils;
     let tezos
 
+    let doormanAddress
+    let tokenId = 0
+
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
@@ -51,13 +54,17 @@ describe("Break Glass Super Admin tests", async () => {
     let vestingStorage;
     let treasuryStorage;
 
+    let updateOperatorsOperation
+
     before("setup", async () => {
 
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos
 
-        doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
+        doormanAddress                  = contractDeployments.doorman.address;
+
+        doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
         mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
         councilInstance                 = await utils.tezos.contract.at(contractDeployments.council.address);
@@ -140,16 +147,9 @@ describe("Break Glass Super Admin tests", async () => {
                         await updateGovernanceConfig.confirmation();
 
                         // Register Alice and Bob as satellites
-                        var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner    : bob.pkh,
-                                operator : contractDeployments.doorman.address,
-                                token_id : 0,
-                            },
-                        }])
-                        .send()
+                        updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
+    
                         var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
                         await stakeOperation.confirmation();
                         var registerAsSatelliteOperation = await delegationInstance.methods
@@ -163,16 +163,9 @@ describe("Break Glass Super Admin tests", async () => {
                         await registerAsSatelliteOperation.confirmation();
 
                         await helperFunctions.signerFactory(tezos, alice.sk)
-                        var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner    : alice.pkh,
-                                operator : contractDeployments.doorman.address,
-                                token_id : 0,
-                            },
-                        }])
-                        .send()
+                        updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
+    
                         stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
                         await stakeOperation.confirmation();
                         var registerAsSatelliteOperation = await delegationInstance.methods
@@ -288,7 +281,7 @@ describe("Break Glass Super Admin tests", async () => {
                         // Initial values
                         governanceStorage           = await governanceInstance.storage();
                         const newAdmin              = oscar.pkh;
-                        const targetContract        = contractDeployments.doorman.address;
+                        const targetContract        = doormanAddress;
                         const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
 
                         console.log("WHITELISTED DEVELOPERS: ", whitelistedDevelopers);
@@ -315,7 +308,7 @@ describe("Break Glass Super Admin tests", async () => {
                         breakGlassStorage           = await breakGlassInstance.storage();
                         const breakGlassActionID    = breakGlassStorage.actionCounter;
                         const newAdmin              = bob.pkh;
-                        const targetContract        = contractDeployments.doorman.address;
+                        const targetContract        = doormanAddress;
                         const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
                         const proposalId            = governanceStorage.nextProposalId.toNumber();
                         const proposalName          = "Remove Bob";

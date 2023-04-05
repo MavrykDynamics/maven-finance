@@ -29,6 +29,9 @@ describe("Governance - Voting Power Ratio - tests", async () => {
     var utils: Utils;
     let tezos 
 
+    let doormanAddress 
+    let tokenId = 0
+
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
@@ -47,13 +50,17 @@ describe("Governance - Voting Power Ratio - tests", async () => {
     let breakGlassStorage;
     let councilStorage;
 
+    let updateOperatorsOperation
+
     before("setup", async () => {
 
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos 
+
+        doormanAddress                  = contractDeployments.doorman.address;
         
-        doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
+        doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
         mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
         governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
@@ -95,18 +102,9 @@ describe("Governance - Voting Power Ratio - tests", async () => {
              * Bob and Trudy
              */
             await helperFunctions.signerFactory(tezos, alice.sk)
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: alice.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
             await stakeOperation.confirmation();
             var registerAsSatellite = await delegationInstance.methods
@@ -120,36 +118,19 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             await registerAsSatellite.confirmation();
 
             await helperFunctions.signerFactory(tezos, bob.sk)
-            var updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
             await stakeOperation.confirmation();
+
             var delegateOperation   = await delegationInstance.methods.delegateToSatellite(bob.pkh, alice.pkh).send()
             await delegateOperation.confirmation()
 
             await helperFunctions.signerFactory(tezos, trudy.sk)
-            var updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: trudy.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, trudy.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             stakeOperation = await doormanInstance.methods.stake(MVK(1234)).send();
             await stakeOperation.confirmation();
             var delegateOperation   = await delegationInstance.methods.delegateToSatellite(trudy.pkh, alice.pkh).send()
@@ -163,18 +144,9 @@ describe("Governance - Voting Power Ratio - tests", async () => {
              * Mallory and Oscar
              */
             await helperFunctions.signerFactory(tezos, eve.sk)
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             stakeOperation = await doormanInstance.methods.stake(MVK(20000)).send();
             await stakeOperation.confirmation();
             registerAsSatellite = await delegationInstance.methods
@@ -188,36 +160,18 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             await registerAsSatellite.confirmation();
 
             await helperFunctions.signerFactory(tezos, mallory.sk)
-            var updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: mallory.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             stakeOperation = await doormanInstance.methods.stake(MVK(200)).send();
             await stakeOperation.confirmation();
             var delegateOperation   = await delegationInstance.methods.delegateToSatellite(mallory.pkh, eve.pkh).send()
             await delegateOperation.confirmation()
 
             await helperFunctions.signerFactory(tezos, oscar.sk)
-            var updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: oscar.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, oscar.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             stakeOperation = await doormanInstance.methods.stake(MVK(800)).send();
             await stakeOperation.confirmation();
             var delegateOperation   = await delegationInstance.methods.delegateToSatellite(oscar.pkh, alice.pkh).send()

@@ -159,6 +159,21 @@ export function mistakenTransferFa2Token (contractInstance, to, tokenContractAdd
 }
 
 
+export function mistakenTransferFa12Token (contractInstance, to, tokenContractAddress, tokenAmount) {
+    const mistakenTransferOperation = contractInstance.methods.mistakenTransfer(
+    [
+        {
+            "to_"    : to,
+            "token"  : {
+                "fa12" : tokenContractAddress
+            },
+            "amount" : tokenAmount
+        }
+    ])
+    return mistakenTransferOperation;
+}
+
+
 
 // export async function fa2MultiTransfer (tokenContractInstance, transferDestination) {
     
