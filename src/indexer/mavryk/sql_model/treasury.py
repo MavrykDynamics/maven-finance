@@ -64,8 +64,6 @@ class TreasuryBalance(Model):
     tzkt_token_id                           = fields.BigIntField(default=0)
     balance                                 = fields.FloatField(default=0.0)
     metadata                                = fields.JSONField(null=True)
-    name                                    = fields.TextField(null=True)
-    icon                                    = fields.TextField(null=True)
 
     class Meta:
         table = 'treasury_balance'
