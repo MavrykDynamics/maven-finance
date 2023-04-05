@@ -79,6 +79,22 @@ oracles:
     messari:
       secretName: api-keys
       key: MESSARI_API_KEY_5
+  new:
+    rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+    tezos:
+      address: tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw
+      publicKey: edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP
+      secretKey: edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs
+    p2p:
+      peerId: 12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
+      peerPublicKey: CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
+      peerPrivateKey: CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
+    alphavantage:
+      secretName: api-keys
+      key: ALPHAVANTAGE_API_KEY
+    messari:
+      secretName: api-keys
+      key: MESSARI_API_KEY_5
 
 image:
   pullSecret: docker-pull-credentials
