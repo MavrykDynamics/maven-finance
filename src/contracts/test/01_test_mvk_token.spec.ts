@@ -96,13 +96,14 @@ describe('Test: MVK Token Contract', async () => {
         await utils.init(bob.sk)
         tezos = utils.tezos;
 
+        // mvk token 
         tokenAddress            = contractDeployments.mvkToken.address
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address
-
         tokenInstance           = await utils.tezos.contract.at(tokenAddress)
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
-
         tokenStorage            = await tokenInstance.storage()
+
+        // for mistaken transfers
+        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address
+        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
         mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
@@ -1574,7 +1575,6 @@ describe('Test: MVK Token Contract', async () => {
                 console.log(e)
             }
         })
-
 
     });
 
