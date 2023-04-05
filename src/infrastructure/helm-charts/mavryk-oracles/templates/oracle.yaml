@@ -63,13 +63,19 @@ spec:
             - name: P2P_PEER_PUBLIC_KEY
               value: '{{ $value.p2p.peerPublicKey }}'
             - name: P2P_PEER_PRIVATE_KEY
-              value: '{{ $value.p2p.peerPrivateKey }}'
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $value.p2p.peerPrivateKey.secretName }}
+                  key: {{ $value.p2p.peerPrivateKey.key }}
             - name: TEZOS_ADDRESS
               value: '{{ $value.tezos.address }}'
             - name: TEZOS_PUBLIC_KEY
               value: '{{ $value.tezos.publicKey }}'
             - name: TEZOS_SECRET_KEY
-              value: '{{ $value.tezos.secretKey }}'
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $value.tezos.secretKey.secretName }}
+                  key: {{ $value.tezos.secretKey.key }}
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
               value: '{{ join "," $.Values.aggregatorsAddresses }}'
             - name: ALPHAVANTAGE_API_KEY
