@@ -28,6 +28,8 @@ describe("Farm mToken", async () => {
     var utils: Utils;
     let tezos 
 
+    let tokenId = 0
+
     let farmAddress
     let farmFactoryAddress
     let mvkTokenAddress
@@ -64,6 +66,7 @@ describe("Farm mToken", async () => {
     let mTokenUsdtInstance
 
     let depositOperation
+    let updateOperatorsOperation
 
     before("setup", async () => {
         
@@ -469,15 +472,7 @@ describe("Farm mToken", async () => {
                     if(farmInit == false){
 
                         // Update operators for farm
-                        const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: bob.pkh,
-                                operator: farmAddress,
-                                token_id: 0,
-                            },
-                        }])
-                        .send()
+                        updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
         
                         // Operation
@@ -687,15 +682,7 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: farmAddress,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -737,15 +724,7 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: alice.pkh,
-                            operator: farmAddress,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, alice.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -788,15 +767,7 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: farmAddress,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -830,16 +801,8 @@ describe("Farm mToken", async () => {
                     const aliceAmountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    const aliceUpdateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: alice.pkh,
-                            operator: farmAddress,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
-                    await aliceUpdateOperatorsOperation.confirmation();
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, alice.pkh, farmAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
 
                     // Operation
                     depositOperation = await farmInstance.methods.deposit(aliceAmountToDeposit).send();
@@ -875,16 +838,8 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = lpBalanceStart + 1000000;
 
                     // Update operators for farm
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: bob.pkh,
-                                operator: farmAddress,
-                                token_id: 0,
-                            },
-                        }])
-                        .send()
-                        await updateOperatorsOperation.confirmation();
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
 
                     // Operation
                     await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
@@ -1355,15 +1310,7 @@ describe("Farm mToken", async () => {
 
                     // Update operators for farm
                     await helperFunctions.signerFactory(tezos, bob.sk);
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: bob.pkh,
-                                operator: farmAddress,
-                                token_id: 0,
-                            },
-                        }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     await chai.expect(farmInstance.methods.deposit(testAmount).send()).to.be.rejected;
@@ -1498,15 +1445,7 @@ describe("Farm mToken", async () => {
 
                     // Approval operation
                     await helperFunctions.signerFactory(tezos, bob.sk);
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: bob.pkh,
-                                operator: farmAddress,
-                                token_id: 0,
-                            },
-                        }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation - deposit amount so user balance will be greater than zero
@@ -1731,15 +1670,7 @@ describe("Farm mToken", async () => {
 
                     // Approval operation
                     await helperFunctions.signerFactory(tezos, bob.sk);
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: bob.pkh,
-                                operator: farmAddress,
-                                token_id: 0,
-                            },
-                        }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
                     
                     // Operation

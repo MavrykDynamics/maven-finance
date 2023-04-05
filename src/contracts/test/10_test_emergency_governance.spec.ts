@@ -28,6 +28,10 @@ describe("Emergency Governance tests", async () => {
     var utils: Utils;
     let tezos 
 
+    let doormanAddress
+
+    let tokenId = 0
+
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
@@ -48,13 +52,17 @@ describe("Emergency Governance tests", async () => {
     let vestingStorage;
     let treasuryStorage;
 
+    let updateOperatorsOperation
+
     before("setup", async () => {
 
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos;
 
-        doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
+        doormanAddress                  = contractDeployments.doorman.address;
+
+        doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
         mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
         councilInstance                 = await utils.tezos.contract.at(contractDeployments.council.address);
@@ -95,15 +103,7 @@ describe("Emergency Governance tests", async () => {
         // ---------------------------------------------
         // mallory update operators - set initial staked MVK total supply of 250
         await helperFunctions.signerFactory(tezos, mallory.sk);
-        const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: mallory.pkh,
-                    operator: contractDeployments.doorman.address,
-                    token_id: 0,
-                },
-            }])
-        .send()
+        updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
         await updateOperatorsOperation.confirmation();
 
         // const userStake = MVK(250);
@@ -211,7 +211,7 @@ describe("Emergency Governance tests", async () => {
 
                 // Assertions
                 assert.equal(updateConfigValue, newConfigValue);
-                
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -381,14 +381,7 @@ describe("Emergency Governance tests", async () => {
                 const stakeAmount           = MVK(10);
 
                 // Operations
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }]).send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
@@ -427,14 +420,7 @@ describe("Emergency Governance tests", async () => {
                 const stakeAmount           = MVK(10);
 
                 // Operations
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: alice.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }]).send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
@@ -459,7 +445,7 @@ describe("Emergency Governance tests", async () => {
             try{
                 // Update generalContracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address).send();
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
                 await updateOperation.confirmation()
 
                 // Initial Values
@@ -476,7 +462,7 @@ describe("Emergency Governance tests", async () => {
 
                 // Reset contract
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address).send();
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
                 await updateOperation.confirmation()
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -611,7 +597,7 @@ describe("Emergency Governance tests", async () => {
             try{
                 // Update generalContracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address).send();
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
                 await updateOperation.confirmation()
 
                 // Initial Values
@@ -622,7 +608,7 @@ describe("Emergency Governance tests", async () => {
 
                 // Reset contract
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address).send();
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
                 await updateOperation.confirmation()
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -637,15 +623,7 @@ describe("Emergency Governance tests", async () => {
                 const smvkRequired          = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
                 const stakeAmount           = MVK(1)
 
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: mallory.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
@@ -785,17 +763,9 @@ describe("Emergency Governance tests", async () => {
 
                 // User stake more to trigger break glass
                 await helperFunctions.signerFactory(tezos, alice.sk)
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: alice.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
-    
+
                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
     
@@ -868,15 +838,8 @@ describe("Emergency Governance tests", async () => {
                 // User stake more to trigger break glass
                 await helperFunctions.signerFactory(tezos, mallory.sk);
                 const stakeAmount           = MVK(10)
-                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: mallory.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();

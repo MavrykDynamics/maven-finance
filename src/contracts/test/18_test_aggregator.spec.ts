@@ -38,6 +38,8 @@ describe('Aggregator Tests', async () => {
     var utils: Utils
     let tezos 
 
+    let doormanAddress
+    let tokenId = 0
 
     let aggregatorInstance;
     let doormanInstance;
@@ -55,6 +57,8 @@ describe('Aggregator Tests', async () => {
     let treasuryStorage;
     let governanceSatelliteStorage;
 
+    let updateOperatorsOperation 
+
     let epoch: number = 1;
     let round: number = 1;
 
@@ -63,10 +67,12 @@ describe('Aggregator Tests', async () => {
         utils = new Utils();
         await utils.init(bob.sk);
 
+        doormanAddress                  = contractDeployments.doorman.address;
+
         aggregatorInstance              = await utils.tezos.contract.at(contractDeployments.aggregator.address);
         aggregatorStorage               = await aggregatorInstance.storage();
 
-        doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
+        doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
         doormanStorage                  = await doormanInstance.storage();
 
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -117,18 +123,9 @@ describe('Aggregator Tests', async () => {
         if(bobSatellite === undefined){
 
             await helperFunctions.signerFactory(tezos, bob.sk);
-            var updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();  
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const bobStakeAmount                  = MVK(100);
             const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
             await bobStakeAmountOperation.confirmation();                        
@@ -149,18 +146,9 @@ describe('Aggregator Tests', async () => {
 
             // Alice stakes 100 MVK tokens and registers as a satellite 
             await helperFunctions.signerFactory(tezos, alice.sk);
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: alice.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation(); 
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const aliceStakeAmount                  = MVK(100);
             const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
             await aliceStakeAmountOperation.confirmation();                        
@@ -180,18 +168,9 @@ describe('Aggregator Tests', async () => {
 
             // Eve stakes 100 MVK tokens and registers as a satellite 
             await helperFunctions.signerFactory(tezos, eve.sk);
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation(); 
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const eveStakeAmount                  = MVK(100);
             const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
             await eveStakeAmountOperation.confirmation();                        
@@ -211,18 +190,9 @@ describe('Aggregator Tests', async () => {
 
             // Mallory stakes 100 MVK tokens and registers as a satellite 
             await helperFunctions.signerFactory(tezos, mallory.sk);
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: mallory.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation(); 
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const malloryStakeAmount                  = MVK(100);
             const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
             await malloryStakeAmountOperation.confirmation();                        
@@ -242,18 +212,9 @@ describe('Aggregator Tests', async () => {
 
             // Susie stakes 100 MVK tokens and registers as a satellite 
             await helperFunctions.signerFactory(tezos, susie.sk);
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: susie.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation(); 
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, susie.pkh, doormanAddress, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const susieStakeAmount                  = MVK(100);
             const susieStakeAmountOperation         = await doormanInstance.methods.stake(susieStakeAmount).send();
             await susieStakeAmountOperation.confirmation();                        
@@ -622,7 +583,7 @@ describe('Aggregator Tests', async () => {
                     {
                         add_operator: {
                             owner: trudy.pkh,
-                            operator: contractDeployments.doorman.address,
+                            operator: doormanAddress,
                             token_id: 0,
                         },
                     },
