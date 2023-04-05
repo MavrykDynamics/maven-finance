@@ -17,15 +17,7 @@ async def on_treasury_token_transfer_sender(
     standard            = token_transfer.standard
     token_standard      = None
     metadata            = token_transfer.metadata
-    name                = None
-    icon                = None
     amount              = float(token_transfer.amount)
-
-    if 'name' in token_transfer.metadata:
-        name    = token_transfer.metadata['name']
-
-    if 'icon' in token_transfer.metadata:
-        icon    = token_transfer.metadata['icon']
 
     if standard:
         if standard == TokenStandard.FA12:
@@ -45,7 +37,5 @@ async def on_treasury_token_transfer_sender(
     treasury_balance.token_standard = token_standard
     treasury_balance.tzkt_token_id  = tzkt_token_id
     treasury_balance.metadata       = metadata
-    treasury_balance.name           = name
-    treasury_balance.icon           = icon
     treasury_balance.balance        -= amount
     await treasury_balance.save()
