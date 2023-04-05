@@ -171,11 +171,6 @@ describe("Test: Delegation Contract", async () => {
             try{
                 // Delegate to this satellite
                 await helperFunctions.signerFactory(tezos, alice.sk)
-                const satelliteName           = "New Satellite (Alice)";
-                const satelliteDescription    = "New Satellite Description (Alice)";
-                const satelliteImage          = "https://placeholder.com/300";
-                const satelliteWebsite        = "https://placeholder.com/300";
-                const satelliteFee            = "700";
 
                 // Initial Values
                 delegationStorage       = await delegationInstance.storage();
@@ -204,11 +199,11 @@ describe("Test: Delegation Contract", async () => {
 
                 // Delegate try to register
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    satelliteName, 
-                    satelliteDescription, 
-                    satelliteImage, 
-                    satelliteWebsite,
-                    satelliteFee
+                    mockSatelliteData.alice.name, 
+                    mockSatelliteData.alice.desc, 
+                    mockSatelliteData.alice.image, 
+                    mockSatelliteData.alice.website,
+                    mockSatelliteData.alice.satelliteFee
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -229,11 +224,6 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage       = await delegationInstance.storage();
                 
                 const isPausedStart          = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
-                const satelliteName           = "New Satellite (Eve)";
-                const satelliteDescription    = "New Satellite Description (Eve)";
-                const satelliteWebsite        = "https://placeholder.com/300";
-                const satelliteImage          = "https://placeholder.com/300";
-                const satelliteFee            = "700";
 
                 // Operation
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send();
@@ -245,11 +235,11 @@ describe("Test: Delegation Contract", async () => {
 
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    satelliteName, 
-                    satelliteDescription, 
-                    satelliteImage, 
-                    satelliteWebsite,
-                    satelliteFee
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -277,19 +267,14 @@ describe("Test: Delegation Contract", async () => {
 
                 // init values
                 await helperFunctions.signerFactory(tezos, eve.sk)
-                const satelliteName           = "New Satellite (Eve)";
-                const satelliteDescription    = "New Satellite Description (Eve)";
-                const satelliteImage          = "https://placeholder.com/300";
-                const satelliteWebsite        = "https://placeholder.com/300";
-                const satelliteFee            = "700";
 
                 // registers as a satellite
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    satelliteName, 
-                    satelliteDescription, 
-                    satelliteImage, 
-                    satelliteWebsite,
-                    satelliteFee
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -308,11 +293,6 @@ describe("Test: Delegation Contract", async () => {
                 
                 // init values
                 const userStake               = MVK(100);
-                const satelliteName           = "New Satellite (Eve)";
-                const satelliteDescription    = "New Satellite Description (Eve)";
-                const satelliteWebsite        = "https://placeholder.com/300";
-                const satelliteImage          = "https://placeholder.com/300";
-                const satelliteFee            = "700";
 
                 // update operators operation for user
                 updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
@@ -324,11 +304,11 @@ describe("Test: Delegation Contract", async () => {
 
                 // User registers as a satellite again
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    satelliteName, 
-                    satelliteDescription, 
-                    satelliteImage, 
-                    satelliteWebsite,
-                    satelliteFee
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -348,11 +328,6 @@ describe("Test: Delegation Contract", async () => {
                 // init values
                 await helperFunctions.signerFactory(tezos, mallory.sk)
                 const userStake               = MVK(1);
-                const satelliteName           = "New Satellite (Eve)";
-                const satelliteDescription    = "New Satellite Description (Eve)";
-                const satelliteWebsite        = "https://placeholder.com/300";
-                const satelliteImage          = "https://placeholder.com/300";
-                const satelliteFee            = "700";
 
                 // update operators operation for user
                 updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
@@ -364,11 +339,11 @@ describe("Test: Delegation Contract", async () => {
 
                 // User registers as a satellite again
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    satelliteName, 
-                    satelliteDescription, 
-                    satelliteImage, 
-                    satelliteWebsite,
-                    satelliteFee
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -389,12 +364,7 @@ describe("Test: Delegation Contract", async () => {
             // init values
             await helperFunctions.signerFactory(tezos, alice.sk)
             const userStake               = MVK(100);
-            const satelliteName           = "New Satellite (Alice)";
-            const satelliteDescription    = "New Satellite Description (Alice)";
-            const satelliteWebsite        = "https://placeholder.com/300";
-            const satelliteImage          = "https://placeholder.com/300";
-            const satelliteFee            = "700";
-
+            
             // update operators operation for user
             updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
             await updateOperatorsOperation.confirmation();
@@ -405,11 +375,11 @@ describe("Test: Delegation Contract", async () => {
 
             // Alice registers as a satellite
             registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                satelliteName, 
-                satelliteDescription, 
-                satelliteImage, 
-                satelliteWebsite,
-                satelliteFee
+                mockSatelliteData.alice.name, 
+                mockSatelliteData.alice.desc, 
+                mockSatelliteData.alice.image, 
+                mockSatelliteData.alice.website,
+                mockSatelliteData.alice.satelliteFee
             ).send();
             await registerAsSatelliteOperation.confirmation();
         })
@@ -546,20 +516,15 @@ describe("Test: Delegation Contract", async () => {
 
                 // init values
                 await helperFunctions.signerFactory(tezos, mallory.sk);
-                const updatedSatelliteName          = "New Satellite (Eve)";
-                const updatedSatelliteDescription   = "New Satellite Description (Eve)";
-                const updatedSatelliteWebsite       = "https://placeholder.com/300";
-                const updatedSatelliteImage         = "https://placeholder.com/300";
-                const updatedSatelliteFee           = "500";
 
                 // Non-user tries to update satellite record
                 await chai.expect(delegationInstance.methods.updateSatelliteRecord(
-                        updatedSatelliteName, 
-                        updatedSatelliteDescription, 
-                        updatedSatelliteImage, 
-                        updatedSatelliteWebsite,
-                        updatedSatelliteFee
-                    ).send()
+                        mockSatelliteData.eve.name, 
+                        mockSatelliteData.eve.desc, 
+                        mockSatelliteData.eve.image, 
+                        mockSatelliteData.eve.website,
+                        mockSatelliteData.eve.satelliteFee
+                ).send()
                 ).to.be.rejected;
 
             } catch(e){
@@ -573,11 +538,6 @@ describe("Test: Delegation Contract", async () => {
                 // Initial Values
                 delegationStorage       = await delegationInstance.storage();
                 const isPausedStart     = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
-                const updatedSatelliteName          = "New Satellite (Eve)";
-                const updatedSatelliteDescription   = "New Satellite Description (Eve)";
-                const updatedSatelliteWebsite       = "https://placeholder.com/300";
-                const updatedSatelliteImage         = "https://placeholder.com/300";
-                const updatedSatelliteFee           = "500";
 
                 // Operation
                 await helperFunctions.signerFactory(tezos, bob.sk)
@@ -590,12 +550,12 @@ describe("Test: Delegation Contract", async () => {
 
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 await chai.expect(delegationInstance.methods.updateSatelliteRecord(
-                        updatedSatelliteName, 
-                        updatedSatelliteDescription, 
-                        updatedSatelliteImage,
-                        updatedSatelliteWebsite,
-                        updatedSatelliteFee
-                    ).send()
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
+                ).send()
                 ).to.be.rejected;
 
                 // Reset admin
@@ -796,12 +756,6 @@ describe("Test: Delegation Contract", async () => {
                 // init values
                 const userStake               = MVK(100);
 
-                const satelliteName           = "New Satellite (Oscar)";
-                const satelliteDescription    = "New Satellite Description (Oscar)";
-                const satelliteWebsite        = "https://placeholder.com/300";
-                const satelliteImage          = "https://placeholder.com/300";
-                const satelliteFee            = "800";
-
                 // update operators operation for user
                 updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, oscar.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
@@ -819,11 +773,11 @@ describe("Test: Delegation Contract", async () => {
 
                 // Registers as a satellite
                 registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                    satelliteName, 
-                    satelliteDescription, 
-                    satelliteImage,
-                    satelliteWebsite,
-                    satelliteFee
+                    mockSatelliteData.oscar.name, 
+                    mockSatelliteData.oscar.desc, 
+                    mockSatelliteData.oscar.image, 
+                    mockSatelliteData.oscar.website,
+                    mockSatelliteData.oscar.satelliteFee
                 ).send();
                 await registerAsSatelliteOperation.confirmation();
 
@@ -833,11 +787,11 @@ describe("Test: Delegation Contract", async () => {
                 const afterStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(oscar.pkh);     // 100 MVK
                 
                 // Orscar's satellite details
-                assert.equal(afterDelegationLedger.name,                   satelliteName);
-                assert.equal(afterDelegationLedger.description,            satelliteDescription);
-                assert.equal(afterDelegationLedger.website,                satelliteWebsite);
+                assert.equal(afterDelegationLedger.name,                   mockSatelliteData.oscar.name);
+                assert.equal(afterDelegationLedger.description,            mockSatelliteData.oscar.desc);
+                assert.equal(afterDelegationLedger.website,                mockSatelliteData.oscar.website);
                 assert.equal(afterDelegationLedger.stakedMvkBalance,       userStake);
-                assert.equal(afterDelegationLedger.satelliteFee,           satelliteFee);
+                assert.equal(afterDelegationLedger.satelliteFee,           mockSatelliteData.oscar.satelliteFee);
                 assert.equal(afterDelegationLedger.totalDelegatedAmount,   0);
                 assert.equal(afterDelegationLedger.status,                 "ACTIVE");
 
@@ -1223,11 +1177,6 @@ describe("Test: Delegation Contract", async () => {
                 // Initial Values
                 delegationStorage       = await delegationInstance.storage();
                 const isPausedStart     = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
-                const satelliteName           = "New Satellite (Eve)";
-                const satelliteDescription    = "New Satellite Description (Eve)";
-                const satelliteWebsite        = "https://placeholder.com/300";
-                const satelliteImage          = "https://placeholder.com/300";
-                const satelliteFee            = "700";
 
                 // Operation
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send();
@@ -1238,11 +1187,11 @@ describe("Test: Delegation Contract", async () => {
                 const isPausedEnd       = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
 
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    satelliteName, 
-                    satelliteDescription, 
-                    satelliteImage, 
-                    satelliteWebsite,
-                    satelliteFee
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
                 )
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -1295,11 +1244,6 @@ describe("Test: Delegation Contract", async () => {
                 // Initial Values
                 delegationStorage       = await delegationInstance.storage();
                 const isPausedStart     = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
-                const updatedSatelliteName          = "New Satellite (Eve)";
-                const updatedSatelliteDescription   = "New Satellite Description (Eve)";
-                const updatedSatelliteWebsite       = "https://placeholder.com/300";
-                const updatedSatelliteImage         = "https://placeholder.com/300";
-                const updatedSatelliteFee           = "500";
 
                 // Operation
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send();
@@ -1311,11 +1255,11 @@ describe("Test: Delegation Contract", async () => {
 
                 await chai.expect(delegationInstance.methods
                     .updateSatelliteRecord(
-                        updatedSatelliteName, 
-                        updatedSatelliteDescription, 
-                        updatedSatelliteImage, 
-                        updatedSatelliteWebsite,
-                        updatedSatelliteFee
+                        mockSatelliteData.eve.name, 
+                        mockSatelliteData.eve.desc, 
+                        mockSatelliteData.eve.image, 
+                        mockSatelliteData.eve.website,
+                        mockSatelliteData.eve.satelliteFee
                     ).send()
                 ).to.be.rejected;
 
