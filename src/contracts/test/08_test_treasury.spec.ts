@@ -77,16 +77,16 @@ describe("Treasury tests", async () => {
         mavrykFa12TokenStorage  = await mavrykFa12TokenInstance.storage();
         mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
 
-        console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
-        console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        console.log('Doorman Contract deployed at:', doormanInstance.address);
-        console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        console.log('Governance Contract deployed at:', governanceInstance.address);
-        console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
-        console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Eve address: ' + eve.pkh);
+        // console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
+        // console.log('Treasury Contract deployed at:', treasuryInstance.address);
+        // console.log('Doorman Contract deployed at:', doormanInstance.address);
+        // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+        // console.log('Governance Contract deployed at:', governanceInstance.address);
+        // console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+        // console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
+        // console.log('Bob address: ' + bob.pkh);
+        // console.log('Alice address: ' + alice.pkh);
+        // console.log('Eve address: ' + eve.pkh);
 
     });
 

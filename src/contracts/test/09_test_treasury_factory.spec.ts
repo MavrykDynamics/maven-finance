@@ -1,4 +1,3 @@
-const { InMemorySigner } = require("@taquito/signer");
 import assert from "assert";
 import { Utils } from "./helpers/Utils";
 import { treasuryStorageType } from "../storage/storageTypes/treasuryStorageType";
@@ -100,19 +99,19 @@ describe("Treasury Factory tests", async () => {
         mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage();
         mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
 
-        console.log("Treasury metadata in bytes:")
-        console.log(treasuryMetadataBase)
+        // console.log("Treasury metadata in bytes:")
+        // console.log(treasuryMetadataBase)
 
-        console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
-        console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
-        console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        console.log('Governance Contract deployed at:', governanceInstance.address);
-        console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
-        console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Eve address: ' + eve.pkh);
+        // console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
+        // console.log('Treasury Contract deployed at:', treasuryInstance.address);
+        // console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
+        // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+        // console.log('Governance Contract deployed at:', governanceInstance.address);
+        // console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+        // console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
+        // console.log('Bob address: ' + bob.pkh);
+        // console.log('Alice address: ' + alice.pkh);
+        // console.log('Eve address: ' + eve.pkh);
         
     });
 
