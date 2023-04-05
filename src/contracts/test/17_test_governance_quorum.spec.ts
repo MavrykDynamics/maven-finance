@@ -29,6 +29,9 @@ describe("Governance quorum tests", async () => {
     var utils: Utils;
     let tezos
 
+    let doormanAddress 
+    let tokenId = 0
+
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
@@ -59,6 +62,8 @@ describe("Governance quorum tests", async () => {
     let treasuryFactoryStorage;
     let farmStorage;
 
+    let updateOperatorsOperation
+
     // For testing purposes
     var aTrackedFarm;
     var aTrackedTreasury;
@@ -67,8 +72,10 @@ describe("Governance quorum tests", async () => {
         try {
             utils = new Utils();
             await utils.init(bob.sk);
+
+            doormanAddress                  = contractDeployments.doorman.address;
     
-            doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
+            doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
             mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
             councilInstance                 = await utils.tezos.contract.at(contractDeployments.council.address);
@@ -142,16 +149,9 @@ describe("Governance quorum tests", async () => {
                 await setAdminOperation.confirmation()
     
                 // Register satellites (BOB/ALICE)
-                var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner    : bob.pkh,
-                        operator : contractDeployments.doorman.address,
-                        token_id : 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
+
                 var stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
                 await stakeOperation.confirmation();
                 var registerAsSatelliteOperation = await delegationInstance.methods
@@ -165,16 +165,9 @@ describe("Governance quorum tests", async () => {
                 await registerAsSatelliteOperation.confirmation();
     
                 await helperFunctions.signerFactory(tezos, alice.sk)
-                var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner    : alice.pkh,
-                        operator : contractDeployments.doorman.address,
-                        token_id : 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
+
                 stakeOperation = await doormanInstance.methods.stake(MVK(20000)).send();
                 await stakeOperation.confirmation();
                 var registerAsSatelliteOperation = await delegationInstance.methods
@@ -189,36 +182,23 @@ describe("Governance quorum tests", async () => {
 
                 // Register delegates (EVE/MALLORY)
                 await helperFunctions.signerFactory(tezos, eve.sk)
-                var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner    : eve.pkh,
-                        operator : contractDeployments.doorman.address,
-                        token_id : 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
+
                 stakeOperation = await doormanInstance.methods.stake(MVK(1500)).send();
                 await stakeOperation.confirmation();
                 var delegateSatelliteOperation = await delegationInstance.methods.delegateToSatellite(eve.pkh, bob.pkh).send();
                 await delegateSatelliteOperation.confirmation();
 
                 await helperFunctions.signerFactory(tezos, mallory.sk)
-                var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner    : mallory.pkh,
-                        operator : contractDeployments.doorman.address,
-                        token_id : 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
+
                 stakeOperation = await doormanInstance.methods.stake(MVK(500)).send();
                 await stakeOperation.confirmation();
                 var delegateSatelliteOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, alice.pkh).send();
                 await delegateSatelliteOperation.confirmation();
+                
             } else {
                 // Start next round until new proposal round
                 governanceStorage       = await governanceInstance.storage()
@@ -251,7 +231,7 @@ describe("Governance quorum tests", async () => {
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber()
+                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber()
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -357,7 +337,7 @@ describe("Governance quorum tests", async () => {
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber()
+                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber()
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -467,7 +447,7 @@ describe("Governance quorum tests", async () => {
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber()
+                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber()
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -583,7 +563,7 @@ describe("Governance quorum tests", async () => {
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber()
+                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber()
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -693,7 +673,7 @@ describe("Governance quorum tests", async () => {
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber()
+                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber()
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -807,7 +787,7 @@ describe("Governance quorum tests", async () => {
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber()
+                const smvkTotalSupply       = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber()
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
