@@ -28,6 +28,10 @@ describe("Test: Governance Financial Contract", async () => {
     var utils: Utils;
     let tezos
 
+    let doormanAddress
+    let treasuryAddress 
+    let tokenId = 0
+
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
@@ -48,12 +52,19 @@ describe("Test: Governance Financial Contract", async () => {
     let mavrykFa12TokenStorage;
     let mavrykFa2TokenStorage;
 
+    // operations
+    let updateOperatorsOperation
+    let transferOperation
+
     before("setup", async () => {
         try{
 
             utils = new Utils();
             await utils.init(bob.sk);
             tezos = utils.tezos
+
+            doormanAddress                  = contractDeployments.doorman.address
+            treasuryAddress                 = contractDeployments.treasury.address
             
             doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -98,18 +109,10 @@ describe("Test: Governance Financial Contract", async () => {
             const bobSatellite = await delegationStorage.satelliteLedger.get(bob.pkh);
 
             if(bobSatellite === undefined){
-                var updateOperators = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperators.confirmation();  
+
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
+                
                 const bobStakeAmount                  = MVK(10);
                 const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
                 await bobStakeAmountOperation.confirmation();                        
@@ -118,18 +121,9 @@ describe("Test: Governance Financial Contract", async () => {
     
                 // Alice stakes 100 MVK tokens and registers as a satellite 
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                updateOperators = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: alice.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperators.confirmation(); 
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
+                
                 const aliceStakeAmount                  = MVK(10);
                 const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
                 await aliceStakeAmountOperation.confirmation();                        
@@ -139,38 +133,16 @@ describe("Test: Governance Financial Contract", async () => {
                 // Setup funds in Treasury for request tokens later
                 // Mallory transfers 200 MVK tokens to Treasury
                 await helperFunctions.signerFactory(tezos, mallory.sk);
-                const malloryTransferMvkToTreasuryOperation = await mvkTokenInstance.methods.transfer([
-                    {
-                        from_: mallory.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.treasury.address,
-                                token_id: 0,
-                                amount: MVK(20)
-                            }
-                        ]
-                    }
-                ]).send();
-                await malloryTransferMvkToTreasuryOperation.confirmation();
-    
+                transferOperation = await helperFunctions.fa2Transfer(mvkTokenInstance, mallory.pkh, treasuryAddress, tokenId, MVK(20));
+                await transferOperation.confirmation();
+
                 // Mallory transfers 250 Mavryk FA12 Tokens to Treasury
                 const malloryTransferMavrykFa12ToTreasuryOperation = await mavrykFa12TokenInstance.methods.transfer(mallory.pkh, contractDeployments.treasury.address, 250000000).send();
                 await malloryTransferMavrykFa12ToTreasuryOperation.confirmation();
     
                 // Mallory transfers 250 Mavryk FA2 Tokens to Treasury
-                const malloryTransferMavrykFa2ToTreasuryOperation = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: mallory.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.treasury.address,
-                                token_id: 0,
-                                amount: 250000000
-                            }
-                        ]
-                    }
-                ]).send();
-                await malloryTransferMavrykFa2ToTreasuryOperation.confirmation();
+                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, treasuryAddress, tokenId, 250000000);
+                await transferOperation.confirmation();
                 
                 // Mallory transfers 250 XTZ to Treasury
                 const malloryTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: contractDeployments.treasury.address, amount: 100});
@@ -188,7 +160,7 @@ describe("Test: Governance Financial Contract", async () => {
     
 
     describe("%setAdmin", async () => {
-        
+
         beforeEach("Set signer to admin", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk)
         });

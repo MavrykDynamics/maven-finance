@@ -29,6 +29,8 @@ describe("FarmFactory for Farm mToken", async () => {
     var utils: Utils;
     let tezos 
 
+    let tokenId = 0
+
     let farmInstance;
     let farmStorage;
 
@@ -60,6 +62,8 @@ describe("FarmFactory for Farm mToken", async () => {
 
     let mockFa12TokenInstance;
     let mTokenUsdtInstance;
+
+    let updateOperatorsOperation
 
     const farmMetadataBase = Buffer.from(
       JSON.stringify({
@@ -683,15 +687,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     await trackFarmOperation.confirmation();
 
                     // Update operators for farm
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: bob.pkh,
-                                operator: farmAddress,
-                                token_id: 0,
-                            },
-                        }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     const depositOperation = await farmInstance.methods.deposit(2).send();
@@ -1013,15 +1009,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
 
                     // Update operators for farm
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: farmAddress,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Deposit operation
@@ -1068,15 +1056,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
 
                     // Update operators for farm
-                    const updateOperatorsOperation = await lpTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: bob.pkh,
-                                operator: farmAddress,
-                                token_id: 0,
-                            },
-                        }])
-                    .send()
+                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
                     
                     // Deposit operation
