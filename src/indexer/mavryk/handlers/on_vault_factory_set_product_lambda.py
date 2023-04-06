@@ -11,4 +11,4 @@ async def on_vault_factory_set_product_lambda(
 ) -> None:
 
     # Persist lambda
-    await persist_lambda(models.VaultFactory, models.VaultFactoryProductLambda, set_product_lambda)
+    await persist_lambda(models.VaultFactory, models.VaultFactoryVaultLambda, set_product_lambda)

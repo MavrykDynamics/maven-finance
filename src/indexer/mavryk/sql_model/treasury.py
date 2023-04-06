@@ -9,6 +9,7 @@ from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, Cont
 class Treasury(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries', null=True)
     factory                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
+    baker                                   = fields.ForeignKeyField('models.MavrykUser', related_name='delegated_treasuries', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True, index=True)
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
@@ -53,3 +54,16 @@ class TreasuryTransferHistoryData(Model):
 
     class Meta:
         table = 'treasury_transfer_history_data'
+
+class TreasuryBalance(Model):
+    id                                      = fields.BigIntField(pk=True)
+    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances', index=True)
+    token_address                           = fields.CharField(max_length=36, default="", index=True)
+    token_id                                = fields.SmallIntField(null=True)
+    token_standard                          = fields.CharField(max_length=4, null=True)
+    tzkt_token_id                           = fields.BigIntField(default=0)
+    balance                                 = fields.FloatField(default=0.0)
+    metadata                                = fields.JSONField(null=True)
+
+    class Meta:
+        table = 'treasury_balance'
