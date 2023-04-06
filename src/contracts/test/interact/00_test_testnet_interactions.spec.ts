@@ -37,6 +37,7 @@ import vestingAddress from '../../deployments/vestingAddress.json';
 import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
 import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json';
 import farmAddress from '../../deployments/farmAddress.json';
+import farmMTokenAddress from '../../deployments/farmMTokenAddress.json';
 import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
 import aggregatorAddress from '../../deployments/aggregatorAddress.json';
 import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
@@ -77,6 +78,7 @@ describe("Testnet interactions helper", async () => {
     let treasuryFactoryInstance;
     let treasuryInstance;
     let farmInstance;
+    let farmMTokenInstance;
     let lpTokenInstance;
     let governanceSatelliteInstance;
     let aggregatorInstance;
@@ -85,6 +87,7 @@ describe("Testnet interactions helper", async () => {
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
     let mTokenEurlInstance;
+    let mTokenUsdtInstance;
     let vaultInstance;
     let vaultFactoryInstance;
     let mavrykFa12TokenInstance;
@@ -103,6 +106,7 @@ describe("Testnet interactions helper", async () => {
     let treasuryFactoryStorage;
     let treasuryStorage;
     let farmStorage;
+    let farmMTokenStorage;
     let lpTokenStorage;
     let governanceSatelliteStorage;
     let aggregatorStorage;
@@ -111,6 +115,7 @@ describe("Testnet interactions helper", async () => {
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
     let mTokenEurlStorage;
+    let mTokenUsdtStorage;
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
@@ -181,6 +186,7 @@ describe("Testnet interactions helper", async () => {
             treasuryFactoryInstance                 = await utils.tezos.contract.at(treasuryFactoryAddress.address);
             treasuryInstance                        = await utils.tezos.contract.at(treasuryAddress.address);
             farmInstance                            = await utils.tezos.contract.at(farmAddress.address);
+            farmMTokenInstance                      = await utils.tezos.contract.at(farmMTokenAddress.address);
             lpTokenInstance                         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             aggregatorInstance                      = await utils.tezos.contract.at(aggregatorAddress.address);
@@ -189,6 +195,7 @@ describe("Testnet interactions helper", async () => {
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
             mTokenEurlInstance                      = await utils.tezos.contract.at(mTokenEurlAddress.address);
+            mTokenUsdtInstance                      = await utils.tezos.contract.at(mTokenUsdtAddress.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
             mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
     
@@ -206,6 +213,7 @@ describe("Testnet interactions helper", async () => {
             treasuryFactoryStorage                  = await treasuryFactoryInstance.storage();
             treasuryStorage                         = await treasuryInstance.storage();
             farmStorage                             = await farmInstance.storage();
+            farmMTokenStorage                       = await farmMTokenInstance.storage();
             lpTokenStorage                          = await lpTokenInstance.storage();
             governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
             aggregatorStorage                       = await aggregatorInstance.storage();
@@ -213,7 +221,8 @@ describe("Testnet interactions helper", async () => {
             tokenSaleStorage                        = await tokenSaleInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
-            mTokenEurlStorage                           = await mTokenEurlInstance.storage();
+            mTokenEurlStorage                       = await mTokenEurlInstance.storage();
+            mTokenUsdtStorage                       = await mTokenUsdtInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
     
@@ -228,6 +237,7 @@ describe("Testnet interactions helper", async () => {
             console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
             console.log('Treasury Contract deployed at:', treasuryInstance.address);
             console.log('Farm Contract deployed at:', farmInstance.address);
+            console.log('Farm mToken Contract deployed at:', farmMTokenInstance.address);
             console.log('LP Token Contract deployed at:', lpTokenInstance.address);
             console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
             console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
@@ -235,7 +245,8 @@ describe("Testnet interactions helper", async () => {
             console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
-            console.log('MToken Contract deployed at:', mTokenEurlInstance.address);
+            console.log('MToken EURL Contract deployed at:', mTokenEurlInstance.address);
+            console.log('MToken USDT Contract deployed at:', mTokenUsdtInstance.address);
             console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
             console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
 
@@ -1624,6 +1635,16 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
+        it('Admin sets baker', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.setBaker(null).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
@@ -1780,6 +1801,16 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
+        it('Admin pauses create farm mToken entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
         it('Admin pauses track farm entrypoint', async () => {
             try{
                 // Operation
@@ -1860,6 +1891,54 @@ describe("Testnet interactions helper", async () => {
                     mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
+                ).send();
+                await operation.confirmation()
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin creates a mToken farm', async () => {
+            try{
+                // Operation
+                const farmMetadataBase2 = Buffer.from(
+                    JSON.stringify({
+                    name: "MAVRYK USDT.e-USDC.e Farm",
+                    description: "Mavryk Farm Contract for USDT.e-USDC.e",
+                    version: "v1.0.0",
+                    liquidityPairToken: {
+                        tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
+                        origin: ["Mavryk Finance"],
+                        symbol: ["MLP"],
+                        thumbnailUri: "https://infura-ipfs.io/ipfs/QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
+                        decimals: 15,
+                        token0: {
+                            symbol: ["USDT.e"],
+                            tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
+                            thumbnailUri: "https://infura-ipfs.io/ipfs/QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
+                        },
+                        token1: {
+                            symbol: ["USDC.e"],
+                            tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
+                            thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
+                        }
+                    },
+                    authors: ["MAVRYK Dev Team <contact@mavryk.finance>"]
+                    }),
+                    'ascii',
+                ).toString('hex')
+                const operation = await farmFactoryInstance.methods.createFarmMToken(
+                    "testFarm",
+                    "usdt",
+                    false,
+                    false,
+                    false,
+                    12000,
+                    100,
+                    farmMetadataBase2,
+                    mTokenUsdtAddress.address,
+                    0,
+                    "fa2"
                 ).send();
                 await operation.confirmation()
             } catch(e){
@@ -3742,195 +3821,195 @@ describe("Testnet interactions helper", async () => {
         });
     })
 
-    describe("TOKEN SALE", async () => {
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
+    // describe("TOKEN SALE", async () => {
+    //     beforeEach("Set signer to admin", async () => {
+    //         await signerFactory(bob.sk)
+    //     });
 
-        it('Admin sets admin', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin sets admin', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.setAdmin(bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin sets governance', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin sets governance', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.setGovernance(governanceAddress.address).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the vesting period duration in sec', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(2628000, "configVestingPeriodDurationSec").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the vesting period duration in sec', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(2628000, "configVestingPeriodDurationSec").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the max amount per wallet total of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(MVK(2000), "configMaxAmountPerWalletTotal", "3").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the max amount per wallet total of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(MVK(2000), "configMaxAmountPerWalletTotal", "3").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the whitelist max amount total of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(MVK(1000), "configWhitelistMaxAmountTotal", "2").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the whitelist max amount total of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(MVK(1000), "configWhitelistMaxAmountTotal", "2").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the max amount cap of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(MVK(11000000), "configMaxAmountCap", "1").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the max amount cap of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(MVK(11000000), "configMaxAmountCap", "1").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the vesting periods of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(13, "configVestingPeriods", "3").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the vesting periods of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(13, "configVestingPeriods", "3").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the token price of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "2").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the token price of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "2").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the min MVK amount of a buy option', async () => {
-            try{
-                // Operation
-                const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "1").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin updates the min MVK amount of a buy option', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await tokenSaleInstance.methods.updateConfig(1000, "configTokenXtzPrice", "1").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin updates the whitelist duation', async () => {
-            try{
-                // Initial values
-                const currentTimestamp      = new Date();
-                const desiredStart          = Math.round(currentTimestamp.getTime() / 1000);
-                currentTimestamp.setDate(currentTimestamp.getDate() + 1);
-                const desiredEnd            = Math.round(currentTimestamp.getTime() / 1000);
+    //     it('Admin updates the whitelist duation', async () => {
+    //         try{
+    //             // Initial values
+    //             const currentTimestamp      = new Date();
+    //             const desiredStart          = Math.round(currentTimestamp.getTime() / 1000);
+    //             currentTimestamp.setDate(currentTimestamp.getDate() + 1);
+    //             const desiredEnd            = Math.round(currentTimestamp.getTime() / 1000);
 
-                // Operation
-                const setOperation          = await tokenSaleInstance.methods.setWhitelistTimestamp(desiredStart.toString(), desiredEnd.toString()).send();
-                await setOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const setOperation          = await tokenSaleInstance.methods.setWhitelistTimestamp(desiredStart.toString(), desiredEnd.toString()).send();
+    //             await setOperation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin adds addresses to whitelist', async () => {
-            try{
-                // Operation
-                const operation             = await tokenSaleInstance.methods.addToWhitelist([bob.pkh, alice.pkh]).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin adds addresses to whitelist', async () => {
+    //         try{
+    //             // Operation
+    //             const operation             = await tokenSaleInstance.methods.addToWhitelist([bob.pkh, alice.pkh]).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin removes an address from whitelist', async () => {
-            try{
-                // Operation
-                const operation             = await tokenSaleInstance.methods.removeFromWhitelist([alice.pkh]).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin removes an address from whitelist', async () => {
+    //         try{
+    //             // Operation
+    //             const operation             = await tokenSaleInstance.methods.removeFromWhitelist([alice.pkh]).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin starts the sale', async () => {
-            try{
-                // Operation
-                const operation             = await tokenSaleInstance.methods.startSale().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin starts the sale', async () => {
+    //         try{
+    //             // Operation
+    //             const operation             = await tokenSaleInstance.methods.startSale().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin buys tokens', async () => {
-            try{
-                // Initial values
-                tokenSaleStorage            = await tokenSaleInstance.storage();
-                const buyOptionIndex        = "1";
-                const buyOption             = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
-                const tokenXTZPrice         = buyOption.tokenXtzPrice.toNumber();
-                const amountToBuy           = MVK(3000);
-                const amountToPay           = (amountToBuy / MVK() * tokenXTZPrice) / 10**6;
+    //     it('Admin buys tokens', async () => {
+    //         try{
+    //             // Initial values
+    //             tokenSaleStorage            = await tokenSaleInstance.storage();
+    //             const buyOptionIndex        = "1";
+    //             const buyOption             = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+    //             const tokenXTZPrice         = buyOption.tokenXtzPrice.toNumber();
+    //             const amountToBuy           = MVK(3000);
+    //             const amountToPay           = (amountToBuy / MVK() * tokenXTZPrice) / 10**6;
 
-                // Operation
-                const buyOperation          = await tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay});
-                await buyOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Operation
+    //             const buyOperation          = await tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay});
+    //             await buyOperation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin pauses token sale', async () => {
-            try{
-                // Operation
-                const operation                 = await tokenSaleInstance.methods.pauseSale().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin pauses token sale', async () => {
+    //         try{
+    //             // Operation
+    //             const operation                 = await tokenSaleInstance.methods.pauseSale().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin closes token sale', async () => {
-            try{
-                // Operation
-                const operation                 = await tokenSaleInstance.methods.closeSale().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     it('Admin closes token sale', async () => {
+    //         try{
+    //             // Operation
+    //             const operation                 = await tokenSaleInstance.methods.closeSale().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin claims tokens', async () => {
-            try{
-                // Operation
-                const operation                 = await tokenSaleInstance.methods.claimTokens(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    })
+    //     it('Admin claims tokens', async () => {
+    //         try{
+    //             // Operation
+    //             const operation                 = await tokenSaleInstance.methods.claimTokens(bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+    // })
 
     // describe("LENDING CONTROLLER", async () => {
     //     beforeEach("Set signer to admin", async () => {
@@ -4398,6 +4477,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors
     //             ).send();
     //             await operation.confirmation();
@@ -4423,6 +4503,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors              // depositors type
     //             ).send();
     //             await createVaultOperation.confirmation();
@@ -4964,9 +5045,10 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Initial values
                 const tokenName                             = "usdt";
-                const tokenContractAddress                  = mavrykFa12TokenAddress.address;
-                const tokenType                             = "fa12";
+                const tokenContractAddress                  = mTokenUsdtAddress.address;
+                const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
+                const tokenId                               = 0;
 
                 const oracleAddress                         = aggregatorAddress.address;
 
@@ -5001,9 +5083,10 @@ describe("Testnet interactions helper", async () => {
                     interestRateAboveOptimalUtilisation,
                     minRepaymentAmount,
 
-                    // fa12 token type - token contract address
+                    // fa2 token type - token contract address
                     tokenType,
-                    tokenContractAddress
+                    tokenContractAddress,
+                    tokenId
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -5014,16 +5097,22 @@ describe("Testnet interactions helper", async () => {
         it('Admin adds liquidity', async () => {
             try{
                 // Initial values
-                const loanTokenName = "usdt";
-                const liquidityAmount = 20000; // 0.2 Mock FA12 Tokens
+                const loanTokenName             = "usdt";
+                const liquidityAmount           = 20000; // 0.2 Mock FA12 Tokens
 
                 // Operation
-                const approveOperation = await lpTokenInstance.methods.approve(
-                    lendingControllerMockTimeAddress.address,
-                    liquidityAmount
-                ).send();
-                await approveOperation.confirmation();
-                const operation = await lendingControllerMockTimeInstance.methods.addLiquidity(
+                var operation = await mTokenUsdtInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: lendingControllerMockTimeAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+                operation = await lendingControllerMockTimeInstance.methods.addLiquidity(
                     loanTokenName,
                     liquidityAmount, 
                 ).send();
@@ -5098,6 +5187,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await operation.confirmation();
@@ -5123,6 +5213,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await createVaultOperation.confirmation();
@@ -5379,6 +5470,190 @@ describe("Testnet interactions helper", async () => {
         });
     });
 
+    describe("FARM MTOKEN", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin init a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.initFarm(
+                    12000,
+                    100,
+                    false,
+                    false
+                ).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates the rewards from transfer boolean', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates rewards per block', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateConfig(new BigNumber(MVK(2)), "configRewardPerBlock").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses deposit entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("deposit", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses withdraw entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("withdraw", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses claim entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("claim", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin deposits 2LP into the farm', async () => {
+            try{
+                // Operation
+                var operation = await mTokenUsdtInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: farmMTokenAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+                operation = await farmMTokenInstance.methods.deposit(2).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin withdraw 1LP from the farm', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.withdraw(1).send();
+                await operation.confirmation()
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin claims from the farm', async () => {
+            try{
+                // Operation
+                var operation   = await farmFactoryInstance.methods.trackFarm(farmMTokenAddress.address).send()
+                await operation.confirmation();
+                operation       = await farmMTokenInstance.methods.claim(bob.pkh).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin closes a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.closeFarm().send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
     describe("MToken", async () => {
 
         beforeEach("Set signer to admin", async () => {
@@ -5564,6 +5839,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     "whitelist",
                     whitelistedUsers
                 ).send();
@@ -5594,6 +5870,16 @@ describe("Testnet interactions helper", async () => {
 
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
+        });
+        
+        it('Admin delegates vault tez to baker', async () => {
+            try{
+                // Operation
+                const operation = await vaultInstance.methods.initVaultAction("setBaker", null).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
         });
         
         it('Admin updates the depositor', async () => {

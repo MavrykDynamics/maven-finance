@@ -9,6 +9,7 @@ class FarmFactory(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farm_factories')
     farm_name_max_length                    = fields.SmallIntField(default=0)
     create_farm_paused                      = fields.BooleanField(default=False)
+    create_farm_m_token_paused              = fields.BooleanField(default=False)
     track_farm_paused                       = fields.BooleanField(default=False)
     untrack_farm_paused                     = fields.BooleanField(default=False)
 
@@ -21,11 +22,17 @@ class FarmFactoryLambda(ContractLambda, Model):
     class Meta:
         table = 'farm_factory_lambda'
 
-class FarmFactoryProductLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.FarmFactory', related_name='product_lambdas')
+class FarmFactoryFarmLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.FarmFactory', related_name='farm_lambdas')
 
     class Meta:
-        table = 'farm_factory_product_lambda'
+        table = 'farm_factory_farm_lambda'
+
+class FarmFactoryMFarmLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.FarmFactory', related_name='m_farm_lambdas')
+
+    class Meta:
+        table = 'farm_factory_m_farm_lambda'
 
 class FarmFactoryGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.FarmFactory', related_name='general_contracts')

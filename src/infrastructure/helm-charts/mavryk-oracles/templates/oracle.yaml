@@ -7,6 +7,7 @@ metadata:
   labels:
     app: oracle-{{ $key }}
 spec:
+  clusterIP: None
   ports:
     - name: p2p
       port: 23456
@@ -17,23 +18,26 @@ spec:
   type: ClusterIP
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: oracle-{{ $key }}
   labels:
     app: oracle-{{ $key }}
 spec:
+  podManagementPolicy: Parallel
   replicas: 1
   selector:
     matchLabels:
       app: oracle-{{ $key }}
+  serviceName: oracle-{{ $key }}
   template:
+    volumeClaimTemplates:
     metadata:
       labels:
         app: oracle-{{ $key }}
     spec:
       imagePullSecrets:
-        - name: '{{ $.Values.image.pullSecret }}'
+          - name: '{{ $.Values.image.pullSecret }}'
       containers:
         - name: oracle
           env:
@@ -48,24 +52,32 @@ spec:
                   key: {{ .valueFrom.secretKeyRef.key }}
               {{- end }}
           {{- end }}
+            - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
+              value: '2000'
             - name: RPC_URL
-              value: {{ $value.rpcUrl }}
+              value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
               value: '{{ include "p2pBootstrapPeers" (list $.Values.oracles $value.p2p.peerId) }}'
             - name: P2P_PEER_ID
-              value: {{ $value.p2p.peerId }}
+              value: '{{ $value.p2p.peerId }}'
             - name: P2P_PEER_PUBLIC_KEY
-              value: {{ $value.p2p.peerPublicKey }}
+              value: '{{ $value.p2p.peerPublicKey }}'
             - name: P2P_PEER_PRIVATE_KEY
-              value: {{ $value.p2p.peerPrivateKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $value.p2p.peerPrivateKey.secretName }}
+                  key: {{ $value.p2p.peerPrivateKey.key }}
             - name: TEZOS_ADDRESS
-              value: {{ $value.tezos.address }}
+              value: '{{ $value.tezos.address }}'
             - name: TEZOS_PUBLIC_KEY
-              value: {{ $value.tezos.publicKey }}
+              value: '{{ $value.tezos.publicKey }}'
             - name: TEZOS_SECRET_KEY
-              value: {{ $value.tezos.secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $value.tezos.secretKey.secretName }}
+                  key: {{ $value.tezos.secretKey.key }}
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
-              value: {{ join "," $.Values.aggregatorsAddresses }}
+              value: '{{ join "," $.Values.aggregatorsAddresses }}'
             - name: ALPHAVANTAGE_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -76,10 +88,8 @@ spec:
                 secretKeyRef:
                   name: {{ $value.messari.secretName }}
                   key: {{ $value.messari.key }}
-            - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
-              value: '2000'
             - name: LOG_LEVEL
-              value: 'verbose'
+              value: 'debug'
             - name: USE_FAKE_DATA
               value: 'false'
           image: '{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}'
