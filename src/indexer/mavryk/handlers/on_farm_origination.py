@@ -2,7 +2,7 @@ from dipdup.models import Origination
 from dipdup.context import HandlerContext
 from ..utils.persisters import persist_token_metadata
 from mavryk.utils.persisters import persist_contract_metadata
-from mavryk.types.farm.storage import FarmStorage, TokenStandardItem as fa12, TokenStandardItem1 as fa2
+from mavryk.types.farm.storage import FarmStorage
 import mavryk.models as models
 import json
 
