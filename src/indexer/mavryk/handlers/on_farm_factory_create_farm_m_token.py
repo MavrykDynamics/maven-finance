@@ -52,13 +52,13 @@ async def on_farm_factory_create_farm_m_token(
         await ctx.add_contract(
             name=farm_address + 'contract',
             address=farm_address,
-            typename="farm"
+            typename="m_farm"
         )
         await ctx.add_index(
             name=farm_address + 'index',
-            template="farm_template",
+            template="m_farm_template",
             values=dict(
-                farm_contract=farm_address + 'contract'
+                m_farm_contract=farm_address + 'contract'
             )
         )
 
@@ -129,4 +129,5 @@ async def on_farm_factory_create_farm_m_token(
         farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
         farm.unpaid_rewards                  = unpaid_rewards
         farm.paid_rewards                    = paid_rewards
+        farm.is_m_farm                       = True
         await farm.save()

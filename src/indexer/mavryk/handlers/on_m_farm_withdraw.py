@@ -55,5 +55,5 @@ async def on_m_farm_withdraw(
     farm_account.participation_rewards_per_share    = participation_rewards_per_share 
     farm_account.unclaimed_rewards                  = unclaimed_rewards
     farm_account.claimed_rewards                    = claimed_rewards
-    farm_account.token_reward_index                     = token_reward_index 
+    farm_account.token_reward_index                 = token_reward_index 
     await farm_account.save()
