@@ -302,7 +302,7 @@ describe("Test: Council Contract", async () => {
                 assert.notStrictEqual(councilMember.name, oldMemberName);
                 assert.notStrictEqual(councilMember.image, oldMemberImage);
                 assert.notStrictEqual(councilMember.website, oldMemberWebsite);
-                
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
