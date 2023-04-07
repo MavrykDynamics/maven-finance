@@ -37,6 +37,8 @@ describe("Vault tests", async () => {
     var bobVaultSet : Array<Number>     = []
     var eveVaultSet : Array<Number>     = []
     var malloryVaultSet : Array<Number> = [] 
+
+    let tokenId = 0
     
     let updateTokenRewardIndexOperation
 
@@ -74,6 +76,8 @@ describe("Vault tests", async () => {
 
     let lendingControllerStorage
     let vaultFactoryStorage
+
+    let updateOperatorsOperation
 
     before("setup", async () => {
 
@@ -150,16 +154,9 @@ describe("Vault tests", async () => {
 
             // Bob stakes 100 MVK tokens and registers as a satellite
             await helperFunctions.signerFactory(tezos, bob.sk);
-            var updateOperators = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-            ]).send()
-            await updateOperators.confirmation();  
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, contractDeployments.doorman.address, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const bobStakeAmount                  = MVK(100);
             const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
             await bobStakeAmountOperation.confirmation();                        
@@ -173,16 +170,9 @@ describe("Vault tests", async () => {
 
             // Oscar stakes 100 MVK tokens and registers as a satellite 
             await helperFunctions.signerFactory(tezos, oscar.sk);
-            updateOperators = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: oscar.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-            ]).send()
-            await updateOperators.confirmation(); 
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, oscar.pkh, contractDeployments.doorman.address, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const oscarStakeAmount                  = MVK(100);
             const oscarStakeAmountOperation         = await doormanInstance.methods.stake(oscarStakeAmount).send();
             await oscarStakeAmountOperation.confirmation();                        
@@ -367,7 +357,6 @@ describe("Vault tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -572,7 +561,6 @@ describe("Vault tests", async () => {
                 const tokenName                         = "mockFa12";
                 const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
                 const tokenType                         = "fa12";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = contractDeployments.mockUsdMockFa12TokenAggregator.address;
@@ -640,7 +628,6 @@ describe("Vault tests", async () => {
                 const tokenName                             = "mockFa2";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -711,7 +698,6 @@ describe("Vault tests", async () => {
                 const tokenName                             = "tez";
                 const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -783,7 +769,6 @@ describe("Vault tests", async () => {
                 const tokenName                         = "smvk";
                 const tokenContractAddress              = contractDeployments.mvkToken.address;
                 const tokenType                         = "fa2";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 9;
                 const oracleAddress                     = contractDeployments.mockUsdMvkAggregator.address;
@@ -1079,15 +1064,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.vaultFactory.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1173,15 +1150,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.vaultFactory.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1273,15 +1242,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.vaultFactory.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1345,15 +1306,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.vaultFactory.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1935,15 +1888,7 @@ describe("Vault tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             // Operator set
-            const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: contractDeployments.doorman.address,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // Operation
