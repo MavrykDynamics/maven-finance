@@ -46,7 +46,7 @@ function verifyMinMvkAmountReached(const stakeAmount : nat; const s : doormanSto
 block {
     
     // verify first value (stakeAmount) is greater than second value (minMvkAmount)
-    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvkAmount, error_MVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvkAmount, error_MIN_MVK_AMOUNT_NOT_REACHED);
 
 } with unit 
 
