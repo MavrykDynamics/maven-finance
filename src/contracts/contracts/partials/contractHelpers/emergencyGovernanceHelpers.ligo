@@ -147,7 +147,7 @@ block {
 function verifySufficientBalanceToTrigger(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
 
 } with unit
 
@@ -157,7 +157,7 @@ block {
 function verifySufficientBalanceToVote(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
 
 } with unit
 
