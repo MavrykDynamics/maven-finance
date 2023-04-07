@@ -1011,7 +1011,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 // set admin (bob) as signer and add eve to whitelist contracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // init variables and set signer back to user (eve)
@@ -1029,7 +1029,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
@@ -1084,7 +1084,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 // set admin (bob) as signer and add eve to whitelist contracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
                 await updateWhitelistContractsOperation.confirmation()
                 
                 // set signer back to user (eve)
@@ -1093,7 +1093,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
             } catch (e) {
@@ -1115,7 +1115,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 // set admin (bob) as signer and add eve to whitelist contracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // Mint token
@@ -1125,7 +1125,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
                 
                 // Update storage
@@ -1266,7 +1266,7 @@ describe('Test: MVK Token Contract', async () => {
                 await helperFunctions.signerFactory(tezos, bob.sk);
 
                 // set admin (bob) as a whitelisted contract
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, bob.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, bob.pkh, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // mint burned tokens back to user (eve)
@@ -1274,7 +1274,7 @@ describe('Test: MVK Token Contract', async () => {
                 await mintOperation.confirmation()
 
                 // remove admin (bob) as a whitelisted contract
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, bob.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, bob.pkh, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // --------------------------------------------------------------------------
@@ -1462,7 +1462,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 initialContractMapValue           = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
@@ -1485,7 +1485,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
@@ -1508,7 +1508,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
@@ -1531,7 +1531,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh);
+                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
@@ -1637,7 +1637,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh)
+                updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 tokenStorage = await tokenInstance.storage()
@@ -1659,7 +1659,7 @@ describe('Test: MVK Token Contract', async () => {
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh)
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, 'update')
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 tokenStorage = await tokenInstance.storage()
