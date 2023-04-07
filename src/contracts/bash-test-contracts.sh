@@ -33,7 +33,9 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
         dev)
             echo "Running tests for dev"
             COMMANDS+=("yarn ts-mocha --paths test/01_test_mvk_token.spec.ts --bail --timeout 9000000")
-            COMMANDS+=("yarn ts-mocha --paths test/03_test_doorman.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/02_test_mavryk_fa12_tokens.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/03_test_mavryk_fa2_tokens.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/04_test_doorman.spec.ts --bail --timeout 9000000")
             ;;
         mvkToken)
             echo "Running tests for mvkToken"
@@ -41,7 +43,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         mavrykTokens)
             echo "Running tests for mavrykTokens"
-            COMMANDS+=("yarn ts-mocha --paths test/02_test_mavryk_tokens.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/03_test_mavryk_fa2_tokens.spec.ts --bail --timeout 9000000")
             ;;
         doorman)
             echo "Running tests for doorman"
