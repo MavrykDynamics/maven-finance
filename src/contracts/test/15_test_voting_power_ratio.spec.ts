@@ -18,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
-import { compileLambdaFunction } from "scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
