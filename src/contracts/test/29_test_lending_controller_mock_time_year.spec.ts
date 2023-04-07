@@ -36,6 +36,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
     let updateTokenRewardIndexOperation
 
+    let tokenId = 0
+
     // 20 seconds blocks
     // const oneDayLevelBlocks = 4320
     // const oneMonthLevelBlocks = 129600
@@ -89,6 +91,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
     let lendingControllerStorage
     let vaultFactoryStorage
+
+    let updateOperatorsOperation
 
     let tokenOracles : {name : string, price : number, priceDecimals : number, tokenDecimals : number}[] = []
     
@@ -369,7 +373,6 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -570,7 +573,6 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const tokenName                             = "failTestLoanToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -647,7 +649,6 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const tokenName                         = "usdt";
                 const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
                 const tokenType                         = "fa12";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = contractDeployments.mockUsdMockFa12TokenAggregator.address;
@@ -716,7 +717,6 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -786,7 +786,6 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const tokenName                             = "tez";
                 const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -856,7 +855,6 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const tokenName                             = "failTestCollateralToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
@@ -1069,15 +1067,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.lendingController.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, contractDeployments.lendingController.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA12 tokens into lending controller token pool
@@ -1270,15 +1260,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -1541,15 +1523,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -1811,15 +1785,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -2082,15 +2048,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -2354,15 +2312,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -2626,15 +2576,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -2897,15 +2839,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -3167,15 +3101,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -3443,15 +3369,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -3701,15 +3619,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -3960,15 +3870,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -4218,17 +4120,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ---------------------------------
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
-
+            
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.initVaultAction(
                 "deposit",

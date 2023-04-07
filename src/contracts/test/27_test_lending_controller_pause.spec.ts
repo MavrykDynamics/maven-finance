@@ -36,6 +36,8 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
     
     let updateTokenRewardIndexOperation
 
+    let tokenId = 0
+
     let doormanInstance
     let delegationInstance
     let mvkTokenInstance
@@ -68,6 +70,8 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
     let lendingControllerStorage
     let vaultFactoryStorage
+
+    let updateOperatorsOperation
 
     before("setup", async () => {
 
@@ -330,7 +334,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -576,7 +579,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                             = "testUpdateLoanToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -737,7 +739,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                             = "failTestLoanToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -866,7 +867,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                         = "usdt";
                 const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
                 const tokenType                         = "fa12";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = contractDeployments.mockUsdMockFa12TokenAggregator.address;
@@ -958,7 +958,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -1051,7 +1050,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                             = "tez";
                 const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -1146,7 +1144,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                         = "smvk";
                 const tokenContractAddress              = contractDeployments.mvkToken.address;
                 const tokenType                         = "fa2";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 9;
                 const oracleAddress                     = contractDeployments.mockUsdMvkAggregator.address;
@@ -1218,7 +1215,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                             = "failTestCollateralToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
@@ -1277,7 +1273,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const tokenName                             = "failTestCollateralToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
@@ -1564,7 +1559,6 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
             await helperFunctions.signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
-            const tokenId            = 0;
             const tokenName          = "eurl";
             const tokenType          = "fa2";
             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
@@ -1599,15 +1593,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
             const vaultInitialTokenCollateralBalance = vault.collateralBalanceLedger.get(tokenName) == undefined ? 0 : vault.collateralBalanceLedger.get(tokenName).toNumber();
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA2 tokens into vault
@@ -1675,15 +1661,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.lendingController.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, contractDeployments.lendingController.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA12 tokens into lending controller token pool
@@ -2121,15 +2099,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
 
                 // update operators for vault
-                const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: contractDeployments.lendingController.address,
-                            token_id: 0,
-                        },
-                    }])
-                    .send()
+                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, contractDeployments.lendingController.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // eve fail to deposit mock FA2 tokens into lending controller token pool as the loan token is paused
@@ -2438,15 +2408,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
             const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
 
             // update operators for vault
-            const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: eve.pkh,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve fails to deposit mock FA2 tokens into vault

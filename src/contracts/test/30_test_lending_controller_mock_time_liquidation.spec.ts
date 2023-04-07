@@ -48,6 +48,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     var eveVaultSet : Array<Number>     = []
     var malloryVaultSet : Array<Number> = [] 
 
+    let tokenId = 0
+
     // 3 seconds blocks (docker sandbox)
     const oneMinuteLevelBlocks = 20
     const oneDayLevelBlocks   = 28800
@@ -314,7 +316,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let updatedLiquidatorStakedMvkBalance
     let updatedTreasuryStakedMvkBalance
     
-
     // Begin Helper Functions
 
     // helper functions to set token prices
@@ -491,16 +492,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             // Bob stakes 100 MVK tokens and registers as a satellite
             await helperFunctions.signerFactory(tezos, bob.sk);
-            var updateOperators = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-            ]).send()
-            await updateOperators.confirmation();  
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, contractDeployments.doorman.address, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const bobStakeAmount                  = MVK(100);
             const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
             await bobStakeAmountOperation.confirmation();                        
@@ -514,16 +508,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             // Eve stakes 100 MVK tokens and registers as a satellite 
             await helperFunctions.signerFactory(tezos, eve.sk);
-            updateOperators = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-            ]).send()
-            await updateOperators.confirmation(); 
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const eveStakeAmount                  = MVK(100);
             const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
             await eveStakeAmountOperation.confirmation();                        
@@ -536,16 +523,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             // Mallory stakes 100 MVK tokens and registers as a satellite 
             await helperFunctions.signerFactory(tezos, mallory.sk);
-            updateOperators = await mvkTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: mallory.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-            ]).send()
-            await updateOperators.confirmation(); 
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, contractDeployments.doorman.address, tokenId);
+            await updateOperatorsOperation.confirmation();
+
             const malloryStakeAmount                  = MVK(100);
             const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
             await malloryStakeAmountOperation.confirmation();                        
@@ -857,7 +837,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -1059,7 +1038,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenName                             = "failTestLoanToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -1136,7 +1114,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenName                         = "usdt";
                 const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
                 const tokenType                         = "fa12";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = contractDeployments.mockUsdMockFa12TokenAggregator.address;
@@ -1205,7 +1182,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -1274,7 +1250,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenName                             = "tez";
                 const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -1343,7 +1318,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenName                         = "smvk";
                 const tokenContractAddress              = contractDeployments.mvkToken.address;
                 const tokenType                         = "fa2";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 9;
                 const oracleAddress                     = contractDeployments.mockUsdMvkAggregator.address;
@@ -1414,7 +1388,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenName                             = "failTestCollateralToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
@@ -1625,15 +1598,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
-            const updateOperatorsOperation = await eurlTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.lendingControllerMockTime.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(eurlTokenInstance, eve.pkh, contractDeployments.lendingControllerMockTime.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA12 tokens into lending controller token pool
@@ -2625,17 +2590,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             await helperFunctions.signerFactory(tezos, mallory.sk); 
+
             // mallory sets operator for lending controller
-            updateOperatorsOperation = await eurlTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: liquidator,
-                        operator: contractDeployments.lendingControllerMockTime.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(eurlTokenInstance, liquidator, contractDeployments.lendingControllerMockTime.address, tokenId);
             await updateOperatorsOperation.confirmation();
+
 
             liquidateVaultOperation = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
             await liquidateVaultOperation.confirmation();
@@ -2925,16 +2884,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ---------------------------------
     
             // eve sets operator for lending controller
-            updateOperatorsOperation = await eurlTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: vaultOwner,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }]).send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(eurlTokenInstance, vaultOwner, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
-    
+
             // eve deposits mock FA2 tokens into vault
             const eveDepositMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
@@ -3379,32 +3331,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             console.log('start vault liquidation');
 
             // mallory sets operator for lending controller
-            updateOperatorsOperation = await eurlTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: liquidator,
-                        operator: contractDeployments.lendingControllerMockTime.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(eurlTokenInstance, liquidator, contractDeployments.lendingControllerMockTime.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // mallory sets operator for doorman
-            updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: liquidator,
-                    operator: contractDeployments.doorman.address,
-                    token_id: 0,
-                },
-            }])
-            .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, liquidator, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
     
             liquidateVaultOperation = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
             await liquidateVaultOperation.confirmation();
-
 
             // ---------------------------------------
             // after liquidation - get updated storage
@@ -3735,14 +3670,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ---------------------------------
     
             // eve sets operator for lending controller
-            updateOperatorsOperation = await eurlTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner: vaultOwner,
-                    operator: vaultAddress,
-                    token_id: 0,
-                },
-            }]).send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(eurlTokenInstance, vaultOwner, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
     
             // eve deposits mock FA2 tokens into vault

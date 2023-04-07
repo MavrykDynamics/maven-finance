@@ -32,7 +32,9 @@ describe("Lending Controller (mToken) tests", async () => {
     //  - eve: first vault loan token: usdt, second vault loan token: eurl, third vault loan token - tez
     //  - mallory: first vault loan token: usdt, second vault loan token: eurl
     var eveVaultSet : Array<Number>     = []
-    var malloryVaultSet : Array<Number> = [] 
+    var malloryVaultSet : Array<Number> = []
+    
+    let tokenId = 0
 
     // const oneDayLevelBlocks = 4320
     // const oneMonthLevelBlocks = 129600
@@ -303,7 +305,6 @@ describe("Lending Controller (mToken) tests", async () => {
     let updatedVaultOwnerStakedMvkBalance
     let updatedLiquidatorStakedMvkBalance
     let updatedTreasuryStakedMvkBalance
-
 
     before("setup", async () => {
 
@@ -582,7 +583,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -784,7 +784,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "failTestLoanToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -860,7 +859,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                         = "usdt";
                 const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
                 const tokenType                         = "fa12";
-                const tokenId                           = 0;
 
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = contractDeployments.mockUsdMockFa12TokenAggregator.address;
@@ -929,7 +927,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "eurl";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -998,7 +995,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "tez";
                 const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -1068,7 +1064,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "mTokenMockFa12";
                 const tokenContractAddress                  = contractDeployments.mTokenUsdt.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
@@ -1138,7 +1133,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "mTokenMockFa2";
                 const tokenContractAddress                  = contractDeployments.mTokenEurl.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
@@ -1208,7 +1202,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "mTokenTez";
                 const tokenContractAddress                  = contractDeployments.mTokenXtz.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
@@ -1280,7 +1273,6 @@ describe("Lending Controller (mToken) tests", async () => {
                 const tokenName                             = "failTestCollateralToken";
                 const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
                 const tokenType                             = "fa2";
-                const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
@@ -1493,15 +1485,7 @@ describe("Lending Controller (mToken) tests", async () => {
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
-            const updateOperatorsOperation = await eurlTokenInstance.methods.update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.lendingController.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()
+            updateOperatorsOperation = await helperFunctions.updateOperators(eurlTokenInstance, eve.pkh, contractDeployments.lendingController.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA12 tokens into lending controller token pool
