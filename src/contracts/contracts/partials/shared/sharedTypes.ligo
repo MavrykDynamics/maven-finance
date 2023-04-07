@@ -22,10 +22,15 @@ type updateMetadataType is [@layout:comb] record [
 // General Contract Types
 // ------------------------------------------------------------------------------
 
+type updateType is 
+    |   Update of unit
+    |   Remove of unit
+
 type generalContractsType is map (string, address)
 type updateGeneralContractsType is [@layout:comb] record [
     generalContractName     : string;
     generalContractAddress  : address;
+    updateType              : updateType;
 ]
 
 // ------------------------------------------------------------------------------
@@ -36,6 +41,7 @@ type whitelistContractsType is map (string, address)
 type updateWhitelistContractsType is [@layout:comb] record [
     whitelistContractName     : string;
     whitelistContractAddress  : address;
+    updateType                : updateType;
 ]
 
 // ------------------------------------------------------------------------------
@@ -46,4 +52,5 @@ type whitelistTokenContractsType is map (string, address)
 type updateWhitelistTokenContractsType is [@layout:comb] record [
     tokenContractName     : string;
     tokenContractAddress  : address;
+    updateType            : updateType;
 ]
