@@ -280,8 +280,8 @@
 [@inline] const error_FARM_TREASURY_CONTRACT_NOT_FOUND                                                                  = 198n;
 
 // CONTRACT SPECIFIC ERRORS
-[@inline] const error_SMVK_ACCESS_AMOUNT_NOT_REACHED                                                                    = 199n;
-[@inline] const error_MVK_ACCESS_AMOUNT_NOT_REACHED                                                                     = 200n;
+[@inline] const error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED                                                                 = 199n;
+[@inline] const error_MIN_MVK_AMOUNT_NOT_REACHED                                                                        = 200n;
 
 [@inline] const error_USER_STAKE_RECORD_NOT_FOUND                                                                       = 201n;
 [@inline] const error_VAULT_STAKE_RECORD_NOT_FOUND                                                                      = 202n;

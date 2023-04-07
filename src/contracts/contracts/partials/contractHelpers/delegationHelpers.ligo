@@ -327,7 +327,7 @@ block {
     const userStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
     // Check if user's staked MVK balance has reached the minimum staked MVK amount required to be a satellite
-    verifyGreaterThanOrEqual(userStakedMvkBalance, s.config.minimumStakedMvkBalance, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(userStakedMvkBalance, s.config.minimumStakedMvkBalance, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
 
     // Init new satellite record params
     const name          : string  = registerAsSatelliteParams.name;
