@@ -1214,6 +1214,131 @@
 //                 console.dir(e, {depth: 5});
 //             }
 //         })
+
+//         it('User should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered', async () => {
+//             try{
+
+//                 // Init operation
+//                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(alice.pkh, oscar.pkh).send();
+//                 await delegationOperation.confirmation();
+                
+//                 // Init values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(oscar.pkh);
+//                 const initDelegateRecord    = await delegationStorage.delegateLedger.get(alice.pkh);
+//                 const satelliteName         = "New Satellite (Oscar)";
+//                 const satelliteDescription  = "New Satellite Description (Oscar)";
+//                 const satelliteWebsite      = "https://placeholder.com/300";
+//                 const satelliteImage        = "https://placeholder.com/300";
+//                 const satelliteFee          = "800";
+
+//                 // Re-register operation
+//                 await signerFactory(oscar.sk);
+//                 const unregisterOperation           = await delegationInstance.methods.unregisterAsSatellite(oscar.pkh).send();
+//                 await unregisterOperation.confirmation();
+//                 const registerAsSatelliteOperation  = await delegationInstance.methods
+//                     .registerAsSatellite(
+//                         satelliteName, 
+//                         satelliteDescription, 
+//                         satelliteImage,
+//                         satelliteWebsite,
+//                         satelliteFee
+//                     ).send();
+//                 await registerAsSatelliteOperation.confirmation();
+                
+//                 // Mid values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const midSatelliteRecord    = await delegationStorage.satelliteLedger.get(oscar.pkh);
+//                 const midDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 // Undelegate operation
+//                 await signerFactory(alice.sk);
+//                 const undelegateOperation   = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
+//                 await undelegateOperation.confirmation();
+
+//                 // Final Values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const finalSatelliteRecord  = await delegationStorage.satelliteLedger.get(oscar.pkh);
+//                 const finalDelegateRecord   = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 // Assertions
+//                 assert.notStrictEqual(initDelegateRecord, undefined);
+//                 assert.notStrictEqual(midDelegateRecord, undefined);
+//                 assert.strictEqual(finalDelegateRecord, undefined);
+//                 assert.strictEqual(initSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
+//                 assert.notStrictEqual(midSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
+//                 assert.strictEqual(midSatelliteRecord.registeredDateTime, finalSatelliteRecord.registeredDateTime);
+//                 assert.notEqual(initSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+//                 assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+//                 assert.equal(finalSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+
+//             } catch(e){
+//                 console.dir(e, {depth: 5});
+//             }
+//         })
+
+//         it('User should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered during an %onStakeChange call', async () => {
+//             try{
+
+//                 // Init operation
+//                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(alice.pkh, oscar.pkh).send();
+//                 await delegationOperation.confirmation();
+                
+//                 // Init values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(oscar.pkh);
+//                 const initDelegateRecord    = await delegationStorage.delegateLedger.get(alice.pkh);
+//                 const satelliteName         = "New Satellite (Oscar)";
+//                 const satelliteDescription  = "New Satellite Description (Oscar)";
+//                 const satelliteWebsite      = "https://placeholder.com/300";
+//                 const satelliteImage        = "https://placeholder.com/300";
+//                 const satelliteFee          = "800";
+//                 const stakeAmount           = MVK(2);
+
+//                 // Re-register operation
+//                 await signerFactory(oscar.sk);
+//                 const unregisterOperation           = await delegationInstance.methods.unregisterAsSatellite(oscar.pkh).send();
+//                 await unregisterOperation.confirmation();
+//                 const registerAsSatelliteOperation = await delegationInstance.methods
+//                     .registerAsSatellite(
+//                         satelliteName, 
+//                         satelliteDescription, 
+//                         satelliteImage,
+//                         satelliteWebsite,
+//                         satelliteFee
+//                     ).send();
+//                 await registerAsSatelliteOperation.confirmation();
+                
+//                 // Mid values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const midSatelliteRecord    = await delegationStorage.satelliteLedger.get(oscar.pkh);
+//                 const midDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 // Stake operation
+//                 await signerFactory(alice.sk);
+//                 const stakeOperation        = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
+
+//                 // Final Values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const finalSatelliteRecord  = await delegationStorage.satelliteLedger.get(oscar.pkh);
+//                 const finalDelegateRecord   = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 // Assertions
+//                 assert.notStrictEqual(initDelegateRecord, undefined);
+//                 assert.notStrictEqual(midDelegateRecord, undefined);
+//                 assert.strictEqual(finalDelegateRecord, undefined);
+//                 assert.strictEqual(initSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
+//                 assert.notStrictEqual(midSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
+//                 assert.strictEqual(midSatelliteRecord.registeredDateTime, finalSatelliteRecord.registeredDateTime);
+//                 assert.notEqual(initSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+//                 assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+//                 assert.equal(finalSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+
+//             } catch(e){
+//                 console.dir(e, {depth: 5});
+//             }
+//         })
 //     })
 
 //     describe("%togglePauseEntrypoint", async () => {
