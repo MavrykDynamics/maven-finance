@@ -557,6 +557,12 @@ block {
                 // remove sender from satellite ledger
                 s.satelliteLedger   := Big_map.remove(userAddress, s.satelliteLedger);
                 s.satelliteCounter  := abs(s.satelliteCounter - 1n);
+
+                // update satellite state
+                // var satelliteRecord : satelliteRecordType := getSatelliteRecord(userAddress, s);
+                // satelliteRecord.status := "INACTIVE";
+                // s.satelliteLedger[userAddress] := satelliteRecord;
+
             }
         |   _ -> skip
     ];
