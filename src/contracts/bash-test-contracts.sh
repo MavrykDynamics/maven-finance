@@ -60,7 +60,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         council)
             echo "Running tests for council"
-            COMMANDS+=("yarn ts-mocha --paths test/05_test_council.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/06_test_council.spec.ts --bail --timeout 9000000")
             ;;
         farm)
             echo "Running tests for farm"
