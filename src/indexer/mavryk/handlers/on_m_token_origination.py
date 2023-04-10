@@ -16,6 +16,7 @@ async def on_m_token_origination(
     governance_address          = m_token_origination.storage.governanceAddress
     loan_token_name             = m_token_origination.storage.loanToken
     is_scaled_token             = m_token_origination.storage.isScaledToken
+    total_supply                = float(m_token_origination.storage.totalSupply)
     token_reward_index          = float(m_token_origination.storage.tokenRewardIndex)
     timestamp                   = m_token_origination.data.timestamp
 
@@ -37,7 +38,8 @@ async def on_m_token_origination(
         governance                  = governance,
         loan_token_name             = loan_token_name,
         is_scaled_token             = is_scaled_token,
-        token_reward_index          = token_reward_index
+        token_reward_index          = token_reward_index,
+        total_supply                = total_supply
     )
     await m_token.save()
     
