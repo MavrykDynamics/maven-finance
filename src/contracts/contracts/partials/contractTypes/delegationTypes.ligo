@@ -15,6 +15,7 @@ type satelliteRewardsLedgerType is big_map (address, satelliteRewardsType)
 // record for users delegating to satellites 
 type delegateRecordType is [@layout:comb] record [
     satelliteAddress                : address;
+    satelliteRegisteredDateTime     : timestamp;
     delegatedDateTime               : timestamp;
     delegatedStakedMvkBalance       : nat;
 ]
