@@ -13,6 +13,26 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## 0.37
+
+### What's new
+
+- MToken
+
+  - Column TotalSupply added
+
+- Satellite
+
+  - Column RegistrationTimestamp added
+
+- DelegationRecord
+
+  - Column SatelliteRegistrationTimestamp added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.36</summary>
+
 ## 0.36
 
 ### What's new
@@ -21,7 +41,7 @@
 
   - Table added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.35</summary>
 
