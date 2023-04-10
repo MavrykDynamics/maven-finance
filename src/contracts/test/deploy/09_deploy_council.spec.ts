@@ -17,7 +17,7 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
-import { bob, alice, eve } from '../../scripts/sandbox/accounts'
+import { bob, alice, eve, trudy } from '../../scripts/sandbox/accounts'
 import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -48,10 +48,10 @@ describe('Council', async () => {
         
             councilStorage.governanceAddress = contractDeployments.governance.address
             councilStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
-            councilStorage.councilMembers.set(bob.pkh, {
-                name: "Bob",
-                image: "Bob image",
-                website: "Bob website"
+            councilStorage.councilMembers.set(trudy.pkh, {
+                name: "Trudy",
+                image: "Trudy image",
+                website: "Trudy website"
             })
             councilStorage.councilMembers.set(alice.pkh, {
                 name: "Alice",
