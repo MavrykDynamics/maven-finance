@@ -42,6 +42,7 @@ type mTokenStorageType is [@layout:comb] record [
     whitelistContracts      : whitelistContractsType;   // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
     
     token_metadata          : tokenMetadataType;
+    totalSupply             : tokenBalanceType;
     ledger                  : ledgerType;
     operators               : operatorsType;
 ]

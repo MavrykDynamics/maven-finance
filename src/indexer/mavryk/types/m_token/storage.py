@@ -46,5 +46,6 @@ class MTokenStorage(BaseModel):
     governanceAddress: str
     whitelistContracts: Dict[str, str]
     token_metadata: Dict[str, TokenMetadata]
+    totalSupply: str
     ledger: Dict[str, str]
     operators: List[Operator]

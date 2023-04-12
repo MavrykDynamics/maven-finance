@@ -108,7 +108,7 @@ image:
   pullPolicy: Always
 
 aggregatorsAddresses:
-  - KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo
-  - KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py
-  - KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX
-  - KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
+  - KT18g1omPDZ6bWG8HCMyNrsaECiFGepr21kr
+  - KT19GJ4yKUZRVm8YpKe1A41Gtkc7pu6GHysv
+  - KT1CzD2mrsD5Gqj1NvfxCocmS1jLvzTSTAgY
+  - KT1ReNAQ6UUbJRaihXGypUKbqXcPGV1LN2hK
