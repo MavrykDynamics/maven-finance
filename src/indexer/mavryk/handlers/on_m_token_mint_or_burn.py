@@ -19,12 +19,14 @@ async def on_m_token_mint_or_burn(
     token_reward_index          = float(mint_or_burn.storage.tokenRewardIndex)
     user_balance                = float(mint_or_burn.storage.ledger[user_address])
     user_reward_index           = float(mint_or_burn.storage.rewardIndexLedger[user_address])
+    total_supply                = float(mint_or_burn.storage.totalSupply)
 
     # Update record
     m_token                     = await models.MToken.get(
         address = m_token_address
     )
     m_token.token_reward_index  = token_reward_index
+    m_token.total_supply        = total_supply
     await m_token.save()
 
     user                        = await models.mavryk_user_cache.get(address=user_address)
