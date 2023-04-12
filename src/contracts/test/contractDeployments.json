@@ -1,98 +1,98 @@
 {
     "mvkToken": {
-        "address": "KT1Gt5imXpHQeGVEr8Ab9YUHU1NSn7x7Dh22"
+        "address": "KT1V3Y7hDKtgYbhrE44vsikxYTs5vUgA84sz"
     },
     "governance": {
-        "address": "KT1JYn2VJuBYZZ4fE4jVBfJwEQqtsQWQPxSc"
+        "address": "KT1NwWEzxx4L6qXz5NoTxAMtBKBPLThhn6Sv"
     },
     "doorman": {
-        "address": "KT1PZKpPysW23GCTDQYbu3FGnSdh6jvon5sJ"
+        "address": "KT1Gkh1B22frbaaQ3UTeqZuPvmc7E5C8ecab"
     },
     "delegation": {
-        "address": "KT1VskNyJ9tc6MJT3NjfovR3whKLVgJbAHu3"
+        "address": "KT1PVJwu2dBe7vGF7Esyue1A4knzrVt29X8c"
     },
     "emergencyGovernance": {
-        "address": "KT1D5RP2WG9DMC5K7jEnvx6XQit6de43goZL"
+        "address": "KT1BL5CRgZcgQLisLdLFKW2vsrae85iMVK83"
     },
     "vesting": {
-        "address": "KT1NDTXuuSVf19BwqLRbUSu2XfauwxiqEx9k"
+        "address": "KT1J2bvFZHHxbUkmB6dbQXLJELkR9etpwvRk"
     },
     "mavrykFa12Token": {
-        "address": "KT1BvwFDtaZUf5YkatzWcTazdJuR6E7CdgJj"
+        "address": "KT1RujrECDHCj6UyRWxbFC7nbLJa7FVFLoG2"
     },
     "mavrykFa2Token": {
-        "address": "KT1PteSiPyC5CzyETpFVKhJxW6bC5K7dZfYq"
+        "address": "KT1HnDaePwa7kJGsN6ZYvaiAtLTCpSU2iDuQ"
     },
     "farm": {
-        "address": "KT1UmYue63RtSpUXLLSkjzRT2RhfGnDa4bCS"
+        "address": "KT1MSWbP7w8gJsMAhkxEff5GCjeiJNioXm6P"
     },
     "farmFa2": {
-        "address": "KT19RDj7Xn3xC8YrMx7uZvphuFY1kTUj1XcY"
+        "address": "KT1F5whodpdwJ7m7bHVVTUtJUixR6QxS6qte"
     },
     "farmFactory": {
-        "address": "KT1L1VDPRoS1WdVw1zZ4G9c6Fwrzz1229wxc"
+        "address": "KT1EABS1V7J7xVP96FNkdtzybCBkE4RpDNeN"
     },
     "council": {
-        "address": "KT1A4yrsj8e3GEJJ9rXXymMaSb95NpHpFZMt"
+        "address": "KT1Gxt7eCLXmUGqW5GfLCoGYfd4DLDjEzBRs"
     },
     "breakGlass": {
-        "address": "KT1J35Juinv2qjVHkU9shbh8b4ExgwUuXzJG"
+        "address": "KT1VT3mSxJPjoWFoTWcjoMbaQxjdv9jvSqqg"
     },
     "governanceFinancial": {
-        "address": "KT1QAZGDbrdCeHBzvnvgXe4MLaE1icDXRDHy"
+        "address": "KT1NHGyFUV89Ff2BfDKfqGKEzzUxE3T1F3Fm"
     },
     "treasury": {
-        "address": "KT1BRNk2t7hqqKpvLAFuRm3pPH8cvWo8JcJD"
+        "address": "KT1EQizrvuHJ25SvjFgBhAUyKi4ASapnMiev"
     },
     "treasuryFactory": {
-        "address": "KT1K7h27XFNLPrgjax7tVYGQMd7Mq67jhA51"
+        "address": "KT1D6HqhfZKLTdjMWiYju3LyL1csPTTdknSx"
     },
     "governanceProxy": {
-        "address": "KT1HWnU2Rj9e44yAcqjxsk4PW6z3Kb7kiCT1"
+        "address": "KT1XPuJWjLcwJZmuHfWt26tnyodYftJ19wUU"
     },
     "aggregator": {
-        "address": "KT1KfbhVrkzto9qUjdzn757rGaygks8yjuTn"
+        "address": "KT1VJnXN5jH43ZQybxbhWfRki54DFDSQdRXc"
     },
     "aggregatorFactory": {
-        "address": "KT1JuxF4g6keaTGk7ADPnXQ7QHxahVYKSzeE"
+        "address": "KT191HFfB7SMXzgngT8aXLXUiB7xaPU3gnSd"
     },
     "governanceSatellite": {
-        "address": "KT1Tk9iY28Mbrmp9QUUvMkmL77i2c7p2ohmt"
+        "address": "KT1LXC3meBc8ocXkPsLivX1HZYxj7Dgo9rYX"
     },
     "lendingController": {
-        "address": "KT18kLTtdr1HedrAq1udiNq7LLwm9454jMSf"
+        "address": "KT1TCHSQZQW4ohwedDvqGNFX981F8JT4ityC"
     },
     "mTokenUsdt": {
-        "address": "KT1UjhKrEZneHsA1YQViiQ3be8ZKUZ5irD5M"
+        "address": "KT1NVCHampKAJaC7i2oLV9ppDwKzebYBbykJ"
     },
     "mTokenEurl": {
-        "address": "KT1K2KsaLk4cVNdGKQdXhr6cqHSvotzbGE63"
+        "address": "KT1Mkr3peJwqgRFB15WV3oJBkGnTwZYV3LGo"
     },
     "mTokenXtz": {
-        "address": "KT1KfYwg7BnqVwG6AGYovdpCJaVphfZFByRP"
+        "address": "KT1PRqEVdVNeRLKvL57DhcuanfqSKJU3iZY9"
     },
     "mTokenTzbtc": {
-        "address": "KT1BLay6EbWNw4YQcTpAQhvDpjBFVc88qFoK"
+        "address": "KT1UTbCg1B96NQ5THsVKYqKpvqpHbuXdTxmJ"
     },
     "mockUsdMockFa12TokenAggregator": {
-        "address": "KT1Bbt3T5kgds5nZsFWnsLhZbYuLvZnTqZRi"
+        "address": "KT1A12NaUueSnxgNNrVrgWMRear3Rgp7b87y"
     },
     "mockUsdMockFa2TokenAggregator": {
-        "address": "KT1TUPr9Kmf2rootN6pSS2sJezegUEbwqqYJ"
+        "address": "KT19an5Z129KiVHNjZSXZXzvo1Sdbjcd1b4f"
     },
     "mockUsdXtzAggregator": {
-        "address": "KT1VtC5UsWyzzhjWyX476LyNej3yDnUyJqQK"
+        "address": "KT1UwscVHfMYr7JUnXC9iSFb6ReLJU1pDaoh"
     },
     "mockUsdMvkAggregator": {
-        "address": "KT1RZtZsZgbGeHTP8ncFJ9D51Q6h48uWChzE"
+        "address": "KT1LUx1s6FkSN8ZEiV3rjWpycnuG1Ls4CPUE"
     },
     "vaultFactory": {
-        "address": "KT1UBjHa4B6vYMQBkHUYTL1oBi5uiPBYhPMh"
+        "address": "KT1U4LUwQXqXEKMSRMWXvBguPVrEYsntH5pZ"
     },
     "lendingControllerMockTime": {
         "address": "KT1MbgVJ92WkSngRwwYfLwD7AuY5BmNQsxU7"
     },
     "farmMToken": {
-        "address": "KT1DBoERum4cjNgCHvn1NBkBcG3pKtSVA6XF"
+        "address": "KT1ULkniW9Lr5HcSms65HFEPBZxKppd3dizX"
     }
 }

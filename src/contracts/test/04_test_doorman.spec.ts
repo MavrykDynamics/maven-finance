@@ -1458,7 +1458,7 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("%togglePauseEntrypoint    - non-admin (mallory) should not be able to call this entrypoint", async() => {
+        it("%togglePauseEntrypoint    - admin (bob) should be able to call this entrypoint", async() => {
             try{
                 
                 // pause operations
@@ -1529,7 +1529,7 @@ describe("Test: Doorman Contract", async () => {
                 // update storage
                 doormanStorage              = await doormanInstance.storage();
 
-                // check that entrypoints are paused
+                // check that entrypoints are unpaused
                 assert.equal(doormanStorage.breakGlassConfig.stakeIsPaused                  , false)
                 assert.equal(doormanStorage.breakGlassConfig.unstakeIsPaused                , false)
                 assert.equal(doormanStorage.breakGlassConfig.exitIsPaused                   , false)
