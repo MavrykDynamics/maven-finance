@@ -8,6 +8,14 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Extra
 
 
+class CollateralItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    amount: str
+    tokenName: str
+
+
 class Depositor(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -26,7 +34,8 @@ class CreateVaultParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    delegate: Optional[str]
+    baker: Optional[str]
     loanTokenName: str
     name: str
+    collateral: Optional[List[CollateralItem]]
     depositors: Union[Depositor, Depositor1]

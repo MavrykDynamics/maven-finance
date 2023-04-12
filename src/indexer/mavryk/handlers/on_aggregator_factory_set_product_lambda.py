@@ -12,4 +12,4 @@ async def on_aggregator_factory_set_product_lambda(
 ) -> None:
 
     # Persist lambda
-    await persist_lambda(models.AggregatorFactory, models.AggregatorFactoryProductLambda, set_product_lambda)
+    await persist_lambda(models.AggregatorFactory, models.AggregatorFactoryAggregatorLambda, set_product_lambda)

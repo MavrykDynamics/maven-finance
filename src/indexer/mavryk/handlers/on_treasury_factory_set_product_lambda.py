@@ -12,4 +12,4 @@ async def on_treasury_factory_set_product_lambda(
 ) -> None:
 
     # Persist lambda
-    await persist_lambda(models.TreasuryFactory, models.TreasuryFactoryProductLambda, set_product_lambda)
+    await persist_lambda(models.TreasuryFactory, models.TreasuryFactoryTreasuryLambda, set_product_lambda)

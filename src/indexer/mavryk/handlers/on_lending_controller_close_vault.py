@@ -32,6 +32,7 @@ async def on_lending_controller_close_vault(
     ).first()
     lending_controller_vault.open   = False
     loan_token                      = await lending_controller_vault.loan_token
+    await lending_controller_vault.save()
 
     # Update collateral balance ledger
     vault_collateral_balances   = await models.LendingControllerVaultCollateralBalance.filter(lending_controller_vault=lending_controller_vault).all()

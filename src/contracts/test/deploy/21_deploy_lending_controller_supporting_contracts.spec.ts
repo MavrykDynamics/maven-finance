@@ -59,10 +59,12 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             // mToken for Mock FA12 Token in Lending Controller Token Pool 
             mTokenStorage.governanceAddress = contractDeployments.governance.address;
-            mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                "lendingControllerMockTime"     : contractDeployments.lendingControllerMockTime.address, // to be removed in prod
-                "lendingController"             : contractDeployments.lendingController.address,
-            })
+            if('lendingControllerMockTime' in contractDeployments){ // to be removed in prod
+                mTokenStorage.whitelistContracts.set("lendingControllerMockTime", contractDeployments.lendingControllerMockTime.address)
+            }
+            if('lendingController' in contractDeployments){
+                mTokenStorage.whitelistContracts.set("lendingController", contractDeployments.lendingController.address)
+            }
 
             mTokenStorage.loanToken      = mTokenMockData.mTokenUsdt.loanToken;  // should correspond to loan token record in lending controller
             mTokenStorage.metadata       = mTokenMockData.mTokenUsdt.metadata;

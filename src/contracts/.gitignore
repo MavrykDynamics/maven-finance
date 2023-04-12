@@ -6,6 +6,7 @@ __pycache__/
 venv/
 deployments/*.json
 compiled/*.tz
+contractDeployments.json
 # Webstorm IDE
 ./.idea
 **/.idea/**

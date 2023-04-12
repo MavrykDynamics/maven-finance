@@ -499,12 +499,12 @@ block {
 
 
 // helper function to create new delegate record
-function createDelegateRecord(const satelliteAddress : address; const stakedMvkBalance : nat) : delegateRecordType is 
+function createDelegateRecord(const satelliteAddress : address; const satelliteRegisteredDateTime : timestamp; const stakedMvkBalance : nat) : delegateRecordType is 
 block {
 
     const delegateRecord : delegateRecordType = record [
         satelliteAddress              = satelliteAddress;
-        satelliteRegisteredDateTime   = zeroTimestamp;
+        satelliteRegisteredDateTime   = satelliteRegisteredDateTime;
         delegatedDateTime             = Tezos.get_now();
         delegatedStakedMvkBalance     = stakedMvkBalance;
     ];

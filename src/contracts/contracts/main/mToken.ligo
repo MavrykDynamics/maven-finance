@@ -486,7 +486,7 @@ block{
                 const tokenId       : tokenIdType       = destination.token_id;
                 const tokenAmount   : tokenBalanceType  = destination.amount;
                 const receiver      : ownerType         = destination.to_;
-                var newTotalSupply  : nat := s.totalSupply;
+                var newTotalSupply  : nat               := s.totalSupply;
 
                 // get token balance for owner and receiver
                 var ownerTokenBalance      : tokenBalanceType := getRawBalance(owner, s);
@@ -502,8 +502,8 @@ block{
                     
                     // increment token balance with calculated additional rewards 
                     const ownerAdditionalRewards : nat = calculateAdditionalRewards(ownerRewardIndex, tokenRewardIndex, ownerTokenBalance);
-                    ownerTokenBalance := ownerTokenBalance + ownerAdditionalRewards;
-                    newTotalSupply := newTotalSupply + ownerAdditionalRewards;
+                    ownerTokenBalance   := ownerTokenBalance + ownerAdditionalRewards;
+                    newTotalSupply      := newTotalSupply + ownerAdditionalRewards;
 
                 }; 
 

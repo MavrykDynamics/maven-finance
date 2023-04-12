@@ -15,7 +15,8 @@ async def on_farm_factory_unpause_all(
     farm_factory            = await models.FarmFactory.get(address=farm_factory_address)
 
     # Update record
-    farm_factory.create_farm_paused     = unpause_all.storage.breakGlassConfig.createFarmIsPaused
-    farm_factory.track_farm_paused      = unpause_all.storage.breakGlassConfig.trackFarmIsPaused
-    farm_factory.untrack_farm_paused    = unpause_all.storage.breakGlassConfig.untrackFarmIsPaused
+    farm_factory.create_farm_paused         = unpause_all.storage.breakGlassConfig.createFarmIsPaused
+    farm_factory.create_farm_m_token_paused = unpause_all.storage.breakGlassConfig.createFarmMTokenIsPaused
+    farm_factory.track_farm_paused          = unpause_all.storage.breakGlassConfig.trackFarmIsPaused
+    farm_factory.untrack_farm_paused        = unpause_all.storage.breakGlassConfig.untrackFarmIsPaused
     await farm_factory.save()

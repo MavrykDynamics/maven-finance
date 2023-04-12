@@ -23,11 +23,11 @@ class AggregatorFactoryLambda(ContractLambda, Model):
     class Meta:
         table = 'aggregator_factory_lambda'
 
-class AggregatorFactoryProductLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='product_lambdas')
+class AggregatorFactoryAggregatorLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregator_lambdas')
 
     class Meta:
-        table = 'aggregator_factory_product_lambda'
+        table = 'aggregator_factory_aggregator_lambda'
 
 class AggregatorFactoryGeneralContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.AggregatorFactory', related_name='general_contracts')

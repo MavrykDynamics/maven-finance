@@ -4,59 +4,111 @@ oracles:
     tezos:
       address: tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
       publicKey: edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D
-      secretKey: edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
+      secretKey:
+        secretName: oracle-keys
+        key: TEZOS_SECRET_KEY_1
     p2p:
       peerId: 12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
       peerPublicKey: CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
-      peerPrivateKey: CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
+      peerPrivateKey:
+        secretName: oracle-keys
+        key: P2P_PRIVATE_KEY_1
     alphavantage:
-      secretName: api-keys
+      secretName: oracle-keys
       key: ALPHAVANTAGE_API_KEY
     messari:
-      secretName: api-keys
+      secretName: oracle-keys
       key: MESSARI_API_KEY_1
   eve:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
       address: tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
       publicKey: edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis
-      secretKey: edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
+      secretKey:
+        secretName: oracle-keys
+        key: TEZOS_SECRET_KEY_2
     p2p:
       peerId: 12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
       peerPublicKey: CAESIB3LuOsvQXa/QtLkCtHqfEdDnXDiDtGIKB42deJZQSZb
-      peerPrivateKey: CAESQJhgTKhCqif5bg/4RS4mPfjIp/TNA6c7licLcTFumPchHcu46y9Bdr9C0uQK0ep8R0OdcOIO0YgoHjZ14llBJls=
+      peerPrivateKey:
+        secretName: oracle-keys
+        key: P2P_PRIVATE_KEY_2
     alphavantage:
-      secretName: api-keys
+      secretName: oracle-keys
       key: ALPHAVANTAGE_API_KEY
     messari:
-      secretName: api-keys
+      secretName: oracle-keys
       key: MESSARI_API_KEY_2
   mallory:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
       address: tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
       publicKey: edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ
-      secretKey: edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
+      secretKey:
+        secretName: oracle-keys
+        key: TEZOS_SECRET_KEY_3
     p2p:
       peerId: 12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       peerPublicKey: CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
-      peerPrivateKey: CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
+      peerPrivateKey:
+        secretName: oracle-keys
+        key: P2P_PRIVATE_KEY_3
     alphavantage:
-      secretName: api-keys
+      secretName: oracle-keys
       key: ALPHAVANTAGE_API_KEY
     messari:
-      secretName: api-keys
+      secretName: oracle-keys
       key: MESSARI_API_KEY_3
+  alice:
+    rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+    tezos:
+      address: tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
+      publicKey: edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd
+      secretKey:
+        secretName: oracle-keys
+        key: TEZOS_SECRET_KEY_4
+    p2p:
+      peerId: 12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
+      peerPublicKey: CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
+      peerPrivateKey:
+        secretName: oracle-keys
+        key: P2P_PRIVATE_KEY_4
+    alphavantage:
+      secretName: oracle-keys
+      key: ALPHAVANTAGE_API_KEY
+    messari:
+      secretName: oracle-keys
+      key: MESSARI_API_KEY_4
+  oscar:
+    rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+    tezos:
+      address: tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw
+      publicKey: edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP
+      secretKey:
+        secretName: oracle-keys
+        key: TEZOS_SECRET_KEY_5
+    p2p:
+      peerId: 12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
+      peerPublicKey: CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
+      peerPrivateKey:
+        secretName: oracle-keys
+        key: P2P_PRIVATE_KEY_5
+    alphavantage:
+      secretName: oracle-keys
+      key: ALPHAVANTAGE_API_KEY
+    messari:
+      secretName: oracle-keys
+      key: MESSARI_API_KEY_5
 
 image:
   pullSecret: docker-pull-credentials
   registry: docker.io
   repository: mavrykdynamics/mavryk-oracle
-  tag: v0.1.5
+  tag: v0.1.12
   pullPolicy: Always
 
 aggregatorsAddresses:
-  - KT1GnYkHRiXPnvhctooTjTnF3SABJf13DN3F
-  - KT1L2uQvUHnumcd2cVPAiHhSg2zr1npPWvJf
-  - KT1T8qNkrkU4yRMu9s8YbA5GcwiXKak5j4iK
-  - KT1UsV9auGvp51BkNGBUaoKrtHup6KgWBNYR
+  - KT18g1omPDZ6bWG8HCMyNrsaECiFGepr21kr
+  - KT19GJ4yKUZRVm8YpKe1A41Gtkc7pu6GHysv
+  - KT1CzD2mrsD5Gqj1NvfxCocmS1jLvzTSTAgY
+  - KT1ReNAQ6UUbJRaihXGypUKbqXcPGV1LN2hK
