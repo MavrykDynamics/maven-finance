@@ -808,6 +808,7 @@ block {
                         const satelliteAddress : address = delegatorRecord.satelliteAddress;
 
                         // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
+                        // RegeristeredDateTime is checked in the case the satellite unregistered then registered again before the delegate could undelegate.
                         const userNeedsToUndelegate : bool  = case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
                                 Some (_satelliteRecord) -> if _satelliteRecord.registeredDateTime = delegatorRecord.satelliteRegisteredDateTime then False else True
                             |   None                    -> True
