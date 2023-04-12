@@ -56,6 +56,7 @@ describe("Testnet interactions helper", async () => {
     let treasuryFactoryInstance;
     let treasuryInstance;
     let farmInstance;
+    let farmMTokenInstance;
     let lpTokenInstance;
     let governanceSatelliteInstance;
     let aggregatorInstance;
@@ -63,6 +64,7 @@ describe("Testnet interactions helper", async () => {
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
     let mTokenEurlInstance;
+    let mTokenUsdtInstance;
     let vaultInstance;
     let vaultFactoryInstance;
     let mavrykFa12TokenInstance;
@@ -155,12 +157,14 @@ describe("Testnet interactions helper", async () => {
             treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
             treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
             farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
+            farmMTokenInstance                      = await utils.tezos.contract.at(contractDeployments.farmMToken.address);
             lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
             aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
+            mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
             mTokenEurlInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
             mavrykFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
@@ -200,13 +204,15 @@ describe("Testnet interactions helper", async () => {
             console.log('Treasury Factory Contract deployed at:'                , contractDeployments.treasuryFactory.address);
             console.log('Treasury Contract deployed at:'                        , contractDeployments.treasury.address);
             console.log('Farm Contract deployed at:'                            , contractDeployments.farm.address);
+            console.log('Farm mToken Contract deployed at:'                     , contractDeployments.farmMToken.address);
             console.log('LP Token Contract deployed at:'                        , contractDeployments.mavrykFa12Token.address);
             console.log('Governance Satellite Contract deployed at:'            , contractDeployments.governanceSatellite.address);
             console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
             console.log('Aggregator Factory Contract deployed at:'              , contractDeployments.aggregatorFactory.address);
             console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
             console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
-            console.log('MToken Contract deployed at:'                          , contractDeployments.mTokenEurl.address);
+            console.log('MToken USDT Contract deployed at:'                     , contractDeployments.mTokenUsdt.address);
+            console.log('MToken EURL Contract deployed at:'                     , contractDeployments.mTokenEurl.address);
             console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
             console.log('Mavryk FA12 Token Contract deployed at:'               , contractDeployments.mavrykFa12Token.address);
 
@@ -1589,6 +1595,16 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await treasuryInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets baker', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.setBaker(null).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4180,6 +4196,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors
     //             ).send();
     //             await operation.confirmation();
@@ -4205,6 +4222,7 @@ describe("Testnet interactions helper", async () => {
     //                 null,
     //                 loanTokenName,          // loan token type
     //                 "vaultName",
+    //                 null,
     //                 depositors              // depositors type
     //             ).send();
     //             await createVaultOperation.confirmation();
@@ -4746,9 +4764,10 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Initial values
                 const tokenName                             = "usdt";
-                const tokenContractAddress                  = contractDeployments.mavrykFa12Token.address;
-                const tokenType                             = "fa12";
+                const tokenContractAddress                  = contractDeployments.mTokenUsdt.address;
+                const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
+                const tokenId                               = 0;
 
                 const oracleAddress                         = contractDeployments.aggregator.address;
 
@@ -4783,9 +4802,10 @@ describe("Testnet interactions helper", async () => {
                     interestRateAboveOptimalUtilisation,
                     minRepaymentAmount,
 
-                    // fa12 token type - token contract address
+                    // fa2 token type - token contract address
                     tokenType,
-                    tokenContractAddress
+                    tokenContractAddress,
+                    tokenId
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -4796,16 +4816,22 @@ describe("Testnet interactions helper", async () => {
         it('Admin adds liquidity', async () => {
             try{
                 // Initial values
-                const loanTokenName = "usdt";
-                const liquidityAmount = 20000; // 0.2 Mock FA12 Tokens
+                const loanTokenName             = "usdt";
+                const liquidityAmount           = 20000; // 0.2 Mock FA12 Tokens
 
                 // Operation
-                const approveOperation = await lpTokenInstance.methods.approve(
-                    contractDeployments.lendingControllerMockTime.address,
-                    liquidityAmount
-                ).send();
-                await approveOperation.confirmation();
-                const operation = await lendingControllerMockTimeInstance.methods.addLiquidity(
+                var operation = await mTokenUsdtInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: contractDeployments.lendingControllerMockTime.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+                operation = await lendingControllerMockTimeInstance.methods.addLiquidity(
                     loanTokenName,
                     liquidityAmount, 
                 ).send();
@@ -4880,6 +4906,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await operation.confirmation();
@@ -4905,6 +4932,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     depositors              // depositors type
                 ).send();
                 await createVaultOperation.confirmation();
@@ -5161,6 +5189,190 @@ describe("Testnet interactions helper", async () => {
         });
     });
 
+    describe("FARM MTOKEN", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await helperFunctions.signerFactory(tezos, bob.sk);
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin init a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.initFarm(
+                    12000,
+                    100,
+                    false,
+                    false
+                ).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates the rewards from transfer boolean', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates rewards per block', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateConfig(new BigNumber(MVK(2)), "configRewardPerBlock").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses deposit entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("deposit", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses withdraw entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("withdraw", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses claim entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.togglePauseEntrypoint("claim", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin deposits 2LP into the farm', async () => {
+            try{
+                // Operation
+                var operation = await mTokenUsdtInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: contractDeployments.farmMToken.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+                operation = await farmMTokenInstance.methods.deposit(2).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin withdraw 1LP from the farm', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.withdraw(1).send();
+                await operation.confirmation()
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin claims from the farm', async () => {
+            try{
+                // Operation
+                var operation   = await farmFactoryInstance.methods.trackFarm(contractDeployments.farmMToken.address).send()
+                await operation.confirmation();
+                operation       = await farmMTokenInstance.methods.claim(bob.pkh).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin closes a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmMTokenInstance.methods.closeFarm().send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
     describe("MToken", async () => {
 
         beforeEach("Set signer to admin", async () => {
@@ -5346,6 +5558,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     loanTokenName,          // loan token type
                     "vaultName",
+                    null,
                     "whitelist",
                     whitelistedUsers
                 ).send();
@@ -5376,6 +5589,16 @@ describe("Testnet interactions helper", async () => {
 
         beforeEach("Set signer to admin", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
+        });
+        
+        it('Admin delegates vault tez to baker', async () => {
+            try{
+                // Operation
+                const operation = await vaultInstance.methods.initVaultAction("setBaker", null).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
         });
         
         it('Admin updates the depositor', async () => {

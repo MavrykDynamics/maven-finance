@@ -1439,7 +1439,7 @@ describe("Test: Doorman Contract", async () => {
         it("%pauseAll                 - admin (bob) should be able to call this entrypoint", async() => {
             try{
 
-                pauseAllOperation = doormanInstance.methods.pauseAll(); 
+                pauseAllOperation = doormanInstance.methods.pauseAll().send(); 
                 await pauseAllOperation.confirmation();
 
             } catch(e) {
@@ -1450,7 +1450,7 @@ describe("Test: Doorman Contract", async () => {
         it("%unpauseAll               - admin (bob) should be able to call this entrypoint", async() => {
             try{
 
-                unpauseAllOperation = doormanInstance.methods.unpauseAll(); 
+                unpauseAllOperation = doormanInstance.methods.unpauseAll().send(); 
                 await unpauseAllOperation.confirmation();
 
             } catch(e) {

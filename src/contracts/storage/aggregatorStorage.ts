@@ -16,7 +16,7 @@ const config = {
     alphaPercentPerThousand             : new BigNumber(2),
     
     percentOracleThreshold              : new BigNumber(49),
-    heartBeatSeconds                    : new BigNumber(3),
+    heartBeatSeconds                    : new BigNumber(300),
     
     rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
     rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 

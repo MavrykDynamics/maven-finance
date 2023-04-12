@@ -649,7 +649,7 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := newTokenPoolTotal;
-                loanTokenRecord.mTokensTotal     := newMTokensTotal;
+                loanTokenRecord.mTokensTotal     := newMTokensTotal;   // mTokens to follow movement of token pool total
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
@@ -1131,14 +1131,15 @@ block {
                 const accRewardsPerShareIncrement  : nat = (interestRewards * fixedPointAccuracy) / tokenPoolTotal;
                 const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
 
-                newTokenPoolTotal := newTokenPoolTotal + interestRewards;
-                newTotalRemaining := newTotalRemaining + interestRewards;
+                newTokenPoolTotal  := newTokenPoolTotal + interestRewards;
+                newTotalRemaining  := newTotalRemaining + interestRewards;
 
                 // ------------------------------------------------------------------
                 // Update Storage
                 // ------------------------------------------------------------------
 
                 // Update token storage
+                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
@@ -1455,6 +1456,7 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Update loan token storage
+                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
@@ -1671,14 +1673,15 @@ block {
                 const accRewardsPerShareIncrement  : nat = (interestRewards * fixedPointAccuracy) / tokenPoolTotal;
                 const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
 
-                newTokenPoolTotal := newTokenPoolTotal + interestRewards;
-                newTotalRemaining := newTotalRemaining + interestRewards;
+                newTokenPoolTotal  := newTokenPoolTotal + interestRewards;
+                newTotalRemaining  := newTotalRemaining + interestRewards;
                 
                 // ------------------------------------------------------------------
                 // Update Storage
                 // ------------------------------------------------------------------
 
                 // Update token storage
+                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;

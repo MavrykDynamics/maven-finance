@@ -66,6 +66,7 @@ async def on_lending_controller_mock_time_register_withdrawal(
             loan_token_storage                      = register_withdrawal.storage.loanTokenLedger[loan_token_name]
             loan_token.token_pool_total             = float(loan_token_storage.tokenPoolTotal)
             loan_token.m_tokens_total               = float(loan_token_storage.mTokensTotal)
+            loan_token.total_borrowed               = float(loan_token_storage.totalBorrowed)
             loan_token.total_remaining              = float(loan_token_storage.totalRemaining)
             loan_token.last_updated_block_level     = int(loan_token_storage.lastUpdatedBlockLevel)
             loan_token.borrow_index                 = float(loan_token_storage.borrowIndex)

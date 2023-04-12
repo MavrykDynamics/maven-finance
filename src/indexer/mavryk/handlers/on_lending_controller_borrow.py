@@ -34,6 +34,7 @@ async def on_lending_controller_borrow(
     loan_token_token_pool_total             = float(loan_token_storage.tokenPoolTotal)
     loan_token_m_tokens_total               = float(loan_token_storage.mTokensTotal)
     loan_token_total_remaining              = float(loan_token_storage.totalRemaining)
+    loan_token_total_borrowed               = float(loan_token_storage.totalBorrowed)
     loan_token_last_updated_block_level     = int(loan_token_storage.lastUpdatedBlockLevel)
     loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
     loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
@@ -42,6 +43,7 @@ async def on_lending_controller_borrow(
     # Update loan token
     loan_token.token_pool_total             = loan_token_token_pool_total
     loan_token.m_tokens_total               = loan_token_m_tokens_total
+    loan_token.total_borrowed               = loan_token_total_borrowed
     loan_token.total_remaining              = loan_token_total_remaining
     loan_token.last_updated_block_level     = loan_token_last_updated_block_level
     loan_token.borrow_index                 = loan_token_borrow_index

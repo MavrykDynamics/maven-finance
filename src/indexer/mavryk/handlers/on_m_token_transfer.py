@@ -16,6 +16,7 @@ async def on_m_token_transfer(
     user_ledger                 = transfer.storage.ledger
     reward_index_ledger         = transfer.storage.rewardIndexLedger
     token_reward_index          = float(transfer.storage.tokenRewardIndex)
+    total_supply                = float(transfer.storage.totalSupply)
     timestamp                   = transfer.data.timestamp
     level                       = int(transfer.data.level)
     operation_hash              = transfer.data.hash
@@ -23,6 +24,7 @@ async def on_m_token_transfer(
     # Get MVK Token
     m_token                     = await models.MToken.get(address=m_token_address)
     m_token.token_reward_index  = token_reward_index
+    m_token.total_supply        = total_supply
     await m_token.save()
 
     for entry in transaction_batch:

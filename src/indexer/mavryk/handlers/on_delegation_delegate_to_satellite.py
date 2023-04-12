@@ -3,6 +3,7 @@ from dipdup.models import Transaction
 from dipdup.context import HandlerContext
 from mavryk.types.delegation.parameter.delegate_to_satellite import DelegateToSatelliteParameter
 from mavryk.types.delegation.storage import DelegationStorage
+from dateutil import parser
 import mavryk.models as models
 
 async def on_delegation_delegate_to_satellite(
@@ -15,6 +16,7 @@ async def on_delegation_delegate_to_satellite(
     satellite_address       = delegate_to_satellite.parameter.satelliteAddress
     user_address            = delegate_to_satellite.parameter.userAddress
     rewards_record          = delegate_to_satellite.storage.satelliteRewardsLedger[user_address]
+    delegate_storage        = delegate_to_satellite.storage.delegateLedger[user_address]
 
     # Create and/or update record
     user                                                                = await models.mavryk_user_cache.get(address=user_address)
@@ -44,6 +46,7 @@ async def on_delegation_delegate_to_satellite(
         delegation  = delegation,
         satellite   = satellite_record
     )
+    delegation_record.satellite_registration_timestamp                  = parser.parse(delegate_storage.satelliteRegisteredDateTime)
     await user.save()
     await satellite.save()
     await satellite_record.save()

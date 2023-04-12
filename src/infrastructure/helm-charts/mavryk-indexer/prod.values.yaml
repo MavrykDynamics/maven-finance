@@ -5,7 +5,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -77,7 +77,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -176,7 +176,7 @@ instances:
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -269,13 +269,13 @@ instances:
         host:
         secretName:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
-  prod-demo:
+  staging:
     dipdup:
       initialWipe: false
       image:
         registry: docker.io
         repository: mavrykdynamics/mavryk-indexer
-        tag: v0.31.3
+        tag: v0.35.0
         pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
@@ -286,61 +286,61 @@ instances:
           enabled: true
           env:
             - name: POSTGRES_DB
-              value: dipdup-demo
+              value: dipdup-staging
             - name: PGHOST
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_HOST_PROD_DEMO
+                  key: POSTGRES_HOST_STAGING
             - name: PGPORT
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PORT_PROD_DEMO
+                  key: POSTGRES_PORT_STAGING
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_USERNAME_PROD_DEMO
+                  key: POSTGRES_USERNAME_STAGING
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PASSWORD_PROD_DEMO
+                  key: POSTGRES_PASSWORD_STAGING
             - name: BACKUP_RETENTION_IN_DAYS
               value: '7'
             - name: BACKUP_FOLDER
               value: '/usr/indexer-backup'
       env:
         - name: POSTGRES_DB
-          value: dipdup-demo
+          value: dipdup-staging
         - name: POSTGRES_HOST
           valueFrom:
             secretKeyRef:
               name: indexer
-              key: POSTGRES_HOST_PROD_DEMO
+              key: POSTGRES_HOST_STAGING
         - name: POSTGRES_PORT
           valueFrom:
             secretKeyRef:
               name: indexer
-              key: POSTGRES_PORT_PROD_DEMO
+              key: POSTGRES_PORT_STAGING
         - name: POSTGRES_USERNAME
           valueFrom:
             secretKeyRef:
               name: indexer
-              key: POSTGRES_USERNAME_PROD_DEMO
+              key: POSTGRES_USERNAME_STAGING
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: indexer
-              key: POSTGRES_PASSWORD_PROD_DEMO
+              key: POSTGRES_PASSWORD_STAGING
         - name: ADMIN_SECRET
           valueFrom:
             secretKeyRef:
               name: indexer
               key: HASURA_GRAPHQL_ADMIN_SECRET
         - name: HASURA_URL
-          value: http://hasura-prod-demo.mavryk-indexer.svc.cluster.local:8080
+          value: http://hasura-staging.mavryk-indexer.svc.cluster.local:8080
         - name: TZKT_GHOSTNET_URL
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
@@ -363,11 +363,11 @@ instances:
           cpu: 1500m
       ingress:
         service:
-          name: hasura-prod-demo
+          name: hasura-staging
         enabled: true
-        host: api-demo.mavryk.finance
-        secretName: api-demo-mavryk-tls
-      databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_DEMO
+        host: api-staging.mavryk.finance
+        secretName: api-staging-mavryk-tls
+      databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
 
 # pgadmin4 module values
 pgadmin4:

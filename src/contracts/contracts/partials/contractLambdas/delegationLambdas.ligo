@@ -349,7 +349,7 @@ block {
                     var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
                     
                     // Create and save new delegate record for user
-                    s.delegateLedger[userAddress] := createDelegateRecord(satelliteAddress, stakedMvkBalance);
+                    s.delegateLedger[userAddress] := createDelegateRecord(satelliteAddress, satelliteRecord.registeredDateTime, stakedMvkBalance);
 
                     // Get satellite's rewards record
                     var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
@@ -424,9 +424,9 @@ block {
                 // Get satellite record
                 var satelliteRecord : satelliteRecordType := getOrDefaultSatelliteRecord(satelliteAddress, s);
 
-                // Check if satellite exists and is not inactive (if satellite does not exist, it will return "INACTIVE" from the empty satellite record above)
+                // Check if satellite exists, wasn't recreated recently and is not inactive (if satellite does not exist, it will return "INACTIVE" from the empty satellite record above)
                 // - if satellite is suspended or banned, users should be able to undelegate from satellite 
-                if satelliteRecord.status =/= "INACTIVE" then block {
+                if satelliteRecord.status =/= "INACTIVE" and satelliteRecord.registeredDateTime = delegateRecord.satelliteRegisteredDateTime then block {
                 
                     // Verify that user's staked MVK balance does not exceed satellite's total delegated amount
                     verifyLessThanOrEqual(stakedMvkBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
@@ -814,9 +814,18 @@ block {
                         const satelliteAddress : address = delegatorRecord.satelliteAddress;
 
                         // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
-                        const userHasActiveSatellite: bool = Big_map.mem(satelliteAddress, s.satelliteLedger);
+                        // RegeristeredDateTime is checked in the case the satellite unregistered then registered again before the delegate could undelegate.
+                        const userNeedsToUndelegate : bool  = case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
+                                Some (_satelliteRecord) -> if _satelliteRecord.registeredDateTime = delegatorRecord.satelliteRegisteredDateTime then False else True
+                            |   None                    -> True
+                        ];
 
-                        if userHasActiveSatellite then block {
+                        if userNeedsToUndelegate then 
+
+                            // Force User to undelegate if he does not have an active satellite anymore or if its satellite unregistered and registered
+                            operations := undelegateFromSatelliteOperation(userAddress) # operations
+                        
+                        else block {
 
                             // Get user's staked MVK balance from the Doorman Contract
                             const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
@@ -844,10 +853,7 @@ block {
                             s.delegateLedger[userAddress]        := delegatorRecord;
                             s.satelliteLedger[satelliteAddress]  := userSatellite;
                         
-                        } 
-
-                        // Force User to undelegate if he does not have an active satellite anymore
-                        else operations := undelegateFromSatelliteOperation(userAddress) # operations;
+                        }
                     
                     } 
                     

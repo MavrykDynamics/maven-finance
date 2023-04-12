@@ -1285,4 +1285,30 @@ error_NOT_STAKED_TOKEN                                                          
 error_UPDATE_OPERATORS_ENTRYPOINT_IN_STAKING_TOKEN_CONTRACT_NOT_FOUND                                   = 907
 error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED                                                  = 908
 
-error_GET_BALANCE_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                    = 909
+
+
+
+
+
+
+
+error_SET_ADMIN_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                = 909
+error_SET_GOVERNANCE_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                           = 910
+error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                               = 911
+error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                        = 912
+error_TRANSFER_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                 = 913
+error_BALANCE_OF_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                               = 914
+error_UPDATE_OPERATORS_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                         = 915
+error_ASSERT_METADATA_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                          = 916
+error_MINT_OR_BURN_ENTRYPOINT_IN_M_TOKEN_CONTRACT_NOT_FOUND                                             = 917
+
+
+
+error_GET_ADMIN_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                      = 918
+error_GET_WHITELIST_CONTRACTS_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                        = 919
+error_GET_OPERATOR_OPT_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                               = 920
+error_GET_BALANCE_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                    = 921
+error_GET_REWARD_INDEX_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                               = 922
+error_ALL_TOKENS_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                     = 923
+error_IS_OPERATOR_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                    = 924
+error_TOKEN_METADATA_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                 = 925

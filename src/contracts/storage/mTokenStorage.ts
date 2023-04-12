@@ -64,6 +64,7 @@ export const mTokenStorage: mTokenStorageType = {
     whitelistContracts  :  MichelsonMap.fromLiteral({}),
 
     token_metadata      : token_metadata,
+    totalSupply         : new BigNumber(0),
     ledger              : ledger,
     operators           :  MichelsonMap.fromLiteral({})
 

@@ -13,13 +13,74 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
-## Next
+## 0.37
+
+### What's new
+
+- MToken
+
+  - Column TotalSupply added
+
+- Satellite
+
+  - Column RegistrationTimestamp added
+
+- DelegationRecord
+
+  - Column SatelliteRegistrationTimestamp added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.36</summary>
+
+## 0.36
+
+### What's new
+
+- TreasuryBalance
+
+  - Table added
+
+</details>
+
+<details><summary>0.35</summary>
+
+## 0.35
 
 ### What's new
 
 - GovernanceProposalVote
 
   - Column VotingRewardClaimed added
+
+- FarmFactory
+
+  - Column CreateFarmMTokenPaused added
+
+- Farm
+
+  - Column LoanTokenName added
+  - Column IsMFarm added
+
+- FarmAccount
+
+  - Column TokenRewardIndex added
+
+- FarmFactoryMFarmLambda
+
+  - Table added
+
+- TreasuryBalance
+
+  - Table added but not filled yet (https://github.com/dipdup-io/dipdup/issues/636)
+
+- Treasury
+
+  - Column Baker added
+
+- Vault
+
+  - Column Baker added
 
 ### Breaking changes
 
@@ -39,7 +100,23 @@
 
   - Table removed
 
-<details><summary>Previous versions</summary>
+- AggregatorFactoryProductLambda
+
+  - Table renamed to AggregatorFactoryAggregatorLambda
+
+- FarmFactoryProductLambda
+
+  - Table renamed to FarmFactoryFarmLambda
+
+- TreasuryFactoryProductLambda
+
+  - Table renamed to TreasuryFactoryTreasuryLambda
+
+- VaultFactoryProductLambda
+
+  - Table renamed to VaultFactoryVaultLambda
+
+</details>
 
 <details><summary>0.34</summary>
 
