@@ -1,5 +1,5 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-import { alice, bob, eve, mallory, oscar } from "../../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory, oscar, ivan, trudy } from "../../scripts/sandbox/accounts";
 export const mvkTokenDecimals = 9
 
 // ------------------------------------------------------------------------------
@@ -320,9 +320,19 @@ export const mockSatelliteData = {
         desc            : "Ivan Petrovich Pavlov, was a Russian and Soviet experimental neurologist, psychologist and physiologist known for his discovery of classical conditioning through his experiments with dogs.",
         image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
-        satelliteFee    : 700,
-        oraclePublicKey : oscar.pk,
-        oraclePeerId    : oscar.peerId
+        satelliteFee    : 600,
+        oraclePublicKey : ivan.pk,
+        oraclePeerId    : ivan.peerId
+    },
+
+    "trudy" : {
+        name            : "Trudy",
+        desc            : "Lorem ipsum about trudy.",
+        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        website         : "https://intl.startrek.com/",
+        satelliteFee    : 500,
+        oraclePublicKey : trudy.pk,
+        oraclePeerId    : trudy.peerId
     }
     
     
