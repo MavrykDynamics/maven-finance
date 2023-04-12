@@ -191,8 +191,6 @@ describe('Linked contracts updates for Tests', async () => {
             await delegationContractsBatchOperation.confirmation();
             console.log('Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]')
         
-        
-        
             // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
             const governanceContractsBatch = await utils.tezos.wallet
             .batch()
@@ -216,10 +214,7 @@ describe('Linked contracts updates for Tests', async () => {
             .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite'   , contractDeployments.governanceSatellite.address,  'update'))
             .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , contractDeployments.governanceFinancial.address,  'update'))
             .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , contractDeployments.vaultFactory.address,         'update'))
-            .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , contractDeployments.lendingController.address,    'update'))
-
-            // uncomment if lending controller mock time contract is used
-            // .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , contractDeployments.lendingControllerMockTime.address))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , process.env.MOCK_TIME === "true" ? contractDeployments.lendingControllerMockTime.address : contractDeployments.lendingController.address,    'update'))
         
             // whitelist contracts
             .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory'        , contractDeployments.vaultFactory.address,         'update'))

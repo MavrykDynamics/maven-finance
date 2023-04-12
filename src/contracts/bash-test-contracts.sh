@@ -39,7 +39,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         delegationTest)
             echo "Running tests for delegation"
-            COMMANDS+=("yarn ts-mocha --paths test/03_test_doorman.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/04_test_doorman.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/05_test_delegation.spec.ts --bail --timeout 9000000")
             # COMMANDS+=("yarn ts-mocha --paths test/34_test_delegation.spec.ts --bail --timeout 9000000")
             ;;
@@ -53,7 +53,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         doorman)
             echo "Running tests for doorman"
-            COMMANDS+=("yarn ts-mocha --paths test/03_test_doorman.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/04_test_doorman.spec.ts --bail --timeout 9000000")
             ;;
         delegation)
             echo "Running tests for delegation"
@@ -172,6 +172,10 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Running tests for vault"
             COMMANDS+=("yarn ts-mocha --paths test/32_test_vault.spec.ts --bail --timeout 9000000")
             ;;
+        mvkFaucet)
+            echo "Running tests for mvkFaucet"
+            COMMANDS+=("yarn ts-mocha --paths test/35_test_mvk_faucet.spec.ts --bail --timeout 9000000")
+            ;;
         all)
             echo "Running all tests"
             COMMANDS+=("yarn ts-mocha --paths test/01_test_mvk_token.spec.ts --bail --timeout 9000000")
@@ -209,6 +213,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/32_test_vault.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/34_test_delegation.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/33_test_governance.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/35_test_mvk_faucet.spec.ts --bail --timeout 9000000")
             ;;
         *)
             echo "Unknown contract test: $contract_test"
