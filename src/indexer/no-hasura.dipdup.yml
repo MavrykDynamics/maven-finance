@@ -38,82 +38,85 @@ contracts:
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1RVBWXyjmJHx2BnfQSJYehaRsSw9iCqbgP
+    address: KT1LHCdywMqHbaNdC2tRYxDKZAVxBXb6ra7o
     typename: mvk_token
   governance_proxy:
-    address: KT1RGVkwD1dbP9SWAcTkz6mEUgNeKpnACGa9
+    address: KT1RWSqVG2u1v9NAuQp2SkQAztqcTxKY6oaj
     typename: governance_proxy
   governance:
-    address: KT1EWECHjoQtDfJXQpXxdHTCk73t3TJbSPNc
+    address: KT1BErAZLnh6re3DHzGD9kUdQ3N8twyvZZen
     typename: governance
   doorman:
-    address: KT1WPAN5DGY7rad4yFdCHiR4fgHbEVj5MNnW
+    address: KT1WXZ5JR7F1XdP8EBJLxDNHSP42sSVV1R7z
     typename: doorman
   farm:
-    code_hash: KT1DJTkWUVXxFZ2WwzLkAECjmayFbxQ2XfNJ
+    code_hash: KT1M1qUzPvXb1tGubKoBLchHTCrqDjUErPEa
     typename: farm
+  farm_m_token:
+    code_hash: KT1CbSZm1N9X36TRMR9BHxnrDucLLp7xfu5F
+    typename: m_farm
   farm_factory:
-    address: KT1GBgJuGBLNPhCG98BNYWg8DBubsRmtt49q
+    address: KT1EHeJ3c6A4Wdfc9H6qw7fKSbrzNZRnkqMA
     typename: farm_factory
   delegation:
-    address: KT19j3zuWoeojzMCTSWekcHhFkt165TJFA5C
+    address: KT18y7R9o77ZuqqGt4EgCaWqpybvEmnZ5Z9b
     typename: delegation
   vesting:
-    address: KT1JktR2nFDy4dfKYuTHpD5Vt3mwR2vjS4kS
+    address: KT1PDtji7a1bvYzwNnqb4NTPBKSWihfB2bJv
     typename: vesting
   emergency_governance:
-    address: KT1PzWoVz9SH6mPmDiwKmVSAjvWnERLKrLk2
+    address: KT1VrtZNT8N3uZ4xudX4AivSsuXQRdibX3q9
     typename: emergency_governance
   council:
-    address: KT1XETWJYL1Brch36BE1Mde3mhyTqRMwoiRv
+    address: KT1VeDMg8nvFZMpzrY2dWjb5y95tPrJRyfsz
     typename: council
   break_glass:
-    address: KT19DYQposqeRRnqNkD5dmFhN9r12HkDhYCB
+    address: KT1SwWZDK8P4uQDKM7jaBmoYC2S4LyeiVkkv
     typename: break_glass
   governance_financial:
-    address: KT194wrcQ7Kdqu5wP3TVgzcVfwrzbUSTjK5W
+    address: KT1Vz9ZHQRHy3fhsjYumVrvk2yu3h4SXW2sB
     typename: governance_financial
   governance_satellite:
-    address: KT1RNzcmFoUNFsFqMQEreH2M6TzkXEskiYWs
+    address: KT1NfosMhYbjqQv8GEvfdFrianyPcJzfNRzw
     typename: governance_satellite
   aggregator:
-    code_hash: KT1PznLhJtSf7cMwyxZp3hxqgFHp1DsvzuRT
+    code_hash: KT1R1pWYLxxxkXQSKr84pF9zoiv3kLMyHRsH
     typename: aggregator
   aggregator_factory:
-    address: KT1P125ZfzcAszVMJsKU5dMeZ37u6P3fJckc
+    address: KT1FVbDB7kmXvnnKHMwEBzUmJtpkFdTEkM7D
     typename: aggregator_factory
   treasury:
-    code_hash: KT1UG4sSRumccMr9jEx7yXSaNxVNMni3xKhK
+    code_hash: KT19cXdm3wC58n5frXyhD2xRkp29nWHgc2Qw
     typename: treasury
   treasury_factory:
-    address: KT1KB776xV4x6axSw3MNeraMkPfsyejYwmwT
+    address: KT1NgLnehkCcLzSZFV2bCh5PnWt34MHSfjsg
     typename: treasury_factory
   token_sale:
-    address: KT1XERTaUN1FJeuBFaSS3JQe8vr661Qh85gQ
+    address: KT1QJCfJJ3Da2DPA3LbeiThuNYJX22FWN76X
     typename: token_sale
   lending_controller:
-    address: KT1THEpP9RmC9cDpCJW7MAebCgHYKmMeDrAu
+    address: KT1PPDYh4Meo3iCqH7E7Gadm3TuV4oxeEGKc
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1LQP794tXj4UWGXZ8CdV3AcBzCT14BTV9T
+    address: KT1QSCcHewb3eaY1vCxUhZjyZX7GDBevHAp9
     typename: lending_controller_mock_time
   m_token_xtz:
-    address: KT1HL4p2tgkJaQS4LW1GkVZzJVSsgaVDPhUR
+    address: KT1XYiqkAE2BtSeujKsiHBuRAAt3kmeuK4pP
     typename: m_token
   m_token_eurl:
-    address: KT1D1iCFsUUGoXPgbff2vd6Xo2t2bpnRYWkR
+    address: KT1VHDwV1QQwYY86y76ryynV5vNgnMZJZbCG
     typename: m_token
   m_token_tzbtc:
-    address: KT1A8wkMbnZ7EEitY1t6xHRa38HxNnnCotfn
+    address: KT1ESXv5jG4TvWTpLm9pb5MnDozZZ3R9s46x
     typename: m_token
   m_token_usdt:
-    address: KT19mMi3UM8KJVGt9gwCXiTQDAiScZdhVsH5
+    address: KT1L3sCp3BfL6yDq13XJPMkWgkJhwHMa58Dv
     typename: m_token
   vault:
-    code_hash: KT1PPP3SrtxAWfL2FHT3e1cR4ANfL7EVKeP5
+    code_hash: KT1QipLqf4HY9t8MpvMsdQ9wSGcYZzTxcmpD
     typename: vault
   vault_factory:
-    address: KT1M6dsNihKFk4B5aWyvo3mQSccaGGwuTyGR
+    address: KT1DWPNzrYCj6bM9WZQig3gq1XuT4i5CahmU
     typename: vault_factory
 
 hooks:
@@ -133,6 +136,20 @@ jobs:
       batch_size: 10000
 
 templates:
+  treasury_token_transfer_sender_template:
+    kind: token_transfer
+    datasource: tzkt_ghostnet
+    handlers:
+    - callback: on_treasury_token_transfer_sender
+      from_: <treasury_contract>
+      first_level: <first_level>
+  treasury_token_transfer_receiver_template:
+    kind: token_transfer
+    datasource: tzkt_ghostnet
+    handlers:
+    - callback: on_treasury_token_transfer_receiver
+      to: <treasury_contract>
+      first_level: <first_level>
   farm_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -193,6 +210,66 @@ templates:
       pattern:
       - destination: <farm_contract>
         entrypoint: claim
+  m_farm_template:
+    kind: operation
+    datasource: tzkt_ghostnet
+    types:
+    - transaction
+    contracts:
+    - <m_farm_contract>
+    handlers:
+    - callback: on_m_farm_set_admin
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setAdmin
+    - callback: on_m_farm_set_governance
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setGovernance
+    - callback: on_m_farm_update_config
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: updateConfig
+    - callback: on_m_farm_update_whitelist_contracts
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: on_m_farm_update_general_contracts
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: updateGeneralContracts
+    - callback: on_m_farm_init_farm
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: initFarm
+    - callback: on_m_farm_close_farm
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: closeFarm
+    - callback: on_m_farm_pause_all
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: pauseAll
+    - callback: on_m_farm_unpause_all
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: unpauseAll
+    - callback: on_m_farm_toggle_pause_entrypoint
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: on_m_farm_deposit
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: deposit
+    - callback: on_m_farm_withdraw
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: withdraw
+    - callback: on_m_farm_claim
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: claim
   treasury_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -209,6 +286,10 @@ templates:
       pattern:
       - destination: <treasury_contract>
         entrypoint: setGovernance
+    - callback: on_treasury_set_baker
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: setBaker
     - callback: on_treasury_update_general_contracts
       pattern:
       - destination: <treasury_contract>
@@ -325,6 +406,10 @@ templates:
       pattern:
       - destination: <vault_contract>
         entrypoint: updateDepositor
+    - callback: on_vault_set_baker
+      pattern:
+      - destination: <vault_contract>
+        entrypoint: setBaker
     - callback: on_vault_update_vault_name
       pattern:
       - destination: <vault_contract>
@@ -736,6 +821,13 @@ indexes:
       - source: farm_factory
         type: origination
         originated_contract: farm
+    - callback: on_farm_factory_create_farm_m_token
+      pattern:
+      - destination: farm_factory
+        entrypoint: createFarmMToken
+      - source: farm_factory
+        type: origination
+        originated_contract: farm_m_token
     - callback: on_farm_factory_track_farm
       pattern:
       - destination: farm_factory
@@ -1404,63 +1496,6 @@ indexes:
       pattern:
       - destination: treasury_factory
         entrypoint: setProductLambda
-  token_sale:
-    kind: operation
-    datasource: tzkt_ghostnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - token_sale
-    handlers:
-    - callback: on_token_sale_origination
-      pattern:
-      - type: origination
-        originated_contract: token_sale
-    - callback: on_token_sale_set_admin
-      pattern:
-      - destination: token_sale
-        entrypoint: setAdmin
-    - callback: on_token_sale_set_governance
-      pattern:
-      - destination: token_sale
-        entrypoint: setGovernance
-    - callback: on_token_sale_update_config
-      pattern:
-      - destination: token_sale
-        entrypoint: updateConfig
-    - callback: on_token_sale_set_whitelist_timestamp
-      pattern:
-      - destination: token_sale
-        entrypoint: setWhitelistTimestamp
-    - callback: on_token_sale_add_to_whitelist
-      pattern:
-      - destination: token_sale
-        entrypoint: addToWhitelist
-    - callback: on_token_sale_remove_from_whitelist
-      pattern:
-      - destination: token_sale
-        entrypoint: removeFromWhitelist
-    - callback: on_token_sale_start_sale
-      pattern:
-      - destination: token_sale
-        entrypoint: startSale
-    - callback: on_token_sale_close_sale
-      pattern:
-      - destination: token_sale
-        entrypoint: closeSale
-    - callback: on_token_sale_pause_sale
-      pattern:
-      - destination: token_sale
-        entrypoint: pauseSale
-    - callback: on_token_sale_buy_tokens
-      pattern:
-      - destination: token_sale
-        entrypoint: buyTokens
-    - callback: on_token_sale_claim_tokens
-      pattern:
-      - destination: token_sale
-        entrypoint: claimTokens
   vault_factory:
     kind: operation
     datasource: tzkt_ghostnet

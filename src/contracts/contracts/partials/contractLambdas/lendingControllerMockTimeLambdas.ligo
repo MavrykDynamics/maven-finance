@@ -1146,6 +1146,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
+                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
@@ -1463,6 +1464,7 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Update loan token storage
+                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
@@ -1697,6 +1699,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
+                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;

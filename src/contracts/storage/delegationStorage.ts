@@ -9,7 +9,7 @@ const config = {
     delegationRatio                     : 1000,
     maxSatellites                       : 100,
     satelliteNameMaxLength              : 400,
-    satelliteDescriptionMaxLength       : 400,
+    satelliteDescriptionMaxLength       : 1000,
     satelliteImageMaxLength             : 400,
     satelliteWebsiteMaxLength           : 400,
 }

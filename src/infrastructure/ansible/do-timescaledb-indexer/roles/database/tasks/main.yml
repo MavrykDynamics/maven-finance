@@ -91,19 +91,19 @@
     name: timescaledb
     db: dipdup-dev
 
-- name: Create the dipdup demo database
+- name: Create the dipdup staging database
   become: true
   become_user: postgres
   community.postgresql.postgresql_db:
-    name: dipdup-demo
+    name: dipdup-staging
     state: present
 
-- name: Add the TimescaleDB extension to the dipdup demo database
+- name: Add the TimescaleDB extension to the dipdup staging database
   become: true
   become_user: postgres
   community.postgresql.postgresql_ext:
     name: timescaledb
-    db: dipdup-demo
+    db: dipdup-staging
 
 - name: Create the dipdup user
   become: true
@@ -131,11 +131,11 @@
     type: database
     role: dipdup
 
-- name: Grant privs to dipdup user on dipdup demo database
+- name: Grant privs to dipdup user on dipdup staging database
   become: true
   become_user: postgres
   community.postgresql.postgresql_privs:
-    db: dipdup-demo
+    db: dipdup-staging
     privs: ALL
     type: database
     role: dipdup

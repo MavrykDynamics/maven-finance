@@ -19,10 +19,17 @@ class TargetEntrypointItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    trackFarm: bool
+    createFarmMToken: bool
 
 
 class TargetEntrypointItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    trackFarm: bool
+
+
+class TargetEntrypointItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -34,6 +41,9 @@ class TogglePauseEntrypointParameter(BaseModel):
         extra = Extra.forbid
 
     targetEntrypoint: Union[
-        TargetEntrypointItem, TargetEntrypointItem1, TargetEntrypointItem2
+        TargetEntrypointItem,
+        TargetEntrypointItem1,
+        TargetEntrypointItem2,
+        TargetEntrypointItem3,
     ]
     empty: Dict[str, Any]

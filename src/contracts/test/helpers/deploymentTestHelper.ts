@@ -36,6 +36,7 @@ import { vaultStorageType }                     from "../../storage/storageTypes
 import { vaultFactoryStorageType }              from "../../storage/storageTypes/vaultFactoryStorageType"
 import { lendingControllerStorageType }         from "../../storage/storageTypes/lendingControllerStorageType"
 import { lendingControllerMockTimeStorageType } from "../../storage/storageTypes/lendingControllerMockTimeStorageType"
+import { mvkFaucetStorageType }                 from "../../storage/storageTypes/mvkFaucetStorageType"
 
 // Token Storage Type
 import { mvkTokenStorageType }                  from "../../storage/storageTypes/mvkTokenStorageType"
@@ -115,6 +116,7 @@ type generalContractStorageType =
     vaultFactoryStorageType |
     lendingControllerStorageType | 
     lendingControllerMockTimeStorageType |
+    mvkFaucetStorageType |
     
     // tokens
     mvkTokenStorageType | 

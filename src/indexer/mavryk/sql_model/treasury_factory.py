@@ -21,11 +21,11 @@ class TreasuryFactoryLambda(ContractLambda, Model):
     class Meta:
         table = 'treasury_factory_lambda'
 
-class TreasuryFactoryProductLambda(ContractLambda, Model):
-    contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='product_lambdas')
+class TreasuryFactoryTreasuryLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasury_lambdas')
 
     class Meta:
-        table = 'treasury_factory_product_lambda'
+        table = 'treasury_factory_treasury_lambda'
 
 class TreasuryFactoryGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='general_contracts')

@@ -9,6 +9,7 @@ class Farm(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farms', null=True)
     factory                                 = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
     lp_token_address                        = fields.CharField(max_length=36, default="", index=True)
+    loan_token_name                         = fields.CharField(max_length=36, null=True, index=True)
     token0_address                          = fields.CharField(max_length=36, default="", index=True)
     token1_address                          = fields.CharField(max_length=36, default="", index=True)
     creation_timestamp                      = fields.DatetimeField(null=True, index=True)
@@ -30,6 +31,7 @@ class Farm(MavrykContract, Model):
     unpaid_rewards                          = fields.FloatField(default=0)
     paid_rewards                            = fields.FloatField(default=0)
     min_block_time_snapshot                 = fields.SmallIntField(default=0)
+    is_m_farm                               = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'farm'
@@ -60,6 +62,7 @@ class FarmAccount(Model):
     participation_rewards_per_share         = fields.FloatField(default=0)
     unclaimed_rewards                       = fields.FloatField(default=0)
     claimed_rewards                         = fields.FloatField(default=0)
+    token_reward_index                      = fields.FloatField(null=True)
 
     class Meta:
         table = 'farm_account'
