@@ -341,24 +341,6 @@ block {
 
 
 
-(* total_supply View *)
-[@view] function get_raw_total_supply(const _tokenId : nat; const s : mTokenStorageType) : tokenBalanceType is
-    s.totalSupply
-
-
-
-(* total_supply View *)
-[@view] function get_raw_token_reward_index(const _tokenId : nat; const s : mTokenStorageType) : nat is
-    s.tokenRewardIndex
-
-
-
-(* total_supply View *)
-[@view] function get_raw_supply_and_reward_index(const _tokenId : nat; const s : mTokenStorageType) : (tokenBalanceType * nat) is
-    (s.totalSupply, s.tokenRewardIndex)
-
-
-
 (* all_tokens View *)
 [@view] function all_tokens(const _ : unit; const _s : mTokenStorageType) : list(nat) is
     list[0n]
