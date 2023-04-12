@@ -38,6 +38,7 @@ class DelegateLedger(BaseModel):
         extra = Extra.forbid
 
     satelliteAddress: str
+    satelliteRegisteredDateTime: str
     delegatedDateTime: str
     delegatedStakedMvkBalance: str
 

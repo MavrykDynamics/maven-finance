@@ -18,7 +18,7 @@
 // mToken Types
 #include "../partials/contractTypes/mTokenTypes.ligo"
 
-// Vault Types 
+// Vault Types  
 #include "../partials/contractTypes/vaultTypes.ligo"
 
 // Lending Controller Types
@@ -324,6 +324,24 @@ block {
 
 
 
+(* total_supply View *)
+[@view] function get_raw_total_supply(const _tokenId : nat; const s : mTokenStorageType) : tokenBalanceType is
+    s.totalSupply
+
+
+
+(* total_supply View *)
+[@view] function get_raw_token_reward_index(const _tokenId : nat; const s : mTokenStorageType) : nat is
+    s.tokenRewardIndex
+
+
+
+(* total_supply View *)
+[@view] function get_raw_supply_and_reward_index(const _tokenId : nat; const s : mTokenStorageType) : (tokenBalanceType * nat) is
+    (s.totalSupply, s.tokenRewardIndex)
+
+
+
 (* all_tokens View *)
 [@view] function all_tokens(const _ : unit; const _s : mTokenStorageType) : list(nat) is
     list[0n]
@@ -465,9 +483,11 @@ block{
             function transferTokens(var accumulator : mTokenStorageType; const destination : transferDestination) : mTokenStorageType is
             block {
 
+                // init variables
                 const tokenId       : tokenIdType       = destination.token_id;
                 const tokenAmount   : tokenBalanceType  = destination.amount;
                 const receiver      : ownerType         = destination.to_;
+                var newTotalSupply  : nat               := s.totalSupply;
 
                 // get token balance for owner and receiver
                 var ownerTokenBalance      : tokenBalanceType := getRawBalance(owner, s);
@@ -483,7 +503,8 @@ block{
                     
                     // increment token balance with calculated additional rewards 
                     const ownerAdditionalRewards : nat = calculateAdditionalRewards(ownerRewardIndex, tokenRewardIndex, ownerTokenBalance);
-                    ownerTokenBalance := ownerTokenBalance + ownerAdditionalRewards;
+                    ownerTokenBalance   := ownerTokenBalance + ownerAdditionalRewards;
+                    newTotalSupply      := newTotalSupply + ownerAdditionalRewards;
 
                 }; 
 
@@ -493,6 +514,7 @@ block{
                     // increment token balance with calculated additional rewards 
                     const receiverAdditionalRewards : nat = calculateAdditionalRewards(receiverRewardIndex, tokenRewardIndex, receiverTokenBalance);
                     receiverTokenBalance := receiverTokenBalance + receiverAdditionalRewards;
+                    newTotalSupply := newTotalSupply + receiverAdditionalRewards;
 
                 }; 
 
@@ -519,7 +541,8 @@ block{
                 accumulator := updateUserBalanceAndRewardIndex(owner, ownerNewBalance, tokenRewardIndex, accumulator);
                 accumulator := updateUserBalanceAndRewardIndex(receiver, receiverNewBalance, tokenRewardIndex, accumulator);
 
-                accumulator.tokenRewardIndex            := tokenRewardIndex;
+                accumulator.tokenRewardIndex    := tokenRewardIndex;
+                accumulator.totalSupply         := newTotalSupply;
 
             } with accumulator;
 
@@ -597,6 +620,8 @@ block{
 // FA2 Entrypoints End
 // ------------------------------------------------------------------------------
 
+
+
 // ------------------------------------------------------------------------------
 // Additional Entrypoints Begin 
 // ------------------------------------------------------------------------------
@@ -612,6 +637,8 @@ block {
     const targetAddress   : address         = mintOrBurnParams.target;
     const tokenId         : tokenIdType     = mintOrBurnParams.tokenId;
     const tokenAmount     : nat             = abs(quantity);
+
+    var newTotalSupply    : nat := s.totalSupply;
 
     // get loan token record from Lending Controller through on-chain views
     const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
@@ -630,7 +657,8 @@ block {
 
         // increment token balance with calculated additional rewards 
         const additionalRewards : nat = calculateAdditionalRewards(userRewardIndex, tokenRewardIndex, userTokenBalance);
-        userTokenBalance := userTokenBalance + additionalRewards;
+        userTokenBalance  := userTokenBalance + additionalRewards;
+        newTotalSupply    := newTotalSupply + additionalRewards;
 
     };
 
@@ -645,6 +673,10 @@ block {
 
         // get new balance and update storage
         const targetNewBalance  : tokenBalanceType  = abs(userTokenBalance - tokenAmount);
+
+        if newTotalSupply < tokenAmount then failwith("FA2_INSUFFICIENT_BALANCE") else skip;
+        newTotalSupply := abs(newTotalSupply - tokenAmount);
+        
         s := updateUserBalanceAndRewardIndex(targetAddress, targetNewBalance, tokenRewardIndex, s);
 
     } else block {
@@ -652,12 +684,15 @@ block {
 
         // get new balance and update storage
         const targetNewBalance  : tokenBalanceType = userTokenBalance + tokenAmount;
+        newTotalSupply := newTotalSupply + tokenAmount;
+
         s := updateUserBalanceAndRewardIndex(targetAddress, targetNewBalance, tokenRewardIndex, s);
 
     };
 
     // update token reward index
-    s.tokenRewardIndex := tokenRewardIndex;
+    s.tokenRewardIndex  := tokenRewardIndex;
+    s.totalSupply       := newTotalSupply;
 
 } with (noOperations, s)
 
