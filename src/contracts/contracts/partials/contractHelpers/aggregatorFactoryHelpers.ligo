@@ -74,6 +74,7 @@ block {
     const updateGeneralMapRecord : updateGeneralContractsType = record [
         generalContractName    = contractName;
         generalContractAddress = contractAddress;
+        updateType             = Update(unit);
     ];
 
     // Create and send updateGeneralContractsMap operation to the Governance Contract
