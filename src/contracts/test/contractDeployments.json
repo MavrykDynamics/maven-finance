@@ -1,12 +1,12 @@
 {
     "mvkToken": {
-        "address": "KT1Kq9Z82ZYe6rVr6RS1Ejpvpmvq3gWsrDkx"
+        "address": "KT1Gt5imXpHQeGVEr8Ab9YUHU1NSn7x7Dh22"
     },
     "governance": {
         "address": "KT1JYn2VJuBYZZ4fE4jVBfJwEQqtsQWQPxSc"
     },
     "doorman": {
-        "address": "KT1QGxFwQG31cQBz8Hw3pdcEUbRvnbkstmuS"
+        "address": "KT1PZKpPysW23GCTDQYbu3FGnSdh6jvon5sJ"
     },
     "delegation": {
         "address": "KT1VskNyJ9tc6MJT3NjfovR3whKLVgJbAHu3"
@@ -15,13 +15,13 @@
         "address": "KT1D5RP2WG9DMC5K7jEnvx6XQit6de43goZL"
     },
     "vesting": {
-        "address": "KT1EF7kGv5wjRd5GQVNExSHrwB6so19BRAZm"
+        "address": "KT1NDTXuuSVf19BwqLRbUSu2XfauwxiqEx9k"
     },
     "mavrykFa12Token": {
-        "address": "KT1LrdAWjEzUrkWcEY7fWjbc3hvabh6MgLRY"
+        "address": "KT1BvwFDtaZUf5YkatzWcTazdJuR6E7CdgJj"
     },
     "mavrykFa2Token": {
-        "address": "KT1R1pftgXCPZN1FvWMh4HRuZhskAYQm4FSH"
+        "address": "KT1PteSiPyC5CzyETpFVKhJxW6bC5K7dZfYq"
     },
     "farm": {
         "address": "KT1UmYue63RtSpUXLLSkjzRT2RhfGnDa4bCS"
@@ -42,7 +42,7 @@
         "address": "KT1QAZGDbrdCeHBzvnvgXe4MLaE1icDXRDHy"
     },
     "treasury": {
-        "address": "KT1Sj9T1Svzq7praKAVEDz9KJWwo6zGR6mrb"
+        "address": "KT1BRNk2t7hqqKpvLAFuRm3pPH8cvWo8JcJD"
     },
     "treasuryFactory": {
         "address": "KT1K7h27XFNLPrgjax7tVYGQMd7Mq67jhA51"
