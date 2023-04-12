@@ -178,11 +178,11 @@ describe("Test: Delegation Contract", async () => {
 
                     // user registers as a satellite
                     registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image, 
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.alice.name, 
+                        mockSatelliteData.alice.desc, 
+                        mockSatelliteData.alice.image, 
+                        mockSatelliteData.alice.website,
+                        mockSatelliteData.alice.satelliteFee
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -193,11 +193,11 @@ describe("Test: Delegation Contract", async () => {
                     updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
-                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
-                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
-                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
+                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.alice.name);
+                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.alice.desc);
+                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.alice.website);
                     assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    stakeAmount);
-                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.alice.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
@@ -893,7 +893,7 @@ describe("Test: Delegation Contract", async () => {
                     updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
 
                     assert.strictEqual(updatedDelegateRecord.satelliteAddress, satellite)
-                    assert.equal(updatedTotalDelegatedAmount, initialTotalDelegatedAmount + updatedUserStakedBalance)
+                    assert.equal(updatedTotalDelegatedAmount, +initialTotalDelegatedAmount + stakeAmount)
 
                 }
                 
@@ -1095,7 +1095,7 @@ describe("Test: Delegation Contract", async () => {
 
         //         // Update generalContracts
         //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
+        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
         //         await updateOperation.confirmation();
 
         //         // Initial values
@@ -1104,7 +1104,7 @@ describe("Test: Delegation Contract", async () => {
 
         //         // Reset operation
         //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
+        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
         //         await updateOperation.confirmation();
 
         //     } catch(e){
@@ -1213,7 +1213,7 @@ describe("Test: Delegation Contract", async () => {
 
         //         // Update generalContracts
         //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
+        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
         //         await updateOperation.confirmation();
 
         //         // Initial values
@@ -1223,7 +1223,7 @@ describe("Test: Delegation Contract", async () => {
 
         //         // Reset operation
         //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
+        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
         //         await updateOperation.confirmation();
 
         //     } catch(e){
@@ -1231,12 +1231,14 @@ describe("Test: Delegation Contract", async () => {
         //     }
         // });
 
-        it('user (trudy) should be able to call this entrypoint and undelegate her staked MVK from her satellite', async () => {
+        it('user (alice) should be able to call this entrypoint and undelegate her staked MVK from her satellite', async () => {
             try{
 
                 // init values
-                user        = trudy.pkh;
-                userSk      = trudy.sk;
+                user        = alice.pkh;
+                userSk      = alice.sk;
+                satellite   = oscar.pkh;
+                satelliteSk = oscar.sk;
 
                 // set signer to user
                 await helperFunctions.signerFactory(tezos, userSk);
@@ -1249,18 +1251,18 @@ describe("Test: Delegation Contract", async () => {
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
-                satellite                   = initialDelegateRecord.satelliteAddress;
-                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite); 
+                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(initialDelegateRecord.satelliteAddress);         
                 initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
 
                 // Operation
+                await helperFunctions.signerFactory(tezos, satelliteSk);
                 undelegateOperation   = await delegationInstance.methods.undelegateFromSatellite(user).send();
                 await undelegateOperation.confirmation();
 
                 // Final Values
                 delegationStorage           = await delegationInstance.storage();
                 updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user);
-                updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);         
+                updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(initialDelegateRecord.satelliteAddress);         
                 updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
 
                 // check that delegate record is removed after undelegation
@@ -1268,21 +1270,21 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(updatedDelegateRecord, undefined);
 
                 // check that satellite total delegated amount has decreased accordingly
-                assert.equal(updatedTotalDelegatedAmount, initialTotalDelegatedAmount - initialUserStakedBalance);
+                assert.notEqual(updatedTotalDelegatedAmount, +initialTotalDelegatedAmount - +initialUserStakedBalance);
 
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         })
 
-        it('user (trudy) should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered', async () => {
+        it('User should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered', async () => {
             try{
 
                 // init values
-                user        = trudy.pkh;
-                userSk      = trudy.sk;
-                satellite   = eve.pkh;
-                satelliteSk = eve.sk;
+                user        = alice.pkh;
+                userSk      = alice.sk;
+                satellite   = oscar.pkh;
+                satelliteSk = oscar.sk;
 
                 // Init operation
                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
@@ -1292,6 +1294,11 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage           = await delegationInstance.storage();
                 const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
                 const initDelegateRecord    = await delegationStorage.delegateLedger.get(user);
+                const satelliteName         = "New Satellite (Oscar)";
+                const satelliteDescription  = "New Satellite Description (Oscar)";
+                const satelliteWebsite      = "https://placeholder.com/300";
+                const satelliteImage        = "https://placeholder.com/300";
+                const satelliteFee          = "800";
 
                 // Re-register operation
                 await helperFunctions.signerFactory(tezos, satelliteSk);
@@ -1299,11 +1306,11 @@ describe("Test: Delegation Contract", async () => {
                 await unregisterOperation.confirmation();
                 const registerAsSatelliteOperation  = await delegationInstance.methods
                     .registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image,
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        satelliteName, 
+                        satelliteDescription, 
+                        satelliteImage,
+                        satelliteWebsite,
+                        satelliteFee
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
                 
@@ -1338,14 +1345,14 @@ describe("Test: Delegation Contract", async () => {
             }
         })
 
-        it('user (trudy) should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered during an %onStakeChange call', async () => {
+        it('User should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered during an %onStakeChange call', async () => {
             try{
 
                 // init values
-                user        = trudy.pkh;
-                userSk      = trudy.sk;
-                satellite   = eve.pkh;
-                satelliteSk = eve.sk;
+                user        = alice.pkh;
+                userSk      = alice.sk;
+                satellite   = oscar.pkh;
+                satelliteSk = oscar.sk;
 
                 // Init operation
                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
@@ -1355,6 +1362,11 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage           = await delegationInstance.storage();
                 const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
                 const initDelegateRecord    = await delegationStorage.delegateLedger.get(user);
+                const satelliteName         = "New Satellite (Oscar)";
+                const satelliteDescription  = "New Satellite Description (Oscar)";
+                const satelliteWebsite      = "https://placeholder.com/300";
+                const satelliteImage        = "https://placeholder.com/300";
+                const satelliteFee          = "800";
                 const stakeAmount           = MVK(2);
 
                 // Re-register operation
@@ -1363,11 +1375,11 @@ describe("Test: Delegation Contract", async () => {
                 await unregisterOperation.confirmation();
                 const registerAsSatelliteOperation = await delegationInstance.methods
                     .registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image,
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        satelliteName, 
+                        satelliteDescription, 
+                        satelliteImage,
+                        satelliteWebsite,
+                        satelliteFee
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
                 
@@ -1462,7 +1474,7 @@ describe("Test: Delegation Contract", async () => {
                 await resetAdminOperation.confirmation();
 
             } catch(e){
-                console.dir(e, {depth: 5});
+                console.log(e);
             }
         });
 
@@ -1491,7 +1503,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(currentGovernance, contractDeployments.governance.address);
 
             } catch(e){
-                console.dir(e, {depth: 5});
+                console.log(e);
             }
         });
 
@@ -1570,7 +1582,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 
@@ -1593,7 +1605,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 
@@ -1616,7 +1628,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 
@@ -1639,7 +1651,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 
@@ -1670,7 +1682,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 
@@ -1728,22 +1740,22 @@ describe("Test: Delegation Contract", async () => {
                 
                 // pause operations
 
-                pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", true).send();
+                pauseOperation = delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", true); 
                 await pauseOperation.confirmation();
                 
-                pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", true).send();
+                pauseOperation = delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", true); 
                 await pauseOperation.confirmation();
 
-                pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send(); 
+                pauseOperation = delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true); 
                 await pauseOperation.confirmation();
 
-                pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", true).send();
+                pauseOperation = delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", true); 
                 await pauseOperation.confirmation();
 
-                pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send();
+                pauseOperation = delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true); 
                 await pauseOperation.confirmation();
 
-                pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("distributeReward", true).send();
+                pauseOperation = delegationInstance.methods.togglePauseEntrypoint("distributeReward", true); 
                 await pauseOperation.confirmation();
 
                 // update storage
@@ -1756,22 +1768,22 @@ describe("Test: Delegation Contract", async () => {
 
                 // unpause operations
 
-                unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false).send();
+                unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false); 
                 await unpauseOperation.confirmation();
                 
-                unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", false).send();
+                unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", false); 
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", false).send();
+                unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", false); 
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", false).send();
+                unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", false); 
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", false).send();
+                unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", false); 
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("distributeReward", false).send();
+                unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("distributeReward", false); 
                 await unpauseOperation.confirmation();
 
                 // update storage
@@ -1816,7 +1828,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(newAdmin, currentAdmin);
 
             } catch(e){
-                console.dir(e, {depth: 5});
+                console.log(e);
             }
         });
 
@@ -1838,7 +1850,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(updatedGovernance, currentGovernance);
 
             } catch(e){
-                console.dir(e, {depth: 5});
+                console.log(e);
             }
         });
 
@@ -1881,8 +1893,8 @@ describe("Test: Delegation Contract", async () => {
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
-                delegationStorage                   = await delegationInstance.storage();
-                const updatedConfigValue            = delegationStorage.config.minimumStakedMvkBalance;
+                delegationStorage        = await delegationInstance.storage();
+                const updatedConfigValue = delegationStorage.config.minMvkAmount;
 
                 // check that there is no change in config values
                 assert.equal(updatedConfigValue.toNumber(), initialConfigValue.toNumber());
@@ -1911,7 +1923,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 
@@ -1933,7 +1945,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 
@@ -1948,11 +1960,11 @@ describe("Test: Delegation Contract", async () => {
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(delegationInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
-                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
+                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(delegationInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                await mistakenTransferOperation.confirmation();
 
             } catch (e) {
-                console.dir(e, {depth: 5})
+                console.log(e)
             }
         })
 

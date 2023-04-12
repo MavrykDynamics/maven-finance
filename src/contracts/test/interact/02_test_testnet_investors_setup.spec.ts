@@ -79,10 +79,6 @@ describe("Testnet setup helper", async () => {
 
     describe("INVESTOR ENVIRONMENT SETUP", async () => {
 
-        beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk);
-        });
-
         it('Creation of 5 Satellites', async () => {
             try{
                 
