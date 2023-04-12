@@ -504,6 +504,7 @@ block {
 
     const delegateRecord : delegateRecordType = record [
         satelliteAddress              = satelliteAddress;
+        satelliteRegisteredDateTime   = zeroTimestamp;
         delegatedDateTime             = Tezos.get_now();
         delegatedStakedMvkBalance     = stakedMvkBalance;
     ];
