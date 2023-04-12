@@ -39,6 +39,7 @@ describe('Linked contracts updates for Tests', async () => {
             // Retrieve all contracts
             //----------------------------
 
+
             const delegationInstance: any                   = await utils.tezos.contract.at(contractDeployments.delegation.address);
             const mvkTokenInstance: any                     = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
             const governanceInstance: any                   = await utils.tezos.contract.at(contractDeployments.governance.address);
@@ -56,7 +57,7 @@ describe('Linked contracts updates for Tests', async () => {
             const lendingControllerInstance: any            = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             // const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             const vaultFactoryInstance: any                 = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
-            
+
             //----------------------------
             // Set remaining contract addresses - post-deployment
             //----------------------------
@@ -66,7 +67,7 @@ describe('Linked contracts updates for Tests', async () => {
             // Break Glass Contract - set whitelist contract addresses [emergencyGovernance]
             const breakGlassContractOperation = await breakGlassInstance.methods.updateWhitelistContracts("emergencyGovernance", contractDeployments.emergencyGovernance.address, 'update').send();
             await breakGlassContractOperation.confirmation();
-        
+
             console.log('Break Glass Contract - set whitelist contract addresses [emergencyGovernance]')
             
             // Treasury Factory Contract - set whitelist contract addresses [mvkToken]
@@ -91,7 +92,7 @@ describe('Linked contracts updates for Tests', async () => {
             await aggregatorFactoryContractsBatchOperation.confirmation();
         
             console.log('Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]')
-        
+
             // Aggregator Contract - set whitelist contract addresses [aggregatorFactory]
             const aggregatorContractsBatch = await utils.tezos.wallet
             .batch()
@@ -101,7 +102,7 @@ describe('Linked contracts updates for Tests', async () => {
             const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
             await aggregatorContractsBatchOperation.confirmation();
             
-        
+
             // MVK Token Contract - set governance contract address
             // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
         
@@ -152,7 +153,7 @@ describe('Linked contracts updates for Tests', async () => {
                 .send()) as TransactionOperation
         
             await updateOperatorsTreasury.confirmation();
-        
+
             // Farm FA12 Contract - set general contract addresses [doorman]
             // Farm FA12 Contract - set whitelist contract addresses [council] 
             // Farm FA2 Contract - set general contract addresses [doorman]
