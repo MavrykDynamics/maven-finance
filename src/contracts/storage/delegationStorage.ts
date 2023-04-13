@@ -5,7 +5,7 @@ import { MVK } from "../test/helpers/Utils"
 import { delegationStorageType } from "./storageTypes/delegationStorageType"
 
 const config = {
-    minimumStakedMvkBalance             : MVK(2), 
+    minimumStakedMvkBalance             : MVK(1), 
     delegationRatio                     : 1000,
     maxSatellites                       : 100,
     satelliteNameMaxLength              : 400,
