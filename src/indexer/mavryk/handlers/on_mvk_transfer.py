@@ -15,6 +15,7 @@ async def on_mvk_transfer(
     timestamp           = transfer.data.timestamp
     mvk_address         = transfer.data.target_address
     user_ledger         = transfer.storage.ledger
+    mvk_total_supply    = float(transfer.storage.totalSupply)
 
     # Get MVK Token
     mvk_token = await models.MVKToken.get(address=mvk_address)
@@ -67,6 +68,7 @@ async def on_mvk_transfer(
                         timestamp           = timestamp,
                         doorman             = doorman,
                         smvk_total_supply   = smvk_total_supply,
+                        mvk_total_supply    = mvk_total_supply,
                         avg_smvk_by_user    = avg_smvk_per_user
                     )
                     await smvk_history_data.save()

@@ -67,6 +67,7 @@ class SMVKHistoryData(Model):
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_mvk_history_data')
     timestamp                               = fields.DatetimeField(index=True)
     smvk_total_supply                       = fields.FloatField(default=0.0)
+    mvk_total_supply                        = fields.FloatField(default=0.0)
     avg_smvk_by_user                        = fields.FloatField(default=0.0)
 
     class Meta:
