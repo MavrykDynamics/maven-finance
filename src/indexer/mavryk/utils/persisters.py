@@ -349,21 +349,18 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
 
     contract_address        = ""
     contract_name           = ""
+    update                  = hasattr(update_linked_contracts.parameter.updateType, "update")
     tzip                    = ""
-    contract_in_storage     = False
     entrypoint_name         = update_linked_contracts.data.entrypoint
     if entrypoint_name == "updateGeneralContracts":
         contract_address        = update_linked_contracts.parameter.generalContractAddress
         contract_name           = update_linked_contracts.parameter.generalContractName
-        contract_in_storage     = contract_name in update_linked_contracts.storage.generalContracts
     elif entrypoint_name == "updateWhitelistContracts":
         contract_address        = update_linked_contracts.parameter.whitelistContractAddress
         contract_name           = update_linked_contracts.parameter.whitelistContractName
-        contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistContracts
     elif entrypoint_name == "updateWhitelistTokenContracts":
         contract_address        = update_linked_contracts.parameter.tokenContractAddress
         contract_name           = update_linked_contracts.parameter.tokenContractName
-        contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistTokenContracts
         if ctx:
             await persist_token_metadata(
                 ctx=ctx,
@@ -392,7 +389,7 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
     linked_contract.contract_address        = contract_address
     linked_contract.token_contract_standard = tzip
 
-    if contract_in_storage:
+    if update:
         await linked_contract.save()
     else:
         await linked_contract.delete()
