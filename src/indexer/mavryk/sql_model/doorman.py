@@ -14,6 +14,7 @@ class Doorman(MavrykContract, Model):
     stake_paused                            = fields.BooleanField(default=False)
     unstake_paused                          = fields.BooleanField(default=False)
     compound_paused                         = fields.BooleanField(default=False)
+    exit_paused                             = fields.BooleanField(default=False)
     farm_claimed_paused                     = fields.BooleanField(default=False)
     on_vault_deposit_stake_paused           = fields.BooleanField(default=False)
     on_vault_withdraw_stake_paused          = fields.BooleanField(default=False)

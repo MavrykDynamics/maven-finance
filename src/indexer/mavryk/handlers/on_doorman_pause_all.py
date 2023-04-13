@@ -18,6 +18,7 @@ async def on_doorman_pause_all(
     doorman.stake_paused                    = pause_all.storage.breakGlassConfig.stakeIsPaused
     doorman.unstake_paused                  = pause_all.storage.breakGlassConfig.unstakeIsPaused
     doorman.compound_paused                 = pause_all.storage.breakGlassConfig.compoundIsPaused
+    doorman.exit_paused                     = pause_all.storage.breakGlassConfig.exitIsPaused
     doorman.farm_claim_paused               = pause_all.storage.breakGlassConfig.farmClaimIsPaused
     doorman.on_vault_deposit_stake_paused   = pause_all.storage.breakGlassConfig.onVaultDepositStakeIsPaused
     doorman.on_vault_withdraw_stake_paused  = pause_all.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused

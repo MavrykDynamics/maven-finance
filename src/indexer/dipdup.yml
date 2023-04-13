@@ -57,85 +57,82 @@ contracts:
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1LHCdywMqHbaNdC2tRYxDKZAVxBXb6ra7o
+    address: KT1Ljw4fixnofFS8taQnFrxQjss6KinpJKdF
     typename: mvk_token
   governance_proxy:
-    address: KT1RWSqVG2u1v9NAuQp2SkQAztqcTxKY6oaj
+    address: KT1Ui2epZePvH6f3nF4UKXUnyFieWsDh3g9E
     typename: governance_proxy
   governance:
-    address: KT1BErAZLnh6re3DHzGD9kUdQ3N8twyvZZen
+    address: KT1EQZ56RNq5QRiuMxw4kSj5KHxdYVLd6Kfk
     typename: governance
   doorman:
-    address: KT1WXZ5JR7F1XdP8EBJLxDNHSP42sSVV1R7z
+    address: KT1JEema7CHmbiUBukB9nEeYUn5jdsfJsboP
     typename: doorman
   farm:
-    code_hash: KT1M1qUzPvXb1tGubKoBLchHTCrqDjUErPEa
+    code_hash: KT1CAiqJRZ6doXXkpFksYshKjfsqNBZYFYyQ
     typename: farm
   farm_m_token:
-    code_hash: KT1CbSZm1N9X36TRMR9BHxnrDucLLp7xfu5F
+    code_hash: KT1Vf1uGUB3ir5m32Fd1fdzqKjrKDaqtd9Ss
     typename: m_farm
   farm_factory:
-    address: KT1EHeJ3c6A4Wdfc9H6qw7fKSbrzNZRnkqMA
+    address: KT1P4Et51XMg8JTzaed5oEju7FQmqThEPnFv
     typename: farm_factory
   delegation:
-    address: KT18y7R9o77ZuqqGt4EgCaWqpybvEmnZ5Z9b
+    address: KT1Cy1yViJKqYruqJrq48zD5tcndtCL8mXAa
     typename: delegation
   vesting:
-    address: KT1PDtji7a1bvYzwNnqb4NTPBKSWihfB2bJv
+    address: KT1XU19ssKF96ya3Ek9edTqC6jy9RvvWLMgt
     typename: vesting
   emergency_governance:
-    address: KT1VrtZNT8N3uZ4xudX4AivSsuXQRdibX3q9
+    address: KT1X4PTtpoJywzqYPKftqqLB6YFS9Rb6WTSW
     typename: emergency_governance
   council:
-    address: KT1VeDMg8nvFZMpzrY2dWjb5y95tPrJRyfsz
+    address: KT1F8mm35nYV7M87VMKo4Y2JCeMkE8sHPgn5
     typename: council
   break_glass:
-    address: KT1SwWZDK8P4uQDKM7jaBmoYC2S4LyeiVkkv
+    address: KT1TpLbteSR7n4LiGxFrfeYhEnawRFjxbCRa
     typename: break_glass
   governance_financial:
-    address: KT1Vz9ZHQRHy3fhsjYumVrvk2yu3h4SXW2sB
+    address: KT1MHSyxdWw1uf3c2jrG6RWevovyr2ho9kKx
     typename: governance_financial
   governance_satellite:
-    address: KT1NfosMhYbjqQv8GEvfdFrianyPcJzfNRzw
+    address: KT1RRF4EuE1zJd29zUmtnJGkWsD2zG8unzkC
     typename: governance_satellite
   aggregator:
-    code_hash: KT1R1pWYLxxxkXQSKr84pF9zoiv3kLMyHRsH
+    code_hash: KT1RJwo3iT7zN3DDAiqpPitd3x7z7459DtMw
     typename: aggregator
   aggregator_factory:
-    address: KT1FVbDB7kmXvnnKHMwEBzUmJtpkFdTEkM7D
+    address: KT1NTcZAMtRooutPfdjGLVFjU8MWivDx6qEt
     typename: aggregator_factory
   treasury:
-    code_hash: KT19cXdm3wC58n5frXyhD2xRkp29nWHgc2Qw
+    code_hash: KT19kSHmt5wpoyA1n7MFddCqTV2yajdzQy9k
     typename: treasury
   treasury_factory:
-    address: KT1NgLnehkCcLzSZFV2bCh5PnWt34MHSfjsg
+    address: KT1GvbjE4WA86GbvfNHCskzjgQCVgsaYDdzj
     typename: treasury_factory
-  token_sale:
-    address: KT1QJCfJJ3Da2DPA3LbeiThuNYJX22FWN76X
-    typename: token_sale
   lending_controller:
-    address: KT1PPDYh4Meo3iCqH7E7Gadm3TuV4oxeEGKc
+    address: KT1NcHWYAByjwYpuTUdS3iJ9VqrjQYAHJcS8
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1QSCcHewb3eaY1vCxUhZjyZX7GDBevHAp9
+    address: KT1QkXRhLronhzfboRdaSxQq2L9hHR9bkSkX
     typename: lending_controller_mock_time
   m_token_xtz:
-    address: KT1XYiqkAE2BtSeujKsiHBuRAAt3kmeuK4pP
+    address: KT1AQxuF4tiMJDmtg3CaFtceYazwVuKHNdES
     typename: m_token
   m_token_eurl:
-    address: KT1VHDwV1QQwYY86y76ryynV5vNgnMZJZbCG
+    address: KT1PFm68Rztbk74HkbGYz29VUc3JKEuBRqrg
     typename: m_token
   m_token_tzbtc:
-    address: KT1ESXv5jG4TvWTpLm9pb5MnDozZZ3R9s46x
+    address: KT1CaZNUwmuo9iGpXgjwDW4PyLeMd5JFdZXr
     typename: m_token
   m_token_usdt:
-    address: KT1L3sCp3BfL6yDq13XJPMkWgkJhwHMa58Dv
+    address: KT1NhFJuEwFiuskEiqdjjiXftDc9oZiZrqrj
     typename: m_token
   vault:
-    code_hash: KT1QipLqf4HY9t8MpvMsdQ9wSGcYZzTxcmpD
+    code_hash: KT1UZJywbkBVWjaTC3Yerd8nuTuXKp6TL3zx
     typename: vault
   vault_factory:
-    address: KT1DWPNzrYCj6bM9WZQig3gq1XuT4i5CahmU
+    address: KT1EkVuF9V7vNcgMqoCc1GPPMMizmsJhf6LE
     typename: vault_factory
 
 hooks:
@@ -581,6 +578,10 @@ indexes:
       pattern:
       - destination: mvk_token
         entrypoint: mint
+    - callback: on_mvk_burn
+      pattern:
+      - destination: mvk_token
+        entrypoint: burn
     - callback: on_mvk_update_inflation_rate
       pattern:
       - destination: mvk_token
@@ -760,6 +761,13 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: unstake
+      - source: doorman
+        destination: mvk_token
+        entrypoint: transfer
+    - callback: on_doorman_exit
+      pattern:
+      - destination: doorman
+        entrypoint: exit
       - source: doorman
         destination: mvk_token
         entrypoint: transfer
