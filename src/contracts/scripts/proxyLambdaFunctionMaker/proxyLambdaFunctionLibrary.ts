@@ -1,4 +1,4 @@
-import { fa12, fa2, transferItem, addOperator, removeOperator, oracleInformation, createLoanToken, updateLoanToken, createCollateralToken, updateCollateralToken } from './proxyLambdaFunctionInterface'
+import { addOperator, createCollateralToken, createLoanToken, fa12, fa2, oracleInformation, removeOperator, transferItem, updateCollateralToken, updateLoanToken } from './proxyLambdaFunctionInterface'
 
 const proxyContract = (
 
@@ -72,9 +72,6 @@ const proxyContract = (
 
 // Governance Satellite Types
 #include "../../contracts/partials/contractTypes/governanceSatelliteTypes.ligo"
-
-// Token Sale Types
-#include "../../contracts/partials/contractTypes/tokenSaleTypes.ligo"
 
 // Vault Factory Types
 #include "../../contracts/partials/contractTypes/vaultFactoryTypes.ligo"
@@ -246,7 +243,8 @@ const updateWhitelistContracts  = (
 
     targetContract: string,
     whitelistContractName: string,
-    whitelistContractAddress: string
+    whitelistContractAddress: string,
+    updateType: "Update" | "Remove"
 
 ) => {
     return `function lambdaFunction (const _ : unit) : list(operation) is
@@ -255,6 +253,7 @@ block {
         record [
             whitelistContractName     = "${whitelistContractName}";
             whitelistContractAddress  = ("${whitelistContractAddress}" : address);
+            updateType                = (${updateType} : updateType);
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
@@ -271,7 +270,8 @@ const updateGeneralContracts  = (
 
     targetContract: string,
     generalContractName: string,
-    generalContractAddress: string
+    generalContractAddress: string,
+    updateType: "Update" | "Remove"
 
 ) => {
     return `function lambdaFunction (const _ : unit) : list(operation) is
@@ -280,6 +280,7 @@ block {
         record [
             generalContractName     = "${generalContractName}";
             generalContractAddress  = ("${generalContractAddress}" : address);
+            updateType              = (${updateType} : updateType);
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
@@ -296,7 +297,8 @@ const updateWhitelistTokenContracts  = (
 
     targetContract: string,
     tokenContractName: string,
-    tokenContractAddress: string
+    tokenContractAddress: string,
+    updateType: "Update" | "Remove"
 
 ) => {
     return `function lambdaFunction (const _ : unit) : list(operation) is
@@ -305,6 +307,7 @@ block {
         record [
             tokenContractName     = "${tokenContractName}";
             tokenContractAddress  = ("${tokenContractAddress}" : address);
+            updateType            = (${updateType} : updateType);
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
@@ -320,10 +323,9 @@ block {
 const updateConfig  = (
 
     targetContract: string,
-    targetContractType: "aggregator" | "aggregatorFactory" | "breakGlass" | "council" | "delegation" | "doorman" | "emergencyGovernance" | "farm" | "farmFactory" | "governance" | "governanceFinancial" | "governanceSatellite" | "lendingController" | "tokenSale" | "treasuryFactory" | "vaultFactory",
+    targetContractType: "aggregator" | "aggregatorFactory" | "breakGlass" | "council" | "delegation" | "doorman" | "emergencyGovernance" | "farm" | "farmFactory" | "governance" | "governanceFinancial" | "governanceSatellite" | "lendingController" | "treasuryFactory" | "vaultFactory",
     updateConfigAction: string,
-    updateConfigNewValue: number,
-    tokenSaleBuyOption: number = 0
+    updateConfigNewValue: number
 
 ) => {
 
@@ -382,11 +384,6 @@ const updateConfig  = (
         case "lendingController":
             ligoReturnType          = "lendingControllerUpdateConfigParamsType"
             ligoConfigActionType    = "lendingControllerUpdateConfigActionType"
-            break;
-        case "tokenSale":
-            updateConfigAction      += `(${tokenSaleBuyOption}n)`
-            ligoReturnType          = "tokenSaleUpdateConfigParamsType"
-            ligoConfigActionType    = "tokenSaleUpdateConfigActionType"
             break;
         case "treasuryFactory":
             ligoReturnType          = "treasuryFactoryUpdateConfigParamsType"
@@ -668,7 +665,7 @@ block {
 const createTreasury  = (
 
     targetContract          : string,
-    delegate                : string | undefined,
+    baker                   : string | undefined,
     treasuryName            : string,
     addToGeneralContracts   : boolean,
     metadata                : string
@@ -677,12 +674,12 @@ const createTreasury  = (
     return `function lambdaFunction (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
-        record[
-            delegate                = ${delegate ? "Some((\"" + delegate + "\": key_hash))" : "None"};
+        (record[
+            baker                   = (${baker ? "Some((\"" + baker + "\": key_hash))" : "None"} : option(key_hash));
             name                    = "${treasuryName}";
             addToGeneralContracts   = ${addToGeneralContracts ? "True" : "False"};
             metadata                = ("${metadata}": bytes);
-        ],
+        ] : createTreasuryType),
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%createTreasury",
