@@ -1,5 +1,6 @@
+import { TransactionOperation } from "@taquito/taquito"
+
 import { MVK, Utils } from "../helpers/Utils"
-import {TransactionOperation} from "@taquito/taquito"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -77,7 +78,7 @@ describe('Linked contracts updates for Tests', async () => {
             console.log('Treasury Factory Contract - set whitelist contract addresses [mvkToken]')
             
             // Governance Satellite Contract - set whitelist contract addresses [mvkToken]
-            const governanceSatelliteContractOperation = await governanceSatelliteInstance.methods.updateWhitelistContracts("aggregatorFactory", contractDeployments.aggregator.address, 'update').send();
+            const governanceSatelliteContractOperation = await governanceSatelliteInstance.methods.updateWhitelistContracts("aggregatorFactory", contractDeployments.aggregatorFactory.address, 'update').send();
             await governanceSatelliteContractOperation.confirmation();
 
             console.log('Governance Satellite Contract - set whitelist contract addresses [aggregatorFactory]')
