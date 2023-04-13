@@ -59,6 +59,7 @@ describe("Test: Delegation Contract", async () => {
     let mavrykFa2TokenStorage
 
     let initialSatelliteRecord
+    let midSatelliteRecord
     let updatedSatelliteRecord 
     
     let initialUserStakedRecord
@@ -68,6 +69,7 @@ describe("Test: Delegation Contract", async () => {
     let updatedUserStakedBalance
 
     let initialDelegateRecord
+    let midDelegateRecord
     let updatedDelegateRecord
 
     let initialMinimumStakedMvkRequirement
@@ -75,6 +77,9 @@ describe("Test: Delegation Contract", async () => {
 
     let initialTotalDelegatedAmount
     let updatedTotalDelegatedAmount
+
+    let isPausedStart 
+    let isPausedEnd
 
     // operations
     let transferOperation
@@ -173,7 +178,7 @@ describe("Test: Delegation Contract", async () => {
 
                 }; 
 
-                // for retestability: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
+                // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
 
                     // user registers as a satellite
@@ -244,7 +249,7 @@ describe("Test: Delegation Contract", async () => {
 
                 }; 
 
-                // for retestability: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
+                // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
 
                     // user registers as a satellite
@@ -343,7 +348,7 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage       = await delegationInstance.storage();
                 initialDelegateRecord   = await delegationStorage.delegateLedger.get(user);
 
-                // for retesting - skip if user is already delegated
+                // if retest - skip if user is already delegated
                 if(initialDelegateRecord == null){
 
                     // delegate operation
@@ -399,59 +404,72 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        // it('user (alice) should not be able to call this entrypoint if it is paused', async () => {
-        //     try{
-
-        //         // Initial Values
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         delegationStorage       = await delegationInstance.storage();
-                
-        //         const isPausedStart          = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
-
-        //         // Operation
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send();
-        //         await togglePauseOperation.confirmation();
-
-        //         // Final values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedEnd       = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
-
-        //         await helperFunctions.signerFactory(tezos, eve.sk)
-        //         registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-        //             mockSatelliteData.eve.name, 
-        //             mockSatelliteData.eve.desc, 
-        //             mockSatelliteData.eve.image, 
-        //             mockSatelliteData.eve.website,
-        //             mockSatelliteData.eve.satelliteFee
-        //         );
-        //         await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
-
-        //         // Reset admin
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", false).send();
-        //         await togglePauseOperation.confirmation();
-
-        //         // Assertions
-        //         assert.equal(isPausedStart, false);
-        //         assert.equal(isPausedEnd, true);
-
-        //     } catch(e){
-        //         console.dir(e, {depth: 5});
-        //     }
-        // });
-
-        it('user (trudy) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
+        it('user (trudy) should not be able to call this entrypoint if it is paused', async () => {
             try{
+
+                // pause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                delegationStorage   = await delegationInstance.storage();
+                isPausedStart       = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
+
+                // toggle pause operation
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send();
+                await togglePauseOperation.confirmation();
 
                 // init values
                 user         = trudy.pkh;
                 userSk       = trudy.sk;
-                stakeAmount  = 0;
+                stakeAmount  = MVK(1);
+                
+                await helperFunctions.signerFactory(tezos, userSk)
+
+                // update operators operation for user
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
+
+                // user stake MVK tokens
+                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                await stakeOperation.confirmation();
+
+                // Final values
+                delegationStorage   = await delegationInstance.storage();
+                isPausedEnd         = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
+
+                registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
+                );
+                await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
+
+                // unpause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", false).send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('user (trudy) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
+            try{
 
                 // remove doorman contract reference from governance contract generalContracts map
                 await helperFunctions.signerFactory(tezos, adminSk)
                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send()
                 await updateOperation.confirmation();
+
+                // init values
+                user         = trudy.pkh;
+                userSk       = trudy.sk;
+                stakeAmount  = 0;
 
                 // set signer to user
                 await helperFunctions.signerFactory(tezos, userSk)
@@ -671,39 +689,46 @@ describe("Test: Delegation Contract", async () => {
             } 
         });
 
-        // it('satellite (eve) should not be able to call this entrypoint if the entrypoint is paused', async () => {
-        //     try{
+        it('satellite (eve) should not be able to call this entrypoint if the entrypoint is paused', async () => {
+            try{
 
-        //         // Initial Values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedStart     = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
+                // pause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                delegationStorage   = await delegationInstance.storage();
+                isPausedStart       = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
 
-        //         // Operation
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", true).send();
-        //         await togglePauseOperation.confirmation();
+                // toggle pause operation
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", true).send();
+                await togglePauseOperation.confirmation();
 
-        //         // Final values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedEnd       = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
-
-        //         await helperFunctions.signerFactory(tezos, alice.sk)
-        //         unregisterAsSatelliteOperation = delegationInstance.methods.unregisterAsSatellite(alice.pkh);
-        //         await chai.expect(unregisterAsSatelliteOperation.send()).to.be.rejected;
-
-        //         // Reset admin
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", false).send();
-        //         await togglePauseOperation.confirmation();
-
-        //         // Assertions
-        //         assert.equal(isPausedStart, false);
-        //         assert.equal(isPausedEnd, true);
+                // init values
+                user         = eve.pkh;
+                userSk       = eve.sk;
                 
-        //     } catch(e){
-        //         console.dir(e, {depth: 5});
-        //     } 
-        // });
+                await helperFunctions.signerFactory(tezos, userSk)
+
+                // Final values
+                delegationStorage   = await delegationInstance.storage();
+                isPausedEnd         = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
+
+                await helperFunctions.signerFactory(tezos, alice.sk)
+                unregisterAsSatelliteOperation = delegationInstance.methods.unregisterAsSatellite(user);
+                await chai.expect(unregisterAsSatelliteOperation.send()).to.be.rejected;
+
+                // unpause operation
+                await helperFunctions.signerFactory(tezos, adminSk)
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", false).send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
     });
 
     describe("%updateSatelliteRecord", async () => {
@@ -801,45 +826,51 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        // it('satellite (eve) should not be able to call this entrypoint if the entrypoint is paused', async () => {
-        //     try{
+        it('satellite (eve) should not be able to call this entrypoint if the entrypoint is paused', async () => {
+            try{
 
-        //         // Initial Values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedStart     = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
+                // pause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                delegationStorage   = await delegationInstance.storage();
+                isPausedStart       = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
 
-        //         // Operation
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send();
-        //         await togglePauseOperation.confirmation();
+                // toggle pause operation
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send();
+                await togglePauseOperation.confirmation();
 
-        //         // Final values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedEnd       = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
+                // init values
+                user    = eve.pkh;
+                userSk  = eve.sk;
 
-        //         await helperFunctions.signerFactory(tezos, eve.sk)
-        //         await chai.expect(delegationInstance.methods.updateSatelliteRecord(
-        //             mockSatelliteData.eve.name, 
-        //             mockSatelliteData.eve.desc, 
-        //             mockSatelliteData.eve.image, 
-        //             mockSatelliteData.eve.website,
-        //             mockSatelliteData.eve.satelliteFee
-        //         ).send()
-        //         ).to.be.rejected;
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
 
-        //         // Reset admin
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", false).send();
-        //         await togglePauseOperation.confirmation();
+                // Final values
+                delegationStorage   = await delegationInstance.storage();
+                isPausedEnd         = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
 
-        //         // Assertions
-        //         assert.equal(isPausedStart, false);
-        //         assert.equal(isPausedEnd,   true);
+                await chai.expect(delegationInstance.methods.updateSatelliteRecord(
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image, 
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
+                ).send()
+                ).to.be.rejected;
 
-        //     } catch(e){
-        //         console.dir(e, {depth: 5});
-        //     }
-        // });
+                // unpause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", false).send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd,   true);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
 
     });
 
@@ -867,7 +898,7 @@ describe("Test: Delegation Contract", async () => {
                 initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
                 initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
 
-                // for retesting - skip if user is already delegated
+                // if retest - skip if user is already delegated
                 if(initialDelegateRecord == null){
 
                     // update operators operation for user
@@ -897,26 +928,6 @@ describe("Test: Delegation Contract", async () => {
 
                 }
                 
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-
-        it('user (trudy) should not be able to delegate to the same satellite again', async () => {
-            try{
-                
-                // init values
-                user        = trudy.pkh;
-                userSk      = trudy.sk;
-                satellite   = eve.pkh;
-
-                // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
-
-                delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
-                await chai.expect(delegateOperation.send()).to.be.rejected;
-
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -987,6 +998,25 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
+        it('user (trudy) should not be able to delegate to the same satellite again', async () => {
+            try{
+                
+                // init values
+                user        = trudy.pkh;
+                userSk      = trudy.sk;
+                satellite   = eve.pkh;
+
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
+
+                delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
+                await chai.expect(delegateOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
         it('user (trudy) should not be able to delegate to a non-existent satellite', async () => {
             try{
 
@@ -1047,70 +1077,85 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        // it('User should not be able to call this entrypoint if it is paused', async () => {
-        //     try{
+        it('user (oscar) should not be able to call this entrypoint if it is paused', async () => {
+            try{
 
-        //         // Initial Values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedStart     = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
-        //         const stakeAmount       = MVK(10);
+                // pause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                delegationStorage   = await delegationInstance.storage();
+                isPausedStart       = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
 
-        //         // Operation
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
+                // toggle pause operation
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", true).send();
+                await togglePauseOperation.confirmation();
 
-        //         // update operators operation for user
-        //         updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
-        //         await updateOperatorsOperation.confirmation();
+                // init values
+                user        = oscar.pkh;
+                userSk      = oscar.sk;
+                satellite   = eve.pkh;
+                stakeAmount = MVK(1);
+
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
+
+                // update operators operation for user
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
     
-        //         stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
-        //         await stakeOperation.confirmation();
+                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                await stakeOperation.confirmation();
                 
-        //         // Operation
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", true).send();
-        //         await togglePauseOperation.confirmation();
+                // updated storage
+                delegationStorage   = await delegationInstance.storage();
+                isPausedEnd         = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
 
-        //         // Final values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedEnd       = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
+                // delegate operation
+                delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
+                await chai.expect(delegateOperation.send()).to.be.rejected;
 
-        //         // delegate operation
-        //         delegateOperation = delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh);
-        //         await chai.expect(delegateOperation.send()).to.be.rejected;
+                // unpause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false).send();
+                await togglePauseOperation.confirmation();
 
-        //         // Reset admin
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false).send();
-        //         await togglePauseOperation.confirmation();
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
 
-        //         // Assertions
-        //         assert.equal(isPausedStart, false);
-        //         assert.equal(isPausedEnd, true);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
 
-        //     } catch(e){
-        //         console.dir(e, {depth: 5});
-        //     }
-        // });
+        it('user (oscar) should not be able to call the entrypoint if the contract doesn’t have the doorman contract in the generalContracts map', async () => {
+            try{
 
-        // it('User should not be able to call the entrypoint if the contract doesn’t have the doorman contract in the generalContracts map', async () => {
-        //     try{
+                // remove doorman contract reference from governance contract generalContracts map
+                await helperFunctions.signerFactory(tezos, adminSk)
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send()
+                await updateOperation.confirmation();
 
-        //         // Update generalContracts
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
-        //         await updateOperation.confirmation();
+                // init values
+                user         = trudy.pkh;
+                userSk       = trudy.sk;
+                satellite    = eve.pkh;
 
-        //         // Initial values
-        //         delegateOperation = delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh);
-        //         await chai.expect(delegateOperation.send()).to.be.rejected;
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk)
 
-        //         // Reset operation
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
-        //         await updateOperation.confirmation();
+                // Initial values
+                delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
+                await chai.expect(delegateOperation.send()).to.be.rejected;
 
-        //     } catch(e){
-        //         console.dir(e, {depth: 5});
-        //     }
-        // });
+                // Reset operation
+                await helperFunctions.signerFactory(tezos, adminSk)
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
+                await updateOperation.confirmation();
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
 
     })
 
@@ -1147,39 +1192,46 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        // it('User should not be able to call this entrypoint if it is paused', async () => {
-        //     try{
+        it('user (trudy) should not be able to call this entrypoint if it is paused', async () => {
+            try{
 
-        //         // Initial Value
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedStart     = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
 
-        //         // Operation
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", true).send();
-        //         await togglePauseOperation.confirmation();
+                // pause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                delegationStorage   = await delegationInstance.storage();
+                isPausedStart       = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
 
-        //         // Final values
-        //         delegationStorage       = await delegationInstance.storage();
-        //         const isPausedEnd       = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
+                // toggle pause operation
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", true).send();
+                await togglePauseOperation.confirmation();
 
-        //         await helperFunctions.signerFactory(tezos, eve.sk);
-        //         undelegateOperation = delegationInstance.methods.undelegateFromSatellite(eve.pkh);
-        //         await chai.expect(undelegateOperation.send()).to.be.rejected;
+                // init values
+                user        = trudy.pkh;
+                userSk      = trudy.sk;
 
-        //         // Reset admin
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", false).send();
-        //         await togglePauseOperation.confirmation();
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
 
-        //         // Assertions
-        //         assert.equal(isPausedStart, false);
-        //         assert.equal(isPausedEnd, true);
+                undelegateOperation = delegationInstance.methods.undelegateFromSatellite(user);
+                await chai.expect(undelegateOperation.send()).to.be.rejected;
 
-        //     } catch(e){
-        //         console.dir(e, {depth: 5});
-        //     }
-        // });
+                // updated storage
+                delegationStorage   = await delegationInstance.storage();
+                isPausedEnd         = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
+                
+                // unpause entrypoint
+                await helperFunctions.signerFactory(tezos, adminSk)
+                togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", false).send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
 
         it('user (oscar) should not be able to undelegate if he has never delegated before', async () => {
             try{
@@ -1208,28 +1260,33 @@ describe("Test: Delegation Contract", async () => {
         });
 
 
-        // it('User should not be able to call the entrypoint if the contract doesn’t have the doorman contract in the generalContracts map', async () => {
-        //     try{
+        it('user (oscar) should not be able to call the entrypoint if the doorman contract is missing', async () => {
+            try{
 
-        //         // Update generalContracts
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
-        //         await updateOperation.confirmation();
+                // remove doorman contract reference from governance contract generalContracts map
+                await helperFunctions.signerFactory(tezos, adminSk)
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send()
+                await updateOperation.confirmation();
 
-        //         // Initial values
-        //         await helperFunctions.signerFactory(tezos, alice.sk);
-        //         delegateOperation = delegationInstance.methods.delegateToSatellite(alice.pkh, eve.pkh);
-        //         await chai.expect(delegateOperation.send()).to.be.rejected;
+                // init values
+                user         = oscar.pkh;
+                userSk       = oscar.sk;
+                satellite    = eve.pkh;
 
-        //         // Reset operation
-        //         await helperFunctions.signerFactory(tezos, bob.sk)
-        //         var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send()
-        //         await updateOperation.confirmation();
+                // Initial values
+                await helperFunctions.signerFactory(tezos, userSk);
+                delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
+                await chai.expect(delegateOperation.send()).to.be.rejected;
 
-        //     } catch(e){
-        //         console.dir(e, {depth: 5});
-        //     }
-        // });
+                // Reset operation
+                await helperFunctions.signerFactory(tezos, adminSk)
+                var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
+                await updateOperation.confirmation();
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
 
         it('user (trudy) should be able to call this entrypoint and undelegate her staked MVK from her satellite', async () => {
             try{
@@ -1275,7 +1332,7 @@ describe("Test: Delegation Contract", async () => {
             }
         })
 
-        it('user (trudy) should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered', async () => {
+        it('user (trudy) should be able to undelegate her staked MVK from a satellite even if the satellite re-registered', async () => {
             try{
 
                 // init values
@@ -1284,61 +1341,77 @@ describe("Test: Delegation Contract", async () => {
                 satellite   = eve.pkh;
                 satelliteSk = eve.sk;
 
-                // Init operation
-                const delegationOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
-                await delegationOperation.confirmation();
+                // delegate operation
+                delegateOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
+                await delegateOperation.confirmation();
                 
-                // Init values
-                delegationStorage           = await delegationInstance.storage();
-                const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
-                const initDelegateRecord    = await delegationStorage.delegateLedger.get(user);
+                // initial storage
+                delegationStorage        = await delegationInstance.storage();
+                initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
+                initialDelegateRecord    = await delegationStorage.delegateLedger.get(user);
+
+                // check initial state
+                // i) delegate record should still exist 
+                // ii) satellite registered time should be equal to delegate's satellite registered time
+                // iii) satellite should have non-zero total delegated amount
+                assert.notStrictEqual(initialDelegateRecord, undefined);
+                assert.strictEqual(initialSatelliteRecord.registeredDateTime, initialDelegateRecord.satelliteRegisteredDateTime);
+                assert.notEqual(initialSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
                 // Re-register operation
                 await helperFunctions.signerFactory(tezos, satelliteSk);
-                const unregisterOperation           = await delegationInstance.methods.unregisterAsSatellite(satellite).send();
-                await unregisterOperation.confirmation();
-                const registerAsSatelliteOperation  = await delegationInstance.methods
-                    .registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image,
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
-                    ).send();
+                
+                // unregisters as satellite
+                unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite(satellite).send();
+                await unregisterAsSatelliteOperation.confirmation();
+
+                // registers as satellite again
+                registerAsSatelliteOperation  = await delegationInstance.methods.registerAsSatellite(
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image,
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
+                ).send();
                 await registerAsSatelliteOperation.confirmation();
                 
-                // Mid values
-                delegationStorage           = await delegationInstance.storage();
-                const midSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
-                const midDelegateRecord     = await delegationStorage.delegateLedger.get(user);
+                // mid-test storage
+                delegationStorage     = await delegationInstance.storage();
+                midSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
+                midDelegateRecord     = await delegationStorage.delegateLedger.get(user);
 
-                // Undelegate operation
+                // check mid-state 
+                // i) delegate record should still exist 
+                // ii) satellite re-registered time should not be equal to delegate's satellite registered time
+                // iii) satellite should have total delegated amount reset to 0
+                assert.notStrictEqual(midDelegateRecord, undefined);
+                assert.notStrictEqual(midSatelliteRecord.registeredDateTime, initialDelegateRecord.satelliteRegisteredDateTime);
+                assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+
+                // undelegate operation
                 await helperFunctions.signerFactory(tezos, userSk);
-                const undelegateOperation   = await delegationInstance.methods.undelegateFromSatellite(user).send();
+                undelegateOperation   = await delegationInstance.methods.undelegateFromSatellite(user).send();
                 await undelegateOperation.confirmation();
 
-                // Final Values
-                delegationStorage           = await delegationInstance.storage();
-                const finalSatelliteRecord  = await delegationStorage.satelliteLedger.get(satellite);
-                const finalDelegateRecord   = await delegationStorage.delegateLedger.get(user);
+                // final storage
+                delegationStorage       = await delegationInstance.storage();
+                updatedSatelliteRecord  = await delegationStorage.satelliteLedger.get(satellite);
+                updatedDelegateRecord   = await delegationStorage.delegateLedger.get(user);
 
-                // Assertions
-                assert.notStrictEqual(initDelegateRecord, undefined);
-                assert.notStrictEqual(midDelegateRecord, undefined);
-                assert.strictEqual(finalDelegateRecord, undefined);
-                assert.strictEqual(initSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
-                assert.notStrictEqual(midSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
-                assert.strictEqual(midSatelliteRecord.registeredDateTime, finalSatelliteRecord.registeredDateTime);
-                assert.notEqual(initSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
-                assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
-                assert.equal(finalSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+                // final assertions
+                // i) delegate should be able to undelegate successfully
+                // ii) mid-state satellite registered time should be equal to final satellite registered time
+                // iii) final satellite's total delegated amount should be decreased accordingly by user staked MVK amount
+                assert.strictEqual(updatedDelegateRecord, undefined);
+                assert.strictEqual(midSatelliteRecord.registeredDateTime, updatedSatelliteRecord.registeredDateTime);                
+                assert.equal(updatedSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         })
 
-        it('user (trudy) should be able to call this entrypoint and undelegate his SMVK from a satellite even if the satellite re-registered during an %onStakeChange call', async () => {
+        it('user (trudy) should be able to automatically undelegate from a re-registered satellite during an %onStakeChange call (e.g. from a staking operation)', async () => {
             try{
 
                 // init values
@@ -1347,55 +1420,71 @@ describe("Test: Delegation Contract", async () => {
                 satellite   = eve.pkh;
                 satelliteSk = eve.sk;
 
-                // Init operation
-                const delegationOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
-                await delegationOperation.confirmation();
+                // delegate operation
+                delegateOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
+                await delegateOperation.confirmation();
                 
-                // Init values
-                delegationStorage           = await delegationInstance.storage();
-                const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
-                const initDelegateRecord    = await delegationStorage.delegateLedger.get(user);
-                const stakeAmount           = MVK(2);
+                // initial storage
+                delegationStorage        = await delegationInstance.storage();
+                initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
+                initialDelegateRecord    = await delegationStorage.delegateLedger.get(user);
+                stakeAmount              = MVK(2);
+
+                // check initial state
+                // i) delegate record should still exist 
+                // ii) satellite registered time should be equal to delegate's satellite registered time
+                // iii) satellite should have non-zero total delegated amount
+                assert.notStrictEqual(initialDelegateRecord, undefined);
+                assert.strictEqual(initialSatelliteRecord.registeredDateTime, initialDelegateRecord.satelliteRegisteredDateTime);
+                assert.notEqual(initialSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
                 // Re-register operation
                 await helperFunctions.signerFactory(tezos, satelliteSk);
-                const unregisterOperation           = await delegationInstance.methods.unregisterAsSatellite(satellite).send();
-                await unregisterOperation.confirmation();
-                const registerAsSatelliteOperation = await delegationInstance.methods
-                    .registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image,
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
-                    ).send();
+
+                // unregister as a satellite
+                unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite(satellite).send();
+                await unregisterAsSatelliteOperation.confirmation();
+                
+                // registers as a satellite again
+                registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc, 
+                    mockSatelliteData.eve.image,
+                    mockSatelliteData.eve.website,
+                    mockSatelliteData.eve.satelliteFee
+                ).send();
                 await registerAsSatelliteOperation.confirmation();
                 
-                // Mid values
-                delegationStorage           = await delegationInstance.storage();
-                const midSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
-                const midDelegateRecord     = await delegationStorage.delegateLedger.get(user);
+                // mid-test storage
+                delegationStorage     = await delegationInstance.storage();
+                midSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
+                midDelegateRecord     = await delegationStorage.delegateLedger.get(user);
 
-                // Stake operation
+                // check mid-state 
+                // i) delegate record should still exist 
+                // ii) satellite re-registered time should not be equal to delegate's satellite registered time
+                // iii) satellite should have total delegated amount reset to 0
+                assert.notStrictEqual(midDelegateRecord, undefined);
+                assert.notStrictEqual(midSatelliteRecord.registeredDateTime, initialDelegateRecord.satelliteRegisteredDateTime);
+                assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+
+                // user stake operation and trigger %onStakeChange
                 await helperFunctions.signerFactory(tezos, userSk);
-                const stakeOperation        = await doormanInstance.methods.stake(stakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
 
-                // Final Values
-                delegationStorage           = await delegationInstance.storage();
-                const finalSatelliteRecord  = await delegationStorage.satelliteLedger.get(satellite);
-                const finalDelegateRecord   = await delegationStorage.delegateLedger.get(user);
+                // final storage
+                delegationStorage       = await delegationInstance.storage();
+                updatedSatelliteRecord  = await delegationStorage.satelliteLedger.get(satellite);
+                updatedDelegateRecord   = await delegationStorage.delegateLedger.get(user);
 
-                // Assertions
-                assert.notStrictEqual(initDelegateRecord, undefined);
-                assert.notStrictEqual(midDelegateRecord, undefined);
-                assert.strictEqual(finalDelegateRecord, undefined);
-                assert.strictEqual(initSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
-                assert.notStrictEqual(midSatelliteRecord.registeredDateTime, initDelegateRecord.satelliteRegisteredDateTime);
-                assert.strictEqual(midSatelliteRecord.registeredDateTime, finalSatelliteRecord.registeredDateTime);
-                assert.notEqual(initSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
-                assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
-                assert.equal(finalSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
+                // final assertions
+                // i) delegate should be automatically undelegated after staking operation
+                // ii) mid-state satellite registered time should be equal to final satellite registered time
+                // iii) final satellite's total delegated amount should still be set to 0
+                assert.strictEqual(updatedDelegateRecord, undefined);
+                assert.strictEqual(midSatelliteRecord.registeredDateTime, updatedSatelliteRecord.registeredDateTime);
+                assert.equal(updatedSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -1403,30 +1492,6 @@ describe("Test: Delegation Contract", async () => {
         })
 
     })
-
-
-    describe("%pauseAll", async () => {
-
-        beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
-        });
-
-
-        it('Non-admin should not be able to call the entrypoint', async () => {
-            try{
-                
-                await helperFunctions.signerFactory(tezos, alice.sk);
-
-                // pause all operation
-                pauseAllOperation = delegationInstance.methods.pauseAll();
-                await chai.expect(pauseAllOperation.send()).to.be.rejected;
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-    })
-
 
 
     describe("Housekeeping Entrypoints", async () => {
