@@ -19,38 +19,45 @@ class TargetEntrypointItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    farmClaim: bool
+    exit: bool
 
 
 class TargetEntrypointItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    onVaultDepositStake: bool
+    farmClaim: bool
 
 
 class TargetEntrypointItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    onVaultLiquidateStake: bool
+    onVaultDepositStake: bool
 
 
 class TargetEntrypointItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    onVaultWithdrawStake: bool
+    onVaultLiquidateStake: bool
 
 
 class TargetEntrypointItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    stake: bool
+    onVaultWithdrawStake: bool
 
 
 class TargetEntrypointItem6(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    stake: bool
+
+
+class TargetEntrypointItem7(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -69,5 +76,6 @@ class TogglePauseEntrypointParameter(BaseModel):
         TargetEntrypointItem4,
         TargetEntrypointItem5,
         TargetEntrypointItem6,
+        TargetEntrypointItem7,
     ]
     empty: Dict[str, Any]

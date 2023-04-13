@@ -4,6 +4,10 @@ from enum import IntEnum
 # Enumerators
 ###
 
+class MintOrBurnType(IntEnum):
+    MINT                            = 0
+    BURN                            = 1
+
 class DexType(IntEnum):
     ADD_LIQUIDITY                   = 0
     REMOVE_LIQUIDITY                = 1
@@ -20,6 +24,7 @@ class StakeType(IntEnum):
     VAULT_DEPOSIT_STAKED_TOKEN      = 5
     VAULT_WITHDRAW_STAKED_TOKEN     = 6
     VAULT_LIQUIDATE_STAKED_TOKEN    = 7
+    EXIT                            = 8
 
 class ActionStatus(IntEnum):
     PENDING                         = 0
