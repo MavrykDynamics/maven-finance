@@ -22,6 +22,12 @@ import { bob, alice, eve, mallory, oscar } from '../scripts/sandbox/accounts'
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
+// Contract Notes
+// ------------------------------------------------------------------------------
+
+// For testing of vault related entrypoints, see lending and vault tests
+
+// ------------------------------------------------------------------------------
 // Contract Tests
 // ------------------------------------------------------------------------------
 
@@ -718,6 +724,8 @@ describe("Test: Doorman Contract", async () => {
 
                 assert.notEqual(secondUserStakedBalance, secondUserUpdatedStakedBalance)
 
+                // todo: add more assertions for checking updated values after compound
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -783,7 +791,9 @@ describe("Test: Doorman Contract", async () => {
                 thirdUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(thirdUser);
                 thirdUserStakedBalance = thirdUserStakedRecord.balance.toNumber()
 
-                assert.equal(0,thirdUserStakedBalance)
+                assert.equal(0, thirdUserStakedBalance)
+                // todo: add more assertions
+
 
                 // Compound for next test
                 compoundOperation   = await doormanInstance.methods.compound(firstUser).send();

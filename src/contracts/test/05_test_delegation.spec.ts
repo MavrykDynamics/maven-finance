@@ -21,6 +21,13 @@ import * as helperFunctions from './helpers/helperFunctions'
 import { mockSatelliteData } from "./helpers/mockSampleData"
 
 // ------------------------------------------------------------------------------
+// Contract Notes
+// ------------------------------------------------------------------------------
+
+// For testing of satellite's voting power: see x2_test_voting_power_ratio
+// For testing of satellite's distribution of rewards: see 34_test_delegation_distribute_rewards
+
+// ------------------------------------------------------------------------------
 // Contract Tests
 // ------------------------------------------------------------------------------
 
@@ -878,6 +885,8 @@ describe("Test: Delegation Contract", async () => {
     });
 
     describe("%delegateToSatellite", async () => {
+
+        // todo: add one more test for multiple users delegating to a satellite
 
         it('user (trudy) should be able to delegate her staked MVK to a satellite', async () => {
             try{
