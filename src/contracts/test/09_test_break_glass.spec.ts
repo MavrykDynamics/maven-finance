@@ -74,22 +74,7 @@ describe("Test: Break Glass Contract", async () => {
         vestingStorage                  = await vestingInstance.storage();
         treasuryStorage                 = await treasuryInstance.storage();
 
-        // console.log('-- -- -- -- -- Break Glass Tests -- -- -- --')
-        // console.log('Doorman Contract deployed at:', doormanInstance.address);
-        // console.log('Delegation Contract deployed at:', delegationInstance.address);
-        // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        // console.log('Council Contract deployed at:', councilInstance.address);
-        // console.log('Governance Contract deployed at:', governanceInstance.address);
-        // console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-        // console.log('Break Glass Contract deployed at:', breakGlassInstance.address);
-        // console.log('Vesting Contract deployed at:', vestingInstance.address);
-        // console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        // console.log('Bob address: ' + bob.pkh);
-        // console.log('Alice address: ' + alice.pkh);
-        // console.log('Eve address: ' + eve.pkh);
-        // console.log('Mallory address: ' + mallory.pkh);
-        // console.log('Oscar address: ' + oscar.pkh);
-        // console.log('-- -- -- -- -- -- -- -- --')
+        console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
     });
 
