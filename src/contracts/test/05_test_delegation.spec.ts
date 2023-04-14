@@ -249,6 +249,9 @@ describe("Test: Delegation Contract", async () => {
 
                 }; 
 
+                // update user staked balance for assertion check below (satellite's staked mvk balance)
+                initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
 
@@ -272,7 +275,7 @@ describe("Test: Delegation Contract", async () => {
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                     assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                     assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    stakeAmount);
+                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
                     assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
