@@ -21,6 +21,13 @@ import { mockTokenData } from './helpers/mockSampleData'
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
+// Contract Notes
+// ------------------------------------------------------------------------------
+
+// For testing of inflation rate over periods of time, please see test_mvk_token.py
+//   as taquito does not handle time-based tests well
+
+// ------------------------------------------------------------------------------
 // Contract Tests
 // ------------------------------------------------------------------------------
 
@@ -1391,6 +1398,7 @@ describe('Test: MVK Token Contract', async () => {
     describe("Housekeeping Entrypoints", async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
+            tokenStorage = await tokenInstance.storage();
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
@@ -1545,7 +1553,7 @@ describe('Test: MVK Token Contract', async () => {
             }
         })
 
-        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint for mock FA2 tokens', async () => {
+        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint', async () => {
             try {
 
                 // Initial values
@@ -1570,6 +1578,23 @@ describe('Test: MVK Token Contract', async () => {
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateInflationRate      - admin (bob) should be able to call this entrypoint', async () => {
+            try {
+
+                const randomNumber = helperFunctions.randomNumberFromInterval(10, 1000);
+                const updateInflationRateOperation = await tokenInstance.methods.updateInflationRate(randomNumber).send();
+                await updateInflationRateOperation.confirmation();
+
+                tokenStorage       = await tokenInstance.storage();
+                const updatedInflationRate = tokenStorage.inflationRate;
+
+                assert.equal(updatedInflationRate.toNumber(), randomNumber);
 
             } catch (e) {
                 console.log(e)
