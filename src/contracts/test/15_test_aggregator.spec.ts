@@ -97,19 +97,6 @@ describe('Aggregator Tests', async () => {
             await trackAggregatorOperation.confirmation();
         }
 
-        // console.log('-- -- -- -- -- Aggregator Tests -- -- -- --')
-        // console.log('Doorman Contract deployed at:'               , doormanInstance.address);
-        // console.log('Delegation Contract deployed at:'            , delegationInstance.address);
-        // console.log('MVK Token Contract deployed at:'             , mvkTokenInstance.address);
-        // console.log('Treasury Contract deployed at:'              , treasuryInstance.address);
-        // console.log('Aggregator Contract deployed at:'            , aggregatorInstance.address);
-        // console.log('Aggregator Factory Contract deployed at:'    , aggregatorFactoryInstance.address);
-        
-        // console.log('Bob address: '               + bob.pkh);
-        // console.log('Alice address: '             + alice.pkh);
-        // console.log('Eve address: '               + eve.pkh);
-        // console.log('Mallory address: '           + mallory.pkh);
-
         // Setup governance satellites for action snapshot later
         // ------------------------------------------------------------------
 
