@@ -1439,7 +1439,7 @@ describe("Test: Doorman Contract", async () => {
         it("%pauseAll                 - admin (bob) should be able to call this entrypoint", async() => {
             try{
 
-                pauseAllOperation = doormanInstance.methods.pauseAll().send(); 
+                pauseAllOperation = await doormanInstance.methods.pauseAll().send(); 
                 await pauseAllOperation.confirmation();
 
             } catch(e) {
@@ -1450,7 +1450,7 @@ describe("Test: Doorman Contract", async () => {
         it("%unpauseAll               - admin (bob) should be able to call this entrypoint", async() => {
             try{
 
-                unpauseAllOperation = doormanInstance.methods.unpauseAll().send(); 
+                unpauseAllOperation = await doormanInstance.methods.unpauseAll().send(); 
                 await unpauseAllOperation.confirmation();
 
             } catch(e) {
@@ -1463,32 +1463,32 @@ describe("Test: Doorman Contract", async () => {
                 
                 // pause operations
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("stake", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", true).send(); 
                 await pauseOperation.confirmation();
                 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("unstake", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstake", true).send(); 
                 await pauseOperation.confirmation();
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("exit", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("exit", true).send();
                 await pauseOperation.confirmation();
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("compound", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("compound", true).send();
                 await pauseOperation.confirmation();
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("farmClaim", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("farmClaim", true).send();
                 await pauseOperation.confirmation();
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStakeIsPaused", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStake", true).send();
                 await pauseOperation.confirmation();
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStakeIsPaused", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStake", true).send();
                 await pauseOperation.confirmation();
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStakeIsPaused", true); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStake", true).send();
                 await pauseOperation.confirmation();
 
                 // update storage
-                doormanStorage              = await doormanInstance.storage();
+                doormanStorage = await doormanInstance.storage();
 
                 // check that entrypoints are paused
                 assert.equal(doormanStorage.breakGlassConfig.stakeIsPaused                  , true)
@@ -1502,32 +1502,32 @@ describe("Test: Doorman Contract", async () => {
 
                 // unpause operations
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("stake", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", false).send();
                 await unpauseOperation.confirmation();
                 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("unstake", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstake", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("exit", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("exit", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("compound", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("compound", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("farmClaim", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("farmClaim", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStakeIsPaused", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStake", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStakeIsPaused", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStake", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStakeIsPaused", false); 
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStake", false).send();
                 await unpauseOperation.confirmation();
 
                 // update storage
-                doormanStorage              = await doormanInstance.storage();
+                doormanStorage = await doormanInstance.storage();
 
                 // check that entrypoints are unpaused
                 assert.equal(doormanStorage.breakGlassConfig.stakeIsPaused                  , false)
@@ -1556,7 +1556,7 @@ describe("Test: Doorman Contract", async () => {
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
-                doormanStorage        = await doormanInstance.storage();
+                doormanStorage      = await doormanInstance.storage();
                 const currentAdmin  = doormanStorage.admin;
 
                 // Operation
@@ -1565,7 +1565,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // Final values
                 doormanStorage    = await doormanInstance.storage();
-                const newAdmin  = doormanStorage.admin;
+                const newAdmin    = doormanStorage.admin;
 
                 // Assertions
                 assert.strictEqual(newAdmin, currentAdmin);
@@ -1578,7 +1578,7 @@ describe("Test: Doorman Contract", async () => {
         it('%setGovernance            - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
-                doormanStorage        = await doormanInstance.storage();
+                doormanStorage           = await doormanInstance.storage();
                 const currentGovernance  = doormanStorage.governanceAddress;
 
                 // Operation
@@ -1586,7 +1586,7 @@ describe("Test: Doorman Contract", async () => {
                 await chai.expect(setGovernanceOperation.send()).to.be.rejected;
 
                 // Final values
-                doormanStorage    = await doormanInstance.storage();
+                doormanStorage           = await doormanInstance.storage();
                 const updatedGovernance  = doormanStorage.governanceAddress;
 
                 // Assertions
@@ -1768,13 +1768,13 @@ describe("Test: Doorman Contract", async () => {
                 pauseOperation = doormanInstance.methods.togglePauseEntrypoint("farmClaim", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStakeIsPaused", true); 
+                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStake", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStakeIsPaused", true); 
+                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStake", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStakeIsPaused", true); 
+                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStake", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
                 // unpause operations
@@ -1794,13 +1794,13 @@ describe("Test: Doorman Contract", async () => {
                 unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("farmClaim", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStakeIsPaused", false); 
+                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultDepositStake", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStakeIsPaused", false); 
+                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultWithdrawStake", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStakeIsPaused", false); 
+                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("onVaultLiquidateStake", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
             } catch(e) {
