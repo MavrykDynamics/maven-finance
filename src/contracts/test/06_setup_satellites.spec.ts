@@ -25,6 +25,7 @@ import { mockSatelliteData } from "./helpers/mockSampleData"
 // ------------------------------------------------------------------------------
 
 // For setup of satellties for subsequent tests
+//   - satellites: alice, eve, susie, oscar, trudy
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -208,6 +209,8 @@ describe("Setup: Mock Satellites", async () => {
                 }; 
 
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
+                doormanStorage                      = await doormanInstance.storage();
+                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -281,6 +284,11 @@ describe("Setup: Mock Satellites", async () => {
 
                 }; 
 
+                // update user staked balance for assertion check below (satellite's staked mvk balance)
+                doormanStorage                      = await doormanInstance.storage();
+                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
 
@@ -353,6 +361,8 @@ describe("Setup: Mock Satellites", async () => {
                 }; 
 
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
+                doormanStorage                      = await doormanInstance.storage();
+                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -427,6 +437,8 @@ describe("Setup: Mock Satellites", async () => {
                 }; 
 
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
+                doormanStorage                      = await doormanInstance.storage();
+                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting

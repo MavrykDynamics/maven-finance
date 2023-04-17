@@ -16,8 +16,15 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve, mallory, oscar, trudy, isaac, david } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, oscar, trudy, susie, isaac, david } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
+
+// ------------------------------------------------------------------------------
+// Contract Notes
+// ------------------------------------------------------------------------------
+
+// Council Members set in deployment
+//   - Council Members: alice, eve, susie, trudy
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -42,12 +49,18 @@ describe("Test: Council Contract", async () => {
     
     let councilMember
     let councilMemberSk
+
     let councilMemberOne
     let councilMemberOneSk
+
     let councilMemberTwo
     let councilMemberTwoSk
+
     let councilMemberThree
     let councilMemberThreeSk
+
+    let councilMemberFour
+    let councilMemberFourSk
 
     let vesteeAddress
 
@@ -85,8 +98,9 @@ describe("Test: Council Contract", async () => {
 
     // housekeeping operations
     let setAdminOperation
-    let setGovernanceOperation
     let resetAdminOperation
+    let setGovernanceOperation
+    let updateConfigOperation
     let updateWhitelistContractsOperation
     let updateGeneralContractsOperation
     
@@ -113,6 +127,9 @@ describe("Test: Council Contract", async () => {
 
         councilMemberThree      = alice.pkh;
         councilMemberThreeSk    = alice.sk;
+
+        councilMemberFour       = susie.pkh;
+        councilMemberFourSk     = susie.sk;
 
         councilAddress          = contractDeployments.council.address;
 
@@ -168,58 +185,17 @@ describe("Test: Council Contract", async () => {
     });
 
 
-    describe("%updateCouncilMemberInfo", async () => {
+    describe("create council actions for vesting", async () => {
 
-        it('council member (eve) should be able to update her information', async () => {
-            try{
-
-                // initial values
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
-                
-                // initial storage
-                councilStorage            = await councilInstance.storage();
-                initialCouncilMemberInfo  = councilStorage.councilMembers.get(councilMemberOne);
-                
-                const oldMemberName     = initialCouncilMemberInfo.name
-                const oldMemberImage    = initialCouncilMemberInfo.image
-                const oldMemberWebsite  = initialCouncilMemberInfo.website
-                
-                const randomNumber      = await helperFunctions.randomNumberFromInterval(1, 10);
-                const newMemberName     = "Member Name " + randomNumber;
-                const newMemberImage    = "Member Image " + randomNumber;
-                const newMemberWebsite  = "Member Website " + randomNumber;
-
-                // Operation
-                councilActionOperation = await councilInstance.methods.updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage).send();
-                await councilActionOperation.confirmation();
-
-                // Final values
-                councilStorage             = await councilInstance.storage();
-                updatedCouncilMemberInfo   = councilStorage.councilMembers.get(councilMemberOne);
-
-                // Assertions
-                assert.strictEqual(updatedCouncilMemberInfo.name       , newMemberName);
-                assert.strictEqual(updatedCouncilMemberInfo.image      , newMemberImage);
-                assert.strictEqual(updatedCouncilMemberInfo.website    , newMemberWebsite);
-
-                assert.notStrictEqual(updatedCouncilMemberInfo.name    , oldMemberName);
-                assert.notStrictEqual(updatedCouncilMemberInfo.image   , oldMemberImage);
-                assert.notStrictEqual(updatedCouncilMemberInfo.website , oldMemberWebsite);
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-    });
-
-    describe("%councilActionAddVestee", async () => {
-        
         beforeEach("Set signer to council member (eve)", async () => {
+            
+            councilMember   = councilMemberOne;
+            vestingStorage  = await vestingInstance.storage();
+            
             await helperFunctions.signerFactory(tezos, councilMemberOneSk)
         });
-        
-        it('council member (eve) should be able to create a new council action to add a new vestee (isaac)', async () => {
+
+        it('%councilActionAddVestee        - council member (eve) should be able to create a new council action to add a new vestee (isaac)', async () => {
             try{
                 
                 // initial values
@@ -275,7 +251,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('council member (eve) should not be able to call this entrypoint if the vestee already exists', async () => {
+        it('%councilActionAddVestee        - council member (eve) should not be able to call this entrypoint if the vestee already exists', async () => {
             try{
 
                 // Initial Values
@@ -294,15 +270,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-    })
-
-    describe("%councilActionUpdateVestee", async () => {
-
-        beforeEach("Set signer to council member (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
-        });
-        
-        it('council member (eve) should be able to create a new council action to update a vestee', async () => {
+        it('%councilActionUpdateVestee     - council member (eve) should be able to create a new council action to update a vestee (isaac)', async () => {
             try{
 
                 // initial values
@@ -349,7 +317,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('council member (eve) should not be able to call this entrypoint if the vestee does not exist', async () => {
+        it('%councilActionUpdateVestee     - council member (eve) should not be able to call this entrypoint if the vestee does not exist', async () => {
             try{
                 
                 // Initial Values
@@ -368,32 +336,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-    })
-
-
-    describe("%councilActionRemoveVestee", async () => {
-        
-        beforeEach("Set signer to council member (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
-            vestingStorage  = await vestingInstance.storage();
-        });
-        
-        it('council member (eve) should not be able to remove a non-existent vestee', async () => {
-            try{
-                // Initial Values
-                councilStorage          = await councilInstance.storage();
-                const vesteeAddress     = david.pkh;
-
-                // Operation
-                councilActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress);
-                await chai.expect(councilActionOperation.send()).to.be.rejected;
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('council member (eve) should be able to create a new council action to remove a vestee (isaac)', async () => {
+        it('%councilActionToggleVesteeLock - council member (eve) should be able to create a new council action to lock or unlock a vestee (isaac)', async () => {
             try{
                 
                 // initial values
@@ -405,8 +348,63 @@ describe("Test: Council Contract", async () => {
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send();
+                await councilActionOperation.confirmation();
+
+                // Final values
+                councilStorage                      = await councilInstance.storage();
+                const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+                const actionSigner                  = action.signers.includes(councilMember);
+                const dataMap                       = await action.dataMap;
+                const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+
+                // Assertions
+                assert.strictEqual(action.initiator     , councilMember);
+                assert.strictEqual(action.status        , "PENDING");
+                assert.strictEqual(action.actionType    , "toggleVesteeLock");
+                
+                assert.equal(action.executed            , false);
+                assert.equal(actionSigner               , true);
+                assert.equal(action.signersCount        , 1);
+                
+                assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%councilActionToggleVesteeLock - council member (eve) should not be able to call this entrypoint if the vestee does not exist', async () => {
+            try{
+                
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const vesteeAddress     = alice.pkh;
+
+                // Operation                
+                councilActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress);
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        it('%councilActionRemoveVestee     - council member (eve) should be able to create a new council action to remove a vestee (isaac)', async () => {
+            try{
+                
+                // initial values
+                councilMember   = councilMemberOne;
+                vesteeAddress   = isaac.pkh;
+
+                // initial storage
+                councilStorage          = await councilInstance.storage();
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                councilActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
@@ -438,62 +436,14 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-    })
-
-    
-    describe("%councilActionToggleVesteeLock", async () => {
-
-        beforeEach("Set signer to council member (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
-        });
-        
-        it('council member (eve) should be able to create a new council action to lock or unlock a vestee', async () => {
+        it('%councilActionRemoveVestee     - council member (eve) should not be able to remove a non-existent vestee', async () => {
             try{
-                
-                // initial values
-                councilMember   = councilMemberOne;
-                vesteeAddress   = isaac.pkh;
-
-                // initial storage
-                councilStorage          = await councilInstance.storage();
-                const nextActionID      = councilStorage.actionCounter;
-
-                // Operation
-                const newActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send();
-                await newActionOperation.confirmation();
-
-                // Final values
-                councilStorage                      = await councilInstance.storage();
-                const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner                  = action.signers.includes(councilMember);
-                const dataMap                       = await action.dataMap;
-                const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
-
-                // Assertions
-                assert.strictEqual(action.initiator     , councilMember);
-                assert.strictEqual(action.status        , "PENDING");
-                assert.strictEqual(action.actionType    , "toggleVesteeLock");
-                
-                assert.equal(action.executed            , false);
-                assert.equal(actionSigner               , true);
-                assert.equal(action.signersCount        , 1);
-                
-                assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('council member (eve) should not be able to call this entrypoint if the vestee does not exist', async () => {
-            try{
-                
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const vesteeAddress     = alice.pkh;
+                const vesteeAddress     = david.pkh;
 
-                // Operation                
-                councilActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress);
+                // Operation
+                councilActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress);
                 await chai.expect(councilActionOperation.send()).to.be.rejected;
 
             } catch(e){
@@ -503,13 +453,57 @@ describe("Test: Council Contract", async () => {
 
     })
 
-    describe("%councilActionAddMember", async () => {
-        
+
+
+    describe("create council actions for internal control", async () => {
+
         beforeEach("Set signer to council member (eve)", async () => {
+            councilMember   = councilMemberOne;
             await helperFunctions.signerFactory(tezos, councilMemberOneSk)
         });
-        
-        it('council member (eve) should be able to create a new action to add a council member', async () => {
+
+        it('%updateCouncilMemberInfo       - council member (eve) should be able to update her information', async () => {
+            try{
+
+                // initial values
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                
+                // initial storage
+                councilStorage            = await councilInstance.storage();
+                initialCouncilMemberInfo  = councilStorage.councilMembers.get(councilMemberOne);
+                
+                const oldMemberName     = initialCouncilMemberInfo.name
+                const oldMemberImage    = initialCouncilMemberInfo.image
+                const oldMemberWebsite  = initialCouncilMemberInfo.website
+                
+                const randomNumber      = await helperFunctions.randomNumberFromInterval(1, 10);
+                const newMemberName     = "Member Name " + randomNumber;
+                const newMemberImage    = "Member Image " + randomNumber;
+                const newMemberWebsite  = "Member Website " + randomNumber;
+
+                // Operation
+                councilActionOperation = await councilInstance.methods.updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
+
+                // Final values
+                councilStorage             = await councilInstance.storage();
+                updatedCouncilMemberInfo   = councilStorage.councilMembers.get(councilMemberOne);
+
+                // Assertions
+                assert.strictEqual(updatedCouncilMemberInfo.name       , newMemberName);
+                assert.strictEqual(updatedCouncilMemberInfo.image      , newMemberImage);
+                assert.strictEqual(updatedCouncilMemberInfo.website    , newMemberWebsite);
+
+                assert.notStrictEqual(updatedCouncilMemberInfo.name    , oldMemberName);
+                assert.notStrictEqual(updatedCouncilMemberInfo.image   , oldMemberImage);
+                assert.notStrictEqual(updatedCouncilMemberInfo.website , oldMemberWebsite);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%councilActionAddMember        - council member (eve) should be able to create a new action to add a council member', async () => {
             try{
 
                 // initial values
@@ -524,8 +518,8 @@ describe("Test: Council Contract", async () => {
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
@@ -556,7 +550,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it(`council member (eve) should not be able to access this entrypoint if the given member’s address is already in the council`, async () => {
+        it(`%councilActionAddMember        - council member (eve) should not be able to add an existing council member`, async () => {
             try{
                 
                 // Initial Values
@@ -575,128 +569,138 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-    })
-
-    describe("%councilActionRemoveMember", async () => {
-        beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
-        });
-        
-        it('Council member should be able to access this entrypoint and create a new action to remove a council member (the action counter should increase in the storage)', async () => {
+        it('%councilActionRemoveMember     - council member (eve) should be able to create a new action to remove a council member (alice)', async () => {
             try{
-                // Initial Values
+                // initial values
+                councilMember   = councilMemberOne;
+
                 councilStorage          = await councilInstance.storage();
-                const newMember         = eve.pkh;
+                const memberToBeRemoved = councilMemberThree;
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRemoveMember(newMember).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionRemoveMember(memberToBeRemoved).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner                  = action.signers.includes(alice.pkh)
+                const actionSigner                  = action.signers.includes(councilMemberOne)
                 const dataMap                       = await action.dataMap;
-                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
+                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberToBeRemoved }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMemberOne);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, false);
                 assert.equal(actionSigner, true);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the threshold is greater than the expected amount of members in the council', async () => {
+        it(`%councilActionRemoveMember     - council member (eve) should not be able to remove a council member if this results in the signers threshold not being met`, async () => {
             try{
-                // Update config
-                await helperFunctions.signerFactory(tezos, trudy.sk);
+
+                // Note: Config signer's threshold is the number of required approvals from council members before an action gets executed
+                //  - if it is higher than the total number of council members, than an action will never be able to be executed
+                
                 councilStorage  = await councilInstance.storage();
-                const currentThreshold  = councilStorage.config.threshold;
-                const updatedThreshold  = councilStorage.councilMembers.size;
-                var updateConfigOperation   = await councilInstance.methods.updateConfig(updatedThreshold,"configThreshold").send();
+                // const currentThreshold  = councilStorage.config.threshold;
+                // const newThreshold      = councilStorage.councilMembers.size;
+
+                const councilMembersSize            = councilStorage.councilMembers.size;
+                const oldThreshold                  = councilStorage.config.threshold;
+                const newThreshold                  = councilMembersSize > oldThreshold ? oldThreshold : councilMembersSize;
+                
+                // set signer as admin and update config
+                await helperFunctions.signerFactory(tezos, adminSk);
+                updateConfigOperation   = await councilInstance.methods.updateConfig(newThreshold, "configThreshold").send();
                 await updateConfigOperation.confirmation();
 
-                // Initial Values
+                // initial storage
                 councilStorage          = await councilInstance.storage();
-                const newMember         = isaac.pkh;
+                const memberToBeRemoved = councilMemberTwo;
 
                 // Operation
-                await chai.expect(councilInstance.methods.councilActionRemoveMember(newMember).send()).to.be.rejected;
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+                councilActionOperation = councilInstance.methods.councilActionRemoveMember(memberToBeRemoved);
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
 
-                // Reset config
-                var updateConfigOperation   = await councilInstance.methods.updateConfig(currentThreshold,"configThreshold").send();
+                // set signer as admin and reset config
+                await helperFunctions.signerFactory(tezos, adminSk);
+
+                updateConfigOperation   = await councilInstance.methods.updateConfig(oldThreshold, "configThreshold").send();
                 await updateConfigOperation.confirmation();
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-
-        it('Council member should not be able to access this entrypoint if the given member’s address is not in the council', async () => {
+        it('%councilActionRemoveMember     - council member (eve) should not be able to access this entrypoint if the given address (isaac) is not a council member', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const newMember         = isaac.pkh;
+                const memberAddress     = isaac.pkh;
 
                 // Operation                
-                await chai.expect(councilInstance.methods.councilActionRemoveMember(newMember).send()).to.be.rejected;
+                councilActionOperation = councilInstance.methods.councilActionRemoveMember(memberAddress);
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Non-council member should not be able to access this entrypoint', async () => {
+        it('%councilActionRemoveMember     - non-council member (isaac) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const newMember         = eve.pkh;
+                const memberAddress     = eve.pkh;
 
                 // Operation
                 await helperFunctions.signerFactory(tezos, isaac.sk);
-                await chai.expect(councilInstance.methods.councilActionRemoveMember(newMember).send()).to.be.rejected;
+                councilActionOperation = councilInstance.methods.councilActionRemoveMember(memberAddress);
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
-    })
 
-    describe("%councilActionChangeMember", async () => {
-        beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
-        });
-        
-        it('Council member should be able to access this entrypoint and create a new action to replace a council member by another (the action counter should increase in the storage)', async () => {
+
+        it('%councilActionChangeMember     - council member (eve) should be able to create a new council action to replace a council member (alice) by another (oscar)', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const oldMember         = eve.pkh;
+                
+                const oldMember         = councilMemberThree;
                 const newMember         = mallory.pkh;
+                
                 const nextActionID      = councilStorage.actionCounter;
                 const newMemberName     = "Member Name";
                 const newMemberImage    = "Member Image";
                 const newMemberWebsite  = "Member Website";
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner                  = action.signers.includes(alice.pkh)
+                const actionSigner                  = action.signers.includes(councilMemberOne)
                 const dataMap                       = await action.dataMap;
                 const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldMember }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMemberOne);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
@@ -704,13 +708,15 @@ describe("Test: Council Contract", async () => {
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('council member (trudy) should not be able to access this entrypoint if the given old member address is not in the council', async () => {
+        it('%councilActionChangeMember     - council member (eve) should not be able to call this entrypoint if the given address is not a council member', async () => {
             try{
+
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
                 const oldMember         = mallory.pkh;
@@ -720,30 +726,35 @@ describe("Test: Council Contract", async () => {
                 const newMemberWebsite  = "Member Website";
 
                 // Operation
-                await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
+                councilActionOperation = councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage)
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('council member (trudy) should not be able to access this entrypoint if the given new member address is already in the council', async () => {
+        it('%councilActionChangeMember     - council member (eve) should not be able to call this entrypoint if the given address is already a council member', async () => {
             try{
+
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const oldMember         = eve.pkh;
-                const newMember         = alice.pkh;
+                const oldMember         = councilMemberOne;
+                const newMember         = councilMemberTwo;
                 const newMemberName     = "Member Name";
                 const newMemberImage    = "Member Image";
                 const newMemberWebsite  = "Member Website";
 
                 // Operation
-                await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
+                councilActionOperation = councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage)
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Non-council member should not be able to access this entrypoint', async () => {
+        it('%councilActionChangeMember     - non-council member (isaac) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
@@ -755,21 +766,31 @@ describe("Test: Council Contract", async () => {
 
                 // Operation
                 await helperFunctions.signerFactory(tezos, isaac.sk);
-                await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
+                
+                councilActionOperation = councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage)
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
     })
 
-    describe("%councilActionTransfer", async () => {
-        
-        beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
+
+
+    describe("create council actions for financial governance", async () => {
+
+        beforeEach("Set signer to council member (eve)", async () => {
+            councilMember = councilMemberOne;
+            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
         });
-        
-        it('Council member should be able to access this entrypoint and create a new action to transfer tokens to given address (the action counter should increase in the storage)', async () => {
+
+        it('%councilActionTransfer         - council member (eve) should be able to create a council action to transfer tokens from the Council contract to a given address', async () => {
             try{
+
+                // initial values
+                councilMember   = councilMemberOne;
+
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
                 const receiverAddress       = eve.pkh;
@@ -781,19 +802,21 @@ describe("Test: Council Contract", async () => {
                 const nextActionID          = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionTransfer(
+                councilActionOperation = await councilInstance.methods.councilActionTransfer(
                     receiverAddress,
                     tokenContractAddress,
                     tokenAmount,
                     tokenType,
                     tokenId,
-                    purpose).send();
-                await newActionOperation.confirmation();
+                    purpose
+                ).send();
+
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner                  = action.signers.includes(alice.pkh)
+                const actionSigner                  = action.signers.includes(councilMember)
                 const dataMap                       = await action.dataMap;
                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -803,7 +826,7 @@ describe("Test: Council Contract", async () => {
                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "transfer");
                 assert.equal(action.executed, false);
@@ -815,12 +838,13 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("purpose"), packedPurpose);
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"), packedTokenId);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
-        
-        it('Council member should not be able to access this entrypoint if the given tokenType is not FA12, FA2 or XTZ', async () => {
+
+        it('%councilActionTransfer         - council member (eve) should not be able to call this entrypoint if the given tokenType is not FA12, FA2 or XTZ', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -832,20 +856,23 @@ describe("Test: Council Contract", async () => {
                 const tokenId               = 0;
 
                 // Operation
-                await chai.expect(councilInstance.methods.councilActionTransfer(
+                councilActionOperation = councilInstance.methods.councilActionTransfer(
                     receiverAddress,
                     tokenContractAddress,
                     tokenAmount,
                     tokenType,
                     tokenId,
-                    purpose).send()
-                ).to.be.rejected;
+                    purpose
+                );
+
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Non-council member should not be able to access this entrypoint', async () => {
+        it('%councilActionTransfer         - non-council member (isaac) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -858,28 +885,30 @@ describe("Test: Council Contract", async () => {
 
                 // Operation
                 await helperFunctions.signerFactory(tezos, isaac.sk);
-                await chai.expect(councilInstance.methods.councilActionTransfer(
+
+                councilActionOperation = councilInstance.methods.councilActionTransfer(
                     receiverAddress,
                     tokenContractAddress,
                     tokenAmount,
                     tokenType,
                     tokenId,
-                    purpose).send()
-                ).to.be.rejected;
+                    purpose
+                );
+
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
-    })
 
-    describe("%councilActionRequestTokens", async () => {
-        beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
-        });
-        
-        it('Council member should be able to access this entrypoint and create a new action to request tokens from the given treasury (the action counter should increase in the storage)', async () => {
+        it('%councilActionRequestTokens    - council member (eve) should be able to create a new council action to request tokens from a given treasury', async () => {
             try{
-                // Initial Values
+                
+                // initial values
+                councilMember   = councilMemberOne;
+
+                // initial storage
                 councilStorage              = await councilInstance.storage();
                 const fromTreasury          = contractDeployments.treasury.address;
                 const tokenContractAddress  = contractDeployments.mvkToken.address;
@@ -891,7 +920,7 @@ describe("Test: Council Contract", async () => {
                 const nextActionID          = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRequestTokens(
+                councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
                     tokenContractAddress,
                     tokenName,
@@ -899,12 +928,12 @@ describe("Test: Council Contract", async () => {
                     tokenType,
                     tokenId,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner                  = action.signers.includes(alice.pkh)
+                const actionSigner                  = action.signers.includes(councilMember)
                 const dataMap                       = await action.dataMap;
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -915,7 +944,7 @@ describe("Test: Council Contract", async () => {
                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestTokens");
                 assert.equal(action.executed, false);
@@ -928,12 +957,14 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("purpose"), packedPurpose);
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"), packedTokenId);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the given tokenType is not FA12, FA2 or XTZ', async () => {
+
+        it('%councilActionRequestTokens    - council member (eve) should not be able to access this entrypoint if the given tokenType is not FA12, FA2 or XTZ', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -946,21 +977,24 @@ describe("Test: Council Contract", async () => {
                 const tokenId               = 0;
 
                 // Operation
-                await chai.expect(councilInstance.methods.councilActionRequestTokens(
+                councilActionOperation = councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
                     tokenType,
                     tokenId,
-                    purpose).send()
-                ).to.be.rejected;
+                    purpose
+                );
+
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Non-council member should not be able to access this entrypoint', async () => {
+        it('%councilActionRequestTokens    - non-council member (isaac) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -974,29 +1008,30 @@ describe("Test: Council Contract", async () => {
 
                 // Operation
                 await helperFunctions.signerFactory(tezos, isaac.sk);
-                await chai.expect(councilInstance.methods.councilActionRequestTokens(
+                councilActionOperation = councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
                     tokenType,
                     tokenId,
-                    purpose).send()
-                ).to.be.rejected;
+                    purpose
+                );
+
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
-    })
 
-    describe("%councilActionRequestMint", async () => {
-        beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
-        });
-        
-        it('Council member should be able to access this entrypoint and create a new action to request a mint from the given treasury (the action counter should increase in the storage)', async () => {
+        it('%councilActionRequestMint      - council member (eve) should be able to create a new action to request minting of MVK from a given treasury', async () => {
             try{
-                // Initial Values
+                
+                // initial values
+                councilMember   = councilMemberOne;
+
+                // initial storage
                 councilStorage              = await councilInstance.storage();
                 const fromTreasury          = contractDeployments.treasury.address;
                 const purpose               = "For testing purposes";
@@ -1004,23 +1039,24 @@ describe("Test: Council Contract", async () => {
                 const nextActionID          = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
-                    purpose).send();
-                await newActionOperation.confirmation();
+                    purpose
+                ).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner                  = action.signers.includes(alice.pkh)
+                const actionSigner                  = action.signers.includes(councilMember)
                 const dataMap                       = await action.dataMap;
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -1030,16 +1066,21 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("purpose"), packedPurpose);
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
-                // Sign action for later drop 
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // Sign action for subsequent testing of dropping a financial request
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Non-council member should not be able to access this entrypoint', async () => {
+        it('%councilActionRequestMint      - non-council member (isaac) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -1049,55 +1090,53 @@ describe("Test: Council Contract", async () => {
 
                 // Operation
                 await helperFunctions.signerFactory(tezos, isaac.sk);
-                await chai.expect(councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
-                    purpose).send()
-                ).to.be.rejected;
+                    purpose
+                );
+                await chai.expect(councilActionOperation.send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
-    })
 
-    describe("%councilActionDropFinancialReq", async () => {
-        beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
-        });
-        
-        it('Council member should be able to access this entrypoint and create a new action to request a mint from the given treasury (the action counter should increase in the storage)', async () => {
+        it('%councilActionDropFinancialReq - council member (eve) should be able to create a new council action to drop a given financial request', async () => {
             try{
-                // Initial Values
+
+                // initial storage
                 councilStorage              = await councilInstance.storage();
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 const requestID             = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
                 const nextActionID          = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionDropFinancialReq(requestID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionDropFinancialReq(requestID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 const action                = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner          = action.signers.includes(alice.pkh)
+                const actionSigner          = action.signers.includes(councilMember)
                 const dataMap               = await action.dataMap;
                 const packedRequestId       = (await utils.tezos.rpc.packData({ data: { int: requestID.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "dropFinancialRequest");
                 assert.equal(action.executed, false);
                 assert.equal(actionSigner, true);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("requestId"), packedRequestId);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
         
-        it('Council member should not be able to access this entrypoint if the financial request linked to the provided ID doesn’t exist', async () => {
+        it('%councilActionDropFinancialReq - council member (eve) should not be able to access this entrypoint if the financial request linked to the provided ID doesn’t exist', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -1110,8 +1149,9 @@ describe("Test: Council Contract", async () => {
             }
         });
         
-        it('Council member should not be able to access this entrypoint if the financial request linked to the provided ID was flushed', async () => {
+        it('%councilActionDropFinancialReq - council member (eve) should not be able to call this entrypoint if the financial request linked to the provided ID was flushed', async () => {
             try{
+                
                 // ----- REQUEST MINT
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -1121,23 +1161,23 @@ describe("Test: Council Contract", async () => {
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -1153,18 +1193,18 @@ describe("Test: Council Contract", async () => {
                 const flushActionID             = councilStorage.actionCounter;
 
                 // Operation
-                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 action                      = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner                = action.signers.includes(alice.pkh)
+                actionSigner                = action.signers.includes(councilMember)
                 dataMap                     = await action.dataMap;
                 var packedActionId          = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
@@ -1173,11 +1213,16 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
                 // ----- SIGN FLUSH
-                await helperFunctions.signerFactory(tezos, trudy.sk)
 
-                // Operation
-                const signOperation = await councilInstance.methods.signAction(flushActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage          = await councilInstance.storage();
@@ -1186,17 +1231,17 @@ describe("Test: Council Contract", async () => {
                 packedActionId          = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
                 const flushedAction         = await councilStorage.councilActionsLedger.get(mintActionID);
                 dataMap                     = await flushedAction.dataMap;
 
-                assert.strictEqual(flushedAction.initiator, alice.pkh);
+                assert.strictEqual(flushedAction.initiator, councilMember);
                 assert.strictEqual(flushedAction.status, "FLUSHED");
                 assert.strictEqual(flushedAction.actionType, "requestMint");
                 assert.equal(flushedAction.executed, false);
@@ -1206,14 +1251,15 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
                 // ----- DROP
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(mintActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
         
-        it('Council member should not be able to access this entrypoint if the financial request linked to the provided ID was executed', async () => {
+        it('%councilActionDropFinancialReq - council member (eve) should not be able to call this entrypoint if the financial request linked to the provided ID was executed', async () => {
             try{
                 // ----- REQUEST MINT
                 // Initial Values
@@ -1224,23 +1270,23 @@ describe("Test: Council Contract", async () => {
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator,councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -1251,36 +1297,43 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
                 // ----- SIGN REQUEST
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                newActionOperation = await councilInstance.methods.signAction(mintActionID).send();
-                await newActionOperation.confirmation();
+
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(mintActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(mintActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(mintActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 var dataMap         = await action.dataMap;
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
                 // ----- DROP
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Non-council member should not be able to access this entrypoint', async () => {
+        it('%councilActionDropFinancialReq - non-council member (isaac) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -1289,49 +1342,66 @@ describe("Test: Council Contract", async () => {
                 // Operation
                 await helperFunctions.signerFactory(tezos, isaac.sk);
                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(requestID).send()).to.be.rejected;
+            
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
+
     })
 
     describe("%flushAction", async () => {
+
         beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
+            councilMember = councilMemberOne;
+            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
         });
 
-        it('Council member should be able to access this entrypoint with a correct actionID and create a new action to flush a pending action (the action counter should increase in the storage)', async () => {
+        it('council member (eve) should be able to call this entrypoint with a correct actionID and create a new action to flush a pending action ', async () => {
             try{
+
+                // setup new pending action
+                const newMember         = isaac.pkh;
+                const newMemberName     = "Member Name";
+                const newMemberImage    = "Member Image";
+                const newMemberWebsite  = "Member Website";
+                const dropActionID      = councilStorage.actionCounter;
+
+                // Operation
+                councilActionOperation = await councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
+
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
-                const requestID             = 4;
+                const requestID             = dropActionID;
                 const nextActionID          = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.flushAction(requestID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.flushAction(requestID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 const action            = await councilStorage.councilActionsLedger.get(nextActionID);
-                const actionSigner      = action.signers.includes(alice.pkh)
+                const actionSigner      = action.signers.includes(councilMember)
                 const dataMap           = await action.dataMap;
                 const packedRequestId   = (await utils.tezos.rpc.packData({ data: { int: requestID.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
                 assert.equal(actionSigner, true);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("actionId"), packedRequestId);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID doesn’t exist', async () => {
+        it('council member (eve) should not be able to access this entrypoint if the action linked to the provided actionID doesn’t exist', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -1344,30 +1414,31 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was flushed', async () => {
+        it('council member (eve) should not be able to access this entrypoint if the action linked to the provided actionID was flushed', async () => {
             try{
+                
                 // ----- ADD MEMBER
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
-                const councilMember         = mallory.pkh;
+                const newCouncilMember      = mallory.pkh;
                 const memberActionID        = councilStorage.actionCounter;
                 const newMemberName         = "Member Name";
                 const newMemberImage        = "Member Image";
                 const newMemberWebsite      = "Member Website";
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionAddMember(councilMember, newMemberName, newMemberWebsite, newMemberImage).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionAddMember(newCouncilMember, newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(memberActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var flushDataMap                    = await action.dataMap;
-                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
+                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, false);
@@ -1381,18 +1452,18 @@ describe("Test: Council Contract", async () => {
                 const flushActionID             = councilStorage.actionCounter;
 
                 // Operation
-                newActionOperation = await councilInstance.methods.flushAction(memberActionID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.flushAction(memberActionID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 action                  = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner            = action.signers.includes(alice.pkh)
+                actionSigner            = action.signers.includes(councilMember)
                 var dataMap             = await action.dataMap;
                 const packedActionId    = (await utils.tezos.rpc.packData({ data: { int: memberActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
@@ -1401,11 +1472,16 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
                 // ----- SIGN DROP
-                await helperFunctions.signerFactory(tezos, trudy.sk)
 
-                // Operation
-                const signOperation = await councilInstance.methods.signAction(flushActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
@@ -1413,14 +1489,14 @@ describe("Test: Council Contract", async () => {
                 const flushedAction = await councilStorage.councilActionsLedger.get(memberActionID);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
-                assert.strictEqual(flushedAction.initiator, alice.pkh);
+                assert.strictEqual(flushedAction.initiator, councilMember);
                 assert.strictEqual(flushedAction.status, "FLUSHED");
                 assert.strictEqual(flushedAction.actionType, "addCouncilMember");
                 assert.equal(flushedAction.executed, false);
@@ -1428,37 +1504,38 @@ describe("Test: Council Contract", async () => {
                 assert.equal(flushDataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
                 // ----- FLUSH AGAIN
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 await chai.expect(councilInstance.methods.flushAction(memberActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was executed', async () => {
+        it('council member (eve) should not be able to access this entrypoint if the action linked to the provided actionID was executed', async () => {
             try{
                 // ----- ADD MEMBER
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
-                const councilMember         = mallory.pkh;
+                const newCouncilMember      = mallory.pkh;
                 const memberActionID        = councilStorage.actionCounter;
                 const newMemberName         = "Member Name";
                 const newMemberImage        = "Member Image";
                 const newMemberWebsite      = "Member Website";
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionAddMember(councilMember, newMemberName, newMemberWebsite, newMemberImage).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionAddMember(newCouncilMember, newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(memberActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
-                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
+                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, false);
@@ -1467,11 +1544,16 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
                 // ----- SIGN ACTION
-                await helperFunctions.signerFactory(tezos, trudy.sk)
 
-                // Operation
-                const signOperation = await councilInstance.methods.signAction(memberActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(memberActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(memberActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
@@ -1479,22 +1561,23 @@ describe("Test: Council Contract", async () => {
                 dataMap             = await action.dataMap;
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
                 // ----- FLUSH
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 await chai.expect(councilInstance.methods.flushAction(memberActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Non-council member should not be able to access this entrypoint', async () => {
+        it('non-council member (isaac) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -1510,28 +1593,30 @@ describe("Test: Council Contract", async () => {
     })
 
     describe("%signAction", async () => {
+        
         beforeEach("Set signer to council", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
+            councilMember = councilMemberOne;
+            vesteeAddress = isaac.pkh;
+            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
         });
 
-        it('addVestee --> should add a new vestee', async () => {
+        it('addVestee --> should add a new vestee (isaac)', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 24;
-                const vesteeAddress     = isaac.pkh;
                 const totalAllocated    = MVK(20000000);
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
@@ -1539,7 +1624,7 @@ describe("Test: Council Contract", async () => {
                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addVestee");
                 assert.equal(action.executed, false);
@@ -1550,27 +1635,32 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("cliffInMonths"), packedCliffInMonths);
                 assert.equal(dataMap.get("vestingInMonths"), packedVestingInMonths);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner    = action.signers.includes(alice.pkh)
+                var actionSigner    = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 vestingStorage      = await vestingInstance.storage();
                 const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "addVestee");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
                 assert.equal(dataMap.get("cliffInMonths"), packedCliffInMonths);
@@ -1579,81 +1669,30 @@ describe("Test: Council Contract", async () => {
                 assert.equal(vestee.totalAllocatedAmount, totalAllocated);
                 assert.equal(vestee.cliffMonths, cliffInMonths);
                 assert.equal(vestee.vestingMonths, vestingInMonths);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('addVestee --> should fail if the addVestee entrypoint doesn’t exist in the vesting contract or if the vesting contract is not in the generalContracts map', async () => {
-            try{
-                // Initial Values
-                councilStorage          = await councilInstance.storage();
-                const cliffInMonths     = 0;
-                const vestingInMonths   = 24;
-                const vesteeAddress     = mallory.pkh;
-                const totalAllocated    = MVK(20000000);
-                const nextActionID      = councilStorage.actionCounter;
 
-                // Operation
-                const newActionOperation = await councilInstance.methods.councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
-                await newActionOperation.confirmation();
-
-                // Final values
-                councilStorage                      = await councilInstance.storage();
-                var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
-                var dataMap                         = await action.dataMap;
-                const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
-                const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
-                const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
-                const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
-
-                // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
-                assert.strictEqual(action.status, "PENDING");
-                assert.strictEqual(action.actionType, "addVestee");
-                assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 1);
-                assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
-                assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
-                assert.equal(dataMap.get("cliffInMonths"), packedCliffInMonths);
-                assert.equal(dataMap.get("vestingInMonths"), packedVestingInMonths);
-
-                // Update general contracts
-                await helperFunctions.signerFactory(tezos, trudy.sk);
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", contractDeployments.vesting.address).send()
-                await updateOperation.confirmation();
-
-                // Operation
-                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-
-                // Reset general contracts
-                updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", contractDeployments.vesting.address).send()
-                await updateOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('updateVestee --> should fail if the addVestee entrypoint doesn’t exist in the vesting contract or if the vesting contract is not in the generalContracts map', async () => {
+        it('updateVestee --> should update a vestee (isaac)', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 12;
-                const vesteeAddress     = eve.pkh;
                 const totalAllocated    = MVK(40000000);
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
@@ -1661,7 +1700,7 @@ describe("Test: Council Contract", async () => {
                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "updateVestee");
                 assert.equal(action.executed, false);
@@ -1672,79 +1711,32 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("newCliffInMonths"), packedCliffInMonths);
                 assert.equal(dataMap.get("newVestingInMonths"), packedVestingInMonths);
 
-                // Update general contracts
-                await helperFunctions.signerFactory(tezos, trudy.sk);
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", contractDeployments.vesting.address).send()
-                await updateOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
-                // Operation
-                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-
-                // Reset general contracts
-                updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", contractDeployments.vesting.address).send()
-                await updateOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('updateVestee --> should update a vestee', async () => {
-            try{
-                // Initial Values
-                councilStorage          = await councilInstance.storage();
-                const cliffInMonths     = 0;
-                const vestingInMonths   = 12;
-                const vesteeAddress     = eve.pkh;
-                const totalAllocated    = MVK(40000000);
-                const nextActionID      = councilStorage.actionCounter;
-
-                // Operation
-                const newActionOperation = await councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
-                await newActionOperation.confirmation();
-
-                // Final values
-                councilStorage                      = await councilInstance.storage();
-                var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
-                var dataMap                         = await action.dataMap;
-                const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
-                const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
-                const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
-                const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
-
-                // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
-                assert.strictEqual(action.status, "PENDING");
-                assert.strictEqual(action.actionType, "updateVestee");
-                assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 1);
-                assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
-                assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
-                assert.equal(dataMap.get("newCliffInMonths"), packedCliffInMonths);
-                assert.equal(dataMap.get("newVestingInMonths"), packedVestingInMonths);
-
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner    = action.signers.includes(alice.pkh)
+                var actionSigner    = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 vestingStorage      = await vestingInstance.storage();
                 const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "updateVestee");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
                 assert.equal(dataMap.get("newCliffInMonths"), packedCliffInMonths);
@@ -1753,34 +1745,34 @@ describe("Test: Council Contract", async () => {
                 assert.equal(vestee.totalAllocatedAmount, totalAllocated);
                 assert.equal(vestee.cliffMonths, cliffInMonths);
                 assert.equal(vestee.vestingMonths, vestingInMonths);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
         
-        it('toggleVesteeLock --> should lock or unlock a vestee', async () => {
+        it('toggleVesteeLock --> should lock or unlock a vestee (isaac)', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const vesteeAddress     = eve.pkh;
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 vestingStorage              = await vestingInstance.storage();
                 var vestee                  = await vestingStorage.vesteeLedger.get(vesteeAddress);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "toggleVesteeLock");
                 assert.equal(action.executed, false);
@@ -1789,54 +1781,59 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.strictEqual(vestee.status, "ACTIVE")
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk);
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 dataMap                     = await action.dataMap;
                 vestingStorage              = await vestingInstance.storage();
                 vestee                      = await vestingStorage.vesteeLedger.get(vesteeAddress);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "toggleVesteeLock");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.notStrictEqual(vestee, undefined);
                 assert.strictEqual(vestee.status, "LOCKED")
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('removeVestee --> should fail if the removeVestee entrypoint doesn’t exist in the vesting contract or if the vesting contract is not in the generalContracts map', async () => {
+        it('removeVestee --> should remove a vestee (isaac)', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const vesteeAddress     = eve.pkh;
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeVestee");
                 assert.equal(action.executed, false);
@@ -1844,78 +1841,41 @@ describe("Test: Council Contract", async () => {
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 
-                // Update general contracts
-                await helperFunctions.signerFactory(tezos, trudy.sk);
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", contractDeployments.vesting.address).send()
-                await updateOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
-                // Operation                
-                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-
-                // Update general contracts
-                var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", contractDeployments.vesting.address).send()
-                await updateOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('removeVestee --> should remove a vestee', async () => {
-            try{
-                // Initial Values
-                councilStorage          = await councilInstance.storage();
-                const vesteeAddress     = eve.pkh;
-                const nextActionID      = councilStorage.actionCounter;
-
-                // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send();
-                await newActionOperation.confirmation();
-
-                // Final values
-                councilStorage              = await councilInstance.storage();
-                var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
-                var dataMap                 = await action.dataMap;
-                const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
-
-                // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
-                assert.strictEqual(action.status, "PENDING");
-                assert.strictEqual(action.actionType, "removeVestee");
-                assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 1);
-                assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
-
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner    = action.signers.includes(alice.pkh)
+                var actionSigner    = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 vestingStorage      = await vestingInstance.storage();
                 const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "removeVestee");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.strictEqual(vestee, undefined);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('addCouncilMember --> should add the given address as a council member if the address is not in it', async () => {
+        it('addCouncilMember --> should be able to add an ordinary user (david) as a council member', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -1926,22 +1886,18 @@ describe("Test: Council Contract", async () => {
                 const newMemberWebsite      = "Member Website";
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
-                await newActionOperation.confirmation();
-
-                // Action for future test
-                const futureActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
-                await futureActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, false);
@@ -1949,86 +1905,62 @@ describe("Test: Council Contract", async () => {
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner    = action.signers.includes(alice.pkh)
+                var actionSigner    = action.signers.includes(councilMember)
                 var dataMap      = await action.dataMap;
 
                 const memberUpdated = councilStorage.councilMembers.has(david.pkh);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
                 assert.equal(memberUpdated, true);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('addCouncilMember --> should fail if the member is already a council member', async () => {
+
+        it('removeCouncilMember --> should be able to remove a given council member (david) from the council', async () => {
             try{
+                
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
                 const memberAddress     = david.pkh;
-                const nextActionID      = councilStorage.actionCounter - 1;
-
-                // Final values
-                councilStorage                      = await councilInstance.storage();
-                var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
-                var dataMap                         = await action.dataMap;
-                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
-
-                // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
-                assert.strictEqual(action.status, "PENDING");
-                assert.strictEqual(action.actionType, "addCouncilMember");
-                assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 1);
-                assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
-
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('removeCouncilMember --> should fail if the threshold in the configuration is greater than the expected amount of members after execution', async () => {
-            try{
-                // Initial Values
-                councilStorage          = await councilInstance.storage();
-                const memberAddress     = mallory.pkh;
                 const nextActionID      = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
-                await newActionOperation.confirmation();
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                councilActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
-                const councilSize                   = councilStorage.councilMembers.size;
-                const oldThresold                   = councilStorage.config.threshold;
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, false);
@@ -2036,109 +1968,66 @@ describe("Test: Council Contract", async () => {
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
-                // Update config
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                var updateConfigOperation = await councilInstance.methods.updateConfig(councilSize,"configThreshold").send();
-                await updateConfigOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
-                // Operation
-                var signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
-                
-                await helperFunctions.signerFactory(tezos, mallory.sk)
-                signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
-
-                await helperFunctions.signerFactory(tezos, david.sk)
-                signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
-
-                await helperFunctions.signerFactory(tezos, eve.sk)
-                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-
-                // Reset config
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                updateConfigOperation = await councilInstance.methods.updateConfig(oldThresold,"configThreshold").send();
-                await updateConfigOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('removeCouncilMember --> should remove the given address from the council members if the address is in it', async () => {
-            try{
-                // Initial Values
-                councilStorage          = await councilInstance.storage();
-                const memberAddress     = mallory.pkh;
-                const nextActionID      = councilStorage.actionCounter;
-
-                // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
-                await newActionOperation.confirmation();
-
-                // Action for future test
-                const futureActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
-                await futureActionOperation.confirmation();
-
-                // Final values
-                councilStorage                      = await councilInstance.storage();
-                var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
-                var dataMap                         = await action.dataMap;
-                const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
-
-                // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
-                assert.strictEqual(action.status, "PENDING");
-                assert.strictEqual(action.actionType, "removeCouncilMember");
-                assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 1);
-                assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
-
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner    = action.signers.includes(alice.pkh)
-                var dataMap      = await action.dataMap;
+                var actionSigner    = action.signers.includes(councilMember)
+                var dataMap         = await action.dataMap;
 
-                const memberUpdated = councilStorage.councilMembers.has(mallory.pkh);
+                const memberUpdated = councilStorage.councilMembers.has(memberAddress);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
                 assert.equal(memberUpdated, false);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('removeCouncilMember --> should fail if the member is not a council member', async () => {
+
+        it('removeCouncilMember --> should fail if the config signers threshold is greater than the total number of council members after execution', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const memberAddress     = mallory.pkh;
-                const nextActionID      = councilStorage.actionCounter - 1;
+                const memberAddress     = councilMemberTwo;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                councilActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
+                
+                console.log(councilStorage.councilMembers);
+
+                const councilMembersSize            = councilStorage.councilMembers.size;
+                const oldThreshold                  = councilStorage.config.threshold;
+                const newThreshold                  = councilMembersSize > oldThreshold ? oldThreshold : councilMembersSize;
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, false);
@@ -2146,19 +2035,56 @@ describe("Test: Council Contract", async () => {
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                console.log(`oldThresold: ${oldThreshold}`);
+                console.log(`newThreshold: ${newThreshold}`);
+
+                // Update config
+                await helperFunctions.signerFactory(tezos, adminSk)
+                var updateConfigOperation = await councilInstance.methods.updateConfig(newThreshold, "configThreshold").send();
+                await updateConfigOperation.confirmation();
+
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID);
+                await chai.expect(signActionOperation.send()).to.be.rejected;
+
+                // Reset config
+                await helperFunctions.signerFactory(tezos, adminSk)
+                updateConfigOperation = await councilInstance.methods.updateConfig(oldThreshold, "configThreshold").send();
+                await updateConfigOperation.confirmation();
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('changeCouncilMember --> should replace an old councilMember with a new one if the old member if the old member is a council member', async () => {
+
+        it('removeCouncilMember --> should fail if the given address is not a council member', async () => {
+            try{
+                
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const memberAddress     = mallory.pkh;
+
+                // Operation
+                councilActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
+                await councilActionOperation.confirmation();
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('changeCouncilMember --> should be able to replace a council member with another user', async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const oldMemberAddress  = eve.pkh;
+                const oldMemberAddress  = alice.pkh;
                 const newMemberAddress  = isaac.pkh;
                 const nextActionID      = councilStorage.actionCounter;
                 const newMemberName     = "Member Name";
@@ -2166,29 +2092,19 @@ describe("Test: Council Contract", async () => {
                 const newMemberWebsite  = "Member Website";
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, newMemberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
-                await newActionOperation.confirmation();
-
-                // Action for future test
-                var futureNewAddress  = trudy.pkh;
-                var futureActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, futureNewAddress, newMemberName, newMemberWebsite, newMemberImage).send();
-                await futureActionOperation.confirmation();
-
-                // Action for future test
-                var futureOldAddress  = alice.pkh;
-                var futureActionOperation = await councilInstance.methods.councilActionChangeMember(futureOldAddress, newMemberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
-                await futureActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, newMemberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                        = action.signers.includes(alice.pkh)
+                var actionSigner                        = action.signers.includes(councilMember)
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
@@ -2197,54 +2113,61 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner    = action.signers.includes(alice.pkh)
+                var actionSigner    = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
-                const memberRemoved = councilStorage.councilMembers.has(eve.pkh);
-                const memberAdded = councilStorage.councilMembers.has(isaac.pkh);
+                const memberRemoved = councilStorage.councilMembers.has(oldMemberAddress);
+                const memberAdded   = councilStorage.councilMembers.has(newMemberAddress);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
                 assert.equal(memberRemoved, false);
                 assert.equal(memberAdded, true);
+            
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('changeCouncilMember --> should fail if the old member is not in the council', async () => {
+        it('changeCouncilMember --> should fail if the address to be changed is not a council member', async () => {
             try{
+
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const oldMemberAddress  = eve.pkh;
+                const oldMemberAddress  = david.pkh;
                 const newMemberAddress  = trudy.pkh;
                 const nextActionID      = councilStorage.actionCounter - 2;
 
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                        = action.signers.includes(alice.pkh)
+                var actionSigner                        = action.signers.includes(councilMember)
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
@@ -2254,8 +2177,9 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2265,20 +2189,20 @@ describe("Test: Council Contract", async () => {
             try{
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
-                const oldMemberAddress  = alice.pkh;
+                const oldMemberAddress  = trudy.pkh;
                 const newMemberAddress  = isaac.pkh;
                 const nextActionID      = councilStorage.actionCounter - 1;
 
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                        = action.signers.includes(alice.pkh)
+                var actionSigner                        = action.signers.includes(councilMember)
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
@@ -2288,8 +2212,9 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2308,19 +2233,19 @@ describe("Test: Council Contract", async () => {
                 const nextActionID          = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionTransfer(
+                councilActionOperation = await councilInstance.methods.councilActionTransfer(
                     receiverAddress,
                     tokenContractAddress,
                     tokenAmount,
                     tokenType,
                     tokenId,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -2333,7 +2258,7 @@ describe("Test: Council Contract", async () => {
                 const preUserBalance                = await mvkTokenStorage.ledger.get(eve.pkh);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "transfer");
                 assert.equal(action.executed, false);
@@ -2346,27 +2271,32 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner    = action.signers.includes(alice.pkh)
+                var actionSigner    = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 const postCouncilBalance    = await mvkTokenStorage.ledger.get(contractDeployments.council.address);
                 const postUserBalance       = await mvkTokenStorage.ledger.get(eve.pkh);
 
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "transfer");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("receiverAddress"), packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenType"), packedTokenType);
@@ -2377,6 +2307,7 @@ describe("Test: Council Contract", async () => {
                 assert.notEqual(postUserBalance.toNumber(), preUserBalance.toNumber());
                 assert.equal(postUserBalance.toNumber(), preUserBalance.toNumber() + tokenAmount);
                 assert.equal(postCouncilBalance.toNumber(), preCouncilBalance.toNumber() - tokenAmount);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2398,20 +2329,21 @@ describe("Test: Council Contract", async () => {
                 const governanceActionID    = governanceFinancialStorage.financialRequestCounter; 
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRequestTokens(
+                councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
                     tokenType,
                     tokenId,
-                    purpose).send();
-                await newActionOperation.confirmation();
+                    purpose
+                ).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner                    = action.signers.includes(alice.pkh)
+                var actionSigner                    = action.signers.includes(councilMember)
                 var dataMap                         = await action.dataMap;
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -2422,7 +2354,7 @@ describe("Test: Council Contract", async () => {
                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestTokens");
                 assert.equal(action.executed, false);
@@ -2436,26 +2368,31 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(nextActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
                 const governanceAction          = await governanceFinancialStorage.financialRequestLedger.get(governanceActionID)
 
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "requestTokens");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenName"), packedTokenName);
@@ -2464,6 +2401,7 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"), packedTokenId);
                 assert.notStrictEqual(governanceAction, undefined);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2477,27 +2415,27 @@ describe("Test: Council Contract", async () => {
                 const purpose               = "For testing purposes";
                 const tokenAmount           = MVK(3);
                 const nextActionID          = councilStorage.actionCounter;
-                governanceFinancialStorage           = await governanceFinancialInstance.storage();
+                governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 const governanceActionID    = governanceFinancialStorage.financialRequestCounter; 
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -2507,30 +2445,36 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("purpose"), packedPurpose);
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(nextActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
                 const governanceAction  = await governanceFinancialStorage.financialRequestLedger.get(governanceActionID)
 
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
                 assert.notStrictEqual(governanceAction, undefined);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2540,23 +2484,23 @@ describe("Test: Council Contract", async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
-                governanceFinancialStorage           = await governanceFinancialInstance.storage();
+                governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 const requestID             = governanceFinancialStorage.financialRequestCounter - 1;
                 const nextActionID          = councilStorage.actionCounter;
 
                 // Operation
-                const newActionOperation = await councilInstance.methods.councilActionDropFinancialReq(requestID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.councilActionDropFinancialReq(requestID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 var action              = await councilStorage.councilActionsLedger.get(nextActionID);
-                var actionSigner        = action.signers.includes(alice.pkh)
+                var actionSigner        = action.signers.includes(councilMember)
                 var dataMap             = await action.dataMap;
                 const packedRequestId   = (await utils.tezos.rpc.packData({ data: { int: requestID.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "dropFinancialRequest");
                 assert.equal(action.executed, false);
@@ -2564,28 +2508,34 @@ describe("Test: Council Contract", async () => {
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("requestId"), packedRequestId);
 
-                // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(nextActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
                 const dropAction        = await governanceFinancialStorage.financialRequestLedger.get(requestID)
 
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "dropFinancialRequest");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("requestId"), packedRequestId);
                 assert.equal(dropAction.status, false);
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2602,23 +2552,23 @@ describe("Test: Council Contract", async () => {
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -2634,18 +2584,18 @@ describe("Test: Council Contract", async () => {
                 const flushActionID             = councilStorage.actionCounter;
 
                 // Operation
-                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 action                  = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner            = action.signers.includes(alice.pkh)
+                actionSigner            = action.signers.includes(councilMember)
                 dataMap                 = await action.dataMap;
                 var packedActionId      = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
@@ -2654,11 +2604,16 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
                 // ----- SIGN MINT
-                await helperFunctions.signerFactory(tezos, trudy.sk)
 
-                // Operation
-                var signOperation = await councilInstance.methods.signAction(mintActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(mintActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(mintActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
@@ -2666,11 +2621,11 @@ describe("Test: Council Contract", async () => {
                 dataMap             = await action.dataMap;
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
@@ -2694,23 +2649,23 @@ describe("Test: Council Contract", async () => {
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -2726,18 +2681,18 @@ describe("Test: Council Contract", async () => {
                 const flushActionID             = councilStorage.actionCounter;
 
                 // Operation
-                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
                 var packedActionId  = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
@@ -2751,17 +2706,17 @@ describe("Test: Council Contract", async () => {
                 const reflushActionID           = councilStorage.actionCounter;
 
                 // Operation
-                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(reflushActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
@@ -2795,23 +2750,23 @@ describe("Test: Council Contract", async () => {
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
                     purpose).send();
-                await newActionOperation.confirmation();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -2827,18 +2782,18 @@ describe("Test: Council Contract", async () => {
                 const flushActionID             = councilStorage.actionCounter;
 
                 // Operation
-                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
-                await newActionOperation.confirmation();
+                councilActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
                 var packedActionId  = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
@@ -2847,75 +2802,86 @@ describe("Test: Council Contract", async () => {
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
                 // ----- SIGN FIRST FLUSH
-                await helperFunctions.signerFactory(tezos, trudy.sk)
 
-                // Operation
-                var signOperation = await councilInstance.methods.signAction(flushActionID).send();
-                await signOperation.confirmation();
+                // set signer as council member two
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                signActionOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signActionOperation.confirmation();
+
+                // set signer as council member three
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                signActionOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signActionOperation.confirmation();
 
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner        = action.signers.includes(alice.pkh)
+                actionSigner        = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
                 const flushedAction = await councilStorage.councilActionsLedger.get(mintActionID);
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
-                assert.equal(action.signersCount, 2);
+                assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("actionId"), packedActionId);
                 assert.strictEqual(flushedAction.status, "FLUSHED");
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was flushed', async () => {
+        it('council member (eve) should not be able to access this entrypoint if the action linked to the provided actionID was flushed', async () => {
             try{
+
                 // Initial values
-                await helperFunctions.signerFactory(tezos, trudy.sk)
                 councilStorage              = await councilInstance.storage();
                 const flushedActionID       = councilStorage.actionCounter - 2;
 
                 // Operation
                 await chai.expect(councilInstance.methods.signAction(flushedActionID).send()).to.be.rejected;
                 const flushedAction = await councilStorage.councilActionsLedger.get(flushedActionID);
+                
                 assert.strictEqual(flushedAction.status, "FLUSHED");
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was executed', async () => {
+        it('council member (eve) should not be able to access this entrypoint if the action linked to the provided actionID was executed', async () => {
             try{
+
                 // Initial values
-                await helperFunctions.signerFactory(tezos, trudy.sk)
                 councilStorage              = await councilInstance.storage();
                 const executedActionID      = councilStorage.actionCounter - 1;
 
                 // Operation
                 await chai.expect(councilInstance.methods.signAction(executedActionID).send()).to.be.rejected;
                 const executedAction = await councilStorage.councilActionsLedger.get(executedActionID);
+
                 assert.strictEqual(executedAction.status, "EXECUTED");
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID doesn’t exist', async () => {
+        it('council member (eve) should not be able to access this entrypoint if the action linked to the provided actionID doesn’t exist', async () => {
             try{
-                // Initial values
-                await helperFunctions.signerFactory(tezos, trudy.sk)
+                
+                // initial storage
                 councilStorage              = await councilInstance.storage();
                 const flushedActionID       = 999;
 
                 // Operation
                 await chai.expect(councilInstance.methods.signAction(flushedActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2923,6 +2889,7 @@ describe("Test: Council Contract", async () => {
 
         it('Council member should not be able to sign the same action twice or more', async () => {
             try{
+                
                 // ----- REQUEST MINT
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -2932,23 +2899,24 @@ describe("Test: Council Contract", async () => {
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
-                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                     fromTreasury,
                     tokenAmount,
-                    purpose).send();
-                await newActionOperation.confirmation();
+                    purpose
+                ).send();
+                await councilActionOperation.confirmation();
 
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -2961,6 +2929,7 @@ describe("Test: Council Contract", async () => {
                 // Operation
                 await helperFunctions.signerFactory(tezos, trudy.sk);
                 await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -2986,14 +2955,14 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(alice.pkh)
+                var actionSigner            = action.signers.includes(councilMember)
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
                 // Assertions
-                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
@@ -3152,7 +3121,7 @@ describe("Test: Council Contract", async () => {
                 resetConfigOperation = await councilInstance.methods.updateConfig(initialConfig.actionExpiryDays, "configActionExpiryDays").send();
                 await resetConfigOperation.confirmation();
                 
-                resetConfigOperation = await councilInstance.methods.updateConfig(initialConfig.councilMemberNameMaxLendth, "configCouncilNameMaxLength").send();
+                resetConfigOperation = await councilInstance.methods.updateConfig(initialConfig.councilMemberNameMaxLength, "configCouncilNameMaxLength").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await councilInstance.methods.updateConfig(initialConfig.councilMemberWebsiteMaxLength, "configCouncilWebsiteMaxLength").send();
@@ -3171,13 +3140,13 @@ describe("Test: Council Contract", async () => {
                 councilStorage           = await councilInstance.storage();
                 const resetConfig        = councilStorage.config;
 
-                assert.equal(resetConfig.threshold,                     initialConfig.threshold);
-                assert.equal(resetConfig.actionExpiryDays,              initialConfig.actionExpiryDays);
-                assert.equal(resetConfig.councilMemberNameMaxLendth,    initialConfig.councilMemberNameMaxLendth);
-                assert.equal(resetConfig.councilMemberWebsiteMaxLength, initialConfig.councilMemberWebsiteMaxLength);
-                assert.equal(resetConfig.councilMemberImageMaxLength,   initialConfig.councilMemberImageMaxLength);
-                assert.equal(resetConfig.requestTokenNameMaxLength,     initialConfig.requestTokenNameMaxLength);
-                assert.equal(resetConfig.requestPurposeMaxLength,       initialConfig.requestPurposeMaxLength);
+                assert.equal(resetConfig.threshold.toNumber(),                      initialConfig.threshold.toNumber());
+                assert.equal(resetConfig.actionExpiryDays.toNumber(),              initialConfig.actionExpiryDays.toNumber());
+                assert.equal(resetConfig.councilMemberNameMaxLength.toNumber(),    initialConfig.councilMemberNameMaxLength.toNumber());
+                assert.equal(resetConfig.councilMemberWebsiteMaxLength.toNumber(), initialConfig.councilMemberWebsiteMaxLength.toNumber());
+                assert.equal(resetConfig.councilMemberImageMaxLength.toNumber(),   initialConfig.councilMemberImageMaxLength.toNumber());
+                assert.equal(resetConfig.requestTokenNameMaxLength.toNumber(),     initialConfig.requestTokenNameMaxLength.toNumber());
+                assert.equal(resetConfig.requestPurposeMaxLength.toNumber(),       initialConfig.requestPurposeMaxLength.toNumber());
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -3418,7 +3387,7 @@ describe("Test: Council Contract", async () => {
                 // check that there is no change to config
                 assert.equal(updatedConfig.threshold.toNumber()                         , initialConfig.threshold.toNumber());
                 assert.equal(updatedConfig.actionExpiryDays.toNumber()                  , initialConfig.actionExpiryDays.toNumber());
-                assert.equal(updatedConfig.councilMemberNameMaxLendth.toNumber()        , initialConfig.councilMemberNameMaxLendth.toNumber());
+                assert.equal(updatedConfig.councilMemberNameMaxLength.toNumber()        , initialConfig.councilMemberNameMaxLength.toNumber());
                 assert.equal(updatedConfig.councilMemberWebsiteMaxLength.toNumber()     , initialConfig.councilMemberWebsiteMaxLength.toNumber());
                 assert.equal(updatedConfig.councilMemberImageMaxLength.toNumber()       , initialConfig.councilMemberImageMaxLength.toNumber());
                 assert.equal(updatedConfig.requestTokenNameMaxLength.toNumber()         , initialConfig.requestTokenNameMaxLength.toNumber());
@@ -3485,6 +3454,7 @@ describe("Test: Council Contract", async () => {
 
                 // Operation
                 await chai.expect(councilInstance.methods.updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5});
             }
