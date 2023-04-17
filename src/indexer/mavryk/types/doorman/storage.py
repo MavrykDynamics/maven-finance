@@ -22,6 +22,7 @@ class BreakGlassConfig(BaseModel):
 
     stakeIsPaused: bool
     unstakeIsPaused: bool
+    exitIsPaused: bool
     compoundIsPaused: bool
     farmClaimIsPaused: bool
     onVaultDepositStakeIsPaused: bool
