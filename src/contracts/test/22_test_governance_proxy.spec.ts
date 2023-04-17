@@ -1,6 +1,7 @@
 import assert from 'assert';
-import { Utils, MVK } from './helpers/Utils';
+
 import * as doormanLambdas from '../build/lambdas/doormanLambdas.json';
+import { MVK, Utils } from './helpers/Utils';
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -1154,7 +1155,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Set WhitelistContracts Operation
                     const adminWhitelist        = await treasuryStorage.whitelistContracts.get("admin");
                     if(adminWhitelist === undefined){
-                        const updateWhitelistContractsOperation    = await treasuryInstance.methods.updateWhitelistContracts("admin", contractDeployments.governanceProxy.address).send();
+                        const updateWhitelistContractsOperation    = await treasuryInstance.methods.updateWhitelistContracts("admin", contractDeployments.governanceProxy.address, "update").send();
                         await updateWhitelistContractsOperation.confirmation();
                     }
     
@@ -1166,7 +1167,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // FA12
                     const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get("mavrykFa12");
                     if(fa12InTreasury === undefined){
-                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa12", contractDeployments.mavrykFa12Token.address).send();
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa12", contractDeployments.mavrykFa12Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
                     }
                     const transferFA12Operation = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasury.address, 50).send();
@@ -1175,7 +1176,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // FA2
                     const fa2InTreasury         = await treasuryStorage.whitelistTokenContracts.get("mavrykFa2");
                     if(fa2InTreasury === undefined){
-                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa2", contractDeployments.mavrykFa2Token.address).send();
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa2", contractDeployments.mavrykFa2Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
                     }
                     const transferFA2Operation  = await mavrykFa2TokenInstance.methods.transfer([
@@ -1374,43 +1375,6 @@ describe('Governance proxy lambdas tests', async () => {
                 }
             });
 
-            it('%togglePauseEntrypoint', async () => {
-                try{
-                    // Initial values
-                    treasuryStorage                     = await treasuryInstance.storage();
-                    const targetEntrypoint              = "Transfer";
-                    const targetContractType            = "treasury";
-                    const initConfigValue               = treasuryStorage.breakGlassConfig.transferIsPaused;
-                    
-                    // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
-                        contractDeployments.governanceProxy.address,
-                        
-                        'togglePauseEntrypoint',
-                        [
-                            contractDeployments.treasury.address,
-                            targetContractType,
-                            targetEntrypoint,
-                            true
-                        ]
-                    );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
-    
-                    // Final values
-                    treasuryStorage                     = await treasuryInstance.storage();
-                    const finalConfigValue              = treasuryStorage.breakGlassConfig.transferIsPaused;
-
-                    // Assertions
-                    assert.notEqual(initConfigValue, finalConfigValue);
-                    assert.equal(finalConfigValue, true);
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-
             it('%transfer', async () => {
                 try{
                     // Initial values
@@ -1482,6 +1446,43 @@ describe('Governance proxy lambdas tests', async () => {
                     console.dir(e, {depth: 5});
                 }
             });
+
+            it('%togglePauseEntrypoint', async () => {
+                try{
+                    // Initial values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    const targetEntrypoint              = "Transfer";
+                    const targetContractType            = "treasury";
+                    const initConfigValue               = treasuryStorage.breakGlassConfig.transferIsPaused;
+                    
+                    // Operation
+                    const lambdaFunction        = await compileLambdaFunction(
+                        'development',
+                        contractDeployments.governanceProxy.address,
+                        
+                        'togglePauseEntrypoint',
+                        [
+                            contractDeployments.treasury.address,
+                            targetContractType,
+                            targetEntrypoint,
+                            true
+                        ]
+                    );
+                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
+    
+                    // Final values
+                    treasuryStorage                     = await treasuryInstance.storage();
+                    const finalConfigValue              = treasuryStorage.breakGlassConfig.transferIsPaused;
+
+                    // Assertions
+                    assert.notEqual(initConfigValue, finalConfigValue);
+                    assert.equal(finalConfigValue, true);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
         });
 
         describe('Treasury Factory Contract', function() {
@@ -1540,8 +1541,8 @@ describe('Governance proxy lambdas tests', async () => {
                         
                         'createTreasury',
                         [
-                            baker.pkh,
                             contractDeployments.treasuryFactory.address,
+                            baker.pkh,
                             treasuryName,
                             addToGeneralContracts,
                             metadataBytes
@@ -3222,7 +3223,8 @@ describe('Governance proxy lambdas tests', async () => {
                         [
                             contractDeployments.doorman.address,
                             whitelistContractName,
-                            whitelistContractAddress
+                            whitelistContractAddress,
+                            "Update"
                         ]
                     );
                     const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
@@ -3258,7 +3260,8 @@ describe('Governance proxy lambdas tests', async () => {
                         [
                             contractDeployments.doorman.address,
                             generalContractName,
-                            generalContractAddress
+                            generalContractAddress,
+                            "Update"
                         ]
                     );
                     const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
@@ -3294,7 +3297,8 @@ describe('Governance proxy lambdas tests', async () => {
                         [
                             contractDeployments.treasuryFactory.address,
                             whitelistTokenContractName,
-                            whitelistTokenContractAddress
+                            whitelistTokenContractAddress,
+                            "Update"
                         ]
                     );
                     const operation                                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
