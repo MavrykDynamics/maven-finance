@@ -11,16 +11,16 @@ async def on_mvk_mint(
 ) -> None:
 
     # Get operation values
-    mintAddress         = mint.parameter.address
+    mint_address        = mint.parameter.address
     mvk_token_address   = mint.data.target_address
     timestamp           = mint.data.timestamp
-    new_user_balance    = mint.storage.ledger[mintAddress]
+    new_user_balance    = mint.storage.ledger[mint_address]
     minted_amount       = float(mint.parameter.nat)
     total_supply        = float(mint.storage.totalSupply)
 
     # Get mint account
-    user                = await models.mavryk_user_cache.get(address=mintAddress)
-    user.mvk_balance = new_user_balance
+    user                = await models.mavryk_user_cache.get(address = mint_address)
+    user.mvk_balance    = new_user_balance
     await user.save()
 
     # Create record
@@ -28,11 +28,12 @@ async def on_mvk_mint(
     mvk_token.total_supply  = total_supply
     await mvk_token.save()
     
-    mint_history_data       = models.MVKTokenMintHistoryData(
+    mint_burn_history_data  = models.MVKTokenMintOrBurnHistoryData(
         mvk_token           = mvk_token,
         timestamp           = timestamp,
         user                = user,
-        minted_amount       = minted_amount,
+        type                = models.MintOrBurnType.MINT,
+        amount              = minted_amount,
         mvk_total_supply    = total_supply
     )
-    await mint_history_data.save()
+    await mint_burn_history_data.save()
