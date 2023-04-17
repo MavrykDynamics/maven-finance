@@ -19,7 +19,7 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve, mallory, david, trudy, susie } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, david, oscar, susie, trudy } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -49,6 +49,20 @@ describe('Aggregator Tests', async () => {
     let treasuryInstance;
     let governanceSatelliteInstance;
 
+    let admin
+    let adminSk
+
+    let satelliteOne
+    let satelliteOneSk 
+    let satelliteTwo
+    let satelliteTwoSk 
+    let satelliteThree
+    let satelliteThreeSk 
+    let satelliteFour
+    let satelliteFourSk 
+    let satelliteFive
+    let satelliteFiveSk 
+
     let aggregatorStorage;
     let doormanStorage;
     let mvkTokenStorage;
@@ -58,6 +72,7 @@ describe('Aggregator Tests', async () => {
     let governanceSatelliteStorage;
 
     let updateOperatorsOperation 
+    let addOracleOperation
 
     let epoch: number = 1;
     let round: number = 1;
@@ -66,6 +81,24 @@ describe('Aggregator Tests', async () => {
         
         utils = new Utils();
         await utils.init(bob.sk);
+
+        admin               = bob.pkh;
+        adminSk             = bob.sk;
+
+        satelliteOne        = alice.pkh;
+        satelliteOneSk      = alice.sk;
+
+        satelliteTwo        = eve.pkh;
+        satelliteTwoSk      = eve.sk;
+
+        satelliteThree      = susie.pkh;
+        satelliteThreeSk    = susie.sk;
+
+        satelliteFour       = oscar.pkh;
+        satelliteFourSk     = oscar.sk;
+
+        satelliteFive       = trudy.pkh;
+        satelliteFiveSk     = trudy.sk;
 
         doormanAddress                  = contractDeployments.doorman.address;
 
@@ -97,152 +130,32 @@ describe('Aggregator Tests', async () => {
             await trackAggregatorOperation.confirmation();
         }
 
-        // Setup governance satellites for action snapshot later
-        // ------------------------------------------------------------------
-
-        // Bob stakes 100 MVK tokens and registers as a satellite
-        const bobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
-        const aliceSatellite    = await delegationStorage.satelliteLedger.get(alice.pkh);
-        const mallorySatellite  = await delegationStorage.satelliteLedger.get(mallory.pkh);
-        const eveSatellite      = await delegationStorage.satelliteLedger.get(eve.pkh);
-        const susieSatellite    = await delegationStorage.satelliteLedger.get(susie.pkh);
-
-        if(bobSatellite === undefined){
-
-            await helperFunctions.signerFactory(tezos, bob.sk);
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
-            await updateOperatorsOperation.confirmation();
-
-            const bobStakeAmount                  = MVK(100);
-            const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
-            await bobStakeAmountOperation.confirmation();                        
-            const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                "New Satellite by Bob", 
-                "New Satellite Description - Bob", 
-                "https://image.url", 
-                "https://image.url", 
-                "1000",
-                bob.pk,
-                bob.peerId
-            ).send();
-            await bobRegisterAsSatelliteOperation.confirmation();
-
-        }
-
-        if(aliceSatellite === undefined){
-
-            // Alice stakes 100 MVK tokens and registers as a satellite 
-            await helperFunctions.signerFactory(tezos, alice.sk);
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
-            await updateOperatorsOperation.confirmation();
-
-            const aliceStakeAmount                  = MVK(100);
-            const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
-            await aliceStakeAmountOperation.confirmation();                        
-            const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                "New Satellite by Alice", 
-                "New Satellite Description - Alice",
-                "https://image.url", 
-                "https://image.url", 
-                "1000",
-                alice.pk,
-                alice.peerId
-            ).send();
-            await aliceRegisterAsSatelliteOperation.confirmation();
-        }
-
-        if(eveSatellite === undefined){
-
-            // Eve stakes 100 MVK tokens and registers as a satellite 
-            await helperFunctions.signerFactory(tezos, eve.sk);
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
-            await updateOperatorsOperation.confirmation();
-
-            const eveStakeAmount                  = MVK(100);
-            const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
-            await eveStakeAmountOperation.confirmation();                        
-            const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                "New Satellite by Eve", 
-                "New Satellite Description - Eve", 
-                "https://image.url", 
-                "https://image.url", 
-                "1000",
-                eve.pk,
-                eve.peerId
-            ).send();
-            await eveRegisterAsSatelliteOperation.confirmation();
-        }
-
-        if(mallorySatellite === undefined){
-
-            // Mallory stakes 100 MVK tokens and registers as a satellite 
-            await helperFunctions.signerFactory(tezos, mallory.sk);
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
-            await updateOperatorsOperation.confirmation();
-
-            const malloryStakeAmount                  = MVK(100);
-            const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
-            await malloryStakeAmountOperation.confirmation();                        
-            const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                "New Satellite by Mallory", 
-                "New Satellite Description - Mallory", 
-                "https://image.url", 
-                "https://image.url", 
-                "1000",
-                mallory.pk,
-                mallory.peerId
-            ).send();
-            await malloryRegisterAsSatelliteOperation.confirmation();
-        }
-
-        if(susieSatellite === undefined){
-
-            // Susie stakes 100 MVK tokens and registers as a satellite 
-            await helperFunctions.signerFactory(tezos, susie.sk);
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, susie.pkh, doormanAddress, tokenId);
-            await updateOperatorsOperation.confirmation();
-
-            const susieStakeAmount                  = MVK(100);
-            const susieStakeAmountOperation         = await doormanInstance.methods.stake(susieStakeAmount).send();
-            await susieStakeAmountOperation.confirmation();                        
-            const susieRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                "New Satellite by Susie", 
-                "New Satellite Description - Susie", 
-                "https://image.url", 
-                "https://image.url", 
-                "1000",
-                susie.pk,
-                susie.peerId
-            ).send();
-            await susieRegisterAsSatelliteOperation.confirmation();
-        }
-
         // ------------------------------------------------------------------
         // Setup oracles for test
         // ------------------------------------------------------------------
         
         // bob as admin
-        await helperFunctions.signerFactory(tezos, bob.sk);
+        await helperFunctions.signerFactory(tezos, adminSk);
 
-        if(aggregatorStorage.oracleLedger.get(bob.pkh) === undefined){
-            const addBobOracle = await aggregatorInstance.methods.addOracle(
-                bob.pkh
+        if(aggregatorStorage.oracleLedger.get(satelliteOne) === undefined){
+            addOracleOperation = await aggregatorInstance.methods.addOracle(
+                satelliteOne
             ).send();
-            await addBobOracle.confirmation();
+            await addOracleOperation.confirmation();
         }
 
-        if(aggregatorStorage.oracleLedger.get(eve.pkh) === undefined){
-            const addEveOracle = await aggregatorInstance.methods.addOracle(
-                eve.pkh
+        if(aggregatorStorage.oracleLedger.get(satelliteTwo) === undefined){
+            addOracleOperation = await aggregatorInstance.methods.addOracle(
+                satelliteTwo
             ).send();
-            await addEveOracle.confirmation();
+            await addOracleOperation.confirmation();
         }
 
-        if(aggregatorStorage.oracleLedger.get(mallory.pkh) === undefined){
-            const addMalloryOracle = await aggregatorInstance.methods.addOracle(
-                mallory.pkh
+        if(aggregatorStorage.oracleLedger.get(satelliteThree) === undefined){
+            addOracleOperation = await aggregatorInstance.methods.addOracle(
+                satelliteThree
             ).send();
-            await addMalloryOracle.confirmation();
+            await addOracleOperation.confirmation();
         }
 
         // ------------------------------------------------------------------
