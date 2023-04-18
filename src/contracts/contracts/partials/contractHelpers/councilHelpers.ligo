@@ -1107,7 +1107,7 @@ block {
     actionRecord.executedLevel       := Tezos.get_level();
     
     // save council action record
-    s.councilActionsLedger[actionId]         := actionRecord;
+    s.councilActionsLedger[actionId] := actionRecord;
 
 } with (operations, s)
 
