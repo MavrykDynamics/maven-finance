@@ -180,11 +180,15 @@ block{
     // Validation Checks 
     // ------------------------------------------------------------------
 
-    // Validate token type : has to match one standard (FA12, FA2, TEZ)
-    validateTokenType(tokenType);
+    if requestType = "TRANSFER" or requestType = "MINT" then  block {
 
-    // If token, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
-    validateWhitelistedToken(tokenType, tokenContractAddress, s);
+        // Validate token type : has to match one standard (FA12, FA2, TEZ)
+        validateTokenType(tokenType);
+
+        // If token, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
+        validateWhitelistedToken(tokenType, tokenContractAddress, s);
+
+    } else skip;
 
     // ------------------------------------------------------------------
     // Create new Financial Request Record
