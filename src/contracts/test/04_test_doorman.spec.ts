@@ -1354,7 +1354,7 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("%migrateFunds             - admin (bob) should be able to migrate the Doorman contract MVK funds when all entrypoints are paused", async() => {
+        it("%migrateFunds             - admin (bob) should be able to migrate the Doorman contract MVK funds only when all entrypoints are paused", async() => {
             try{
 
                 // Initial values
@@ -1403,7 +1403,7 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("%migrateFunds             - admin (bob) should not be able to migrate the Doorman contract (and move MVK funds) if any contract entrypoint is not paused", async() => {
+        it("%migrateFunds             - admin (bob) should not be able to migrate the Doorman contract (and move MVK funds) if any contract entrypoint is unpaused", async() => {
             try{
                 
                 // Initial values
