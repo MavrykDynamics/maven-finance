@@ -285,7 +285,7 @@
 
 [@inline] const error_USER_STAKE_RECORD_NOT_FOUND                                                                       = 201n;
 [@inline] const error_VAULT_STAKE_RECORD_NOT_FOUND                                                                      = 202n;
-[@inline] const error_INSUFFICIENT_STAKED_MVK_BALANCE                                                                           = 203n;
+[@inline] const error_INSUFFICIENT_STAKED_MVK_BALANCE                                                                   = 203n;
 [@inline] const error_UNSTAKE_AMOUNT_CANNOT_BE_GREATER_THAN_STAKED_MVK_TOTAL_SUPPLY                                     = 204n;
 
 [@inline] const error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER                                                 = 205n;

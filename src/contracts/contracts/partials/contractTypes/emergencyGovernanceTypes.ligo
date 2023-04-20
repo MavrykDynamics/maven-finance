@@ -50,7 +50,7 @@ type emergencyUpdateConfigActionType is
     |   ConfigRequiredFeeMutez          of unit
     |   ConfigStakedMvkPercentRequired  of unit
     |   ConfigMinStakedMvkForVoting     of unit
-    |   ConfigMinStakedMvkForTrigger    of unit
+    |   ConfigMinStakedMvkToTrigger     of unit
     |   ConfigProposalTitleMaxLength    of unit
     |   ConfigProposalDescMaxLength     of unit
 
