@@ -1,0 +1,3 @@
+
+Emergency Governance Contract
+1. Config: In emergencyUpdateConfigActionType: change ConfigMinStakedMvkForTrigger to ConfigMinStakedMvkToTrigger
