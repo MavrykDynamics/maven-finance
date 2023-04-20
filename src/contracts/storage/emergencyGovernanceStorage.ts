@@ -1,14 +1,14 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 import { bob } from '../scripts/sandbox/accounts'
-import { MVK, zeroAddress } from "../test/helpers/Utils"
+import { MVK } from "../test/helpers/Utils"
 import { emergencyGovernanceStorageType } from './storageTypes/emergencyGovernanceStorageType'
 
 const config = {
     decimals                        : 4,
     voteExpiryDays                  : 3,
     requiredFeeMutez                : 10000000,
-    stakedMvkPercentageRequired     : 10000,
+    stakedMvkPercentageRequired     : 1000,
     minStakedMvkRequiredToVote      : MVK(5),
     minStakedMvkRequiredToTrigger   : MVK(10),
     proposalTitleMaxLength          : 400,
