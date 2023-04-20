@@ -41,6 +41,7 @@ class GovernanceFinancialWhitelistTokenContract(LinkedContract, TokenContractSta
 
 class GovernanceFinancialRequest(Model):
     id                                      = fields.BigIntField(pk=True)
+    internal_id                             = fields.BigIntField(default=0)
     governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests')
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_requests', index=True)
     requester                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_requester', index=True)

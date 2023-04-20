@@ -41,7 +41,7 @@ async def on_emergency_governance_trigger_emergency_control(
     proposer    = await models.mavryk_user_cache.get(address=proposer_address)
 
     emergency_record = models.EmergencyGovernanceRecord(
-        id                              = emergency_id,
+        internal_id                     = emergency_id,
         emergency_governance            = emergency,
         proposer                        = proposer,
         executed                        = executed,

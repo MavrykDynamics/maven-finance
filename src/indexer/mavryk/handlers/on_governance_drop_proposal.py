@@ -19,7 +19,7 @@ async def on_governance_drop_proposal(
     )
     proposal    = await models.GovernanceProposal.filter(
         governance  = governance,
-        id          = proposal_id
+        internal_id = proposal_id
     ).first()
     proposal.status = models.GovernanceActionStatus.DROPPED
     await proposal.save()

@@ -60,7 +60,7 @@ async def on_governance_voting_round_vote(
 
     # Update proposal with vote
     proposal        = await models.GovernanceProposal.filter(
-        id          = proposal_id,
+        internal_id = proposal_id,
         governance  = governance
     ).first()
     proposal.yay_vote_count                 = yay_vote_count

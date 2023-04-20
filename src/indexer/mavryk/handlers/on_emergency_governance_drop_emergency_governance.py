@@ -21,7 +21,7 @@ async def on_emergency_governance_drop_emergency_governance(
 
     # Update record
     emergency_record            = await models.EmergencyGovernanceRecord.filter(
-        id                      = emergency.current_emergency_record_id,
+        internal_id             = emergency.current_emergency_record_id,
         emergency_governance    = emergency
     ).first()
     emergency_record.dropped = dropped
