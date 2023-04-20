@@ -57,7 +57,7 @@ async def on_governance_propose(
     user                    = await models.mavryk_user_cache.get(address=proposer_address)
 
     proposalRecord              = models.GovernanceProposal(
-        id                              = int(current_id),
+        internal_id                     = int(current_id),
         governance                      = governance,
         proposer                        = user,
         status                          = status,

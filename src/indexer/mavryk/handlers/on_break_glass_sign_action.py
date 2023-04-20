@@ -37,9 +37,9 @@ async def on_break_glass_sign_action(
     break_glass.admin           = admin
     break_glass.glass_broken    = glass_broken
     await break_glass.save()
-    action_record           = await models.BreakGlassAction.get(
+    action_record               = await models.BreakGlassAction.get(
         break_glass = break_glass,
-        id          = action_id
+        internal_id = action_id
     )
     action_record.status                = status_type
     action_record.signers_count         = signer_count
@@ -54,7 +54,7 @@ async def on_break_glass_sign_action(
             action_status           = sign_action.storage.actionsLedger[single_action_id].status
             single_action_record    = await models.BreakGlassAction.get(
                 break_glass = break_glass,
-                id          = single_action_id
+                internal_id = single_action_id
             )
             # Select correct status
             status_type = models.ActionStatus.PENDING

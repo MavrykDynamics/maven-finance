@@ -37,6 +37,7 @@ class GovernanceSatelliteWhitelistContract(LinkedContract, Model):
 
 class GovernanceSatelliteAction(Model):
     id                                      = fields.BigIntField(pk=True)
+    internal_id                             = fields.BigIntField(default=0)
     governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_initiators', index=True)
     governance_type                         = fields.CharField(max_length=255)

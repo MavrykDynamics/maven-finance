@@ -50,6 +50,7 @@ class BreakGlassCouncilMember(Model):
 
 class BreakGlassAction(Model):
     id                                      = fields.BigIntField(pk=True)
+    internal_id                             = fields.BigIntField(default=0)
     break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_initiator', index=True)
     start_datetime                          = fields.DatetimeField(null=True, index=True)

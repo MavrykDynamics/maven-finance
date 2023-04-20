@@ -45,6 +45,9 @@ import tokenSaleAddress from '../../deployments/tokenSaleAddress.json';
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
 import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json';
+import mTokenEurlAddress from '../../deployments/mTokenEurlAddress.json';
+import mTokenUsdtAddress from '../../deployments/mTokenUsdtAddress.json';
+import mTokenXtzAddress from '../../deployments/mTokenXtzAddress.json';
 
 describe("Testnet setup helper", async () => {
     var utils: Utils;
@@ -98,6 +101,11 @@ describe("Testnet setup helper", async () => {
     let vaultStorage;
     let vaultFactoryStorage;
     let mavrykFa12TokenStorage;
+
+    let eurlAggregator;
+    let usdtAggregator;
+    let xtzAggregator;
+    let btcAggregator;
     
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -177,6 +185,33 @@ describe("Testnet setup helper", async () => {
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
             console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
             console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+
+            // Get oracle addresses
+            const aggregatorAddresses: Array<string>    = await aggregatorFactoryStorage.trackedAggregators;
+            for(const index in aggregatorAddresses) {
+                const aggregatorAddress         = aggregatorAddresses[index];
+                const aggregatorInstance        = await utils.tezos.contract.at(aggregatorAddress);
+                const aggregatorStorage : any   = await aggregatorInstance.storage();
+                const aggregatorName            = aggregatorStorage.name;
+
+                switch(aggregatorName){
+                    case "USDT/USD":
+                        usdtAggregator  = aggregatorAddress;
+                        break;
+                    case "EUROC/USD":
+                        eurlAggregator  = aggregatorAddress;
+                        break;
+                    case "XTZ/USD":
+                        xtzAggregator   = aggregatorAddress;
+                        break;
+                    case "BTC/USD":
+                        btcAggregator   = aggregatorAddress;
+                        break;
+                    default: 
+                        break
+                }
+
+            }
 
         } catch(e){
             console.log(e)
@@ -329,5 +364,375 @@ describe("Testnet setup helper", async () => {
                 console.dir(e, {depth: 5})
             }
         });
-    })
+
+        it('Creation of 3 loan tokens', async () => {
+            try{
+
+                // Get aggregators addresses
+                aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
+                const interestRateDecimals                  = 27;
+
+                // EURL
+                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                    "createLoanToken",
+
+                    "eurl",
+                    6,
+
+                    eurlAggregator,
+
+                    mTokenEurlAddress.address,
+                    
+                    3000,
+                    30 * 10 ** (interestRateDecimals - 2),
+                    5 * 10 ** (interestRateDecimals - 2),
+                    25 * 10 ** (interestRateDecimals - 2),
+                    10 * 10 ** (interestRateDecimals - 2),
+                    20 * 10 ** (interestRateDecimals - 2),
+                    10000,
+
+                    "fa2",
+                    "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5",
+                    0
+                ).send();
+                await setLoanTokenOperation.confirmation();
+
+                // XTZ
+                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                    "createLoanToken",
+
+                    "tez",
+                    6,
+
+                    xtzAggregator,
+
+                    mTokenXtzAddress.address,
+                    
+                    3000,
+                    30 * 10 ** (interestRateDecimals - 2),
+                    5 * 10 ** (interestRateDecimals - 2),
+                    25 * 10 ** (interestRateDecimals - 2),
+                    10 * 10 ** (interestRateDecimals - 2),
+                    20 * 10 ** (interestRateDecimals - 2),
+                    10000,
+
+                    "tez",
+                ).send();
+                await setLoanTokenOperation.confirmation();
+
+                // USDT
+                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                    "createLoanToken",
+
+                    "usdt",
+                    6,
+
+                    usdtAggregator,
+
+                    mTokenUsdtAddress.address,
+                    
+                    3000,
+                    30 * 10 ** (interestRateDecimals - 2),
+                    5 * 10 ** (interestRateDecimals - 2),
+                    25 * 10 ** (interestRateDecimals - 2),
+                    10 * 10 ** (interestRateDecimals - 2),
+                    20 * 10 ** (interestRateDecimals - 2),
+                    10000,
+
+                    "fa2",
+                    "KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm",
+                    0
+                ).send();
+                await setLoanTokenOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('Creation of 4 collateral tokens', async () => {
+            try{
+
+                // Get aggregators addresses
+                aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
+
+                // Eurl
+                var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "eurl",
+                    'KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5',
+                    6,
+
+                    eurlAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    // fa12 token type - token contract address
+                    "fa2",
+                    "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5",
+                    0
+
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+
+                // XTZ
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "tez",
+                    'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg',
+                    6,
+
+                    xtzAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    "tez"
+
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+                
+                // tzbtc
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "tzbtc",
+                    'KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS',
+                    6,
+
+                    btcAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    "fa2",
+                    "KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+                
+                // usdt
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "usdt",
+                    'KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm',
+                    6,
+
+                    usdtAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    "fa2",
+                    "KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('Creation of 4 treasuries', async () => {
+            try{
+
+                // MVK Buyback for Oracles & Farms
+                const mvkBuyBackTreasuryData = {
+                    name: 'MVK Buyback for Oracles & Farms',
+                    description: 'MAVRYK MVK Buyback for Oracles & Farms Treasury Contract',
+                  }
+              
+                const mvkBuyBackTreasuryMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: mvkBuyBackTreasuryData.description,
+                        description: mvkBuyBackTreasuryData.name,
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <info@mavryk.io>'],
+                    }),
+                    'ascii',
+                    ).toString('hex')
+                var createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
+                    null,
+                    mvkBuyBackTreasuryData.name,
+                    false,
+                    mvkBuyBackTreasuryMetadataBase
+                ).send()
+                await createTreasuryOperation.confirmation();
+
+                // Set this first treasury as the main treasury (tmp)
+                treasuryFactoryStorage                      = await treasuryFactoryInstance.storage();
+                const trackedTreasuries                     = treasuryFactoryStorage.trackedTreasuries;
+                const createdTreasuryAddress                = trackedTreasuries[0];
+                const governanceUpdateGeneralContractsBatch = await utils.tezos.wallet
+                .batch()
+                .withContractCall(governanceInstance.methods.updateGeneralContracts("farmTreasury", createdTreasuryAddress))
+                .withContractCall(governanceInstance.methods.updateGeneralContracts("aggregatorTreasury", createdTreasuryAddress))
+                .withContractCall(governanceInstance.methods.updateGeneralContracts("taxTreasury", createdTreasuryAddress))
+                .withContractCall(governanceInstance.methods.updateGeneralContracts("satelliteTreasury", createdTreasuryAddress))
+                .withContractCall(governanceInstance.methods.updateGeneralContracts("paymentTreasury", createdTreasuryAddress))
+                .withContractCall(governanceInstance.methods.updateGeneralContracts("lendingTreasury", createdTreasuryAddress))
+
+                const governanceUpdateGeneralContractsBatchOperation = await governanceUpdateGeneralContractsBatch.send()
+                await governanceUpdateGeneralContractsBatchOperation.confirmation();
+
+                // Research & Development
+                const rAndDTreasuryData = {
+                    name: 'Research & Development',
+                    description: 'MAVRYK Research & Development Treasury Contract',
+                }
+              
+                const rAndDTreasuryMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: rAndDTreasuryData.name,
+                        description: rAndDTreasuryData.description,
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <info@mavryk.io>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+                createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
+                    null,
+                    rAndDTreasuryData.name,
+                    false,
+                    rAndDTreasuryMetadataBase
+                ).send()
+                await createTreasuryOperation.confirmation();
+
+                // Research & Development
+                const investmentTreasuryData = {
+                    name: 'Investment Fund',
+                    description: 'MAVRYK Investment Fund Treasury Contract',
+                }
+              
+                const investmentTreasuryMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: investmentTreasuryData.name,
+                        description: investmentTreasuryData.description,
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <info@mavryk.io>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+                createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
+                    null,
+                    investmentTreasuryData.name,
+                    false,
+                    investmentTreasuryMetadataBase
+                ).send()
+                await createTreasuryOperation.confirmation();
+
+                // Research & Development
+                const daoValidatorFundTreasuryData = {
+                    name: 'DAO Validator Fund',
+                    description: 'MAVRYK DAO Validator Fund Treasury Contract',
+                  }
+              
+                const daoValidatorFundTreasuryMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: daoValidatorFundTreasuryData.description,
+                        description: daoValidatorFundTreasuryData.name,
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <info@mavryk.io>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+                createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
+                    null,
+                    daoValidatorFundTreasuryData.name,
+                    false,
+                    daoValidatorFundTreasuryMetadataBase
+                ).send()
+                await createTreasuryOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('Configuration of 4 treasuries', async () => {
+            try{
+
+                // Set this first treasury as the main treasury (tmp)
+                treasuryFactoryStorage                      = await treasuryFactoryInstance.storage();
+                const trackedTreasuries                     = treasuryFactoryStorage.trackedTreasuries;
+
+                // WhitelistTokenContracts and WhitelistContracts
+                for(const index in trackedTreasuries){
+                    const treasuryAddress       = trackedTreasuries[index];
+                    const treasuryInstance: any = await utils.tezos.contract.at(treasuryAddress);
+                    const treasuryBatch         = await utils.tezos.wallet
+                    .batch()
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("usdt", "KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("eurl", "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("tzbtc", "KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("mvk", mvkTokenAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("meurl", mTokenEurlAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("mxtz", mTokenXtzAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("musdt", mTokenUsdtAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactoryAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", delegationAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", doormanAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governance", governanceAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governanceFinancial", governanceFinancialAddress.address))
+    
+                    const treasuryBatchOperation = await treasuryBatch.send()
+                    await treasuryBatchOperation.confirmation();
+
+                }
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('Configuration of vaultFactory', async () => {
+            try{
+
+                const updateConfigOperation = await vaultFactoryInstance.methods.updateConfig(15, "configVaultNameMaxLength").send();
+                await updateConfigOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('Configuration of governance', async () => {
+            try{
+
+                var updateConfigOperation   = await governanceInstance.methods.updateConfig(10800, "configBlocksPerProposalRound").send();
+                await updateConfigOperation.confirmation();
+                updateConfigOperation       = await governanceInstance.methods.updateConfig(10800, "configBlocksPerVotingRound").send();
+                await updateConfigOperation.confirmation();
+                updateConfigOperation       = await governanceInstance.methods.updateConfig(2880, "configBlocksPerTimelockRound").send();
+                await updateConfigOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('Configuration of delegation', async () => {
+            try{
+
+                var updateConfigOperation   = await delegationInstance.methods.updateConfig(new BigNumber(MVK(100)), "configMinimumStakedMvkBalance").send();
+                await updateConfigOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        });
+    });
 });
