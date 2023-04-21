@@ -45,6 +45,9 @@ class DoormanStakeAccount(Model):
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='doorman_stake_accounts', index=True)
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
     participation_fees_per_share            = fields.FloatField(default=0)
+    total_exit_fee_rewards_claimed          = fields.FloatField(default=0)
+    total_satellite_rewards_claimed         = fields.FloatField(default=0)
+    total_farm_rewards_claimed              = fields.FloatField(default=0)
     smvk_balance                            = fields.FloatField(default=0)
 
     class Meta:

@@ -2,8 +2,8 @@ oracles:
   bob:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
-      address: tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
-      publicKey: edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D
+      address: tz1Y2tUUooW6QT6pQCeqz9ep9wCkX5bnKeTs
+      publicKey: edpkurC3L4Y3v3WXK8HMSLGeUfgVbdwYTstt4FUqhPzZD8MFeB6Ymn
       secretKey:
         secretName: oracle-keys
         key: TEZOS_SECRET_KEY_1
@@ -22,8 +22,8 @@ oracles:
   eve:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
-      address: tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
-      publicKey: edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis
+      address: tz1T8S68igxa6uWZbeoWWwbcuRHEDQSzknEX
+      publicKey: edpkuX5ihBUVb9nNqLYixvGiVJ5VXxnVk5hnf9ZMkTkvP5UsRsBWX6
       secretKey:
         secretName: oracle-keys
         key: TEZOS_SECRET_KEY_2
@@ -42,8 +42,8 @@ oracles:
   mallory:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
-      address: tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
-      publicKey: edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ
+      address: tz1gvYDynpK667R9VM8hwTxKmRmkcK94aqQy
+      publicKey: edpku7okdYQQcNNtVhtZSWDSTHsCyMh8BHQ23MGxJe1HWnTqske7X2
       secretKey:
         secretName: oracle-keys
         key: TEZOS_SECRET_KEY_3
@@ -62,8 +62,8 @@ oracles:
   alice:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
-      address: tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
-      publicKey: edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd
+      address: tz1byTGaUKjJqkwSXPnM3dpf9N39pYwRfnTm
+      publicKey: edpkuprQbBc5mg8nm1RN2M2mpDmu7b3XNeB9KzCSUFx7nZbqVJj3AM
       secretKey:
         secretName: oracle-keys
         key: TEZOS_SECRET_KEY_4
@@ -82,8 +82,8 @@ oracles:
   oscar:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
-      address: tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw
-      publicKey: edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP
+      address: tz1b3BQ8wFyQ9U5Gx8WWXimphY8ER8qorm7m
+      publicKey: edpkutgoG8KknR6EFViM33SfALiptofnbBRTthPU28VXzs4mCwjxNU
       secretKey:
         secretName: oracle-keys
         key: TEZOS_SECRET_KEY_5
@@ -108,7 +108,7 @@ image:
   pullPolicy: Always
 
 aggregatorsAddresses:
-  - KT1JLUxqAB6aS1FKnRLWmcC64yDmNy72TkRz
-  - KT1S26reU1fiXMXL6JDt3sR9h11coufFRRD1
-  - KT1UmpNUn6CLU4cmL7GstvSpetXREaK4JQZV
-  - KT1XjnbJx4UqQaaRWE8FobgTuucYhi3KL2Wf
+  - KT1AgXce6SwfMNQ6wcKGALHi46FuN77bHioV
+  - KT1BYGLiHStMzdv2WCikKKDtFtvUjxzZ8WB9
+  - KT1C1sYNxacr8LPZimA512gAfWajdGah75nq
+  - KT1H28HK47rggvoQBqww7ayDRxe86n4LegoH

@@ -27,7 +27,7 @@
 type action is
 
         // Default Entrypoint to Receive Tez
-        Default                                     of unit
+        Default     of unit
 
         // Housekeeping Entrypoints
     |   RequestMvk  of unit
