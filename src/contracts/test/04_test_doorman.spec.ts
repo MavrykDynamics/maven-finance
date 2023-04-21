@@ -1667,7 +1667,7 @@ describe("Test: Doorman Contract", async () => {
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await doormanInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh)
+                updateWhitelistContractsOperation = await doormanInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, "update")
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 doormanStorage = await doormanInstance.storage()
@@ -1689,7 +1689,7 @@ describe("Test: Doorman Contract", async () => {
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await doormanInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh)
+                updateGeneralContractsOperation = await doormanInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, "update")
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 doormanStorage          = await doormanInstance.storage()
