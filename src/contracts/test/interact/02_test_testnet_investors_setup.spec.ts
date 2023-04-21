@@ -226,6 +226,9 @@ describe("Testnet setup helper", async () => {
 
         it('Creation of 5 Satellites', async () => {
             try{
+                // Init var
+                const stakeAmount   = MVK(200000);
+
                 // Bob Satellite
                 await signerFactory(bob.sk);
                 var updateOperatorsOperation    = await mvkTokenInstance.methods
@@ -240,7 +243,7 @@ describe("Testnet setup helper", async () => {
                     ])
                     .send()
                 await updateOperatorsOperation.confirmation();
-                var stakeOperation              = await doormanInstance.methods.stake(MVK(1000)).send();
+                var stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 var registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "Mavryk Dynamics", 
@@ -267,7 +270,7 @@ describe("Testnet setup helper", async () => {
                     ])
                     .send()
                 await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(MVK(200)).send();
+                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "Buzz Lightyear", 
@@ -294,7 +297,7 @@ describe("Testnet setup helper", async () => {
                     ])
                     .send()
                 await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
+                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "Captain Kirk", 
@@ -321,7 +324,7 @@ describe("Testnet setup helper", async () => {
                     ])
                     .send()
                 await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
+                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "Captain Kirk", 
@@ -348,7 +351,7 @@ describe("Testnet setup helper", async () => {
                     ])
                     .send()
                 await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(MVK(700)).send();
+                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "Captain Kirk", 
@@ -505,7 +508,7 @@ describe("Testnet setup helper", async () => {
 
                     "tzbtc",
                     'KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS',
-                    6,
+                    8,
 
                     btcAggregator,
                     false,
@@ -514,9 +517,8 @@ describe("Testnet setup helper", async () => {
                     null,
                     null, // Max deposit amount
 
-                    "fa2",
-                    "KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS",
-                    0
+                    "fa12",
+                    "KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS"
                 ).send();
                 await setCollateralTokenOperation.confirmation();
                 

@@ -18,6 +18,8 @@ import env from "../../env";
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 import * as accounts from "../../scripts/sandbox/accounts";
 
+import { ledger } from "../../storage/mvkTokenStorage";
+
 import doormanAddress from '../../deployments/doormanAddress.json';
 import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
 import delegationAddress from '../../deployments/delegationAddress.json';
@@ -33,6 +35,7 @@ import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorA
 import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
 import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
 import mavrykFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
+import mvkFaucetAddress from '../../deployments/mvkFaucetAddress.json';
 import treasuryAddress from '../../deployments/treasuryAddress.json';
 import vestingAddress from '../../deployments/vestingAddress.json';
 import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
@@ -189,30 +192,32 @@ describe("Testnet setup helper", async () => {
             await signerFactory(bob.sk)
         });
 
-        it('Admin gets all MVK', async () => {
+        it('Faucet gets all MVK', async () => {
             try{
                 for(let accountName in accounts){
                     let account = accounts[accountName];
-                    let balance = await mvkTokenStorage.ledger.get(account.pkh);
-                    if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== bob.pkh){
-                        // Transfer all funds to bob
-                        await signerFactory(account.sk);
-                        console.log("account:", account)
-                        console.log("balance:", balance)
-                        let operation = await mvkTokenInstance.methods.transfer([
-                            {
-                                from_: account.pkh,
-                                txs: [
+                    if(ledger.has(account.pkh)){
+                        let balance = await mvkTokenStorage.ledger.get(account.pkh);
+                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvkFaucetAddress.address){
+                            // Transfer all funds to bob
+                            await signerFactory(account.sk);
+                            console.log("account:", account)
+                            console.log("balance:", balance)
+                            let operation = await mvkTokenInstance.methods.transfer([
                                 {
-                                    to_: bob.pkh,
-                                    token_id: 0,
-                                    amount: balance.toNumber(),
-                                }
-                                ],
-                            },
-                            ])
-                            .send()
-                        await operation.confirmation();
+                                    from_: account.pkh,
+                                    txs: [
+                                    {
+                                        to_: mvkFaucetAddress.address,
+                                        token_id: 0,
+                                        amount: balance.toNumber(),
+                                    }
+                                    ],
+                                },
+                                ])
+                                .send()
+                            await operation.confirmation();
+                        }
                     }
                 }
             } catch(e){
