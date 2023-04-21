@@ -158,7 +158,7 @@ type GeneralContractAbstraction<T extends ContractProvider | Wallet = any> = Con
     generalContractStorageType>;
 
 
-export const setGeneralContractLambdas = async (tezosToolkit: TezosToolkit, contractName : string, contract: GeneralContractAbstraction) => {
+export const setGeneralContractLambdas = async (tezosToolkit: TezosToolkit, contractName : string, contract: GeneralContractAbstraction, consoleLogBool = true ? true : false) => {
 
     var lambdasPerBatch = 10;
 
@@ -188,11 +188,13 @@ export const setGeneralContractLambdas = async (tezosToolkit: TezosToolkit, cont
         await confirmOperation(tezosToolkit, setupGeneralContractLambdasOperation.opHash);
     }
 
-    // console log contract name in Title Case
-    const rawName = contractName.substring(0, contractName.length);
-    const addSpaces = rawName.replace(/([A-Z])/g, " $1");
-    const formattedContractName = addSpaces.charAt(0).toUpperCase() + addSpaces.slice(1);
-    console.log(`${formattedContractName} lambdas setup`)
+    if(consoleLogBool == true){
+        // console log contract name in Title Case
+        const rawName = contractName.substring(0, contractName.length);
+        const addSpaces = rawName.replace(/([A-Z])/g, " $1");
+        const formattedContractName = addSpaces.charAt(0).toUpperCase() + addSpaces.slice(1);
+        console.log(`${formattedContractName} lambdas setup`)
+    }
     
 };
 
