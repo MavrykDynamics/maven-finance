@@ -8,7 +8,7 @@ const config = {
     decimals                        : 4,
     voteExpiryDays                  : 3,
     requiredFeeMutez                : 10000000,
-    stakedMvkPercentageRequired     : 1000,
+    stakedMvkPercentageRequired     : 5000,         // prod should be 10% or 1000   
     minStakedMvkRequiredToVote      : MVK(5),
     minStakedMvkRequiredToTrigger   : MVK(10),
     proposalTitleMaxLength          : 400,
