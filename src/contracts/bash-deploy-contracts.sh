@@ -79,6 +79,7 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/deploy/01_deploy_governance.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/04_deploy_emergency_governance.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/10_deploy_break_glass.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/12_deploy_treasury.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 9000000")
             ;;
         vesting)
