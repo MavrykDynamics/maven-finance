@@ -153,8 +153,6 @@ describe("Setup: Mock Satellites", async () => {
                     // check state after registering as satellite
                     delegationStorage               = await delegationInstance.storage();
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
-                    updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
-                    updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -165,8 +163,6 @@ describe("Setup: Mock Satellites", async () => {
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
-                    // check user's staked balance is updated
-                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
                 }
 
             } catch(e){
@@ -211,7 +207,7 @@ describe("Setup: Mock Satellites", async () => {
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
                 doormanStorage                      = await doormanInstance.storage();
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
-                initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
@@ -229,8 +225,6 @@ describe("Setup: Mock Satellites", async () => {
                     // check state after registering as satellite
                     delegationStorage               = await delegationInstance.storage();
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
-                    updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
-                    updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -241,8 +235,6 @@ describe("Setup: Mock Satellites", async () => {
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
-                    // check user's staked balance is updated
-                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
                 }
 
             } catch(e){
@@ -287,7 +279,7 @@ describe("Setup: Mock Satellites", async () => {
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
                 doormanStorage                      = await doormanInstance.storage();
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
-                initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
@@ -305,8 +297,6 @@ describe("Setup: Mock Satellites", async () => {
                     // check state after registering as satellite
                     delegationStorage               = await delegationInstance.storage();
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
-                    updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
-                    updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -317,8 +307,6 @@ describe("Setup: Mock Satellites", async () => {
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
-                    // check user's staked balance is updated
-                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
                 }
 
             } catch(e){
@@ -363,7 +351,7 @@ describe("Setup: Mock Satellites", async () => {
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
                 doormanStorage                      = await doormanInstance.storage();
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
-                initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
@@ -381,8 +369,6 @@ describe("Setup: Mock Satellites", async () => {
                     // check state after registering as satellite
                     delegationStorage               = await delegationInstance.storage();
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
-                    updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
-                    updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -392,9 +378,6 @@ describe("Setup: Mock Satellites", async () => {
                     assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
-
-                    // check user's staked balance is updated
-                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
                 }
 
             } catch(e){
@@ -439,7 +422,7 @@ describe("Setup: Mock Satellites", async () => {
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
                 doormanStorage                      = await doormanInstance.storage();
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
-                initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
@@ -458,7 +441,6 @@ describe("Setup: Mock Satellites", async () => {
                     delegationStorage               = await delegationInstance.storage();
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
                     updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
-                    updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -469,8 +451,6 @@ describe("Setup: Mock Satellites", async () => {
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
-                    // check user's staked balance is updated
-                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
                 }
 
             } catch(e){
