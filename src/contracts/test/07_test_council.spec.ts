@@ -3711,7 +3711,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('%councilActionRequestTokens     - non-council member (isaac) should not be able to access this entrypoint', async () => {
+        it('%councilActionRequestTokens     - non-council member (mallory) should not be able to access this entrypoint and create a new council action', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -3724,7 +3724,6 @@ describe("Test: Council Contract", async () => {
                 const tokenId               = 0;
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, isaac.sk);
                 councilActionOperation = councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
                     tokenContractAddress,
@@ -3742,7 +3741,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('%councilActionRequestMint       - non-council member (mallory) should not be able to access this entrypoint', async () => {
+        it('%councilActionRequestMint       - non-council member (mallory) should not be able to access this entrypoint and create a new council action', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -3763,7 +3762,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('%councilActionDropFinancialReq  - non-council member (mallory) should not be able to access this entrypoint', async () => {
+        it('%councilActionDropFinancialReq  - non-council member (mallory) should not be able to access this entrypoint and create a new council action', async () => {
             try{
 
                 // -----------------------------------------------------------------------------
@@ -3833,7 +3832,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('%signAction                     - non-council member (mallory) should not be able to access this entrypoint ', async () => {
+        it('%signAction                     - non-council member (mallory) should not be able to access this entrypoint', async () => {
             try{
                 
                 // -----------------------------------------------------------------------------
