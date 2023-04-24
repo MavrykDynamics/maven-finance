@@ -17,7 +17,7 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
-import { bob, alice, eve } from '../../scripts/sandbox/accounts'
+import { bob, alice, eve, susie, trudy } from '../../scripts/sandbox/accounts'
 import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -49,11 +49,6 @@ describe('Break Glass', async () => {
             breakGlassStorage.governanceAddress = contractDeployments.governance.address
             breakGlassStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
         
-            breakGlassStorage.councilMembers.set(bob.pkh, {
-                name: "Bob",
-                image: "Bob image",
-                website: "Bob website"
-            })
             breakGlassStorage.councilMembers.set(alice.pkh, {
                 name: "Alice",
                 image: "Alice image",
@@ -63,6 +58,16 @@ describe('Break Glass', async () => {
                 name: "Eve",
                 image: "Eve image",
                 website: "Eve website"
+            })
+            breakGlassStorage.councilMembers.set(susie.pkh, {
+                name: "Susie",
+                image: "Susie image",
+                website: "Susie website"
+            })
+            breakGlassStorage.councilMembers.set(trudy.pkh, {
+                name: "Trudy",
+                image: "Trudy image",
+                website: "Trudy website"
             })
             
             breakGlass = await GeneralContract.originate(utils.tezos, "breakGlass", breakGlassStorage);
