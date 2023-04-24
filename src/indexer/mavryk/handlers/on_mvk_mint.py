@@ -14,6 +14,7 @@ async def on_mvk_mint(
     mintAddress         = mint.parameter.address
     mvk_token_address   = mint.data.target_address
     timestamp           = mint.data.timestamp
+    level               = int(mint.data.level)
     new_user_balance    = mint.storage.ledger[mintAddress]
     minted_amount       = float(mint.parameter.nat)
     total_supply        = float(mint.storage.totalSupply)
@@ -30,6 +31,7 @@ async def on_mvk_mint(
     
     mint_history_data       = models.MVKTokenMintHistoryData(
         mvk_token           = mvk_token,
+        level               = level,
         timestamp           = timestamp,
         user                = user,
         minted_amount       = minted_amount,

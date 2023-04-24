@@ -68,6 +68,7 @@ class StakeHistoryData(Model):
 class SMVKHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_mvk_history_data')
+    level                                   = fields.BigIntField(default=0)
     timestamp                               = fields.DatetimeField(index=True)
     smvk_total_supply                       = fields.FloatField(default=0.0)
     mvk_total_supply                        = fields.FloatField(default=0.0)

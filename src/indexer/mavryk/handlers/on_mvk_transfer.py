@@ -13,6 +13,7 @@ async def on_mvk_transfer(
     # Get transfer batch
     transaction_batch   = transfer.parameter.__root__
     timestamp           = transfer.data.timestamp
+    level               = int(transfer.data.level)
     mvk_address         = transfer.data.target_address
     user_ledger         = transfer.storage.ledger
     mvk_total_supply    = float(transfer.storage.totalSupply)
@@ -63,12 +64,13 @@ async def on_mvk_transfer(
                 smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
                 
                 if smvk_users > 0:
-                    avg_smvk_per_user   = float(smvk_total_supply) / float(smvk_users)
-                    smvk_history_data   = models.SMVKHistoryData(
+                    avg_smvk_per_user       = float(smvk_total_supply) / float(smvk_users)
+                    smvk_history_data, _    = await models.SMVKHistoryData.get_or_create(
                         timestamp           = timestamp,
                         doorman             = doorman,
-                        smvk_total_supply   = smvk_total_supply,
-                        mvk_total_supply    = mvk_total_supply,
-                        avg_smvk_by_user    = avg_smvk_per_user
+                        level               = level
                     )
+                    smvk_history_data.smvk_total_supply     = smvk_total_supply
+                    smvk_history_data.mvk_total_supply      = mvk_total_supply
+                    smvk_history_data.avg_smvk_per_user     = avg_smvk_per_user
                     await smvk_history_data.save()
