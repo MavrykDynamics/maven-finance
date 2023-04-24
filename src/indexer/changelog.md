@@ -28,6 +28,12 @@
 - MVKFaucetRequester
   - Table added
 
+- SMVKHistoryData
+  - Column Level added
+
+- MVKTokenMintHistoryData
+  - Column Level added
+
 <details><summary>Previous versions</summary>
 
 <details><summary>0.38</summary>
