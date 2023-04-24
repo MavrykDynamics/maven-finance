@@ -1,3 +1,9 @@
 
 Emergency Governance Contract
 1. Config: In emergencyUpdateConfigActionType: change ConfigMinStakedMvkForTrigger to ConfigMinStakedMvkToTrigger
+
+Break Glass Contract
+1. Rename council-related entrypoints to be consistent with Council entrypoints 
+- AddCouncilMember to CouncilActionAddMember
+- RemoveCouncilMember to CouncilActionRemoveMember
+- ChangeCouncilMember to CouncilActionChangeMember

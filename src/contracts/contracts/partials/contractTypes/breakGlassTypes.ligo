@@ -63,10 +63,10 @@ type breakGlassLambdaActionType is
     |   LambdaMistakenTransfer              of transferActionType
     |   LambdaUpdateCouncilMemberInfo       of councilMemberInfoType
 
-        // Internal Control of Council Members
-    |   LambdaAddCouncilMember              of councilActionAddMemberType
-    |   LambdaRemoveCouncilMember           of address
-    |   LambdaChangeCouncilMember           of councilActionChangeMemberType
+        // Council Actions for Internal Control
+    |   LambdaCouncilAddMember              of councilActionAddMemberType
+    |   LambdaCouncilRemoveMember           of address
+    |   LambdaCouncilChangeMember           of councilActionChangeMemberType
 
         // Glass Broken Required
     |   LambdaPropagateBreakGlass           of (unit)

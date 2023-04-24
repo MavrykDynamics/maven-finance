@@ -126,9 +126,9 @@
     "lambdaMistakenTransfer",
     "lambdaUpdateCouncilMemberInfo",
 
-    "lambdaAddCouncilMember",
-    "lambdaRemoveCouncilMember",
-    "lambdaChangeCouncilMember",
+    "lambdaCouncilAddMember",
+    "lambdaCouncilRemoveMember",
+    "lambdaCouncilChangeMember",
 
     "lambdaPropagateBreakGlass",
     "lambdaSetSingleContractAdmin",

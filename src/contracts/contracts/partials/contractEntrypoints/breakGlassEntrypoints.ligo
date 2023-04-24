@@ -176,15 +176,15 @@ block {
 // Break Glass Council Actions Begin - Internal Control of Council Members
 // ------------------------------------------------------------------------------
 
-(*  addCouncilMember entrypoint  *)
-function addCouncilMember(const newCouncilMember : councilActionAddMemberType; var s : breakGlassStorageType) : return is 
+(*  councilActionAddMember entrypoint  *)
+function councilActionAddMember(const newCouncilMember : councilActionAddMemberType; var s : breakGlassStorageType) : return is 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaAddCouncilMember", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilAddMember", s.lambdaLedger);
 
     // init break glass lambda action
-    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaAddCouncilMember(newCouncilMember);
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaCouncilAddMember(newCouncilMember);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
@@ -193,15 +193,15 @@ block {
 
 
 
-(*  removeCouncilMember entrypoint  *)
-function removeCouncilMember(const councilMemberAddress : address; var s : breakGlassStorageType) : return is 
+(*  councilActionRemoveMember entrypoint  *)
+function councilActionRemoveMember(const councilMemberAddress : address; var s : breakGlassStorageType) : return is 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaRemoveCouncilMember", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilRemoveMember", s.lambdaLedger);
 
     // init break glass lambda action
-    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaRemoveCouncilMember(councilMemberAddress);
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaCouncilRemoveMember(councilMemberAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
@@ -210,15 +210,15 @@ block {
 
 
 
-(*  changeCouncilMember entrypoint  *)
-function changeCouncilMember(const changeCouncilMemberParams : councilActionChangeMemberType; var s : breakGlassStorageType) : return is 
+(*  councilActionChangeMember entrypoint  *)
+function councilActionChangeMember(const councilActionChangeMemberParams : councilActionChangeMemberType; var s : breakGlassStorageType) : return is 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaChangeCouncilMember", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCouncilChangeMember", s.lambdaLedger);
 
     // init break glass lambda action
-    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaChangeCouncilMember(changeCouncilMemberParams);
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaCouncilChangeMember(councilActionChangeMemberParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
