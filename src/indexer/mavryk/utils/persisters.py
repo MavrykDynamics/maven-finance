@@ -306,6 +306,7 @@ async def persist_governance_satellite_action(ctx, action):
 
             initiator                       = await models.mavryk_user_cache.get(address=initiator_address)
             action_record                   = models.GovernanceSatelliteAction(
+                internal_id                     = int(action_id),
                 governance_satellite            = governance_satellite,
                 initiator                       = initiator,
                 governance_type                 = action_type,
