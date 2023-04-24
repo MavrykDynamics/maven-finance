@@ -234,8 +234,8 @@ block {
 // Break Glass Council Actions Begin - Internal Control of Council Members
 // ------------------------------------------------------------------------------
 
-(*  addCouncilMember lambda  *)
-function lambdaAddCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
+(*  councilActionAddMember lambda  *)
+function lambdaCouncilAddMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -249,7 +249,7 @@ block {
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaAddCouncilMember(newCouncilMember) -> {
+        |   LambdaCouncilAddMember(newCouncilMember) -> {
                 
                 // Validate inputs
                 validateStringLength(newCouncilMember.memberName       , s.config.councilMemberNameMaxLength       , error_WRONG_INPUT_PROVIDED);
@@ -281,8 +281,8 @@ block {
 
 
 
-(*  removeCouncilMember lambda  *)
-function lambdaRemoveCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
+(*  councilActionRemoveMember lambda  *)
+function lambdaCouncilRemoveMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -296,7 +296,7 @@ block {
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaRemoveCouncilMember(councilMemberAddress) -> {
+        |   LambdaCouncilRemoveMember(councilMemberAddress) -> {
                 
                 // Verify that council member is in the council
                 verifyCouncilMemberExists(councilMemberAddress, s);
@@ -323,8 +323,8 @@ block {
 
 
 
-(*  changeCouncilMember lambda  *)
-function lambdaChangeCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
+(*  councilActionChangeMember lambda  *)
+function lambdaCouncilChangeMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -339,7 +339,7 @@ block {
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaChangeCouncilMember(councilActionChangeMemberParams) -> {
+        |   LambdaCouncilChangeMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
                 validateStringLength(councilActionChangeMemberParams.newCouncilMemberName       , s.config.councilMemberNameMaxLength       , error_WRONG_INPUT_PROVIDED);
