@@ -106,7 +106,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         breakGlass)
             echo "Running tests for breakGlass"
-            COMMANDS+=("yarn ts-mocha --paths test/11_test_break_glass.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/09_test_break_glass.spec.ts --bail --timeout 9000000")
             ;;
         governanceFinancial)
             echo "Running tests for governanceFinancial"
