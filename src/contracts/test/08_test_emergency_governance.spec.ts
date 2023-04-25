@@ -193,6 +193,10 @@ describe("Emergency Governance tests", async () => {
 
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
+                    
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
                     stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToTrigger) + 1;
                     stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
@@ -230,6 +234,10 @@ describe("Emergency Governance tests", async () => {
             
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
+
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
                     stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToTrigger) + 1;
                     stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
@@ -303,6 +311,10 @@ describe("Emergency Governance tests", async () => {
                 
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
+
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
                     stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToTrigger) + 1;
                     stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
@@ -361,6 +373,10 @@ describe("Emergency Governance tests", async () => {
                 
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
+
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+                    
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
                     stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToTrigger) + 1;
                     stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
@@ -446,7 +462,6 @@ describe("Emergency Governance tests", async () => {
 
                 // ensure that user staked balance does not exceed staked MVK required to vote
                 if(initialUserStakedBalance > sMvkRequiredToVote){
-                    
                     // set unstake amount so that user's final staked balance will be below sMvkRequiredToVote
                     unstakeAmount    = Math.abs(sMvkRequiredToVote - initialUserStakedBalance) + 1;
                     unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount).send();
@@ -1152,7 +1167,7 @@ describe("Emergency Governance tests", async () => {
                 console.dir(e, {depth: 5});
             }
         });
-        
+
 
         it('%updateWhitelistContracts - admin (bob) should be able to add user (eve) to the Whitelisted Contracts map', async () => {
             try {
