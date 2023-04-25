@@ -24,7 +24,7 @@ import * as helperFunctions from './helpers/helperFunctions'
 // ------------------------------------------------------------------------------
 
 // Council Members set in deployment
-//   - Council Members: alice, eve, susie, trudy
+//   - alice, eve, susie, trudy
 
 // ------------------------------------------------------------------------------
 // Contract Tests
