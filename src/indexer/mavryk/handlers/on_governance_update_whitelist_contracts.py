@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.governance.parameter.update_whitelist_contracts import UpdateWhitelistContractsParameter
@@ -11,5 +12,10 @@ async def on_governance_update_whitelist_contracts(
     update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, GovernanceStorage],
 ) -> None:
 
-    # Persist whitelist contract
-    await persist_linked_contract(models.Governance, models.GovernanceWhitelistContract, update_whitelist_contracts)
+    try:
+        # Persist whitelist contract
+        await persist_linked_contract(models.Governance, models.GovernanceWhitelistContract, update_whitelist_contracts)
+
+    except BaseException:
+         await save_error_report()
+

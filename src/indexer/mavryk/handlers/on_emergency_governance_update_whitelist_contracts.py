@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.emergency_governance.storage import EmergencyGovernanceStorage
@@ -11,5 +12,10 @@ async def on_emergency_governance_update_whitelist_contracts(
     update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, EmergencyGovernanceStorage],
 ) -> None:
 
-    # Persist whitelist contract
-    await persist_linked_contract(models.EmergencyGovernance, models.EmergencyGovernanceWhitelistContract, update_whitelist_contracts)
+    try:
+        # Persist whitelist contract
+        await persist_linked_contract(models.EmergencyGovernance, models.EmergencyGovernanceWhitelistContract, update_whitelist_contracts)
+
+    except BaseException:
+         await save_error_report()
+

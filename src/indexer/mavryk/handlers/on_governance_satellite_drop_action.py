@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
 from dipdup.models import Transaction
@@ -10,20 +11,25 @@ async def on_governance_satellite_drop_action(
     drop_action: Transaction[DropActionParameter, GovernanceSatelliteStorage],
 ) -> None:
 
-    # Get operation info
-    governance_satellite_address    = drop_action.data.target_address
-    action_storage                  = drop_action.storage.governanceSatelliteActionLedger[drop_action.parameter.__root__]
-    action_id                       = int(drop_action.parameter.__root__)
-    status                          = action_storage.status
-    status_type                     = models.GovernanceActionStatus.ACTIVE
-    if not status:
-        status_type = models.GovernanceActionStatus.DROPPED
+    try:
+        # Get operation info
+        governance_satellite_address    = drop_action.data.target_address
+        action_storage                  = drop_action.storage.governanceSatelliteActionLedger[drop_action.parameter.__root__]
+        action_id                       = int(drop_action.parameter.__root__)
+        status                          = action_storage.status
+        status_type                     = models.GovernanceActionStatus.ACTIVE
+        if not status:
+            status_type = models.GovernanceActionStatus.DROPPED
+    
+        # Create or update record
+        governance_satellite            = await models.GovernanceSatellite.get(address  = governance_satellite_address)
+        action_record                   = await models.GovernanceSatelliteAction.filter(
+            internal_id             = action_id,
+            governance_satellite    = governance_satellite
+        ).first()
+        action_record.status    = status_type
+        await action_record.save()
 
-    # Create or update record
-    governance_satellite            = await models.GovernanceSatellite.get(address  = governance_satellite_address)
-    action_record                   = await models.GovernanceSatelliteAction.filter(
-        internal_id             = action_id,
-        governance_satellite    = governance_satellite
-    ).first()
-    action_record.status    = status_type
-    await action_record.save()
+    except BaseException:
+         await save_error_report()
+

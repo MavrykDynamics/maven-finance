@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.farm_factory.storage import FarmFactoryStorage
@@ -11,5 +12,9 @@ async def on_farm_factory_update_general_contracts(
     update_general_contracts: Transaction[UpdateGeneralContractsParameter, FarmFactoryStorage],
 ) -> None:
 
-    # Perists general contract
-    await persist_linked_contract(models.FarmFactory, models.FarmFactoryGeneralContract, update_general_contracts)
+    try:
+        # Perists general contract
+        await persist_linked_contract(models.FarmFactory, models.FarmFactoryGeneralContract, update_general_contracts)
+    except BaseException:
+         await save_error_report()
+

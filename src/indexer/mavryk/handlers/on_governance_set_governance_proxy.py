@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.governance.parameter.set_governance_proxy import SetGovernanceProxyParameter
 from dipdup.context import HandlerContext
@@ -10,11 +11,15 @@ async def on_governance_set_governance_proxy(
     set_governance_proxy: Transaction[SetGovernanceProxyParameter, GovernanceStorage],
 ) -> None:
 
-    # Get operation values
-    governance_address          = set_governance_proxy.data.target_address
-    governance_proxy_address    = set_governance_proxy.parameter.__root__
+    try:
+        # Get operation values
+        governance_address          = set_governance_proxy.data.target_address
+        governance_proxy_address    = set_governance_proxy.parameter.__root__
+    
+        # Update record
+        governance                              = await models.Governance.get(address   = governance_address)
+        governance.governance_proxy_address     = governance_proxy_address
+        await governance.save()
+    except BaseException:
+         await save_error_report()
 
-    # Update record
-    governance                              = await models.Governance.get(address   = governance_address)
-    governance.governance_proxy_address     = governance_proxy_address
-    await governance.save()

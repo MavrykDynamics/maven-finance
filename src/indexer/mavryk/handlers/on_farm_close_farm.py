@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.farm.parameter.close_farm import CloseFarmParameter
 from dipdup.context import HandlerContext
@@ -10,25 +11,29 @@ async def on_farm_close_farm(
     close_farm: Transaction[CloseFarmParameter, FarmStorage],
 ) -> None:
 
-    # Get operation info
-    farm_address                    = close_farm.data.target_address
-    last_block_update               = int(close_farm.storage.lastBlockUpdate)
-    open                            = close_farm.storage.open
-    accumulated_rewards_per_share   = float(close_farm.storage.accumulatedRewardsPerShare)
-    unpaid_rewards                  = float(close_farm.storage.claimedRewards.unpaid)
-    total_rewards                   = float(close_farm.storage.config.plannedRewards.totalRewards)
-    current_reward_per_block        = float(close_farm.storage.config.plannedRewards.currentRewardPerBlock)
-    total_blocks                    = int(close_farm.storage.config.plannedRewards.totalBlocks)
-    min_block_time_snapshot         = int(close_farm.storage.minBlockTimeSnapshot)
+    try:
+        # Get operation info
+        farm_address                    = close_farm.data.target_address
+        last_block_update               = int(close_farm.storage.lastBlockUpdate)
+        open                            = close_farm.storage.open
+        accumulated_rewards_per_share   = float(close_farm.storage.accumulatedRewardsPerShare)
+        unpaid_rewards                  = float(close_farm.storage.claimedRewards.unpaid)
+        total_rewards                   = float(close_farm.storage.config.plannedRewards.totalRewards)
+        current_reward_per_block        = float(close_farm.storage.config.plannedRewards.currentRewardPerBlock)
+        total_blocks                    = int(close_farm.storage.config.plannedRewards.totalBlocks)
+        min_block_time_snapshot         = int(close_farm.storage.minBlockTimeSnapshot)
+    
+        # Update record
+        farm                                = await models.Farm.get(address = farm_address)
+        farm.last_block_update              = last_block_update
+        farm.open                           = open
+        farm.accumulated_rewards_per_share  = accumulated_rewards_per_share
+        farm.unpaid_rewards                 = unpaid_rewards
+        farm.total_rewards                  = total_rewards
+        farm.current_reward_per_block       = current_reward_per_block
+        farm.total_blocks                   = total_blocks
+        farm.min_block_time_snapshot        = min_block_time_snapshot
+        await farm.save()
+    except BaseException:
+         await save_error_report()
 
-    # Update record
-    farm                                = await models.Farm.get(address = farm_address)
-    farm.last_block_update              = last_block_update
-    farm.open                           = open
-    farm.accumulated_rewards_per_share  = accumulated_rewards_per_share
-    farm.unpaid_rewards                 = unpaid_rewards
-    farm.total_rewards                  = total_rewards
-    farm.current_reward_per_block       = current_reward_per_block
-    farm.total_blocks                   = total_blocks
-    farm.min_block_time_snapshot        = min_block_time_snapshot
-    await farm.save()

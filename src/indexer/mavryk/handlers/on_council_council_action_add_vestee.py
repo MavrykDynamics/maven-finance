@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.parameter.council_action_add_vestee import CouncilActionAddVesteeParameter
 from dipdup.models import Transaction
@@ -9,4 +10,8 @@ async def on_council_council_action_add_vestee(
     council_action_add_vestee: Transaction[CouncilActionAddVesteeParameter, CouncilStorage],
 ) -> None:
 
-    await persist_council_action(council_action_add_vestee)
+    try:
+        await persist_council_action(council_action_add_vestee)
+    except BaseException:
+         await save_error_report()
+

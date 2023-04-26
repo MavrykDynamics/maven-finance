@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_lambda
 from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
@@ -11,5 +12,10 @@ async def on_lending_controller_mock_time_set_lambda(
     set_lambda: Transaction[SetLambdaParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
-    # Persist lambda
-    await persist_lambda(models.LendingController, models.LendingControllerLambda, set_lambda)
+    try:
+        # Persist lambda
+        await persist_lambda(models.LendingController, models.LendingControllerLambda, set_lambda)
+
+    except BaseException:
+         await save_error_report()
+

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.m_farm.parameter.unpause_all import UnpauseAllParameter
@@ -9,12 +10,17 @@ async def on_m_farm_unpause_all(
     unpause_all: Transaction[UnpauseAllParameter, MFarmStorage],
 ) -> None:
 
-    # Get operation info
-    farm_address    = unpause_all.data.target_address
-    farm            = await models.Farm.get(address=farm_address)
+    try:
+        # Get operation info
+        farm_address    = unpause_all.data.target_address
+        farm            = await models.Farm.get(address=farm_address)
+    
+        # Update record
+        farm.deposit_paused     = unpause_all.storage.breakGlassConfig.depositIsPaused
+        farm.withdraw_paused    = unpause_all.storage.breakGlassConfig.withdrawIsPaused
+        farm.claim_paused       = unpause_all.storage.breakGlassConfig.claimIsPaused
+        await farm.save()
 
-    # Update record
-    farm.deposit_paused     = unpause_all.storage.breakGlassConfig.depositIsPaused
-    farm.withdraw_paused    = unpause_all.storage.breakGlassConfig.withdrawIsPaused
-    farm.claim_paused       = unpause_all.storage.breakGlassConfig.claimIsPaused
-    await farm.save()
+    except BaseException:
+         await save_error_report()
+

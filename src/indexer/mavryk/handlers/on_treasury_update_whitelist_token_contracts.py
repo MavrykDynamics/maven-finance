@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.treasury.parameter.update_whitelist_token_contracts import UpdateWhitelistTokenContractsParameter
@@ -10,6 +11,10 @@ async def on_treasury_update_whitelist_token_contracts(
     ctx: HandlerContext,
     update_whitelist_token_contracts: Transaction[UpdateWhitelistTokenContractsParameter, TreasuryStorage],
 ) -> None:
-    
-    # Persist whitelist token contract
-    await persist_linked_contract(models.Treasury, models.TreasuryWhitelistTokenContract, update_whitelist_token_contracts, ctx)
+
+    try:    
+        # Persist whitelist token contract
+        await persist_linked_contract(models.Treasury, models.TreasuryWhitelistTokenContract, update_whitelist_token_contracts, ctx)
+    except BaseException:
+         await save_error_report()
+

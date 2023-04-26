@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.types.break_glass.storage import BreakGlassStorage
@@ -10,13 +11,18 @@ async def on_break_glass_break_glass(
     break_glass: Transaction[BreakGlassParameter, BreakGlassStorage],
 ) -> None:
 
-    # Get operation values
-    breakGlassAddress       = break_glass.data.target_address
-    breakGlassGlassBroken   = break_glass.storage.glassBroken
+    try:
+        # Get operation values
+        breakGlassAddress       = break_glass.data.target_address
+        breakGlassGlassBroken   = break_glass.storage.glassBroken
+    
+        # Update record
+        breakGlass  = await models.BreakGlass.get(
+            address = breakGlassAddress
+        )
+        breakGlass.glass_broken = breakGlassGlassBroken
+        await breakGlass.save()
 
-    # Update record
-    breakGlass  = await models.BreakGlass.get(
-        address = breakGlassAddress
-    )
-    breakGlass.glass_broken = breakGlassGlassBroken
-    await breakGlass.save()
+    except BaseException:
+         await save_error_report()
+
