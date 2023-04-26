@@ -37,7 +37,7 @@ async def on_governance_satellite_vote_for_action(
     governance_satellite    = await models.GovernanceSatellite.get(address  = governance_satellite_address)
     action_record                   = await models.GovernanceSatelliteAction.filter(
         governance_satellite    = governance_satellite,
-        id                      = action_id
+        internal_id             = action_id
     ).first()
     action_record.yay_vote_smvk_total   = yay_vote_smvk_total
     action_record.nay_vote_smvk_total   = nay_vote_smvk_total
