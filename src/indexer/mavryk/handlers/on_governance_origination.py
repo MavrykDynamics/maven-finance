@@ -102,7 +102,7 @@ async def on_governance_origination(
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
             user                                    = await models.mavryk_user_cache.get(address=whitelisted_developer_address)
-            whitelist_developer                  = await models.WhitelistDeveloper.get(
+            whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user
             )
