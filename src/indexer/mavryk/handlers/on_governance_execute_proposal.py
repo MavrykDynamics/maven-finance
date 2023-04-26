@@ -19,7 +19,7 @@ async def on_governance_execute_proposal(
 
     # Update record
     proposal     = await models.GovernanceProposal.get(
-        id  = proposal_id
+        internal_id  = proposal_id
     )
     proposal.executed               = executed
     proposal.execution_timestamp    = timestamp

@@ -15,6 +15,7 @@ from mavryk.sql_model.governance import *
 from mavryk.sql_model.lending_controller import *
 from mavryk.sql_model.liquidity_baking import *
 from mavryk.sql_model.mvk_token import *
+from mavryk.sql_model.mvk_faucet import *
 from mavryk.sql_model.m_token import *
 from mavryk.sql_model.shared import *
 from mavryk.sql_model.token_sale import *

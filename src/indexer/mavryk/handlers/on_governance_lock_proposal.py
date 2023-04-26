@@ -20,7 +20,7 @@ async def on_governance_lock_proposal(
     )
     proposal    = await models.GovernanceProposal.filter(
         governance  = governance,
-        id          = proposalID
+        internal_id = proposalID
     ).first()
     proposal.locked = True
     await proposal.save()
