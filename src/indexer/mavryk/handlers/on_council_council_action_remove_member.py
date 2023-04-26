@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.parameter.council_action_remove_member import CouncilActionRemoveMemberParameter
 from mavryk.types.council.storage import CouncilStorage
@@ -9,4 +10,8 @@ async def on_council_council_action_remove_member(
     council_action_remove_member: Transaction[CouncilActionRemoveMemberParameter, CouncilStorage],
 ) -> None:
 
-    await persist_council_action(council_action_remove_member)
+    try:
+        await persist_council_action(council_action_remove_member)
+    except BaseException:
+         await save_error_report()
+

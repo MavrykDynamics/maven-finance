@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.utils.persisters import persist_break_glass_action
@@ -9,6 +10,11 @@ async def on_break_glass_add_council_member(
     ctx: HandlerContext,
     add_council_member: Transaction[AddCouncilMemberParameter, BreakGlassStorage],
 ) -> None:
+
+    try:    
+        await persist_break_glass_action(add_council_member)
     
-    await persist_break_glass_action(add_council_member)
+
+    except BaseException:
+         await save_error_report()
 

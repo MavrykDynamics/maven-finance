@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.types.delegation.parameter.update_satellite_status import UpdateSatelliteStatusParameter
@@ -10,22 +11,27 @@ async def on_delegation_update_satellite_status(
     update_satellite_status: Transaction[UpdateSatelliteStatusParameter, DelegationStorage],
 ) -> None:
 
-    # Get operation info
-    delegation_address  = update_satellite_status.data.target_address
-    satellite_address   = update_satellite_status.parameter.satelliteAddress
-    new_status          = update_satellite_status.parameter.newStatus
-    status_type         = models.SatelliteStatus.ACTIVE
-    if new_status == "SUSPENDED":
-        status_type = models.SatelliteStatus.SUSPENDED
-    elif new_status == "BANNED":
-        status_type = models.SatelliteStatus.BANNED
+    try:
+        # Get operation info
+        delegation_address  = update_satellite_status.data.target_address
+        satellite_address   = update_satellite_status.parameter.satelliteAddress
+        new_status          = update_satellite_status.parameter.newStatus
+        status_type         = models.SatelliteStatus.ACTIVE
+        if new_status == "SUSPENDED":
+            status_type = models.SatelliteStatus.SUSPENDED
+        elif new_status == "BANNED":
+            status_type = models.SatelliteStatus.BANNED
+    
+        # Create or update record
+        delegation          = await models.Delegation.get(address   = delegation_address)
+        user                = await models.mavryk_user_cache.get(address=satellite_address)
+        satellite           = await models.Satellite.filter(
+            delegation  = delegation,
+            user        = user
+        ).first()
+        satellite.status    = status_type
+        await satellite.save()
 
-    # Create or update record
-    delegation          = await models.Delegation.get(address   = delegation_address)
-    user                = await models.mavryk_user_cache.get(address=satellite_address)
-    satellite           = await models.Satellite.filter(
-        delegation  = delegation,
-        user        = user
-    ).first()
-    satellite.status    = status_type
-    await satellite.save()
+    except BaseException:
+         await save_error_report()
+

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.governance.parameter.distribute_proposal_rewards import DistributeProposalRewardsParameter
@@ -9,25 +10,30 @@ async def on_governance_distribute_proposal_rewards(
     distribute_proposal_rewards: Transaction[DistributeProposalRewardsParameter, GovernanceStorage],
 ) -> None:
 
-    # Get operation info
-    governance_address  = distribute_proposal_rewards.data.target_address
-    satellite_address   = distribute_proposal_rewards.parameter.satelliteAddress
-    proposal_ids        = distribute_proposal_rewards.parameter.proposalIds
+    try:
+        # Get operation info
+        governance_address  = distribute_proposal_rewards.data.target_address
+        satellite_address   = distribute_proposal_rewards.parameter.satelliteAddress
+        proposal_ids        = distribute_proposal_rewards.parameter.proposalIds
+    
+        # Update records
+        governance          = await models.Governance.get(
+            address     = governance_address
+        )
+        for proposal_id in proposal_ids:
+            satellite                           = await models.mavryk_user_cache.get(address=satellite_address)
+            proposal                            = await models.GovernanceProposal.get(
+                governance  = governance,
+                internal_id = int(proposal_id)
+            )
+            proposal_vote                       = await models.GovernanceProposalVote.get(
+                governance_proposal = proposal,
+                voter               = satellite,
+                round               = models.GovernanceRoundType.VOTING
+            )
+            proposal_vote.voting_reward_claimed = True
+            await proposal_vote.save()
 
-    # Update records
-    governance          = await models.Governance.get(
-        address     = governance_address
-    )
-    for proposal_id in proposal_ids:
-        satellite                           = await models.mavryk_user_cache.get(address=satellite_address)
-        proposal                            = await models.GovernanceProposal.get(
-            governance  = governance,
-            internal_id = int(proposal_id)
-        )
-        proposal_vote                       = await models.GovernanceProposalVote.get(
-            governance_proposal = proposal,
-            voter               = satellite,
-            round               = models.GovernanceRoundType.VOTING
-        )
-        proposal_vote.voting_reward_claimed = True
-        await proposal_vote.save()
+    except BaseException:
+         await save_error_report()
+

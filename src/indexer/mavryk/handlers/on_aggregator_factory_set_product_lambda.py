@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_lambda
@@ -11,5 +12,10 @@ async def on_aggregator_factory_set_product_lambda(
     set_product_lambda: Transaction[SetProductLambdaParameter, AggregatorFactoryStorage],
 ) -> None:
 
-    # Persist lambda
-    await persist_lambda(models.AggregatorFactory, models.AggregatorFactoryAggregatorLambda, set_product_lambda)
+    try:
+        # Persist lambda
+        await persist_lambda(models.AggregatorFactory, models.AggregatorFactoryAggregatorLambda, set_product_lambda)
+
+    except BaseException:
+         await save_error_report()
+

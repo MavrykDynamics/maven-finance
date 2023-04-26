@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.types.token_sale.storage import TokenSaleStorage
@@ -11,15 +12,20 @@ async def on_token_sale_set_whitelist_timestamp(
     set_whitelist_timestamp: Transaction[SetWhitelistTimestampParameter, TokenSaleStorage],
 ) -> None:
 
-    # Get operation values
-    token_sale_address          = set_whitelist_timestamp.data.target_address
-    whitelist_start_timestamp   = parser.parse(set_whitelist_timestamp.parameter.whitelistStartTimestamp)
-    whitelist_end_timestamp     = parser.parse(set_whitelist_timestamp.parameter.whitelistEndTimestamp)
+    try:
+        # Get operation values
+        token_sale_address          = set_whitelist_timestamp.data.target_address
+        whitelist_start_timestamp   = parser.parse(set_whitelist_timestamp.parameter.whitelistStartTimestamp)
+        whitelist_end_timestamp     = parser.parse(set_whitelist_timestamp.parameter.whitelistEndTimestamp)
+    
+        # Update record
+        token_sale          = await models.TokenSale.get(
+            address = token_sale_address
+        )
+        token_sale.whitelist_start_timestamp    = whitelist_start_timestamp
+        token_sale.whitelist_end_timestamp      = whitelist_end_timestamp
+        await token_sale.save()
 
-    # Update record
-    token_sale          = await models.TokenSale.get(
-        address = token_sale_address
-    )
-    token_sale.whitelist_start_timestamp    = whitelist_start_timestamp
-    token_sale.whitelist_end_timestamp      = whitelist_end_timestamp
-    await token_sale.save()
+    except BaseException:
+         await save_error_report()
+

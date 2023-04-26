@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.types.aggregator.storage import AggregatorStorage
@@ -10,15 +11,20 @@ async def on_aggregator_toggle_pause_entrypoint(
     toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, AggregatorStorage],
 ) -> None:
 
-    # Get operation info
-    aggregator_address                                  = toggle_pause_entrypoint.data.target_address
-    update_data_paused                                 = toggle_pause_entrypoint.storage.breakGlassConfig.updateDataIsPaused
-    withdraw_reward_xtz_paused                          = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawRewardXtzIsPaused
-    withdraw_reward_smvk_paused                         = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
+    try:
+        # Get operation info
+        aggregator_address                                  = toggle_pause_entrypoint.data.target_address
+        update_data_paused                                 = toggle_pause_entrypoint.storage.breakGlassConfig.updateDataIsPaused
+        withdraw_reward_xtz_paused                          = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawRewardXtzIsPaused
+        withdraw_reward_smvk_paused                         = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
+    
+        # Update record
+        aggregator                                          = await models.Aggregator.get(address    = aggregator_address)
+        aggregator.update_data_paused                      = update_data_paused
+        aggregator.withdraw_reward_xtz_paused               = withdraw_reward_xtz_paused
+        aggregator.withdraw_reward_smvk_paused              = withdraw_reward_smvk_paused
+        await aggregator.save()
 
-    # Update record
-    aggregator                                          = await models.Aggregator.get(address    = aggregator_address)
-    aggregator.update_data_paused                      = update_data_paused
-    aggregator.withdraw_reward_xtz_paused               = withdraw_reward_xtz_paused
-    aggregator.withdraw_reward_smvk_paused              = withdraw_reward_smvk_paused
-    await aggregator.save()
+    except BaseException:
+         await save_error_report()
+

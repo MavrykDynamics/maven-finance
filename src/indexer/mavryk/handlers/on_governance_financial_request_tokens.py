@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_financial_request
 from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
@@ -10,6 +11,11 @@ async def on_governance_financial_request_tokens(
     ctx: HandlerContext,
     request_tokens: Transaction[RequestTokensParameter, GovernanceFinancialStorage],
 ) -> None:
-    
-    # Persist request
-    await persist_financial_request(ctx, request_tokens)
+
+    try:    
+        # Persist request
+        await persist_financial_request(ctx, request_tokens)
+
+    except BaseException:
+         await save_error_report()
+

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_council_action
@@ -10,4 +11,8 @@ async def on_council_council_action_drop_financial_req(
     council_action_drop_financial_req: Transaction[CouncilActionDropFinancialReqParameter, CouncilStorage],
 ) -> None:
 
-    await persist_council_action(council_action_drop_financial_req)
+    try:
+        await persist_council_action(council_action_drop_financial_req)
+    except BaseException:
+         await save_error_report()
+

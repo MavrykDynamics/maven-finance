@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_governance
 from mavryk.types.mvk_token.parameter.set_governance import SetGovernanceParameter
@@ -10,10 +11,15 @@ async def on_mvk_set_governance(
     ctx: HandlerContext,
     set_governance: Transaction[SetGovernanceParameter, MvkTokenStorage],
 ) -> None:
-    
-    # Get operation info
-    target_contract = set_governance.data.target_address
-    contract        = await models.MVKToken.get(address = target_contract)
 
-    # Persist new admin
-    await persist_governance(set_governance, contract)
+    try:    
+        # Get operation info
+        target_contract = set_governance.data.target_address
+        contract        = await models.MVKToken.get(address = target_contract)
+    
+        # Persist new admin
+        await persist_governance(set_governance, contract)
+
+    except BaseException:
+         await save_error_report()
+
