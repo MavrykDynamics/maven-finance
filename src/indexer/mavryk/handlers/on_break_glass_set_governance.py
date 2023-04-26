@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -10,10 +11,14 @@ async def on_break_glass_set_governance(
     ctx: HandlerContext,
     set_governance: Transaction[SetGovernanceParameter, BreakGlassStorage],
 ) -> None:
-    
-    # Get operation info
-    target_contract = set_governance.data.target_address
-    contract        = await models.BreakGlass.get(address = target_contract)
 
-    # Persist new admin
-    await persist_governance(set_governance, contract)
+    try:    
+        # Get operation info
+        target_contract = set_governance.data.target_address
+        contract        = await models.BreakGlass.get(address = target_contract)
+    
+        # Persist new admin
+        await persist_governance(set_governance, contract)
+    except BaseException:
+         await save_error_report()
+

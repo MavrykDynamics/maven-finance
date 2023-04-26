@@ -1,0 +1,53 @@
+spec_version: 1.2
+
+package: mavryk
+
+database:
+  kind: postgres
+  host: 127.0.0.1
+  port: '5432'
+  user: dipdup
+  password: dipdup12345
+  database: dipdup
+  schema_name: public
+
+hasura:
+  url: http://127.0.0.1:42000
+  admin_secret: hasura12345
+  select_limit: 1000
+
+prometheus:
+  host: 0.0.0.0
+  port: 9090
+  update_interval: 5
+
+advanced:
+  metadata_interface: true
+  early_realtime: true
+  crash_reporting: false
+  merge_subscriptions: true
+  scheduler:
+    apscheduler.job_defaults.coalesce: true
+    apscheduler.job_defaults.max_instances: 1
+  reindex:
+    manual: wipe
+    migration: exception
+    rollback: ignore
+    config_modified: wipe
+    schema_modified: wipe
+
+datasources:
+  metadata_mainnet:
+    kind: metadata
+    url: https://metadata.dipdup.net
+    network: mainnet
+  metadata_ghostnet:
+    kind: metadata
+    url: https://metadata.dipdup.net
+    network: ghostnet
+  tzkt_ghostnet:
+    kind: tzkt
+    url: https://api.ghostnet.tzkt.io
+  tzkt_mainnet:
+    kind: tzkt
+    url: https://api.tzkt.io

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_admin
 from mavryk.types.vault_factory.storage import VaultFactoryStorage
 from dipdup.context import HandlerContext
@@ -9,10 +10,15 @@ async def on_vault_factory_set_admin(
     ctx: HandlerContext,
     set_admin: Transaction[SetAdminParameter, VaultFactoryStorage],
 ) -> None:
-    
-    # Get operation info
-    target_contract = set_admin.data.target_address
-    contract        = await models.VaultFactory.get(address = target_contract)
 
-    # Persist new admin
-    await persist_admin(set_admin, contract)
+    try:    
+        # Get operation info
+        target_contract = set_admin.data.target_address
+        contract        = await models.VaultFactory.get(address = target_contract)
+    
+        # Persist new admin
+        await persist_admin(set_admin, contract)
+
+    except BaseException:
+         await save_error_report()
+

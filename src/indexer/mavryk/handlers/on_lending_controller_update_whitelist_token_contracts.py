@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -11,5 +12,10 @@ async def on_lending_controller_update_whitelist_token_contracts(
     update_whitelist_token_contracts: Transaction[UpdateWhitelistTokenContractsParameter, LendingControllerStorage],
 ) -> None:
 
-    # Persist whitelist contract
-    await persist_linked_contract(models.LendingController, models.LendingControllerWhitelistTokenContract, update_whitelist_token_contracts, ctx)
+    try:
+        # Persist whitelist contract
+        await persist_linked_contract(models.LendingController, models.LendingControllerWhitelistTokenContract, update_whitelist_token_contracts, ctx)
+
+    except BaseException:
+         await save_error_report()
+

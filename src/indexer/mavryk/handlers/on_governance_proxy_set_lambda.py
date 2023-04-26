@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -11,5 +12,10 @@ async def on_governance_proxy_set_lambda(
     set_lambda: Transaction[SetLambdaParameter, GovernanceProxyStorage],
 ) -> None:
 
-    # Persist lambda
-    await persist_lambda(models.GovernanceProxy, models.GovernanceProxyLambda, set_lambda)
+    try:
+        # Persist lambda
+        await persist_lambda(models.GovernanceProxy, models.GovernanceProxyLambda, set_lambda)
+
+    except BaseException:
+         await save_error_report()
+

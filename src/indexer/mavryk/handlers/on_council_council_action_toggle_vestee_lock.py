@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.parameter.council_action_toggle_vestee_lock import CouncilActionToggleVesteeLockParameter
 from mavryk.types.council.storage import CouncilStorage
@@ -9,4 +10,8 @@ async def on_council_council_action_toggle_vestee_lock(
     council_action_toggle_vestee_lock: Transaction[CouncilActionToggleVesteeLockParameter, CouncilStorage],
 ) -> None:
 
-    await persist_council_action(council_action_toggle_vestee_lock)
+    try:
+        await persist_council_action(council_action_toggle_vestee_lock)
+    except BaseException:
+         await save_error_report()
+

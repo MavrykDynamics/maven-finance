@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_lambda
@@ -11,5 +12,10 @@ async def on_delegation_set_lambda(
     set_lambda: Transaction[SetLambdaParameter, DelegationStorage],
 ) -> None:
 
-    # Persist lambda
-    await persist_lambda(models.Delegation, models.DelegationLambda, set_lambda)
+    try:
+        # Persist lambda
+        await persist_lambda(models.Delegation, models.DelegationLambda, set_lambda)
+
+    except BaseException:
+         await save_error_report()
+

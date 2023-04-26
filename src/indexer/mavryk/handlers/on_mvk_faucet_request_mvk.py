@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.mvk_faucet.parameter.request_mvk import RequestMvkParameter
@@ -9,23 +10,28 @@ async def on_mvk_faucet_request_mvk(
     request_mvk: Transaction[RequestMvkParameter, MvkFaucetStorage],
 ) -> None:
 
-    # Get operation values
-    timestamp           = request_mvk.data.timestamp
-    level               = int(request_mvk.data.level)
-    mvk_faucet_address  = request_mvk.data.target_address
-    requester_address   = request_mvk.data.sender_address
+    try:
+        # Get operation values
+        timestamp           = request_mvk.data.timestamp
+        level               = int(request_mvk.data.level)
+        mvk_faucet_address  = request_mvk.data.target_address
+        requester_address   = request_mvk.data.sender_address
+    
+        # Create request record
+        mvk_faucet          = await models.MVKFaucet.get(
+            address = mvk_faucet_address
+        )
+        user                = await models.mavryk_user_cache.get(
+            address = requester_address
+        )
+        requester           = models.MVKFaucetRequester(
+            mvk_faucet  = mvk_faucet,
+            user        = user,
+            timestamp   = timestamp,
+            level       = level
+        )
+        await requester.save()
 
-    # Create request record
-    mvk_faucet          = await models.MVKFaucet.get(
-        address = mvk_faucet_address
-    )
-    user                = await models.mavryk_user_cache.get(
-        address = requester_address
-    )
-    requester           = models.MVKFaucetRequester(
-        mvk_faucet  = mvk_faucet,
-        user        = user,
-        timestamp   = timestamp,
-        level       = level
-    )
-    await requester.save()
+    except BaseException:
+         await save_error_report()
+

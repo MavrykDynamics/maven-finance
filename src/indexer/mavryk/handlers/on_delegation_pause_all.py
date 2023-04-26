@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -10,21 +11,26 @@ async def on_delegation_pause_all(
     pause_all: Transaction[PauseAllParameter, DelegationStorage],
 ) -> None:
 
-    # Get operation values
-    delegation_address                  = pause_all.data.target_address
-    delegate_to_satellite_paused        = pause_all.storage.breakGlassConfig.delegateToSatelliteIsPaused
-    undelegate_from_satellite_paused    = pause_all.storage.breakGlassConfig.undelegateFromSatelliteIsPaused
-    register_as_satellite_paused        = pause_all.storage.breakGlassConfig.registerAsSatelliteIsPaused
-    unregister_as_satellite_paused      = pause_all.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
-    update_satellite_record_paused      = pause_all.storage.breakGlassConfig.updateSatelliteRecordIsPaused
-    distribute_reward_paused            = pause_all.storage.breakGlassConfig.distributeRewardIsPaused
+    try:
+        # Get operation values
+        delegation_address                  = pause_all.data.target_address
+        delegate_to_satellite_paused        = pause_all.storage.breakGlassConfig.delegateToSatelliteIsPaused
+        undelegate_from_satellite_paused    = pause_all.storage.breakGlassConfig.undelegateFromSatelliteIsPaused
+        register_as_satellite_paused        = pause_all.storage.breakGlassConfig.registerAsSatelliteIsPaused
+        unregister_as_satellite_paused      = pause_all.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
+        update_satellite_record_paused      = pause_all.storage.breakGlassConfig.updateSatelliteRecordIsPaused
+        distribute_reward_paused            = pause_all.storage.breakGlassConfig.distributeRewardIsPaused
+    
+        # Update contract
+        delegation                                      = await models.Delegation.get(address=delegation_address)
+        delegation.delegate_to_satellite_paused         = delegate_to_satellite_paused
+        delegation.undelegate_from_satellite_paused     = undelegate_from_satellite_paused
+        delegation.register_as_satellite_paused         = register_as_satellite_paused
+        delegation.unregister_as_satellite_paused       = unregister_as_satellite_paused
+        delegation.update_satellite_record_paused       = update_satellite_record_paused
+        delegation.distribute_reward_paused             = distribute_reward_paused
+        await delegation.save()
 
-    # Update contract
-    delegation                                      = await models.Delegation.get(address=delegation_address)
-    delegation.delegate_to_satellite_paused         = delegate_to_satellite_paused
-    delegation.undelegate_from_satellite_paused     = undelegate_from_satellite_paused
-    delegation.register_as_satellite_paused         = register_as_satellite_paused
-    delegation.unregister_as_satellite_paused       = unregister_as_satellite_paused
-    delegation.update_satellite_record_paused       = update_satellite_record_paused
-    delegation.distribute_reward_paused             = distribute_reward_paused
-    await delegation.save()
+    except BaseException:
+         await save_error_report()
+

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.parameter.council_action_request_tokens import CouncilActionRequestTokensParameter
 from mavryk.types.council.storage import CouncilStorage
@@ -9,4 +10,8 @@ async def on_council_council_action_request_tokens(
     council_action_request_tokens: Transaction[CouncilActionRequestTokensParameter, CouncilStorage],
 ) -> None:
 
-    await persist_council_action(council_action_request_tokens)
+    try:
+        await persist_council_action(council_action_request_tokens)
+    except BaseException:
+         await save_error_report()
+
