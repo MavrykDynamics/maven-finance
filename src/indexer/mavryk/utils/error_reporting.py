@@ -1,6 +1,8 @@
 import mavryk.models as models
 import sys
 import traceback
+import os
+import telegram
 
 ###
 #
@@ -8,6 +10,7 @@ import traceback
 #
 ###
 async def save_error_report():
+
     # Get current system exception
     ex_type, ex_value, ex_traceback = sys.exc_info()
 
@@ -15,15 +18,28 @@ async def save_error_report():
     trace_back = traceback.extract_tb(ex_traceback)
 
     # Format stacktrace
-    stack_trace = list()
+    stack_trace = ""
 
     for trace in trace_back:
-        stack_trace.append("File : %s , Line : %d, Func.Name : %s, Message : %s" % (trace[0], trace[1], trace[2], trace[3]))
+        stack_trace += f"\n        Func.Name : {trace[2]}\n        Line : {trace[1]}\n        Message : {trace[3]}\n"
 
     dipdup_exception    = models.DipdupException(
         type    = ex_type.__name__,
         value   = ex_value,
-        trace   = str(stack_trace)
+        trace   = stack_trace
     )
     await dipdup_exception.save()
+
+    # Send a message to telegram
+    telegram_enable_reporting   = os.getenv("TELEGRAM_ENABLE_REPORTING")
+    if telegram_enable_reporting == "True" or telegram_enable_reporting == "true":
+        telegram_bot_token          = os.getenv("TELEGRAM_BOT_API_TOKEN")
+        telegram_channel            = os.getenv("TELEGRAM_CHANNEL_ID")
+
+        bot                         = telegram.Bot(token=telegram_bot_token)
+
+        error_message               = f"⚠️ Indexer Error Found\n\n - Type: {dipdup_exception.type}\n - Value: {dipdup_exception.value}\n - Trace: {dipdup_exception.trace}"
+
+        await bot.send_message(chat_id=telegram_channel, text=error_message)
+
     return
