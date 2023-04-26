@@ -8,9 +8,7 @@ JSON_FILE="./test/helpers/random_accounts.json"
 
 # Generate multiple accounts
 docker run --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:0.60.0 run test $GENERATION_SCRIPT | sed -e "s/$STRING_TO_REMOVE$//" | grep "\S" > $TEMP_GENERATED_FILE
-"edsk3NhW3Xr8viyoQ9CgpHgtvzMrhAucYNt4zhgSb9nCCnSEgPwBh7"
-edpkuqMpAemZFfryxXHuNjThdn8Uuw1QZh8AmNij2C98sFocJ7iuYT
-tz1UG5oTjGqKj4z1e5u5hyzSDJKudhpaq3E4
+
 # Create the JSON account file
 JSON_TEXT=$(echo -e "[\n")
 while read line; do
