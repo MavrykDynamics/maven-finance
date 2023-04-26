@@ -51,6 +51,7 @@ class CouncilCouncilMember(Model):
 
 class CouncilAction(Model):
     id                                      = fields.BigIntField(pk=True)
+    internal_id                             = fields.BigIntField(default=0)
     council                                 = fields.ForeignKeyField('models.Council', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator', index=True)
     start_datetime                          = fields.DatetimeField(null=True, index=True)

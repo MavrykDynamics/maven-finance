@@ -41,6 +41,7 @@ class EmergencyGovernanceWhitelistContract(LinkedContract, Model):
 
 class EmergencyGovernanceRecord(Model):
     id                                      = fields.BigIntField(pk=True)
+    internal_id                             = fields.BigIntField(default=0)
     emergency_governance                    = fields.ForeignKeyField('models.EmergencyGovernance', related_name='emergency_governance_records', index=True)
     proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_proposer', index=True)
     executed                                = fields.BooleanField(default=False, index=True)
