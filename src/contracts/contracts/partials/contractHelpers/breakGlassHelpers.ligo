@@ -546,7 +546,13 @@ block {
     // -----------------
 
     // Get General Contracts map from the Governance Contract
-    const generalContracts : generalContractsType = getGeneralContractsMap(s);
+    var generalContracts : generalContractsType := getGeneralContractsMap(s);
+
+    // Add Governance contract to the general contracts map if it doesn't exist
+    generalContracts["governance"] := case generalContracts["governance"] of [
+            Some(_v) -> _v
+        |   None     -> s.governanceAddress
+    ];
     
     // Create a set to remove duplicate contract addresses (as General Contracts map may contain duplicate addresses)
     var uniqueContracts : set(address) := (Set.empty: set(address));
@@ -588,7 +594,13 @@ block {
     s.admin := governanceProxyAddress;
 
     // Get General Contracts map from the Governance Contract
-    const generalContracts : generalContractsType = getGeneralContractsMap(s);
+    var generalContracts : generalContractsType := getGeneralContractsMap(s);
+
+    // Add Governance contract to the general contracts map if it doesn't exist
+    generalContracts["governance"] := case generalContracts["governance"] of [
+            Some(_v) -> _v
+        |   None     -> s.governanceAddress
+    ];
 
     // Create a set to remove duplicate contract addresses (as General Contracts map may contain duplicate addresses)
     var uniqueContracts : set(address) := (Set.empty: set(address));
