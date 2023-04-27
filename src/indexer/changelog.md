@@ -4,34 +4,68 @@
 
 ### Deployment
 
-- DEV: 0.34
-- PROD: 0.33
-- PROD2: 0.33
-- DEMO: 0.35
+- DEV: 0.38
+- DEMO: 0.38
+- PROD: 0.38
+- PROD2: 0.38
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
-## Next
+## 0.39
 
 ### What's new
 
-- Doorman
+- DoormanStakeAccount
+  - Column TotalExitFeeRewardsClaimed added
+  - Column TotalSatelliteRewardsClaimed added
+  - Column TotalFarmRewardsClaimed added
 
-  - Column ExitPaused added
-
-- MVKTokenMintOrBurnHistoryData
-
+- MVKFaucet
   - Table added
+
+- MVKFaucetRequester
+  - Table added
+
+- SMVKHistoryData
+  - Column Level added
+
+- MVKTokenMintHistoryData
+  - Column Level added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.38</summary>
+
+## 0.38
 
 ### Breaking changes
 
-- MVKTokenMintHistoryData
+- BreakGlassAction
+  - Column internalID added, it replaces the old ID column (ID is still used but for a more traditionnal purpose)
 
-  - Table replaced with MVKTokenMintOrBurnHistoryData
+- CouncilAction
+  - Column internalID added, it replaces the old ID column (ID is still used but for a more traditionnal purpose)
 
-<details><summary>Previous versions</summary>
+- EmergencyGovernanceRecord
+  - Column internalID added, it replaces the old ID column (ID is still used but for a more traditionnal purpose)
+
+- GovernanceProposal
+  - Column internalID added, it replaces the old ID column (ID is still used but for a more traditionnal purpose)
+
+- GovernanceFinancialRequest
+  - Column internalID added, it replaces the old ID column (ID is still used but for a more traditionnal purpose)
+
+- GovernanceSatelliteAction
+  - Column internalID added, it replaces the old ID column (ID is still used but for a more traditionnal purpose)
+
+### What's new
+
+- SMVKHistoryData
+  - Column MVKTotalSupply added
+
+</details>
 
 <details><summary>0.37</summary>
 
@@ -51,7 +85,7 @@
 
   - Column SatelliteRegistrationTimestamp added
 
-</details
+</details>
 
 <details><summary>0.36</summary>
 

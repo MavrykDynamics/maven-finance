@@ -55,7 +55,7 @@ async def on_governance_start_next_round(
         highest_voted_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.cycleHighestVotedProposalId]
         highest_voted_proposal_record   = await models.GovernanceProposal.filter(
             governance  = governance,
-            id          = highest_voted_proposal
+            internal_id = highest_voted_proposal
         ).first()
         highest_voted_proposal_record.reward_claim_ready    = highest_voted_proposal_storage.rewardClaimReady
         await highest_voted_proposal_record.save()
@@ -65,7 +65,7 @@ async def on_governance_start_next_round(
         timelock_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.timelockProposalId]
         timelock_proposal_record   = await models.GovernanceProposal.filter(
             governance  = governance,
-            id  = timelock_proposal
+            internal_id = timelock_proposal
         ).first()
         timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
         await timelock_proposal_record.save()
@@ -73,7 +73,7 @@ async def on_governance_start_next_round(
     # Update round proposals
     round_proposals = await models.GovernanceProposal.filter(current_round_proposal=True).all()
     for proposal_record in round_proposals:
-        if not str(proposal_record.id) in current_cycle_proposals:
+        if not str(proposal_record.internal_id) in current_cycle_proposals:
             proposal_record.current_round_proposal  = False
             await proposal_record.save()
 

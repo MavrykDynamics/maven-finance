@@ -15,7 +15,7 @@ const singleUserSupply  = new BigNumber(totalSupply / 7)    // 200,000 MVK Token
 
 const metadata = mockTokenData.mvkToken.metadata
 
-const ledger = MichelsonMap.fromLiteral({
+export const ledger = MichelsonMap.fromLiteral({
     [bob.pkh]       : singleUserSupply,
     [alice.pkh]     : singleUserSupply,
     [eve.pkh]       : singleUserSupply,

@@ -33,8 +33,8 @@ async def on_council_sign_action(
     # Update record
     council = await models.Council.get(address  = council_address)
     action_record   = await models.CouncilAction.get(
-        council = council,
-        id      = action_id
+        council     = council,
+        internal_id = action_id
     )
     action_record.status                = status_type
     action_record.signers_count         = signer_count
@@ -48,7 +48,7 @@ async def on_council_sign_action(
         for single_action_id in sign_action.storage.councilActionsLedger:
             single_action_record    = await models.CouncilAction.get(
                 council     = council,
-                id          = single_action_id
+                internal_id = single_action_id
             )
             status                  = sign_action.storage.councilActionsLedger[single_action_id]
             # Select correct status

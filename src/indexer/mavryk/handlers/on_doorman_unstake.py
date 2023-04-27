@@ -19,6 +19,9 @@ async def on_doorman_unstake(
     initiator_stake_balance_ledger          = unstake.storage.userStakeBalanceLedger[initiator_address]
     smvk_balance                            = float(initiator_stake_balance_ledger.balance)
     mvk_balance                             = float(transfer.storage.ledger[initiator_address])
+    total_exit_fee_rewards_claimed          = float(initiator_stake_balance_ledger.totalExitFeeRewardsClaimed)
+    total_satellite_rewards_claimed         = float(initiator_stake_balance_ledger.totalSatelliteRewardsClaimed)
+    total_farm_rewards_claimed              = float(initiator_stake_balance_ledger.totalFarmRewardsClaimed)
     participation_fees_per_share            = float(initiator_stake_balance_ledger.participationFeesPerShare)
     timestamp                               = unstake.data.timestamp
     desired_amount                          = float(unstake.parameter.__root__)
@@ -37,8 +40,11 @@ async def on_doorman_unstake(
         user    = user,
         doorman = doorman
     )
-    stake_account.participation_fees_per_share  = participation_fees_per_share
-    stake_account.smvk_balance                  = smvk_balance
+    stake_account.participation_fees_per_share      = participation_fees_per_share
+    stake_account.total_exit_fee_rewards_claimed    = total_exit_fee_rewards_claimed
+    stake_account.total_satellite_rewards_claimed   = total_satellite_rewards_claimed
+    stake_account.total_farm_rewards_claimed        = total_farm_rewards_claimed
+    stake_account.smvk_balance                      = smvk_balance
     await stake_account.save()
 
     # Create a stake record

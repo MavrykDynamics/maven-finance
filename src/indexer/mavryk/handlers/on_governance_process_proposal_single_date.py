@@ -22,7 +22,7 @@ async def on_governance_process_proposal_single_date(
     governance          = await models.Governance.get(address   = governance_address)
     proposal            = await models.GovernanceProposal.filter(
         governance  = governance,
-        id          = proposal_id
+        internal_id = proposal_id
     ).first()
     proposal.execution_counter  = execution_counter
     proposal.executed           = executed

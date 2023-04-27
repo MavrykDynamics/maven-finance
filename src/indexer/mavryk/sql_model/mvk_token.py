@@ -50,8 +50,9 @@ class MVKTokenTransferHistoryData(Model):
 
 class MVKTokenMintOrBurnHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='mint_or_burn_history_data')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='mint_or_burn_history_data', index=True)
+    mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='mint_history_data')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='mint_history_data', index=True)
+    level                                   = fields.BigIntField(default=0)
     timestamp                               = fields.DatetimeField(index=True)
     type                                    = fields.IntEnumField(enum_type=MintOrBurnType, index=True)
     amount                                  = fields.FloatField(default=0.0)

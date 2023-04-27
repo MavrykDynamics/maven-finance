@@ -83,15 +83,15 @@ async def persist_council_action(action):
     initiator   = await models.mavryk_user_cache.get(address=councilActionInitiator)
 
     councilActionRecord = await models.CouncilAction.get_or_none(
-        id                              = actionID
+        internal_id = actionID
     )
     if councilActionRecord == None:
         councilActionRecord = models.CouncilAction(
-            id                              = actionID,
+            internal_id                     = actionID,
             council                         = council,
             initiator                       = initiator,
             start_datetime                  = councilActionStartDate,
-            execution_datetime               = councilActionExecutedDate,
+            execution_datetime              = councilActionExecutedDate,
             expiration_datetime             = councilActionExpirationDate,
             action_type                     = councilActionType,
             status                          = recordStatus,
@@ -152,11 +152,11 @@ async def persist_break_glass_action(action):
     initiator    = await models.mavryk_user_cache.get(address=breakGlassActionInitiator)
 
     breakGlassActionRecord = await models.BreakGlassAction.get_or_none(
-        id                              = actionID
+        internal_id = actionID
     )
     if breakGlassActionRecord == None:
         breakGlassActionRecord = models.BreakGlassAction(
-            id                              = actionID,
+            internal_id                     = actionID,
             break_glass                     = breakGlass,
             initiator                       = initiator,
             start_datetime                  = breakGlassActionStartDate,
@@ -203,7 +203,7 @@ async def persist_financial_request(ctx, action):
 
     for requestID in requestLedger:
         requestRecord       = await models.GovernanceFinancialRequest.get_or_none(
-            id  = int(requestID)
+            internal_id  = int(requestID)
         )
         if requestRecord == None:
             requestRecordStorage            = requestLedger[requestID]
@@ -245,7 +245,7 @@ async def persist_financial_request(ctx, action):
 
             requester               = await models.mavryk_user_cache.get(address=requesterAddress)
             requestRecord           = models.GovernanceFinancialRequest(
-                id                              = int(requestID),
+                internal_id                     = int(requestID),
                 governance_financial            = governanceFinancial,
                 treasury                        = treasury,
                 requester                       = requester,
@@ -282,7 +282,7 @@ async def persist_governance_satellite_action(ctx, action):
 
     for action_id in action_ledger:
         action_record       = await models.GovernanceSatelliteAction.get_or_none(
-            id  = int(action_id)
+            internal_id  = int(action_id)
         )
         if action_record == None:
             action_record_storage           = action_ledger[action_id]
@@ -306,6 +306,7 @@ async def persist_governance_satellite_action(ctx, action):
 
             initiator                       = await models.mavryk_user_cache.get(address=initiator_address)
             action_record                   = models.GovernanceSatelliteAction(
+                internal_id                     = int(action_id),
                 governance_satellite            = governance_satellite,
                 initiator                       = initiator,
                 governance_type                 = action_type,
