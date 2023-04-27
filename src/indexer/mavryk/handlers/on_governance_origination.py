@@ -42,6 +42,7 @@ async def on_governance_origination(
     cycle_id                                = int(governance_origination.storage.cycleId)
     cycle_highest_voted_proposal_id         = int(governance_origination.storage.cycleHighestVotedProposalId )
     timelock_proposal_id                    = int(governance_origination.storage.timelockProposalId)
+    whitelisted_developers                  = governance_origination.storage.whitelistDevelopers
     timestamp                               = governance_origination.data.timestamp
 
     # Persist contract metadata
@@ -91,7 +92,16 @@ async def on_governance_origination(
     governance.current_cycle_end_level                 = current_cycle_end_level
     governance.current_cycle_total_voters_reward       = current_cycle_total_voters_reward
     governance.next_proposal_id                        = next_proposal_id
-    governance.cycle_id                           = cycle_id
-    governance.cycle_highest_voted_proposal_id  = cycle_highest_voted_proposal_id 
+    governance.cycle_id                                = cycle_id
+    governance.cycle_highest_voted_proposal_id         = cycle_highest_voted_proposal_id 
     governance.timelock_proposal_id                    = timelock_proposal_id
     await governance.save()
+
+    # Add whitelisted developers
+    for whitelisted_developer_address in whitelisted_developers:
+        user                                    = await models.mavryk_user_cache.get(address=whitelisted_developer_address)
+        whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
+            governance  = governance,
+            developer   = user
+        )
+        await whitelist_developer.save()

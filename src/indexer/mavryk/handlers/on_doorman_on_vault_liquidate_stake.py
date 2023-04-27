@@ -15,6 +15,9 @@ async def on_doorman_on_vault_liquidate_stake(
     vault_owner_address                         = on_vault_liquidate_stake.parameter.vaultOwner
     vault_owner_stake_balance_ledger            = on_vault_liquidate_stake.storage.userStakeBalanceLedger[vault_owner_address]
     vault_owner_smvk_balance                    = float(vault_owner_stake_balance_ledger.balance)
+    vault_owner_total_exit_fee_rewards_claimed  = float(vault_owner_stake_balance_ledger.totalExitFeeRewardsClaimed)
+    vault_owner_total_satellite_rewards_claimed = float(vault_owner_stake_balance_ledger.totalSatelliteRewardsClaimed)
+    vault_owner_total_farm_rewards_claimed      = float(vault_owner_stake_balance_ledger.totalFarmRewardsClaimed)
     vault_owner_participation_fees_per_share    = float(vault_owner_stake_balance_ledger.participationFeesPerShare)
     vault_address                               = on_vault_liquidate_stake.parameter.vaultAddress
     vault_stake_balance_ledger                  = on_vault_liquidate_stake.storage.userStakeBalanceLedger[vault_address]
@@ -38,8 +41,11 @@ async def on_doorman_on_vault_liquidate_stake(
         user    = vault_owner,
         doorman = doorman
     )
-    vault_owner_stake_account.participation_fees_per_share  = vault_owner_participation_fees_per_share
-    vault_owner_stake_account.smvk_balance                  = vault_owner_smvk_balance
+    vault_owner_stake_account.participation_fees_per_share      = vault_owner_participation_fees_per_share
+    vault_owner_stake_account.total_exit_fee_rewards_claimed    = vault_owner_total_exit_fee_rewards_claimed
+    vault_owner_stake_account.total_satellite_rewards_claimed   = vault_owner_total_satellite_rewards_claimed
+    vault_owner_stake_account.total_farm_rewards_claimed        = vault_owner_total_farm_rewards_claimed
+    vault_owner_stake_account.smvk_balance                      = vault_owner_smvk_balance
     await vault_owner_stake_account.save()
     
     # Vault

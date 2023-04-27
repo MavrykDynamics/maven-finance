@@ -13,9 +13,13 @@ docker run --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:0.60.0 run test $
 JSON_TEXT=$(echo -e "[\n")
 while read line; do
     FORMATTED_ACCOUNT=$(echo "$line" | tr -d '()')
-    PUBLIC_KEY=$(echo -e "$FORMATTED_ACCOUNT" | cut -c60-114)
     SECRET_KEY=$(echo -e "$FORMATTED_ACCOUNT" | cut -c1-56)
-    JSON_TEXT=$(echo -e "$JSON_TEXT\n\t{\n\t\t\"pkh\": \"$PUBLIC_KEY\",\n\t\t\"sk\": $SECRET_KEY\n\t},")
+    PUBLIC_KEY=$(echo -e "$FORMATTED_ACCOUNT" | cut -c60-113)
+    PUBLIC_KEY_HASH=$(echo -e "$FORMATTED_ACCOUNT" | cut -c117-154)
+    echo $SECRET_KEY
+    echo $PUBLIC_KEY
+    echo $PUBLIC_KEY_HASH
+    JSON_TEXT=$(echo -e "$JSON_TEXT\n\t{\n\t\t\"pkh\": \"$PUBLIC_KEY_HASH\",\n\t\t\"pk\": \"$PUBLIC_KEY\",\n\t\t\"sk\": $SECRET_KEY\n\t},")
 done < $TEMP_GENERATED_FILE
 JSON_TEXT=$(echo -e "$JSON_TEXT" | sed '$ s/.$//')
 JSON_TEXT=$(echo -e "$JSON_TEXT\n]")

@@ -18,6 +18,7 @@ import contractDeployments from '../contractDeployments.json'
 import { bob } from "../../scripts/sandbox/accounts";
 import accounts from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
+import { ledger } from "../../storage/mvkTokenStorage";
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -27,6 +28,8 @@ describe("Testnet setup helper", async () => {
     
     var utils: Utils;
     var tezos
+
+    let mvkFaucetAddress
 
     let doormanInstance;
     let delegationInstance;
@@ -82,6 +85,8 @@ describe("Testnet setup helper", async () => {
             utils = new Utils();
             await utils.init(bob.sk);
             tezos = utils.tezos;
+
+            mvkFaucetAddress                        = contractDeployments.mvkFaucet.address;
             
             doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -160,30 +165,32 @@ describe("Testnet setup helper", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
-        it('Admin gets all MVK', async () => {
+        it('Faucet gets all MVK', async () => {
             try{
                 for(let accountName in accounts){
                     let account = accounts[accountName];
-                    let balance = await mvkTokenStorage.ledger.get(account.pkh);
-                    if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== bob.pkh){
-                        // Transfer all funds to bob
-                        await helperFunctions.signerFactory(tezos, account.sk);
-                        console.log("account:", account)
-                        console.log("balance:", balance)
-                        let operation = await mvkTokenInstance.methods.transfer([
-                            {
-                                from_: account.pkh,
-                                txs: [
+                    if(ledger.has(account.pkh)){
+                        let balance = await mvkTokenStorage.ledger.get(account.pkh);
+                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvkFaucetAddress.address){
+                            // Transfer all funds to bob
+                            await helperFunctions.signerFactory(tezos, account.sk);
+                            console.log("account:", account)
+                            console.log("balance:", balance)
+                            let operation = await mvkTokenInstance.methods.transfer([
                                 {
-                                    to_: bob.pkh,
-                                    token_id: 0,
-                                    amount: balance.toNumber(),
-                                }
-                                ],
-                            },
-                            ])
-                            .send()
-                        await operation.confirmation();
+                                    from_: account.pkh,
+                                    txs: [
+                                    {
+                                        to_: mvkFaucetAddress.address,
+                                        token_id: 0,
+                                        amount: balance.toNumber(),
+                                    }
+                                    ],
+                                },
+                                ])
+                                .send()
+                            await operation.confirmation();
+                        }
                     }
                 }
             } catch(e){

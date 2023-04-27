@@ -69,6 +69,7 @@ class WhitelistDeveloper(Model):
 
 class GovernanceProposal(Model):
     id                                      = fields.BigIntField(pk=True)
+    internal_id                             = fields.BigIntField(default=0)
     governance                              = fields.ForeignKeyField('models.Governance', related_name='proposals')
     proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_proposer', index=True)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, index=True)
