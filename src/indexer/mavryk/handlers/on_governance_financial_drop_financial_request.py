@@ -22,7 +22,7 @@ async def on_governance_financial_drop_financial_request(
     governance_financial    = await models.GovernanceFinancial.get(address  = financial_address)
     request                 = await models.GovernanceFinancialRequest.filter(
         governance_financial    = governance_financial,
-        id                      = request_id
+        internal_id             = request_id
     ).first()
     request.status      = status
     await request.save()

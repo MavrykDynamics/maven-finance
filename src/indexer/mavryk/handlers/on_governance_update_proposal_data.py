@@ -21,7 +21,7 @@ async def on_governance_update_proposal_data(
     # Update or create record
     governance      = await models.Governance.get(address   = governance_address)
     proposal        = await models.GovernanceProposal.filter(
-        id                  = proposal_id,
+        internal_id         = proposal_id,
         governance          = governance
     ).first()
 
@@ -97,3 +97,6 @@ async def on_governance_update_proposal_data(
             payment_data.to_                = None
             payment_data.token_amount       = None
         await payment_data.save()
+
+    if proposal_id == 7:
+        breakpoint()

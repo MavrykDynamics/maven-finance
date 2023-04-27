@@ -15,7 +15,10 @@ async def on_doorman_compound(
     user_address                    = compound.parameter.__root__
     sender_stake_balance_ledger     = compound.storage.userStakeBalanceLedger[user_address]
     smvk_balance                    = float(sender_stake_balance_ledger.balance)
-    participation_fees_per_share    = sender_stake_balance_ledger.participationFeesPerShare
+    total_exit_fee_rewards_claimed  = float(sender_stake_balance_ledger.totalExitFeeRewardsClaimed)
+    total_satellite_rewards_claimed = float(sender_stake_balance_ledger.totalSatelliteRewardsClaimed)
+    total_farm_rewards_claimed      = float(sender_stake_balance_ledger.totalFarmRewardsClaimed)
+    participation_fees_per_share    = float(sender_stake_balance_ledger.participationFeesPerShare)
     timestamp                       = compound.data.timestamp
     doorman                         = await models.Doorman.get(address=doorman_address)
     unclaimed_rewards               = float(compound.storage.unclaimedRewards)
@@ -31,8 +34,11 @@ async def on_doorman_compound(
         user    = user,
         doorman = doorman
     )
-    stake_account.participation_fees_per_share  = participation_fees_per_share
-    stake_account.smvk_balance                  = smvk_balance
+    stake_account.participation_fees_per_share      = participation_fees_per_share
+    stake_account.total_exit_fee_rewards_claimed    = total_exit_fee_rewards_claimed
+    stake_account.total_satellite_rewards_claimed   = total_satellite_rewards_claimed
+    stake_account.total_farm_rewards_claimed        = total_farm_rewards_claimed
+    stake_account.smvk_balance                      = smvk_balance
     await stake_account.save()
     
     # Get doorman info

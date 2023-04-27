@@ -22,7 +22,7 @@ async def on_governance_distribute_proposal_rewards(
         satellite                           = await models.mavryk_user_cache.get(address=satellite_address)
         proposal                            = await models.GovernanceProposal.get(
             governance  = governance,
-            id                  = int(proposal_id)
+            internal_id = int(proposal_id)
         )
         proposal_vote                       = await models.GovernanceProposalVote.get(
             governance_proposal = proposal,
