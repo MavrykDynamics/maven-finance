@@ -26,21 +26,23 @@ async def on_treasury_token_transfer_sender(
                 token_standard  = "fa12"
             elif standard == TokenStandard.FA2:
                 token_standard  = "fa2"
+
+        # breakpoint()
     
         # Update records
-        treasury            = await models.Treasury.get(
-            address         = treasury_address
-        )
-        treasury_balance, _ = await models.TreasuryBalance.get_or_create(
-            treasury        = treasury,
-            token_address   = token_address,
-            token_id        = token_id
-        )
-        treasury_balance.token_standard = token_standard
-        treasury_balance.tzkt_token_id  = tzkt_token_id
-        treasury_balance.metadata       = metadata
-        treasury_balance.balance        -= amount
-        await treasury_balance.save()
+        # treasury            = await models.Treasury.get(
+        #     address         = treasury_address
+        # )
+        # treasury_balance, _ = await models.TreasuryBalance.get_or_create(
+        #     treasury        = treasury,
+        #     token_address   = token_address,
+        #     token_id        = token_id
+        # )
+        # treasury_balance.token_standard = token_standard
+        # treasury_balance.tzkt_token_id  = tzkt_token_id
+        # treasury_balance.metadata       = metadata
+        # treasury_balance.balance        -= amount
+        # await treasury_balance.save()
 
     except BaseException:
          await save_error_report()
