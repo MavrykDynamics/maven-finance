@@ -214,17 +214,29 @@ block {
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
-function getStakedMvkTotalSupply(const s : governanceSatelliteStorageType) : nat is 
+// helper function to get the current governance cycle counter
+function getCurrentCycleCounter(const s : governanceSatelliteStorageType) : nat is 
 block {
 
-    // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+    // Get the current governance cycle counter from the governance contract
+    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle : nat = case cycleCounterView of [
+            Some (_cycleCounter)   -> _cycleCounter
+        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
+} with currentCycle
+
+
+
+// helper function to get staked mvk snapshot total supply based on the current governance cycle 
+function getStakedMvkSnapshotTotalSupply(const currentCycleId : nat; const s : governanceSatelliteStorageType) : nat is 
+block {
+
+    const getStakedMvkSnapshotOptView : option (nat) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
+    const stakedMvkTotalSupply: nat = case getStakedMvkSnapshotOptView of [
             Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+        |   None         -> (failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : nat)
     ];
 
 } with stakedMvkTotalSupply 
@@ -383,8 +395,11 @@ block {
     // Snapshot Staked MVK Total Supply
     // ------------------------------------------------------------------
 
-    // Take snapshot of current total staked MVK supply (Doorman contract's MVK balance)
-    const snapshotStakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
+    // Get the current cycle from the governance contract
+    const currentCycleId : nat = getCurrentCycleCounter(s);
+
+    // Take snapshot of current total staked MVK supply 
+    const snapshotStakedMvkTotalSupply : nat = getStakedMvkSnapshotTotalSupply(currentCycleId, s);
 
     // Calculate staked MVK votes required for approval based on config's approval percentage
     const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
@@ -410,6 +425,7 @@ block {
         nayVoteStakedMvkTotal              = 0n;
         passVoteStakedMvkTotal             = 0n;
 
+        governanceCycleId                  = currentCycleId;
         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
@@ -485,21 +501,6 @@ block {
 
 
 
-// helper function to get the current governance cycle counter
-function getCurrentCycleCounter(const s : governanceSatelliteStorageType) : nat is 
-block {
-
-    // Get the current governance cycle counter from the governance contract
-    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
-    const currentCycle : nat = case cycleCounterView of [
-            Some (_cycleCounter)   -> _cycleCounter
-        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
-} with currentCycle
-
-
-
 // helper function to check if satellite snapshot exists
 function createSatelliteSnapshotCheck(const currentCycle : nat; const satelliteAddress : address; const s : governanceSatelliteStorageType) : bool is
 block {
@@ -543,15 +544,18 @@ function updateSatelliteSnapshotOperation(const satelliteAddress : address; cons
 block {
 
     // Get the satellite record and delgation ratio
-    const satelliteRecord : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
-    const delegationRatio : nat                 = getDelegationRatio(s);
+    const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
+    const satelliteRewards  : satelliteRewardsType = getSatelliteReward(satelliteAddress, s);
+    const delegationRatio   : nat                   = getDelegationRatio(s);
 
     // Create a snapshot
     const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
-        satelliteAddress    = satelliteAddress;
-        satelliteRecord     = satelliteRecord;
-        ready               = ready;
-        delegationRatio     = delegationRatio;
+        satelliteAddress            = satelliteAddress;
+        totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+        totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+        ready                       = ready;
+        delegationRatio             = delegationRatio;
+        accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
     ];
 
     // Send the snapshot to the governance contract
@@ -608,34 +612,39 @@ block {
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; const actionGovernanceCycleId : nat; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
 block{
 
     // Get the current cycle from the governance contract to check if the snapshot is up to date
     const currentCycle : nat = getCurrentCycleCounter(s);
 
     // Check if a snapshot needs to be created
-    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
+    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(actionGovernanceCycleId, satelliteAddress, s);
 
     // Get the total voting power from the snapshot (default 0 if snapshot has not been created)
-    var totalVotingPower : nat := getSatelliteTotalVotingPower(currentCycle, satelliteAddress, s);
+    var totalVotingPower : nat := getSatelliteTotalVotingPower(actionGovernanceCycleId, satelliteAddress, s);
 
     // Create snapshot if it does not exist, verify snapshot is ready if it exists
     if createSatelliteSnapshotCheck then{
 
-        // update satellite snapshot operation
-        const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
-        operations := updateSatelliteSnapshotOperation # operations;
+        // check if current governance cycle matches with governance cycle of financial request
+        if currentCycle = actionGovernanceCycleId then block {
 
-        // Calculate the total voting power of the satellite
-        totalVotingPower := calculateVotingPower(satelliteAddress, s);
+            // update satellite snapshot operation
+            const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
+            operations := updateSatelliteSnapshotOperation # operations;
+
+            // Calculate the total voting power of the satellite
+            totalVotingPower := calculateVotingPower(satelliteAddress, s);
+
+        } else skip;
 
     } 
     // Check if satellite is ready to vote
     else {
 
         // Verify that satellite snapshot is ready
-        verifySatelliteSnapshotIsReady(currentCycle, satelliteAddress, s);
+        verifySatelliteSnapshotIsReady(actionGovernanceCycleId, satelliteAddress, s);
     }
 
 } with (totalVotingPower, operations)

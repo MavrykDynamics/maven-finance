@@ -727,6 +727,7 @@ block {
 
                 // Get governance satellite action record
                 var _governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(actionId, s);
+                const actionGovernanceCycleId : nat = _governanceSatelliteActionRecord.governanceCycleId;
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -740,7 +741,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
-                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), operations, s);
+                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), actionGovernanceCycleId, operations, s);
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to

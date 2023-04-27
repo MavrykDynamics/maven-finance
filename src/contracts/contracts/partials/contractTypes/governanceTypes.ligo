@@ -112,13 +112,16 @@ type proposalLedgerType is big_map (nat, proposalRecordType);
 
 // snapshot will be valid for current cycle only (proposal + voting rounds)
 type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
-    totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
-    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power
-    ready                     : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
+    totalStakedMvkBalance       : nat;      // log of satellite's total mvk balance for this cycle
+    totalDelegatedAmount        : nat;      // log of satellite's total delegated amount 
+    totalVotingPower            : nat;      // log calculated total voting power
+    accumulatedRewardsPerShare  : nat;      // log satellite's accumulated rewards per share
+    ready                       : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
 ]
-type snapshotLedgerType is big_map ((nat*address), governanceSatelliteSnapshotRecordType); // (cycleId*satelliteAddress    -> snapshot)
+type snapshotLedgerType is big_map ((nat*address), governanceSatelliteSnapshotRecordType); // (cycleId * satelliteAddress -> snapshot)
 
+
+type stakedMvkSnapshotLedgerType is big_map(nat, nat); // cycleId -> staked MVK total supply
 
 // --------------------------------------------------
 // Governance Config Types
@@ -235,10 +238,12 @@ type setContractGovernanceType is [@layout:comb] record [
 type whitelistDevelopersType is set(address)
 
 type updateSatelliteSnapshotType is [@layout:comb] record [
-    satelliteAddress        : address;
-    satelliteRecord         : satelliteRecordType;
-    ready                   : bool;
-    delegationRatio         : nat;
+    satelliteAddress            : address;
+    totalStakedMvkBalance       : nat;
+    totalDelegatedAmount        : nat;
+    ready                       : bool;
+    delegationRatio             : nat;
+    accumulatedRewardsPerShare  : nat;
 ]
 
 type distributeProposalRewardsType is [@layout:comb] record [
@@ -304,7 +309,9 @@ type governanceStorageType is [@layout:comb] record [
 
     proposalLedger                    : proposalLedgerType;
     proposalRewards                   : big_map((actionIdType*address), unit);  // proposalId*Satellite address
-    snapshotLedger                    : snapshotLedgerType;
+
+    snapshotLedger                    : snapshotLedgerType;             // satellite snapshot ledger
+    stakedMvkSnapshotLedger           : stakedMvkSnapshotLedgerType;    // staked MVK snapshot ledger
     
     currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically
 

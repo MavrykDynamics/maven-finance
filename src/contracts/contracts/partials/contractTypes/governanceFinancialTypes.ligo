@@ -32,6 +32,7 @@ type financialRequestRecordType is [@layout:comb] record [
     nayVoteStakedMvkTotal               : nat;
     passVoteStakedMvkTotal              : nat;
 
+    governanceCycleId                   : nat;
     snapshotStakedMvkTotalSupply        : nat;
     stakedMvkPercentageForApproval      : nat; 
     stakedMvkRequiredForApproval        : nat; 
