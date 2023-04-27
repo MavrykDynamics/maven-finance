@@ -64,6 +64,12 @@
 
 
 
+(* View: get a staked MVK total supply snapshot *)
+[@view] function getStakedMvkSnapshotOpt(const cycleId : nat; const s : governanceStorageType) : option(nat) is
+    Big_map.find_opt(cycleId, s.stakedMvkSnapshotLedger)
+
+
+
 (* View: get current cycle info *)
 [@view] function getCurrentCycleInfo(const _ : unit; const s : governanceStorageType) : currentCycleInfoType is
     s.currentCycleInfo
