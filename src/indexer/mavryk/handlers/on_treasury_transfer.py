@@ -12,7 +12,7 @@ async def on_treasury_transfer(
     transfer: Transaction[TransferParameter, TreasuryStorage],
 ) -> None:
 
-    try:    
+    try:
         # Get operation info
         treasury_address    = transfer.data.target_address
         txs                 = transfer.parameter.__root__
@@ -27,14 +27,18 @@ async def on_treasury_transfer(
             amount                  = float(tx.amount)
             token_contract_address  = ""
             token_id                = 0
+            token_standard          = None
     
             if type(token) == fa12:
                 token_contract_address  = token.fa12
+                token_standard          = "fa12"
             elif type(token) == fa2:
                 token_contract_address  = token.fa2.tokenContractAddress
+                token_standard          = "fa2"
                 token_id                = int(token.fa2.tokenId)
             elif type(token) == tez:
                 token_contract_address  = "XTZ"
+                token_standard          = "tez"
     
             # Persist Token Metadata
             await persist_token_metadata(
@@ -52,6 +56,16 @@ async def on_treasury_transfer(
                 amount                          = amount
             )
             await treasury_transfer_data.save()
+
+            # Update the treasury balance record
+            treasury_balance, _ = await models.TreasuryBalance.get_or_create(
+                treasury        = treasury,
+                token_address   = token_contract_address,
+                token_id        = token_id
+            )
+            treasury_balance.token_standard = token_standard
+            treasury_balance.balance        -= amount
+            await treasury_balance.save()
 
     except BaseException:
          await save_error_report()

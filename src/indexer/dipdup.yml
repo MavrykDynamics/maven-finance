@@ -15,13 +15,13 @@ jobs:
       batch_size: 10000
 
 templates:
-  treasury_token_transfer_sender_template:
-    kind: token_transfer
-    datasource: tzkt_ghostnet
-    handlers:
-    - callback: on_treasury_token_transfer_sender
-      from_: <treasury_contract>
-      first_level: <first_level>
+  # treasury_token_transfer_sender_template:
+  #   kind: token_transfer
+  #   datasource: tzkt_ghostnet
+  #   handlers:
+  #   - callback: on_treasury_token_transfer_sender
+  #     from_: <treasury_contract>
+  #     first_level: <first_level>
   treasury_token_transfer_receiver_template:
     kind: token_transfer
     datasource: tzkt_ghostnet
@@ -89,6 +89,10 @@ templates:
       pattern:
       - destination: <farm_contract>
         entrypoint: claim
+    - callback: on_farm_set_lambda
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: setLambda
   m_farm_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -149,6 +153,10 @@ templates:
       pattern:
       - destination: <m_farm_contract>
         entrypoint: claim
+    - callback: on_m_farm_set_lambda
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setLambda
   treasury_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -193,10 +201,18 @@ templates:
       pattern:
       - destination: <treasury_contract>
         entrypoint: togglePauseEntrypoint
+    - callback: on_treasury_default
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: default
     - callback: on_treasury_transfer
       pattern:
       - destination: <treasury_contract>
         entrypoint: transfer
+    - callback: on_treasury_set_lambda
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: setLambda
   aggregator_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -352,66 +368,66 @@ indexes:
     - callback: on_governance_snapshot_ledger_update
       contract: governance
       path: snapshotLedger
-  # liquidity_baking:
-  #   kind: operation
-  #   datasource: tzkt_mainnet
-  #   types:
-  #   - origination
-  #   - transaction
-  #   contracts:
-  #   - liquidity_baking
-  #   handlers:
-  #   - callback: on_liquidity_baking_add_liquidity
-  #     pattern:
-  #     - destination: liquidity_baking
-  #       entrypoint: addLiquidity
-  #     - destination: tzbtc
-  #       entrypoint: transfer
-  #     - destination: sirius
-  #       entrypoint: mintOrBurn
-  #   - callback: on_liquidity_baking_remove_liquidity
-  #     pattern:
-  #     - destination: liquidity_baking
-  #       entrypoint: removeLiquidity
-  #     - destination: sirius
-  #       entrypoint: mintOrBurn
-  #     - destination: tzbtc
-  #       entrypoint: transfer
-  #     - source: liquidity_baking
-  #       type: transaction
-  #   - callback: on_liquidity_baking_token_to_xtz
-  #     pattern:
-  #     - destination: liquidity_baking
-  #       entrypoint: tokenToXtz
-  #     - destination: tzbtc
-  #       entrypoint: transfer
-  #     - source: liquidity_baking
-  #       type: transaction
-  #     - source: liquidity_baking
-  #       type: transaction
-  #   - callback: on_liquidity_baking_xtz_to_token
-  #     pattern:
-  #     - destination: liquidity_baking
-  #       entrypoint: xtzToToken
-  #     - destination: tzbtc
-  #       entrypoint: transfer
-  #   - callback: on_liquidity_baking_token_to_token
-  #     pattern:
-  #     - destination: liquidity_baking
-  #       entrypoint: tokenToToken
-  # sirius:
-  #   kind: operation
-  #   datasource: tzkt_mainnet
-  #   types:
-  #   - origination
-  #   - transaction
-  #   contracts:
-  #   - sirius
-  #   handlers:
-  #   - callback: on_sirius_transfer
-  #     pattern:
-  #     - destination: sirius
-  #       entrypoint: transfer
+  liquidity_baking:
+    kind: operation
+    datasource: tzkt_mainnet
+    types:
+    - origination
+    - transaction
+    contracts:
+    - liquidity_baking
+    handlers:
+    - callback: on_liquidity_baking_add_liquidity
+      pattern:
+      - destination: liquidity_baking
+        entrypoint: addLiquidity
+      - destination: tzbtc
+        entrypoint: transfer
+      - destination: sirius
+        entrypoint: mintOrBurn
+    - callback: on_liquidity_baking_remove_liquidity
+      pattern:
+      - destination: liquidity_baking
+        entrypoint: removeLiquidity
+      - destination: sirius
+        entrypoint: mintOrBurn
+      - destination: tzbtc
+        entrypoint: transfer
+      - source: liquidity_baking
+        type: transaction
+    - callback: on_liquidity_baking_token_to_xtz
+      pattern:
+      - destination: liquidity_baking
+        entrypoint: tokenToXtz
+      - destination: tzbtc
+        entrypoint: transfer
+      - source: liquidity_baking
+        type: transaction
+      - source: liquidity_baking
+        type: transaction
+    - callback: on_liquidity_baking_xtz_to_token
+      pattern:
+      - destination: liquidity_baking
+        entrypoint: xtzToToken
+      - destination: tzbtc
+        entrypoint: transfer
+    - callback: on_liquidity_baking_token_to_token
+      pattern:
+      - destination: liquidity_baking
+        entrypoint: tokenToToken
+  sirius:
+    kind: operation
+    datasource: tzkt_mainnet
+    types:
+    - origination
+    - transaction
+    contracts:
+    - sirius
+    handlers:
+    - callback: on_sirius_transfer
+      pattern:
+      - destination: sirius
+        entrypoint: transfer
   mvk_token:
     kind: operation
     datasource: tzkt_ghostnet
@@ -808,6 +824,10 @@ indexes:
   #     pattern:
   #     - destination: farm_m_token
   #       entrypoint: claim
+  #   - callback: on_m_farm_set_lambda
+  #     pattern:
+  #     - destination: farm_m_token
+  #       entrypoint: setLambda
   farm_factory:
     kind: operation
     datasource: tzkt_ghostnet
@@ -1589,6 +1609,10 @@ indexes:
   #     pattern:
   #     - destination: treasury
   #       entrypoint: togglePauseEntrypoint
+  #   - callback: on_treasury_default
+  #     pattern:
+  #     - destination: treasury
+  #       entrypoint: default
   #   - callback: on_treasury_transfer
   #     pattern:
   #     - destination: treasury
