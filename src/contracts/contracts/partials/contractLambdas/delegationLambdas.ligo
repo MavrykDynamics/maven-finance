@@ -886,6 +886,8 @@ block {
                 const satelliteAddress  : address = updateSatelliteStatusParams.satelliteAddress;
                 const newStatus         : string  = updateSatelliteStatusParams.newStatus;
 
+                verifyValidSatelliteStatus(newStatus);
+
                 // Update the satellite snapshot on the governance contract before updating its record
                 operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
 

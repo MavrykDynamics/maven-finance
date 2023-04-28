@@ -60,6 +60,16 @@ block {
 
 } with unit
 
+
+function verifyValidSatelliteStatus(const newStatus : string) : unit is
+block {
+
+    if newStatus = "BANNED" or newStatus = "SUSPENDED" or newStatus = "ACTIVE" 
+    then skip 
+    else failwith(error_INVALID_SATELLITE_STATUS);
+
+} with unit
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -588,7 +598,7 @@ block {
 
     // Get the satellite record
     const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
-    const satelliteRewards  : satelliteRewardsType = getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
+    const satelliteRewards  : satelliteRewardsType = getOrCreateSatelliteRewardsRecord(satelliteAddress, s);
 
     // Create a snapshot
     const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
