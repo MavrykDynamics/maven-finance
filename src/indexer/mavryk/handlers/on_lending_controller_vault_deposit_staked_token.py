@@ -18,6 +18,7 @@ async def on_lending_controller_vault_deposit_staked_token(
         level                       = vault_deposit_staked_token.data.level
         operation_hash              = vault_deposit_staked_token.data.hash
         sender_address              = vault_deposit_staked_token.data.sender_address
+        collateral_token_name       = vault_deposit_staked_token.parameter.tokenName
         vault_deposit_amount        = float(vault_deposit_staked_token.parameter.depositAmount)
         vault_internal_id           = int(vault_deposit_staked_token.parameter.vaultId)
         vault_owner_address         = vault_deposit_staked_token.data.sender_address
@@ -76,31 +77,31 @@ async def on_lending_controller_vault_deposit_staked_token(
                 await loan_token.save()
     
                 # Save collateral balance ledger
-                for collateral_token_name in vault_collateral_balance_ledger:
-                    collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
-                    collateral_token_storage                    = vault_deposit_staked_token.storage.collateralTokenLedger[collateral_token_name]
-                    collateral_token_total_deposited            = float(collateral_token_storage.totalDeposited)
-                    collateral_token_address                    = collateral_token_storage.tokenContractAddress
-    
-                    lending_controller_collateral_token         = await models.LendingControllerCollateralToken.filter(
-                        lending_controller          = lending_controller,
-                        token_address               = collateral_token_address
-                    ).first()
-                    lending_controller_collateral_token.total_deposited = collateral_token_total_deposited
-                    await lending_controller_collateral_token.save()
-    
-                    lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
-                        lending_controller_vault    = lending_controller_vault,
-                        token                       = lending_controller_collateral_token
-                    )
-                    lending_controller_collateral_balance.balance   = collateral_token_amount
-                    await lending_controller_collateral_balance.save()
+                collateral_token_amount                 = float(vault_collateral_balance_ledger[collateral_token_name])
+                collateral_token_storage                = vault_deposit_staked_token.storage.collateralTokenLedger[collateral_token_name]
+                collateral_token_total_deposited        = float(collateral_token_storage.totalDeposited)
+                collateral_token_address                = collateral_token_storage.tokenContractAddress
+
+                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.filter(
+                    lending_controller          = lending_controller,
+                    token_address               = collateral_token_address
+                ).first()
+                lending_controller_collateral_token.total_deposited = collateral_token_total_deposited
+                await lending_controller_collateral_token.save()
+
+                lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
+                    lending_controller_vault    = lending_controller_vault,
+                    token                       = lending_controller_collateral_token
+                )
+                lending_controller_collateral_balance.balance   = collateral_token_amount
+                await lending_controller_collateral_balance.save()
     
                 # Save history data
                 sender                                  = await models.mavryk_user_cache.get(address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,
+                    collateral_token    = lending_controller_collateral_token,
                     vault               = lending_controller_vault,
                     sender              = sender,
                     operation_hash      = operation_hash,
