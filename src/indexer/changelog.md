@@ -20,6 +20,9 @@
 - DipdupException
   - Table added
 
+- LendingControllerHistoryData
+  - Column CollateralToken added
+
 <details><summary>Previous versions</summary>
 
 <details><summary>0.39</summary>

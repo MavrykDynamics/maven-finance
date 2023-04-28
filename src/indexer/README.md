@@ -10,9 +10,9 @@
 
 # Install Python dependencies
 
-1. When Python, poetry, npm and yarn are all installed, run `yarn shell` to init your **virtualenv** (Poetry comes with a preconfigured Python **virtualenv**).
+1. When Python, poetry, npm and yarn are all installed, run `yarn poetry` to init your **virtualenv** (Poetry comes with a preconfigured Python **virtualenv**).
 2. Run `yarn setup-env` to install all the Python dependencies like **dipdup**.
-3. Every time you'll need to run `yarn shell` to start working with dipdup (the dipdup cli will only be installed on this **virtualenv** and not with your others Python packages).
+3. Every time you'll need to run `yarn poetry` to start working with dipdup (the dipdup cli will only be installed on this **virtualenv** and not with your others Python packages).
 
 # Project structure explanation
 

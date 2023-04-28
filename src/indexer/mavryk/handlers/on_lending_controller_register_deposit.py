@@ -21,6 +21,7 @@ async def on_lending_controller_register_deposit(
         operation_hash              = register_deposit.data.hash
         sender_address              = register_deposit.data.initiator_address
         vault_owner_address         = register_deposit.parameter.handle.owner
+        collateral_token_name       = register_deposit.parameter.tokenName
         vault_deposit_amount        = float(register_deposit.parameter.amount)
         vault_internal_id           = int(register_deposit.parameter.handle.id)
         vaults_storage              = register_deposit.storage.vaults
@@ -78,27 +79,27 @@ async def on_lending_controller_register_deposit(
                 await loan_token.save()
     
                 # Save collateral balance ledger
-                for collateral_token_name in vault_collateral_balance_ledger:
-                    collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
-                    collateral_token_storage                    = register_deposit.storage.collateralTokenLedger[collateral_token_name]
-                    collateral_token_address                    = collateral_token_storage.tokenContractAddress
-    
-                    lending_controller_collateral_token         = await models.LendingControllerCollateralToken.get(
-                        lending_controller          = lending_controller,
-                        token_address               = collateral_token_address
-                    )
-                    lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
-                        lending_controller_vault    = lending_controller_vault,
-                        token                       = lending_controller_collateral_token
-                    )
-                    lending_controller_collateral_balance.balance   = collateral_token_amount
-                    await lending_controller_collateral_balance.save()
+                collateral_token_amount                 = float(vault_collateral_balance_ledger[collateral_token_name])
+                collateral_token_storage                = register_deposit.storage.collateralTokenLedger[collateral_token_name]
+                collateral_token_address                = collateral_token_storage.tokenContractAddress
+
+                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.get(
+                    lending_controller          = lending_controller,
+                    token_address               = collateral_token_address
+                )
+                lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
+                    lending_controller_vault    = lending_controller_vault,
+                    token                       = lending_controller_collateral_token
+                )
+                lending_controller_collateral_balance.balance   = collateral_token_amount
+                await lending_controller_collateral_balance.save()
     
                 # Save history data
                 sender                                  = await models.mavryk_user_cache.get(address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,
+                    collateral_token    = lending_controller_collateral_token,
                     vault               = lending_controller_vault,
                     sender              = sender,
                     operation_hash      = operation_hash,

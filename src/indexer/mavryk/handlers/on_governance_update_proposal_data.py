@@ -99,9 +99,6 @@ async def on_governance_update_proposal_data(
                 payment_data.to_                = None
                 payment_data.token_amount       = None
             await payment_data.save()
-    
-        if proposal_id == 7:
-            breakpoint()
 
     except BaseException:
          await save_error_report()

@@ -15,13 +15,6 @@ jobs:
       batch_size: 10000
 
 templates:
-  # treasury_token_transfer_sender_template:
-  #   kind: token_transfer
-  #   datasource: tzkt_ghostnet
-  #   handlers:
-  #   - callback: on_treasury_token_transfer_sender
-  #     from_: <treasury_contract>
-  #     first_level: <first_level>
   treasury_token_transfer_receiver_template:
     kind: token_transfer
     datasource: tzkt_ghostnet
@@ -348,12 +341,6 @@ templates:
         entrypoint: mintOrBurn
 
 indexes:
-  # treasury_token_transfer_sender:
-  #   kind: token_transfer
-  #   datasource: tzkt_ghostnet
-  #   handlers:
-  #   - callback: on_treasury_token_transfer_sender
-  #     from: doorman
   # treasury_token_transfer_receiver:
   #   kind: token_transfer
   #   datasource: tzkt_ghostnet

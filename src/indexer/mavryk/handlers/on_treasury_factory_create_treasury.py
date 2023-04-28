@@ -49,14 +49,6 @@ async def on_treasury_factory_create_treasury(
                     treasury_contract=treasury_address + 'contract'
                 )
             )
-            # await ctx.add_index(
-            #     name=treasury_address + 'token_transfer_sender_index',
-            #     template="treasury_token_transfer_sender_template",
-            #     values=dict(
-            #         treasury_contract   = treasury_address + 'contract',
-            #         first_level         = level
-            #     )
-            # )
             await ctx.add_index(
                 name=treasury_address + 'token_transfer_receiver_index',
                 template="treasury_token_transfer_receiver_template",
