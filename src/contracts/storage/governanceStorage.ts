@@ -1,5 +1,6 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
+
 import { bob } from '../scripts/sandbox/accounts'
 import { MVK, zeroAddress } from '../test/helpers/Utils'
 import { governanceStorageType } from './storageTypes/governanceStorageType'
@@ -56,13 +57,14 @@ export const governanceStorage: governanceStorageType = {
 
     proposalLedger          : MichelsonMap.fromLiteral({}),
     proposalRewards         : MichelsonMap.fromLiteral({}),
+    stakedMvkSnapshotLedger : MichelsonMap.fromLiteral({}),
     snapshotLedger          : MichelsonMap.fromLiteral({}),
 
     // startLevel              : new BigNumber(1),
     nextProposalId          : new BigNumber(1),
-    cycleId            : new BigNumber(1),
+    cycleId                 : new BigNumber(1),
 
-    currentCycleInfo         : {
+    currentCycleInfo        : {
         round                     : { proposal: null },
         blocksPerProposalRound    :  new BigNumber(0),
         blocksPerVotingRound      :  new BigNumber(0),
