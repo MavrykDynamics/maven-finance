@@ -6,6 +6,7 @@ WORKDIR /mavryk
 COPY poetry.lock pyproject.toml /mavryk/
 COPY dipdup.yml /mavryk/
 COPY dipdup.contract.yml /mavryk/
+COPY dipdup.wipe.yml /mavryk/
 COPY dipdup.prod.yml /mavryk/
 
 RUN poetry config virtualenvs.create false && poetry install --no-dev
