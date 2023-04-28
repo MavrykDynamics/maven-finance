@@ -1,17 +1,17 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
-import { bob, alice, eve, mallory, oscar, trudy, susie } from '../scripts/sandbox/accounts'
+import { bob, alice, eve, mallory, oscar, trudy, susie, david, isaac, ivan } from '../scripts/sandbox/accounts'
 import { MVK } from '../test/helpers/Utils'
 import { mvkTokenStorageType } from './storageTypes/mvkTokenStorageType'
 import { mockTokenData } from 'test/helpers/mockSampleData'
 
 export const mvkTokenDecimals = 9
 
-const totalSupply       = MVK(1400000)
+const totalSupply       = MVK(2000000)
 const maximumSupply     = MVK(10**9)
-const initialSupply     = new BigNumber(totalSupply)        // 1,400,000 MVK Tokens (1e9)
-const singleUserSupply  = new BigNumber(totalSupply / 7)    // 200,000 MVK Tokens (1e9)
+const initialSupply     = new BigNumber(totalSupply)        // 2,000,000 MVK Tokens (1e9)
+const singleUserSupply  = new BigNumber(totalSupply / 10)   // 200,000 MVK Tokens (1e9)
 
 const metadata = mockTokenData.mvkToken.metadata
 
@@ -22,7 +22,10 @@ export const ledger = MichelsonMap.fromLiteral({
     [mallory.pkh]   : singleUserSupply,
     [oscar.pkh]     : singleUserSupply,
     [trudy.pkh]     : singleUserSupply,
-    [susie.pkh]     : singleUserSupply
+    [susie.pkh]     : singleUserSupply,
+    [david.pkh]     : singleUserSupply,
+    [ivan.pkh]      : singleUserSupply,
+    [isaac.pkh]     : singleUserSupply
 })
 
 const token_metadata = MichelsonMap.fromLiteral({

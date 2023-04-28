@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Utils } from "./helpers/Utils";
+import { Utils, MVK } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -16,7 +16,7 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve, mallory, susie, oscar, ivan, trudy } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, susie, oscar, ivan, trudy, isaac, david } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
 import { mockSatelliteData } from "./helpers/mockSampleData"
 
@@ -26,6 +26,13 @@ import { mockSatelliteData } from "./helpers/mockSampleData"
 
 // For setup of satellties for subsequent tests
 //   - satellites: alice, eve, susie, oscar, trudy
+//   - delegates:
+//          eve satellite: david, ivan, isaac
+//          alice satellite: mallory
+//          susie satellite: none
+//          oscar satellite: none
+//          trudy satellite: none
+//    
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -41,6 +48,8 @@ describe("Setup: Mock Satellites", async () => {
     let userSk
     let admin
     let adminSk
+
+    let satellite
 
     // basic inputs for updating operators
     let doormanAddress
@@ -71,9 +80,16 @@ describe("Setup: Mock Satellites", async () => {
     let initialMinimumStakedMvkRequirement
     let updatedMinimumStakedMvkRequirement
 
+    let initialDelegateRecord
+    let updatedDelegateRecord
+
+    let initialTotalDelegatedAmount
+    let updatedTotalDelegatedAmount
+
     // operations
     let updateOperatorsOperation
     let stakeOperation
+    let delegateOperation
     let registerAsSatelliteOperation
 
 
@@ -137,6 +153,11 @@ describe("Setup: Mock Satellites", async () => {
 
                 }; 
 
+                // update user staked balance for assertion check below (satellite's staked mvk balance)
+                doormanStorage                      = await doormanInstance.storage();
+                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
+
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
 
@@ -158,7 +179,7 @@ describe("Setup: Mock Satellites", async () => {
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                     assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                     assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    stakeAmount);
+                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
                     assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -459,5 +480,237 @@ describe("Setup: Mock Satellites", async () => {
         });
 
     });
+
+    describe("Setup delegates to mock satellites for subsequent tests", async () => {
+
+        it('user (david) should be able to delegate his staked MVK to a satellite (eve)', async () => {
+            try{
+
+                // init values
+                user        = david.pkh;
+                userSk      = david.sk;
+                satellite   = eve.pkh;
+                stakeAmount = MVK(5);
+
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
+
+                // Initial Values
+                delegationStorage           = await delegationInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+
+                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                // if retest - skip if user is already delegated
+                if(initialDelegateRecord == null){
+
+                    // update operators operation for user
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    // stake operation
+                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+
+                    // delegate operation
+                    delegateOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
+                    await delegateOperation.confirmation();
+
+                    // Final values
+                    delegationStorage           = await delegationInstance.storage();
+                    doormanStorage              = await doormanInstance.storage();
+
+                    updatedUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                    updatedUserStakedBalance    = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
+                    updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                    updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                    updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                    assert.strictEqual(updatedDelegateRecord.satelliteAddress, satellite)
+                    assert.equal(updatedTotalDelegatedAmount, initialTotalDelegatedAmount + updatedUserStakedBalance)
+
+                }
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('user (ivan) should be able to delegate his staked MVK to a satellite (eve)', async () => {
+            try{
+
+                // init values
+                user        = ivan.pkh;
+                userSk      = ivan.sk;
+                satellite   = eve.pkh;
+                stakeAmount = MVK(5);
+
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
+
+                // Initial Values
+                delegationStorage           = await delegationInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+
+                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                // if retest - skip if user is already delegated
+                if(initialDelegateRecord == null){
+
+                    // update operators operation for user
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    // stake operation
+                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+
+                    // delegate operation
+                    delegateOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
+                    await delegateOperation.confirmation();
+
+                    // Final values
+                    delegationStorage           = await delegationInstance.storage();
+                    doormanStorage              = await doormanInstance.storage();
+
+                    updatedUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                    updatedUserStakedBalance    = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
+                    updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                    updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                    updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                    assert.strictEqual(updatedDelegateRecord.satelliteAddress, satellite)
+                    assert.equal(updatedTotalDelegatedAmount, initialTotalDelegatedAmount + updatedUserStakedBalance)
+
+                }
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('user (isaac) should be able to delegate his staked MVK to a satellite (eve)', async () => {
+            try{
+
+                // init values
+                user        = isaac.pkh;
+                userSk      = isaac.sk;
+                satellite   = eve.pkh;
+                stakeAmount = MVK(5);
+
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
+
+                // Initial Values
+                delegationStorage           = await delegationInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+
+                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                // if retest - skip if user is already delegated
+                if(initialDelegateRecord == null){
+
+                    // update operators operation for user
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    // stake operation
+                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+
+                    // delegate operation
+                    delegateOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
+                    await delegateOperation.confirmation();
+
+                    // Final values
+                    delegationStorage           = await delegationInstance.storage();
+                    doormanStorage              = await doormanInstance.storage();
+
+                    updatedUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                    updatedUserStakedBalance    = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
+                    updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                    updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                    updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                    assert.strictEqual(updatedDelegateRecord.satelliteAddress, satellite)
+                    assert.equal(updatedTotalDelegatedAmount, initialTotalDelegatedAmount + updatedUserStakedBalance)
+
+                }
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('user (mallory) should be able to delegate her staked MVK to a satellite (alice)', async () => {
+            try{
+
+                // init values
+                user        = mallory.pkh;
+                userSk      = mallory.sk;
+                satellite   = alice.pkh;
+                stakeAmount = MVK(5);
+
+                // set signer to user
+                await helperFunctions.signerFactory(tezos, userSk);
+
+                // Initial Values
+                delegationStorage           = await delegationInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+
+                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                // if retest - skip if user is already delegated
+                if(initialDelegateRecord == null){
+
+                    // update operators operation for user
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    // stake operation
+                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+
+                    // delegate operation
+                    delegateOperation   = await delegationInstance.methods.delegateToSatellite(user, satellite).send();
+                    await delegateOperation.confirmation();
+
+                    // Final values
+                    delegationStorage           = await delegationInstance.storage();
+                    doormanStorage              = await doormanInstance.storage();
+
+                    updatedUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                    updatedUserStakedBalance    = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
+                    updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                    updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                    updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
+
+                    assert.strictEqual(updatedDelegateRecord.satelliteAddress, satellite)
+                    assert.equal(updatedTotalDelegatedAmount, initialTotalDelegatedAmount + updatedUserStakedBalance)
+
+                }
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+    })
 
 });
