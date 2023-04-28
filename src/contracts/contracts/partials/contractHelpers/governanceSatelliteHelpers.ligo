@@ -483,6 +483,27 @@ block {
 
 
 
+
+// helper function to get satellite rewards record view from the delegation contract
+function getSatelliteRewardsRecord(const satelliteAddress : address; const s : governanceSatelliteStorageType) : satelliteRewardsType is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
+    const satelliteRewards : satelliteRewardsType = case satelliteRewardsOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRewards)     -> _satelliteRewards
+                |   None                        -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteRewards
+
+
+
 // helper function to get delegation ratio from the delegation contract
 function getDelegationRatio(const s : governanceSatelliteStorageType) : nat is 
 block {
@@ -545,8 +566,8 @@ block {
 
     // Get the satellite record and delgation ratio
     const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
-    const satelliteRewards  : satelliteRewardsType = getSatelliteReward(satelliteAddress, s);
-    const delegationRatio   : nat                   = getDelegationRatio(s);
+    const satelliteRewards  : satelliteRewardsType = getSatelliteRewardsRecord(satelliteAddress, s);
+    const delegationRatio   : nat                  = getDelegationRatio(s);
 
     // Create a snapshot
     const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
