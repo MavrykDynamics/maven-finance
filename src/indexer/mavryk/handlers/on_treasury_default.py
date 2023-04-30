@@ -16,6 +16,13 @@ async def on_treasury_default(
         token_standard      = "tez"
         token_standard      = None
         amount              = float(default.data.amount)
+        metadata            = {
+          "name": "Tezos",
+          "symbol": "XTZ",
+          "decimals": "6",
+          "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+          "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+        }
     
         # Update records
         treasury            = await models.Treasury.get(
@@ -25,6 +32,7 @@ async def on_treasury_default(
             treasury        = treasury,
             token_address   = token_address,
         )
+        treasury_balance.metadata       = metadata
         treasury_balance.token_standard = token_standard
         treasury_balance.balance        += amount
         await treasury_balance.save()
