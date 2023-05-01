@@ -16,7 +16,7 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, trudy, oscar, susie, david, ivan, isaac } from "../scripts/sandbox/accounts";
 import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 import * as helperFunctions from './helpers/helperFunctions'
 
@@ -29,30 +29,84 @@ describe("Governance tests", async () => {
     var utils: Utils;
     let tezos
 
-    let doormanInstance;
-    let delegationInstance;
-    let mvkTokenInstance;
-    let governanceInstance;
-    let governanceProxyInstance;
-    let emergencyGovernanceInstance;
-    let breakGlassInstance;
-    let councilInstance;
+    let user 
+    let userSk 
 
-    let doormanStorage;
-    let delegationStorage;
-    let mvkTokenStorage;
-    let governanceStorage;
-    let governanceProxyStorage;
-    let emergencyGovernanceStorage;
-    let breakGlassStorage;
-    let councilStorage;
+    let admin 
+    let adminSk 
+
+    let satelliteOne 
+    let satelliteTwo
+    let satelliteThree
+    let satelliteFour 
+    let satelliteFive
+
+    let delegateOne 
+    let delegateOneSk
+
+    let delegateTwo
+    let delegateTwoSk
+
+    let delegateThree
+    let delegateThreeSk
+
+    let delegateFour
+    let delegateFourSk
+
+    let governanceAddress
+    let tokenId = 0
+    let zeroBlocksPerRound
+
+    let doormanInstance
+    let delegationInstance
+    let mvkTokenInstance
+    let governanceInstance
+    let governanceProxyInstance
+    let emergencyGovernanceInstance
+    let breakGlassInstance
+    let councilInstance
+    let mavrykFa2TokenInstance
+
+    let doormanStorage
+    let delegationStorage
+    let mvkTokenStorage
+    let governanceStorage
+    let governanceProxyStorage
+    let emergencyGovernanceStorage
+    let breakGlassStorage
+    let councilStorage
+    let mavrykFa2TokenStorage
+
+    // operations
+    let updateOperatorsOperation
+    let transferOperation
+
+    // housekeeping operations
+    let setAdminOperation
+    let setGovernanceOperation
+    let resetAdminOperation
+    let updateConfigOperation
+    let updateWhitelistContractsOperation
+    let updateGeneralContractsOperation
+    let mistakenTransferOperation
+
+    // contract map value
+    let storageMap
+    let contractMapKey
+    let initialContractMapValue
+    let updatedContractMapValue
 
     before("setup", async () => {
         try {
             
             utils = new Utils();
             await utils.init(bob.sk);
-            let tezos
+            tezos = utils.tezos
+
+            admin   = bob.pkh;
+            adminSk = bob.sk;
+
+            governanceAddress           = contractDeployments.governance.address;
             
             doormanInstance             = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance          = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -62,6 +116,7 @@ describe("Governance tests", async () => {
             emergencyGovernanceInstance = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
             breakGlassInstance          = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
             councilInstance             = await utils.tezos.contract.at(contractDeployments.council.address);
+            mavrykFa2TokenInstance      = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
                 
             doormanStorage              = await doormanInstance.storage();
             delegationStorage           = await delegationInstance.storage();
@@ -71,544 +126,168 @@ describe("Governance tests", async () => {
             emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
             breakGlassStorage           = await breakGlassInstance.storage();
             councilStorage              = await councilInstance.storage();
+            mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
     
-            // console.log('-- -- -- -- -- Governance Tests -- -- -- --')
-            // console.log('Doorman Contract deployed at:', doormanInstance.address);
-            // console.log('Delegation Contract deployed at:', delegationInstance.address);
-            // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-            // console.log('Governance Contract deployed at:', governanceInstance.address);
-            // console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-            // console.log('Bob address: ' + bob.pkh);
-            // console.log('Alice address: ' + alice.pkh);
-            // console.log('Eve address: ' + eve.pkh);
-    
-            // Init multiple satellites
-            delegationStorage       = await delegationInstance.storage();
-            const satelliteCreated  = await delegationStorage.satelliteLedger.get(eve.pkh);
-            if(satelliteCreated === undefined){
-                var updateOperators = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperators.confirmation();
-                var stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
-                await stakeOperation.confirmation();
-                
-                await helperFunctions.signerFactory(tezos, alice.sk)
-                updateOperators = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: alice.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperators.confirmation();
-                stakeOperation = await doormanInstance.methods.stake(MVK(1)).send();
-                await stakeOperation.confirmation();
-                
-                var registerAsSatellite = await delegationInstance.methods
-                .registerAsSatellite(
-                    "Alice Satellite", 
-                    "Test description", 
-                    "Test image", 
-                    "Test website", 
-                    700
-                ).send();
-                await registerAsSatellite.confirmation();
-    
-                await helperFunctions.signerFactory(tezos, eve.sk)
-                updateOperators = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperators.confirmation();
-                stakeOperation = await doormanInstance.methods.stake(MVK(20000)).send();
-                await stakeOperation.confirmation();
-                registerAsSatellite = await delegationInstance.methods
-                .registerAsSatellite(
-                    "Eve Satellite", 
-                    "Test description", 
-                    "Test image", 
-                    "Test website", 
-                    700
-                ).send();
-                await registerAsSatellite.confirmation();
-    
-                // Reset signer
-                await helperFunctions.signerFactory(tezos, bob.sk)
-        
-                // Set council contract admin to governance proxy for later tests
-                const setAdminOperation = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                await setAdminOperation.confirmation()
-            }
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+
+            // -----------------------------------------------
+            //
+            // Setup corresponds to 06_setup_satellites:
+            //
+            //   - satellites: alice, eve, susie, oscar, trudy
+            //   - delegates:
+            //          eve satellite: david, ivan, isaac
+            //          alice satellite: mallory
+            //          susie satellite: none
+            //          oscar satellite: none
+            //          trudy satellite: none
+            //    
+            // -----------------------------------------------
+
+            satelliteOne    = eve.pkh;
+            satelliteTwo    = alice.pkh;
+            satelliteThree  = trudy.pkh;
+            satelliteFour   = oscar.pkh;
+            satelliteFive   = susie.pkh;
+
+            delegateOne     = david.pkh;
+            delegateOneSk   = david.sk;
+
+            delegateTwo     = ivan.pkh;
+            delegateTwoSk   = ivan.sk;
+
+            delegateThree   = isaac.pkh;
+            delegateThreeSk = isaac.sk;
+
+            delegateFour    = mallory.pkh;
+            delegateFourSk  = mallory.sk;
+
+            // -----------------------------------------------
+            //
+            // Governance test setup
+            //  - set blocks per round to 0 for first cycle testing
+            //
+            // -----------------------------------------------
+
+            // set signer to admin
+            await helperFunctions.signerFactory(tezos, adminSk)
+            zeroBlocksPerRound = 0;
+
+            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerProposalRound").send();
+            await updateConfigOperation.confirmation();
+
+            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerVotingRound").send();
+            await updateConfigOperation.confirmation();
+
+            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerTimelockRound").send();
+            await updateConfigOperation.confirmation();
+
+
         } catch (e) {
             console.dir(e, {depth: 5})
         }
     });
 
     describe("First Cycle", async () => {
-        describe("%updateConfig", async () => {
-            before("Configure delegation ratio on delegation contract", async () => {
-                try{
-                    // Initial Values
-                    await helperFunctions.signerFactory(tezos, bob.sk)
-                    delegationStorage   = await delegationInstance.storage();
-                    const newConfigValue = 10;
 
-                    // Operation
-                    const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    delegationStorage   = await delegationInstance.storage();
-                    const updateConfigValue = delegationStorage.config.delegationRatio;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            beforeEach("Set signer to admin", async () => {
-                await helperFunctions.signerFactory(tezos, bob.sk)
-            });
-            it('Admin should be able to call the entrypoint and configure the success reward', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 12000;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configSuccessReward").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.successReward;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the min proposal round vote percentage required', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 10;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinProposalRoundVotePct").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.minProposalRoundVotePercentage;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should not be able to call the entrypoint and configure the min proposal round vote percentage required if it exceed 100%', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentConfigValue = governanceStorage.config.minProposalRoundVotePercentage;
-                    const newConfigValue = 10001;
-
-                    // Operation
-                    await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configMinProposalRoundVotePct").send()).to.be.rejected;
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.minProposalRoundVotePercentage;
-
-                    // Assertions
-                    assert.notEqual(newConfigValue, currentConfigValue);
-                    assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the min proposal round votes required', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 1;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinProposalRoundVotesReq").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.minProposalRoundVotesRequired;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the min proposal round vote percentage required', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 1;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumPercentage").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.minQuorumPercentage;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should not be able to call the entrypoint and configure the min proposal round vote percentage required if it exceed 100%', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentConfigValue = governanceStorage.config.minQuorumPercentage;
-                    const newConfigValue = 10001;
-
-                    // Operation
-                    await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumPercentage").send()).to.be.rejected;
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.minQuorumPercentage;
-
-                    // Assertions
-                    assert.notEqual(newConfigValue, currentConfigValue);
-                    assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the min yay votes mvk total required', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 5050;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinYayVotePercentage").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.minYayVotePercentage;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the proposal submission fee', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 100000;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configProposeFeeMutez").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.proposalSubmissionFeeMutez;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the max proposals per satellite', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 5;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMaxProposalsPerSatellite").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.maxProposalsPerSatellite;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the blocks per proposal round', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 0;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerProposalRound").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.blocksPerProposalRound;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should not be able to call the entrypoint and configure the blocks per proposal round if it exceed the maximum round duration', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentConfigValue = governanceStorage.config.blocksPerProposalRound;
-                    const newConfigValue = 1000000000;
-
-                    // Operation
-                    await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerProposalRound").send()).to.be.rejected;
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.blocksPerProposalRound;
-
-                    // Assertions
-                    assert.notEqual(newConfigValue, currentConfigValue);
-                    assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the blocks per voting round', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 0;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerVotingRound").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.blocksPerVotingRound;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should not be able to call the entrypoint and configure the blocks per voting round if it exceed the maximum round duration', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentConfigValue = governanceStorage.config.blocksPerVotingRound;
-                    const newConfigValue = 1000000000;
-
-                    // Operation
-                    await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerVotingRound").send()).to.be.rejected;
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.blocksPerVotingRound;
-
-                    // Assertions
-                    assert.notEqual(newConfigValue, currentConfigValue);
-                    assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should be able to call the entrypoint and configure the blocks per timelock round', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 0;
-
-                    // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send();
-                    await updateConfigOperation.confirmation();
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.blocksPerTimelockRound;
-
-                    // Assertions
-                    assert.equal(updateConfigValue, newConfigValue);
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Admin should not be able to call the entrypoint and configure the blocks per timelock round if it exceed the maximum round duration', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentConfigValue = governanceStorage.config.blocksPerTimelockRound;
-                    const newConfigValue = 1000000000;
-
-                    // Operation
-                    await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send()).to.be.rejected;
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.blocksPerTimelockRound;
-
-                    // Assertions
-                    assert.notEqual(newConfigValue, currentConfigValue);
-                    assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
-            it('Non-admin should not be able to call the entrypoint', async () => {
-                try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentConfigValue = governanceStorage.config.blocksPerTimelockRound;
-                    const newConfigValue = 1;
-
-                    // Operation
-                    await helperFunctions.signerFactory(tezos, alice.sk)
-                    await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send()).to.be.rejected;
-
-                    // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.blocksPerTimelockRound;
-
-                    // Assertions
-                    assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            });
+        beforeEach("Set signer to standard user", async () => {
+            await helperFunctions.signerFactory(tezos, eve.sk)
         });
 
         describe("%startNextRound", async () => {
 
-            beforeEach("Set signer to standard user", async () => {
-                await helperFunctions.signerFactory(tezos, eve.sk)
-            });
-
-            it('User should be able to start the proposal round if no round has been initiated yet', async () => {
+            it('any user (eve) should be able to start the proposal round if no round has been initiated yet', async () => {
                 try{
-                    // Initial Values
+                    
+                    // initial storage
                     governanceStorage = await governanceInstance.storage();
+
                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
                     const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
-                    const currentCycleInfoBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-                    const currentCycleInfoBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-                    const currentCycleInfoBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-                    const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-                    const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-                    const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
+                    const currentCycleInfoBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound.toNumber()
+                    const currentCycleInfoBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound.toNumber()
+                    const currentCycleInfoBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound.toNumber()
+                    const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel.toNumber()
+                    const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel.toNumber()
+                    const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel.toNumber()
+                    
                     const cycleHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
                     // Operation
                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    // Final values
+                    // updated storage
                     governanceStorage = await governanceInstance.storage();
+
                     const finalRound                       = governanceStorage.currentCycleInfo.round
                     const finalRoundString                 = Object.keys(finalRound)[0]
-                    const finalBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-                    const finalBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-                    const finalBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-                    const finalRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-                    const finalRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-                    const finalCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
+                    const finalBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound.toNumber()
+                    const finalBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound.toNumber()
+                    const finalBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound.toNumber()
+                    const finalRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel.toNumber()
+                    const finalRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel.toNumber()
+                    const finalCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel.toNumber()
                     const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
                     // Assertions
-                    assert.equal(currentCycleInfoRoundString, "proposal");
-                    assert.equal(currentCycleInfoBlocksPerProposalRound, 0);
-                    assert.equal(currentCycleInfoBlocksPerVotingRound, 0);
-                    assert.equal(currentCycleInfoBlocksPerTimelockRound, 0);
-                    assert.equal(currentCycleInfoRoundStartLevel, 0);
-                    assert.equal(currentCycleInfoRoundEndLevel, 0);
-                    assert.equal(currentCycleInfoCycleEndLevel, 0);
-                    assert.equal(cycleHighestVotedProposalId, 0);
+                    assert.equal(currentCycleInfoRoundString,               "proposal");
+                    assert.equal(currentCycleInfoBlocksPerProposalRound,    0);
+                    assert.equal(currentCycleInfoBlocksPerVotingRound,      0);
+                    assert.equal(currentCycleInfoBlocksPerTimelockRound,    0);
+                    assert.equal(cycleHighestVotedProposalId,               0);
+                    assert.equal(currentCycleInfoRoundEndLevel,             currentCycleInfoRoundStartLevel + zeroBlocksPerRound);
+                    assert.equal(currentCycleInfoCycleEndLevel,             currentCycleInfoRoundStartLevel + zeroBlocksPerRound);
 
-                    assert.equal(finalRoundString, "proposal");
-                    assert.notEqual(finalBlocksPerProposalRound, currentCycleInfoBlocksPerProposalRound);
-                    assert.notEqual(finalBlocksPerVotingRound, currentCycleInfoBlocksPerVotingRound);
-                    assert.notEqual(finalBlocksPerTimelockRound, currentCycleInfoBlocksPerTimelockRound);
-                    assert.notEqual(finalRoundStartLevel, currentCycleInfoRoundStartLevel);
-                    assert.notEqual(finalRoundEndLevel, currentCycleInfoRoundEndLevel);
-                    assert.notEqual(finalCycleEndLevel, currentCycleInfoCycleEndLevel);
-                    assert.notEqual(finalRoundHighestVotedProposalId, cycleHighestVotedProposalId);
+                    assert.equal(finalRoundString,                          "proposal");
+                    assert.notEqual(finalBlocksPerProposalRound,            currentCycleInfoBlocksPerProposalRound);
+                    assert.notEqual(finalBlocksPerVotingRound,              currentCycleInfoBlocksPerVotingRound);
+                    assert.notEqual(finalBlocksPerTimelockRound,            currentCycleInfoBlocksPerTimelockRound);
+                    assert.notEqual(finalRoundStartLevel,                   currentCycleInfoRoundStartLevel);
+                    assert.notEqual(finalRoundEndLevel,                     currentCycleInfoRoundEndLevel);
+                    assert.notEqual(finalCycleEndLevel,                     currentCycleInfoCycleEndLevel);
+                    assert.notEqual(finalRoundHighestVotedProposalId,       cycleHighestVotedProposalId);
+
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
             })
 
-            it('User should be able to restart the proposal round from the proposal round if no proposals were submitted', async () => {
+            it('any user (eve) should be able to restart the proposal round from the proposal round if no proposals were submitted', async () => {
                 try{
+
                     // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
+                    governanceStorage                   = await governanceInstance.storage();
+                    const currentCycleInfoRound         = governanceStorage.currentCycleInfo.round
+                    const currentCycleInfoRoundString   = Object.keys(currentCycleInfoRound)[0]
 
                     // Operation
                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
                     // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const finalRound                       = governanceStorage.currentCycleInfo.round
-                    const finalRoundString                 = Object.keys(finalRound)[0]
+                    governanceStorage                   = await governanceInstance.storage();
+                    const finalRound                    = governanceStorage.currentCycleInfo.round
+                    const finalRoundString              = Object.keys(finalRound)[0]
 
                     // Assertions
                     assert.equal(currentCycleInfoRoundString, "proposal");
                     assert.equal(finalRoundString, "proposal");
+
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
             })
 
-            it('User should be able to restart the proposal round from the proposal round if no proposal received enough votes', async () => {
+            it('any user (eve) should be able to restart the proposal round from the proposal round if no proposal received enough votes', async () => {
                 try{
-                    // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
 
-                    delegationStorage   = await delegationInstance.storage();
+                    // Initial Values
+                    governanceStorage                  = await governanceInstance.storage();
+                    const currentCycleInfoRound        = governanceStorage.currentCycleInfo.round
+                    const currentCycleInfoRoundString  = Object.keys(currentCycleInfoRound)[0]
+
+                    delegationStorage           = await delegationInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId.toNumber();
                     const proposalName          = "New Proposal #1";
                     const proposalDesc          = "Details about new proposal #1";
@@ -657,19 +336,20 @@ describe("Governance tests", async () => {
                     // Assertions
                     assert.equal(currentCycleInfoRoundString, "proposal");
                     assert.equal(finalRoundString, "proposal");
+
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
             })
 
-            it('User should be able to switch from the proposal round to the voting round', async () => {
+            it('any user (eve) should be able to switch from the proposal round to the voting round', async () => {
                 try{
                     // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
+                    governanceStorage                       = await governanceInstance.storage();
+                    const currentCycleInfoRound             = governanceStorage.currentCycleInfo.round
+                    const currentCycleInfoRoundString       = Object.keys(currentCycleInfoRound)[0]
 
-                    delegationStorage   = await delegationInstance.storage();
+                    delegationStorage           = await delegationInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId.toNumber();
                     const proposalName          = "New Proposal #1";
                     const proposalDesc          = "Details about new proposal #1";
@@ -723,17 +403,19 @@ describe("Governance tests", async () => {
                     assert.equal(currentCycleInfoRoundString, "proposal");
                     assert.equal(finalRoundString, "voting");
                     assert.equal(finalRoundHighestVotedProposalId, proposalId);
+
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
             })
 
-            it('User should be able to switch from the voting round to the proposal round if the highest voted proposal did not receive enough votes', async () => {
+            it('any user (eve) should be able to switch from the voting round to the proposal round if the highest voted proposal did not receive enough votes', async () => {
                 try{
+                    
                     // Initial Values
-                    governanceStorage = await governanceInstance.storage();
-                    const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
+                    governanceStorage                   = await governanceInstance.storage();
+                    const currentCycleInfoRound         = governanceStorage.currentCycleInfo.round
+                    const currentCycleInfoRoundString   = Object.keys(currentCycleInfoRound)[0]
 
                     // Operation
                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -747,12 +429,13 @@ describe("Governance tests", async () => {
                     // Assertions
                     assert.equal(currentCycleInfoRoundString, "voting");
                     assert.equal(finalRoundString, "proposal");
+
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
             })
 
-            it('User should be able to switch from the voting round to the timelock round', async () => {
+            it('any user (eve) should be able to switch from the voting round to the timelock round', async () => {
                 try{
                     // Operation
                     governanceStorage           = await governanceInstance.storage();
@@ -819,7 +502,7 @@ describe("Governance tests", async () => {
                 }
             })
 
-            it('User should be able to switch from the timelock round to the proposal round', async () => {
+            it('any user (eve) should be able to switch from the timelock round to the proposal round', async () => {
                 try{
                     // Initial Values
                     governanceStorage = await governanceInstance.storage();
@@ -846,6 +529,7 @@ describe("Governance tests", async () => {
         })
 
         describe("%propose", async () => {
+
             beforeEach("Set signer to satellite", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk)
             });
@@ -930,6 +614,7 @@ describe("Governance tests", async () => {
                     assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.cycle.toNumber(), cycleId.toNumber());
                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
+
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
@@ -3993,129 +3678,845 @@ describe("Governance tests", async () => {
         })
     })
 
-    describe("%breakGlass", async () => {
 
-        before("Update emergency config", async () => {
+
+    describe("%updateConfig", async () => {
+            
+        before("Configure delegation ratio on delegation contract", async () => {
+            try{
+                // Initial Values
+                await helperFunctions.signerFactory(tezos, bob.sk)
+                delegationStorage   = await delegationInstance.storage();
+                const newConfigValue = 10;
+
+                // Operation
+                const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                delegationStorage   = await delegationInstance.storage();
+                const updateConfigValue = delegationStorage.config.delegationRatio;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        beforeEach("Set signer to admin", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk)
-            var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
-            await updateConfigOperation.confirmation();
-            updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
-            await updateConfigOperation.confirmation();
+        });
+        it('Admin should be able to call the entrypoint and configure the success reward', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 12000;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configSuccessReward").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.successReward;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the min proposal round vote percentage required', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 10;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinProposalRoundVotePct").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.minProposalRoundVotePercentage;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should not be able to call the entrypoint and configure the min proposal round vote percentage required if it exceed 100%', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const currentConfigValue = governanceStorage.config.minProposalRoundVotePercentage;
+                const newConfigValue = 10001;
+
+                // Operation
+                await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configMinProposalRoundVotePct").send()).to.be.rejected;
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.minProposalRoundVotePercentage;
+
+                // Assertions
+                assert.notEqual(newConfigValue, currentConfigValue);
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the min proposal round votes required', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 1;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinProposalRoundVotesReq").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.minProposalRoundVotesRequired;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the min proposal round vote percentage required', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 1;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumPercentage").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.minQuorumPercentage;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should not be able to call the entrypoint and configure the min proposal round vote percentage required if it exceed 100%', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const currentConfigValue = governanceStorage.config.minQuorumPercentage;
+                const newConfigValue = 10001;
+
+                // Operation
+                await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumPercentage").send()).to.be.rejected;
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.minQuorumPercentage;
+
+                // Assertions
+                assert.notEqual(newConfigValue, currentConfigValue);
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the min yay votes mvk total required', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 5050;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinYayVotePercentage").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.minYayVotePercentage;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the proposal submission fee', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 100000;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configProposeFeeMutez").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.proposalSubmissionFeeMutez;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the max proposals per satellite', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 5;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMaxProposalsPerSatellite").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.maxProposalsPerSatellite;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the blocks per proposal round', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 0;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerProposalRound").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.blocksPerProposalRound;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should not be able to call the entrypoint and configure the blocks per proposal round if it exceed the maximum round duration', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const currentConfigValue = governanceStorage.config.blocksPerProposalRound;
+                const newConfigValue = 1000000000;
+
+                // Operation
+                await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerProposalRound").send()).to.be.rejected;
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.blocksPerProposalRound;
+
+                // Assertions
+                assert.notEqual(newConfigValue, currentConfigValue);
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the blocks per voting round', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 0;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerVotingRound").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.blocksPerVotingRound;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should not be able to call the entrypoint and configure the blocks per voting round if it exceed the maximum round duration', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const currentConfigValue = governanceStorage.config.blocksPerVotingRound;
+                const newConfigValue = 1000000000;
+
+                // Operation
+                await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerVotingRound").send()).to.be.rejected;
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.blocksPerVotingRound;
+
+                // Assertions
+                assert.notEqual(newConfigValue, currentConfigValue);
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the blocks per timelock round', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const newConfigValue = 0;
+
+                // Operation
+                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.blocksPerTimelockRound;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should not be able to call the entrypoint and configure the blocks per timelock round if it exceed the maximum round duration', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const currentConfigValue = governanceStorage.config.blocksPerTimelockRound;
+                const newConfigValue = 1000000000;
+
+                // Operation
+                await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send()).to.be.rejected;
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.blocksPerTimelockRound;
+
+                // Assertions
+                assert.notEqual(newConfigValue, currentConfigValue);
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Non-admin should not be able to call the entrypoint', async () => {
+            try{
+                // Initial Values
+                governanceStorage = await governanceInstance.storage();
+                const currentConfigValue = governanceStorage.config.blocksPerTimelockRound;
+                const newConfigValue = 1;
+
+                // Operation
+                await helperFunctions.signerFactory(tezos, alice.sk)
+                await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send()).to.be.rejected;
+
+                // Final values
+                governanceStorage = await governanceInstance.storage();
+                const updateConfigValue = governanceStorage.config.blocksPerTimelockRound;
+
+                // Assertions
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    });
+
+
+    describe("Housekeeping Entrypoints", async () => {
+
+        beforeEach("Set signer to admin (bob)", async () => {
+            governanceStorage        = await governanceInstance.storage();
+            await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
-        beforeEach("Set signer to satellite", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk)
+        it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
+            try{
+                
+                // Initial Values
+                governanceStorage   = await governanceInstance.storage();
+                const currentAdmin  = governanceStorage.admin;
+
+                // Operation
+                setAdminOperation   = await governanceInstance.methods.setAdmin(alice.pkh).send();
+                await setAdminOperation.confirmation();
+
+                // Final values
+                governanceStorage   = await governanceInstance.storage();
+                const newAdmin      = governanceStorage.admin;
+
+                // Assertions
+                assert.notStrictEqual(newAdmin, currentAdmin);
+                assert.strictEqual(newAdmin, alice.pkh);
+                assert.strictEqual(currentAdmin, bob.pkh);
+
+                // reset admin
+                await helperFunctions.signerFactory(tezos, alice.sk);
+                resetAdminOperation = await governanceInstance.methods.setAdmin(bob.pkh).send();
+                await resetAdminOperation.confirmation();
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
         });
 
-        it('Other contracts should not be able to call this entrypoint', async () => {
+        it('%setGovernance            - admin (bob) should be able to update the contract governance address', async () => {
             try{
-                // Set all contracts admin to governance address if it is not
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                await chai.expect(governanceInstance.methods.breakGlass().send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        })
-
-        it('Emergency Governance contract should not be able to call this entrypoint is the breakGlass contract does not exist in the generalContracts map', async () => {
-            try{
-                // Set all contracts admin to governance address if it is not
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                governanceStorage             = await governanceInstance.storage();
-                var generalContracts          = governanceStorage.generalContracts.entries();
-
-                // Update general contracts
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address).send();
-                await updateGeneralContractOperation.confirmation();
-                for (let entry of generalContracts){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
-
-                // Trigger emergency governance and breakGlass
-                const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-                    "Test emergency governance", 
-                    "For tests"
-                ).send();
-                await emergencyControlOperation.confirmation();
-                await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
-
-                // Check if glass was broken
-                breakGlassStorage       = await breakGlassInstance.storage();
-                const glassBroken       = breakGlassStorage.glassBroken;
-                assert.equal(glassBroken, false);
-
-                // Check admin and pause in all contracts
+                
+                // Initial Values
                 governanceStorage       = await governanceInstance.storage();
-                generalContracts        = governanceStorage.generalContracts.entries();
-                for (let entry of generalContracts){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+                const currentGovernanceProxy = governanceStorage.governanceProxyAddress;
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin')){
-                        assert.equal(storage.admin, contractDeployments.governanceProxy.address)
-                    }
+                // Operation
+                var setGovernanceProxyOperation = await governanceInstance.methods.setGovernanceProxy(alice.pkh).send();
+                await setGovernanceProxyOperation.confirmation();
 
-                    // Check pause
-                    var breakGlassConfig    = storage.breakGlassConfig
-                    if(storage.hasOwnProperty('breakGlassConfig')){
-                        for (let [key, value] of Object.entries(breakGlassConfig)){
-                            assert.equal(value, false);
-                        }
-                    }
-                }
-
-                // Reset general contracts
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address).send();
-                await updateGeneralContractOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        })
-
-        it('Emergency Governance contract should be able to call this entrypoint and call set the governance admin to the breakGlass address', async () => {
-            try{
-                // Set all contracts admin to governance address if it is not
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                governanceStorage             = await governanceInstance.storage();
-                var generalContracts          = governanceStorage.generalContracts.entries();
-
-                for (let entry of generalContracts){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address && storage.admin!==contractDeployments.breakGlass.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
-
-                // Trigger emergency governance and breakGlass
-                const voteOperation             = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
-
-                // Check if glass was broken
-                breakGlassStorage       = await breakGlassInstance.storage();
-                const glassBroken       = breakGlassStorage.glassBroken;
-                assert.equal(glassBroken, true);
-
-                // Check admin and pause in all contracts
+                // Final values
                 governanceStorage       = await governanceInstance.storage();
-                assert.strictEqual(governanceStorage.admin, contractDeployments.breakGlass.address);
+                const updatedGovernanceProxy = governanceStorage.governanceProxyAddress;
+
+                // reset governance
+                setGovernanceProxyOperation = await governanceInstance.methods.setGovernanceProxy(contractDeployments.governance.address).send();
+                await setGovernanceProxyOperation.confirmation();
+
+                // Assertions
+                assert.notStrictEqual(updatedGovernanceProxy, currentGovernanceProxy);
+                assert.strictEqual(updatedGovernanceProxy, alice.pkh);
+                assert.strictEqual(currentGovernanceProxy, contractDeployments.governanceProxy.address);
+
             } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%updateMetadata           - admin (bob) should be able to update the contract metadata', async () => {
+            try{
+                // Initial values
+                const key   = ''
+                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+
+                // Operation
+                const updateOperation = await governanceInstance.methods.updateMetadata(key, hash).send();
+                await updateOperation.confirmation();
+
+                // Final values
+                governanceStorage       = await governanceInstance.storage();            
+
+                const updatedData       = await governanceStorage.metadata.get(key);
+                assert.equal(hash, updatedData);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - admin (bob) should be able to update contract config', async () => {
+            try{
+                
+                // Initial Values
+                governanceStorage            = await governanceInstance.storage();
+                const testValue = 10;
+
+                const initialFinancialReqApprovalPct  = governanceStorage.config.financialRequestApprovalPercentage.toNumber();
+                const initialFinancialReqDurationDays = governanceStorage.config.financialRequestDurationInDays.toNumber();
+
+                // Operation
+                var updateConfigOperation = await governanceInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await governanceInstance.methods.updateConfig(testValue, "configFinancialReqDurationDays");
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                // Final values
+                governanceStorage              = await governanceInstance.storage();
+                const updatedFinancialReqApprovalPct    = governanceStorage.config.financialRequestApprovalPercentage.toNumber();
+                const updatedFinancialReqDurationDays   = governanceStorage.config.financialRequestDurationInDays.toNumber();
+
+                // Assertions
+                assert.equal(updatedFinancialReqApprovalPct, testValue);
+                assert.equal(updatedFinancialReqDurationDays, testValue);
+
+                // reset config operation
+                var resetConfigOperation = await governanceInstance.methods.updateConfig(initialFinancialReqApprovalPct, "configFinancialReqApprovalPct").send();
+                await resetConfigOperation.confirmation();
+
+                resetConfigOperation = await governanceInstance.methods.updateConfig(initialFinancialReqDurationDays, "configFinancialReqDurationDays").send();
+                await resetConfigOperation.confirmation();
+
+                // Final values
+                governanceStorage            = await governanceInstance.storage();
+                const resetFinancialReqApprovalPct    = governanceStorage.config.financialRequestApprovalPercentage.toNumber();
+                const resetFinancialReqDurationDays   = governanceStorage.config.financialRequestDurationInDays.toNumber();
+
+                assert.equal(resetFinancialReqApprovalPct, initialFinancialReqApprovalPct);
+                assert.equal(resetFinancialReqDurationDays, initialFinancialReqDurationDays);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        // it('%updateConfig             - admin (bob) should not be able to update financial required approval percentage beyond 100%', async () => {
+        //     try{
+                
+        //         // Initial Values
+        //         governanceStorage          = await governanceInstance.storage();
+        //         const testValue = 10001;
+                
+        //         const initialFinancialReqApprovalPct  = governanceStorage.config.financialRequestApprovalPercentage;
+
+        //         // Operation
+        //         var updateConfigOperation = await governanceInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct");
+        //         await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+        //         // Final values
+        //         governanceStorage              = await governanceInstance.storage();
+        //         const updatedFinancialReqApprovalPct    = governanceStorage.config.financialRequestApprovalPercentage;
+
+        //         // check that there is no change in config values
+        //         assert.equal(updatedFinancialReqApprovalPct.toNumber(), initialFinancialReqApprovalPct.toNumber());
+        //         assert.notEqual(updatedFinancialReqApprovalPct.toNumber(), testValue);
+
+                
+        //     } catch(e){
+        //         console.dir(e, {depth: 5});
+        //     }
+        // });
+
+        it('%updateWhitelistContracts - admin (bob) should be able to add user (eve) to the Whitelisted Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue           = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(governanceInstance, contractMapKey, eve.pkh, 'update');
+                await updateWhitelistContractsOperation.confirmation()
+
+                governanceStorage = await governanceInstance.storage()
+                updatedContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
+                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+
+            } catch (e) {
                 console.dir(e, {depth: 5})
             }
         })
+
+        it('%updateWhitelistContracts - admin (bob) should be able to remove user (eve) from the Whitelisted Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(governanceInstance, contractMapKey, eve.pkh, 'remove');
+                await updateWhitelistContractsOperation.confirmation()
+
+                governanceStorage = await governanceInstance.storage()
+                updatedContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to add user (eve) to the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(governanceInstance, contractMapKey, eve.pkh, 'update');
+                await updateGeneralContractsOperation.confirmation()
+
+                governanceStorage = await governanceInstance.storage()
+                updatedContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to remove user (eve) from the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(governanceInstance, contractMapKey, eve.pkh, 'remove');
+                await updateGeneralContractsOperation.confirmation()
+
+                governanceStorage = await governanceInstance.storage()
+                updatedContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint for mock FA2 tokens', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+                user              = mallory.pkh;
+                userSk            = mallory.sk;
+
+                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                await helperFunctions.signerFactory(tezos, userSk);
+                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, governanceAddress, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+                
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(governanceInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                await mistakenTransferOperation.confirmation();
+
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+
+                // increase in updated balance
+                assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+    });
+
+
+
+    describe('Access Control Checks', function () {
+
+        beforeEach("Set signer to non-admin (mallory)", async () => {
+            governanceStorage = await governanceInstance.storage();
+            await helperFunctions.signerFactory(tezos, mallory.sk);
+        });
+
+        it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                governanceStorage        = await governanceInstance.storage();
+                const currentAdmin  = doormanStorage.admin;
+
+                // Operation
+                setAdminOperation = await governanceInstance.methods.setAdmin(mallory.pkh);
+                await chai.expect(setAdminOperation.send()).to.be.rejected;
+
+                // Final values
+                governanceStorage    = await governanceInstance.storage();
+                const newAdmin  = governanceStorage.admin;
+
+                // Assertions
+                assert.strictEqual(newAdmin, currentAdmin);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setGovernanceProxy       - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                governanceStorage               = await governanceInstance.storage();
+                const currentGovernanceProxy    = governanceStorage.governanceProxyAddress;
+
+                // Operation
+                const setGovernanceProxyOperation = await governanceInstance.methods.setGovernanceProxy(mallory.pkh);
+                await chai.expect(setGovernanceProxyOperation.send()).to.be.rejected;
+
+                // Final values
+                governanceStorage               = await governanceInstance.storage();
+                const updatedGovernanceProxy    = governanceStorage.governanceProxyAddress;
+
+                // Assertions
+                assert.strictEqual(updatedGovernanceProxy, currentGovernanceProxy);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%updateMetadata           - non-admin (mallory) should not be able to update the contract metadata', async () => {
+            try{
+                // Initial values
+                const key   = ''
+                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+
+                governanceStorage       = await governanceInstance.storage();   
+                const initialMetadata   = await governanceStorage.metadata.get(key);
+
+                // Operation
+                const updateOperation = await governanceInstance.methods.updateMetadata(key, hash);
+                await chai.expect(updateOperation.send()).to.be.rejected;
+
+                // Final values
+                governanceStorage       = await governanceInstance.storage();            
+                const updatedData       = await governanceStorage.metadata.get(key);
+
+                // check that there is no change in metadata
+                assert.equal(updatedData, initialMetadata);
+                assert.notEqual(updatedData, hash);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - non-admin (mallory) should not be able to update contract config', async () => {
+            try{
+                
+                // Initial Values
+                governanceStorage          = await governanceInstance.storage();
+                const testValue = 10;
+                
+                const initialFinancialReqApprovalPct  = governanceStorage.config.financialRequestApprovalPercentage;
+                const initialFinancialReqDurationDays = governanceStorage.config.financialRequestDurationInDays;
+
+                // Operation
+                var updateConfigOperation = await governanceInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct");
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                updateConfigOperation = await governanceInstance.methods.updateConfig(testValue, "configFinancialReqDurationDays");
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                // Final values
+                governanceStorage              = await governanceInstance.storage();
+                const updatedFinancialReqApprovalPct    = governanceStorage.config.financialRequestApprovalPercentage;
+                const updatedFinancialReqDurationDays   = governanceStorage.config.financialRequestDurationInDays;
+
+                // check that there is no change in config values
+                assert.equal(updatedFinancialReqApprovalPct.toNumber(), initialFinancialReqApprovalPct.toNumber());
+                assert.notEqual(updatedFinancialReqApprovalPct.toNumber(), testValue);
+
+                assert.equal(updatedFinancialReqDurationDays.toNumber(), initialFinancialReqDurationDays.toNumber());
+                assert.notEqual(updatedFinancialReqDurationDays.toNumber(), testValue);
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%updateWhitelistContracts - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "mallory";
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await governanceInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
+                await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
+
+                governanceStorage       = await governanceInstance.storage()
+                updatedContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%updateGeneralContracts   - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "mallory";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, 'update')
+                await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
+
+                governanceStorage       = await governanceInstance.storage()
+                updatedContractMapValue = await helperFunctions.getStorageMapValue(governanceStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+        
+
+        it('%mistakenTransfer         - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+
+                // Mistaken Operation - send 10 MavrykFa2Tokens to Delegation Contract
+                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, governanceAddress, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+                // mistaken transfer operation
+                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(governanceInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%setLambda                - non-admin (mallory) should not be able to call this entrypoint", async() => {
+            try{
+
+                // random lambda for testing
+                const randomLambdaName  = "randomLambdaName";
+                const randomLambdaBytes = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
+
+                const setLambdaOperation = governanceInstance.methods.setLambda(randomLambdaName, randomLambdaBytes); 
+                await chai.expect(setLambdaOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
     })
+
+
+
 });
