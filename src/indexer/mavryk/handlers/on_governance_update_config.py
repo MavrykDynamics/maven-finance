@@ -58,6 +58,6 @@ async def on_governance_update_config(
             governance.success_reward                           = float(updated_value)
     
         await governance.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

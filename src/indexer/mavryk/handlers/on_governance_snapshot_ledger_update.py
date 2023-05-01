@@ -47,6 +47,6 @@ async def on_governance_snapshot_ledger_update(
             snapshot_record.total_voting_power      = total_voting_power
             await snapshot_record.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -114,6 +114,6 @@ async def on_governance_propose(
             governance_snapshot.total_voting_power      = float(satellite_snapshot.totalVotingPower)
             await governance_snapshot.save()
         
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

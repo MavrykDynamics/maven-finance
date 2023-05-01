@@ -13,6 +13,6 @@ async def on_break_glass_flush_action(
 
     try:
         await persist_break_glass_action(flush_action)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

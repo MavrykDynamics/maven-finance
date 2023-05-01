@@ -42,6 +42,6 @@ async def on_treasury_factory_origination(
             untrack_treasury_paused         = untrack_treasury_paused
         )
         await treasury_factory.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

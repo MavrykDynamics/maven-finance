@@ -54,6 +54,6 @@ async def on_mvk_origination(
             new_user.mvk_balance    = originated_ledger[address]
             await new_user.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

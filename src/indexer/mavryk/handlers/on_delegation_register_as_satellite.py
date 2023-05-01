@@ -62,6 +62,6 @@ async def on_delegation_register_as_satellite(
         satellite_reward_record.reference                                     = satellite_reward_record
         await satellite_reward_record.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

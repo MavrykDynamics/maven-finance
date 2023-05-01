@@ -102,6 +102,6 @@ async def on_governance_satellite_vote_for_action(
                     start_timestamp                                 = start_timestamp,
                 )
                 await aggregator_pair_record.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

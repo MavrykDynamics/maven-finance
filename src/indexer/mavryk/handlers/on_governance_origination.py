@@ -108,6 +108,6 @@ async def on_governance_origination(
             )
             await whitelist_developer.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

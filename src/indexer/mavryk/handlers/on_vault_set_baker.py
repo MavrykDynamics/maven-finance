@@ -23,6 +23,6 @@ async def on_vault_set_baker(
         vault.baker      = baker
         await vault.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

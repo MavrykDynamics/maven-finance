@@ -28,6 +28,6 @@ async def on_aggregator_factory_untrack_aggregator(
             aggregator.factory          = None
             await aggregator.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -23,6 +23,6 @@ async def on_treasury_factory_untrack_treasury(
             treasury.factory        = None
             await treasury.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

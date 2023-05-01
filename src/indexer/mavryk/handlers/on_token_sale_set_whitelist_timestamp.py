@@ -26,6 +26,6 @@ async def on_token_sale_set_whitelist_timestamp(
         token_sale.whitelist_end_timestamp      = whitelist_end_timestamp
         await token_sale.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -65,6 +65,6 @@ async def on_governance_financial_vote_for_request(
         vote_record.vote            = vote_type
         await vote_record.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

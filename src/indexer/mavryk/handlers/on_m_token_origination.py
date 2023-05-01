@@ -60,6 +60,6 @@ async def on_m_token_origination(
             user_account.reward_index   = float(originated_reward_index_ledger[address])
             await user_account.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

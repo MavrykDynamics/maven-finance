@@ -26,6 +26,6 @@ async def on_vesting_remove_vestee(
             vesting = vesting
         ).first()
         await vesteeRecord.delete()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

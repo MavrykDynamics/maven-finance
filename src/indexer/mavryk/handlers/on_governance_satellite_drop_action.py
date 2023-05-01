@@ -30,6 +30,6 @@ async def on_governance_satellite_drop_action(
         action_record.status    = status_type
         await action_record.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

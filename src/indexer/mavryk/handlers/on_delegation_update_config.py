@@ -40,6 +40,6 @@ async def on_delegation_update_config(
         
         await delegation.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

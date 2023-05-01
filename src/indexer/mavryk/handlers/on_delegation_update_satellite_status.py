@@ -32,6 +32,6 @@ async def on_delegation_update_satellite_status(
         satellite.status    = status_type
         await satellite.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -81,6 +81,6 @@ async def on_token_sale_origination(
             )
             await buy_option.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

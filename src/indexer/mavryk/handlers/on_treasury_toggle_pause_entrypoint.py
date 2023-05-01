@@ -22,6 +22,6 @@ async def on_treasury_toggle_pause_entrypoint(
         treasury.stake_mvk_paused               = toggle_pause_entrypoint.storage.breakGlassConfig.stakeMvkIsPaused
         treasury.unstake_mvk_paused             = toggle_pause_entrypoint.storage.breakGlassConfig.unstakeMvkIsPaused
         await treasury.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

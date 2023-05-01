@@ -59,6 +59,6 @@ async def on_vesting_add_vestee(
             last_claimed_timestamp          = last_claimed_timestamp  
         )
         await vestee_record.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

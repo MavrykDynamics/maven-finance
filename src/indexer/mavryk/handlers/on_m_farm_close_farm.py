@@ -34,6 +34,6 @@ async def on_m_farm_close_farm(
         farm.min_block_time_snapshot        = min_block_time_snapshot
         await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

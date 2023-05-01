@@ -28,6 +28,6 @@ async def on_farm_factory_update_config(
         
         await farm_factory.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -62,6 +62,6 @@ async def on_delegation_origination(
             distribute_reward_paused            = distribute_reward_paused,
         )
         await delegation.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

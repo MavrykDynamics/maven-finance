@@ -25,6 +25,6 @@ async def on_aggregator_unpause_all(
         aggregator.withdraw_reward_smvk_paused              = withdraw_reward_smvk_paused
         await aggregator.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

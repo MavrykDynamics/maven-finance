@@ -21,6 +21,6 @@ async def on_mvk_update_inflation_rate(
         mvk_token.inflation_rate    = inflation_rate
         await mvk_token.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -14,6 +14,6 @@ async def on_governance_financial_set_contract_baker(
     try:    
         # Persist request
         await persist_financial_request(ctx, set_contract_baker)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

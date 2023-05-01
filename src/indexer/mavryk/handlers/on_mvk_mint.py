@@ -40,6 +40,6 @@ async def on_mvk_mint(
             mvk_total_supply    = total_supply
         )
         await mint_history_data.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

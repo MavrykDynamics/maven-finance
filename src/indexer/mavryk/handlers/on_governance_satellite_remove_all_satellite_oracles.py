@@ -15,6 +15,6 @@ async def on_governance_satellite_remove_all_satellite_oracles(
         # Get operation info
         await persist_governance_satellite_action(ctx, remove_all_satellite_oracles)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

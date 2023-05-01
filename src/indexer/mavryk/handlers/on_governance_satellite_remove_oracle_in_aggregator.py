@@ -15,6 +15,6 @@ async def on_governance_satellite_remove_oracle_in_aggregator(
         # Get operation info
         await persist_governance_satellite_action(ctx, remove_oracle_in_aggregator)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

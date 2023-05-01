@@ -16,6 +16,6 @@ async def on_aggregator_update_whitelist_contracts(
         # Persist whitelist contract
         await persist_linked_contract(models.Aggregator, models.AggregatorWhitelistContract, update_whitelist_contracts)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -27,6 +27,6 @@ async def on_treasury_factory_track_treasury(
             treasury.factory        = treasury_factory
             await treasury.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

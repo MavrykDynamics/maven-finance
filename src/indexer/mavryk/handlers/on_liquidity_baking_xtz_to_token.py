@@ -74,6 +74,6 @@ async def on_liquidity_baking_xtz_to_token(
         )
         await liquidity_baking_history_data.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

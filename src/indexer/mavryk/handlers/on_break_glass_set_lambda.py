@@ -16,6 +16,6 @@ async def on_break_glass_set_lambda(
         # Persist lambda
         await persist_lambda(models.BreakGlass, models.BreakGlassLambda, set_lambda)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

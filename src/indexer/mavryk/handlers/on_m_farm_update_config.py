@@ -40,6 +40,6 @@ async def on_m_farm_update_config(
         farm.total_blocks                   = total_blocks
         await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

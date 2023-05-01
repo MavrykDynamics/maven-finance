@@ -16,6 +16,6 @@ async def on_treasury_factory_update_whitelist_token_contracts(
         # Persist whitelist token contract
         await persist_linked_contract(models.TreasuryFactory, models.TreasuryFactoryWhitelistTokenContract, update_whitelist_token_contracts, ctx)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

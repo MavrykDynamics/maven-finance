@@ -77,6 +77,6 @@ async def on_mvk_transfer(
                         smvk_history_data.avg_smvk_per_user     = avg_smvk_per_user
                         await smvk_history_data.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

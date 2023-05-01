@@ -29,6 +29,6 @@ async def on_aggregator_factory_unpause_all(
         aggregator_factory.distribute_reward_smvk_paused    = distribute_reward_smvk_paused
         await aggregator_factory.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 
