@@ -13,6 +13,6 @@ async def on_council_council_action_set_baker(
 
     try:
         await persist_council_action(council_action_set_baker)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

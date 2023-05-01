@@ -19,6 +19,6 @@ async def on_emergency_governance_set_admin(
     
         # Persist new admin
         await persist_admin(set_admin, contract)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

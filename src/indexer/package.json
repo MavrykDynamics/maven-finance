@@ -7,8 +7,8 @@
     "setup-env": "poetry install",
     "up": "docker compose up -d",
     "down": "docker compose down -v --remove-orphans",
-    "start": "dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml run",
-    "wipe": "dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml schema wipe --force",
+    "start": "DEBUG_MODE=True dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml run",
+    "wipe": "DEBUG_MODE=True dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml schema wipe --force",
     "restart": "yarn wipe && yarn start",
     "import-contracts": "python ./scripts/import-contracts.py"
   },

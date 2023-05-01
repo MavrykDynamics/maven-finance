@@ -28,6 +28,6 @@ async def on_token_sale_add_to_whitelist(
             )
             await whitelisted_user.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -21,6 +21,6 @@ async def on_governance_break_glass(
         governance.admin    = admin
         await governance.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

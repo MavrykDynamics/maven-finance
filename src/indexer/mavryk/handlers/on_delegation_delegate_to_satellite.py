@@ -60,6 +60,6 @@ async def on_delegation_delegate_to_satellite(
             await satellite_reward_record.save()
             await satellite_reward_reference_record.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

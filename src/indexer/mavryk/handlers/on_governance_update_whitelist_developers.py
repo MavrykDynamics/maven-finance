@@ -28,6 +28,6 @@ async def on_governance_update_whitelist_developers(
         if not developer in whitelist_developers:
             await whitelist_developer.delete()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

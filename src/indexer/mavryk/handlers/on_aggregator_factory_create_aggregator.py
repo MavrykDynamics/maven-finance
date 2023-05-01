@@ -122,6 +122,6 @@ async def on_aggregator_factory_create_aggregator(
                 )
                 await aggregator_oracle.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

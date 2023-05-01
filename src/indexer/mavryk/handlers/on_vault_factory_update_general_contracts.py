@@ -15,6 +15,6 @@ async def on_vault_factory_update_general_contracts(
         # Perists general contract
         await persist_linked_contract(models.VaultFactory, models.VaultFactoryGeneralContract, update_general_contracts)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

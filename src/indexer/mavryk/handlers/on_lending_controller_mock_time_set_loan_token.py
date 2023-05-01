@@ -110,6 +110,6 @@ async def on_lending_controller_mock_time_set_loan_token(
         lending_controller_loan_token.paused                                    = loan_token_paused
         await lending_controller_loan_token.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

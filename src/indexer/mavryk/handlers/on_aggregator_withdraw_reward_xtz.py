@@ -31,6 +31,6 @@ async def on_aggregator_withdraw_reward_xtz(
         oracle_reward_xtz.xtz       = oracle_reward_xtz_storage
         await oracle_reward_xtz.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

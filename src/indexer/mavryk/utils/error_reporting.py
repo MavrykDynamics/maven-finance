@@ -9,7 +9,7 @@ import telegram
 # ERROR REPORTING IN DATABASE
 #
 ###
-async def save_error_report():
+async def save_error_report(exception):
 
     # Get current system exception
     ex_type, ex_value, ex_traceback = sys.exc_info()
@@ -42,4 +42,9 @@ async def save_error_report():
 
         await bot.send_message(chat_id=telegram_channel, text=error_message)
 
-    return
+    # End or throw depending on debug mode
+    debug_mode_enabled          = os.getenv("DEBUG_MODE")
+    if debug_mode_enabled == "True" or debug_mode_enabled == "true":
+        raise exception
+    else:
+        return

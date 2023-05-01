@@ -20,6 +20,6 @@ async def on_governance_proxy_set_governance(
         # Persist new admin
         await persist_governance(set_governance, contract)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

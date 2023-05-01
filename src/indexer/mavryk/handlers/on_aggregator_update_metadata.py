@@ -21,6 +21,6 @@ async def on_aggregator_update_metadata(
             contract_address=aggregator_address
         )
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

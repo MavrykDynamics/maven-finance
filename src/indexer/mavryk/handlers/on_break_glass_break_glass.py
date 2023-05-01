@@ -23,6 +23,6 @@ async def on_break_glass_break_glass(
         breakGlass.glass_broken = breakGlassGlassBroken
         await breakGlass.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

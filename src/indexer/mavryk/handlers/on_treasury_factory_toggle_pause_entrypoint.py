@@ -21,6 +21,6 @@ async def on_treasury_factory_toggle_pause_entrypoint(
         treasury_factory.track_treasury_paused      = toggle_pause_entrypoint.storage.breakGlassConfig.trackTreasuryIsPaused
         treasury_factory.untrack_treasury_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.untrackTreasuryIsPaused
         await treasury_factory.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

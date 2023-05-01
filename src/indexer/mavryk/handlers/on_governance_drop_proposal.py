@@ -26,6 +26,6 @@ async def on_governance_drop_proposal(
         proposal.status = models.GovernanceActionStatus.DROPPED
         await proposal.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

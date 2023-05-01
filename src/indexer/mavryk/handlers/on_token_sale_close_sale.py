@@ -32,6 +32,6 @@ async def on_token_sale_close_sale(
         token_sale.end_block_level  = end_block_level
         await token_sale.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

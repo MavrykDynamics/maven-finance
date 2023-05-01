@@ -132,6 +132,6 @@ async def on_farm_factory_create_farm(
             farm.paid_rewards                    = paid_rewards
             await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

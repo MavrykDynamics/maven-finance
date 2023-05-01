@@ -93,6 +93,6 @@ async def on_vault_factory_create_vault(
                 )
                 await vault_depositor.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

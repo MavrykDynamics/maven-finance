@@ -50,6 +50,6 @@ async def on_token_sale_update_config(
     
         await token_sale.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

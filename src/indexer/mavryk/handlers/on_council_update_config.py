@@ -39,6 +39,6 @@ async def on_council_update_config(
             council.threshold                           = updated_value
     
         await council.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

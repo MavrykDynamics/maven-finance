@@ -89,6 +89,6 @@ async def on_governance_proposal_round_vote(
         proposal_vote.timestamp             = timestamp
         await proposal_vote.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

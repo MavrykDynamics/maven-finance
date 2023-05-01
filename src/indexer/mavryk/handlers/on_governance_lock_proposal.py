@@ -27,6 +27,6 @@ async def on_governance_lock_proposal(
         proposal.locked = True
         await proposal.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

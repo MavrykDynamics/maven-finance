@@ -22,6 +22,6 @@ async def on_treasury_factory_pause_all(
         treasury_factory.untrack_treasury_paused    = pause_all.storage.breakGlassConfig.untrackTreasuryIsPaused
         await treasury_factory.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

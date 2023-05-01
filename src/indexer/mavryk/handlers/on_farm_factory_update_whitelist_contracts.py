@@ -15,6 +15,6 @@ async def on_farm_factory_update_whitelist_contracts(
     try:
         # Persist whitelist contract
         await persist_linked_contract(models.FarmFactory, models.FarmFactoryWhitelistContract, update_whitelist_contracts)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

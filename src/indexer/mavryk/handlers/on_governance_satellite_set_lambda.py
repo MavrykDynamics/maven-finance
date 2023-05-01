@@ -16,6 +16,6 @@ async def on_governance_satellite_set_lambda(
         # Persist lambda
         await persist_lambda(models.GovernanceSatellite, models.GovernanceSatelliteLambda, set_lambda)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

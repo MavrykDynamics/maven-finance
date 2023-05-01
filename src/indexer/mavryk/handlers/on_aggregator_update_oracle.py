@@ -28,6 +28,6 @@ async def on_aggregator_update_oracle(
         aggregator_oracle.peer_id       = oracle_peer_id
         aggregator_oracle.public_key    = oracle_pk
         await aggregator_oracle.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

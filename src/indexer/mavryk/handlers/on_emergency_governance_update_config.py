@@ -40,6 +40,6 @@ async def on_emergency_governance_update_config(
     
         await emergency.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

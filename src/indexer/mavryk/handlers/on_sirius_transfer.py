@@ -45,6 +45,6 @@ async def on_sirius_transfer(
         receiver_position.shares_qty    = receiver_balance
         await receiver_position.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

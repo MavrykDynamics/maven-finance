@@ -42,6 +42,6 @@ async def on_lending_controller_update_config(
         
         await lending_controller.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

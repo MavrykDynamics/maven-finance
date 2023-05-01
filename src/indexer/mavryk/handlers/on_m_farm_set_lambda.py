@@ -15,5 +15,5 @@ async def on_m_farm_set_lambda(
         # Persist lambda
         await persist_lambda(models.Farm, models.FarmLambda, set_lambda)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)

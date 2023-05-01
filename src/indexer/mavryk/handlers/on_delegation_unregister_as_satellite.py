@@ -40,6 +40,6 @@ async def on_delegation_unregister_as_satellite(
         satelliteRecord.currently_registered    = False
         await satelliteRecord.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -61,6 +61,6 @@ async def on_emergency_governance_trigger_emergency_control(
         )
         await emergency_record.save()
         
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

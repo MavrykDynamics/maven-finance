@@ -26,6 +26,6 @@ async def on_doorman_toggle_pause_entrypoint(
         doorman.on_vault_liquidate_stake_paused = toggle_pause_entrypoint.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
         await doorman.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -13,6 +13,6 @@ async def on_break_glass_remove_council_member(
 
     try:
         await persist_break_glass_action(remove_council_member)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

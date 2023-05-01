@@ -32,6 +32,6 @@ async def on_governance_process_proposal_single_date(
             proposal.execution_timestamp   = timestamp
         await proposal.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

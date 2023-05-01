@@ -29,6 +29,6 @@ async def on_token_sale_remove_from_whitelist(
             if whitelisted_user:
                 await whitelisted_user.delete()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

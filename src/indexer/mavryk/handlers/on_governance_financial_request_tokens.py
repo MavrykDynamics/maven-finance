@@ -16,6 +16,6 @@ async def on_governance_financial_request_tokens(
         # Persist request
         await persist_financial_request(ctx, request_tokens)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

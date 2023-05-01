@@ -59,6 +59,6 @@ async def on_farm_claim(
         farm_account.claimed_rewards                = claimed_rewards
         await farm_account.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

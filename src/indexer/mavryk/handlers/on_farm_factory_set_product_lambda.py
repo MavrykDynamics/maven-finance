@@ -40,6 +40,6 @@ async def on_farm_factory_set_product_lambda(
             contract_lambda.lambda_bytes        = lambda_bytes
             await contract_lambda.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

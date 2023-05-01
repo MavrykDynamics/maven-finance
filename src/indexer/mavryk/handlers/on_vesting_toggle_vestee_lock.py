@@ -32,6 +32,6 @@ async def on_vesting_toggle_vestee_lock(
         vesteeRecord.locked = locked
         await vesteeRecord.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

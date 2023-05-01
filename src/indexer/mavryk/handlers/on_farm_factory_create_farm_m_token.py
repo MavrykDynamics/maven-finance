@@ -134,6 +134,6 @@ async def on_farm_factory_create_farm_m_token(
             farm.is_m_farm                       = True
             await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

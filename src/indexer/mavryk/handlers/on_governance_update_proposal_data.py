@@ -100,6 +100,6 @@ async def on_governance_update_proposal_data(
                 payment_data.token_amount       = None
             await payment_data.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

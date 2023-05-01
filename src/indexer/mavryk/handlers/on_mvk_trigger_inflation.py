@@ -23,6 +23,6 @@ async def on_mvk_trigger_inflation(
         mvk_token.maximum_supply            = maximum_supply
         mvk_token.next_inflation_timestamp  = next_inflation_timestamp
         await mvk_token.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

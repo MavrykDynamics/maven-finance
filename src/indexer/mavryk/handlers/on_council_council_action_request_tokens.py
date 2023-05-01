@@ -12,6 +12,6 @@ async def on_council_council_action_request_tokens(
 
     try:
         await persist_council_action(council_action_request_tokens)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

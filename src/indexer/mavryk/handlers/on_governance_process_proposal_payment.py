@@ -27,6 +27,6 @@ async def on_governance_process_proposal_payment(
         proposal.payment_processed   = payment_processed
         await proposal.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

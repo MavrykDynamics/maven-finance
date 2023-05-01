@@ -16,6 +16,6 @@ async def on_council_update_general_contracts(
         # Perists general contract
         await persist_linked_contract(models.Council, models.CouncilGeneralContract, update_general_contracts)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

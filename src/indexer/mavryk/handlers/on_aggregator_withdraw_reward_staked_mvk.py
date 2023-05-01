@@ -32,6 +32,6 @@ async def on_aggregator_withdraw_reward_staked_mvk(
         oracle_reward_smvk.smvk     = oracle_reward_smvk_storage
         await oracle_reward_smvk.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

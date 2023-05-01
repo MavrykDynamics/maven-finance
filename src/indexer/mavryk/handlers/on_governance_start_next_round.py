@@ -87,6 +87,6 @@ async def on_governance_start_next_round(
                 vote_record.current_round_vote  = False
                 await vote_record.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

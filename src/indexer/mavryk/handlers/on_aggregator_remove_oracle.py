@@ -31,6 +31,6 @@ async def on_aggregator_remove_oracle(
     
         await aggregator_oracle.delete()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

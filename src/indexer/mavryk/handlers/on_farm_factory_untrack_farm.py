@@ -23,6 +23,6 @@ async def on_farm_factory_untrack_farm(
             farm.factory    = None
             await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

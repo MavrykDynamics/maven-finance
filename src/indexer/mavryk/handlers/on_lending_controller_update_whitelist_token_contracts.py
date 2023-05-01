@@ -16,6 +16,6 @@ async def on_lending_controller_update_whitelist_token_contracts(
         # Persist whitelist contract
         await persist_linked_contract(models.LendingController, models.LendingControllerWhitelistTokenContract, update_whitelist_token_contracts, ctx)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

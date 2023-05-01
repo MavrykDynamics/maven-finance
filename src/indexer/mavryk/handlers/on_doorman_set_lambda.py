@@ -16,6 +16,6 @@ async def on_doorman_set_lambda(
         # Persist lambda
         await persist_lambda(models.Doorman, models.DoormanLambda, set_lambda)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

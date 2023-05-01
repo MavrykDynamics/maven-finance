@@ -20,6 +20,6 @@ async def on_governance_set_governance_proxy(
         governance                              = await models.Governance.get(address   = governance_address)
         governance.governance_proxy_address     = governance_proxy_address
         await governance.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

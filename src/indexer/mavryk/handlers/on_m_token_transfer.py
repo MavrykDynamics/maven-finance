@@ -82,6 +82,6 @@ async def on_m_token_transfer(
                 )
                 await to_account_history_data.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

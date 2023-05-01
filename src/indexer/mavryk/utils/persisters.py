@@ -157,7 +157,7 @@ async def persist_break_glass_action(action):
         internal_id = actionID
     )
     if breakGlassActionRecord == None:
-        council_size            = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all())
+        council_size            = len(await models.BreakGlassCouncilMember.filter(break_glass=breakGlass).all())
         breakGlassActionRecord  = models.BreakGlassAction(
             internal_id                     = actionID,
             break_glass                     = breakGlass,
