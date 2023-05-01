@@ -87,11 +87,6 @@ describe("Governance Satellite tests", async () => {
     let updateWhitelistContractsOperation
     let updateGeneralContractsOperation
     let mistakenTransferOperation
-    let togglePauseOperation
-    let pauseOperation
-    let pauseAllOperation
-    let unpauseOperation
-    let unpauseAllOperation
 
     // contract map value
     let storageMap
