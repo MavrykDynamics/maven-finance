@@ -49,6 +49,6 @@ async def on_doorman_origination(
         )
         await doorman.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

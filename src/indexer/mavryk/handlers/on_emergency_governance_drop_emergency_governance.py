@@ -32,6 +32,6 @@ async def on_emergency_governance_drop_emergency_governance(
         emergency.current_emergency_record_id   = emergency_current_id
         await emergency.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

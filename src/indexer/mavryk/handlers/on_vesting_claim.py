@@ -43,6 +43,6 @@ async def on_vesting_claim(
         vesting.months_remaining                    = total_vested_amount
         await vesting.save()
         await vesteeRecord.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

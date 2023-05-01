@@ -23,6 +23,6 @@ async def on_farm_factory_pause_all(
         farm_factory.untrack_farm_paused        = pause_all.storage.breakGlassConfig.untrackFarmIsPaused
         await farm_factory.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -44,6 +44,6 @@ async def on_delegation_distribute_reward(
             from_               = user
         )
         await stake_record.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

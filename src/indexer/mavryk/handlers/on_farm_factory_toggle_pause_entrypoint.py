@@ -22,6 +22,6 @@ async def on_farm_factory_toggle_pause_entrypoint(
         farm_factory.track_farm_paused          = toggle_pause_entrypoint.storage.breakGlassConfig.trackFarmIsPaused
         farm_factory.untrack_farm_paused        = toggle_pause_entrypoint.storage.breakGlassConfig.untrackFarmIsPaused
         await farm_factory.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

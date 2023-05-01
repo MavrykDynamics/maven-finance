@@ -56,6 +56,6 @@ async def on_lending_controller_mock_time_toggle_pause_entrypoint(
         lending_controller.vault_withdraw_paused                    = vault_withdraw_paused
         await lending_controller.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

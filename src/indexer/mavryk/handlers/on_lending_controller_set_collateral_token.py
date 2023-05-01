@@ -82,6 +82,6 @@ async def on_lending_controller_set_collateral_token(
             lending_controller_collateral_token.paused                                      = collateral_token_paused
             await lending_controller_collateral_token.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

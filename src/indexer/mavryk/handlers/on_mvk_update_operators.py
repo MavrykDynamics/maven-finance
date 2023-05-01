@@ -48,6 +48,6 @@ async def on_mvk_update_operators(
                 )
                 await operator_record.delete()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -92,6 +92,6 @@ async def on_council_sign_action(
         )
         await signer_record.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

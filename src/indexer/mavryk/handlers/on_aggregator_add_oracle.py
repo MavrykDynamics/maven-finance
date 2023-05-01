@@ -34,6 +34,6 @@ async def on_aggregator_add_oracle(
         )
         await aggregator_oracle.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

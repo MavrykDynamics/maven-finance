@@ -34,6 +34,6 @@ async def on_governance_satellite_update_config(
     
         await governance_satellite.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

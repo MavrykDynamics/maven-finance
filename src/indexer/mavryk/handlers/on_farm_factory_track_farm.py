@@ -27,6 +27,6 @@ async def on_farm_factory_track_farm(
             farm.factory    = farm_factory
             await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -109,6 +109,6 @@ async def on_lending_controller_mock_time_register_withdrawal(
                 )
                 await history_data.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

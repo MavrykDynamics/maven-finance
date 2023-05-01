@@ -23,6 +23,6 @@ async def on_lending_controller_set_admin(
         # Persist new admin
         await persist_admin(set_admin, contract)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

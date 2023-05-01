@@ -16,6 +16,6 @@ async def on_emergency_governance_update_whitelist_contracts(
         # Persist whitelist contract
         await persist_linked_contract(models.EmergencyGovernance, models.EmergencyGovernanceWhitelistContract, update_whitelist_contracts)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

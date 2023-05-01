@@ -29,6 +29,6 @@ async def on_governance_financial_drop_financial_request(
         request.status      = status
         await request.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

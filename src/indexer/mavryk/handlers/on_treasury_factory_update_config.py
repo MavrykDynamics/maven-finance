@@ -27,6 +27,6 @@ async def on_treasury_factory_update_config(
             treasury_factory.treasuryNameMaxLength                 = updated_value
         
         await treasury_factory.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

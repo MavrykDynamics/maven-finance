@@ -22,6 +22,6 @@ async def on_farm_unpause_all(
         farm.claim_paused       = unpause_all.storage.breakGlassConfig.claimIsPaused
         await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

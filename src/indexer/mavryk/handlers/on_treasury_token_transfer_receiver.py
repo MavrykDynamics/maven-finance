@@ -42,6 +42,6 @@ async def on_treasury_token_transfer_receiver(
         treasury_balance.balance        += amount
         await treasury_balance.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

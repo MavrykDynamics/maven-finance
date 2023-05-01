@@ -23,6 +23,6 @@ async def on_vault_factory_toggle_pause_entrypoint(
         vault_factory.create_vault_paused   = create_vault_paused
         await vault_factory.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

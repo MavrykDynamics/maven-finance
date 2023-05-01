@@ -14,6 +14,6 @@ async def on_governance_satellite_toggle_pause_aggregator(
         # Get operation info
         await persist_governance_satellite_action(ctx, toggle_pause_aggregator)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

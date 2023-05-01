@@ -67,6 +67,6 @@ async def on_doorman_compound(
         doorman.unclaimed_rewards           = unclaimed_rewards
         doorman.accumulated_fees_per_share  = accumulated_fees_per_share
         await doorman.save()
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

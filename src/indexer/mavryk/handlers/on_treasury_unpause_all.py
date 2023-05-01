@@ -23,6 +23,6 @@ async def on_treasury_unpause_all(
         treasury.unstake_mvk_paused             = unpause_all.storage.breakGlassConfig.unstakeMvkIsPaused
         await treasury.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -34,6 +34,6 @@ async def on_governance_distribute_proposal_rewards(
             proposal_vote.voting_reward_claimed = True
             await proposal_vote.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

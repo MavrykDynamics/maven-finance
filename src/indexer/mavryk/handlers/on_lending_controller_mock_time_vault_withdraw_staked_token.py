@@ -112,6 +112,6 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_token(
                 )
                 await history_data.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

@@ -15,6 +15,6 @@ async def on_governance_satellite_suspend_satellite(
         # Get operation info
         await persist_governance_satellite_action(ctx, suspend_satellite)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

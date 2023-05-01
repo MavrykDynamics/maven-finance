@@ -15,6 +15,6 @@ async def on_delegation_update_whitelist_contracts(
     try:
         # Persist whitelist contract
         await persist_linked_contract(models.Delegation, models.DelegationWhitelistContract, update_whitelist_contracts)
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

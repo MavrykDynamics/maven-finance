@@ -30,6 +30,6 @@ async def on_governance_financial_update_config(
         
         await governance_financial.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

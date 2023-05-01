@@ -69,6 +69,6 @@ async def on_council_origination(
             )
             await council_member.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

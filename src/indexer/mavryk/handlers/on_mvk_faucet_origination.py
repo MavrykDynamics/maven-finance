@@ -23,6 +23,6 @@ async def on_mvk_faucet_origination(
         )
         await mvk_faucet.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

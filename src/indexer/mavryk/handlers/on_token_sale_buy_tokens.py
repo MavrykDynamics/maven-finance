@@ -53,6 +53,6 @@ async def on_token_sale_buy_tokens(
             buyer_record_option.last_claim_level        = last_claim_level
             await buyer_record_option.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

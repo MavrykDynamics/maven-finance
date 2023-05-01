@@ -22,6 +22,6 @@ async def on_farm_toggle_pause_entrypoint(
         farm.claim_paused       = toggle_pause_entrypoint.storage.breakGlassConfig.claimIsPaused
         await farm.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

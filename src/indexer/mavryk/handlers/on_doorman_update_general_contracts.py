@@ -16,6 +16,6 @@ async def on_doorman_update_general_contracts(
         # Perists general contract
         await persist_linked_contract(models.Doorman, models.DoormanGeneralContract, update_general_contracts)
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 

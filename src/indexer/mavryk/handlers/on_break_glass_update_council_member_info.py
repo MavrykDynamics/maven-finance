@@ -32,6 +32,6 @@ async def on_break_glass_update_council_member_info(
         council_member.image    = image
         await council_member.save()
 
-    except BaseException:
-         await save_error_report()
+    except BaseException as e:
+         await save_error_report(e)
 
