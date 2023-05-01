@@ -355,66 +355,66 @@ indexes:
     - callback: on_governance_snapshot_ledger_update
       contract: governance
       path: snapshotLedger
-  liquidity_baking:
-    kind: operation
-    datasource: tzkt_mainnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - liquidity_baking
-    handlers:
-    - callback: on_liquidity_baking_add_liquidity
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: addLiquidity
-      - destination: tzbtc
-        entrypoint: transfer
-      - destination: sirius
-        entrypoint: mintOrBurn
-    - callback: on_liquidity_baking_remove_liquidity
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: removeLiquidity
-      - destination: sirius
-        entrypoint: mintOrBurn
-      - destination: tzbtc
-        entrypoint: transfer
-      - source: liquidity_baking
-        type: transaction
-    - callback: on_liquidity_baking_token_to_xtz
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: tokenToXtz
-      - destination: tzbtc
-        entrypoint: transfer
-      - source: liquidity_baking
-        type: transaction
-      - source: liquidity_baking
-        type: transaction
-    - callback: on_liquidity_baking_xtz_to_token
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: xtzToToken
-      - destination: tzbtc
-        entrypoint: transfer
-    - callback: on_liquidity_baking_token_to_token
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: tokenToToken
-  sirius:
-    kind: operation
-    datasource: tzkt_mainnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - sirius
-    handlers:
-    - callback: on_sirius_transfer
-      pattern:
-      - destination: sirius
-        entrypoint: transfer
+  # liquidity_baking:
+  #   kind: operation
+  #   datasource: tzkt_mainnet
+  #   types:
+  #   - origination
+  #   - transaction
+  #   contracts:
+  #   - liquidity_baking
+  #   handlers:
+  #   - callback: on_liquidity_baking_add_liquidity
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: addLiquidity
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #     - destination: sirius
+  #       entrypoint: mintOrBurn
+  #   - callback: on_liquidity_baking_remove_liquidity
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: removeLiquidity
+  #     - destination: sirius
+  #       entrypoint: mintOrBurn
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #     - source: liquidity_baking
+  #       type: transaction
+  #   - callback: on_liquidity_baking_token_to_xtz
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: tokenToXtz
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #     - source: liquidity_baking
+  #       type: transaction
+  #     - source: liquidity_baking
+  #       type: transaction
+  #   - callback: on_liquidity_baking_xtz_to_token
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: xtzToToken
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #   - callback: on_liquidity_baking_token_to_token
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: tokenToToken
+  # sirius:
+  #   kind: operation
+  #   datasource: tzkt_mainnet
+  #   types:
+  #   - origination
+  #   - transaction
+  #   contracts:
+  #   - sirius
+  #   handlers:
+  #   - callback: on_sirius_transfer
+  #     pattern:
+  #     - destination: sirius
+  #       entrypoint: transfer
   mvk_token:
     kind: operation
     datasource: tzkt_ghostnet
@@ -686,10 +686,6 @@ indexes:
   #   - origination
   #   - transaction
   #   handlers:
-  #   - callback: on_farm_origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: farm
   #   - callback: on_farm_set_admin
   #     pattern:
   #     - destination: farm
@@ -755,10 +751,6 @@ indexes:
   #   contracts:
   #   - farm_m_token
   #   handlers:
-  #   - callback: on_m_farm_origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: farm_m_token
   #   - callback: on_m_farm_set_admin
   #     pattern:
   #     - destination: farm_m_token
@@ -1409,10 +1401,6 @@ indexes:
   #   - origination
   #   - transaction
   #   handlers:
-  #   - callback: on_aggregator_origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: aggregator
   #   - callback: on_aggregator_set_admin
   #     pattern:
   #     - destination: aggregator
@@ -1556,10 +1544,6 @@ indexes:
   #   - origination
   #   - transaction
   #   handlers:
-  #   - callback: on_treasury_origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: treasury
   #   - callback: on_treasury_set_admin
   #     pattern:
   #     - destination: treasury
@@ -1745,10 +1729,6 @@ indexes:
   #   - origination
   #   - transaction
   #   handlers:
-  #   - callback: on_vault_origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: vault
   #   - callback: on_vault_set_baker
   #     pattern:
   #     - destination: vault

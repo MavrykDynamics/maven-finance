@@ -86,6 +86,7 @@ async def persist_council_action(action):
         internal_id = actionID
     )
     if councilActionRecord == None:
+        council_size        = len(await models.CouncilCouncilMember.filter(council=council).all())
         councilActionRecord = models.CouncilAction(
             internal_id                     = actionID,
             council                         = council,
@@ -96,6 +97,7 @@ async def persist_council_action(action):
             action_type                     = councilActionType,
             status                          = recordStatus,
             executed                        = councilActionExecuted,
+            council_size_snapshot           = council_size
         )
         await councilActionRecord.save()
 
@@ -155,7 +157,8 @@ async def persist_break_glass_action(action):
         internal_id = actionID
     )
     if breakGlassActionRecord == None:
-        breakGlassActionRecord = models.BreakGlassAction(
+        council_size            = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all())
+        breakGlassActionRecord  = models.BreakGlassAction(
             internal_id                     = actionID,
             break_glass                     = breakGlass,
             initiator                       = initiator,
@@ -165,6 +168,7 @@ async def persist_break_glass_action(action):
             action_type                     = breakGlassActionType,
             status                          = recordStatus,
             executed                        = breakGlassActionExecuted,
+            council_size_snapshot           = council_size
         )
         await breakGlassActionRecord.save()
 
