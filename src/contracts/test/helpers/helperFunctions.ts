@@ -248,3 +248,18 @@ export const calcIncrementAccumulatedFeesPerShare = (paidFee : number, unstakeAm
 
 }
 
+
+
+// ------------------------------------------------------------------------------
+// Satellite Rewards Helpers
+// ------------------------------------------------------------------------------
+
+
+export const calcRewardsPerShareAfterDistributeRewards = (rewardAmount : number, satelliteFee : number, satelliteTotalStakedMvk : number) => {
+
+    const satelliteFeeReward                    = Math.floor((satelliteFee * rewardAmount) / 10000);
+    const totalDistributionAmountForDelegates   = rewardAmount - satelliteFeeReward;
+    const incrementRewardsPerShare              = totalDistributionAmountForDelegates / satelliteTotalStakedMvk;
+
+    return incrementRewardsPerShare
+} 
