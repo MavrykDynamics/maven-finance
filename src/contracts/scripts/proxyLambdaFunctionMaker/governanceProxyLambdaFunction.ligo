@@ -81,13 +81,16 @@ type return is list (operation) * unit;
 function lambdaFunction (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
-        ("tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM" : address),
+        record [
+            updateConfigNewValue    = 1234n; 
+            updateConfigAction      = (ConfigActionExpiryDays: councilUpdateConfigActionType)
+        ],
         0tez,
         case (Tezos.get_entrypoint_opt(
-            "%setGovernance",
-            ("KT1KSzS4Ryvvegx1SeFHefcdCCkCQMZfLtVd" : address)) : option(contract(address))) of [
+            "%updateConfig",
+            ("KT1DHeyBdxz4e2ZYoC5jxCCQqfUk4tcCE46j" : address)) : option(contract(councilUpdateConfigParamsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith(0n) : contract(councilUpdateConfigParamsType))
         ]
     );
 } with list[contractOperation]

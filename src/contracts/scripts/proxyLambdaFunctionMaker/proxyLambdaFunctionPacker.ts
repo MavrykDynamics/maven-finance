@@ -39,7 +39,7 @@ function getLigo (
 
     isDockerizedLigo: boolean,
     ligoVersion: string = env.ligoVersion,
-    isAppleSilicon: string = 'false',
+    isAppleSilicon: string = 'true',
 
 ) {
 
@@ -48,7 +48,7 @@ function getLigo (
 
     if (isDockerizedLigo) {
         if (isAppleM1) {
-            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
+            path = `docker run --platform=linux/arm64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
         } else {
             path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
         }
@@ -83,14 +83,17 @@ const compileLambdaFunctionContract = async(
 
     contractPath: string = "",
     ligoVersion: string = env.ligoVersion,
-    isAppleSilicon: string = 'false',
+    isAppleSilicon: string = 'true',
 
 ) => {
 
     const ligo = getLigo(true, ligoVersion, isAppleSilicon);
 
+    // console.log('show ligo command:');
+    // console.log(`${ligo} compile contract ${contractPath} --michelson-format json --protocol lima --deprecated`);
+
     const jsonFormat = execSync(
-        `${ligo} compile contract ${contractPath} --michelson-format json --protocol lima`,
+        `${ligo} compile contract ${contractPath} --michelson-format json --protocol lima --deprecated`,
         { 
             maxBuffer: 1024 * 1024,
             timeout: 1024 * 1024
@@ -136,6 +139,7 @@ export const compileLambdaFunction  = async(
     const networkConfig: any    = env.networks[network]
     const tezos: TezosToolkit   = new TezosToolkit(networkConfig.rpc)
     const packedLambdaFunction  = await packLambdaFunction(tezos, governanceProxyContractAddress, lambdaFunctionJson)
+
     return packedLambdaFunction;
 }
 
