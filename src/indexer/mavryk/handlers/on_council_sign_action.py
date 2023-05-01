@@ -38,6 +38,7 @@ async def on_council_sign_action(
             council     = council,
             internal_id = action_id
         )
+        action_record.council_size_snapshot = len(await models.CouncilCouncilMember.filter(council=council).all())
         action_record.status                = status_type
         action_record.signers_count         = signer_count
         action_record.executed              = executed
@@ -59,7 +60,8 @@ async def on_council_sign_action(
                     status_type = models.ActionStatus.FLUSHED
                 elif status == "EXECUTED":
                     status_type = models.ActionStatus.EXECUTED
-                single_action_record.status            = status_type
+                single_action_record.council_size_snapshot  = len(await models.CouncilCouncilMember.filter(council=council).all())
+                single_action_record.status                 = status_type
                 await single_action_record.save()
     
         # Delete previous members

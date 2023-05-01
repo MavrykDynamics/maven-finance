@@ -43,6 +43,7 @@ async def on_break_glass_sign_action(
             break_glass = break_glass,
             internal_id = action_id
         )
+        action_record.council_size_snapshot = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all())
         action_record.status                = status_type
         action_record.signers_count         = signer_count
         action_record.executed              = executed
@@ -64,7 +65,8 @@ async def on_break_glass_sign_action(
                     status_type = models.ActionStatus.FLUSHED
                 elif action_status == "EXECUTED":
                     status_type = models.ActionStatus.EXECUTED
-                single_action_record.status            = status_type
+                single_action_record.council_size_snapshot  = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all())
+                single_action_record.status                 = status_type
                 await single_action_record.save()
     
         # Delete previous members
