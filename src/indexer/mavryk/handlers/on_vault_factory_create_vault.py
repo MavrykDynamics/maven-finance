@@ -33,12 +33,15 @@ async def on_vault_factory_create_vault(
             allowance_type          = models.VaultAllowance.WHITELIST
             whitelisted_addresses   = depositors.whitelist
     
-        # Check vault does not already exists
+        # Check vault does not already exists and have a creation timestamp
+        # The creation timestamp check is made because a vault can also be created during
+        # a lendingController vault registration
         vault_exists            = await models.Vault.get_or_none(
             address = vault_address
         )
-    
-        if not vault_exists:
+
+        if not vault_exists or not vault_exists.creation_timestamp:
+
             # Create a contract and index it
             await ctx.add_contract(
                 name=vault_address + 'contract',
@@ -52,7 +55,7 @@ async def on_vault_factory_create_vault(
                     vault_contract=vault_address + 'contract'
                 )
             )
-    
+
             # Persist contract metadata
             await persist_contract_metadata(
                 ctx=ctx,
