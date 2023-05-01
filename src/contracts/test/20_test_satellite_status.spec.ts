@@ -16,7 +16,7 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, trudy, oscar, susie, isaac, david, ivan } from "../scripts/sandbox/accounts";
 import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 import * as helperFunctions from './helpers/helperFunctions'
 
@@ -28,6 +28,30 @@ describe("Satellite status tests", async () => {
     
     var utils: Utils;
     let tezos
+
+    let user 
+    let userSk 
+
+    let admin 
+    let adminSk 
+    
+    let satelliteOne 
+    let satelliteTwo
+    let satelliteThree
+    let satelliteFour 
+    let satelliteFive
+
+    let delegateOne 
+    let delegateOneSk
+
+    let delegateTwo
+    let delegateTwoSk
+
+    let delegateThree
+    let delegateThreeSk
+
+    let delegateFour
+    let delegateFourSk
 
     let doormanInstance;
     let delegationInstance;
@@ -79,119 +103,50 @@ describe("Satellite status tests", async () => {
             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
             governanceProxyStorage          = await governanceProxyInstance.storage();
             
-            // console.log('-- -- -- -- -- Satellite Status Tests -- -- -- --')
-            // console.log('Doorman Contract deployed at:'               , doormanInstance.address);
-            // console.log('Delegation Contract deployed at:'            , delegationInstance.address);
-            // console.log('MVK Token Contract deployed at:'             , mvkTokenInstance.address);
-            // console.log('Governance Contract deployed at:'            , governanceInstance.address);
-            // console.log('Governance Satellite Contract deployed at:'  , governanceSatelliteInstance.address);
-            // console.log('Governance Financial Contract deployed at:'  , governanceFinancialInstance.address);
-            // console.log('Aggregator Contract deployed at:'            , aggregatorInstance.address);
-            // console.log('Council Contract deployed at:'               , councilInstance.address);
-            // console.log('Aggregator Factory Contract deployed at:'    , aggregatorFactoryInstance.address);
-            // console.log('Governance Proxy Contract deployed at:'      , governanceProxyInstance.address);
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+
+            // -----------------------------------------------
+            //
+            // Setup corresponds to 06_setup_satellites:
+            //
+            //   - satellites: alice, eve, susie, oscar, trudy
+            //   - delegates:
+            //          eve satellite: david, ivan, isaac
+            //          alice satellite: mallory
+            //          susie satellite: none
+            //          oscar satellite: none
+            //          trudy satellite: none
+            //    
+            // -----------------------------------------------
+
+            satelliteOne    = eve.pkh;
+            satelliteTwo    = alice.pkh;
+            satelliteThree  = trudy.pkh;
+            satelliteFour   = oscar.pkh;
+            satelliteFive   = susie.pkh;
+
+            delegateOne     = david.pkh;
+            delegateOneSk   = david.sk;
+
+            delegateTwo     = ivan.pkh;
+            delegateTwoSk   = ivan.sk;
+
+            delegateThree   = isaac.pkh;
+            delegateThreeSk = isaac.sk;
+
+            delegateFour    = mallory.pkh;
+            delegateFourSk  = mallory.sk;
+
+            // ------------------------------------------------------------------
+            // Update 2nd & 3rd Satellites status
+            // ------------------------------------------------------------------
             
-            // console.log('Bob address: '     + bob.pkh);
-            // console.log('Alice address: '   + alice.pkh);
-            // console.log('Eve address: '     + eve.pkh);
-            // console.log('Mallory address: ' + mallory.pkh);
-    
-            delegationStorage       = await delegationInstance.storage();
-            const BobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
-    
-            if(BobSatellite === undefined){
+            await helperFunctions.signerFactory(tezos, bob.sk)
+            var updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
+            await updateStatusOperation.confirmation()
+            updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "BANNED").send()
+            await updateStatusOperation.confirmation()
 
-                // ------------------------------------------------------------------
-                // Creation of 3 satellites
-                // ------------------------------------------------------------------
-
-                // 1st Satellite -> Bob
-                var updateOperatorsOperation = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: contractDeployments.doorman.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperatorsOperation.confirmation();  
-                var stakeAmount         = MVK(10000);
-                var stakeOperation      = await doormanInstance.methods.stake(stakeAmount).send();
-                await stakeOperation.confirmation();                        
-                var registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                    "New Satellite by Bob", 
-                    "New Satellite Description - Bob", 
-                    "https://image.url", 
-                    "https://image.url", 
-                    "700"
-                ).send();
-                await registerAsSatelliteOperation.confirmation();
-                
-                // 2nd Satellite -> Alice
-                await helperFunctions.signerFactory(tezos, alice.sk)
-                updateOperatorsOperation = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: alice.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-                await updateOperatorsOperation.confirmation();  
-                stakeAmount         = MVK(10);
-                stakeOperation      = await doormanInstance.methods.stake(stakeAmount).send();
-                await stakeOperation.confirmation();                        
-                registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                    "New Satellite by Alice", 
-                    "New Satellite Description - Alice", 
-                    "https://image.url", 
-                    "https://image.url", 
-                    "700"
-                ).send();
-                await registerAsSatelliteOperation.confirmation();
-                
-                // 3rd Satellite -> Eve
-                await helperFunctions.signerFactory(tezos, eve.sk)
-                updateOperatorsOperation = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-                await updateOperatorsOperation.confirmation();  
-                stakeAmount         = MVK(30);
-                stakeOperation      = await doormanInstance.methods.stake(stakeAmount).send();
-                await stakeOperation.confirmation();                        
-                registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                    "New Satellite by Eve", 
-                    "New Satellite Description - Eve", 
-                    "https://image.url", 
-                    "https://image.url", 
-                    "700"
-                ).send();
-                await registerAsSatelliteOperation.confirmation();
-
-                // ------------------------------------------------------------------
-                // Update 2nd & 3rd Satellites status
-                // ------------------------------------------------------------------
-                
-                await helperFunctions.signerFactory(tezos, bob.sk)
-                var updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
-                await updateStatusOperation.confirmation()
-                updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "BANNED").send()
-                await updateStatusOperation.confirmation()
-            }
         } catch(e) {
             console.dir(e, {depth: 5})
         }
