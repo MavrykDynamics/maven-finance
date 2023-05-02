@@ -82,15 +82,15 @@ function lambdaFunction (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record [
-            updateConfigNewValue    = 1234n; 
-            updateConfigAction      = (ConfigActionExpiryDays: councilUpdateConfigActionType)
+            updateConfigNewValue    = 1200n; 
+            updateConfigAction      = (ConfigSuccessReward: governanceUpdateConfigActionType)
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            ("KT1DHeyBdxz4e2ZYoC5jxCCQqfUk4tcCE46j" : address)) : option(contract(councilUpdateConfigParamsType))) of [
+            ("KT1JvCPFyTgRSahiwmHxksFdmhT7EgPZ3V2R" : address)) : option(contract(governanceUpdateConfigParamsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(councilUpdateConfigParamsType))
+                |   None        -> (failwith(0n) : contract(governanceUpdateConfigParamsType))
         ]
     );
 } with list[contractOperation]
