@@ -37,26 +37,32 @@ async def on_treasury_factory_create_treasury(
     
         if not treasury_exists:
             # Create a contract and index it
-            await ctx.add_contract(
-                name=treasury_address + 'contract',
-                address=treasury_address,
-                typename="treasury"
-            )
-            await ctx.add_index(
-                name=treasury_address + 'index',
-                template="treasury_template",
-                values=dict(
-                    treasury_contract=treasury_address + 'contract'
+            treasury_contract                       =  f'{treasury_address}contract'
+            if not treasury_contract in ctx.config.contracts: 
+                await ctx.add_contract(
+                    name=treasury_contract,
+                    address=treasury_address,
+                    typename="treasury"
                 )
-            )
-            await ctx.add_index(
-                name=treasury_address + 'token_transfer_receiver_index',
-                template="treasury_token_transfer_receiver_template",
-                values=dict(
-                    treasury_contract   = treasury_address + 'contract',
-                    first_level         = level
+            treasury_index                          =  f'{treasury_address}index'
+            if not treasury_index in ctx.config.indexes:
+                await ctx.add_index(
+                    name=treasury_index,
+                    template="treasury_template",
+                    values=dict(
+                        treasury_contract=treasury_contract
+                    )
                 )
-            )
+            treasury_token_transfer_receiver_index  =  f'{treasury_address}token_transfer_receiver_index'
+            if not treasury_token_transfer_receiver_index in ctx.config.indexes:
+                await ctx.add_index(
+                    name=treasury_token_transfer_receiver_index,
+                    template="treasury_token_transfer_receiver_template",
+                    values=dict(
+                        treasury_contract   = treasury_contract,
+                        first_level         = level
+                    )
+                )
     
             # Persist contract metadata
             await persist_contract_metadata(
