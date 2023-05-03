@@ -47,18 +47,22 @@ async def on_aggregator_factory_create_aggregator(
     
         if not aggregator_exists:
             # Create a contract and index it
-            await ctx.add_contract(
-                name=aggregator_address + 'contract',
-                address=aggregator_address,
-                typename="aggregator"
-            )
-            await ctx.add_index(
-                name=aggregator_address + 'index',
-                template="aggregator_template",
-                values=dict(
-                    aggregator_contract=aggregator_address + 'contract'
+            aggregator_contract   =  f'{aggregator_address}contract'
+            if not aggregator_contract in ctx.config.contracts: 
+                await ctx.add_contract(
+                    name=aggregator_contract,
+                    address=aggregator_address,
+                    typename="aggregator"
                 )
-            )
+            aggregator_index        =  f'{aggregator_address}index'
+            if not aggregator_index in ctx.config.indexes:
+                await ctx.add_index(
+                    name=aggregator_index,
+                    template="aggregator_template",
+                    values=dict(
+                        aggregator_contract=aggregator_contract
+                    )
+                )
     
             # Persist contract metadata
             await persist_contract_metadata(
