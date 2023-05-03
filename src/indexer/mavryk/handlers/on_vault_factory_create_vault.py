@@ -43,18 +43,22 @@ async def on_vault_factory_create_vault(
         if not vault_exists or not vault_exists.creation_timestamp:
 
             # Create a contract and index it
-            await ctx.add_contract(
-                name=vault_address + 'contract',
-                address=vault_address,
-                typename="vault"
-            )
-            await ctx.add_index(
-                name=vault_address + 'index',
-                template="vault_template",
-                values=dict(
-                    vault_contract=vault_address + 'contract'
+            vault_contract  =  f'{vault_address}contract'
+            if not vault_contract in ctx.config.contracts: 
+                await ctx.add_contract(
+                    name=vault_contract,
+                    address=vault_address,
+                    typename="vault"
                 )
-            )
+            vault_index     =  f'{vault_address}index'
+            if not vault_index in ctx.config.indexes:
+                await ctx.add_index(
+                    name=vault_index,
+                    template="vault_template",
+                    values=dict(
+                        vault_contract=vault_contract
+                    )
+                )
 
             # Persist contract metadata
             await persist_contract_metadata(

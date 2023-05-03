@@ -51,18 +51,22 @@ async def on_farm_factory_create_farm_m_token(
     
         if not farm_exists:
             # Create a contract and index it
-            await ctx.add_contract(
-                name=farm_address + 'contract',
-                address=farm_address,
-                typename="m_farm"
-            )
-            await ctx.add_index(
-                name=farm_address + 'index',
-                template="m_farm_template",
-                values=dict(
-                    m_farm_contract=farm_address + 'contract'
+            farm_contract   =  f'{farm_address}contract'
+            if not farm_contract in ctx.config.contracts: 
+                await ctx.add_contract(
+                    name=farm_contract,
+                    address=farm_address,
+                    typename="m_farm"
                 )
-            )
+            farm_index     =  f'{farm_address}index'
+            if not farm_index in ctx.config.indexes:
+                await ctx.add_index(
+                    name=farm_index,
+                    template="m_farm_template",
+                    values=dict(
+                        m_farm_contract=farm_contract
+                    )
+                )
     
             # Get Farm Contract Metadata and save the two Tokens involved in the LP Token
             token0_address              = ""
