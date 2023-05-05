@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.types.governance.storage import GovernanceStorage
@@ -10,17 +11,22 @@ async def on_governance_process_proposal_payment(
     process_proposal_payment: Transaction[ProcessProposalPaymentParameter, GovernanceStorage],
 ) -> None:
 
-    # Get operation info
-    governance_address  = process_proposal_payment.data.target_address
-    proposal_id         = int(process_proposal_payment.parameter.__root__)
-    proposal_storage    = process_proposal_payment.storage.proposalLedger[process_proposal_payment.parameter.__root__]
-    payment_processed   = proposal_storage.paymentProcessed
+    try:
+        # Get operation info
+        governance_address  = process_proposal_payment.data.target_address
+        proposal_id         = int(process_proposal_payment.parameter.__root__)
+        proposal_storage    = process_proposal_payment.storage.proposalLedger[process_proposal_payment.parameter.__root__]
+        payment_processed   = proposal_storage.paymentProcessed
+    
+        # Create or update record
+        governance          = await models.Governance.get(address   = governance_address)
+        proposal            = await models.GovernanceProposal.filter(
+            governance  = governance,
+            internal_id = proposal_id
+        ).first()
+        proposal.payment_processed   = payment_processed
+        await proposal.save()
 
-    # Create or update record
-    governance          = await models.Governance.get(address   = governance_address)
-    proposal            = await models.GovernanceProposal.filter(
-        governance  = governance,
-        internal_id = proposal_id
-    ).first()
-    proposal.payment_processed   = payment_processed
-    await proposal.save()
+    except BaseException as e:
+         await save_error_report(e)
+

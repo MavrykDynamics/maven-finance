@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.types.vesting.storage import VestingStorage
@@ -10,22 +11,27 @@ async def on_vesting_toggle_vestee_lock(
     toggle_vestee_lock: Transaction[ToggleVesteeLockParameter, VestingStorage],
 ) -> None:
 
-    # Get operation values
-    vesting_address = toggle_vestee_lock.data.target_address
-    vestee_address  = toggle_vestee_lock.parameter.__root__
-    status          = toggle_vestee_lock.storage.vesteeLedger[vestee_address].status
-    locked          = False
-    if status == 'LOCKED':
-        locked    = True
+    try:
+        # Get operation values
+        vesting_address = toggle_vestee_lock.data.target_address
+        vestee_address  = toggle_vestee_lock.parameter.__root__
+        status          = toggle_vestee_lock.storage.vesteeLedger[vestee_address].status
+        locked          = False
+        if status == 'LOCKED':
+            locked    = True
+    
+        # Update record
+        vesting = await models.Vesting.get(
+            address=vesting_address
+        )
+        vestee  = await models.mavryk_user_cache.get(address=vestee_address)
+        vesteeRecord    = await models.VestingVestee.filter(
+            vestee  = vestee,
+            vesting = vesting
+        ).first()
+        vesteeRecord.locked = locked
+        await vesteeRecord.save()
 
-    # Update record
-    vesting = await models.Vesting.get(
-        address=vesting_address
-    )
-    vestee  = await models.mavryk_user_cache.get(address=vestee_address)
-    vesteeRecord    = await models.VestingVestee.filter(
-        vestee  = vestee,
-        vesting = vesting
-    ).first()
-    vesteeRecord.locked = locked
-    await vesteeRecord.save()
+    except BaseException as e:
+         await save_error_report(e)
+
