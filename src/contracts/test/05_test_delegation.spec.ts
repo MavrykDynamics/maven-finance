@@ -1883,16 +1883,16 @@ describe("Test: Delegation Contract", async () => {
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
-                delegationStorage        = await delegationInstance.storage();
-                const currentAdmin  = doormanStorage.admin;
+                delegationStorage   = await delegationInstance.storage();
+                const currentAdmin  = delegationStorage.admin;
 
                 // Operation
                 setAdminOperation = await delegationInstance.methods.setAdmin(mallory.pkh);
                 await chai.expect(setAdminOperation.send()).to.be.rejected;
 
                 // Final values
-                delegationStorage    = await delegationInstance.storage();
-                const newAdmin  = delegationStorage.admin;
+                delegationStorage   = await delegationInstance.storage();
+                const newAdmin      = delegationStorage.admin;
 
                 // Assertions
                 assert.strictEqual(newAdmin, currentAdmin);
