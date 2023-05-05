@@ -14,7 +14,6 @@ async def on_treasury_default(
         treasury_address    = default.data.target_address
         token_address       = "XTZ"
         token_standard      = "tez"
-        token_standard      = None
         amount              = float(default.data.amount)
         metadata            = {
           "name": "Tezos",
