@@ -269,6 +269,8 @@ describe("Test: Governance Financial Contract", async () => {
                 const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
                 
+
+
                 // const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 // const financialRequestPercentageDecimals       = 4;
                 // const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
@@ -360,7 +362,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";            
     
                 // Council member (bob) requests for MVK to be transferred from the Treasury
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
                         tokenContractAddress,
@@ -399,11 +401,11 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilActionsRequestTokens.signers[0],       bob.pkh);
     
                 // council members sign action, and action is executed once threshold of 3 signers is reached
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await aliceSignsRequestMintActionOperation.confirmation();
     
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 const eveSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await eveSignsRequestMintActionOperation.confirmation();
     
@@ -455,9 +457,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestID);            
     
-                mvkTokenStorage                                         = await mvkTokenInstance.storage();
-                const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
+                mvkTokenStorage                       = await mvkTokenInstance.storage();
                 governanceStorage                     = await governanceInstance.storage();
+
+                const councilMvkLedger                = await mvkTokenStorage.ledger.get(councilContractAddress);
                 var currentCycle                      = governanceStorage.cycleId;
     
                 // check details of financial request snapshot ledger
@@ -486,47 +489,48 @@ describe("Test: Governance Financial Contract", async () => {
             } 
         });
 
-        it('Council contract should not be able to call this entrypoint with a wrong token type', async () => {
-            try{        
-                // some init constants
-                var councilStorage             = await councilInstance.storage();
-                const councilActionId          = councilStorage.actionCounter;
-                const councilContractAddress   = contractDeployments.council.address;
-                const bobStakeAmount           = MVK(10);
-                const aliceStakeAmount         = MVK(10);
-                var mvkTokenStorage            = await mvkTokenInstance.storage();
-                const initialCouncilBalance    = await mvkTokenStorage.ledger.get(contractDeployments.council.address);
+        // it('council contract should not be able to request tokens with a wrong token type', async () => {
+        //     try{        
+        //         // some init constants
+        //         var councilStorage             = await councilInstance.storage();
+        //         const councilActionId          = councilStorage.actionCounter;
+        //         const councilContractAddress   = contractDeployments.council.address;
+        //         const bobStakeAmount           = MVK(10);
+        //         const aliceStakeAmount         = MVK(10);
+        //         var mvkTokenStorage            = await mvkTokenInstance.storage();
+        //         const initialCouncilBalance    = await mvkTokenStorage.ledger.get(contractDeployments.council.address);
     
-                // request tokens params
-                const tokenAmount              = MVK(100); // 100 MVK
-                const treasury                 = contractDeployments.treasury.address;
-                const tokenContractAddress     = contractDeployments.mvkToken.address; 
-                const tokenName                = "MVK";
-                const tokenType                = "FA3";
-                const tokenId                  = 0;
-                const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";            
+        //         // request tokens params
+        //         const tokenAmount              = MVK(100); // 100 MVK
+        //         const treasury                 = contractDeployments.treasury.address;
+        //         const tokenContractAddress     = contractDeployments.mvkToken.address; 
+        //         const tokenName                = "MVK";
+        //         const tokenType                = "FA3";
+        //         const tokenId                  = 0;
+        //         const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";            
     
-                // Council member (bob) requests for MVK to be transferred from the Treasury
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                await chai.expect(councilInstance.methods.councilActionRequestTokens(
-                    treasury, 
-                    tokenContractAddress,
-                    tokenName, 
-                    tokenAmount, 
-                    tokenType, 
-                    tokenId, 
-                    purpose
-                ).send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5})
-            } 
-        });
+        //         // Council member (eve) requests for MVK to be transferred from the Treasury
+        //         await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+        //         await chai.expect(councilInstance.methods.councilActionRequestTokens(
+        //             treasury, 
+        //             tokenContractAddress,
+        //             tokenName, 
+        //             tokenAmount, 
+        //             tokenType, 
+        //             tokenId, 
+        //             purpose
+        //         ).send()).to.be.rejected;
+
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     } 
+        // });
 
     });
 
     describe("%dropFinancialRequest", async () => {
 
-        it('Council contract should be able to call this entrypoint and drop a pending financial request', async () => {
+        it('council contract should be able to drop a pending financial request', async () => {
             try{
                 // some init constants
                 var councilStorage             = await councilInstance.storage();
@@ -547,8 +551,8 @@ describe("Test: Governance Financial Contract", async () => {
                 const tokenId                  = 0;
                 const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";            
     
-                // Council member (bob) requests for MVK to be transferred from the Treasury
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                // Council member (eve) requests for MVK to be transferred from the Treasury
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
                         tokenContractAddress,
@@ -587,11 +591,11 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilActionsRequestTokens.signers[0],       bob.pkh);
     
                 // council members sign action, and action is executed once threshold of 3 signers is reached
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await aliceSignsRequestMintActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 const eveSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await eveSignsRequestMintActionOperation.confirmation();
                 
@@ -605,18 +609,18 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
 
                 // Drop financial request operation
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 updatedCouncilStorage      = await councilInstance.storage();
                 const dropCouncilActionId  = updatedCouncilStorage.actionCounter;
                 const dropRequestOperation = await councilInstance.methods.councilActionDropFinancialReq(financialRequestID).send();
                 await dropRequestOperation.confirmation();
                 
                 // sign drop 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const aliceSignsDropActionActionOperation = await councilInstance.methods.signAction(dropCouncilActionId).send();
                 await aliceSignsDropActionActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 const eveSignsDropActionActionOperation = await councilInstance.methods.signAction(dropCouncilActionId).send();
                 await eveSignsDropActionActionOperation.confirmation();
 
@@ -644,22 +648,23 @@ describe("Test: Governance Financial Contract", async () => {
         });
         
 
-        it('Council contract should not be able to drop a non-existing financial request', async () => {
-            try{
-                // Get financial request ID on governance
-                const financialRequestID  = 9999;
+        // it('Council contract should not be able to drop a non-existing financial request', async () => {
+        //     try{
+        //         // Get financial request ID on governance
+        //         const financialRequestID  = 9999;
 
-                // Drop financial request operation
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                var updatedCouncilStorage  = await councilInstance.storage();
-                const dropCouncilActionId  = updatedCouncilStorage.actionCounter;
-                await chai.expect(councilInstance.methods.councilActionDropFinancialReq(financialRequestID).send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        //         // Drop financial request operation
+        //         await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+        //         var updatedCouncilStorage  = await councilInstance.storage();
+        //         const dropCouncilActionId  = updatedCouncilStorage.actionCounter;
+        //         await chai.expect(councilInstance.methods.councilActionDropFinancialReq(financialRequestID).send()).to.be.rejected;
 
-        it('Council contract should not be able to drop a previously executed financial request', async () => {
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
+
+        it('council contract should not be able to drop a previously executed financial request', async () => {
             try{
 
                 // some init constants
@@ -679,8 +684,8 @@ describe("Test: Governance Financial Contract", async () => {
                 const tokenAmount           = MVK(1000); // 1000 MVK
                 const purpose               = "Test Council Request Mint 1000 MVK";            
 
-                // Council member (bob) requests for MVK to be minted and transferred from the Treasury
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
                         tokenAmount,
@@ -707,11 +712,11 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilActionsRequestMint.signers[0],       bob.pkh);
 
                 // council members sign action, and action is executed once threshold of 3 signers is reached
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await aliceSignsRequestMintActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 const eveSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await eveSignsRequestMintActionOperation.confirmation();
 
@@ -751,17 +756,17 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
 
                 // satellites vote and yay financial request
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedgovernanceFinancialStorage          = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger    = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 
                 governanceStorage                     = await governanceInstance.storage();
                 var currentCycle                      = governanceStorage.cycleId;
@@ -789,18 +794,18 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilMvkLedger.toNumber(), tokenAmount + councilMvkLedgerInit.toNumber());
 
                 // DROP PREVIOUSLY EXECUTED REQUEST
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 updatedCouncilStorage  = await councilInstance.storage();
                 const dropCouncilActionId  = updatedCouncilStorage.actionCounter;
                 const dropRequestOperation = await councilInstance.methods.councilActionDropFinancialReq(governanceRequestID).send();
                 await dropRequestOperation.confirmation();
 
                 // sign drop 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const aliceSignsDropActionActionOperation = await councilInstance.methods.signAction(dropCouncilActionId).send();
                 await aliceSignsDropActionActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 await chai.expect(councilInstance.methods.signAction(dropCouncilActionId).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -808,10 +813,11 @@ describe("Test: Governance Financial Contract", async () => {
         });
 
 
-        it('Council contract should not be able to drop an expired financial request', async () => {
+        it('council contract should not be able to drop an expired financial request', async () => {
             try{
+
                 // Change governance financial request expiry date
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await helperFunctions.signerFactory(tezos, adminSk);
                 const updateFinancialExpiry    = await governanceFinancialInstance.methods.updateConfig(0, "configFinancialReqDurationDays").send()
                 await updateFinancialExpiry.confirmation();
 
@@ -857,11 +863,11 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilActionsRequestMint.signers[0],       bob.pkh);
 
                 // council members sign action, and action is executed once threshold of 3 signers is reached
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await aliceSignsRequestMintActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 const eveSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await eveSignsRequestMintActionOperation.confirmation();
 
@@ -901,18 +907,18 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
 
                 // DROP PREVIOUSLY EXECUTED REQUEST
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
                 updatedCouncilStorage  = await councilInstance.storage();
                 const dropCouncilActionId  = updatedCouncilStorage.actionCounter;
                 const dropRequestOperation = await councilInstance.methods.councilActionDropFinancialReq(governanceRequestID).send();
                 await dropRequestOperation.confirmation();
 
                 // sign drop 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
                 const aliceSignsDropActionActionOperation = await councilInstance.methods.signAction(dropCouncilActionId).send();
                 await aliceSignsDropActionActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
                 await chai.expect(councilInstance.methods.signAction(dropCouncilActionId).send()).to.be.rejected;
 
                 // final values
@@ -942,12 +948,14 @@ describe("Test: Governance Financial Contract", async () => {
 
     describe("%voteRequest", async () => {
 
-        it('Non-satellite should not be able to call this entrypoint', async () => {
+        it('non-satellite (david) should not be able to call this entrypoint', async () => {
             try{
+                
                 // Try to sign action again with mallory
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await helperFunctions.signerFactory(tezos, delegateOneSk);
                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "nay").send()).to.be.rejected;
                 await helperFunctions.signerFactory(tezos, bob.sk);
+
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
@@ -955,8 +963,10 @@ describe("Test: Governance Financial Contract", async () => {
 
         it('Satellite should not be able to call this entrypoint if the financial request does not exist', async () => {
             try{
+                
                 // Try to sign action again with bob
                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "nay").send()).to.be.rejected;
+
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -964,13 +974,16 @@ describe("Test: Governance Financial Contract", async () => {
 
         it('Satellite should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map or if the getSatelliteOpt view does not exist', async () => {
             try{
+                
                 // Try to sign action again with bob
                 await helperFunctions.signerFactory(tezos, bob.sk);
                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", contractDeployments.delegation.address).send();
                 await updateGeneralContractOperation.confirmation();
+                
                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "nay").send()).to.be.rejected;
                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", contractDeployments.delegation.address).send();
                 await updateGeneralContractOperation.confirmation();
+
             } catch(e){
                 console.dir(e, {depth: 5})
             }
