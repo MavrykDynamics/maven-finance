@@ -3323,15 +3323,15 @@ describe("Test: Council Contract", async () => {
         it('%setAdmin                       - non-admin (mallory) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
-                councilStorage        = await councilInstance.storage();
-                const currentAdmin  = doormanStorage.admin;
+                councilStorage      = await councilInstance.storage();
+                const currentAdmin  = councilStorage.admin;
 
                 // Operation
                 setAdminOperation = await councilInstance.methods.setAdmin(mallory.pkh);
                 await chai.expect(setAdminOperation.send()).to.be.rejected;
 
                 // Final values
-                councilStorage    = await councilInstance.storage();
+                councilStorage  = await councilInstance.storage();
                 const newAdmin  = councilStorage.admin;
 
                 // Assertions
