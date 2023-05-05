@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -9,5 +10,9 @@ async def on_break_glass_propagate_break_glass(
     ctx: HandlerContext,
     propagate_break_glass: Transaction[PropagateBreakGlassParameter, BreakGlassStorage],
 ) -> None:
-    
-    await persist_break_glass_action(propagate_break_glass)
+
+    try:    
+        await persist_break_glass_action(propagate_break_glass)
+    except BaseException as e:
+         await save_error_report(e)
+

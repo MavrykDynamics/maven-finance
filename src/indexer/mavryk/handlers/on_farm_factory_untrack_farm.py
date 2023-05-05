@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.farm_factory.storage import FarmFactoryStorage
 from dipdup.models import Transaction
@@ -10,13 +11,18 @@ async def on_farm_factory_untrack_farm(
     untrack_farm: Transaction[UntrackFarmParameter, FarmFactoryStorage],
 ) -> None:
 
-    # Get operation info
-    farm_address    = untrack_farm.parameter.__root__
+    try:
+        # Get operation info
+        farm_address    = untrack_farm.parameter.__root__
+    
+        # Update record
+        farm            = await models.Farm.get_or_none(
+            address = farm_address
+        )
+        if farm:    
+            farm.factory    = None
+            await farm.save()
 
-    # Update record
-    farm            = await models.Farm.get_or_none(
-        address = farm_address
-    )
-    if farm:    
-        farm.factory    = None
-        await farm.save()
+    except BaseException as e:
+         await save_error_report(e)
+

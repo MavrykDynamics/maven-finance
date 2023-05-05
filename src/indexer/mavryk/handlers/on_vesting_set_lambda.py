@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from ..utils.persisters import persist_lambda
@@ -11,5 +12,10 @@ async def on_vesting_set_lambda(
     set_lambda: Transaction[SetLambdaParameter, VestingStorage],
 ) -> None:
 
-    # Persist lambda
-    await persist_lambda(models.Vesting, models.VestingLambda, set_lambda)
+    try:
+        # Persist lambda
+        await persist_lambda(models.Vesting, models.VestingLambda, set_lambda)
+
+    except BaseException as e:
+         await save_error_report(e)
+

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.utils.persisters import persist_break_glass_action
@@ -10,4 +11,8 @@ async def on_break_glass_remove_break_glass_control(
     remove_break_glass_control: Transaction[RemoveBreakGlassControlParameter, BreakGlassStorage],
 ) -> None:
 
-    await persist_break_glass_action(remove_break_glass_control)
+    try:
+        await persist_break_glass_action(remove_break_glass_control)
+    except BaseException as e:
+         await save_error_report(e)
+
