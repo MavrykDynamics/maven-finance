@@ -3,6 +3,7 @@ from mavryk.sql_model.aggregator import *
 from mavryk.sql_model.break_glass import *
 from mavryk.sql_model.council import *
 from mavryk.sql_model.delegation import *
+from mavryk.sql_model.dipdup_exception import *
 from mavryk.sql_model.doorman import *
 from mavryk.sql_model.emergency_governance import *
 from mavryk.sql_model.enums import *
@@ -18,7 +19,6 @@ from mavryk.sql_model.mvk_token import *
 from mavryk.sql_model.mvk_faucet import *
 from mavryk.sql_model.m_token import *
 from mavryk.sql_model.shared import *
-from mavryk.sql_model.token_sale import *
 from mavryk.sql_model.treasury_factory import *
 from mavryk.sql_model.treasury import *
 from mavryk.sql_model.vault import *

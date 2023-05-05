@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.governance.big_map.snapshot_ledger_key import SnapshotLedgerKey
 from mavryk.types.governance.big_map.snapshot_ledger_value import SnapshotLedgerValue
@@ -11,36 +12,41 @@ async def on_governance_snapshot_ledger_update(
     snapshot_ledger: BigMapDiff[SnapshotLedgerKey, SnapshotLedgerValue],
 ) -> None:
 
-    # Get update values
-    key     = snapshot_ledger.key
-    value   = snapshot_ledger.value
+    try:
+        # Get update values
+        key     = snapshot_ledger.key
+        value   = snapshot_ledger.value
+    
+        # Create snapshot record
+        if key and value:
+            # Get the data
+            governance_address      = snapshot_ledger.data.contract_address
+            governance_cycle        = int(key.nat)
+            satellite_address       = key.address
+            ready                   = value.ready
+            total_smvk_balance      = float(value.totalStakedMvkBalance)
+            total_delegated_amount  = float(value.totalDelegatedAmount)
+            total_voting_power      = float(value.totalVotingPower)
+    
+            # Create a new snapshot record
+            governance, _           = await models.Governance.get_or_create(
+                address = governance_address
+            )
+            await governance.save()
+            
+            user                    = await models.mavryk_user_cache.get(address=satellite_address)
+    
+            snapshot_record, _      = await models.GovernanceSatelliteSnapshot.get_or_create(
+                governance              = governance,
+                user                    = user,
+                cycle                   = governance_cycle
+            )
+            snapshot_record.ready                   = ready
+            snapshot_record.total_smvk_balance      = total_smvk_balance
+            snapshot_record.total_delegated_amount  = total_delegated_amount
+            snapshot_record.total_voting_power      = total_voting_power
+            await snapshot_record.save()
 
-    # Create snapshot record
-    if key and value:
-        # Get the data
-        governance_address      = snapshot_ledger.data.contract_address
-        governance_cycle        = int(key.nat)
-        satellite_address       = key.address
-        ready                   = value.ready
-        total_smvk_balance      = float(value.totalStakedMvkBalance)
-        total_delegated_amount  = float(value.totalDelegatedAmount)
-        total_voting_power      = float(value.totalVotingPower)
+    except BaseException as e:
+         await save_error_report(e)
 
-        # Create a new snapshot record
-        governance, _           = await models.Governance.get_or_create(
-            address = governance_address
-        )
-        await governance.save()
-        
-        user                    = await models.mavryk_user_cache.get(address=satellite_address)
-
-        snapshot_record, _      = await models.GovernanceSatelliteSnapshot.get_or_create(
-            governance              = governance,
-            user                    = user,
-            cycle                   = governance_cycle
-        )
-        snapshot_record.ready                   = ready
-        snapshot_record.total_smvk_balance      = total_smvk_balance
-        snapshot_record.total_delegated_amount  = total_delegated_amount
-        snapshot_record.total_voting_power      = total_voting_power
-        await snapshot_record.save()
