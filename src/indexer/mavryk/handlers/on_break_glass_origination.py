@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from unicodedata import name
 from dipdup.models import Origination
@@ -11,54 +12,59 @@ async def on_break_glass_origination(
     break_glass_origination: Origination[BreakGlassStorage],
 ) -> None:
 
-    # Get operation values
-    address                             = break_glass_origination.data.originated_contract_address
-    admin                               = break_glass_origination.storage.admin
-    governance_address                  = break_glass_origination.storage.governanceAddress
-    threshold                           = int(break_glass_origination.storage.config.threshold)
-    action_expiry_days                  = int(break_glass_origination.storage.config.actionExpiryDays)
-    council_member_name_max_length      = int(break_glass_origination.storage.config.councilMemberNameMaxLength)
-    council_member_website_max_length   = int(break_glass_origination.storage.config.councilMemberWebsiteMaxLength)
-    council_member_image_max_length     = int(break_glass_origination.storage.config.councilMemberImageMaxLength)
-    glass_broken                        = break_glass_origination.storage.glassBroken
-    action_counter                      = break_glass_origination.storage.actionCounter
-    council_members                     = break_glass_origination.storage.councilMembers
-    timestamp                           = break_glass_origination.data.timestamp
-
-    # Persist contract metadata
-    await persist_contract_metadata(
-        ctx=ctx,
-        contract_address=address
-    )
+    try:
+        # Get operation values
+        address                             = break_glass_origination.data.originated_contract_address
+        admin                               = break_glass_origination.storage.admin
+        governance_address                  = break_glass_origination.storage.governanceAddress
+        threshold                           = int(break_glass_origination.storage.config.threshold)
+        action_expiry_days                  = int(break_glass_origination.storage.config.actionExpiryDays)
+        council_member_name_max_length      = int(break_glass_origination.storage.config.councilMemberNameMaxLength)
+        council_member_website_max_length   = int(break_glass_origination.storage.config.councilMemberWebsiteMaxLength)
+        council_member_image_max_length     = int(break_glass_origination.storage.config.councilMemberImageMaxLength)
+        glass_broken                        = break_glass_origination.storage.glassBroken
+        action_counter                      = break_glass_origination.storage.actionCounter
+        council_members                     = break_glass_origination.storage.councilMembers
+        timestamp                           = break_glass_origination.data.timestamp
     
-    # Get or create governance record
-    governance, _ = await models.Governance.get_or_create(address=governance_address)
-    await governance.save();
-
-    # Create record
-    break_glass  = models.BreakGlass(
-        address                             = address,
-        admin                               = admin,
-        last_updated_at                     = timestamp,
-        governance                          = governance,
-        threshold                           = threshold,
-        action_expiry_days                  = action_expiry_days,
-        council_member_name_max_length      = council_member_name_max_length,
-        council_member_website_max_length   = council_member_website_max_length,
-        council_member_image_max_length     = council_member_image_max_length,
-        glass_broken                        = glass_broken,
-        action_counter                      = action_counter,
-    )
-    await break_glass.save()
-
-    for member_address in council_members:
-        user                = await models.mavryk_user_cache.get(address=member_address)
-        memberInfo          = council_members[member_address]
-        council_member      = await models.BreakGlassCouncilMember(
-            user        = user,
-            break_glass = break_glass,
-            name        = memberInfo.name,
-            website     = memberInfo.website,
-            image       = memberInfo.image
+        # Persist contract metadata
+        await persist_contract_metadata(
+            ctx=ctx,
+            contract_address=address
         )
-        await council_member.save()
+        
+        # Get or create governance record
+        governance, _ = await models.Governance.get_or_create(address=governance_address)
+        await governance.save();
+    
+        # Create record
+        break_glass  = models.BreakGlass(
+            address                             = address,
+            admin                               = admin,
+            last_updated_at                     = timestamp,
+            governance                          = governance,
+            threshold                           = threshold,
+            action_expiry_days                  = action_expiry_days,
+            council_member_name_max_length      = council_member_name_max_length,
+            council_member_website_max_length   = council_member_website_max_length,
+            council_member_image_max_length     = council_member_image_max_length,
+            glass_broken                        = glass_broken,
+            action_counter                      = action_counter,
+        )
+        await break_glass.save()
+    
+        for member_address in council_members:
+            user                = await models.mavryk_user_cache.get(address=member_address)
+            memberInfo          = council_members[member_address]
+            council_member      = await models.BreakGlassCouncilMember(
+                user        = user,
+                break_glass = break_glass,
+                name        = memberInfo.name,
+                website     = memberInfo.website,
+                image       = memberInfo.image
+            )
+            await council_member.save()
+
+    except BaseException as e:
+         await save_error_report(e)
+

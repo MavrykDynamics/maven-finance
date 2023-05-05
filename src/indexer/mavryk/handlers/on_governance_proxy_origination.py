@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
@@ -10,27 +11,32 @@ async def on_governance_proxy_origination(
     governance_proxy_origination: Origination[GovernanceProxyStorage],
 ) -> None:
 
-    # Get operation values
-    governance_proxy_address    = governance_proxy_origination.data.originated_contract_address
-    admin_address               = governance_proxy_origination.storage.admin
-    governance_address          = governance_proxy_origination.storage.governanceAddress
-    timestamp                   = governance_proxy_origination.data.timestamp
-
-    # Persist contract metadata
-    await persist_contract_metadata(
-        ctx=ctx,
-        contract_address=governance_proxy_address
-    )
+    try:
+        # Get operation values
+        governance_proxy_address    = governance_proxy_origination.data.originated_contract_address
+        admin_address               = governance_proxy_origination.storage.admin
+        governance_address          = governance_proxy_origination.storage.governanceAddress
+        timestamp                   = governance_proxy_origination.data.timestamp
     
-    # Create record
-    governance, _               = await models.Governance.get_or_create(
-        address = governance_address
-    )
-    await governance.save()
-    governance_proxy            = models.GovernanceProxy(
-        address             = governance_proxy_address,
-        admin               = admin_address,
-        last_updated_at     = timestamp,
-        governance          = governance
-    )
-    await governance_proxy.save()
+        # Persist contract metadata
+        await persist_contract_metadata(
+            ctx=ctx,
+            contract_address=governance_proxy_address
+        )
+        
+        # Create record
+        governance, _               = await models.Governance.get_or_create(
+            address = governance_address
+        )
+        await governance.save()
+        governance_proxy            = models.GovernanceProxy(
+            address             = governance_proxy_address,
+            admin               = admin_address,
+            last_updated_at     = timestamp,
+            governance          = governance
+        )
+        await governance_proxy.save()
+
+    except BaseException as e:
+         await save_error_report(e)
+

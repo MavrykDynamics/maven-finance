@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
@@ -10,18 +11,23 @@ async def on_aggregator_factory_untrack_aggregator(
     untrack_aggregator: Transaction[UntrackAggregatorParameter, AggregatorFactoryStorage],
 ) -> None:
 
-    # Get operation info
-    aggregator_factory_address  = untrack_aggregator.data.target_address
-    aggregator_address          = untrack_aggregator.parameter.__root__
+    try:
+        # Get operation info
+        aggregator_factory_address  = untrack_aggregator.data.target_address
+        aggregator_address          = untrack_aggregator.parameter.__root__
+    
+        # Update record
+        aggregator_factory          = await models.AggregatorFactory.get(
+            address             = aggregator_factory_address
+        )
+        aggregator                  = await models.Aggregator.get_or_none(
+            factory             = aggregator_factory,
+            address             = aggregator_address
+        )
+        if aggregator:    
+            aggregator.factory          = None
+            await aggregator.save()
 
-    # Update record
-    aggregator_factory          = await models.AggregatorFactory.get(
-        address             = aggregator_factory_address
-    )
-    aggregator                  = await models.Aggregator.get_or_none(
-        factory             = aggregator_factory,
-        address             = aggregator_address
-    )
-    if aggregator:    
-        aggregator.factory          = None
-        await aggregator.save()
+    except BaseException as e:
+         await save_error_report(e)
+

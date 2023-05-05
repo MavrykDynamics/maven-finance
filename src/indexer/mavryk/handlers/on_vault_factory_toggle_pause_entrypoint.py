@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.vault_factory.parameter.toggle_pause_entrypoint import TogglePauseEntrypointParameter
 from mavryk.types.vault_factory.storage import VaultFactoryStorage
@@ -10,13 +11,18 @@ async def on_vault_factory_toggle_pause_entrypoint(
     toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, VaultFactoryStorage],
 ) -> None:
 
-    # Get operation info
-    vault_factory_address   = toggle_pause_entrypoint.data.target_address
-    create_vault_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.createVaultIsPaused
+    try:
+        # Get operation info
+        vault_factory_address   = toggle_pause_entrypoint.data.target_address
+        create_vault_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.createVaultIsPaused
+    
+        # Update record
+        vault_factory           = await models.VaultFactory.get(
+            address = vault_factory_address
+        )
+        vault_factory.create_vault_paused   = create_vault_paused
+        await vault_factory.save()
 
-    # Update record
-    vault_factory           = await models.VaultFactory.get(
-        address = vault_factory_address
-    )
-    vault_factory.create_vault_paused   = create_vault_paused
-    await vault_factory.save()
+    except BaseException as e:
+         await save_error_report(e)
+
