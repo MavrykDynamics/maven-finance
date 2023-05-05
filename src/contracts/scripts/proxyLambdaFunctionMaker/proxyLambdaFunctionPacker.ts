@@ -26,7 +26,6 @@ const packLambdaFunction    = async(
         var packedParam;
         if (packed) {
             packedParam = packed.packed
-            console.log(packedParam);
         } else {
             throw `packing failed`
         };
@@ -88,9 +87,6 @@ const compileLambdaFunctionContract = async(
 ) => {
 
     const ligo = getLigo(true, ligoVersion, isAppleSilicon);
-
-    // console.log('show ligo command:');
-    // console.log(`${ligo} compile contract ${contractPath} --michelson-format json --protocol lima --deprecated`);
 
     const jsonFormat = execSync(
         `${ligo} compile contract ${contractPath} --michelson-format json --protocol lima --deprecated`,
