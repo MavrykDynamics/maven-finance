@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
@@ -11,5 +12,10 @@ async def on_treasury_factory_update_general_contracts(
     update_general_contracts: Transaction[UpdateGeneralContractsParameter, TreasuryFactoryStorage],
 ) -> None:
 
-    # Perists general contract
-    await persist_linked_contract(models.TreasuryFactory, models.TreasuryFactoryGeneralContract, update_general_contracts)
+    try:
+        # Perists general contract
+        await persist_linked_contract(models.TreasuryFactory, models.TreasuryFactoryGeneralContract, update_general_contracts)
+
+    except BaseException as e:
+         await save_error_report(e)
+
