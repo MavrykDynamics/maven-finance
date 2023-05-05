@@ -4,10 +4,10 @@
 
 ### Deployment
 
-- DEV: 0.38
-- DEMO: 0.38
-- PROD: 0.38
-- PROD2: 0.38
+- DEV: 0.41
+- STAGING: 0.41
+- PROD: 0.41
+- PROD2: 0.41
 
 ### Updated ERD Model
 
