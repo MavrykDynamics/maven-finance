@@ -43,7 +43,5 @@ class NewLineDumper(yaml.SafeDumper):
         if len(self.indents) == 1:
             super().write_line_break()
 
-# Update all dipdup config files
-for file in listdir("./"):
-    if file.endswith("dipdup.yml"):
-        update_dipdup_config(file)
+# Update dipdup contract config files
+update_dipdup_config("./dipdup.contract.yml")
