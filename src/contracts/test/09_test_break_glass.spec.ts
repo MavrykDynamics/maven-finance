@@ -2661,7 +2661,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 // Initial Values
                 breakGlassStorage  = await breakGlassInstance.storage();
-                const currentAdmin          = breakGlassStorage.admin;
+                const currentAdmin = breakGlassStorage.admin;
 
                 // fail: set admin operation
                 setAdminOperation = await breakGlassInstance.methods.setAdmin(mallory.pkh);
@@ -2669,7 +2669,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage  = await breakGlassInstance.storage();
-                const newAdmin              = breakGlassStorage.admin;
+                const newAdmin     = breakGlassStorage.admin;
 
                 // Assertions
                 assert.strictEqual(newAdmin, currentAdmin);
