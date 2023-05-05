@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_lambda
@@ -11,5 +12,10 @@ async def on_treasury_factory_set_product_lambda(
     set_product_lambda: Transaction[SetProductLambdaParameter, TreasuryFactoryStorage],
 ) -> None:
 
-    # Persist lambda
-    await persist_lambda(models.TreasuryFactory, models.TreasuryFactoryTreasuryLambda, set_product_lambda)
+    try:
+        # Persist lambda
+        await persist_lambda(models.TreasuryFactory, models.TreasuryFactoryTreasuryLambda, set_product_lambda)
+
+    except BaseException as e:
+         await save_error_report(e)
+

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
 from mavryk.utils.persisters import persist_contract_metadata
@@ -10,39 +11,44 @@ async def on_doorman_origination(
     doorman_origination: Origination[DoormanStorage],
 ) -> None:
 
-    # Get operation values
-    doorman_address                 = doorman_origination.data.originated_contract_address
-    admin                           = doorman_origination.storage.admin
-    governance_address              = doorman_origination.storage.governanceAddress
-    min_mvk_amount                  = int(doorman_origination.storage.config.minMvkAmount)
-    unclaimed_rewards               = int(doorman_origination.storage.unclaimedRewards)
-    accumulated_fees_per_share      = int(doorman_origination.storage.accumulatedFeesPerShare)
-    stake_paused                    = doorman_origination.storage.breakGlassConfig.stakeIsPaused
-    unstake_paused                  = doorman_origination.storage.breakGlassConfig.unstakeIsPaused
-    compound_paused                 = doorman_origination.storage.breakGlassConfig.compoundIsPaused
-    timestamp                       = doorman_origination.data.timestamp
-
-    # Persist contract metadata
-    await persist_contract_metadata(
-        ctx=ctx,
-        contract_address=doorman_address
-    )
+    try:
+        # Get operation values
+        doorman_address                 = doorman_origination.data.originated_contract_address
+        admin                           = doorman_origination.storage.admin
+        governance_address              = doorman_origination.storage.governanceAddress
+        min_mvk_amount                  = int(doorman_origination.storage.config.minMvkAmount)
+        unclaimed_rewards               = int(doorman_origination.storage.unclaimedRewards)
+        accumulated_fees_per_share      = int(doorman_origination.storage.accumulatedFeesPerShare)
+        stake_paused                    = doorman_origination.storage.breakGlassConfig.stakeIsPaused
+        unstake_paused                  = doorman_origination.storage.breakGlassConfig.unstakeIsPaused
+        compound_paused                 = doorman_origination.storage.breakGlassConfig.compoundIsPaused
+        timestamp                       = doorman_origination.data.timestamp
     
-    # Get or create governance record
-    governance, _ = await models.Governance.get_or_create(address=governance_address)
-    await governance.save();
+        # Persist contract metadata
+        await persist_contract_metadata(
+            ctx=ctx,
+            contract_address=doorman_address
+        )
+        
+        # Get or create governance record
+        governance, _ = await models.Governance.get_or_create(address=governance_address)
+        await governance.save();
+    
+        # Save Doorman in DB
+        doorman = models.Doorman(
+            address                     = doorman_address,
+            admin                       = admin,
+            last_updated_at             = timestamp,
+            governance                  = governance,
+            min_mvk_amount              = min_mvk_amount,
+            unclaimed_rewards           = unclaimed_rewards,
+            accumulated_fees_per_share  = accumulated_fees_per_share,
+            stake_paused                = stake_paused,
+            unstake_paused              = unstake_paused,
+            compound_paused             = compound_paused
+        )
+        await doorman.save()
 
-    # Save Doorman in DB
-    doorman = models.Doorman(
-        address                     = doorman_address,
-        admin                       = admin,
-        last_updated_at             = timestamp,
-        governance                  = governance,
-        min_mvk_amount              = min_mvk_amount,
-        unclaimed_rewards           = unclaimed_rewards,
-        accumulated_fees_per_share  = accumulated_fees_per_share,
-        stake_paused                = stake_paused,
-        unstake_paused              = unstake_paused,
-        compound_paused             = compound_paused
-    )
-    await doorman.save()
+    except BaseException as e:
+         await save_error_report(e)
+

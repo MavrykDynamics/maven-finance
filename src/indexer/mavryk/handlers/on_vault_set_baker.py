@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.vault.parameter.set_baker import SetBakerParameter
@@ -9,14 +10,19 @@ async def on_vault_set_baker(
     set_baker: Transaction[SetBakerParameter, VaultStorage],
 ) -> None:
 
-    # Get operation info
-    vault_address       = set_baker.data.target_address
-    baker_address       = set_baker.parameter.__root__
+    try:
+        # Get operation info
+        vault_address       = set_baker.data.target_address
+        baker_address       = set_baker.parameter.__root__
+    
+        # Update record
+        vault               = await models.Vault.get(address = vault_address)
+        baker               = None
+        if baker_address:
+            baker   = await models.mavryk_user_cache.get(address=baker_address)
+        vault.baker      = baker
+        await vault.save()
 
-    # Update record
-    vault               = await models.Vault.get(address = vault_address)
-    baker               = None
-    if baker_address:
-        baker   = await models.mavryk_user_cache.get(address=baker_address)
-    vault.baker      = baker
-    await vault.save()
+    except BaseException as e:
+         await save_error_report(e)
+

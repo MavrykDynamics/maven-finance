@@ -62,6 +62,7 @@ class CouncilAction(Model):
     status                                  = fields.IntEnumField(enum_type=ActionStatus, index=True)
     executed                                = fields.BooleanField(default=False, index=True)
     signers_count                           = fields.SmallIntField(default=1)
+    council_size_snapshot                   = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'council_action'

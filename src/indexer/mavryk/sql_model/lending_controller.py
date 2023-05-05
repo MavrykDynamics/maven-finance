@@ -148,6 +148,7 @@ class LendingControllerHistoryData(Model):
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='history_data')
     vault                                   = fields.ForeignKeyField('models.LendingControllerVault', related_name='history_data', null=True)
     loan_token                              = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='history_data', null=True)
+    collateral_token                        = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='history_data', null=True)
     sender                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_history_data_sender', index=True)
     operation_hash                          = fields.CharField(max_length=51)
     timestamp                               = fields.DatetimeField(index=True)

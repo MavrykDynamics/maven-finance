@@ -3,6 +3,7 @@ from mavryk.sql_model.aggregator import *
 from mavryk.sql_model.break_glass import *
 from mavryk.sql_model.council import *
 from mavryk.sql_model.delegation import *
+from mavryk.sql_model.dipdup_exception import *
 from mavryk.sql_model.doorman import *
 from mavryk.sql_model.emergency_governance import *
 from mavryk.sql_model.enums import *

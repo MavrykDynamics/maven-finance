@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_linked_contract
@@ -11,5 +12,10 @@ async def on_aggregator_factory_update_whitelist_contracts(
     update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, AggregatorFactoryStorage],
 ) -> None:
 
-    # Persist whitelist contract
-    await persist_linked_contract(models.AggregatorFactory, models.AggregatorFactoryWhitelistContract, update_whitelist_contracts)
+    try:
+        # Persist whitelist contract
+        await persist_linked_contract(models.AggregatorFactory, models.AggregatorFactoryWhitelistContract, update_whitelist_contracts)
+
+    except BaseException as e:
+         await save_error_report(e)
+

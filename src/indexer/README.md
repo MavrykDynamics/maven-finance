@@ -10,9 +10,9 @@
 
 # Install Python dependencies
 
-1. When Python, poetry, npm and yarn are all installed, run `yarn shell` to init your **virtualenv** (Poetry comes with a preconfigured Python **virtualenv**).
+1. When Python, poetry, npm and yarn are all installed, run `yarn poetry` to init your **virtualenv** (Poetry comes with a preconfigured Python **virtualenv**).
 2. Run `yarn setup-env` to install all the Python dependencies like **dipdup**.
-3. Every time you'll need to run `yarn shell` to start working with dipdup (the dipdup cli will only be installed on this **virtualenv** and not with your others Python packages).
+3. Every time you'll need to run `yarn poetry` to start working with dipdup (the dipdup cli will only be installed on this **virtualenv** and not with your others Python packages).
 
 # Project structure explanation
 
@@ -27,9 +27,10 @@
 │   ├── types
 │   └── utils
 ├── .gitignore
-├── dipdup.yml
-├── local.dipdup.yml
-├── no-hasura.dipdup.yml
+├── dipdup.contract.yml
+├── dipdup.local.yml
+├── dipdup.prod.yml
+├── dipdup.wipe.yml
 ├── docker-compose.yml
 ├── Dockerfile
 ├── package.json
@@ -44,10 +45,11 @@
 - _docker-compose.yml_: contains the definition of a local test environment for the indexer. Starts a test instance of **Hasura** and a test instance of **TimescaleDB**.
 - _.gitignore_: ignored files for the git repo.
 - _README.md_: yes, that's this file.
-- _\*.dipdup.yml_: configuration file needed for dipdup to the project file structure and what to index. ([See documentation here](https://dipdup.net/docs/getting-started/creating-config.html)):
-  - _local.dipdup.yml_: You should only edit this file when implementing updates for the indexer. After all your tests are done, simply run `yarn replicate-config` to replicate the changes you made to this file to the other two config files.
-  - _dipdup.yml_: Configuration file used by the indexer when deployed
-  - _no-hasura.dipdup.yml_: Same as above but without the hasura configuration in it. Used in the Github CI when wiping one indexer's database before running a full sync.
+- _dipdup.\*.yml_: configuration file needed for dipdup to the project file structure and what to index. ([See documentation here](https://dipdup.net/docs/getting-started/creating-config.html)):
+  - _dipdup.yml_: You should only edit this file when implementing updates for the indexer.
+  - _dipdup.local.yml_: Configuration file used by the indexer when used locally
+  - _dipdup.prod.yml_: Configuration file used by the indexer when deployed
+  - _dipdup.wipe.yml_: Same as above but without the hasura configuration in it. Used in the Github CI when wiping one indexer's database before running a full sync.
 - _mavryk_: folder containing all the indexer code. It was generated with the `dipdup init` command and it follows the _dipdup.yml_ configuration file. ([See documentation here](https://dipdup.net/docs/getting-started/project-structure.html))
 
 # Run the indexer locally
