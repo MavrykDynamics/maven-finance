@@ -116,7 +116,7 @@ block {
             "%setAdmin",
             ("${targetContract}": address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_SET_ADMIN_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -137,7 +137,7 @@ block {
             "%setGovernance",
             ("${targetContract}" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_SET_GOVERNANCE_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -158,7 +158,7 @@ block {
             "%setName",
             ("${targetContract}" : address)) : option(contract(string))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(string))
+                |   None        -> (failwith("error_SET_NAME_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -183,7 +183,7 @@ block {
             "%setLambda",
             ("${targetContract}" : address)) : option(contract(setLambdaType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(setLambdaType))
+                |   None        -> (failwith("error_SET_LAMBDA_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -208,7 +208,7 @@ block {
             "%setProductLambda",
             ("${targetContract}" : address)) : option(contract(setLambdaType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(setLambdaType))
+                |   None        -> (failwith("error_SET_PRODUCT_LAMBDA_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -233,7 +233,7 @@ block {
             "%updateMetadata",
             ("${targetContract}" : address)) : option(contract(updateMetadataType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(updateMetadataType))
+                |   None        -> (failwith("error_UPDATE_METADATA_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -260,7 +260,7 @@ block {
             "%updateWhitelistContracts",
             ("${targetContract}" : address)) : option(contract(updateWhitelistContractsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(updateWhitelistContractsType))
+                |   None        -> (failwith("error_UPDATE_WHITELIST_CONTRACTS_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -287,7 +287,7 @@ block {
             "%updateGeneralContracts",
             ("${targetContract}" : address)) : option(contract(updateGeneralContractsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(updateGeneralContractsType))
+                |   None        -> (failwith("error_UPDATE_GENERAL_CONTRACTS_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -314,7 +314,7 @@ block {
             "%updateWhitelistTokenContracts",
             ("${targetContract}" : address)) : option(contract(updateWhitelistTokenContractsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(updateWhitelistTokenContractsType))
+                |   None        -> (failwith("error_UPDATE_WHITELIST_TOKEN_CONTRACTS_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -395,19 +395,23 @@ const updateConfig  = (
             break;
     }
 
+    // console.log(`updateConfigAction: (${updateConfigAction + ':' + ligoConfigActionType})`)
+    // console.log(`updateConfigAction: (${updateConfigAction + "(Unit)" + ':' + ligoConfigActionType})`)
+    // console.log(`updateConfigAction: (${lowercaseFirstLetter(updateConfigAction) + ':' + ligoConfigActionType})`)
+
     return `function lambdaFunction (const _ : unit) : list(operation) is
 block {
     const contractOperation : operation = Tezos.transaction(
         record [
             updateConfigNewValue    = ${updateConfigNewValue}n; 
-            updateConfigAction      = (${updateConfigAction}: ${ligoConfigActionType})
+            updateConfigAction      = (${updateConfigAction + "(Unit)"} : ${ligoConfigActionType})
         ],
         0tez,
         case (Tezos.get_entrypoint_opt(
             "%updateConfig",
             ("${targetContract}" : address)) : option(contract(${ligoReturnType}))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(${ligoReturnType}))
+                |   None        -> (failwith("error_UPDATE_CONFIG_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -427,7 +431,7 @@ block {
             "%pauseAll",
             ("${targetContract}" : address)) : option(contract(unit))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(unit))
+                |   None        -> (failwith("error_PAUSE_ALL_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -447,7 +451,7 @@ block {
             "%unpauseAll",
             ("${targetContract}" : address)) : option(contract(unit))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(unit))
+                |   None        -> (failwith("error_UNPAUSE_ALL_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -520,7 +524,7 @@ block {
             "%togglePauseEntrypoint",
             ("${targetContract}" : address)) : option(contract(${ligoReturnType}))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(${ligoReturnType}))
+                |   None        -> (failwith("error_TOGGLE_PAUSE_ENTRYPOINT_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -541,7 +545,7 @@ block {
             "%updateWhitelistDevelopers",
             ("${targetContract}" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_UPDATE_WHITELIST_DEVELOPERS_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -562,7 +566,7 @@ block {
             "%setGovernanceProxy",
             ("${targetContract}" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_SET_GOVERNANCE_PROXY_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -607,7 +611,7 @@ block {
             "%createFarm",
             ("${targetContract}" : address)) : option(contract(createFarmType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(createFarmType))
+                |   None        -> (failwith("error_CREATE_FARM_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -636,7 +640,7 @@ block {
             "%initFarm",
             ("${targetContract}" : address)) : option(contract(initFarmParamsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(initFarmParamsType))
+                |   None        -> (failwith("error_INIT_FARM_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -656,7 +660,7 @@ block {
             "%closeFarm",
             ("${targetContract}" : address)) : option(contract(unit))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(unit))
+                |   None        -> (failwith("error_CLOSE_FARM_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -685,7 +689,7 @@ block {
             "%createTreasury",
             ("${targetContract}" : address)) : option(contract(createTreasuryType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(createTreasuryType))
+                |   None        -> (failwith("error_CREATE_TREASURY_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -740,7 +744,7 @@ block {
             "%transfer",
             ("${targetContract}" : address)) : option(contract(transferActionType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(transferActionType))
+                |   None        -> (failwith("error_TRANSFER_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -765,7 +769,7 @@ block {
             "%mintMvkAndTransfer",
             ("${targetContract}" : address)) : option(contract(mintMvkAndTransferType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(mintMvkAndTransferType))
+                |   None        -> (failwith("error_MINT_MVK_AND_TRANSFER_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -814,7 +818,7 @@ block {
             "%updateMvkOperators",
             ("${targetContract}" : address)) : option(contract(updateOperatorsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(updateOperatorsType))
+                |   None        -> (failwith("error_UPDATE_MVK_OPERATORS_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -835,7 +839,7 @@ block {
             "%stakeMvk",
             ("${targetContract}" : address)) : option(contract(nat))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(nat))
+                |   None        -> (failwith("error_STAKE_MVK_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -856,7 +860,7 @@ block {
             "%unstakeMvk",
             ("${targetContract}" : address)) : option(contract(nat))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(nat))
+                |   None        -> (failwith("error_UNSTAKE_MVK_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -911,7 +915,7 @@ block {
             "%createAggregator",
             ("${targetContract}" : address)) : option(contract(createAggregatorParamsType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(createAggregatorParamsType))
+                |   None        -> (failwith("error_CREATE_AGGREGATOR_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -933,7 +937,7 @@ block {
             "%updateInflationRate",
             ("${targetContract}" : address)) : option(contract(nat))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(nat))
+                |   None        -> (failwith("error_UPDATE_INFLATION_RATE_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -953,7 +957,7 @@ block {
             "%triggerInflation",
             ("${targetContract}" : address)) : option(contract(unit))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(unit))
+                |   None        -> (failwith("error_TRIGGER_INFLATION_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -990,7 +994,7 @@ block {
             "${trackEntrypoint}",
             ("${targetContract}" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_TRACK_CONTRACT_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -1027,7 +1031,7 @@ block {
             "${trackEntrypoint}",
             ("${targetContract}" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_UNTRACK_CONTRACT_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -1056,7 +1060,7 @@ block {
             "%addVestee",
             ("${targetContract}" : address)) : option(contract(addVesteeType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(addVesteeType))
+                |   None        -> (failwith("error_ADD_VESTEE_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -1077,7 +1081,7 @@ block {
             "%removeVestee",
             ("${targetContract}" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_REMOVE_VESTEE_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -1106,7 +1110,7 @@ block {
             "%updateVestee",
             ("${targetContract}" : address)) : option(contract(updateVesteeType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(updateVesteeType))
+                |   None        -> (failwith("error_UPDATE_VESTEE_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -1127,7 +1131,7 @@ block {
             "%toggleVesteeLock",
             ("${targetContract}" : address)) : option(contract(address))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(address))
+                |   None        -> (failwith("error_TOGGLE_VESTEE_LOCK_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -1213,7 +1217,7 @@ block {
             "%setLoanToken",
             ("${targetContract}" : address)) : option(contract(setLoanTokenActionType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(setLoanTokenActionType))
+                |   None        -> (failwith("error_SET_LOAN_TOKEN_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
@@ -1292,7 +1296,7 @@ block {
             "%setCollateralToken",
             ("${targetContract}" : address)) : option(contract(setCollateralTokenActionType))) of [
                     Some(contr) -> contr
-                |   None        -> (failwith(0n) : contract(setCollateralTokenActionType))
+                |   None        -> (failwith("error_SET_COLLATERAL_TOKEN_THROUGH_PROXY_LAMBDA_FAIL"))
         ]
     );
 } with list[contractOperation]`
