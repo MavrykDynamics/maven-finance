@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -9,19 +10,24 @@ async def on_doorman_update_config(
     ctx: HandlerContext,
     update_config: Transaction[UpdateConfigParameter, DoormanStorage],
 ) -> None:
-    
-    # Get operation values
-    doorman_address         = update_config.data.target_address
-    updated_value           = int(update_config.parameter.updateConfigNewValue)
-    update_config_action    = type(update_config.parameter.updateConfigAction)
-    timestamp               = update_config.data.timestamp
 
-    # Update contract
-    doorman                 = await models.Doorman.get(
-        address = doorman_address
-    )
-    doorman.last_updated_at = timestamp
-    if update_config_action == configMinMvkAmount:
-        doorman.min_mvk_amount  = updated_value
+    try:    
+        # Get operation values
+        doorman_address         = update_config.data.target_address
+        updated_value           = int(update_config.parameter.updateConfigNewValue)
+        update_config_action    = type(update_config.parameter.updateConfigAction)
+        timestamp               = update_config.data.timestamp
     
-    await doorman.save()
+        # Update contract
+        doorman                 = await models.Doorman.get(
+            address = doorman_address
+        )
+        doorman.last_updated_at = timestamp
+        if update_config_action == configMinMvkAmount:
+            doorman.min_mvk_amount  = updated_value
+        
+        await doorman.save()
+
+    except BaseException as e:
+         await save_error_report(e)
+
