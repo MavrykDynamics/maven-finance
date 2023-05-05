@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_lambda
@@ -11,5 +12,10 @@ async def on_emergency_governance_set_lambda(
     set_lambda: Transaction[SetLambdaParameter, EmergencyGovernanceStorage],
 ) -> None:
 
-    # Persist lambda
-    await persist_lambda(models.EmergencyGovernance, models.EmergencyGovernanceLambda, set_lambda)
+    try:
+        # Persist lambda
+        await persist_lambda(models.EmergencyGovernance, models.EmergencyGovernanceLambda, set_lambda)
+
+    except BaseException as e:
+         await save_error_report(e)
+

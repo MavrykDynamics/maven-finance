@@ -61,7 +61,7 @@ class TreasuryBalance(Model):
     token_address                           = fields.CharField(max_length=36, default="", index=True)
     token_id                                = fields.SmallIntField(null=True)
     token_standard                          = fields.CharField(max_length=4, null=True)
-    tzkt_token_id                           = fields.BigIntField(default=0)
+    tzkt_token_id                           = fields.BigIntField(null=True)
     balance                                 = fields.FloatField(default=0.0)
     metadata                                = fields.JSONField(null=True)
 

@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.farm_factory.storage import FarmFactoryStorage
 from dipdup.context import HandlerContext
@@ -10,13 +11,18 @@ async def on_farm_factory_unpause_all(
     unpause_all: Transaction[UnpauseAllParameter, FarmFactoryStorage],
 ) -> None:
 
-    # Get operation info
-    farm_factory_address    = unpause_all.data.target_address
-    farm_factory            = await models.FarmFactory.get(address=farm_factory_address)
+    try:
+        # Get operation info
+        farm_factory_address    = unpause_all.data.target_address
+        farm_factory            = await models.FarmFactory.get(address=farm_factory_address)
+    
+        # Update record
+        farm_factory.create_farm_paused         = unpause_all.storage.breakGlassConfig.createFarmIsPaused
+        farm_factory.create_farm_m_token_paused = unpause_all.storage.breakGlassConfig.createFarmMTokenIsPaused
+        farm_factory.track_farm_paused          = unpause_all.storage.breakGlassConfig.trackFarmIsPaused
+        farm_factory.untrack_farm_paused        = unpause_all.storage.breakGlassConfig.untrackFarmIsPaused
+        await farm_factory.save()
 
-    # Update record
-    farm_factory.create_farm_paused         = unpause_all.storage.breakGlassConfig.createFarmIsPaused
-    farm_factory.create_farm_m_token_paused = unpause_all.storage.breakGlassConfig.createFarmMTokenIsPaused
-    farm_factory.track_farm_paused          = unpause_all.storage.breakGlassConfig.trackFarmIsPaused
-    farm_factory.untrack_farm_paused        = unpause_all.storage.breakGlassConfig.untrackFarmIsPaused
-    await farm_factory.save()
+    except BaseException as e:
+         await save_error_report(e)
+
