@@ -156,7 +156,7 @@ block {
     const getStakedMvkSnapshotOptView : option (nat) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
     const stakedMvkTotalSupply: nat = case getStakedMvkSnapshotOptView of [
             Some (value) -> value
-        |   None         -> (failwith(error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : nat)
+        |   None         -> (failwith(error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : nat)
     ];
 
 } with stakedMvkTotalSupply 
