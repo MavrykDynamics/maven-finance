@@ -263,3 +263,35 @@ export const calcRewardsPerShareAfterDistributeRewards = (rewardAmount : number,
 
     return incrementRewardsPerShare
 } 
+
+
+
+export const calcTotalVotingPower = (delegationRatio : number, satelliteStakedMvkBalance : number, satelliteTotalDelegatedAmount : number) => {
+
+    var totalVotingPower    = 0;
+    var maxTotalVotingPower = 0;
+
+    if(delegationRatio == 0){
+        maxTotalVotingPower = satelliteStakedMvkBalance * 10000;
+    } else {
+        maxTotalVotingPower = Math.floor((satelliteStakedMvkBalance * 10000) / delegationRatio);
+    };
+
+    const mvkBalanceAndTotalDelegatedAmount = satelliteStakedMvkBalance + satelliteTotalDelegatedAmount;
+
+    if(mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower){
+        totalVotingPower = maxTotalVotingPower;
+    } else {
+        totalVotingPower = mvkBalanceAndTotalDelegatedAmount;
+    };
+
+    return totalVotingPower;
+}
+
+
+
+export const calcStakedMvkRequiredForFinancialRequestApproval = (totalStakedMvkSupply : number, financialRequestApprovalPercentage : number, financialRequestPercentageDecimals : number) => {
+    const stakedMvkRequiredForApproval = Math.floor((totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals));
+    return stakedMvkRequiredForApproval
+}
+
