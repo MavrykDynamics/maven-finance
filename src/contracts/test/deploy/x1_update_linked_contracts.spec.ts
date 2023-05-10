@@ -127,14 +127,14 @@ describe('Linked contracts updates for Tests', async () => {
                     from_: bob.pkh,
                     txs: [
                         {
-                        to_: contractDeployments.treasury.address,
-                        token_id: 0,
-                        amount: MVK(6000),
+                            to_: contractDeployments.treasury.address,
+                            token_id: 0,
+                            amount: MVK(6000),
                         },
                         {
-                        to_: contractDeployments.council.address,
-                        token_id: 0,
-                        amount: MVK(15),
+                            to_: contractDeployments.council.address,
+                            token_id: 0,
+                            amount: MVK(15),
                         }
                     ],
                     },
