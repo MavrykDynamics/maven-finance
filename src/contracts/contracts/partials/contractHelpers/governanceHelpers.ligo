@@ -1193,12 +1193,6 @@ block {
     const minQuorumStakedMvkTotal : nat  = (stakedMvkTotalSupply * s.config.minQuorumPercentage) / 10000n ;
 
     // ------------------------------------------------------------------
-    // Save staked MVK Total supply to governance cycle counter
-    // ------------------------------------------------------------------
-
-    s.stakedMvkSnapshotLedger[s.cycleId] := stakedMvkTotalSupply;
-
-    // ------------------------------------------------------------------
     // Set up new round info
     // ------------------------------------------------------------------
 
@@ -1217,6 +1211,12 @@ block {
 
     // Increase the cycle counter
     s.cycleId      := s.cycleId + 1n;
+
+    // ------------------------------------------------------------------
+    // Save staked MVK Total supply to governance cycle counter
+    // ------------------------------------------------------------------
+
+    s.stakedMvkSnapshotLedger[s.cycleId] := stakedMvkTotalSupply;
 
 } with (s)
 
