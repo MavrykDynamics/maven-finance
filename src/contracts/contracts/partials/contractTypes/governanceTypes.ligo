@@ -118,7 +118,7 @@ type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     accumulatedRewardsPerShare  : nat;      // log satellite's accumulated rewards per share
     ready                       : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
 ]
-type snapshotLedgerType is big_map ((nat*address), governanceSatelliteSnapshotRecordType); // (cycleId * satelliteAddress -> snapshot)
+type snapshotLedgerType is big_map ((nat * address), governanceSatelliteSnapshotRecordType); // (cycleId * satelliteAddress -> snapshot)
 
 
 type stakedMvkSnapshotLedgerType is big_map(nat, nat); // cycleId -> staked MVK total supply

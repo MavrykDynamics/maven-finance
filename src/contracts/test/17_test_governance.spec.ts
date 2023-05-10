@@ -129,11 +129,11 @@ describe("Governance tests", async () => {
             await utils.init(bob.sk);
             tezos = utils.tezos
 
-            admin   = bob.pkh;
-            adminSk = bob.sk;
+            admin                       = bob.pkh;
+            adminSk                     = bob.sk;
 
-            user    = mallory.pkh;
-            userSk  = mallory.sk;
+            user                        = mallory.pkh;
+            userSk                      = mallory.sk;
 
             doormanAddress              = contractDeployments.doorman.address;
             governanceAddress           = contractDeployments.governance.address;
@@ -304,6 +304,8 @@ describe("Governance tests", async () => {
             mockPackedLambdaData.updateDoormanConfig    = doormanLambdaFunction;
             mockPackedLambdaData.updateDelegationConfig = delegationLambdaFunction;
             mockPackedLambdaData.updateCouncilConfig    = councilLambdaFunction;
+
+            // todo: add test for nay votes majority should not pass
 
         } catch (e) {
             console.dir(e, {depth: 5})
