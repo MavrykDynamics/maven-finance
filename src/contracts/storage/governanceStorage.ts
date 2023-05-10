@@ -60,9 +60,8 @@ export const governanceStorage: governanceStorageType = {
     stakedMvkSnapshotLedger : MichelsonMap.fromLiteral({}),
     snapshotLedger          : MichelsonMap.fromLiteral({}),
 
-    // startLevel              : new BigNumber(1),
     nextProposalId          : new BigNumber(1),
-    cycleId                 : new BigNumber(1),
+    cycleId                 : new BigNumber(0),
 
     currentCycleInfo        : {
         round                     : { proposal: null },
