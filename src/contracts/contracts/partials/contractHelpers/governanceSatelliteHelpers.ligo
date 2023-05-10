@@ -233,10 +233,13 @@ block {
 function getStakedMvkSnapshotTotalSupply(const currentCycleId : nat; const s : governanceSatelliteStorageType) : nat is 
 block {
 
-    const getStakedMvkSnapshotOptView : option (nat) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
-    const stakedMvkTotalSupply: nat = case getStakedMvkSnapshotOptView of [
-            Some (value) -> value
-        |   None         -> (failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : nat)
+    const getStakedMvkSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
+    const stakedMvkTotalSupply : nat = case getStakedMvkSnapshotOptView of [
+            Some (_view)  -> case _view of [
+                    Some(_value) -> _value
+                |   None         -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
+            ]
+        |   None          -> failwith(error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
 } with stakedMvkTotalSupply 
