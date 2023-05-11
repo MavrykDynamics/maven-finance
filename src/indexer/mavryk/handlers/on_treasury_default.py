@@ -26,9 +26,9 @@ async def on_treasury_default(
         # Create the XTZ token record
         token, _            = await models.Token.get_or_create(
             token_address       = token_address,
-            metadata            = metadata,
             network             = ctx.datasource.network
         )
+        token.metadata      = metadata
         await token.save()
 
         # Update records
