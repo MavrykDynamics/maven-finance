@@ -31,12 +31,14 @@ async def on_lending_controller_mock_time_remove_liquidity(
         loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
         loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)
         loan_token_address                      = None
+        loan_token_id                           = 0
         
         # Loan Token attributes
         if type(loan_token_type_storage) == fa12:
             loan_token_address  = loan_token_type_storage.fa12
         elif type(loan_token_type_storage) == fa2:
             loan_token_address  = loan_token_type_storage.fa2.tokenContractAddress
+            loan_token_id       = int(loan_token_type_storage.fa2.tokenId)
         elif type(loan_token_type_storage) == tez:
             loan_token_address  = "XTZ"
 
@@ -44,8 +46,9 @@ async def on_lending_controller_mock_time_remove_liquidity(
         if loan_token_address:
             # Get the related token
             token, _                                = await models.Token.get_or_create(
+                network             = ctx.datasource.network,
                 token_address       = loan_token_address,
-                network             = ctx.datasource.network
+                token_id            = loan_token_id
             )
             await token.save()
     
