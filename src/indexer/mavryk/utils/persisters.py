@@ -242,6 +242,7 @@ async def persist_financial_request(ctx, action):
 
             # Get the related token
             token, _         = await models.Token.get_or_create(
+                network         = ctx.datasource.network,
                 token_address   = token_contract_address,
                 token_id        = token_id
             )
@@ -401,6 +402,7 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
     if entrypoint_name == "updateWhitelistTokenContracts":
         # Get the related token
         token, _                = await models.Token.get_or_create(
+            network         = ctx.datasource.network,
             token_address   = contract_address
         )
         await token.save()
