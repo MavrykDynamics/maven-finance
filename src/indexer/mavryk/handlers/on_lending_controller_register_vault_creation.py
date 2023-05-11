@@ -43,7 +43,7 @@ async def on_lending_controller_register_vault_creation(
             vault_internal_id                       = int(vault_storage.key.id)
             loan_token_storage                      = register_vault_creation.storage.loanTokenLedger[vault_loan_token_name]
             loan_token_type_storage                 = loan_token_storage.tokenType
-            loan_token_address                      = ""
+            loan_token_address                      = None
     
             # Get loan token address
             if type(loan_token_type_storage) == fa12:
@@ -52,10 +52,19 @@ async def on_lending_controller_register_vault_creation(
                 loan_token_address          = loan_token_type_storage.fa2.tokenContractAddress
             elif type(loan_token_type_storage) == tez:
                 loan_token_address          = "XTZ"
+
+            token                                   = None
+            if loan_token_address:
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    token_address       = loan_token_address,
+                    network             = ctx.datasource.network
+                )
+                await token.save()
     
             lending_controller_loan_token           = await models.LendingControllerLoanToken.filter(
                 lending_controller  = lending_controller,
-                loan_token_address  = loan_token_address,
+                loan_token          = token,
                 loan_token_name     = vault_loan_token_name
             ).first()
             vault, _                                = await models.Vault.get_or_create(

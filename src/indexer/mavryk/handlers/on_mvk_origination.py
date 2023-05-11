@@ -33,10 +33,18 @@ async def on_mvk_origination(
         # Get or create governance record
         governance, _ = await models.Governance.get_or_create(address=governance_address)
         await governance.save();
+
+        # Get the related token
+        token, _            = await models.Token.get_or_create(
+            token_address       = mvk_address,
+            network             = ctx.datasource.network
+        )
+        await token.save()
     
         # Save MVK in DB
         mvk = models.MVKToken(
             address                     = mvk_address,
+            token                       = token,
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,

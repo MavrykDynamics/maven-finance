@@ -82,9 +82,16 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_token(
                 collateral_token_total_deposited        = float(collateral_token_storage.totalDeposited)
                 collateral_token_address                = collateral_token_storage.tokenContractAddress
 
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    token_address       = collateral_token_address,
+                    network             = ctx.datasource.network
+                )
+                await token.save()
+
                 lending_controller_collateral_token     = await models.LendingControllerCollateralToken.filter(
                     lending_controller          = lending_controller,
-                    token_address               = collateral_token_address
+                    collateral_token            = token
                 ).first()
                 lending_controller_collateral_token.total_deposited = collateral_token_total_deposited
                 await lending_controller_collateral_token.save()

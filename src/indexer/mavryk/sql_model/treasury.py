@@ -21,25 +21,26 @@ class Treasury(MavrykContract, Model):
         table = 'treasury'
         
 class TreasuryLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='lambdas')
+    contract                                = fields.ForeignKeyField('models.Treasury', related_name='lambdas')
 
     class Meta:
         table = 'treasury_lambda'
 
 class TreasuryGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.Treasury', related_name='general_contracts')
 
     class Meta:
         table = 'treasury_general_contract'
 
 class TreasuryWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.Treasury', related_name='whitelist_contracts')
 
     class Meta:
         table = 'treasury_whitelist_contract'
 
 class TreasuryWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
-    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
+    contract                                = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts', index=True, null=True)
 
     class Meta:
         table = 'treasury_whitelist_token_contract'
@@ -58,12 +59,10 @@ class TreasuryTransferHistoryData(Model):
 class TreasuryBalance(Model):
     id                                      = fields.BigIntField(pk=True)
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances', index=True)
-    token_address                           = fields.CharField(max_length=36, default="", index=True)
-    token_id                                = fields.SmallIntField(null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances', index=True, null=True)
     token_standard                          = fields.CharField(max_length=4, null=True)
     tzkt_token_id                           = fields.BigIntField(null=True)
     balance                                 = fields.FloatField(default=0.0)
-    metadata                                = fields.JSONField(null=True)
 
     class Meta:
         table = 'treasury_balance'

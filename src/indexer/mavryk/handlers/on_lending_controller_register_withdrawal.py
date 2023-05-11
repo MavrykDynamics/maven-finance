@@ -82,9 +82,17 @@ async def on_lending_controller_register_withdrawal(
                 collateral_token_amount                 = float(vault_collateral_balance_ledger[collateral_token_name])
                 collateral_token_storage                = register_withdrawal.storage.collateralTokenLedger[collateral_token_name]
                 collateral_token_address                = collateral_token_storage.tokenContractAddress 
+
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    token_address       = collateral_token_address,
+                    network             = ctx.datasource.network
+                )
+                await token.save()
+
                 lending_controller_collateral_token     = await models.LendingControllerCollateralToken.filter(
                     lending_controller          = lending_controller,
-                    token_address               = collateral_token_address
+                    collateral_token            = token
                 ).first()
                 lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,

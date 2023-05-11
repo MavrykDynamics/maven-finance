@@ -82,11 +82,20 @@ async def on_lending_controller_mock_time_set_loan_token(
         m_token, _                          = await models.MToken.get_or_create(
             address = loan_token_m_token_address
         )
+
+        # Get the related token
+        token, _                                    = await models.Token.get_or_create(
+            token_address       = loan_token_address,
+            token_id            = loan_token_id,
+            network             = ctx.datasource.network
+        )
+        await token.save()
+    
         await m_token.save()
         lending_controller_loan_token, _    = await models.LendingControllerLoanToken.get_or_create(
             lending_controller  = lending_controller,
             loan_token_name     = loan_token_name,
-            loan_token_address  = loan_token_address,
+            loan_token          = token,
             m_token             = m_token
         )
         lending_controller_loan_token.oracle                                    = oracle
