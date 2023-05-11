@@ -1,10 +1,9 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_token_metadata
 from mavryk.types.lending_controller.parameter.register_deposit import RegisterDepositParameter
 from dipdup.models import Transaction
-from mavryk.types.lending_controller.storage import LendingControllerStorage
+from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem1 as Fa2
 from dateutil import parser
 import mavryk.models as models
 
@@ -20,8 +19,8 @@ async def on_lending_controller_register_deposit(
         level                       = register_deposit.data.level
         operation_hash              = register_deposit.data.hash
         sender_address              = register_deposit.data.initiator_address
-        vault_owner_address         = register_deposit.parameter.handle.owner
         collateral_token_name       = register_deposit.parameter.tokenName
+        vault_owner_address         = register_deposit.parameter.handle.owner
         vault_deposit_amount        = float(register_deposit.parameter.amount)
         vault_internal_id           = int(register_deposit.parameter.handle.id)
         vaults_storage              = register_deposit.storage.vaults
@@ -83,8 +82,14 @@ async def on_lending_controller_register_deposit(
                 collateral_token_storage                = register_deposit.storage.collateralTokenLedger[collateral_token_name]
                 collateral_token_address                = collateral_token_storage.tokenContractAddress
 
+                # Get token id
+                token_id                                = 0
+                if type(collateral_token_storage.tokenType) == Fa2:
+                    token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
+
                 # Get the related token
                 token, _                                = await models.Token.get_or_create(
+                    token_id            = token_id,
                     token_address       = collateral_token_address,
                     network             = ctx.datasource.network
                 )

@@ -31,9 +31,9 @@ async def on_treasury_token_transfer_receiver(
         token, _            = await models.Token.get_or_create(
             token_address       = token_address,
             token_id            = token_id,
-            metadata            = metadata,
             network             = ctx.datasource.network
         )
+        token.metadata      = metadata
         await token.save()
     
         # Update records
