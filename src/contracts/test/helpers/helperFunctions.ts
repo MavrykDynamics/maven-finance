@@ -290,8 +290,8 @@ export const calcTotalVotingPower = (delegationRatio : number, satelliteStakedMv
 
 
 
-export const calcStakedMvkRequiredForFinancialRequestApproval = (totalStakedMvkSupply : number, financialRequestApprovalPercentage : number, financialRequestPercentageDecimals : number) => {
-    const stakedMvkRequiredForApproval = Math.floor((totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals));
+export const calcStakedMvkRequiredForActionApproval = (totalStakedMvkSupply : number, approvalPercentage : number, percentageDecimals : number) => {
+    const stakedMvkRequiredForApproval = Math.floor((totalStakedMvkSupply * approvalPercentage) / (10 ** percentageDecimals));
     return stakedMvkRequiredForApproval
 }
 
