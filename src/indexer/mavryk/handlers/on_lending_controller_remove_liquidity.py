@@ -29,7 +29,7 @@ async def on_lending_controller_remove_liquidity(
         loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
         loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
         loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)
-        loan_token_address                      = ""
+        loan_token_address                      = None
         
         # Loan Token attributes
         if type(loan_token_type_storage) == fa12:
@@ -38,6 +38,15 @@ async def on_lending_controller_remove_liquidity(
             loan_token_address  = loan_token_type_storage.fa2.tokenContractAddress
         elif type(loan_token_type_storage) == tez:
             loan_token_address  = "XTZ"
+
+        token                                   = None
+        if loan_token_address:
+            # Get the related token
+            token, _                                = await models.Token.get_or_create(
+                token_address       = loan_token_address,
+                network             = ctx.datasource.network
+            )
+            await token.save()
     
         # Create / Update record
         lending_controller                      = await models.LendingController.get(
@@ -46,7 +55,7 @@ async def on_lending_controller_remove_liquidity(
         )
         lending_controller_loan_token           = await models.LendingControllerLoanToken.filter(
             lending_controller  = lending_controller,
-            loan_token_address  = loan_token_address,
+            loan_token          = token,
             loan_token_name     = loan_token_name
         ).first()
         lending_controller_loan_token.token_pool_total          = loan_token_token_pool_total

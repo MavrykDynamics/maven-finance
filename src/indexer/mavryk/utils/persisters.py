@@ -11,26 +11,21 @@ async def persist_token_metadata(ctx, token_address, token_id='0'):
     metadata_datasource_name    = 'metadata_' + network.lower()
     metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
     token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
-    if token_metadata:
-        await ctx.update_token_metadata(
-            network     = network,
-            address     = token_address,
-            token_id    = token_id,
-            metadata    = token_metadata
-        )
-    else:
+
+    if not token_metadata:
         # TODO: Remove in prod
         # Check for mainnet as well
         metadata_datasource_name    = 'metadata_mainnet'
         metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
         token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
-        if token_metadata:
-            await ctx.update_token_metadata(
-                network     = "mainnet",
-                address     = token_address,
-                token_id    = token_id,
-                metadata    = token_metadata
-            )
+
+    token, _        = await models.Token.get_or_create(
+        network         = network,
+        token_address   = token_address,
+        token_id        = token_id
+    )
+    token.metadata  = token_metadata
+    await token.save()
 
 async def persist_contract_metadata(ctx, contract_address):
     network                     = ctx.datasource.network
@@ -221,9 +216,7 @@ async def persist_financial_request(ctx, action):
             executed                        = requestRecordStorage.executed
             token_contract_address          = requestRecordStorage.tokenContractAddress
             token_amount                    = float(requestRecordStorage.tokenAmount)
-            token_name                      = requestRecordStorage.tokenName
             token_id                        = int(requestRecordStorage.tokenId)
-            token_type                      = requestRecordStorage.tokenType
             key_hash                        = requestRecordStorage.keyHash
             request_purpose                 = requestRecordStorage.requestPurpose
             yay_vote_smvk_total             = float(requestRecordStorage.yayVoteStakedMvkTotal)
@@ -247,6 +240,13 @@ async def persist_financial_request(ctx, action):
                 token_id=str(token_id)
             )
 
+            # Get the related token
+            token, _         = await models.Token.get_or_create(
+                token_address   = token_contract_address,
+                token_id        = token_id
+            )
+            await token.save()
+
             requester               = await models.mavryk_user_cache.get(address=requesterAddress)
             requestRecord           = models.GovernanceFinancialRequest(
                 internal_id                     = int(requestID),
@@ -257,7 +257,7 @@ async def persist_financial_request(ctx, action):
                 status                          = statusType,
                 key_hash                        = key_hash,
                 executed                        = executed,
-                token_address                   = token_contract_address,
+                token                           = token,
                 token_amount                    = token_amount,
                 request_purpose                 = request_purpose,
                 yay_vote_smvk_total             = yay_vote_smvk_total,
@@ -396,6 +396,17 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
     )
     linked_contract.contract_address        = contract_address
     linked_contract.token_contract_standard = tzip
+
+    # Save the whitelist token
+    if entrypoint_name == "updateWhitelistTokenContracts":
+        # Get the related token
+        token, _                = await models.Token.get_or_create(
+            token_address   = contract_address
+        )
+        await token.save()
+
+        # Update the contract record
+        linked_contract.token   = token
 
     if contract_in_storage:
         await linked_contract.save()

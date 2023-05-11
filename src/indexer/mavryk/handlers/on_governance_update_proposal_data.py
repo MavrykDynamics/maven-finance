@@ -81,6 +81,14 @@ async def on_governance_update_proposal_data(
                     token_address=token_address,
                     token_id=str(token_id)
                 )
+
+                # Get the related token
+                token, _                         = await models.Token.get_or_create(
+                    token_address       = token_address,
+                    token_id            = token_id,
+                    network             = ctx.datasource.network
+                )
+                await token.save()
     
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
@@ -88,8 +96,6 @@ async def on_governance_update_proposal_data(
     
                 # Save the payment record
                 payment_data.title              = payment_single_data.title
-                payment_data.token_address      = token_address
-                payment_data.token_id           = token_id
                 payment_data.to_                = receiver
                 payment_data.token_amount       = float(payment_single_data.transaction.amount)
             else:
