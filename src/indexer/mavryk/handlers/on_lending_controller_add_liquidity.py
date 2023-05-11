@@ -30,15 +30,6 @@ async def on_lending_controller_add_liquidity(
         loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
         loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
         loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)
-        loan_token_address                      = ""
-        
-        # Loan Token attributes
-        if type(loan_token_type_storage) == fa12:
-            loan_token_address  = loan_token_type_storage.fa12
-        elif type(loan_token_type_storage) == fa2:
-            loan_token_address  = loan_token_type_storage.fa2.tokenContractAddress
-        elif type(loan_token_type_storage) == tez:
-            loan_token_address  = "XTZ"
     
         # Create / Update record
         lending_controller                      = await models.LendingController.get(
@@ -47,7 +38,6 @@ async def on_lending_controller_add_liquidity(
         )
         lending_controller_loan_token           = await models.LendingControllerLoanToken.filter(
             lending_controller  = lending_controller,
-            loan_token_address  = loan_token_address,
             loan_token_name     = loan_token_name
         ).first()
         lending_controller_loan_token.token_pool_total          = loan_token_token_pool_total

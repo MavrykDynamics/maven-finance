@@ -1,10 +1,19 @@
 from collections import OrderedDict
 from dipdup.models import Model, fields
-from mavryk.sql_model.enums import TokenType
 
 ###
 # Shared Tables
 ###
+
+class Token(Model):
+    id                                      = fields.BigIntField(pk=True, default=0)
+    network                                 = fields.CharField(max_length=51)
+    token_address                           = fields.CharField(max_length=36)
+    token_id                                = fields.SmallIntField(default=0)
+    metadata                                = fields.JSONField(null=True)
+
+    class Meta:
+        table = 'token'
 
 class MavrykUser(Model):
     address                                 = fields.CharField(pk=True, max_length=36)
