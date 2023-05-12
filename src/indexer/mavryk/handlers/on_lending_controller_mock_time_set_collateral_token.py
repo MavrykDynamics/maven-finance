@@ -54,8 +54,11 @@ async def on_lending_controller_mock_time_set_collateral_token(
     
             # Save token contract token standard
             if collateral_token_address[0:3] == 'KT1' and len(collateral_token_address) == 36:
-                contract_summary    = await ctx.datasource.get_contract_summary(address = collateral_token_address,)
-    
+                contract_summary    = None
+                try:
+                    contract_summary    = await ctx.datasource.get_contract_summary(address = collateral_token_address)
+                except BaseException as e:
+                    ...
                 if contract_summary:
                     if 'tzips' in contract_summary:
                         tzips   = contract_summary['tzips']
