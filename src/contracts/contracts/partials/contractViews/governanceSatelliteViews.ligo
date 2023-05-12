@@ -52,9 +52,9 @@
 
 
 
-(* View: get action action initiator *)
-[@view] function getActionsInitiatorOpt(const initiator : address; const s : governanceSatelliteStorageType) : option(set(actionIdType)) is
-    Big_map.find_opt(initiator, s.actionsInitiators)
+(* View: get satellite actions for specified governance cycle *)
+[@view] function getSatelliteActionsOpt(const satelliteActionKey : (nat * address); const s : governanceSatelliteStorageType) : option(set(actionIdType)) is
+    Big_map.find_opt(satelliteActionKey, s.satelliteActions)
 
 
 
