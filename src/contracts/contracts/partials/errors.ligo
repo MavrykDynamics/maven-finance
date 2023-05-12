@@ -951,9 +951,9 @@
 [@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXPIRED                                                               = 685n;
 [@inline] const error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND                                                    = 686n;
 [@inline] const error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND                                                   = 687n;
-[@inline] const error_INITIATOR_ACTIONS_NOT_FOUND                                                                       = 688n;
+[@inline] const error_SATELLITE_ACTIONS_NOT_FOUND                                                                       = 688n;
 
-[@inline] const error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED                                                           = 689n;
+[@inline] const error_MAX_GOVERNANCE_SATELLITE_ACTIONS_REACHED                                                          = 689n;
 
 [@inline] const error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION                                             = 690n;
 [@inline] const error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 691n;
