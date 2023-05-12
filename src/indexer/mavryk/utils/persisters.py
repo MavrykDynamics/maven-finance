@@ -9,15 +9,20 @@ import mavryk.models as models
 async def persist_token_metadata(ctx, token_address, token_id='0'):
     network                     = ctx.datasource.network
     metadata_datasource_name    = 'metadata_' + network.lower()
-    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-    token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
+    token_metadata              = None
 
-    if not token_metadata:
-        # TODO: Remove in prod
-        # Check for mainnet as well
-        metadata_datasource_name    = 'metadata_mainnet'
+    try:
         metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
         token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
+
+        if not token_metadata:
+            # TODO: Remove in prod
+            # Check for mainnet as well
+            metadata_datasource_name    = 'metadata_mainnet'
+            metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+            token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
+    except BaseException as e:
+        ...
 
     token, _        = await models.Token.get_or_create(
         network         = network,
@@ -30,14 +35,24 @@ async def persist_token_metadata(ctx, token_address, token_id='0'):
 async def persist_contract_metadata(ctx, contract_address):
     network                     = ctx.datasource.network
     metadata_datasource_name    = 'metadata_' + network.lower()
-    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-    contract_metadata           = await metadata_datasource.get_contract_metadata(contract_address)
-    if contract_metadata:
-        await ctx.update_contract_metadata(
-            network     = network,
-            address     = contract_address,
-            metadata    = contract_metadata
-        )
+    metadata_datasource         = None
+
+    try:
+        metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+    except BaseException as e:
+        ...
+
+    if metadata_datasource:
+        contract_metadata           = await metadata_datasource.get_contract_metadata(contract_address)
+        if contract_metadata:
+            try:
+                await ctx.update_contract_metadata(
+                    network     = network,
+                    address     = contract_address,
+                    metadata    = contract_metadata
+                )
+            except BaseException as e:
+                ...
 
 ###
 #
@@ -378,9 +393,13 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
 
         # Save whitelist token contract token standard
         if contract_address[0:3] == 'KT1' and len(contract_address) == 36:
-            contract_summary    = await ctx.datasource.get_contract_summary(
-                address = contract_address
-            )
+            contract_summary        = None
+            try:
+                contract_summary    = await ctx.datasource.get_contract_summary(
+                    address = contract_address
+                )
+            except BaseException as e:
+                ...
             if contract_summary:
                 if 'tzips' in contract_summary:
                     tzips   = contract_summary['tzips']
