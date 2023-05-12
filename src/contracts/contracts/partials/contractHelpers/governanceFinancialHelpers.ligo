@@ -204,7 +204,7 @@ block{
     const snapshotStakedMvkTotalSupply : nat = getStakedMvkSnapshotTotalSupply(currentCycleId, s);
 
     // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.approvalPercentage) / 10000);
 
     // ------------------------------------------------------------------
     // Validation Checks 
@@ -248,7 +248,7 @@ block{
 
         governanceCycleId                   = currentCycleId;
         snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
-        stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
+        stakedMvkPercentageForApproval      = s.config.approvalPercentage; 
         stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
 
         requestedDateTime                   = Tezos.get_now();               
