@@ -28,7 +28,6 @@ import {
     mistakenTransferFa2Token,
     updateWhitelistContracts,
     updateGeneralContracts,
-    updateWhitelistTokenContracts,
     calcStakedMvkRequiredForActionApproval, 
     calcTotalVotingPower 
 } from './helpers/helperFunctions'
@@ -76,11 +75,12 @@ describe("Governance Satellite tests", async () => {
 
     let doormanAddress 
     let governanceSatelliteAddress
+    let aggregatorFactoryAddress
     let tokenId = 0
     
     let currentCycle
     let delegationRatio
-    let governanceSatelliteApprovalPercentage
+    let approvalPercentage
     let governanceSatellitePercentageDecimals
 
     let doormanInstance;
@@ -104,6 +104,7 @@ describe("Governance Satellite tests", async () => {
     let updateOperatorsOperation 
     let transferOperation
     let createGovernanceSatelliteActionOperation
+    let dropActionOperation
 
     // housekeeping operations
     let setAdminOperation
@@ -124,20 +125,22 @@ describe("Governance Satellite tests", async () => {
             
             utils = new Utils();
             await utils.init(bob.sk);
+            tezos = utils.tezos
 
             admin   = bob.pkh;
             adminSk = bob.sk;
 
             doormanAddress                  = contractDeployments.doorman.address;
             governanceSatelliteAddress      = contractDeployments.governanceSatellite.address;
+            aggregatorFactoryAddress        = contractDeployments.aggregatorFactory.address;
             
             doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
             mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
             governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
-            governanceSatelliteInstance     = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
+            governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress);
             aggregatorInstance              = await utils.tezos.contract.at(contractDeployments.aggregator.address);
-            aggregatorFactoryInstance       = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+            aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress);
             mavrykFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
     
             doormanStorage                  = await doormanInstance.storage();
@@ -152,8 +155,8 @@ describe("Governance Satellite tests", async () => {
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
             // Initialise variables for financial request calculation
-            governanceSatelliteApprovalPercentage     = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-            governanceSatellitePercentageDecimals     = 4;
+            approvalPercentage                      = governanceSatelliteStorage.config.approvalPercentage;
+            governanceSatellitePercentageDecimals   = 4;
 
             // initialise variables for calculating satellite's total voting power
             delegationRatio = delegationStorage.config.delegationRatio;
@@ -267,40 +270,39 @@ describe("Governance Satellite tests", async () => {
                 aggregatorMetadataBase        // metadata bytes
             ))
 
-          const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
-          await createAggregatorsBatchOperation.confirmation()
+        const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+        await createAggregatorsBatchOperation.confirmation()
 
-          console.log("Aggregators deployed")
+        console.log("Aggregators deployed")
 
-          // Start a new governance cycle to validate all satellites
-          const updateConfigOperation   = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
-          await updateConfigOperation.confirmation();
-          const startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
-          await startNextRoundOperation.confirmation();
+        // Start a new governance cycle to validate all satellites
+        const updateConfigOperation   = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+        await updateConfigOperation.confirmation();
+        
+        const startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+        await startNextRoundOperation.confirmation();
+
         } catch(e) {
             console.dir(e, {depth: 5})
         }
     });
 
-    describe("%suspendSatellite, %restoreSatellite", async () => {
+    describe("Satellite Governance Entrypoints", async () => {
 
         beforeEach("Set signer to satellite one (eve)", async () => {
-
             satellite = satelliteOne
-            
             await signerFactory(tezos, satelliteOneSk)
         });
-
 
         it('%suspendSatellite - satellites should be able to vote and approve a governance action to suspend a satellite', async () => {
             try{        
 
-                // some init constants
+                // init storage
                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
                 delegationStorage              = await delegationInstance.storage();
                 governanceStorage              = await governanceInstance.storage();
 
-                // get initial action ids and counters
+                // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
                 const currentCycle             = governanceStorage.cycleId;
 
@@ -327,7 +329,7 @@ describe("Governance Satellite tests", async () => {
                 const satelliteToBeSuspended   = satelliteFour;
                 const purpose                  = "Test Suspend Satellite";            
     
-                // Satellite Bob creates a governance action - suspend Alice
+                // create governance satellite action
                 createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(
                     satelliteToBeSuspended,
                     purpose
@@ -337,12 +339,12 @@ describe("Governance Satellite tests", async () => {
                 // get updated storage
                 governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
                 const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const initiatorsActions                         = await governanceSatelliteStorage.actionsInitiators.get(satellite);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, governanceSatelliteApprovalPercentage, governanceSatellitePercentageDecimals);
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
     
                 // check details of governance satellite action
                 assert.equal(governanceAction.initiator,                                 satellite);
@@ -356,26 +358,26 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
-                var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
                     
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck = true;
                     }
                 }
-                assert.equal(actionsInitiatorCheck, true)
+                assert.equal(satelliteActionCheck, true)
 
                 // satellites vote and yay governance action
                 await signerFactory(tezos, satelliteOneSk);
-                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForRequest(actionId, "yay").send();
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteTwoSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForRequest(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteThreeSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForRequest(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
     
                 // get updated storage
@@ -383,7 +385,7 @@ describe("Governance Satellite tests", async () => {
                 delegationStorage                         = await delegationInstance.storage();     
 
                 const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const updatedInitiatorsActions            = await governanceSatelliteStorage.actionsInitiators.get(satellite);          
+                const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
                 const suspendedSatelliteRecord            = await delegationStorage.satelliteLedger.get(satelliteToBeSuspended);
                 
                 // check details of financial request snapshot ledger
@@ -408,13 +410,13 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(updatedGovernanceAction.status,                  true);
                 assert.equal(updatedGovernanceAction.executed,                true);
 
-                actionsInitiatorCheck = false
-                for(const i in updatedInitiatorsActions){
-                    if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
+                satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
                     }
                 }
-                assert.equal(actionsInitiatorCheck, false)
+                assert.equal(satelliteActionCheck, false)
 
                 // check that satellite is now suspended
                 assert.equal(suspendedSatelliteRecord.status, "SUSPENDED");
@@ -425,10 +427,10 @@ describe("Governance Satellite tests", async () => {
         });
 
         
-        it('%restoreSatellite - satellites should be able to vote and approve a governance action to restore a satellite', async () => {
-          try{        
+        it('%restoreSatellite - satellites should be able to vote and approve a governance action to restore a suspended satellite', async () => {
+            try{        
 
-                // some init constants
+                // init storage
                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
                 delegationStorage              = await delegationInstance.storage();
                 governanceStorage              = await governanceInstance.storage();
@@ -463,25 +465,24 @@ describe("Governance Satellite tests", async () => {
                 // governance satellite action params
                 const purpose = "Test restore Satellite";            
     
-                // Satellite Bob creates a governance action - restore Alice
-                await signerFactory(tezos, bob.sk);
-                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.restoreSatellite(
                         suspendedSatellite,
                         purpose
                     ).send();
-                await governanceSatelliteOperation.confirmation();
+                await createGovernanceSatelliteActionOperation.confirmation();
     
                 governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
                 const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-              
+                const satelliteActions                         = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+            
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, governanceSatelliteApprovalPercentage, governanceSatellitePercentageDecimals);
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
 
                 // check details of governance satellite action
-                assert.equal(governanceAction.initiator,                                 bob.pkh);
+                assert.equal(governanceAction.initiator,                                 satellite);
                 assert.equal(governanceAction.governanceType,                            "RESTORE");
                 assert.equal(governanceAction.status,                                    true);
                 assert.equal(governanceAction.executed,                                  false);
@@ -492,32 +493,32 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
 
-                var actionsInitiatorCheck = false
-                    for(const i in initiatorsActions){
+                var satelliteActionCheck = false
+                    for(const i in satelliteActions){
                         
-                        if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                            actionsInitiatorCheck   = true;
+                        if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                            satelliteActionCheck   = true;
                         }
                     }
-                    assert.equal(actionsInitiatorCheck, true)
+                    assert.equal(satelliteActionCheck, true)
     
                 // satellites vote and yay governance action
                 await signerFactory(tezos, satelliteOneSk);
-                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForRequest(actionId, "yay").send();
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteTwoSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForRequest(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteThreeSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForRequest(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 // get updated storage
                 governanceSatelliteStorage               = await governanceSatelliteInstance.storage();        
                 const updatedGovernanceAction            = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const updatedInitiatorsActions           = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
+                const updatedSatelliteActions            = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
 
                 delegationStorage                        = await delegationInstance.storage();        
                 const restoredSatelliteRecord            = await delegationStorage.satelliteLedger.get(suspendedSatellite);
@@ -544,977 +545,1060 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(updatedGovernanceAction.status,                  true);
                 assert.equal(updatedGovernanceAction.executed,                true);
 
-                var actionsInitiatorCheck = false
-                    for(const i in updatedInitiatorsActions){
-                        if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                            actionsInitiatorCheck   = true;
+                var satelliteActionCheck = false
+                    for(const i in updatedSatelliteActions){
+                        if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                            satelliteActionCheck   = true;
                         }
                     }
-                    assert.equal(actionsInitiatorCheck, false)
+                    assert.equal(satelliteActionCheck, false)
 
                 // check that satellite has been restored and is now active
                 assert.equal(restoredSatelliteRecord.status, "ACTIVE");
-          
-          } catch(e){
-              console.dir(e, {depth: 5})
-          } 
-      });
-
-      it('Any satellite should not be able to create too many governance actions', async () => {
-        try{
-
-            // Update config
-            await signerFactory(tezos, bob.sk);
-            var updateConfigOperation      = await governanceSatelliteInstance.methods.updateConfig(1, "configMaxActionsPerSatellite").send()
-            await updateConfigOperation.confirmation()
-
-            // some init constants
-            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-            governanceStorage              = await governanceInstance.storage();
-            
-            assert.equal(governanceSatelliteStorage.config.maxActionsPerSatellite, 1);
-
-            const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-            const actionsIdsBegin          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh)
-
-            // governance satellite action params
-            const satelliteToBeSuspended   = alice.pkh;
-            const purpose                  = "Test Restore Satellite";
-
-            // Create an action
-            var operation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteToBeSuspended, purpose).send();
-            await  operation.confirmation();
-
-            // Satellite Bob exceeds the number of actions it can create this round
-            await chai.expect(governanceSatelliteInstance.methods.suspendSatellite(satelliteToBeSuspended, purpose).send()).to.be.eventually.rejected;
-
-            // Drop the action to create another one
-            const dropOperation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
-            await dropOperation.confirmation();
-
-            // Create another action
-            operation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteToBeSuspended, purpose).send();
-            await operation.confirmation();
-
-            // Final values
-            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-            const actionsIdsEnd            = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh)
-
-            // Assertions
-            assert.notEqual(actionsIdsBegin, actionsIdsEnd);
-            assert.equal(actionsIdsBegin.length <= 1, true);
-            assert.equal(actionsIdsEnd.length == 1, true);
-
-            // Reset config
-            updateConfigOperation      = await governanceSatelliteInstance.methods.updateConfig(20, "configMaxActionsPerSatellite").send()
-            await updateConfigOperation.confirmation()
-
-        } catch(e){
-            console.dir(e, {depth: 5})
-        } 
-    });
         
-    });  // end %suspendSatellite, %restoreSatellite tests
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
 
+        it('any satellite should not be able to create too many governance actions', async () => {
+            try{
 
-    describe("%banSatellite, #restoreSatellite", async () => {
+                // Update config maxActionsPerSatellite to 1
+                await signerFactory(tezos, adminSk);
+                const initialMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
+                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(1, "configMaxActionsPerSatellite").send()
+                await updateConfigOperation.confirmation()
 
-      it('Any satellite should be able to create a governance action to ban a satellite', async () => {
-          try{        
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+                
+                // check that maxActionsPerSatellite has been updated
+                assert.equal(governanceSatelliteStorage.config.maxActionsPerSatellite, 1);
 
-            // some init constants
-              governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-              const delegationStorage        = await delegationInstance.storage();        
-              const aliceSatelliteRecord     = await delegationStorage.satelliteLedger.get(alice.pkh);
+                // init action ids and counters
+                const currentCycle             = governanceStorage.cycleId;
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const satelliteActionsBegin    = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite})
 
-              assert.equal(aliceSatelliteRecord.status, "ACTIVE");
+                // governance satellite action params
+                const purpose                  = "Test Purpose";
 
-              const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-              const bobStakeAmount           = MVK(100);
-              const aliceStakeAmount         = MVK(100);
-              const eveStakeAmount           = MVK(100);
-              const malloryStakeAmount       = MVK(100);
+                // create governance satellite action
+                await signerFactory(tezos, satelliteOneSk);
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFour, purpose).send();
+                await  createGovernanceSatelliteActionOperation.confirmation();
 
-              // governance satellite action params
-              const satelliteToBeSuspended   = alice.pkh;
-              const purpose                  = "Test Ban Satellite";            
-  
-              // Satellite Bob creates a governance action to ban Alice
-              await signerFactory(tezos, bob.sk);
-              const governanceSatelliteOperation = await governanceSatelliteInstance.methods.banSatellite(
-                      satelliteToBeSuspended,
-                      purpose
-                  ).send();
-              await governanceSatelliteOperation.confirmation();
-  
+                // satellite exceeds the number of actions it can create this round
+                createGovernanceSatelliteActionOperation  = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFive, purpose);
+                await chai.expect(createGovernanceSatelliteActionOperation.send()).to.be.eventually.rejected;
 
-              governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-              const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-              const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-              
-              const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-              const governanceSatellitePercentageDecimals    = 4;
-              const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-              const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
+                // Drop the action and test creating another one
+                dropActionOperation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
+                await dropActionOperation.confirmation();
 
-  
-              // check details of governance satellite action
-              assert.equal(governanceAction.initiator,                                 bob.pkh);
-              assert.equal(governanceAction.governanceType,                            "BAN");
-              assert.equal(governanceAction.status,                                    true);
-              assert.equal(governanceAction.executed,                                  false);
-              assert.equal(governanceAction.governancePurpose,                         purpose);
-              assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-              assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-              assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-              assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-              assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-              var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
-                    }
-                }
-                assert.equal(actionsInitiatorCheck, true)
-  
-              // 3 satellites vote yay, one satellite votes nay
-              await signerFactory(tezos, bob.sk);
-              const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-              await bobVotesForGovernanceActionOperation.confirmation();
-  
-              await signerFactory(tezos, eve.sk);
-              const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-              await eveVotesForGovernanceActionOperation.confirmation();
-              
-              await signerFactory(tezos, alice.sk);
-              const aliceVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "nay").send();
-              await aliceVotesForGovernanceActionOperation.confirmation();
+                // Create another action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFour, purpose).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
 
-              await signerFactory(tezos, mallory.sk);
-              const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-              await malloryVotesForGovernanceActionOperation.confirmation();
-  
-              // get updated storage
-              const updatedGovernanceSatelliteStorage               = await governanceSatelliteInstance.storage();        
-              const updatedGovernanceAction                         = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-              const updatedInitiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
+                // Final values
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                const satelliteActionsEnd      = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite})
 
-              const updatedDelegationStorage                        = await delegationInstance.storage();        
-              const updatedAliceSatelliteRecord                     = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
-              governanceStorage                                     = await governanceInstance.storage();
-              const currentCycle                                    = governanceStorage.cycleId;
-              const aliceSnapshot                                   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-              const eveSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-              const bobSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-              const mallorySnapshot                                 = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
-              
-              // check details of governance satellite action snapshot ledger
-              assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-              assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-              assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
-  
-              assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
-              assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
-              assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
+                // Assertions
+                assert.notEqual(satelliteActionsBegin, satelliteActionsEnd);
+                assert.equal(satelliteActionsBegin.length <= 1, true);
+                assert.equal(satelliteActionsEnd.length == 1, true);
 
-              assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-              assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-              assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
+                // reset config maxActionsPerSatellite to initial value
+                await signerFactory(tezos, adminSk);
+                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialMaxActionsPerSatellite, "configMaxActionsPerSatellite").send()
+                await updateConfigOperation.confirmation()
+                assert.equal(governanceSatelliteStorage.config.maxActionsPerSatellite, initialMaxActionsPerSatellite);
 
-              assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-              assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-              assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
-
-              // check that governance action has been executed
-              assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-              assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
-              assert.equal(updatedGovernanceAction.status,                  true);
-              assert.equal(updatedGovernanceAction.executed,                true);
-              var actionsInitiatorCheck = false
-            for(const i in updatedInitiatorsActions){
-                if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
-                 }
-             }
-             assert.equal(actionsInitiatorCheck, false)
-
-              // check that alice is now banned
-              assert.equal(updatedAliceSatelliteRecord.status,              "BANNED");
-          
-          } catch(e){
-              console.dir(e, {depth: 5})
-          } 
-      });
-
-      
-      it('Any satellite should be able to create a governance action to restore a satellite', async () => {
-        try{        
-
-          // some init constants
-            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-            const delegationStorage        = await delegationInstance.storage();        
-            const aliceSatelliteRecord     = await delegationStorage.satelliteLedger.get(alice.pkh);
-
-            assert.equal(aliceSatelliteRecord.status, "BANNED");
-
-            const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-            const bobStakeAmount           = MVK(100);
-            const aliceStakeAmount         = MVK(100);
-            const eveStakeAmount           = MVK(100);
-            const malloryStakeAmount       = MVK(100);
-
-            // governance satellite action params
-            const satelliteToBeSuspended   = alice.pkh;
-            const purpose                  = "Test Restore Satellite";            
-
-            // Satellite Bob creates a governance action - restore Alice
-            await signerFactory(tezos, bob.sk);
-            const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
-                    satelliteToBeSuspended,
-                    purpose
-                ).send();
-            await governanceSatelliteOperation.confirmation();
-
-
-            governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-            const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-            
-            const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-            const governanceSatellitePercentageDecimals    = 4;
-            const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-            const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
-
-
-            // check details of governance satellite action
-            assert.equal(governanceAction.initiator,                                 bob.pkh);
-            assert.equal(governanceAction.governanceType,                            "RESTORE");
-            assert.equal(governanceAction.status,                                    true);
-            assert.equal(governanceAction.executed,                                  false);
-            assert.equal(governanceAction.governancePurpose,                         purpose);
-            assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-            assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-              var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
-                    }
-                }
-                assert.equal(actionsInitiatorCheck, true)
-
-            // 3 satellites vote yay to restore alice satellite
-            await signerFactory(tezos, bob.sk);
-            const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await bobVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, eve.sk);
-            const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await eveVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, mallory.sk);
-            const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await malloryVotesForGovernanceActionOperation.confirmation();
-
-            // get updated storage
-            const updatedGovernanceSatelliteStorage        = await governanceSatelliteInstance.storage();        
-            const updatedGovernanceAction                  = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const updatedInitiatorsActions                 = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-
-            const updatedDelegationStorage                 = await delegationInstance.storage();        
-            const updatedAliceSatelliteRecord              = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
-            governanceStorage                              = await governanceInstance.storage();
-            const currentCycle                             = governanceStorage.cycleId;
-            const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-            const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-            const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-            const mallorySnapshot                          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
-            
-            // check details of governance satellite action snapshot ledger
-            assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-            assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
-
-            assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
-            assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
-            assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
-            
-            assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-            assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
-
-            assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-            assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-            assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
-
-            // check that governance action has been executed
-            assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-            assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            0);
-            assert.equal(updatedGovernanceAction.status,                  true);
-            assert.equal(updatedGovernanceAction.executed,                true);
-            var actionsInitiatorCheck = false
-            for(const i in updatedInitiatorsActions){
-                if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
-                }
-             }
-             assert.equal(actionsInitiatorCheck, false)
-
-            // check that alice is now restored - status set to ACTIVE
-            assert.equal(updatedAliceSatelliteRecord.status,              "ACTIVE");
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
         
-        } catch(e){
-            console.dir(e, {depth: 5})
-        } 
-    });
-
-  }); // end %banSatellite, #restoreSatellite tests
-
-  describe("%addOracleToAggregator, %removeOracleInAggregator, %removeAllSatelliteOracles", async () => {
-
-    it('Any satellite should be able to create a governance action to add oracle to aggregator', async () => {
-        try{        
-
-            // some init constants
-            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-            aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-
-            // get aggregator address from pair key
-            const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
-            
-            // get aggregator contract
-            const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
-            const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
-
-            // check that user is not in aggregator oracleLedger set
-            const aggregatorOracles        = await aggregatorStorage.oracleLedger.get(bob.pkh);
-            assert.equal(aggregatorOracles,      undefined);
-
-            // get bob satellite oracle record
-            const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
-            const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.size;
-            
-            const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-            const bobStakeAmount           = MVK(100);
-            const aliceStakeAmount         = MVK(100);
-            const eveStakeAmount           = MVK(100);
-            const malloryStakeAmount       = MVK(100);
-
-            // governance satellite action params
-            const oracleAddress            = bob.pkh;
-            const aggregatorAddress        = usdBtcAggregatorAddress;
-            const purpose                  = "Test Add Oracle To Aggregator";            
-
-            // Satellite Bob creates a governance action to add oracle to aggregator
-            await signerFactory(tezos, bob.sk);
-            const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
-                    oracleAddress,
-                    aggregatorAddress,
-                    purpose
-                ).send();
-            await governanceSatelliteOperation.confirmation();
-
-            governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-            const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-            
-            const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-            const governanceSatellitePercentageDecimals    = 4;
-            const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-            const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
-
-            // check details of governance satellite action
-            assert.equal(governanceAction.initiator,                                 bob.pkh);
-            assert.equal(governanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
-            assert.equal(governanceAction.status,                                    true);
-            assert.equal(governanceAction.executed,                                  false);
-            assert.equal(governanceAction.governancePurpose,                         purpose);
-            assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-            assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-              var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
-                    }
-                }
-                assert.equal(actionsInitiatorCheck, true)
-
-            // 3 satellites vote yay, one satellite votes nay
-            await signerFactory(tezos, bob.sk);
-            const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await bobVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, eve.sk);
-            const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await eveVotesForGovernanceActionOperation.confirmation();
-            
-            await signerFactory(tezos, alice.sk);
-            const aliceVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "nay").send();
-            await aliceVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, mallory.sk);
-            const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await malloryVotesForGovernanceActionOperation.confirmation();
-
-            // get updated storage
-            const updatedGovernanceSatelliteStorage                 = await governanceSatelliteInstance.storage();        
-            const updatedGovernanceAction                           = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-
-            const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
-            const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
-
-            const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
-            const updatedAggregatorOracles : any                    = await updatedAggregatorStorage.oracleLedger.get(bob.pkh);
-            governanceStorage                                       = await governanceInstance.storage();
-            const currentCycle                                      = governanceStorage.cycleId;
-            const aliceSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-            const eveSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-            const bobSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-            const mallorySnapshot                                   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
-            
-            // check details of governance satellite action snapshot ledger
-            assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-            assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
-
-            assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
-            assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
-            assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
-
-            assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-            assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
-
-            assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-            assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-            assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
-            
-            // check that governance action has been executed
-            assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-            assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
-            assert.equal(updatedGovernanceAction.status,                  true);
-            assert.equal(updatedGovernanceAction.executed,                true);
-            var actionsInitiatorCheck = false
-            for(const i in updatedInitiatorsActions){
-                if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
-                 }
-             }
-             assert.equal(actionsInitiatorCheck, false)
-
-            // check that bob oracle aggregator record is updated
-            assert.notEqual(bobUsdBtcOracleAggregatorRecord, undefined);
-
-            // check that bob is now added to aggregator oracleLedger Set
-            assert.equal(updatedAggregatorOracles.oraclePeerId, bob.peerId);
-            assert.equal(updatedAggregatorOracles.oraclePublicKey, bob.pk);
-        
-        } catch(e){
-            console.dir(e, {depth: 5})
-        } 
-    });
-
-    
-    it('Any satellite should be able to create a governance action to remove an oracle from an aggregator', async () => {
-      try{        
-
-            // some init constants
-            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-            aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-
-            // get aggregator address from pair key
-            const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
-
-            // get aggregator contract
-            const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
-            const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
-
-            // check that user is in aggregator oracleLedger set (from previous test)
-            const aggregatorOracles : any                   = await aggregatorStorage.oracleLedger.get(bob.pkh);
-            assert.equal(aggregatorOracles.oraclePeerId, bob.peerId);
-            assert.equal(aggregatorOracles.oraclePublicKey, bob.pk);
-
-            // get bob satellite oracle record
-            const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
-            const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord.size;
-            
-            const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-            const bobStakeAmount           = MVK(100);
-            const aliceStakeAmount         = MVK(100);
-            const eveStakeAmount           = MVK(100);
-            const malloryStakeAmount       = MVK(100);
-
-            // governance satellite action params
-            const oracleAddress            = bob.pkh;
-            const aggregatorAddress        = usdBtcAggregatorAddress;
-            const purpose                  = "Test Remove Oracle In Aggregator";            
-
-            // Satellite Bob creates a governance action to add oracle to aggregator
-            await signerFactory(tezos, bob.sk);
-            const governanceSatelliteOperation = await governanceSatelliteInstance.methods.removeOracleInAggregator(
-                    oracleAddress,
-                    aggregatorAddress,
-                    purpose
-                ).send();
-            await governanceSatelliteOperation.confirmation();
-
-            governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-            const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-            
-            const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-            const governanceSatellitePercentageDecimals    = 4;
-            const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-            const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
-
-
-            // check details of governance satellite action
-            assert.equal(governanceAction.initiator,                                 bob.pkh);
-            assert.equal(governanceAction.governanceType,                            "REMOVE_ORACLE_IN_AGGREGATOR");
-            assert.equal(governanceAction.status,                                    true);
-            assert.equal(governanceAction.executed,                                  false);
-            assert.equal(governanceAction.governancePurpose,                         purpose);
-            assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-            assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-              var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
-                    }
-                }
-                assert.equal(actionsInitiatorCheck, true)
-
-            // 3 satellites vote yay to suspend alice satellite, alice's satellite votes nay
-            await signerFactory(tezos, bob.sk);
-            const bobVotesForGovernanceActionOperation              = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await bobVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, eve.sk);
-            const eveVotesForGovernanceActionOperation              = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await eveVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, mallory.sk);
-            const malloryVotesForGovernanceActionOperation          = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await malloryVotesForGovernanceActionOperation.confirmation();
-
-            // get updated storage
-            const updatedGovernanceSatelliteStorage                 = await governanceSatelliteInstance.storage();        
-            const updatedGovernanceAction                           = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-
-            const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
-            const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
-
-            const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
-            const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleLedger.get(bob.pkh);
-            governanceStorage                                       = await governanceInstance.storage();
-            const currentCycle                                      = governanceStorage.cycleId;
-            const eveSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-            const bobSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-            const mallorySnapshot                                   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
-            
-            // check details of governance satellite action snapshot ledger
-            assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-            assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
-
-            assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-            assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
-
-            assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-            assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-            assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
-
-            // check that governance action has been executed
-            assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-            assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            0);
-            assert.equal(updatedGovernanceAction.status,                  true);
-            assert.equal(updatedGovernanceAction.executed,                true);
-            var actionsInitiatorCheck = false
-            for(const i in updatedInitiatorsActions){
-                if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
-                 }
-             }
-             assert.equal(actionsInitiatorCheck, false)
-
-            // check that bob oracle aggregator record is updated
-            assert.equal(bobUsdBtcOracleAggregatorRecord,                           undefined);
-
-            // check that bob is now removed from aggregator oracleLedger Set
-            assert.equal(updatedAggregatorOracles, undefined);
-
-      } catch(e){
-          console.dir(e, {depth: 5})
-      } 
-    });
-
-    it('Any satellite should be able to create a governance action to remove all satellite oracles', async () => {
-        try{        
-
-            // some init constants
-            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-            aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-
-            // Test flow: add three aggregators to bob's satellite, then initiate governance action to remove all satellite oracles 
-
-            // get aggregator address from pair key
-            const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
-
-            // get aggregator address from pair key
-            const usdXtzAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[1];
-
-            // get aggregator address from pair key
-            const usdDogeAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[2];
-            
-            // get aggregator contracts
-            const usdBtcAggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
-            const usdXtzAggregatorInstance       = await utils.tezos.contract.at(usdXtzAggregatorAddress);
-            const usdDogeAggregatorInstance      = await utils.tezos.contract.at(usdDogeAggregatorAddress);
-            
-            const usdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
-            const usdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
-            const usdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
-
-            // check that user is not in aggregator oracleLedger set
-            const usdBtcAggregatorOracles        = await usdBtcAggregatorStorage.oracleLedger.get(bob.pkh);
-            const usdXtzAggregatorOracles        = await usdXtzAggregatorStorage.oracleLedger.get(bob.pkh);
-            const usdDogeAggregatorOracles       = await usdDogeAggregatorStorage.oracleLedger.get(bob.pkh);
-            
-            assert.equal(usdBtcAggregatorOracles,      undefined);
-            assert.equal(usdXtzAggregatorOracles,      undefined);
-            assert.equal(usdDogeAggregatorOracles,     undefined);
-
-            const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-            const bobStakeAmount           = MVK(100);
-            const aliceStakeAmount         = MVK(100);
-            const eveStakeAmount           = MVK(100);
-            const malloryStakeAmount       = MVK(100);
-
-            // --------------------------------------------------------
-            // governance satellite action params - add bob to first aggregator
-            // --------------------------------------------------------
-
-            const oracleAddress            = bob.pkh;
-            const aggregatorAddress        = usdBtcAggregatorAddress;
-            const purpose                  = "Test Add Oracle To Aggregator";            
-
-            // Satellite Bob creates a governance action to add oracle to aggregator
-            await signerFactory(tezos, bob.sk);
-            const governanceSatelliteAddOracleFirstOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
-                    oracleAddress,
-                    aggregatorAddress,
-                    purpose
-                ).send();
-            await governanceSatelliteAddOracleFirstOperation.confirmation();
-
-            governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-            const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-            
-            const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-            const governanceSatellitePercentageDecimals    = 4;
-            const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-            const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
-
-            // check details of governance satellite action
-            assert.equal(governanceAction.initiator,                                 bob.pkh);
-            assert.equal(governanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
-            assert.equal(governanceAction.status,                                    true);
-            assert.equal(governanceAction.executed,                                  false);
-            assert.equal(governanceAction.governancePurpose,                         purpose);
-            assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-            assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-              var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
-                    }
-                }
-                assert.equal(actionsInitiatorCheck, true)
-        
-            // 3 satellites vote yay, one satellite votes nay
-            await signerFactory(tezos, bob.sk);
-            const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await bobVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, eve.sk);
-            const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await eveVotesForGovernanceActionOperation.confirmation();
-            
-            await signerFactory(tezos, alice.sk);
-            const aliceVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "nay").send();
-            await aliceVotesForGovernanceActionOperation.confirmation();
-
-            await signerFactory(tezos, mallory.sk);
-            const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-            await malloryVotesForGovernanceActionOperation.confirmation();
-
-            // --------------------------------------------------------
-            // governance satellite action params - add bob to second aggregator
-            // --------------------------------------------------------
-
-            // Satellite Bob creates a governance action to add oracle to aggregator
-            await signerFactory(tezos, bob.sk);
-            const secondGovernanceSatelliteStorage         = await governanceSatelliteInstance.storage();
-            const secondActionId                           = secondGovernanceSatelliteStorage.governanceSatelliteCounter;
-
-            const governanceSatelliteAddOracleSecondOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
-                    oracleAddress,
-                    usdXtzAggregatorAddress,
-                    purpose
-                ).send();
-            await governanceSatelliteAddOracleSecondOperation.confirmation();
-
-            const secondGovernanceAction                   = await secondGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(secondActionId);
-            
-            // check details of governance satellite action
-            assert.equal(secondGovernanceAction.initiator,                                 bob.pkh);
-            assert.equal(secondGovernanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
-            assert.equal(secondGovernanceAction.status,                                    true);
-            assert.equal(secondGovernanceAction.executed,                                  false);
-            assert.equal(secondGovernanceAction.governancePurpose,                         purpose);
-            assert.equal(secondGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(secondGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(secondGovernanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-            assert.equal(secondGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(secondGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-        
-            // 3 satellites vote yay, one satellite votes nay
-            await signerFactory(tezos, bob.sk);
-            const bobVotesForGovernanceActionSecondOperation = await governanceSatelliteInstance.methods.voteForAction(secondActionId, "yay").send();
-            await bobVotesForGovernanceActionSecondOperation.confirmation();
-
-            await signerFactory(tezos, eve.sk);
-            const eveVotesForGovernanceActionSecondOperation = await governanceSatelliteInstance.methods.voteForAction(secondActionId, "yay").send();
-            await eveVotesForGovernanceActionSecondOperation.confirmation();
-            
-            await signerFactory(tezos, alice.sk);
-            const aliceVotesForGovernanceActionSecondOperation = await governanceSatelliteInstance.methods.voteForAction(secondActionId, "nay").send();
-            await aliceVotesForGovernanceActionSecondOperation.confirmation();
-
-            await signerFactory(tezos, mallory.sk);
-            const malloryVotesForGovernanceActionSecondOperation = await governanceSatelliteInstance.methods.voteForAction(secondActionId, "yay").send();
-            await malloryVotesForGovernanceActionSecondOperation.confirmation();
-
-            // --------------------------------------------------------
-            // governance satellite action params - add bob to third aggregator
-            // --------------------------------------------------------
-
-            // Satellite Bob creates a governance action to add oracle to aggregator
-            await signerFactory(tezos, bob.sk);
-            const thirdGovernanceSatelliteStorage         = await governanceSatelliteInstance.storage();
-            const thirdActionId                           = thirdGovernanceSatelliteStorage.governanceSatelliteCounter;
-
-            const governanceSatelliteAddOracleThirdOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
-                    oracleAddress,
-                    usdDogeAggregatorAddress,
-                    purpose
-                ).send();
-            await governanceSatelliteAddOracleThirdOperation.confirmation();
-
-            const thirdGovernanceAction                   = await thirdGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(thirdActionId);
-            
-            // check details of governance satellite action
-            assert.equal(thirdGovernanceAction.initiator,                                 bob.pkh);
-            assert.equal(thirdGovernanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
-            assert.equal(thirdGovernanceAction.status,                                    true);
-            assert.equal(thirdGovernanceAction.executed,                                  false);
-            assert.equal(thirdGovernanceAction.governancePurpose,                         purpose);
-            assert.equal(thirdGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(thirdGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(thirdGovernanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-            assert.equal(thirdGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(thirdGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-        
-            // 3 satellites vote yay, one satellite votes nay
-            await signerFactory(tezos, bob.sk);
-            const bobVotesForGovernanceActionThirdOperation = await governanceSatelliteInstance.methods.voteForAction(thirdActionId, "yay").send();
-            await bobVotesForGovernanceActionThirdOperation.confirmation();
-
-            await signerFactory(tezos, eve.sk);
-            const eveVotesForGovernanceActionThirdOperation = await governanceSatelliteInstance.methods.voteForAction(thirdActionId, "yay").send();
-            await eveVotesForGovernanceActionThirdOperation.confirmation();
-            
-            await signerFactory(tezos, alice.sk);
-            const aliceVotesForGovernanceActionThirdOperation = await governanceSatelliteInstance.methods.voteForAction(thirdActionId, "nay").send();
-            await aliceVotesForGovernanceActionThirdOperation.confirmation();
-
-            await signerFactory(tezos, mallory.sk);
-            const malloryVotesForGovernanceActionThirdOperation = await governanceSatelliteInstance.methods.voteForAction(thirdActionId, "yay").send();
-            await malloryVotesForGovernanceActionThirdOperation.confirmation();
-
-            // --------------------------------------------------------
-            // governance satellite check storage that bob is now linked to three aggregators
-            // --------------------------------------------------------
-
-            // get updated storage
-            const updatedGovernanceSatelliteStorage    = await governanceSatelliteInstance.storage();        
-            const updatedGovernanceAction              = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const updatedInitiatorsActions             = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-
-            const updatedBobSatelliteOracleRecord      = await updatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
-
-            const bobUsdBtcOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
-            const bobUsdXtzOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.get(usdXtzAggregatorAddress);
-            const bobUsdDogeOracleAggregatorRecord     = await updatedBobSatelliteOracleRecord.get(usdDogeAggregatorAddress);
-
-            const updatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
-            const updatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
-            const updatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
-
-            // check that user is not in aggregator oracleLedger set
-            const updatedUsdBtcAggregatorOracles : any        = await updatedUsdBtcAggregatorStorage.oracleLedger.get(bob.pkh);
-            const updatedUsdXtzAggregatorOracles : any        = await updatedUsdXtzAggregatorStorage.oracleLedger.get(bob.pkh);
-            const updatedUsdDogeAggregatorOracles : any       = await updatedUsdDogeAggregatorStorage.oracleLedger.get(bob.pkh);
-            
-            // check that governance action has been executed
-            assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-            assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
-            assert.equal(updatedGovernanceAction.status,                  true);
-            assert.equal(updatedGovernanceAction.executed,                true);
-            var actionsInitiatorCheck = false
-            for(const i in updatedInitiatorsActions){
-                if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
-                 }
-             }
-             assert.equal(actionsInitiatorCheck, false)
-
-            // check that bob oracle aggregator record is updated
-            assert.notEqual(bobUsdBtcOracleAggregatorRecord,  undefined);
-            assert.notEqual(bobUsdXtzOracleAggregatorRecord,  undefined);
-            assert.notEqual(bobUsdDogeOracleAggregatorRecord, undefined);
-
-            // check that bob is now added to aggregator oracleLedger Set
-            assert.equal(updatedUsdBtcAggregatorOracles.oraclePeerId, bob.peerId);
-            assert.equal(updatedUsdBtcAggregatorOracles.oraclePublicKey, bob.pk);
-            assert.equal(updatedUsdXtzAggregatorOracles.oraclePeerId, bob.peerId);
-            assert.equal(updatedUsdXtzAggregatorOracles.oraclePublicKey, bob.pk);
-            assert.equal(updatedUsdDogeAggregatorOracles.oraclePeerId, bob.peerId);
-            assert.equal(updatedUsdDogeAggregatorOracles.oraclePublicKey, bob.pk);
-
-            // --------------------------------------------------------
-            // governance satellite action params - remove all satellite oracles
-            // --------------------------------------------------------
-
-            // governance satellite action params
-            const satelliteAddress         = bob.pkh;
-            const purposeRemove            = "Test Remove All Satellite Oracles";            
-
-            // Satellite Bob creates a governance action to remove all satellite oracles
-            await signerFactory(tezos, bob.sk);
-            const fourthGovernanceSatelliteStorage         = await governanceSatelliteInstance.storage();
-            const fourthActionId                           = fourthGovernanceSatelliteStorage.governanceSatelliteCounter;
-
-            const governanceSatelliteOperation = await governanceSatelliteInstance.methods.removeAllSatelliteOracles(
-                    satelliteAddress,
-                    purposeRemove
-                ).send();
-            await governanceSatelliteOperation.confirmation();
-
-            const fourthGovernanceAction                   = await fourthGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(fourthActionId);
-            
-            // check details of governance satellite action
-            assert.equal(fourthGovernanceAction.initiator,                                 bob.pkh);
-            assert.equal(fourthGovernanceAction.governanceType,                            "REMOVE_ALL_SATELLITE_ORACLES");
-            assert.equal(fourthGovernanceAction.status,                                    true);
-            assert.equal(fourthGovernanceAction.executed,                                  false);
-            assert.equal(fourthGovernanceAction.governancePurpose,                         purposeRemove);
-            assert.equal(fourthGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(fourthGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-            assert.equal(fourthGovernanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
-            assert.equal(fourthGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(fourthGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-
-            // 3 satellites vote yay, one satellite votes nay
-            await signerFactory(tezos, bob.sk);
-            const bobVotesForGovernanceActionFourthOperation = await governanceSatelliteInstance.methods.voteForAction(fourthActionId, "yay").send();
-            await bobVotesForGovernanceActionFourthOperation.confirmation();
-
-            await signerFactory(tezos, eve.sk);
-            const eveVotesForGovernanceActionFourthOperation = await governanceSatelliteInstance.methods.voteForAction(fourthActionId, "yay").send();
-            await eveVotesForGovernanceActionFourthOperation.confirmation();
-            
-            await signerFactory(tezos, alice.sk);
-            const aliceVotesForGovernanceActionFourthOperation = await governanceSatelliteInstance.methods.voteForAction(fourthActionId, "nay").send();
-            await aliceVotesForGovernanceActionFourthOperation.confirmation();
-
-            await signerFactory(tezos, mallory.sk);
-            const malloryVotesForGovernanceActionFourthOperation = await governanceSatelliteInstance.methods.voteForAction(fourthActionId, "yay").send();
-            await malloryVotesForGovernanceActionFourthOperation.confirmation();
-
-            // --------------------------------------------------------
-            // governance satellite action params - remove all satellite oracles
-            // --------------------------------------------------------
-
-            const finalUpdatedGovernanceSatelliteStorage    = await governanceSatelliteInstance.storage();        
-            const finalUpdatedGovernanceAction              = await finalUpdatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
-
-            const finalUpdatedBobSatelliteOracleRecord      = await finalUpdatedGovernanceSatelliteStorage.satelliteAggregatorLedger.get(bob.pkh);
-            const finalBobUsdBtcOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
-            const finalBobUsdXtzOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.get(usdXtzAggregatorAddress);
-            const finalBobUsdDogeOracleAggregatorRecord     = await finalUpdatedBobSatelliteOracleRecord.get(usdDogeAggregatorAddress);
-
-            const finalUpdatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
-            const finalUpdatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
-            const finalUpdatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
-
-            // check that user is not in aggregator oracleLedger set
-            const finalUpdatedUsdBtcAggregatorOracles        = await finalUpdatedUsdBtcAggregatorStorage.oracleLedger.get(bob.pkh);
-            const finalUpdatedUsdXtzAggregatorOracles        = await finalUpdatedUsdXtzAggregatorStorage.oracleLedger.get(bob.pkh);
-            const finalUpdatedUsdDogeAggregatorOracles       = await finalUpdatedUsdDogeAggregatorStorage.oracleLedger.get(bob.pkh);
-            
-            // check that governance action has been executed
-            assert.equal(finalUpdatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-            assert.equal(finalUpdatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
-            assert.equal(finalUpdatedGovernanceAction.status,                  true);
-            assert.equal(finalUpdatedGovernanceAction.executed,                true);
-
-            // check that bob oracle aggregator record is finalUpdated
-            assert.equal(finalBobUsdBtcOracleAggregatorRecord,                          undefined);
-            assert.equal(finalBobUsdXtzOracleAggregatorRecord,                          undefined);
-            assert.equal(finalBobUsdDogeOracleAggregatorRecord,                         undefined);
-
-            // check that bob is now added to aggregator oracleLedger Set
-            assert.equal(finalUpdatedUsdBtcAggregatorOracles,      undefined);
-            assert.equal(finalUpdatedUsdXtzAggregatorOracles,      undefined);
-            assert.equal(finalUpdatedUsdDogeAggregatorOracles,     undefined);
-        
-        } catch(e){
-            console.dir(e, {depth: 5})
-        } 
-    });
-
-});  // end %addOracleToAggregator, %removeOracleInAggregator, %removeAllSatelliteOracles tests
-
-
-  describe("%togglePauseAggregator", async () => {
-
-        it('Any satellite should be able to create a governance action to update aggregator status', async () => {
+        it('%banSatellite - Any satellite should be able to create a governance action to ban a satellite', async () => {
             try{        
 
-                // some init constants
+                // init storage
                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+
+                // init action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                currentCycle                   = governanceStorage.cycleId;
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
                 
+                // governance satellite action params
+                const satelliteToBeBanned      = satelliteFour;
+                const purpose                  = "Test Ban Satellite";            
+    
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.banSatellite(
+                    satelliteToBeBanned,
+                    purpose
+                ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+    
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+                
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
+
+                // check details of governance satellite action
+                assert.equal(governanceAction.initiator,                                 satellite);
+                assert.equal(governanceAction.governanceType,                            "BAN");
+                assert.equal(governanceAction.status,                                    true);
+                assert.equal(governanceAction.executed,                                  false);
+                assert.equal(governanceAction.governancePurpose,                         purpose);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+
+                var satelliteActionCheck = false
+                    for(const i in satelliteActions){
+                        
+                        if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                            satelliteActionCheck   = true;
+                        }
+                    }
+                    assert.equal(satelliteActionCheck, true)
+    
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+    
+                // get updated storage
+                governanceSatelliteStorage                = await governanceSatelliteInstance.storage();    
+                delegationStorage                         = await delegationInstance.storage();     
+
+                const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
+                const bannedSatelliteRecord               = await delegationStorage.satelliteLedger.get(satelliteToBeBanned);
+                
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
+
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
+
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
+
+                // check that governance action has been executed
+                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,   0);
+                assert.equal(updatedGovernanceAction.status,                  true);
+                assert.equal(updatedGovernanceAction.executed,                true);
+                
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, false)
+
+                // check that satellite is now banned
+                assert.equal(bannedSatelliteRecord.status, "BANNED");
+        
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
+
+    
+        it('%restoreSatellite - any satellite should be able to create a governance action to restore a banned satellite', async () => {
+            try{        
+
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+
+                // get initial action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                currentCycle                   = governanceStorage.cycleId;
+
+                const bannedSatellite          = satelliteFour;
+                const bannedSatelliteRecord    = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                assert.equal(bannedSatelliteRecord.status, "BANNED");
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
+
+                // governance satellite action params
+                const purpose                  = "Test Restore Satellite";            
+
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.restoreSatellite(
+                    bannedSatellite,
+                        purpose
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
+                const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                         = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+            
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
+
+                // check details of governance satellite action
+                assert.equal(governanceAction.initiator,                                 satellite);
+                assert.equal(governanceAction.governanceType,                            "RESTORE");
+                assert.equal(governanceAction.status,                                    true);
+                assert.equal(governanceAction.executed,                                  false);
+                assert.equal(governanceAction.governancePurpose,                         purpose);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+                
+                var satelliteActionCheck = false
+                    for(const i in satelliteActions){
+                        
+                        if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                            satelliteActionCheck   = true;
+                        }
+                    }
+                    assert.equal(satelliteActionCheck, true)
+
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                // get updated storage
+                governanceSatelliteStorage               = await governanceSatelliteInstance.storage();        
+                const updatedGovernanceAction            = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const updatedSatelliteActions            = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+
+                delegationStorage                        = await delegationInstance.storage();        
+                const restoredSatelliteRecord            = await delegationStorage.satelliteLedger.get(bannedSatellite);
+
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
+
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
+
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
+
+                // check that governance action has been executed
+                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,   0);
+                assert.equal(updatedGovernanceAction.status,                  true);
+                assert.equal(updatedGovernanceAction.executed,                true);
+                
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, false)
+
+                // check that satellite is now restored - status set to ACTIVE
+                assert.equal(restoredSatelliteRecord.status, "ACTIVE");
+                
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
+
+        it('%addOracleToAggregator - any satellite should be able to create a governance action to add an oracle to an aggregator', async () => {
+            try{        
+
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
+
+                // init action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const currentCycle             = governanceStorage.cycleId;
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
+                
+                // init target satellite
+                const targetSatellite          = satelliteFour; // oscar
+                const targetSatellitePeerId    = oscar.peerId;
+                const targetSatellitePk        = oscar.pk;
+
+                // get aggregator address from pair key
+                const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
+                
+                // get aggregator contract
+                const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
+                const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
+
+                // check that user is not in aggregator oracleLedger set
+                const aggregatorOracles        = await aggregatorStorage.oracleLedger.get(targetSatellite);
+                assert.equal(aggregatorOracles,      undefined);
+
+                // get target satellite oracle record
+                const targetSatelliteOracleRecord       = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
+                const numberOraclesSubscribedAtStart    = targetSatelliteOracleRecord == undefined ? 0 : targetSatelliteOracleRecord.size;
+                
+                // governance satellite action params
+                const aggregatorAddress        = usdBtcAggregatorAddress;
+                const purpose                  = "Test Add Oracle To Aggregator";            
+
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
+                        targetSatellite,
+                        aggregatorAddress,
+                        purpose
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+                
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
+
+                // check details of governance satellite action
+                assert.equal(governanceAction.initiator,                                 satellite);
+                assert.equal(governanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
+                assert.equal(governanceAction.status,                                    true);
+                assert.equal(governanceAction.executed,                                  false);
+                assert.equal(governanceAction.governancePurpose,                         purpose);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+                
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
+                    
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, true)
+
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+    
+                // get updated storage
+                governanceSatelliteStorage                = await governanceSatelliteInstance.storage();    
+
+                const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
+                
+                const updatedTargetSatelliteOracleRecord                = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
+                const usdBtcOracleAggregatorRecord                      = await updatedTargetSatelliteOracleRecord.get(usdBtcAggregatorAddress);
+
+                const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
+                const updatedAggregatorOracles : any                    = await updatedAggregatorStorage.oracleLedger.get(targetSatellite);
+
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
+
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
+
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
+                
+                // check that governance action has been executed
+                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,   0);
+                assert.equal(updatedGovernanceAction.status,                  true);
+                assert.equal(updatedGovernanceAction.executed,                true);
+                
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, false)
+
+                // check that satellite oracle aggregator record is updated
+                assert.notEqual(usdBtcOracleAggregatorRecord, undefined);
+
+                // check that target satellite is now added to aggregator oracleLedger Set
+                assert.equal(updatedAggregatorOracles.oraclePeerId,     targetSatellitePeerId);
+                assert.equal(updatedAggregatorOracles.oraclePublicKey,  targetSatellitePk);
+            
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
+
+        
+        it(' %removeOracleInAggregator - any satellite should be able to create a governance action to remove an oracle from an aggregator', async () => {
+        try{        
+
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
+
+                // init action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const currentCycle             = governanceStorage.cycleId;
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
+                
+                // init target satellite
+                const targetSatellite          = satelliteFour; // oscar
+                const targetSatellitePeerId    = oscar.peerId;
+                const targetSatellitePk        = oscar.pk;
+
+                // get aggregator address from pair key
+                const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
+
+                // get aggregator contract
+                const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
+                const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
+
+                // check that target satellite is in aggregator oracleLedger set (from previous test)
+                const aggregatorOracles : any                   = await aggregatorStorage.oracleLedger.get(targetSatellite);
+                assert.equal(aggregatorOracles.oraclePeerId,    targetSatellitePeerId);
+                assert.equal(aggregatorOracles.oraclePublicKey, targetSatellitePk);
+
+                // get target satellite oracle record
+                const targetSatelliteOracleRecord           = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
+                const numberOraclesSubscribedAtStart        = targetSatelliteOracleRecord.size;
+                
+                // governance satellite action params
+                const aggregatorAddress        = usdBtcAggregatorAddress;
+                const purpose                  = "Test Remove Oracle In Aggregator";            
+
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.removeOracleInAggregator(
+                        targetSatellite,
+                        aggregatorAddress,
+                        purpose
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+                
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
+                
+                // check details of governance satellite action
+                assert.equal(governanceAction.initiator,                                 satellite);
+                assert.equal(governanceAction.governanceType,                            "REMOVE_ORACLE_IN_AGGREGATOR");
+                assert.equal(governanceAction.status,                                    true);
+                assert.equal(governanceAction.executed,                                  false);
+                assert.equal(governanceAction.governancePurpose,                         purpose);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+                
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
+                    
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, true)
+
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+    
+                // get updated storage
+                governanceSatelliteStorage                = await governanceSatelliteInstance.storage();    
+
+                const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
+
+                const updatedTargetSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
+                const usdBtcOracleAggregatorRecord                   = await updatedTargetSatelliteOracleRecord.get(updatedTargetSatelliteOracleRecord);
+
+                const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
+                const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleLedger.get(targetSatellite);
+
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
+
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
+
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
+
+                // check that governance action has been executed
+                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,   0);
+                assert.equal(updatedGovernanceAction.status,                  true);
+                assert.equal(updatedGovernanceAction.executed,                true);
+                
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, false)
+
+                // check that target satellite oracle aggregator record is updated
+                assert.equal(usdBtcOracleAggregatorRecord,                           undefined);
+
+                // check that target satellite is now removed from aggregator oracleLedger Set
+                assert.equal(updatedAggregatorOracles, undefined);
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
+
+        it(' %removeAllSatelliteOracles - Any satellite should be able to create a governance action to remove all oracles/aggregators that satellite is subscribed to', async () => {
+            try{        
+
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
+
+                // init action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const currentCycle             = governanceStorage.cycleId;
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
+                
+                // init target satellite
+                const targetSatellite          = satelliteFour; // oscar
+                const targetSatellitePeerId    = oscar.peerId;
+                const targetSatellitePk        = oscar.pk;
+
+                // Test flow: add three aggregators to bob's satellite, then initiate governance action to remove all satellite oracles 
+
+                // get aggregator address from pair key
+                const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
+
+                // get aggregator address from pair key
+                const usdXtzAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[1];
+
+                // get aggregator address from pair key
+                const usdDogeAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[2];
+                
+                // get aggregator contracts
+                const usdBtcAggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
+                const usdXtzAggregatorInstance       = await utils.tezos.contract.at(usdXtzAggregatorAddress);
+                const usdDogeAggregatorInstance      = await utils.tezos.contract.at(usdDogeAggregatorAddress);
+                
+                const usdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
+                const usdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+                const usdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
+
+                // check that user is not in aggregator oracleLedger set
+                const usdBtcAggregatorOracles        = await usdBtcAggregatorStorage.oracleLedger.get(targetSatellite);
+                const usdXtzAggregatorOracles        = await usdXtzAggregatorStorage.oracleLedger.get(targetSatellite);
+                const usdDogeAggregatorOracles       = await usdDogeAggregatorStorage.oracleLedger.get(targetSatellite);
+                
+                assert.equal(usdBtcAggregatorOracles,      undefined);
+                assert.equal(usdXtzAggregatorOracles,      undefined);
+                assert.equal(usdDogeAggregatorOracles,     undefined);
+
+                // --------------------------------------------------------
+                // governance satellite action params - add bob to first aggregator
+                // --------------------------------------------------------
+
+                const aggregatorAddress        = usdBtcAggregatorAddress;
+                const purpose                  = "Test Add Oracle To Aggregator";            
+
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
+                        targetSatellite,
+                        aggregatorAddress,
+                        purpose
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+                
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
+                
+                // check details of governance satellite action
+                assert.equal(governanceAction.initiator,                                 satellite);
+                assert.equal(governanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
+                assert.equal(governanceAction.status,                                    true);
+                assert.equal(governanceAction.executed,                                  false);
+                assert.equal(governanceAction.governancePurpose,                         purpose);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
+                    
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, true)
+            
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                // --------------------------------------------------------
+                // governance satellite action params - add bob to second aggregator
+                // --------------------------------------------------------
+
+                // Satellite creates a second governance action to add target oracle to aggregator
+                await signerFactory(tezos, satelliteOneSk);
+                const secondGovernanceSatelliteStorage         = await governanceSatelliteInstance.storage();
+                const secondActionId                           = secondGovernanceSatelliteStorage.governanceSatelliteCounter;
+
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
+                        targetSatellite,
+                        usdXtzAggregatorAddress,
+                        purpose
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                const secondGovernanceAction                   = await secondGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(secondActionId);
+                
+                // check details of governance satellite action
+                assert.equal(secondGovernanceAction.initiator,                                 satellite);
+                assert.equal(secondGovernanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
+                assert.equal(secondGovernanceAction.status,                                    true);
+                assert.equal(secondGovernanceAction.executed,                                  false);
+                assert.equal(secondGovernanceAction.governancePurpose,                         purpose);
+                assert.equal(secondGovernanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(secondGovernanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(secondGovernanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(secondGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(secondGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+            
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                // --------------------------------------------------------
+                // governance satellite action params - add bob to third aggregator
+                // --------------------------------------------------------
+
+                // Satellite creates a governance action to add oracle to aggregator
+                await signerFactory(tezos, satelliteOneSk);
+                const thirdGovernanceSatelliteStorage         = await governanceSatelliteInstance.storage();
+                const thirdActionId                           = thirdGovernanceSatelliteStorage.governanceSatelliteCounter;
+
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
+                        targetSatellite,
+                        usdDogeAggregatorAddress,
+                        purpose
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                const thirdGovernanceAction                   = await thirdGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(thirdActionId);
+                
+                // check details of governance satellite action
+                assert.equal(thirdGovernanceAction.initiator,                                 satellite);
+                assert.equal(thirdGovernanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
+                assert.equal(thirdGovernanceAction.status,                                    true);
+                assert.equal(thirdGovernanceAction.executed,                                  false);
+                assert.equal(thirdGovernanceAction.governancePurpose,                         purpose);
+                assert.equal(thirdGovernanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(thirdGovernanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(thirdGovernanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(thirdGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(thirdGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+            
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                // --------------------------------------------------------
+                // governance satellite check storage that bob is now linked to three aggregators
+                // --------------------------------------------------------
+
+                // get updated storage
+                governanceSatelliteStorage                 = await governanceSatelliteInstance.storage();        
+                
+                const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
+
+                const updatedTargetSatelliteOracleRecord   = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
+
+                const usdBtcOracleAggregatorRecord         = await updatedTargetSatelliteOracleRecord.get(usdBtcAggregatorAddress);
+                const usdXtzOracleAggregatorRecord         = await updatedTargetSatelliteOracleRecord.get(usdXtzAggregatorAddress);
+                const usdDogeOracleAggregatorRecord        = await updatedTargetSatelliteOracleRecord.get(usdDogeAggregatorAddress);
+
+                const updatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
+                const updatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+                const updatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
+
+                // check that user is not in aggregator oracleLedger set
+                const updatedUsdBtcAggregatorOracles : any        = await updatedUsdBtcAggregatorStorage.oracleLedger.get(targetSatellite);
+                const updatedUsdXtzAggregatorOracles : any        = await updatedUsdXtzAggregatorStorage.oracleLedger.get(targetSatellite);
+                const updatedUsdDogeAggregatorOracles : any       = await updatedUsdDogeAggregatorStorage.oracleLedger.get(targetSatellite);
+                
+                // check that governance action has been executed
+                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,   0);
+                assert.equal(updatedGovernanceAction.status,                  true);
+                assert.equal(updatedGovernanceAction.executed,                true);
+
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, false)
+
+                // check that target oracle aggregator record is updated
+                assert.notEqual(usdBtcOracleAggregatorRecord,  undefined);
+                assert.notEqual(usdXtzOracleAggregatorRecord,  undefined);
+                assert.notEqual(usdDogeOracleAggregatorRecord, undefined);
+
+                // check that bob is now added to aggregator oracleLedger Set
+                assert.equal(updatedUsdBtcAggregatorOracles.oraclePeerId,       targetSatellitePeerId);
+                assert.equal(updatedUsdBtcAggregatorOracles.oraclePublicKey,    targetSatellitePk);
+
+                assert.equal(updatedUsdXtzAggregatorOracles.oraclePeerId,       targetSatellitePeerId);
+                assert.equal(updatedUsdXtzAggregatorOracles.oraclePublicKey,    targetSatellitePk);
+
+                assert.equal(updatedUsdDogeAggregatorOracles.oraclePeerId,      targetSatellitePeerId);
+                assert.equal(updatedUsdDogeAggregatorOracles.oraclePublicKey,   targetSatellitePk);
+
+                // --------------------------------------------------------
+                // governance satellite action params - remove all satellite oracles
+                // --------------------------------------------------------
+
+                // governance satellite action params
+                const purposeRemove = "Test Remove All Satellite Oracles";            
+
+                // Satellite creates a governance action to remove all satellite oracles
+                await signerFactory(tezos, satelliteOneSk);
+                const fourthGovernanceSatelliteStorage         = await governanceSatelliteInstance.storage();
+                const fourthActionId                           = fourthGovernanceSatelliteStorage.governanceSatelliteCounter;
+
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.removeAllSatelliteOracles(
+                        targetSatellite,
+                        purposeRemove
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                const fourthGovernanceAction                   = await fourthGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(fourthActionId);
+                
+                // check details of governance satellite action
+                assert.equal(fourthGovernanceAction.initiator,                                 satellite);
+                assert.equal(fourthGovernanceAction.governanceType,                            "REMOVE_ALL_SATELLITE_ORACLES");
+                assert.equal(fourthGovernanceAction.status,                                    true);
+                assert.equal(fourthGovernanceAction.executed,                                  false);
+                assert.equal(fourthGovernanceAction.governancePurpose,                         purposeRemove);
+                assert.equal(fourthGovernanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(fourthGovernanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(fourthGovernanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(fourthGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(fourthGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                // --------------------------------------------------------
+                // governance satellite action params - remove all satellite oracles
+                // --------------------------------------------------------
+
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();        
+                const finalUpdatedGovernanceAction              = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
+
+                const finalUpdatedTargetSatelliteOracleRecord   = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
+                const finalUsdBtcOracleAggregatorRecord         = await finalUpdatedTargetSatelliteOracleRecord.get(usdBtcAggregatorAddress);
+                const finalUsdXtzOracleAggregatorRecord         = await finalUpdatedTargetSatelliteOracleRecord.get(usdXtzAggregatorAddress);
+                const finalUsdDogeOracleAggregatorRecord        = await finalUpdatedTargetSatelliteOracleRecord.get(usdDogeAggregatorAddress);
+
+                const finalUpdatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
+                const finalUpdatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+                const finalUpdatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
+
+                // check that user is not in aggregator oracleLedger set
+                const finalUpdatedUsdBtcAggregatorOracles        = await finalUpdatedUsdBtcAggregatorStorage.oracleLedger.get(targetSatellite);
+                const finalUpdatedUsdXtzAggregatorOracles        = await finalUpdatedUsdXtzAggregatorStorage.oracleLedger.get(targetSatellite);
+                const finalUpdatedUsdDogeAggregatorOracles       = await finalUpdatedUsdDogeAggregatorStorage.oracleLedger.get(targetSatellite);
+                
+                // check that governance action has been executed
+                assert.equal(finalUpdatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(finalUpdatedGovernanceAction.nayVoteStakedMvkTotal,   0);
+                assert.equal(finalUpdatedGovernanceAction.status,                  true);
+                assert.equal(finalUpdatedGovernanceAction.executed,                true);
+
+                // check that target oracle aggregator record is updated
+                assert.equal(finalUsdBtcOracleAggregatorRecord,      undefined);
+                assert.equal(finalUsdXtzOracleAggregatorRecord,      undefined);
+                assert.equal(finalUsdDogeOracleAggregatorRecord,     undefined);
+
+                // check that target satellite is now removed from aggregator oracleLedger Set
+                assert.equal(finalUpdatedUsdBtcAggregatorOracles,    undefined);
+                assert.equal(finalUpdatedUsdXtzAggregatorOracles,    undefined);
+                assert.equal(finalUpdatedUsdDogeAggregatorOracles,   undefined);
+            
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
+
+        it('%togglePauseAggregator - Any satellite should be able to create a governance action to update aggregator status', async () => {
+            try{        
+
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
+
+                // init action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const currentCycle             = governanceStorage.cycleId;
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
+
                 // get aggregator address from pair key
                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
 
@@ -1525,181 +1609,182 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused, false);
                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused, false);
 
-                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-                const bobStakeAmount           = MVK(100);
-                const aliceStakeAmount         = MVK(100);
-                const eveStakeAmount           = MVK(100);
-                const malloryStakeAmount       = MVK(100);
-
                 // governance satellite action params
                 const aggregatorAddress        = usdBtcAggregatorAddress;
                 const newStatus                = "pauseAll"
                 const purpose                  = "Test Update Aggregator Status";            
     
-                // Satellite Bob creates a governance action - suspend Alice
-                await signerFactory(tezos, bob.sk);
-                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.togglePauseAggregator(
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.togglePauseAggregator(
                         aggregatorAddress,
                         purpose,
                         newStatus
                     ).send();
-                await governanceSatelliteOperation.confirmation();
-    
-                governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-                const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-                
-                const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-                const governanceSatellitePercentageDecimals    = 4;
-                const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-                const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
+                await createGovernanceSatelliteActionOperation.confirmation();
 
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+                
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
     
                 // check details of governance satellite action
-                assert.equal(governanceAction.initiator,                                 bob.pkh);
+                assert.equal(governanceAction.initiator,                                 satellite);
                 assert.equal(governanceAction.governanceType,                            "TOGGLE_PAUSE_AGGREGATOR");
                 assert.equal(governanceAction.status,                                    true);
                 assert.equal(governanceAction.executed,                                  false);
                 assert.equal(governanceAction.governancePurpose,                         purpose);
-                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
+
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
                     }
                 }
-                assert.equal(actionsInitiatorCheck, true)
+                assert.equal(satelliteActionCheck, true)
     
-                // 3 satellites vote yay, one satellite votes nay
-                await signerFactory(tezos, bob.sk);
-                const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await bobVotesForGovernanceActionOperation.confirmation();
-    
-                await signerFactory(tezos, eve.sk);
-                const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await eveVotesForGovernanceActionOperation.confirmation();
-                
-                await signerFactory(tezos, alice.sk);
-                const aliceVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "nay").send();
-                await aliceVotesForGovernanceActionOperation.confirmation();
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
 
-                await signerFactory(tezos, mallory.sk);
-                const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await malloryVotesForGovernanceActionOperation.confirmation();
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
     
                 // get updated storage
-                const updatedGovernanceSatelliteStorage            = await governanceSatelliteInstance.storage();        
-                const updatedGovernanceAction                      = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const updatedInitiatorsActions                     = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
+                governanceSatelliteStorage                = await governanceSatelliteInstance.storage();    
 
-                governanceStorage                                  = await governanceInstance.storage();
-                const currentCycle                                 = governanceStorage.cycleId;
-                const aliceSnapshot                                = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-                const eveSnapshot                                  = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-                const bobSnapshot                                  = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-                const mallorySnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
-                
-                // check details of governance satellite action snapshot ledger
-                assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-                assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-                assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
-    
-                assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
-                assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
-                assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
+                const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
 
-                assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-                assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-                assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-                assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-                assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
+
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that governance action has been executed
-                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
+                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,   0);
                 assert.equal(updatedGovernanceAction.status,                  true);
                 assert.equal(updatedGovernanceAction.executed,                true);
-                var actionsInitiatorCheck = false
-                for(const i in updatedInitiatorsActions){
-                    if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
+                
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
                     }
                 }
-                assert.equal(actionsInitiatorCheck, false)
+                assert.equal(satelliteActionCheck, false)
 
                 // check that aggregator is now inactive
                 aggregatorStorage              = await aggregatorInstance.storage();
-                assert.equal(aggregatorStorage.breakGlassConfig.updateDataIsPaused, true);
-                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused, true);
-                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused, true);
+                assert.equal(aggregatorStorage.breakGlassConfig.updateDataIsPaused,                 true);
+                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused,          true);
+                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused,    true);
             
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
         });
-        
-    });  // end %togglePauseAggregator tests
 
-
-    describe("%fixMistakenTransfer", async () => {
-
-        it('Any satellite should be able to create a governance action to resolve a mistaken transfer made by a user', async () => {
+        it('%fixMistakenTransfer - Any satellite should be able to create a governance action to resolve a mistaken transfer made by a user (mallory)', async () => {
             try{        
     
-                // some init constants
-                governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+                // set user to mallory
+                user    = mallory.pkh
+                userSk  = mallory.sk
+
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
                 mvkTokenStorage                 = await mvkTokenInstance.storage()
-                var contractAccount             = await mvkTokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                var userAccount                 = await mvkTokenStorage.ledger.get(bob.pkh)
-                const initAccountBalance        = contractAccount ? contractAccount.toNumber() : 0;
-                const initUserBalance           = userAccount ? userAccount.toNumber() : 0;
-                const tokenAmount               = MVK(200);
+
+                // init action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const currentCycle             = governanceStorage.cycleId;
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
+                
+
+                // get initial MVK balances
+                var contractAccount             = await mvkTokenStorage.ledger.get(aggregatorFactoryAddress)
+                var userAccount                 = await mvkTokenStorage.ledger.get(user)
+                const initAccountTokenBalance   = contractAccount ? contractAccount.toNumber() : 0;
+                const initUserTokenBalance      = userAccount ? userAccount.toNumber() : 0;
+                
+                // init params
+                const tokenAmount               = MVK(20);
                 const purpose                   = "Transfer made by mistake to the aggregator factory"
-                const actionId                  = governanceSatelliteStorage.governanceSatelliteCounter;
-                const bobStakeAmount            = MVK(100);
-                const aliceStakeAmount          = MVK(100);
-                const eveStakeAmount            = MVK(100);
-                const malloryStakeAmount        = MVK(100);
     
-                await signerFactory(tezos, bob.sk);
-    
-                // Mistake Operation
-                const transferOperation         = await mvkTokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.aggregatorFactory.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                // Mistaken Transfer Operation
+                await signerFactory(tezos, userSk);
+                transferOperation = await fa2Transfer(mvkTokenInstance, user, aggregatorFactoryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
+
+                // Update storage - check mid values
+                mvkTokenStorage                 = await mvkTokenInstance.storage()
+                contractAccount                 = await mvkTokenStorage.ledger.get(aggregatorFactoryAddress)
+                userAccount                     = await mvkTokenStorage.ledger.get(user)
+                
+                const midAccountTokenBalance    = contractAccount ? contractAccount.toNumber() : 0;          
+                const midUserTokenBalance       = userAccount ? userAccount.toNumber() : 0;
     
-                // Mid values
-                mvkTokenStorage             = await mvkTokenInstance.storage()
-                contractAccount             = await mvkTokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                userAccount                 = await mvkTokenStorage.ledger.get(bob.pkh)
-                const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;          
+                // Mid assertions - check token balances are correct
+                assert.equal(midAccountTokenBalance, initAccountTokenBalance + tokenAmount)
+                assert.equal(midUserTokenBalance, initUserTokenBalance - tokenAmount)
     
-                // Mid assertions
-                assert.equal(midAccountBalance, initAccountBalance + tokenAmount)
-    
-                // Satellite Bob creates a governance action
-                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
-                        contractDeployments.aggregatorFactory.address,
+                // create governance satellite action
+                await signerFactory(tezos, satelliteOneSk);
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
+                        aggregatorFactoryAddress,
                         purpose,
                         [
                             {
-                                "to_"    : bob.pkh,
+                                "to_"    :user,
                                 "token"  : {
                                     "fa2" : {
                                         "tokenContractAddress": contractDeployments.mvkToken.address,
@@ -1710,303 +1795,313 @@ describe("Governance Satellite tests", async () => {
                             }
                         ]
                     ).send();
-                await governanceSatelliteOperation.confirmation();
+                await createGovernanceSatelliteActionOperation.confirmation();
     
-                governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-                const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-                
-                const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-                const governanceSatellitePercentageDecimals    = 4;
-                const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-                const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
-    
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
     
                 // check details of governance satellite action
-                assert.equal(governanceAction.initiator,                                 bob.pkh);
+                assert.equal(governanceAction.initiator,                                 satellite);
                 assert.equal(governanceAction.governanceType,                            "MISTAKEN_TRANSFER_FIX");
                 assert.equal(governanceAction.status,                                    true);
                 assert.equal(governanceAction.executed,                                  false);
                 assert.equal(governanceAction.governancePurpose,                         purpose);
-                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
+                
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
                     }
                 }
-                assert.equal(actionsInitiatorCheck, true)
+                assert.equal(satelliteActionCheck, true)
     
-                // 3 satellites vote yay, one satellite votes nay
-                await signerFactory(tezos, bob.sk);
-                const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await bobVotesForGovernanceActionOperation.confirmation();
-    
-                await signerFactory(tezos, eve.sk);
-                const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await eveVotesForGovernanceActionOperation.confirmation();
-                
-                await signerFactory(tezos, alice.sk);
-                const aliceVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "nay").send();
-                await aliceVotesForGovernanceActionOperation.confirmation();
-    
-                await signerFactory(tezos, mallory.sk);
-                const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await malloryVotesForGovernanceActionOperation.confirmation();
-    
+                // satellites vote and yay governance action
+                await signerFactory(tezos, satelliteOneSk);
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteTwoSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
+                await signerFactory(tezos, satelliteThreeSk);
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await satelliteVotesForGovernanceActiontOperation.confirmation();
+
                 // get updated storage
-                governanceSatelliteStorage                  = await governanceSatelliteInstance.storage();
+                governanceSatelliteStorage                  = await governanceSatelliteInstance.storage();    
+                delegationStorage                           = await delegationInstance.storage();     
                 mvkTokenStorage                             = await mvkTokenInstance.storage()      
+
                 const updatedGovernanceAction               = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const updatedInitiatorsActions              = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-                contractAccount                             = await mvkTokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                userAccount                                 = await mvkTokenStorage.ledger.get(bob.pkh)
-                const endAccountBalance                     = contractAccount ? contractAccount.toNumber() : 0;
-                const endUserBalance                        = userAccount ? userAccount.toNumber() : 0;
-                governanceStorage                              = await governanceInstance.storage();
-                const currentCycle                             = governanceStorage.cycleId;
-                const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-                const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-                const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-                const mallorySnapshot                          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
+                const updatedSatelliteActions               = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
+
+                // get updated MVK balance
+                contractAccount                             = await mvkTokenStorage.ledger.get(aggregatorFactoryAddress)
+                userAccount                                 = await mvkTokenStorage.ledger.get(user)
+                const endAccountTokenBalance                = contractAccount ? contractAccount.toNumber() : 0;
+                const endUserTokenBalance                   = userAccount ? userAccount.toNumber() : 0;
                 
-                // check details of governance satellite action snapshot ledger
-                assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-                assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-                assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
-    
-                assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
-                assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
-                assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
-    
-                assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-                assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-                assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
-    
-                assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-                assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-                assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
-    
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
+
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
+
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
+
                 // check that governance action has been executed
-                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
-                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
+                assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,   initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,   0);
                 assert.equal(updatedGovernanceAction.status,                  true);
                 assert.equal(updatedGovernanceAction.executed,                true);
-                var actionsInitiatorCheck = false
-            for(const i in updatedInitiatorsActions){
-                if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
-                 }
-             }
-             assert.equal(actionsInitiatorCheck, false)
+
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+                assert.equal(satelliteActionCheck, false)
     
                 // Final assertions
-                assert.equal(endAccountBalance, initAccountBalance)
-                assert.equal(endUserBalance, initUserBalance)
+                assert.equal(endAccountTokenBalance, initAccountTokenBalance)
+                assert.equal(endUserTokenBalance, initUserTokenBalance)
             
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
         });
         
-    });  // end %fixMistakenTransfer tests
-
-    describe("%dropAction", async () => {
-
-        it('Satellite should be able to drop an action it created', async () => {
+        it('%dropAction - satellite (eve) should be able to drop an action it created', async () => {
             try{
     
-            // some init constants
-            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-            const delegationStorage        = await delegationInstance.storage();        
-            const aliceSatelliteRecord     = await delegationStorage.satelliteLedger.get(alice.pkh);
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                delegationStorage              = await delegationInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
 
-            assert.equal(aliceSatelliteRecord.status, "ACTIVE");
+                // init action ids and counters
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const currentCycle             = governanceStorage.cycleId;
 
-            const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-            const bobStakeAmount           = MVK(100);
-            const aliceStakeAmount         = MVK(100);
-            const eveStakeAmount           = MVK(100);
-            const malloryStakeAmount       = MVK(100);
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-            // governance satellite action params
-            const satelliteToBeSuspended   = alice.pkh;
-            const purpose                  = "Test Ban Satellite";            
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-            // Satellite Bob creates a governance action to ban Alice
-            await signerFactory(tezos, bob.sk);
-            const governanceSatelliteOperation = await governanceSatelliteInstance.methods.banSatellite(
-                    satelliteToBeSuspended,
-                    purpose
-                ).send();
-            await governanceSatelliteOperation.confirmation();
-
-            governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-            const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-
-            const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-            const governanceSatellitePercentageDecimals    = 4;
-            const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-            const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
-
-            // check details of governance satellite action
-            assert.equal(governanceAction.initiator,                                 bob.pkh);
-            assert.equal(governanceAction.governanceType,                            "BAN");
-            assert.equal(governanceAction.status,                                    true);
-            assert.equal(governanceAction.executed,                                  false);
-            assert.equal(governanceAction.governancePurpose,                         purpose);
-            assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
-            assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
-            assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
-            assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-            assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-              
-            var actionsInitiatorCheck = false
-            for(const i in initiatorsActions){
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
                 
-                if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
+                // governance satellite action params
+                const satelliteToBeSuspended   = satelliteFour;
+                const purpose                  = "Test Suspended Satellite";            
+
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(
+                        satelliteToBeSuspended,
+                        purpose
+                    ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
+
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
+
+                // check details of governance satellite action
+                assert.equal(governanceAction.initiator,                                 satellite);
+                assert.equal(governanceAction.governanceType,                            "SUSPENDED");
+                assert.equal(governanceAction.status,                                    true);
+                assert.equal(governanceAction.executed,                                  false);
+                assert.equal(governanceAction.governancePurpose,                         purpose);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
+                assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+                
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
                 }
-            }
-            assert.equal(actionsInitiatorCheck, true)
+                assert.equal(satelliteActionCheck, true)
 
-            // 3 satellites vote yay, one satellite votes nay
-            await signerFactory(tezos, bob.sk);
-            const dropsActionOperation  = await governanceSatelliteInstance.methods.dropAction(actionId).send();
-            await dropsActionOperation.confirmation();
+                // drop previous action
+                const dropsActionOperation  = await governanceSatelliteInstance.methods.dropAction(actionId).send();
+                await dropsActionOperation.confirmation();
 
-            // get updated storage
-            const updatedGovernanceSatelliteStorage                = await governanceSatelliteInstance.storage();        
-            const updatedGovernanceAction                          = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-            const updatedInitiatorsActions                         = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-            governanceStorage                              = await governanceInstance.storage();
-            const currentCycle                             = governanceStorage.cycleId;
-            const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-            const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-            const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-            const mallorySnapshot                          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
+                // get updated storage
+                governanceSatelliteStorage                = await governanceSatelliteInstance.storage();    
+                delegationStorage                         = await delegationInstance.storage();     
 
-            // check details of governance satellite action snapshot ledger
-            assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-            assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
+                const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
+                const suspendedSatelliteRecord            = await delegationStorage.satelliteLedger.get(satelliteToBeSuspended);
+                
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-            assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
-            assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
-            assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-            assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-            assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-            assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
-            assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-            assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-            assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
+                // check that governance action has been dropped and removed from the satellite's actions
+                assert.equal(updatedGovernanceAction.status,                  false);
+                assert.equal(updatedGovernanceAction.executed,                false);
 
-            // check that governance action has been dropped and remove from the satellite actions
-            assert.equal(updatedGovernanceAction.status,                  false);
-            assert.equal(updatedGovernanceAction.executed,                false);
-            var actionsInitiatorCheck = false
-            for(const i in updatedInitiatorsActions){
-                if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-                    actionsInitiatorCheck   = true;
-                 }
-             }
-             assert.equal(actionsInitiatorCheck, false)
+                var satelliteActionCheck = false
+                for(const i in updatedSatelliteActions){
+                    if(updatedSatelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
+                    }
+                }
+
+                assert.equal(satelliteActionCheck, false)
+                
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
         });
 
-        it('Satellite should be not able to drop an action it did not create', async () => {
+        it('satellite (eve) should not be able to drop an action it did not create', async () => {
             
             try{
                 
-                // some init constants
+                // init storage
                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                const delegationStorage        = await delegationInstance.storage();        
-                const aliceSatelliteRecord     = await delegationStorage.satelliteLedger.get(alice.pkh);
+                delegationStorage              = await delegationInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
 
-                assert.equal(aliceSatelliteRecord.status, "ACTIVE");
-
+                // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-                const bobStakeAmount           = MVK(100);
-                const aliceStakeAmount         = MVK(100);
-                const eveStakeAmount           = MVK(100);
-                const malloryStakeAmount       = MVK(100);
+                const currentCycle             = governanceStorage.cycleId;
+
+                // get initial values of satellites
+                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+
+                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+
+                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // governance satellite action params
-                const satelliteToBeSuspended   = alice.pkh;
-                const purpose                  = "Test Ban Satellite";            
+                const satelliteToBeSuspended   = satelliteFour;
+                const purpose                  = "Test Suspended Satellite";            
 
-                // Satellite Bob creates a governance action to ban Alice
-                await signerFactory(tezos, bob.sk);
-                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.banSatellite(
-                        satelliteToBeSuspended,
-                        purpose
-                    ).send();
-                await governanceSatelliteOperation.confirmation();
+                // create governance satellite action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(
+                    satelliteToBeSuspended,
+                    purpose
+                ).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
 
+                // get updated storage
+                governanceSatelliteStorage                      = await governanceSatelliteInstance.storage();
+                const governanceAction                          = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteActions                          = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});
 
-                governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-                governanceStorage                              = await governanceInstance.storage();
-                const currentCycle                             = governanceStorage.cycleId;
-                const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-                const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-                const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-                const mallorySnapshot                          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
-                const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                const initiatorsActions                        = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
-
-                const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-                const governanceSatellitePercentageDecimals    = 4;
-                const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-                const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
-
-
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                // calculate staked MVK required for approval
+                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, governanceSatellitePercentageDecimals);
+    
                 // check details of governance satellite action
-                assert.equal(governanceAction.initiator,                                 bob.pkh);
-                assert.equal(governanceAction.governanceType,                            "BAN");
+                assert.equal(governanceAction.initiator,                                 satellite);
+                assert.equal(governanceAction.governanceType,                            "SUSPENDED");
                 assert.equal(governanceAction.status,                                    true);
                 assert.equal(governanceAction.executed,                                  false);
                 assert.equal(governanceAction.governancePurpose,                         purpose);
-                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
-                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
+                assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),          0);
+                assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),         0);
                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                var actionsInitiatorCheck = false
-                for(const i in initiatorsActions){
-                    if(initiatorsActions[i].toNumber() == actionId.toNumber()){
-                        actionsInitiatorCheck   = true;
+
+                var satelliteActionCheck = false
+                for(const i in satelliteActions){
+                    if(satelliteActions[i].toNumber() == actionId.toNumber()){
+                        satelliteActionCheck   = true;
                     }
                 }
-                assert.equal(actionsInitiatorCheck, true)
+                assert.equal(satelliteActionCheck, true)
                 
-                // check details of governance satellite action snapshot ledger
-                assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
-                assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
-                assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
+                // check details of financial request snapshot ledger
+                const satelliteOneGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneGovernanceActionSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
-                assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
-                assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
+                const satelliteTwoGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoGovernanceActionSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
-                assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
-                assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
+                const satelliteThreeGovernanceActionSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeGovernanceActionSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
-                assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-                assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
-                assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
-
-                // 3 satellites vote yay, one satellite votes nay
-                await signerFactory(tezos, eve.sk);
+                // other satellite should not be able to drop an action it did not create
+                await signerFactory(tezos, satelliteTwoSk);
                 await chai.expect(governanceSatelliteInstance.methods.dropAction(actionId).send()).to.be.rejected;
 
             } catch(e){
@@ -2015,252 +2110,7 @@ describe("Governance Satellite tests", async () => {
         
         });  // end %dropAction tests
     })
-    
-    describe("permissions tests", async () => {
 
-        it('Non-satellite should not be able to create any governance action', async () => {
-            try{        
-
-                // some init constants
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                
-                // get aggregator address from pair key
-                const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
-                
-                // dummy governance satellite action params
-                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-                var oracleAddress              = trudy.pkh;
-                const aggregatorAddress        = usdBtcAggregatorAddress;
-                const newStatus                = "pauseAll"
-                const purpose                  = "Test Purpose";            
-
-                // init non-satellite user
-                await signerFactory(tezos, trudy.sk);
-
-                // fail to create governance action to suspend Satellite
-                const failSuspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(
-                    bob.pkh,
-                    purpose
-                ).send();
-                await chai.expect(failSuspendSatelliteOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to restore Satellite
-                const failRestoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
-                    bob.pkh,
-                    purpose
-                ).send();
-                await chai.expect(failRestoreSatelliteOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to ban Satellite
-                const failBanSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(
-                    bob.pkh,
-                    purpose
-                ).send();
-                await chai.expect(failBanSatelliteOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to add oracle to aggregator
-                const failAddOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
-                        oracleAddress,
-                        aggregatorAddress,
-                        purpose
-                    ).send();
-                await chai.expect(failAddOracleToAggregatorOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to remove oracle in aggregator
-                const failRemoveOracleInAggregatorOperation = governanceSatelliteInstance.methods.removeOracleInAggregator(
-                    oracleAddress,
-                    aggregatorAddress,
-                    purpose
-                ).send();
-                await chai.expect(failRemoveOracleInAggregatorOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to remove all satellite oracles
-                const failRemoveAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(
-                    bob.pkh,
-                    purpose
-                ).send();
-                await chai.expect(failRemoveAllSatelliteOraclesOperation).to.be.eventually.rejected;
-
-                
-                // fail to create governance action to update aggregator status
-                const failTogglePauseAggregatorOperation = governanceSatelliteInstance.methods.togglePauseAggregator(
-                    aggregatorAddress,
-                    purpose,
-                    newStatus
-                ).send();
-                await chai.expect(failTogglePauseAggregatorOperation).to.be.eventually.rejected;
-
-
-                // Satellite Bob creates a governance action to add oracle to aggregator (with a real satellite)
-                await signerFactory(tezos, bob.sk);
-                oracleAddress   = alice.pkh;
-                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
-                        oracleAddress,
-                        aggregatorAddress,
-                        purpose
-                    ).send();
-                await governanceSatelliteOperation.confirmation();
-
-
-                await signerFactory(tezos, trudy.sk);
-                // fail to create governance action to drop governance action
-                const failDropActionOperation = governanceSatelliteInstance.methods.dropAction(
-                    actionId
-                ).send();
-                await chai.expect(failDropActionOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to vote for governance action
-                const failVoteYayForActionOperation = governanceSatelliteInstance.methods.voteForAction(
-                    actionId,
-                    "yay"
-                ).send();
-                await chai.expect(failVoteYayForActionOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to vote for governance action
-                const failVoteNayForActionOperation = governanceSatelliteInstance.methods.voteForAction(
-                    actionId,
-                    "nay"
-                ).send();
-                await chai.expect(failVoteNayForActionOperation).to.be.eventually.rejected;
-
-
-                // fail to create governance action to vote for governance action
-                const failVotePassForActionOperation = governanceSatelliteInstance.methods.voteForAction(
-                    actionId,
-                    "pass"
-                ).send();
-                await chai.expect(failVotePassForActionOperation).to.be.eventually.rejected;
-
-            
-            } catch(e){
-                console.dir(e, {depth: 5})
-            } 
-        });
-        
-    });  // end permissions tests
-
-
-    describe("%updateConfig", async () => {
-
-        before("Configure delegation ratio on delegation contract", async () => {
-            try{
-                // Initial Values
-                await signerFactory(tezos, bob.sk)
-                delegationStorage   = await delegationInstance.storage();
-                const newConfigValue = 10;
-
-                // Operation
-                const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
-                await updateConfigOperation.confirmation();
-
-                // Final values
-                delegationStorage   = await delegationInstance.storage();
-                const updateConfigValue = delegationStorage.config.delegationRatio;
-
-                // Assertions
-                assert.equal(updateConfigValue, newConfigValue);
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(tezos, bob.sk)
-        });
-
-        it('Admin should be able to call the entrypoint and configure the approval percentage', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newConfigValue = 6700;
-
-                // Operation
-                const updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configApprovalPercentage").send();
-                await updateConfigOperation.confirmation();
-
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-
-                // Assertions
-                assert.equal(updateConfigValue, newConfigValue);
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin should not be able to call the entrypoint and configure the approval percentage if it exceed 100%', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-                const newConfigValue = 10001;
-
-                // Operation
-                await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configApprovalPercentage").send()).to.be.rejected;
-
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-
-                // Assertions
-                assert.notEqual(newConfigValue, currentConfigValue);
-                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin should be able to call the entrypoint and configure the action duration in days', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newConfigValue = 1;
-
-                // Operation
-                const updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configSatelliteDurationInDays").send();
-                await updateConfigOperation.confirmation();
-
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
-
-                // Assertions
-                assert.equal(updateConfigValue, newConfigValue);
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Non-admin should not be able to call the entrypoint', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
-                const newConfigValue = 1;
-
-                // Operation
-                await signerFactory(tezos, alice.sk)
-                await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configSatelliteDurationInDays").send()).to.be.rejected;
-
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
-
-                // Assertions
-                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    }); // end %updateConfig tests
 
     describe("Housekeeping Entrypoints", async () => {
 
@@ -2353,42 +2203,66 @@ describe("Governance Satellite tests", async () => {
             try{
                 
                 // Initial Values
-                governanceSatelliteStorage            = await governanceSatelliteInstance.storage();
-                const testValue = 10;
+                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+                const testValue            = 10;
 
-                const initialFinancialReqApprovalPct  = governanceSatelliteStorage.config.financialRequestApprovalPercentage.toNumber();
-                const initialFinancialReqDurationDays = governanceSatelliteStorage.config.financialRequestDurationInDays.toNumber();
+                const initialApprovalPct            = governanceSatelliteStorage.config.approvalPercentage;
+                const initialDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays;
+                const initialPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength;
+                const initialMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
 
                 // Operation
-                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct").send();
+                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configApprovalPercentage").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configFinancialReqDurationDays");
-                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configActionDurationDays").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configPurposeMaxLength").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configMaxActionsPerSatellite").send();
+                await updateConfigOperation.confirmation();
 
                 // Final values
                 governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-                const updatedFinancialReqApprovalPct    = governanceSatelliteStorage.config.financialRequestApprovalPercentage.toNumber();
-                const updatedFinancialReqDurationDays   = governanceSatelliteStorage.config.financialRequestDurationInDays.toNumber();
+                
+                const updatedApprovalPct            = governanceSatelliteStorage.config.approvalPercentage;
+                const updatedDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays;
+                const updatedPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength;
+                const updatedMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
 
                 // Assertions
-                assert.equal(updatedFinancialReqApprovalPct, testValue);
-                assert.equal(updatedFinancialReqDurationDays, testValue);
+                assert.equal(updatedApprovalPct,            testValue);
+                assert.equal(updatedDurationDays,           testValue);
+                assert.equal(updatedPurposeMaxLength,       testValue);
+                assert.equal(updatedMaxActionsPerSatellite, testValue);
 
                 // reset config operation
-                var resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialFinancialReqApprovalPct, "configFinancialReqApprovalPct").send();
+                var resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialApprovalPct, "configApprovalPercentage").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialFinancialReqDurationDays, "configFinancialReqDurationDays").send();
+                resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialDurationDays, "configActionDurationDays").send();
+                await resetConfigOperation.confirmation();
+
+                resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialPurposeMaxLength, "configPurposeMaxLength").send();
+                await resetConfigOperation.confirmation();
+
+                resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialMaxActionsPerSatellite, "configMaxActionsPerSatellite").send();
                 await resetConfigOperation.confirmation();
 
                 // Final values
-                governanceSatelliteStorage            = await governanceSatelliteInstance.storage();
-                const resetFinancialReqApprovalPct    = governanceSatelliteStorage.config.financialRequestApprovalPercentage.toNumber();
-                const resetFinancialReqDurationDays   = governanceSatelliteStorage.config.financialRequestDurationInDays.toNumber();
+                governanceSatelliteStorage          = await governanceSatelliteInstance.storage();
 
-                assert.equal(resetFinancialReqApprovalPct, initialFinancialReqApprovalPct);
-                assert.equal(resetFinancialReqDurationDays, initialFinancialReqDurationDays);
+                const resetApprovalPct              = governanceSatelliteStorage.config.approvalPercentage;
+                const resetDurationDays             = governanceSatelliteStorage.config.satelliteActionDurationInDays;
+                const resetPurposeMaxLength         = governanceSatelliteStorage.config.governancePurposeMaxLength;
+                const resetMaxActionsPerSatellite   = governanceSatelliteStorage.config.maxActionsPerSatellite;
+
+                assert.equal(resetApprovalPct,              initialApprovalPct);
+                assert.equal(resetDurationDays,             initialDurationDays);
+                assert.equal(resetPurposeMaxLength,         initialPurposeMaxLength);
+                assert.equal(resetMaxActionsPerSatellite,   initialMaxActionsPerSatellite);
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -2396,26 +2270,26 @@ describe("Governance Satellite tests", async () => {
         });
 
 
-        it('%updateConfig             - admin (bob) should not be able to update financial required approval percentage beyond 100%', async () => {
+        it('%updateConfig             - admin (bob) should not be able to update approval percentage beyond 100%', async () => {
             try{
                 
                 // Initial Values
-                governanceSatelliteStorage          = await governanceSatelliteInstance.storage();
-                const testValue = 10001;
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
+                const testValue             = 10001;
                 
-                const initialFinancialReqApprovalPct  = governanceSatelliteStorage.config.financialRequestApprovalPercentage;
+                const initialApprovalPct  = governanceSatelliteStorage.config.approvalPercentage;
 
                 // Operation
-                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct");
+                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configApprovalPercentage");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
-                governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-                const updatedFinancialReqApprovalPct    = governanceSatelliteStorage.config.financialRequestApprovalPercentage;
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
+                const updatedApprovalPct    = governanceSatelliteStorage.config.approvalPercentage;
 
                 // check that there is no change in config values
-                assert.equal(updatedFinancialReqApprovalPct.toNumber(), initialFinancialReqApprovalPct.toNumber());
-                assert.notEqual(updatedFinancialReqApprovalPct.toNumber(), testValue);
+                assert.equal(updatedApprovalPct.toNumber(), initialApprovalPct.toNumber());
+                assert.notEqual(updatedApprovalPct.toNumber(), testValue);
 
                 
             } catch(e){
@@ -2634,27 +2508,44 @@ describe("Governance Satellite tests", async () => {
                 governanceSatelliteStorage          = await governanceSatelliteInstance.storage();
                 const testValue = 10;
                 
-                const initialFinancialReqApprovalPct  = governanceSatelliteStorage.config.financialRequestApprovalPercentage;
-                const initialFinancialReqDurationDays = governanceSatelliteStorage.config.financialRequestDurationInDays;
+                const initialApprovalPct            = governanceSatelliteStorage.config.approvalPercentage;
+                const initialDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays;
+                const initialPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength;
+                const initialMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
 
                 // Operation
-                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct");
+                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configApprovalPercentage");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configFinancialReqDurationDays");
+                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configActionDurationDays");
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configPurposeMaxLength");
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configMaxActionsPerSatellite");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
                 governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-                const updatedFinancialReqApprovalPct    = governanceSatelliteStorage.config.financialRequestApprovalPercentage;
-                const updatedFinancialReqDurationDays   = governanceSatelliteStorage.config.financialRequestDurationInDays;
+                
+                const updatedApprovalPct            = governanceSatelliteStorage.config.approvalPercentage;
+                const updatedDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays;
+                const updatedPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength;
+                const updatedMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
 
                 // check that there is no change in config values
-                assert.equal(updatedFinancialReqApprovalPct.toNumber(), initialFinancialReqApprovalPct.toNumber());
-                assert.notEqual(updatedFinancialReqApprovalPct.toNumber(), testValue);
+                assert.equal(updatedApprovalPct.toNumber(), initialApprovalPct.toNumber());
+                assert.notEqual(updatedApprovalPct.toNumber(), testValue);
 
-                assert.equal(updatedFinancialReqDurationDays.toNumber(), initialFinancialReqDurationDays.toNumber());
-                assert.notEqual(updatedFinancialReqDurationDays.toNumber(), testValue);
+                assert.equal(updatedDurationDays.toNumber(), initialDurationDays.toNumber());
+                assert.notEqual(updatedDurationDays.toNumber(), testValue);
+
+                assert.equal(updatedPurposeMaxLength.toNumber(), initialPurposeMaxLength.toNumber());
+                assert.notEqual(updatedPurposeMaxLength.toNumber(), testValue);
+
+                assert.equal(updatedMaxActionsPerSatellite.toNumber(), initialMaxActionsPerSatellite.toNumber());
+                assert.notEqual(updatedMaxActionsPerSatellite.toNumber(), testValue);
                 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -2723,6 +2614,129 @@ describe("Governance Satellite tests", async () => {
                 console.dir(e, {depth: 5})
             }
         })
+
+        it('satelliteGovernanceEntrypoints -  non-admin and non-satellite user (mallory) should not be able to create any governance action', async () => {
+            try{        
+
+                // some init constants
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                
+                // get aggregator address from pair key
+                const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
+                
+                // dummy governance satellite action params
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const targetSatellite          = satelliteFour; // oscar
+                const aggregatorAddress        = usdBtcAggregatorAddress;
+                const newStatus                = "pauseAll"
+                const purpose                  = "Test Purpose";            
+
+                // fail to create governance action to suspend Satellite
+                const failSuspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(
+                    targetSatellite,
+                    purpose
+                ).send();
+                await chai.expect(failSuspendSatelliteOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to restore Satellite
+                const failRestoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
+                    targetSatellite,
+                    purpose
+                ).send();
+                await chai.expect(failRestoreSatelliteOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to ban Satellite
+                const failBanSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(
+                    targetSatellite,
+                    purpose
+                ).send();
+                await chai.expect(failBanSatelliteOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to add oracle to aggregator
+                const failAddOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
+                    targetSatellite,
+                    aggregatorAddress,
+                    purpose
+                ).send();
+                await chai.expect(failAddOracleToAggregatorOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to remove oracle in aggregator
+                const failRemoveOracleInAggregatorOperation = governanceSatelliteInstance.methods.removeOracleInAggregator(
+                    targetSatellite,
+                    aggregatorAddress,
+                    purpose
+                ).send();
+                await chai.expect(failRemoveOracleInAggregatorOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to remove all satellite oracles
+                const failRemoveAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(
+                    targetSatellite,
+                    purpose
+                ).send();
+                await chai.expect(failRemoveAllSatelliteOraclesOperation).to.be.eventually.rejected;
+
+                
+                // fail to create governance action to update aggregator status
+                const failTogglePauseAggregatorOperation = governanceSatelliteInstance.methods.togglePauseAggregator(
+                    aggregatorAddress,
+                    purpose,
+                    newStatus
+                ).send();
+                await chai.expect(failTogglePauseAggregatorOperation).to.be.eventually.rejected;
+
+
+                // satellite (eve) creates a governance action to add oracle to aggregator (with a real satellite)
+                await signerFactory(tezos, satelliteOneSk);
+                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
+                    targetSatellite,
+                    aggregatorAddress,
+                    purpose
+                ).send();
+                await governanceSatelliteOperation.confirmation();
+
+
+                // set signer back to user (mallory)
+                await signerFactory(tezos, mallory.sk);
+
+                // fail to create governance action to drop governance action
+                const failDropActionOperation = governanceSatelliteInstance.methods.dropAction(
+                    actionId
+                ).send();
+                await chai.expect(failDropActionOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to vote for governance action
+                const failVoteYayForActionOperation = governanceSatelliteInstance.methods.voteForAction(
+                    actionId,
+                    "yay"
+                ).send();
+                await chai.expect(failVoteYayForActionOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to vote for governance action
+                const failVoteNayForActionOperation = governanceSatelliteInstance.methods.voteForAction(
+                    actionId,
+                    "nay"
+                ).send();
+                await chai.expect(failVoteNayForActionOperation).to.be.eventually.rejected;
+
+
+                // fail to create governance action to vote for governance action
+                const failVotePassForActionOperation = governanceSatelliteInstance.methods.voteForAction(
+                    actionId,
+                    "pass"
+                ).send();
+                await chai.expect(failVotePassForActionOperation).to.be.eventually.rejected;
+            
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
 
         it("%setLambda                - non-admin (mallory) should not be able to call this entrypoint", async() => {
             try{
