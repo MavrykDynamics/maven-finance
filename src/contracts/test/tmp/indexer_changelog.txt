@@ -3,7 +3,21 @@ Emergency Governance Contract
 1. Config: In emergencyUpdateConfigActionType: change ConfigMinStakedMvkForTrigger to ConfigMinStakedMvkToTrigger
 
 Break Glass Contract
-1. Rename council-related entrypoints to be consistent with Council entrypoints 
+2. Rename council-related entrypoints to be consistent with Council entrypoints 
 - AddCouncilMember to CouncilActionAddMember
 - RemoveCouncilMember to CouncilActionRemoveMember
 - ChangeCouncilMember to CouncilActionChangeMember
+
+Governance Satellite Contract
+3. Rename actionInitiators bigmap to satelliteActions
+- key for satelliteActions big map to include governance cycle id in the form (nat*address)
+- corresponding view getActionsInitiatorOpt changed to getSatelliteActionsOpt
+4. Rename config variables
+- rename update config variant "ConfigSatelliteDurationInDays" to "ConfigActionDurationInDays"
+- Rename config "governanceSatelliteDurationInDays" to "satelliteActionDurationInDays"
+- Rename config "governanceSatelliteApprovalPercentage" to "approvalPercentage"
+
+Governance Financial Contract
+5. Rename config variables
+- rename update config variant "ConfigFinancialReqApprovalPct" to "ConfigApprovalPercentage"
+- rename config "financialRequestApprovalPercentage" to "approvalPercentage"
