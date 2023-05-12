@@ -379,7 +379,7 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
         # Save whitelist token contract token standard
         if contract_address[0:3] == 'KT1' and len(contract_address) == 36:
             contract_summary    = await ctx.datasource.get_contract_summary(
-                address = contract_address,
+                address = contract_address
             )
             if contract_summary:
                 if 'tzips' in contract_summary:
