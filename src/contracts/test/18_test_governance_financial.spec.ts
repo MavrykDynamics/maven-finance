@@ -113,7 +113,7 @@ describe("Test: Governance Financial Contract", async () => {
     let mavrykFa2TokenStorage;
 
     let currentCycle
-    let financialRequestApprovalPercentage
+    let approvalPercentage
     let financialRequestPercentageDecimals
 
     let createFinancialGovernanceRequestOperation
@@ -189,7 +189,7 @@ describe("Test: Governance Financial Contract", async () => {
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
             // Initialise variables for financial request calculation
-            financialRequestApprovalPercentage = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+            approvalPercentage = governanceFinancialStorage.config.approvalPercentage;
             financialRequestPercentageDecimals = 4
 
             // initialise variables for calculating satellite's total voting power
@@ -297,7 +297,6 @@ describe("Test: Governance Financial Contract", async () => {
             
             councilMember   = councilMemberOne;
             councilStorage  = await councilInstance.storage();
-            
             await signerFactory(tezos, councilMemberOneSk)
         });
 
@@ -441,7 +440,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -620,7 +619,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply            = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval    = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval    = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -799,7 +798,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply            = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval    = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval    = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
                 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -992,7 +991,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1156,7 +1155,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1337,7 +1336,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1486,7 +1485,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1788,7 +1787,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1954,7 +1953,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2110,7 +2109,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2486,7 +2485,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequest.requesterAddress,               councilAddress);
@@ -2664,7 +2663,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
                 const totalStakedMvkSupply          = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval  = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, financialRequestApprovalPercentage, financialRequestPercentageDecimals);
+                const stakedMvkRequiredForApproval  = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2735,7 +2734,8 @@ describe("Test: Governance Financial Contract", async () => {
     describe("Housekeeping Entrypoints", async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
-            governanceFinancialStorage        = await governanceFinancialInstance.storage();
+            councilMember               = councilMemberOne;
+            governanceFinancialStorage  = await governanceFinancialInstance.storage();
             await signerFactory(tezos, adminSk);
         });
 
@@ -2826,11 +2826,11 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage            = await governanceFinancialInstance.storage();
                 const testValue = 10;
 
-                const initialFinancialReqApprovalPct  = governanceFinancialStorage.config.financialRequestApprovalPercentage.toNumber();
+                const initialFinancialReqApprovalPct  = governanceFinancialStorage.config.approvalPercentage.toNumber();
                 const initialFinancialReqDurationDays = governanceFinancialStorage.config.financialRequestDurationInDays.toNumber();
 
                 // Operation
-                var updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct").send();
+                var updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configApprovalPercentage").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configFinancialReqDurationDays").send();
@@ -2838,7 +2838,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // Final values
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
-                const updatedFinancialReqApprovalPct    = governanceFinancialStorage.config.financialRequestApprovalPercentage.toNumber();
+                const updatedFinancialReqApprovalPct    = governanceFinancialStorage.config.approvalPercentage.toNumber();
                 const updatedFinancialReqDurationDays   = governanceFinancialStorage.config.financialRequestDurationInDays.toNumber();
 
                 // Assertions
@@ -2846,7 +2846,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(updatedFinancialReqDurationDays, testValue);
 
                 // reset config operation
-                var resetConfigOperation = await governanceFinancialInstance.methods.updateConfig(initialFinancialReqApprovalPct, "configFinancialReqApprovalPct").send();
+                var resetConfigOperation = await governanceFinancialInstance.methods.updateConfig(initialFinancialReqApprovalPct, "configApprovalPercentage").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await governanceFinancialInstance.methods.updateConfig(initialFinancialReqDurationDays, "configFinancialReqDurationDays").send();
@@ -2854,7 +2854,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // Final values
                 governanceFinancialStorage            = await governanceFinancialInstance.storage();
-                const resetFinancialReqApprovalPct    = governanceFinancialStorage.config.financialRequestApprovalPercentage.toNumber();
+                const resetFinancialReqApprovalPct    = governanceFinancialStorage.config.approvalPercentage.toNumber();
                 const resetFinancialReqDurationDays   = governanceFinancialStorage.config.financialRequestDurationInDays.toNumber();
 
                 assert.equal(resetFinancialReqApprovalPct, initialFinancialReqApprovalPct);
@@ -2873,15 +2873,15 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 const testValue             = 10001;
                 
-                const initialFinancialReqApprovalPct  = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+                const initialFinancialReqApprovalPct  = governanceFinancialStorage.config.approvalPercentage;
 
                 // Operation
-                var updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct");
+                var updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configApprovalPercentage");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
-                const updatedFinancialReqApprovalPct    = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+                const updatedFinancialReqApprovalPct    = governanceFinancialStorage.config.approvalPercentage;
 
                 // check that there is no change in config values
                 assert.equal(updatedFinancialReqApprovalPct.toNumber(), initialFinancialReqApprovalPct.toNumber());
@@ -3351,10 +3351,10 @@ describe("Test: Governance Financial Contract", async () => {
                 await setLambdaOperation.confirmation(); 
 
                 // update storage
-                governanceFinancialStorage = governanceFinancialInstance.storage();
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
 
                 // check that new random lambda is set
-                let lambda = governanceFinancialStorage.lambdaLedger.get(lambdaName);
+                const lambda = await governanceFinancialStorage.lambdaLedger.get(lambdaName);
                 assert.equal(lambda, randomLambdaBytes);
 
                 // reset lambda operation
@@ -3362,11 +3362,11 @@ describe("Test: Governance Financial Contract", async () => {
                 await resetLambdaOperation.confirmation(); 
 
                 // update storage
-                governanceFinancialStorage = governanceFinancialInstance.storage();
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
 
                 // check that lambda is reset
-                lambda = governanceFinancialStorage.lambdaLedger.get(lambdaName);
-                assert.equal(lambda, initialLambdaBytes);
+                const updatedLambda = governanceFinancialStorage.lambdaLedger.get(lambdaName);
+                assert.equal(updatedLambda, initialLambdaBytes);
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -3460,11 +3460,11 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage          = await governanceFinancialInstance.storage();
                 const testValue = 10;
                 
-                const initialFinancialReqApprovalPct  = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+                const initialFinancialReqApprovalPct  = governanceFinancialStorage.config.approvalPercentage;
                 const initialFinancialReqDurationDays = governanceFinancialStorage.config.financialRequestDurationInDays;
 
                 // Operation
-                var updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configFinancialReqApprovalPct");
+                var updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configApprovalPercentage");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(testValue, "configFinancialReqDurationDays");
@@ -3472,7 +3472,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // Final values
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
-                const updatedFinancialReqApprovalPct    = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+                const updatedFinancialReqApprovalPct    = governanceFinancialStorage.config.approvalPercentage;
                 const updatedFinancialReqDurationDays   = governanceFinancialStorage.config.financialRequestDurationInDays;
 
                 // check that there is no change in config values
