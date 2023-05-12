@@ -78,10 +78,10 @@ block {
                 const updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    | ConfigApprovalPercentage (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.governanceSatelliteApprovalPercentage  := updateConfigNewValue
-                    | ConfigSatelliteDurationInDays (_v)    -> s.config.governanceSatelliteDurationInDays       := updateConfigNewValue
-                    | ConfigPurposeMaxLength (_v)           -> s.config.governancePurposeMaxLength              := updateConfigNewValue
-                    | ConfigMaxActionsPerSatellite (_v)     -> s.config.maxActionsPerSatellite                  := updateConfigNewValue
+                    | ConfigApprovalPercentage (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.approvalPercentage  := updateConfigNewValue
+                    | ConfigActionDurationInDays (_v)       -> s.config.satelliteActionDurationInDays      := updateConfigNewValue
+                    | ConfigPurposeMaxLength (_v)           -> s.config.governancePurposeMaxLength         := updateConfigNewValue
+                    | ConfigMaxActionsPerSatellite (_v)     -> s.config.maxActionsPerSatellite             := updateConfigNewValue
                 ];
 
             }
@@ -673,13 +673,17 @@ block {
                 // Update storage - action ledger
                 s.governanceSatelliteActionLedger[dropActionId] := governanceSatelliteActionRecord;
 
+                // Create satelliteActionKey
+                const governanceCycleId : nat               = governanceSatelliteActionRecord.governanceCycleId;
+                const satelliteActionKey : (nat * address)  = (governanceCycleId, initiator);
+
                 // Remove the dropped action from the satellite's set
-                var initiatorActions : set(actionIdType)    := case Big_map.find_opt(initiator, s.actionsInitiators) of [
+                var satelliteActions : set(actionIdType)    := case Big_map.find_opt(satelliteActionKey, s.satelliteActions) of [
                         Some (_actionsIds)  -> _actionsIds
-                    |   None                -> failwith(error_INITIATOR_ACTIONS_NOT_FOUND)
+                    |   None                -> failwith(error_SATELLITE_ACTIONS_NOT_FOUND)
                 ];
-                initiatorActions                := Set.remove(dropActionId, initiatorActions);
-                s.actionsInitiators[initiator]  := initiatorActions;
+                satelliteActions                         := Set.remove(dropActionId, satelliteActions);
+                s.satelliteActions[satelliteActionKey]   := satelliteActions;
 
             }
         |   _ -> skip

@@ -379,17 +379,21 @@ block {
     // Validate inputs
     validateStringLength(purpose, s.config.governancePurposeMaxLength, error_WRONG_INPUT_PROVIDED);
 
+    // Get the current cycle from the governance contract
+    const currentCycleId : nat = getCurrentCycleCounter(s);
+
     // ------------------------------------------------------------------
     // Get / Check Satellite Records
     // ------------------------------------------------------------------
 
-    // Check if the satellite created too much actions this cycle
-    var initiatorActions : set(actionIdType) := case Big_map.find_opt(Tezos.get_sender(), s.actionsInitiators) of [
+    // Check if the satellite has created too many actions this governance cycle
+    const satelliteActionKey : (nat * address) = (currentCycleId, Tezos.get_sender());
+    var satelliteActions : set(actionIdType) := case Big_map.find_opt(satelliteActionKey, s.satelliteActions) of [
             Some (_actionsIds)  -> _actionsIds
         |   None                -> set []
     ];
-    const createdActionsAmount: nat =   Set.cardinal(initiatorActions);
-    if createdActionsAmount >= s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
+    const satelliteActionsCount : nat =   Set.cardinal(satelliteActions);
+    if satelliteActionsCount >= s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTIONS_REACHED) else skip;
 
     // Verify sender is a satellite which is not suspended or banned
     verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
@@ -398,14 +402,11 @@ block {
     // Snapshot Staked MVK Total Supply
     // ------------------------------------------------------------------
 
-    // Get the current cycle from the governance contract
-    const currentCycleId : nat = getCurrentCycleCounter(s);
-
     // Take snapshot of current total staked MVK supply 
     const snapshotStakedMvkTotalSupply : nat = getStakedMvkSnapshotTotalSupply(currentCycleId, s);
 
     // Calculate staked MVK votes required for approval based on config's approval percentage
-    const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
+    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.approvalPercentage) / 10000);
 
     // ------------------------------------------------------------------
     // Create new Governance Satellite Action
@@ -430,11 +431,11 @@ block {
 
         governanceCycleId                  = currentCycleId;
         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-        stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
+        stakedMvkPercentageForApproval     = s.config.approvalPercentage; 
         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
         startDateTime                      = Tezos.get_now();            
-        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
+        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.satelliteActionDurationInDays);
         
     ];
 
@@ -449,8 +450,8 @@ block {
     s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
     // Add the new action to the satellite's set
-    initiatorActions                            := Set.add(actionId, initiatorActions);
-    s.actionsInitiators[Tezos.get_sender()]     := initiatorActions;
+    satelliteActions                            := Set.add(actionId, satelliteActions);
+    s.satelliteActions[satelliteActionKey]      := satelliteActions;
 
     // Increment governance satellite action counter
     s.governanceSatelliteCounter := actionId + 1n;
@@ -929,12 +930,15 @@ block {
 
     // Remove the executed action from the satellite's set
     const initiator : address                   = actionRecord.initiator;
-    var initiatorActions : set(actionIdType)    := case s.actionsInitiators[initiator] of [
+    const governanceCycleId : nat               = actionRecord.governanceCycleId;
+    const satelliteActionKey : (nat * address)  = (governanceCycleId, initiator);
+
+    var satelliteActions : set(actionIdType)    := case s.satelliteActions[satelliteActionKey] of [
             Some (_actionsIds)  -> _actionsIds
-        |   None                -> failwith(error_INITIATOR_ACTIONS_NOT_FOUND)
+        |   None                -> failwith(error_SATELLITE_ACTIONS_NOT_FOUND)
     ];
-    initiatorActions                := Set.remove(actionId, initiatorActions);
-    s.actionsInitiators[initiator]  := initiatorActions;
+    satelliteActions                        := Set.remove(actionId, satelliteActions);
+    s.satelliteActions[satelliteActionKey]  := satelliteActions;
 
 } with (operations, s)
 
