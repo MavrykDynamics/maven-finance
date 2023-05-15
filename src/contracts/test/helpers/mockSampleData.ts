@@ -1,5 +1,5 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-import { alice, bob, eve, mallory, oscar, ivan, trudy } from "../../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory, oscar, ivan, trudy, susie } from "../../scripts/sandbox/accounts";
 export const mvkTokenDecimals = 9
 
 // ------------------------------------------------------------------------------
@@ -333,6 +333,16 @@ export const mockSatelliteData = {
         satelliteFee    : 500,
         oraclePublicKey : trudy.pk,
         oraclePeerId    : trudy.peerId
+    },
+
+    "susie" : {
+        name            : "Susie",
+        desc            : "Lorem ipsum about susie.",
+        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        website         : "https://intl.startrek.com/",
+        satelliteFee    : 500,
+        oraclePublicKey : susie.pk,
+        oraclePeerId    : susie.peerId
     }
     
     
