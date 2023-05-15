@@ -163,11 +163,13 @@ describe("Setup: Mock Satellites", async () => {
 
                     // user registers as a satellite
                     registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image, 
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.alice.name, 
+                        mockSatelliteData.alice.desc, 
+                        mockSatelliteData.alice.image, 
+                        mockSatelliteData.alice.website,
+                        mockSatelliteData.alice.satelliteFee,
+                        mockSatelliteData.alice.oraclePublicKey,
+                        mockSatelliteData.alice.oraclePeerId
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -176,11 +178,13 @@ describe("Setup: Mock Satellites", async () => {
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
                     
                     // check satellite details
-                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
-                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
-                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
+                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.alice.name);
+                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.alice.desc);
+                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.alice.website);
                     assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
-                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.alice.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.oraclePublicKey,                mockSatelliteData.alice.oraclePublicKey);
+                    assert.equal(updatedSatelliteRecord.oraclePeerId,                   mockSatelliteData.alice.oraclePeerId);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
@@ -239,7 +243,9 @@ describe("Setup: Mock Satellites", async () => {
                         mockSatelliteData.eve.desc, 
                         mockSatelliteData.eve.image, 
                         mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.eve.satelliteFee,
+                        mockSatelliteData.eve.oraclePublicKey,
+                        mockSatelliteData.eve.oraclePeerId
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -253,6 +259,8 @@ describe("Setup: Mock Satellites", async () => {
                     assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
                     assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
                     assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.oraclePublicKey,                mockSatelliteData.eve.oraclePublicKey);
+                    assert.equal(updatedSatelliteRecord.oraclePeerId,                   mockSatelliteData.eve.oraclePeerId);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
@@ -307,11 +315,13 @@ describe("Setup: Mock Satellites", async () => {
 
                     // user registers as a satellite
                     registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image, 
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.susie.name, 
+                        mockSatelliteData.susie.desc, 
+                        mockSatelliteData.susie.image, 
+                        mockSatelliteData.susie.website,
+                        mockSatelliteData.susie.satelliteFee,
+                        mockSatelliteData.susie.oraclePublicKey,
+                        mockSatelliteData.susie.oraclePeerId
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -320,11 +330,13 @@ describe("Setup: Mock Satellites", async () => {
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
                     
                     // check satellite details
-                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
-                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
-                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
+                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.susie.name);
+                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.susie.desc);
+                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.susie.website);
                     assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    stakeAmount);
-                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.susie.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.oraclePublicKey,                mockSatelliteData.susie.oraclePublicKey);
+                    assert.equal(updatedSatelliteRecord.oraclePeerId,                   mockSatelliteData.susie.oraclePeerId);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
@@ -379,11 +391,13 @@ describe("Setup: Mock Satellites", async () => {
 
                     // user registers as a satellite
                     registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image, 
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.oscar.name, 
+                        mockSatelliteData.oscar.desc, 
+                        mockSatelliteData.oscar.image, 
+                        mockSatelliteData.oscar.website,
+                        mockSatelliteData.oscar.satelliteFee,
+                        mockSatelliteData.oscar.oraclePublicKey,
+                        mockSatelliteData.oscar.oraclePeerId
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -392,11 +406,13 @@ describe("Setup: Mock Satellites", async () => {
                     updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
                     
                     // check satellite details
-                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
-                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
-                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
+                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.oscar.name);
+                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.oscar.desc);
+                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.oscar.website);
                     assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
-                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.oscar.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.oraclePublicKey,                mockSatelliteData.oscar.oraclePublicKey);
+                    assert.equal(updatedSatelliteRecord.oraclePeerId,                   mockSatelliteData.oscar.oraclePeerId);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
                 }
@@ -450,11 +466,13 @@ describe("Setup: Mock Satellites", async () => {
 
                     // user registers as a satellite
                     registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image, 
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.trudy.name, 
+                        mockSatelliteData.trudy.desc, 
+                        mockSatelliteData.trudy.image, 
+                        mockSatelliteData.trudy.website,
+                        mockSatelliteData.trudy.satelliteFee,
+                        mockSatelliteData.trudy.oraclePublicKey,
+                        mockSatelliteData.trudy.oraclePeerId
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -464,11 +482,13 @@ describe("Setup: Mock Satellites", async () => {
                     updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
                     
                     // check satellite details
-                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
-                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
-                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
+                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.trudy.name);
+                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.trudy.desc);
+                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.trudy.website);
                     assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
-                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.trudy.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.oraclePublicKey,                mockSatelliteData.trudy.oraclePublicKey);
+                    assert.equal(updatedSatelliteRecord.oraclePeerId,                   mockSatelliteData.trudy.oraclePeerId);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
