@@ -20,6 +20,8 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy, ivan, isaac, susie, david, oscar } from "../scripts/sandbox/accounts";
 import { aggregatorStorageType } from "../storage/storageTypes/aggregatorStorageType";
+import { mockPackedLambdaData } from "./helpers/mockSampleData"
+import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 import { 
     signerFactory, 
     getStorageMapValue,
@@ -31,6 +33,7 @@ import {
     calcStakedMvkRequiredForActionApproval, 
     calcTotalVotingPower 
 } from './helpers/helperFunctions'
+
 
 
 // ------------------------------------------------------------------------------
@@ -59,7 +62,16 @@ describe("Governance Satellite tests", async () => {
     let satelliteThreeSk
 
     let satelliteFour 
+    let satelliteFourSk
+
     let satelliteFive
+    let satelliteFiveSk
+
+    let suspendedSatellite
+    let suspendedSatelliteSk
+    
+    let bannedSatellite
+    let bannedSatelliteSk
 
     let delegateOne 
     let delegateOneSk
@@ -109,6 +121,7 @@ describe("Governance Satellite tests", async () => {
     // housekeeping operations
     let setAdminOperation
     let setGovernanceOperation
+    let updateConfigOperation
     let resetAdminOperation
     let updateWhitelistContractsOperation
     let updateGeneralContractsOperation
@@ -175,112 +188,203 @@ describe("Governance Satellite tests", async () => {
             //    
             // -----------------------------------------------
 
-            satelliteOne    = eve.pkh;
-            satelliteOneSk  = eve.sk;
+            // Satellites
+            satelliteOne       = eve.pkh;
+            satelliteOneSk     = eve.sk;
 
-            satelliteTwo    = alice.pkh;
-            satelliteTwoSk  = alice.sk;
+            satelliteTwo       = alice.pkh;
+            satelliteTwoSk     = alice.sk;
 
-            satelliteThree   = trudy.pkh;
-            satelliteThreeSk = trudy.sk;
+            satelliteThree     = trudy.pkh;
+            satelliteThreeSk   = trudy.sk;
 
-            satelliteFour   = oscar.pkh;
-            satelliteFive   = susie.pkh;
+            satelliteFour      = oscar.pkh;
+            satelliteFourSk    = oscar.sk;
 
-            delegateOne     = david.pkh;
-            delegateOneSk   = david.sk;
+            satelliteFive      = susie.pkh;
 
-            delegateTwo     = ivan.pkh;
-            delegateTwoSk   = ivan.sk;
+            // Delegates
+            delegateOne        = david.pkh;
+            delegateOneSk      = david.sk;
 
-            delegateThree   = isaac.pkh;
-            delegateThreeSk = isaac.sk;
+            delegateTwo        = ivan.pkh;
+            delegateTwoSk      = ivan.sk;
 
-            delegateFour    = mallory.pkh;
-            delegateFourSk  = mallory.sk;
+            delegateThree      = isaac.pkh;
+            delegateThreeSk    = isaac.sk;
+
+            delegateFour       = mallory.pkh;
+            delegateFourSk     = mallory.sk;
+
+            // ------------------------------------------------------------------
+            // Set suspended and banned satellites
+            // ------------------------------------------------------------------
+
+            // Satellite Status
+            suspendedSatellite      = satelliteFour
+            suspendedSatelliteSk    = oscar.sk
+
+            bannedSatellite         = satelliteFive
+            bannedSatelliteSk       = susie.sk
+
+            // ----------------------------------------------
+            // Governance round configurations
+            // ----------------------------------------------
+
+            // set signer to admin
+            await signerFactory(tezos, adminSk)
+
+            // -------------------
+            // set blocks per round to 0 for first cycle testing
+            // -------------------
+
+            const blocksPerRound = 0;
+
+            let updateConfigOperation = await governanceInstance.methods.updateConfig(blocksPerRound, "configBlocksPerProposalRound").send();
+            await updateConfigOperation.confirmation();
+
+            updateConfigOperation = await governanceInstance.methods.updateConfig(blocksPerRound, "configBlocksPerVotingRound").send();
+            await updateConfigOperation.confirmation();
+
+            updateConfigOperation = await governanceInstance.methods.updateConfig(blocksPerRound, "configBlocksPerTimelockRound").send();
+            await updateConfigOperation.confirmation();
+
+            governanceStorage               = await governanceInstance.storage()
+            var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+            await startNextRoundOperation.confirmation();
             
+            // ----------------------------------------------
+            // Aggregator Setup
+            // ----------------------------------------------
 
             // Setup Oracles
-            await signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, adminSk);
 
-            const oracleMap = MichelsonMap.fromLiteral({});
+            const aggregatorLedger = await governanceSatelliteStorage.aggregatorLedger.get('USD/BTC');
+            if(aggregatorLedger == undefined){
 
-            const aggregatorMetadataBase = Buffer.from(
-                JSON.stringify({
-                    name: 'MAVRYK Aggregator Contract',
-                    icon: 'https://logo.chainbit.xyz/xtz',
-                    version: 'v1.0.0',
-                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-                }),
-                'ascii',
-                ).toString('hex')
+                const oracleMap = MichelsonMap.fromLiteral({});
 
-            // Setup Aggregators
-            const createAggregatorsBatch = await utils.tezos.wallet
-            .batch()
-            .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                'USD/BTC',
-                true,
+                const aggregatorMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: 'MAVRYK Aggregator Contract',
+                        icon: 'https://logo.chainbit.xyz/xtz',
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                    ).toString('hex')
 
-                oracleMap,
+                // Setup Aggregators
+                const createAggregatorsBatch = await utils.tezos.wallet
+                .batch()
+                .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+                    'USD/BTC',
+                    true,
 
-                new BigNumber(8),             // decimals
-                new BigNumber(2),             // alphaPercentPerThousand
+                    oracleMap,
 
-                new BigNumber(60),            // percentOracleThreshold
-                new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(8),             // decimals
+                    new BigNumber(2),             // alphaPercentPerThousand
 
-                new BigNumber(10000000),      // rewardAmountStakedMvk
-                new BigNumber(1300),          // rewardAmountXtz
+                    new BigNumber(60),            // percentOracleThreshold
+                    new BigNumber(30),            // heartBeatSeconds
+
+                    new BigNumber(10000000),      // rewardAmountStakedMvk
+                    new BigNumber(1300),          // rewardAmountXtz
+                    
+                    aggregatorMetadataBase        // metadata bytes
+                ))
+                .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+                    'USD/XTZ',
+                    true,
+
+                    oracleMap,
+
+                    new BigNumber(6),             // decimals
+                    new BigNumber(2),             // alphaPercentPerThousand
+
+                    new BigNumber(60),            // percentOracleThreshold
+                    new BigNumber(30),            // heartBeatSeconds
+
+                    new BigNumber(10000000),      // rewardAmountStakedMvk
+                    new BigNumber(1300),          // rewardAmountXtz
+                    
+                    aggregatorMetadataBase        // metadata bytes
+                ))
+                .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+                    'USD/DOGE',
+                    true,
+
+                    oracleMap,
+
+                    new BigNumber(8),             // decimals
+                    new BigNumber(2),             // alphaPercentPerThousand
+
+                    new BigNumber(60),            // percentOracleThreshold
+                    new BigNumber(30),            // heartBeatSeconds
+
+                    new BigNumber(10000000),      // rewardAmountStakedMvk
+                    new BigNumber(1300),          // rewardAmountXtz
+                    
+                    aggregatorMetadataBase        // metadata bytes
+                ))
+
+                const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+                await createAggregatorsBatchOperation.confirmation()
+
+            }
+
+            // -------------------
+            // generate sample mock proposal data
+            // -------------------
+
+            const delegationConfigChange  = 100;
+            const doormanConfigChange     = MVK(1.5);
+            const councilConfigChange     = 1234;
+
+            const delegationLambdaFunction = await compileLambdaFunction(
+                'development',
+                contractDeployments.governanceProxy.address,
                 
-                aggregatorMetadataBase        // metadata bytes
-            ))
-            .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                'USD/XTZ',
-                true,
+                'updateConfig',
+                [
+                    contractDeployments.delegation.address,
+                    "delegation",
+                    "ConfigMaxSatellites",
+                    delegationConfigChange
+                ]
+            );
 
-                oracleMap,
-
-                new BigNumber(6),             // decimals
-                new BigNumber(2),             // alphaPercentPerThousand
-
-                new BigNumber(60),            // percentOracleThreshold
-                new BigNumber(30),            // heartBeatSeconds
-
-                new BigNumber(10000000),      // rewardAmountStakedMvk
-                new BigNumber(1300),          // rewardAmountXtz
+            const doormanLambdaFunction = await compileLambdaFunction(
+                'development',
+                contractDeployments.governanceProxy.address,
                 
-                aggregatorMetadataBase        // metadata bytes
-            ))
-            .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                'USD/DOGE',
-                true,
+                'updateConfig',
+                [
+                    contractDeployments.doorman.address,
+                    "doorman",
+                    "ConfigMinMvkAmount",
+                    doormanConfigChange
+                ]
+            );
 
-                oracleMap,
-
-                new BigNumber(8),             // decimals
-                new BigNumber(2),             // alphaPercentPerThousand
-
-                new BigNumber(60),            // percentOracleThreshold
-                new BigNumber(30),            // heartBeatSeconds
-
-                new BigNumber(10000000),      // rewardAmountStakedMvk
-                new BigNumber(1300),          // rewardAmountXtz
+            const councilLambdaFunction = await compileLambdaFunction(
+                'development',
+                contractDeployments.governanceProxy.address,
                 
-                aggregatorMetadataBase        // metadata bytes
-            ))
+                'updateConfig',
+                [
+                    contractDeployments.council.address,
+                    "council",
+                    "ConfigActionExpiryDays",
+                    councilConfigChange
+                ]
+            );
 
-        const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
-        await createAggregatorsBatchOperation.confirmation()
-
-        console.log("Aggregators deployed")
-
-        // Start a new governance cycle to validate all satellites
-        const updateConfigOperation   = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
-        await updateConfigOperation.confirmation();
-        
-        const startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
-        await startNextRoundOperation.confirmation();
+            mockPackedLambdaData.updateDoormanConfig    = doormanLambdaFunction;
+            mockPackedLambdaData.updateDelegationConfig = delegationLambdaFunction;
+            mockPackedLambdaData.updateCouncilConfig    = councilLambdaFunction;
 
         } catch(e) {
             console.dir(e, {depth: 5})
@@ -290,17 +394,20 @@ describe("Governance Satellite tests", async () => {
     describe("Satellite Governance Entrypoints", async () => {
 
         beforeEach("Set signer to satellite one (eve)", async () => {
+
+            // init storage
+            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+            aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+            delegationStorage              = await delegationInstance.storage();
+            governanceStorage              = await governanceInstance.storage();
+            mvkTokenStorage                = await mvkTokenInstance.storage()
+
             satellite = satelliteOne
             await signerFactory(tezos, satelliteOneSk)
         });
 
-        it('%suspendSatellite - satellites should be able to vote and approve a governance action to suspend a satellite', async () => {
+        it('%suspendSatellite                   - satellites should be able to vote and approve a governance action to suspend a satellite', async () => {
             try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -427,13 +534,8 @@ describe("Governance Satellite tests", async () => {
         });
 
         
-        it('%restoreSatellite - satellites should be able to vote and approve a governance action to restore a suspended satellite', async () => {
+        it('%restoreSatellite                   - satellites should be able to vote and approve a governance action to restore a suspended satellite', async () => {
             try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
 
                 // get initial action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -560,75 +662,9 @@ describe("Governance Satellite tests", async () => {
                 console.dir(e, {depth: 5})
             } 
         });
-
-        it('any satellite should not be able to create too many governance actions', async () => {
-            try{
-
-                // Update config maxActionsPerSatellite to 1
-                await signerFactory(tezos, adminSk);
-                const initialMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
-                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(1, "configMaxActionsPerSatellite").send()
-                await updateConfigOperation.confirmation()
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
-                
-                // check that maxActionsPerSatellite has been updated
-                assert.equal(governanceSatelliteStorage.config.maxActionsPerSatellite, 1);
-
-                // init action ids and counters
-                const currentCycle             = governanceStorage.cycleId;
-                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
-                const satelliteActionsBegin    = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite})
-
-                // governance satellite action params
-                const purpose                  = "Test Purpose";
-
-                // create governance satellite action
-                await signerFactory(tezos, satelliteOneSk);
-                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFour, purpose).send();
-                await  createGovernanceSatelliteActionOperation.confirmation();
-
-                // satellite exceeds the number of actions it can create this round
-                createGovernanceSatelliteActionOperation  = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFive, purpose);
-                await chai.expect(createGovernanceSatelliteActionOperation.send()).to.be.eventually.rejected;
-
-                // Drop the action and test creating another one
-                dropActionOperation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
-                await dropActionOperation.confirmation();
-
-                // Create another action
-                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFour, purpose).send();
-                await createGovernanceSatelliteActionOperation.confirmation();
-
-                // Final values
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                const satelliteActionsEnd      = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite})
-
-                // Assertions
-                assert.notEqual(satelliteActionsBegin, satelliteActionsEnd);
-                assert.equal(satelliteActionsBegin.length <= 1, true);
-                assert.equal(satelliteActionsEnd.length == 1, true);
-
-                // reset config maxActionsPerSatellite to initial value
-                await signerFactory(tezos, adminSk);
-                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialMaxActionsPerSatellite, "configMaxActionsPerSatellite").send()
-                await updateConfigOperation.confirmation()
-                assert.equal(governanceSatelliteStorage.config.maxActionsPerSatellite, initialMaxActionsPerSatellite);
-
-            } catch(e){
-                console.dir(e, {depth: 5})
-            } 
-        });
         
-        it('%banSatellite - Any satellite should be able to create a governance action to ban a satellite', async () => {
+        it('%banSatellite                       - Any satellite should be able to create a governance action to ban a satellite', async () => {
             try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -654,7 +690,7 @@ describe("Governance Satellite tests", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
                 
                 // governance satellite action params
-                const satelliteToBeBanned      = satelliteFour;
+                const satelliteToBeBanned      = satelliteFive;
                 const purpose                  = "Test Ban Satellite";            
     
                 // create governance satellite action
@@ -755,19 +791,14 @@ describe("Governance Satellite tests", async () => {
         });
 
     
-        it('%restoreSatellite - any satellite should be able to create a governance action to restore a banned satellite', async () => {
+        it('%restoreSatellite                   - any satellite should be able to create a governance action to restore a banned satellite', async () => {
             try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
 
                 // get initial action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
                 currentCycle                   = governanceStorage.cycleId;
 
-                const bannedSatellite          = satelliteFour;
+                const bannedSatellite          = satelliteFive;
                 const bannedSatelliteRecord    = await delegationStorage.satelliteLedger.get(bannedSatellite);
                 assert.equal(bannedSatelliteRecord.status, "BANNED");
 
@@ -889,14 +920,8 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%addOracleToAggregator - any satellite should be able to create a governance action to add an oracle to an aggregator', async () => {
+        it('%addOracleToAggregator              - any satellite should be able to create a governance action to add an oracle to an aggregator', async () => {
             try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1052,14 +1077,8 @@ describe("Governance Satellite tests", async () => {
         });
 
         
-        it(' %removeOracleInAggregator - any satellite should be able to create a governance action to remove an oracle from an aggregator', async () => {
+        it('%removeOracleInAggregator           - any satellite should be able to create a governance action to remove an oracle from an aggregator', async () => {
         try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1111,10 +1130,10 @@ describe("Governance Satellite tests", async () => {
 
                 // create governance satellite action
                 createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.removeOracleInAggregator(
-                        targetSatellite,
-                        aggregatorAddress,
-                        purpose
-                    ).send();
+                    targetSatellite,
+                    aggregatorAddress,
+                    purpose
+                ).send();
                 await createGovernanceSatelliteActionOperation.confirmation();
 
                 // get updated storage
@@ -1167,8 +1186,8 @@ describe("Governance Satellite tests", async () => {
                 const updatedGovernanceAction             = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
                 const updatedSatelliteActions             = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite});          
 
-                const updatedTargetSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
-                const usdBtcOracleAggregatorRecord                   = await updatedTargetSatelliteOracleRecord.get(updatedTargetSatelliteOracleRecord);
+                const updatedTargetSatelliteOracleMap             = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
+                const usdBtcOracleAggregatorRecord                = await updatedTargetSatelliteOracleMap.get(aggregatorAddress);
 
                 const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
                 const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleLedger.get(targetSatellite);
@@ -1204,7 +1223,7 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(satelliteActionCheck, false)
 
                 // check that target satellite oracle aggregator record is updated
-                assert.equal(usdBtcOracleAggregatorRecord,                           undefined);
+                assert.equal(usdBtcOracleAggregatorRecord, undefined);
 
                 // check that target satellite is now removed from aggregator oracleLedger Set
                 assert.equal(updatedAggregatorOracles, undefined);
@@ -1214,14 +1233,8 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it(' %removeAllSatelliteOracles - Any satellite should be able to create a governance action to remove all oracles/aggregators that satellite is subscribed to', async () => {
+        it('%removeAllSatelliteOracles          - Any satellite should be able to create a governance action to remove all oracles/aggregators that satellite is subscribed to', async () => {
             try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1251,7 +1264,7 @@ describe("Governance Satellite tests", async () => {
                 const targetSatellitePeerId    = oscar.peerId;
                 const targetSatellitePk        = oscar.pk;
 
-                // Test flow: add three aggregators to bob's satellite, then initiate governance action to remove all satellite oracles 
+                // Test flow: add three aggregators to selected satellite, then initiate governance action to remove all satellite oracles 
 
                 // get aggregator address from pair key
                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
@@ -1281,7 +1294,7 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(usdDogeAggregatorOracles,     undefined);
 
                 // --------------------------------------------------------
-                // governance satellite action params - add bob to first aggregator
+                // governance satellite action params - add satellite to first aggregator
                 // --------------------------------------------------------
 
                 const aggregatorAddress        = usdBtcAggregatorAddress;
@@ -1340,7 +1353,7 @@ describe("Governance Satellite tests", async () => {
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 // --------------------------------------------------------
-                // governance satellite action params - add bob to second aggregator
+                // governance satellite action params - add satellite to second aggregator
                 // --------------------------------------------------------
 
                 // Satellite creates a second governance action to add target oracle to aggregator
@@ -1371,15 +1384,15 @@ describe("Governance Satellite tests", async () => {
             
                 // satellites vote and yay governance action
                 await signerFactory(tezos, satelliteOneSk);
-                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(secondActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteTwoSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(secondActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteThreeSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(secondActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 // --------------------------------------------------------
@@ -1414,15 +1427,15 @@ describe("Governance Satellite tests", async () => {
             
                 // satellites vote and yay governance action
                 await signerFactory(tezos, satelliteOneSk);
-                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(thirdActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteTwoSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(thirdActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteThreeSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(thirdActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 // --------------------------------------------------------
@@ -1480,7 +1493,7 @@ describe("Governance Satellite tests", async () => {
                 assert.equal(updatedUsdDogeAggregatorOracles.oraclePublicKey,   targetSatellitePk);
 
                 // --------------------------------------------------------
-                // governance satellite action params - remove all satellite oracles
+                // governance satellite action params - remove all satellite oracles for selected satellite
                 // --------------------------------------------------------
 
                 // governance satellite action params
@@ -1514,15 +1527,15 @@ describe("Governance Satellite tests", async () => {
 
                 // satellites vote and yay governance action
                 await signerFactory(tezos, satelliteOneSk);
-                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                var satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(fourthActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteTwoSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(fourthActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 await signerFactory(tezos, satelliteThreeSk);
-                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                satelliteVotesForGovernanceActiontOperation = await governanceSatelliteInstance.methods.voteForAction(fourthActionId, "yay").send();
                 await satelliteVotesForGovernanceActiontOperation.confirmation();
 
                 // --------------------------------------------------------
@@ -1567,14 +1580,8 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%togglePauseAggregator - Any satellite should be able to create a governance action to update aggregator status', async () => {
+        it('%togglePauseAggregator              - Any satellite should be able to create a governance action to update aggregator status', async () => {
             try{        
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1605,6 +1612,7 @@ describe("Governance Satellite tests", async () => {
                 // get aggregator contract
                 const aggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
                 aggregatorStorage              = await aggregatorInstance.storage();
+                
                 assert.equal(aggregatorStorage.breakGlassConfig.updateDataIsPaused, false);
                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused, false);
                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused, false);
@@ -1712,19 +1720,12 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%fixMistakenTransfer - Any satellite should be able to create a governance action to resolve a mistaken transfer made by a user (mallory)', async () => {
+        it('%fixMistakenTransfer                - Any satellite should be able to create a governance action to resolve a mistaken transfer made by a user (mallory)', async () => {
             try{        
     
                 // set user to mallory
                 user    = mallory.pkh
                 userSk  = mallory.sk
-
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
-                mvkTokenStorage                 = await mvkTokenInstance.storage()
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1893,13 +1894,8 @@ describe("Governance Satellite tests", async () => {
             } 
         });
         
-        it('%dropAction - satellite (eve) should be able to drop an action it created', async () => {
+        it('%dropAction                         - satellite (eve) should be able to drop an action it created', async () => {
             try{
-    
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -1947,7 +1943,7 @@ describe("Governance Satellite tests", async () => {
 
                 // check details of governance satellite action
                 assert.equal(governanceAction.initiator,                                 satellite);
-                assert.equal(governanceAction.governanceType,                            "SUSPENDED");
+                assert.equal(governanceAction.governanceType,                            "SUSPEND");
                 assert.equal(governanceAction.status,                                    true);
                 assert.equal(governanceAction.executed,                                  false);
                 assert.equal(governanceAction.governancePurpose,                         purpose);
@@ -2011,14 +2007,8 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('satellite (eve) should not be able to drop an action it did not create', async () => {
-            
+        it('%dropAction                         - satellite (eve) should not be able to drop an action it did not create', async () => {
             try{
-                
-                // init storage
-                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                delegationStorage              = await delegationInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
 
                 // init action ids and counters
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -2066,7 +2056,7 @@ describe("Governance Satellite tests", async () => {
     
                 // check details of governance satellite action
                 assert.equal(governanceAction.initiator,                                 satellite);
-                assert.equal(governanceAction.governanceType,                            "SUSPENDED");
+                assert.equal(governanceAction.governanceType,                            "SUSPEND");
                 assert.equal(governanceAction.status,                                    true);
                 assert.equal(governanceAction.executed,                                  false);
                 assert.equal(governanceAction.governancePurpose,                         purpose);
@@ -2109,8 +2099,338 @@ describe("Governance Satellite tests", async () => {
             } 
         
         });  // end %dropAction tests
+
+        it('maxActionsPerSatellite check        - satellite (trudy) should not be able to create too many governance actions', async () => {
+            try{
+
+                // Update config maxActionsPerSatellite to 1
+                await signerFactory(tezos, adminSk);
+                const initialMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite.toNumber();
+                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(1, "configMaxActionsPerSatellite").send()
+                await updateConfigOperation.confirmation()
+
+                // init storage
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                governanceStorage              = await governanceInstance.storage();
+                
+                // check that maxActionsPerSatellite has been updated
+                assert.equal(governanceSatelliteStorage.config.maxActionsPerSatellite, 1);
+
+                // init action ids and counters
+                const currentCycle             = governanceStorage.cycleId;
+                const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+                const satelliteActionsBegin    = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite})
+
+                // governance satellite action params
+                const purpose                  = "Test Purpose";
+
+                // create governance satellite action
+                await signerFactory(tezos, satelliteThreeSk);
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFour, purpose).send();
+                await  createGovernanceSatelliteActionOperation.confirmation();
+
+                // satellite exceeds the number of actions it can create this round
+                createGovernanceSatelliteActionOperation  = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFive, purpose);
+                await chai.expect(createGovernanceSatelliteActionOperation.send()).to.be.eventually.rejected;
+
+                // Drop the action and test creating another one
+                dropActionOperation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
+                await dropActionOperation.confirmation();
+
+                // Create another action
+                createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.suspendSatellite(satelliteFour, purpose).send();
+                await createGovernanceSatelliteActionOperation.confirmation();
+
+                // Final values
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                const satelliteActionsEnd      = await governanceSatelliteStorage.satelliteActions.get({ 0: currentCycle, 1: satellite})
+
+                // Assertions
+                assert.notEqual(satelliteActionsBegin, satelliteActionsEnd);
+                assert.equal(satelliteActionsBegin.length <= 1, true);
+                assert.equal(satelliteActionsEnd.length == 1, true);
+
+                // reset config maxActionsPerSatellite to initial value
+                await signerFactory(tezos, adminSk);
+                var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialMaxActionsPerSatellite, "configMaxActionsPerSatellite").send()
+                await updateConfigOperation.confirmation()
+                
+                governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                assert.equal(governanceSatelliteStorage.config.maxActionsPerSatellite.toNumber(), initialMaxActionsPerSatellite);
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            } 
+        });
     })
 
+
+    describe("Satellite Status Checks: SUSPENDED", async () => {
+
+        before("Set satellite status", async() => {
+        
+            await signerFactory(tezos, adminSk)
+            var updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+            await updateStatusOperation.confirmation()
+
+            updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+            await updateStatusOperation.confirmation()
+
+        })
+
+        beforeEach("update storage", async() => {
+        
+            // init storage
+            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+            aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+            delegationStorage              = await delegationInstance.storage();
+            governanceStorage              = await governanceInstance.storage();
+            mvkTokenStorage                = await mvkTokenInstance.storage()
+
+            await signerFactory(tezos, suspendedSatelliteSk)
+        })
+
+        describe("Delegation Contract:", async () => {
+
+            it('%unregisterAsSatellite            - suspended satellite (trudy) should not be able to unregister as a satellite', async () => {
+                try{
+
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await chai.expect(delegationInstance.methods.unregisterAsSatellite(suspendedSatellite).send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%updateSatelliteRecord            - suspended satellite should be able to update its satellite record', async () => {
+                try{
+
+                    // Initial Values
+                    delegationStorage               = await delegationInstance.storage()
+                    
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    assert.strictEqual(initialSatelliteRecord.status, "SUSPENDED");
+
+                    // init values
+                    const updatedName           = "Test update name";
+                    const updatedDescription    = "Test update description";
+                    const updatedImage          = "https://imageTest.url";
+                    const updatedWebsite        = "https://websiteTest.url";
+                    const updatedFee            = 123;
+                    
+                    // Operation
+                    const updateSatelliteRecordOperation = await delegationInstance.methods.updateSatelliteRecord(
+                        updatedName,
+                        updatedDescription,
+                        updatedImage,
+                        updatedWebsite,
+                        updatedFee
+                    ).send();
+                    await updateSatelliteRecordOperation.confirmation()
+
+                    // Final values
+                    delegationStorage                = await delegationInstance.storage()
+                    const updatedSatelliteRecord     = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+
+                    // Assertions
+                    assert.strictEqual(updatedSatelliteRecord.status,       "SUSPENDED");
+                    assert.strictEqual(updatedSatelliteRecord.name,         updatedName);
+                    assert.strictEqual(updatedSatelliteRecord.description,  updatedDescription);
+                    assert.strictEqual(updatedSatelliteRecord.image,        updatedImage);
+                    assert.strictEqual(updatedSatelliteRecord.website,      updatedWebsite);
+                    assert.strictEqual(updatedSatelliteRecord.satelliteFee.toNumber(), updatedFee);
+
+                    // Reset satellite record
+                    const resetOperation         = await delegationInstance.methods.updateSatelliteRecord(
+                        initialSatelliteRecord.name,
+                        initialSatelliteRecord.description,
+                        initialSatelliteRecord.image,
+                        initialSatelliteRecord.website,
+                        initialSatelliteRecord.satelliteFee
+                    ).send();
+                    await resetOperation.confirmation()
+
+                    // Final values
+                    delegationStorage                = await delegationInstance.storage()
+                    const resetSatelliteRecord       = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+
+                    // Assertions
+                    assert.strictEqual(resetSatelliteRecord.status,       "SUSPENDED");
+                    assert.strictEqual(resetSatelliteRecord.name,         initialSatelliteRecord.name);
+                    assert.strictEqual(resetSatelliteRecord.description,  initialSatelliteRecord.description);
+                    assert.strictEqual(resetSatelliteRecord.image,        initialSatelliteRecord.image);
+                    assert.strictEqual(resetSatelliteRecord.website,      initialSatelliteRecord.website);
+                    assert.strictEqual(resetSatelliteRecord.satelliteFee.toNumber(), initialSatelliteRecord.satelliteFee.toNumber());
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+        })
+
+
+        describe("Governance Satellite Contract:", async () => {
+        
+            it('%suspendSatellite                 - suspended satellite (trudy) should not be able to create an action to suspend a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    const suspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(satelliteOne, "Test purpose");
+                    await chai.expect(suspendSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%restoreSatellite                 - suspended satellite (trudy) should not be able to create an action to restore a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    const restoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
+                        suspendedSatellite,
+                        "Test purpose"
+                    );
+                    await chai.expect(restoreSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%banSatellite                     - suspended satellite (trudy) should not be able to create an action to ban a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+    
+                    // Operation
+                    const banSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(satelliteOne, "Test purpose");
+                    await chai.expect(banSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%removeAllSatelliteOracles        - suspended satellite (trudy) should not be able to create an action to remove all oracles from a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    const removeAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(satelliteOne, "Test purpose");
+                    await chai.expect(removeAllSatelliteOraclesOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%addOracleToAggregator            - suspended satellite (trudy) should not be able to create an action to add an oracle to an aggregator', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    const addOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
+                        bannedSatellite,
+                        contractDeployments.aggregator.address,
+                        "Test purpose"
+                    );
+                    await chai.expect(addOracleToAggregatorOperation.send()).to.be.rejected;
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+    
+
+            it('%removeOracleInAggregator         - suspended satellite (trudy) should not be able to remove an oracle from an aggregator', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    const removeOracleInAggregatorOperation = governanceSatelliteInstance.methods.removeOracleInAggregator(
+                        satelliteOne, 
+                        contractDeployments.aggregator.address, 
+                        "Test purpose"
+                    );
+                    await chai.expect(removeOracleInAggregatorOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+    
+            it('%togglePauseAggregator            - suspended satellite (trudy) should not be able to update an aggregator status', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    const togglePauseAggregatorOperation = governanceSatelliteInstance.methods.togglePauseAggregator(
+                        contractDeployments.aggregator.address, 
+                        "Test purpose", 
+                        "pauseAll"
+                    );
+                    await chai.expect(togglePauseAggregatorOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        })
+
+    })
 
     describe("Housekeeping Entrypoints", async () => {
 
@@ -2119,7 +2439,7 @@ describe("Governance Satellite tests", async () => {
             await signerFactory(tezos, bob.sk);
         });
 
-        it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
+        it('%setAdmin                           - admin (bob) should be able to update the contract admin address', async () => {
             try{
                 
                 // Initial Values
@@ -2149,7 +2469,7 @@ describe("Governance Satellite tests", async () => {
             }
         });
 
-        it('%setGovernance            - admin (bob) should be able to update the contract governance address', async () => {
+        it('%setGovernance                      - admin (bob) should be able to update the contract governance address', async () => {
             try{
                 
                 // Initial Values
@@ -2178,7 +2498,7 @@ describe("Governance Satellite tests", async () => {
             }
         });
 
-        it('%updateMetadata           - admin (bob) should be able to update the contract metadata', async () => {
+        it('%updateMetadata                     - admin (bob) should be able to update the contract metadata', async () => {
             try{
                 // Initial values
                 const key   = ''
@@ -2199,23 +2519,23 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%updateConfig             - admin (bob) should be able to update contract config', async () => {
+        it('%updateConfig                       - admin (bob) should be able to update contract config', async () => {
             try{
                 
                 // Initial Values
                 governanceSatelliteStorage = await governanceSatelliteInstance.storage();
                 const testValue            = 10;
 
-                const initialApprovalPct            = governanceSatelliteStorage.config.approvalPercentage;
-                const initialDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays;
-                const initialPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength;
-                const initialMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
+                const initialApprovalPct            = governanceSatelliteStorage.config.approvalPercentage.toNumber();
+                const initialDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays.toNumber();
+                const initialPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength.toNumber();
+                const initialMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite.toNumber();
 
                 // Operation
                 var updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configApprovalPercentage").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configActionDurationDays").send();
+                updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configActionDurationInDays").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(testValue, "configPurposeMaxLength").send();
@@ -2227,10 +2547,10 @@ describe("Governance Satellite tests", async () => {
                 // Final values
                 governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
                 
-                const updatedApprovalPct            = governanceSatelliteStorage.config.approvalPercentage;
-                const updatedDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays;
-                const updatedPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength;
-                const updatedMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite;
+                const updatedApprovalPct            = governanceSatelliteStorage.config.approvalPercentage.toNumber();
+                const updatedDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays.toNumber();
+                const updatedPurposeMaxLength       = governanceSatelliteStorage.config.governancePurposeMaxLength.toNumber();
+                const updatedMaxActionsPerSatellite = governanceSatelliteStorage.config.maxActionsPerSatellite.toNumber();
 
                 // Assertions
                 assert.equal(updatedApprovalPct,            testValue);
@@ -2242,7 +2562,7 @@ describe("Governance Satellite tests", async () => {
                 var resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialApprovalPct, "configApprovalPercentage").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialDurationDays, "configActionDurationDays").send();
+                resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialDurationDays, "configActionDurationInDays").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await governanceSatelliteInstance.methods.updateConfig(initialPurposeMaxLength, "configPurposeMaxLength").send();
@@ -2254,10 +2574,10 @@ describe("Governance Satellite tests", async () => {
                 // Final values
                 governanceSatelliteStorage          = await governanceSatelliteInstance.storage();
 
-                const resetApprovalPct              = governanceSatelliteStorage.config.approvalPercentage;
-                const resetDurationDays             = governanceSatelliteStorage.config.satelliteActionDurationInDays;
-                const resetPurposeMaxLength         = governanceSatelliteStorage.config.governancePurposeMaxLength;
-                const resetMaxActionsPerSatellite   = governanceSatelliteStorage.config.maxActionsPerSatellite;
+                const resetApprovalPct              = governanceSatelliteStorage.config.approvalPercentage.toNumber();
+                const resetDurationDays             = governanceSatelliteStorage.config.satelliteActionDurationInDays.toNumber();
+                const resetPurposeMaxLength         = governanceSatelliteStorage.config.governancePurposeMaxLength.toNumber();
+                const resetMaxActionsPerSatellite   = governanceSatelliteStorage.config.maxActionsPerSatellite.toNumber();
 
                 assert.equal(resetApprovalPct,              initialApprovalPct);
                 assert.equal(resetDurationDays,             initialDurationDays);
@@ -2270,7 +2590,7 @@ describe("Governance Satellite tests", async () => {
         });
 
 
-        it('%updateConfig             - admin (bob) should not be able to update approval percentage beyond 100%', async () => {
+        it('%updateConfig                       - admin (bob) should not be able to update approval percentage beyond 100%', async () => {
             try{
                 
                 // Initial Values
@@ -2297,7 +2617,7 @@ describe("Governance Satellite tests", async () => {
             }
         });
 
-        it('%updateWhitelistContracts - admin (bob) should be able to add user (eve) to the Whitelisted Contracts map', async () => {
+        it('%updateWhitelistContracts           - admin (bob) should be able to add user (eve) to the Whitelisted Contracts map', async () => {
             try {
 
                 // init values
@@ -2320,7 +2640,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('%updateWhitelistContracts - admin (bob) should be able to remove user (eve) from the Whitelisted Contracts map', async () => {
+        it('%updateWhitelistContracts           - admin (bob) should be able to remove user (eve) from the Whitelisted Contracts map', async () => {
             try {
 
                 // init values
@@ -2343,7 +2663,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('%updateGeneralContracts   - admin (bob) should be able to add user (eve) to the General Contracts map', async () => {
+        it('%updateGeneralContracts             - admin (bob) should be able to add user (eve) to the General Contracts map', async () => {
             try {
 
                 // init values
@@ -2366,7 +2686,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('%updateGeneralContracts   - admin (bob) should be able to remove user (eve) from the General Contracts map', async () => {
+        it('%updateGeneralContracts             - admin (bob) should be able to remove user (eve) from the General Contracts map', async () => {
             try {
 
                 // init values
@@ -2389,7 +2709,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint for mock FA2 tokens', async () => {
+        it('%mistakenTransfer                   - admin (bob) should be able to call this entrypoint for mock FA2 tokens', async () => {
             try {
 
                 // Initial values
@@ -2431,7 +2751,7 @@ describe("Governance Satellite tests", async () => {
             await signerFactory(tezos, mallory.sk);
         });
 
-        it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%setAdmin                           - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
                 governanceSatelliteStorage        = await governanceSatelliteInstance.storage();
@@ -2453,7 +2773,7 @@ describe("Governance Satellite tests", async () => {
             }
         });
 
-        it('%setGovernance            - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%setGovernance                      - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
                 governanceSatelliteStorage        = await governanceSatelliteInstance.storage();
@@ -2475,7 +2795,7 @@ describe("Governance Satellite tests", async () => {
             }
         });
 
-        it('%updateMetadata           - non-admin (mallory) should not be able to update the contract metadata', async () => {
+        it('%updateMetadata                     - non-admin (mallory) should not be able to update the contract metadata', async () => {
             try{
                 // Initial values
                 const key   = ''
@@ -2501,12 +2821,12 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%updateConfig             - non-admin (mallory) should not be able to update contract config', async () => {
+        it('%updateConfig                       - non-admin (mallory) should not be able to update contract config', async () => {
             try{
                 
                 // Initial Values
                 governanceSatelliteStorage          = await governanceSatelliteInstance.storage();
-                const testValue = 10;
+                const testValue = 11;
                 
                 const initialApprovalPct            = governanceSatelliteStorage.config.approvalPercentage;
                 const initialDurationDays           = governanceSatelliteStorage.config.satelliteActionDurationInDays;
@@ -2552,7 +2872,7 @@ describe("Governance Satellite tests", async () => {
             }
         });
 
-        it('%updateWhitelistContracts - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%updateWhitelistContracts           - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 // init values
@@ -2574,7 +2894,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('%updateGeneralContracts   - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%updateGeneralContracts             - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 // init values
@@ -2596,7 +2916,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('%mistakenTransfer         - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%mistakenTransfer                   - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 // Initial values
@@ -2615,7 +2935,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('satelliteGovernanceEntrypoints -  non-admin and non-satellite user (mallory) should not be able to create any governance action', async () => {
+        it('satelliteGovernanceEntrypoints      -  non-admin and non-satellite user (mallory) should not be able to create any governance action', async () => {
             try{        
 
                 // some init constants
@@ -2738,7 +3058,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it("%setLambda                - non-admin (mallory) should not be able to call this entrypoint", async() => {
+        it("%setLambda                          - non-admin (mallory) should not be able to call this entrypoint", async() => {
             try{
 
                 // random lambda for testing
