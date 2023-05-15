@@ -76,12 +76,6 @@ describe("Satellite status tests", async () => {
 
     let satelliteFive
 
-    let suspendedSatellite
-    let suspendedSatelliteSk
-
-    let bannedSatellite
-    let bannedSatelliteSk
-
     let delegateOne 
     let delegateOneSk
 
@@ -206,18 +200,15 @@ describe("Satellite status tests", async () => {
             delegateFour    = mallory.pkh;
             delegateFourSk  = mallory.sk;
 
-            // suspendedSatellite = satelliteThree;
-
-
             // ------------------------------------------------------------------
             // Update 2nd & 3rd Satellites status
             // ------------------------------------------------------------------
             
             await signerFactory(tezos, adminSk)
-            var updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+            var updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "SUSPENDED").send()
             await updateStatusOperation.confirmation()
 
-            updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+            updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "BANNED").send()
             await updateStatusOperation.confirmation()
 
             // ----------------------------------------------
@@ -311,20 +302,39 @@ describe("Satellite status tests", async () => {
     describe("DELEGATION", async () => {
 
         describe("%unregisterAsSatellite", async () => {
+
+            it('Suspended satellite should not be able to unregister as a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    await chai.expect(delegationInstance.methods.unregisterAsSatellite(satelliteOne).send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
     
             it('Banned satellite should not be able to unregister as a satellite', async () => {
                 try{
     
                     // Initial Values
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
     
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
-                    await chai.expect(delegationInstance.methods.unregisterAsSatellite(bannedSatellite).send()).to.be.rejected;
+                    await signerFactory(tezos, satelliteTwoSk);
+                    await chai.expect(delegationInstance.methods.unregisterAsSatellite(satelliteTwo).send()).to.be.rejected;
     
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -335,13 +345,79 @@ describe("Satellite status tests", async () => {
 
         describe("%updateSatelliteRecord", async () => {
 
+            it('Suspended satellite should be able to update its satellite record', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage               = await delegationInstance.storage()
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    assert.strictEqual(initialSatelliteRecord.status, "SUSPENDED");
+
+                    // init values
+                    const updatedName           = "Test update name";
+                    const updatedDescription    = "Test update description";
+                    const updatedImage          = "https://imageTest.url";
+                    const updatedWebsite        = "https://websiteTest.url";
+                    const updatedFee            = "123"
+                    
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const updateSatelliteRecordOperation = await delegationInstance.methods.updateSatelliteRecord(
+                        updatedName,
+                        updatedDescription,
+                        updatedImage,
+                        updatedWebsite,
+                        updatedFee
+                    ).send();
+                    await updateSatelliteRecordOperation.confirmation()
+
+                    // Final values
+                    delegationStorage                = await delegationInstance.storage()
+                    const updatedSatelliteRecord     = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    // Assertions
+                    assert.strictEqual(updatedSatelliteRecord.status,       "SUSPENDED");
+                    assert.strictEqual(updatedSatelliteRecord.name,         updatedName);
+                    assert.strictEqual(updatedSatelliteRecord.description,  updatedDescription);
+                    assert.strictEqual(updatedSatelliteRecord.image,        updatedImage);
+                    assert.strictEqual(updatedSatelliteRecord.website,      updatedWebsite);
+                    assert.strictEqual(updatedSatelliteRecord.fee,          updatedFee);
+
+                    await signerFactory(tezos, satelliteOneSk);
+                    const resetOperation         = await delegationInstance.methods.updateSatelliteRecord(
+                        initialSatelliteRecord.name,
+                        initialSatelliteRecord.description,
+                        initialSatelliteRecord.image,
+                        initialSatelliteRecord.website,
+                        initialSatelliteRecord.fee
+                    ).send();
+                    await resetOperation.confirmation()
+
+                    // Final values
+                    delegationStorage                = await delegationInstance.storage()
+                    const resetSatelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteOne)
+
+                    // Assertions
+                    assert.strictEqual(resetSatelliteRecord.status,       "SUSPENDED");
+                    assert.strictEqual(resetSatelliteRecord.name,         initialSatelliteRecord.name);
+                    assert.strictEqual(resetSatelliteRecord.description,  initialSatelliteRecord.description);
+                    assert.strictEqual(resetSatelliteRecord.image,        initialSatelliteRecord.image);
+                    assert.strictEqual(resetSatelliteRecord.website,      initialSatelliteRecord.website);
+                    assert.strictEqual(resetSatelliteRecord.fee,          initialSatelliteRecord.fee);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+    
             it('Banned satellite should not be able to update its satellite record', async () => {
                 try{
     
                     // Initial Values
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -369,20 +445,40 @@ describe("Satellite status tests", async () => {
     describe("GOVERNANCE SATELLITE", async () => {
 
         describe("%suspendSatellite", async () => {
+
+            it('Suspended satellite should not be able to suspend a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const suspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(satelliteThree, "Test purpose");
+                    await chai.expect(suspendSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
     
             it('Banned satellite should not be able to suspend a satellite', async () => {
                 try{
     
                     // Initial Values
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
     
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
-                    const suspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(satelliteOne, "Test purpose");
+                    await signerFactory(tezos, satelliteTwoSk);
+                    const suspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(satelliteThree, "Test purpose");
                     await chai.expect(suspendSatelliteOperation.send()).to.be.rejected;
                     
 
@@ -394,21 +490,44 @@ describe("Satellite status tests", async () => {
         });
 
         describe("%restoreSatellite", async () => {
+
+            it('Suspended satellite should not be able to restore a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+                    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const restoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
+                        satelliteOne,
+                        "Test purpose"
+                    );
+                    await chai.expect(restoreSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
     
             it('Banned satellite should not be able to restore a satellite', async () => {
                 try{
     
                     // Initial Values
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const restoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
-                        suspendedSatellite,
+                        satelliteOne,
                         "Test purpose"
                     );
                     await chai.expect(restoreSatelliteOperation.send()).to.be.rejected;
@@ -422,20 +541,40 @@ describe("Satellite status tests", async () => {
         })
 
         describe("%banSatellite", async () => {
+
+            it('Suspended satellite should not be able to ban a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+    
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const banSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(satelliteThree, "Test purpose");
+                    await chai.expect(banSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
     
             it('Banned satellite should not be able to ban a satellite', async () => {
                 try{
     
                     // Initial Values
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
     
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
-                    const banSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(satelliteOne, "Test purpose");
+                    await signerFactory(tezos, satelliteTwoSk);
+                    const banSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(satelliteThree, "Test purpose");
                     await chai.expect(banSatelliteOperation.send()).to.be.rejected;
                     
                 } catch(e){
@@ -447,20 +586,40 @@ describe("Satellite status tests", async () => {
 
         describe("%removeAllSatelliteOracles", async () => {
 
+            it('Suspended satellite should not be able to remove all oracles from a satellite', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const removeAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(satelliteThree, "Test purpose");
+                    await chai.expect(removeAllSatelliteOraclesOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+    
             it('Banned satellite should not be able to remove all oracles from a satellite', async () => {
                 try{
     
                     // Initial Values
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
-                    const removeAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(satelliteOne, "Test purpose");
+                    await signerFactory(tezos, satelliteTwoSk);
+                    const removeAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(satelliteThree, "Test purpose");
                     await chai.expect(removeAllSatelliteOraclesOperation.send()).to.be.rejected;
     
                 } catch(e){
@@ -472,20 +631,44 @@ describe("Satellite status tests", async () => {
 
         describe("%addOracleToAggregator", async () => {
 
+            it('Suspended satellite should not be able to add an oracle to an aggregator', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const addOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
+                        satelliteTwo,
+                        contractDeployments.aggregator.address,
+                        "Test purpose"
+                    );
+                    await chai.expect(addOracleToAggregatorOperation.send()).to.be.rejected;
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+    
             it('Banned satellite should not be able to add an oracle to an aggregator', async () => {
                 try{
     
                     // Initial Values
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
     
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const addOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
-                        bannedSatellite,
+                        satelliteTwo,
                         contractDeployments.aggregator.address,
                         "Test purpose"
                     );
@@ -499,21 +682,45 @@ describe("Satellite status tests", async () => {
         })
 
         describe("%removeOracleInAggregator", async () => {
+
+            it('Suspended satellite should not be able to remove an oracle from an aggregator', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const removeOracleInAggregatorOperation = governanceSatelliteInstance.methods.removeOracleInAggregator(
+                        satelliteThree, 
+                        contractDeployments.aggregator.address, 
+                        "Test purpose"
+                    );
+                    await chai.expect(removeOracleInAggregatorOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
     
             it('Banned satellite should not be able to remove an oracle from an aggregator', async () => {
                 try{
     
                     // Initial Values
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const removeOracleInAggregatorOperation = governanceSatelliteInstance.methods.removeOracleInAggregator(
-                        satelliteOne, 
+                        satelliteThree, 
                         contractDeployments.aggregator.address, 
                         "Test purpose"
                     );
@@ -528,19 +735,43 @@ describe("Satellite status tests", async () => {
         })
 
         describe("%togglePauseAggregator", async () => {
+
+            it('Suspended satellite should not be able to update an aggregator status', async () => {
+                try{
+    
+                    // Initial Values
+                    delegationStorage       = await delegationInstance.storage()
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne)
+    
+                    // Assertions
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk);
+                    const togglePauseAggregatorOperation = governanceSatelliteInstance.methods.togglePauseAggregator(
+                        contractDeployments.aggregator.address, 
+                        "Test purpose", 
+                        "pauseAll"
+                    );
+                    await chai.expect(togglePauseAggregatorOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
     
             it('Banned satellite should not be able to update an aggregator status', async () => {
                 try{
     
                     // Initial Values
                     delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteTwo)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const togglePauseAggregatorOperation = governanceSatelliteInstance.methods.togglePauseAggregator(
                         contractDeployments.aggregator.address, 
                         "Test purpose", 
@@ -566,7 +797,7 @@ describe("Satellite status tests", async () => {
                     const actionId                  = governanceSatelliteStorage.governanceSatelliteCounter.toNumber();
     
                     // Operation
-                    await signerFactory(tezos, satelliteOne);
+                    await signerFactory(tezos, satelliteThree);
                     const togglePauseAggregatorOperation = await governanceSatelliteInstance.methods.togglePauseAggregator(
                         contractDeployments.aggregator.address, 
                         "Test purpose", 
@@ -581,13 +812,13 @@ describe("Satellite status tests", async () => {
 
                     var currentCycle                = governanceStorage.cycleId;
                     
-                    const firstSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: suspendedSatellite});
-                    const secondSatelliteSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bannedSatellite});
-                    const thirdSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                    const firstSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                    const secondSatelliteSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                    const thirdSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
 
-                    const firstSatelliteRecord      = await delegationStorage.satelliteLedger.get(suspendedSatellite);
-                    const secondSatelliteRecord     = await delegationStorage.satelliteLedger.get(bannedSatellite);
-                    const thirdSatelliteRecord      = await delegationStorage.satelliteLedger.get(satelliteOne);
+                    const firstSatelliteRecord      = await delegationStorage.satelliteLedger.get(satelliteOne);
+                    const secondSatelliteRecord     = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                    const thirdSatelliteRecord      = await delegationStorage.satelliteLedger.get(satelliteThree);
                     const action                    = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
         
                     // Assertions
@@ -615,13 +846,13 @@ describe("Satellite status tests", async () => {
 
                     // initial values
                     const actionId              = governanceSatelliteStorage.governanceSatelliteCounter.toNumber() - 1;
-                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteOne)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const dropActionOperation = governanceSatelliteInstance.methods.dropAction(actionId);
                     await chai.expect(dropActionOperation.send()).to.be.rejected;
 
@@ -639,13 +870,13 @@ describe("Satellite status tests", async () => {
 
                     // initial values
                     const actionId              = governanceSatelliteStorage.governanceSatelliteCounter.toNumber() - 1;
-                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteTwo)
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const dropActionOperation = governanceSatelliteInstance.methods.dropAction(actionId);
                     await chai.expect(dropActionOperation.send()).to.be.rejected;
                     
@@ -667,13 +898,13 @@ describe("Satellite status tests", async () => {
 
                     // initial values
                     const actionId              = governanceSatelliteStorage.governanceSatelliteCounter.toNumber() - 1;
-                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteOne)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const voteForActionOperation = governanceSatelliteInstance.methods.voteForAction(actionId, "nay");
                     await chai.expect(voteForActionOperation.send()).to.be.rejected;
 
@@ -691,13 +922,13 @@ describe("Satellite status tests", async () => {
 
                     // initial values
                     const actionId              = governanceSatelliteStorage.governanceSatelliteCounter.toNumber() - 1;
-                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteTwo)
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const voteForActionOperation = governanceSatelliteInstance.methods.voteForAction(actionId, "nay");
                     await chai.expect(voteForActionOperation.send()).to.be.rejected;
                     
@@ -800,13 +1031,13 @@ describe("Satellite status tests", async () => {
 
                     // initial values
                     const requestId             = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
-                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteOne)
     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const voteForRequestOperation =  governanceFinancialInstance.methods.voteForRequest(requestId, "nay");
                     await chai.expect(voteForRequestOperation.send()).to.be.rejected;
                     
@@ -824,13 +1055,13 @@ describe("Satellite status tests", async () => {
 
                     // initial values
                     const requestId             = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
-                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(satelliteTwo)
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const voteForRequestOperation =  governanceFinancialInstance.methods.voteForRequest(requestId, "nay");
                     await chai.expect(voteForRequestOperation.send()).to.be.rejected;
                     
@@ -851,14 +1082,14 @@ describe("Satellite status tests", async () => {
 
                 // Operation
                 var addOracleOperation          = await aggregatorInstance.methods.addOracle(
-                    suspendedSatellite, 
+                    satelliteOne, 
                     mockSatelliteData.eve.oraclePublicKey, 
                     mockSatelliteData.eve.oraclePeerId
                 ).send();
                 await addOracleOperation.confirmation();
 
                 addOracleOperation              = await aggregatorInstance.methods.addOracle(
-                    bannedSatellite, 
+                    satelliteTwo, 
                     mockSatelliteData.alice.oraclePublicKey, 
                     mockSatelliteData.alice.oraclePeerId
                 ).send();
@@ -892,14 +1123,14 @@ describe("Satellite status tests", async () => {
                     // Initial Values
                     delegationStorage               = await delegationInstance.storage();
                     aggregatorStorage               = await aggregatorInstance.storage()
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
-                    await signerFactory(tezos, suspendedSatelliteSk);
-                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(suspendedSatellite);
+                    await signerFactory(tezos, satelliteOneSk);
+                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(satelliteOne);
                     await chai.expect(withdrawRewardXtzOperation.send()).to.be.rejected;
 
                 } catch(e){
@@ -913,14 +1144,14 @@ describe("Satellite status tests", async () => {
                     // Initial Values
                     delegationStorage               = await delegationInstance.storage();
                     aggregatorStorage               = await aggregatorInstance.storage()
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo)
                     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
-                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(bannedSatellite);
+                    await signerFactory(tezos, satelliteTwoSk);
+                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(satelliteTwo);
                     await chai.expect(withdrawRewardXtzOperation.send()).to.be.rejected;
                     
                 } catch(e){
@@ -936,14 +1167,14 @@ describe("Satellite status tests", async () => {
                     // Initial Values
                     delegationStorage               = await delegationInstance.storage();
                     aggregatorStorage               = await aggregatorInstance.storage()
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
-                    await signerFactory(tezos, suspendedSatelliteSk);
-                    const withdrawRewardStakedMvkOperation = aggregatorInstance.methods.withdrawRewardStakedMvk(suspendedSatellite);
+                    await signerFactory(tezos, satelliteOneSk);
+                    const withdrawRewardStakedMvkOperation = aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteOne);
                     await chai.expect(withdrawRewardStakedMvkOperation.send()).to.be.rejected;
     
                     
@@ -957,14 +1188,14 @@ describe("Satellite status tests", async () => {
                     // Initial Values
                     delegationStorage               = await delegationInstance.storage();
                     aggregatorStorage               = await aggregatorInstance.storage()
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo)
                     
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
-                    const withdrawRewardStakedMvkOperation = aggregatorInstance.methods.withdrawRewardStakedMvk(bannedSatellite);
+                    await signerFactory(tezos, satelliteTwoSk);
+                    const withdrawRewardStakedMvkOperation = aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteTwo);
                     await chai.expect(withdrawRewardStakedMvkOperation.send()).to.be.rejected;
 
                 } catch(e){
@@ -996,7 +1227,7 @@ describe("Satellite status tests", async () => {
                     }
                     
                     // Check satellite statues
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // init sample proposal params
@@ -1016,7 +1247,7 @@ describe("Satellite status tests", async () => {
                     ]
                     
                     // Propose Operation
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1049,7 +1280,7 @@ describe("Satellite status tests", async () => {
                     }
                     
                     // init sample proposal params
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // init sample proposal params
@@ -1069,7 +1300,7 @@ describe("Satellite status tests", async () => {
                     ]
                     
                     // Propose Operation
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1094,10 +1325,10 @@ describe("Satellite status tests", async () => {
                     await signerFactory(tezos, adminSk)
     
                     // Operation
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
                     
-                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
+                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
 
                 } catch(e) {
@@ -1123,7 +1354,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be active in order to make a proposal first
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
 
                     const proposalName              = "Quorum test";
@@ -1143,7 +1374,7 @@ describe("Satellite status tests", async () => {
                     ]
 
                     // propose operation by satellite
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1155,16 +1386,16 @@ describe("Satellite status tests", async () => {
 
                     // Admin - set satellite status to SUSPENDED
                     await signerFactory(tezos, adminSk)
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "SUSPENDED").send()
                     await updateStatusOperation.confirmation()
 
                     // Check satellite is now suspended
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // should fail: update proposal data by satellite
-                    await signerFactory(tezos, suspendedSatelliteSk)
+                    await signerFactory(tezos, satelliteOneSk)
                     const updateProposalDataOperation = governanceInstance.methods.updateProposalData(proposalId, proposalData);
                     await chai.expect(updateProposalDataOperation.send()).to.be.rejected;
     
@@ -1191,7 +1422,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be active in order to make a proposal first
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
 
                     const proposalName              = "Quorum test";
@@ -1219,7 +1450,7 @@ describe("Satellite status tests", async () => {
                     ]
 
                     // propose operation by satellite
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1230,16 +1461,16 @@ describe("Satellite status tests", async () => {
 
                     // Admin - set satellite status to SUSPENDED
                     await signerFactory(tezos, adminSk)
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "SUSPENDED").send()
                     await updateStatusOperation.confirmation()
 
                     // Check satellite is now suspended
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // should fail: update payment data by satellite
-                    await signerFactory(tezos, suspendedSatelliteSk)
+                    await signerFactory(tezos, satelliteOneSk)
                     const updatePaymentDataOperation = governanceInstance.methods.updateProposalData(proposalId, null, paymentData);
                     await chai.expect(updatePaymentDataOperation.send()).to.be.rejected;
     
@@ -1266,7 +1497,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be active in order to make a proposal first
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
 
                     const proposalName              = "Quorum test";
@@ -1285,7 +1516,7 @@ describe("Satellite status tests", async () => {
                         }
                     ]
 
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1297,16 +1528,16 @@ describe("Satellite status tests", async () => {
 
                     // Admin - set satellite status to Banned
                     await signerFactory(tezos, adminSk)
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "BANNED").send()
                     await updateStatusOperation.confirmation()
 
                     // Check satellite is now banned
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // should fail: update proposal data by satellite
-                    await signerFactory(tezos, bannedSatelliteSk)
+                    await signerFactory(tezos, satelliteTwoSk)
                     const updateProposalDataOperation = governanceInstance.methods.updateProposalData(proposalId, proposalData);
                     await chai.expect(updateProposalDataOperation.send()).to.be.rejected;
     
@@ -1333,7 +1564,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be active in order to make a proposal first
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
 
                     const proposalName              = "Quorum test";
@@ -1360,7 +1591,7 @@ describe("Satellite status tests", async () => {
                         }
                     ]
 
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1371,16 +1602,16 @@ describe("Satellite status tests", async () => {
 
                     // Admin - set satellite status to Banned
                     await signerFactory(tezos, adminSk)
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "BANNED").send()
                     await updateStatusOperation.confirmation()
 
                     // Check satellite is now banned
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // should fail: update payment data by satellite
-                    await signerFactory(tezos, bannedSatelliteSk)
+                    await signerFactory(tezos, satelliteTwoSk)
                     const updatePaymentDataOperation = governanceInstance.methods.updateProposalData(proposalId, null, paymentData);
                     await chai.expect(updatePaymentDataOperation.send()).to.be.rejected;
 
@@ -1399,10 +1630,10 @@ describe("Satellite status tests", async () => {
                     await signerFactory(tezos, adminSk)
     
                     // Operation
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
 
-                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
+                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
 
                 } catch(e) {
@@ -1428,7 +1659,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be active in order to make a proposal first
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
 
                     const proposalName              = "Quorum test";
@@ -1438,7 +1669,7 @@ describe("Satellite status tests", async () => {
                     const proposalId                = governanceStorage.nextProposalId.toNumber();
                     
                     // propose operation by satellite
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1449,16 +1680,16 @@ describe("Satellite status tests", async () => {
 
                     // Admin - set satellite status to SUSPENDED
                     await signerFactory(tezos, adminSk)
-                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "SUSPENDED").send()
                     await updateStatusOperation.confirmation()
 
                     // Check satellite is now suspended
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // should fail: lock proposal by satellite
-                    await signerFactory(tezos, suspendedSatelliteSk)
+                    await signerFactory(tezos, satelliteOneSk)
                     const lockProposalOperation = governanceInstance.methods.lockProposal(proposalId);
                     await chai.expect(lockProposalOperation.send()).to.be.rejected;
     
@@ -1485,7 +1716,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be active in order to make a proposal first
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
 
                     const proposalName              = "Quorum test";
@@ -1494,7 +1725,7 @@ describe("Satellite status tests", async () => {
                     const proposalSourceCode        = "Proposal Source Code";
                     const proposalId                = governanceStorage.nextProposalId.toNumber();
 
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1505,16 +1736,16 @@ describe("Satellite status tests", async () => {
 
                     // Admin - set satellite status to Banned
                     await signerFactory(tezos, adminSk)
-                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "BANNED").send()
                     await updateStatusOperation.confirmation()
 
                     // Check satellite is now banned
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(satelliteRecord.status, "BANNED");
 
                     // should fail: lock proposal by satellite
-                    await signerFactory(tezos, bannedSatelliteSk)
+                    await signerFactory(tezos, satelliteTwoSk)
                     const lockProposalOperation = governanceInstance.methods.lockProposal(proposalId);
                     await chai.expect(lockProposalOperation.send()).to.be.rejected;
     
@@ -1544,7 +1775,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be suspended
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(initialSatelliteRecord.status, "SUSPENDED");
 
                     // create proposal params
@@ -1565,7 +1796,7 @@ describe("Satellite status tests", async () => {
                     ]
 
                     // create proposal by SATELLITE THREE
-                    await signerFactory(tezos, satelliteOneSk);
+                    await signerFactory(tezos, satelliteThreeSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1579,7 +1810,7 @@ describe("Satellite status tests", async () => {
                     await lockOperation.confirmation();
 
                     // should fail: SATELLITE ONE should not be able to vote
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     const proposalRoundVoteOperation = governanceInstance.methods.proposalRoundVote(proposalId);
                     await chai.expect(proposalRoundVoteOperation.send()).to.be.rejected;
     
@@ -1606,7 +1837,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be banned
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(initialSatelliteRecord.status, "BANNED");
 
                     // create proposal params
@@ -1640,7 +1871,7 @@ describe("Satellite status tests", async () => {
                     await lockOperation.confirmation();
 
                     // should fail: SATELLITE TWO should not be able to vote
-                    await signerFactory(tezos, bannedSatelliteSk)
+                    await signerFactory(tezos, satelliteTwoSk)
                     const proposalRoundVoteOperation = governanceInstance.methods.proposalRoundVote(proposalId);
                     await chai.expect(proposalRoundVoteOperation.send()).to.be.rejected;
     
@@ -1670,7 +1901,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be suspended
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
                     assert.strictEqual(initialSatelliteRecord.status, "SUSPENDED");
 
                     // create proposal params
@@ -1691,7 +1922,7 @@ describe("Satellite status tests", async () => {
                     ]
                     
                     // create proposal by SATELLITE THREE
-                    await signerFactory(tezos, satelliteOneSk);
+                    await signerFactory(tezos, satelliteThreeSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1708,7 +1939,7 @@ describe("Satellite status tests", async () => {
                     await voteOperation.confirmation();
     
                     // Set signer to satellite four 
-                    await signerFactory(tezos, satelliteTwoSk);
+                    await signerFactory(tezos, satelliteFourSk);
                     voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
 
@@ -1716,7 +1947,7 @@ describe("Satellite status tests", async () => {
                     await nextRoundOperation.confirmation();
 
                     // Set signer back to suspended satellite 
-                    await signerFactory(tezos, suspendedSatelliteSk)
+                    await signerFactory(tezos, satelliteOneSk)
                     const votingRoundVoteOperation = governanceInstance.methods.votingRoundVote("nay");
                     await chai.expect(votingRoundVoteOperation.send()).to.be.rejected;
     
@@ -1742,7 +1973,7 @@ describe("Satellite status tests", async () => {
                     }
 
                     // check satellite status - should be banned
-                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
                     assert.strictEqual(initialSatelliteRecord.status, "BANNED");
 
                     // create proposal params
@@ -1763,7 +1994,7 @@ describe("Satellite status tests", async () => {
                     ]
                     
                     // create proposal by SATELLITE THREE
-                    await signerFactory(tezos, satelliteOneSk);
+                    await signerFactory(tezos, satelliteThreeSk);
                     const proposeOperation = await governanceInstance.methods.propose(
                         proposalName, 
                         proposalDesc, 
@@ -1781,7 +2012,7 @@ describe("Satellite status tests", async () => {
                     await signerFactory(tezos, adminSk);
     
                     // Set signer to satellite four 
-                    await signerFactory(tezos, satelliteTwoSk);
+                    await signerFactory(tezos, satelliteFourSk);
                     voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
 
@@ -1789,7 +2020,7 @@ describe("Satellite status tests", async () => {
                     await nextRoundOperation.confirmation();
 
                     // Set signer back to banned satellite 
-                    await signerFactory(tezos, bannedSatelliteSk)
+                    await signerFactory(tezos, satelliteTwoSk)
                     const votingRoundVoteOperation = governanceInstance.methods.votingRoundVote("nay");
                     await chai.expect(votingRoundVoteOperation.send()).to.be.rejected;
     
@@ -1807,10 +2038,10 @@ describe("Satellite status tests", async () => {
                     await signerFactory(tezos, adminSk)
     
                     // Operation
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
 
-                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
+                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -1834,7 +2065,7 @@ describe("Satellite status tests", async () => {
             it('Suspended satellite should not be able to process proposal payment', async () => {
                 try{
                     // Initial Values
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     governanceStorage               = await governanceInstance.storage()
                     const proposalName              = "Quorum test";
                     const proposalDesc              = "Details about new proposal";
@@ -1861,7 +2092,7 @@ describe("Satellite status tests", async () => {
                             addOrSetPaymentData: {
                                 title: "Payment#0",
                                 transaction: {
-                                    "to_"    : bannedSatellite,
+                                    "to_"    : satelliteTwo,
                                     "token"  : {
                                         "fa2" : {
                                             "tokenContractAddress" : contractDeployments.mvkToken.address,
@@ -1914,7 +2145,7 @@ describe("Satellite status tests", async () => {
 
                     voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
 
                     nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                     await nextRoundOperation.confirmation();
@@ -1925,7 +2156,7 @@ describe("Satellite status tests", async () => {
 
                     votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
 
                     nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
                     await nextRoundOperation.confirmation();
@@ -1934,15 +2165,15 @@ describe("Satellite status tests", async () => {
                     await nextRoundOperation.confirmation();
 
                     await signerFactory(tezos, adminSk)
-                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "SUSPENDED").send()
                     await updateStatusOperation.confirmation()
 
-                    await signerFactory(tezos, suspendedSatelliteSk)
+                    await signerFactory(tezos, satelliteOneSk)
                     await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;
 
                     // Final values
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
@@ -1954,7 +2185,7 @@ describe("Satellite status tests", async () => {
             it('Banned satellite should not be able to process proposal payment', async () => {
                 try{
                     // Initial Values
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     governanceStorage               = await governanceInstance.storage()
                     const proposalName              = "Quorum test";
                     const proposalDesc              = "Details about new proposal";
@@ -1981,7 +2212,7 @@ describe("Satellite status tests", async () => {
                             addOrSetPaymentData: {
                                 title: "Payment#0",
                                 transaction: {
-                                    "to_"    : bannedSatellite,
+                                    "to_"    : satelliteTwo,
                                     "token"  : {
                                         "fa2" : {
                                             "tokenContractAddress" : contractDeployments.mvkToken.address,
@@ -2033,7 +2264,7 @@ describe("Satellite status tests", async () => {
     
                     voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
 
                     nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                     await nextRoundOperation.confirmation();
@@ -2044,7 +2275,7 @@ describe("Satellite status tests", async () => {
     
                     votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
 
                     nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
                     await nextRoundOperation.confirmation();
@@ -2053,15 +2284,15 @@ describe("Satellite status tests", async () => {
                     await nextRoundOperation.confirmation();
 
                     await signerFactory(tezos, adminSk)
-                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "BANNED").send()
                     await updateStatusOperation.confirmation()
 
-                    await signerFactory(tezos, bannedSatelliteSk)
+                    await signerFactory(tezos, satelliteTwoSk)
                     await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;
     
                     // Final values
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -2079,9 +2310,9 @@ describe("Satellite status tests", async () => {
                     await signerFactory(tezos, adminSk)
     
                     // Operation
-                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
-                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
+                    updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "ACTIVE").send()
                     await updateStatusOperation.confirmation()
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2091,7 +2322,7 @@ describe("Satellite status tests", async () => {
             it('Suspended satellite should not be able to drop a proposal', async () => {
                 try{
                     // Initial Values
-                    await signerFactory(tezos, suspendedSatelliteSk);
+                    await signerFactory(tezos, satelliteOneSk);
                     governanceStorage               = await governanceInstance.storage()
                     const proposalName              = "Quorum test";
                     const proposalDesc              = "Details about new proposal";
@@ -2118,7 +2349,7 @@ describe("Satellite status tests", async () => {
                             addOrSetPaymentData: {
                                 title: "Payment#0",
                                 transaction: {
-                                    "to_"    : bannedSatellite,
+                                    "to_"    : satelliteTwo,
                                     "token"  : {
                                         "fa2" : {
                                             "tokenContractAddress" : contractDeployments.mvkToken.address,
@@ -2150,15 +2381,15 @@ describe("Satellite status tests", async () => {
                     await proposeOperation.confirmation();
 
                     await signerFactory(tezos, adminSk)
-                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(satelliteOne, "SUSPENDED").send()
                     await updateStatusOperation.confirmation()
 
-                    await signerFactory(tezos, suspendedSatelliteSk)
+                    await signerFactory(tezos, satelliteOneSk)
                     await chai.expect(governanceInstance.methods.dropProposal(proposalId).send()).to.be.rejected;
     
                     // Final values
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteOne);
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
@@ -2170,7 +2401,7 @@ describe("Satellite status tests", async () => {
             it('Banned satellite should not be able to drop a proposal', async () => {
                 try{
                     // Initial Values
-                    await signerFactory(tezos, bannedSatelliteSk);
+                    await signerFactory(tezos, satelliteTwoSk);
                     governanceStorage               = await governanceInstance.storage()
                     const proposalName              = "Quorum test";
                     const proposalDesc              = "Details about new proposal";
@@ -2197,7 +2428,7 @@ describe("Satellite status tests", async () => {
                             addOrSetPaymentData: {
                                 title: "Payment#0",
                                 transaction: {
-                                    "to_"    : bannedSatellite,
+                                    "to_"    : satelliteTwo,
                                     "token"  : {
                                         "fa2" : {
                                             "tokenContractAddress" : contractDeployments.mvkToken.address,
@@ -2240,15 +2471,15 @@ describe("Satellite status tests", async () => {
                     await proposeOperation.confirmation();
 
                     await signerFactory(tezos, adminSk)
-                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(satelliteTwo, "BANNED").send()
                     await updateStatusOperation.confirmation()
 
-                    await signerFactory(tezos, bannedSatelliteSk)
+                    await signerFactory(tezos, satelliteTwoSk)
                     await chai.expect(governanceInstance.methods.dropProposal(proposalId).send()).to.be.rejected;
     
                     // Final values
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(satelliteTwo);
 
                     // Assertions
                     assert.strictEqual(satelliteRecord.status, "BANNED");
