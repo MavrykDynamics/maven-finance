@@ -495,6 +495,7 @@ block {
                 ];
 
                 // Update storage
+                // - should not be able to set a newly created aggregator address with a name that is already in use (oldName)
                 s.aggregatorLedger[newName] := case s.aggregatorLedger[oldName] of [
                         Some(_a) -> if _a = aggregatorAddress then aggregatorAddress else failwith(error_WRONG_AGGREGATOR_ADDRESS_PROVIDED)
                     |   None     -> if oldName = newName then aggregatorAddress else failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
