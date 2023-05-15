@@ -17,8 +17,20 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
 import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { 
+    signerFactory, 
+    updateOperators,
+    getStorageMapValue,
+    fa12Transfer,
+    fa2Transfer,
+    mistakenTransferFa2Token,
+    updateWhitelistContracts,
+    updateGeneralContracts,
+    calcStakedMvkRequiredForActionApproval, 
+    calcTotalVotingPower 
+} from './helpers/helperFunctions'
+
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -149,7 +161,7 @@ describe("Governance quorum tests", async () => {
                 await setAdminOperation.confirmation()
     
                 // Register satellites (BOB/ALICE)
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 var stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
@@ -164,8 +176,8 @@ describe("Governance quorum tests", async () => {
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
     
-                await helperFunctions.signerFactory(tezos, alice.sk)
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
+                await signerFactory(tezos, alice.sk)
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 stakeOperation = await doormanInstance.methods.stake(MVK(20000)).send();
@@ -181,8 +193,8 @@ describe("Governance quorum tests", async () => {
                 await registerAsSatelliteOperation.confirmation();
 
                 // Register delegates (EVE/MALLORY)
-                await helperFunctions.signerFactory(tezos, eve.sk)
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+                await signerFactory(tezos, eve.sk)
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 stakeOperation = await doormanInstance.methods.stake(MVK(1500)).send();
@@ -190,8 +202,8 @@ describe("Governance quorum tests", async () => {
                 var delegateSatelliteOperation = await delegationInstance.methods.delegateToSatellite(eve.pkh, bob.pkh).send();
                 await delegateSatelliteOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, mallory.sk)
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
+                await signerFactory(tezos, mallory.sk)
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 stakeOperation = await doormanInstance.methods.stake(MVK(500)).send();
@@ -223,7 +235,7 @@ describe("Governance quorum tests", async () => {
 
     describe("Proposal executed", async() => {
         beforeEach("Set signer to admin", async() => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Scenario - Satellites vote only yay and exceed quorum", async() => {
@@ -274,11 +286,11 @@ describe("Governance quorum tests", async () => {
 
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
@@ -286,11 +298,11 @@ describe("Governance quorum tests", async () => {
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
@@ -388,11 +400,11 @@ describe("Governance quorum tests", async () => {
 
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
@@ -400,11 +412,11 @@ describe("Governance quorum tests", async () => {
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("pass").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
@@ -498,11 +510,11 @@ describe("Governance quorum tests", async () => {
 
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
@@ -510,11 +522,11 @@ describe("Governance quorum tests", async () => {
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("nay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
@@ -555,7 +567,7 @@ describe("Governance quorum tests", async () => {
 
     describe("Proposal not executed", async() => {
         beforeEach("Set signer to admin", async() => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Scenario - Satellites vote only yay but does not exceed quorum", async() => {
@@ -610,11 +622,11 @@ describe("Governance quorum tests", async () => {
 
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
@@ -622,11 +634,11 @@ describe("Governance quorum tests", async () => {
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
@@ -724,11 +736,11 @@ describe("Governance quorum tests", async () => {
 
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
@@ -736,11 +748,11 @@ describe("Governance quorum tests", async () => {
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("nay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
@@ -838,11 +850,11 @@ describe("Governance quorum tests", async () => {
 
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
@@ -850,11 +862,11 @@ describe("Governance quorum tests", async () => {
                 // Votes operation -> both satellites vote
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("pass").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
