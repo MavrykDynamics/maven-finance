@@ -96,12 +96,12 @@ async def on_governance_update_proposal_data(
     
                 # Save the payment record
                 payment_data.title              = payment_single_data.title
+                payment_data.token              = token
                 payment_data.to_                = receiver
                 payment_data.token_amount       = float(payment_single_data.transaction.amount)
             else:
                 payment_data.title              = None
-                payment_data.token_address      = None
-                payment_data.token_id           = None
+                payment_data.token              = None
                 payment_data.to_                = None
                 payment_data.token_amount       = None
             await payment_data.save()
