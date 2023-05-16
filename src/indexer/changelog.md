@@ -13,6 +13,60 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## 0.42
+
+### What's new
+
+- Token
+  - Table added
+
+- GovernanceFinancialWhitelistTokenContract
+  - Column Token added
+
+- LendingControllerWhitelistTokenContract
+  - Column Token added
+
+- MToken
+  - Column Token added
+
+- MVKToken
+  - Column Token added
+
+- TreasuryWhitelistTokenContract
+  - Column Token added
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column Token added
+
+### Breaking changes
+
+- DipdupTokenMetadata
+  - Table Deprecated. It was kept but it's not filled anymore. You should use the table Token instead. This new Token table is linked to several other tables with foreign keys
+
+- Farm
+  - Column LpTokenAddress removed and replaced with a foreign key to the table Token called LpToken
+  - Column Token0Address removed and replaced with a foreign key to the table Token called Token0
+  - Column Token1Address removed and replaced with a foreign key to the table Token called Token1
+
+- GovernanceProposalPayment
+  - Column TokenAddress and TokenId removed and replaced with a foreign key to the table Token called Token
+
+- GovernanceFinancialRequest
+  - Column TokenAddress removed and replaced with a foreign key to the table Token called Token
+
+- LendingControllerCollateralToken
+  - Column TokenAddress removed and replaced with a foreign key to the table Token called CollateralToken
+
+- LendingControllerLoanToken
+  - Column LoanTokenAddress removed and replaced with a foreign key to the table Token called LoanToken
+
+- TreasuryBalance
+  - Column TokenAddress TokenId and Metadata removed and replaced with a foreign key to the table Token called Token
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.41</summary>
+
 ## 0.41
 
 ### What's new
@@ -23,7 +77,7 @@
 - CouncilAction
   - Column CouncilSizeSnapshot added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.40</summary>
 

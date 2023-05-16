@@ -7,6 +7,7 @@ from mavryk.sql_model.parents import LinkedContract, MavrykContract
 
 class MVKToken(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='mvk_tokens')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='mvk_tokens', index=True, null=True)
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)
     inflation_rate                          = fields.SmallIntField(default=0)

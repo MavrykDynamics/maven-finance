@@ -22,19 +22,20 @@ class GovernanceFinancialLambda(ContractLambda, Model):
         table = 'governance_financial_lambda'
 
 class GovernanceFinancialGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.GovernanceFinancial', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='general_contracts')
 
     class Meta:
         table = 'governance_financial_general_contract'
 
 class GovernanceFinancialWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_contracts')
 
     class Meta:
         table = 'governance_financial_whitelist_contract'
 
 class GovernanceFinancialWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
-    contract                                 = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_token_contracts')
+    contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_whitelist_token_contracts', index=True, null=True)
 
     class Meta:
         table = 'governance_financial_whitelist_token_contract'
@@ -45,7 +46,7 @@ class GovernanceFinancialRequest(Model):
     governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests')
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_requests', index=True)
     requester                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_requester', index=True)
-    token_address                           = fields.CharField(max_length=36, default="", index=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests', index=True, null=True)
     request_type                            = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE, index=True)
     executed                                = fields.BooleanField(default=False, index=True)

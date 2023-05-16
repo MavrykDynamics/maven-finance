@@ -1,7 +1,7 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.lending_controller.parameter.liquidate_vault import LiquidateVaultParameter
-from mavryk.types.lending_controller.storage import LendingControllerStorage
+from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem1 as Fa2
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 import mavryk.models as models
@@ -45,7 +45,7 @@ async def on_lending_controller_liquidate_vault(
                 vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
     
                 # Save updated vault
-                lending_controller_vault    = await models.LendingControllerVault.filter(
+                lending_controller_vault                = await models.LendingControllerVault.filter(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
@@ -81,10 +81,23 @@ async def on_lending_controller_liquidate_vault(
                     collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
                     collateral_token_storage                    = liquidate_vault.storage.collateralTokenLedger[collateral_token_name]
                     collateral_token_address                    = collateral_token_storage.tokenContractAddress
-    
+
+                    # Get token id
+                    token_id                                    = 0
+                    if type(collateral_token_storage.tokenType) == Fa2:
+                        token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
+
+                    # Get the related token
+                    token, _                                = await models.Token.get_or_create(
+                        network             = ctx.datasource.network,
+                        token_address       = collateral_token_address,
+                        token_id            = token_id
+                    )
+                    await token.save()
+
                     lending_controller_collateral_token         = await models.LendingControllerCollateralToken.filter(
                         lending_controller          = lending_controller,
-                        token_address               = collateral_token_address
+                        collateral_token            = token
                     ).first()
                     lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
                         lending_controller_vault    = lending_controller_vault,
