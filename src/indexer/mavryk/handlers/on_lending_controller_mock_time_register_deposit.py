@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
+from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem1 as Fa2
 from mavryk.types.lending_controller_mock_time.parameter.register_deposit import RegisterDepositParameter
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -82,10 +82,23 @@ async def on_lending_controller_mock_time_register_deposit(
                 collateral_token_storage                = register_deposit.storage.collateralTokenLedger[collateral_token_name]
                 collateral_token_address                = collateral_token_storage.tokenContractAddress
 
-                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.filter(
+                # Get token id
+                token_id                                = 0
+                if type(collateral_token_storage.tokenType) == Fa2:
+                    token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
+
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    token_id            = token_id,
+                    token_address       = collateral_token_address,
+                    network             = ctx.datasource.network
+                )
+                await token.save()
+
+                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.get(
                     lending_controller          = lending_controller,
-                    token_address               = collateral_token_address
-                ).first()
+                    collateral_token            = token
+                )
                 lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
                     token                       = lending_controller_collateral_token

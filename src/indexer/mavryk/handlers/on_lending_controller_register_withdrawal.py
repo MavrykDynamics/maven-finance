@@ -4,7 +4,7 @@ from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_token_metadata
 from mavryk.types.lending_controller.parameter.register_withdrawal import RegisterWithdrawalParameter
-from mavryk.types.lending_controller.storage import LendingControllerStorage
+from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem1 as Fa2
 import mavryk.models as models
 from dateutil import parser
 
@@ -81,11 +81,25 @@ async def on_lending_controller_register_withdrawal(
                 # Save collateral balance ledger
                 collateral_token_amount                 = float(vault_collateral_balance_ledger[collateral_token_name])
                 collateral_token_storage                = register_withdrawal.storage.collateralTokenLedger[collateral_token_name]
-                collateral_token_address                = collateral_token_storage.tokenContractAddress 
-                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.filter(
+                collateral_token_address                = collateral_token_storage.tokenContractAddress
+                
+                # Get token id
+                token_id                                = 0
+                if type(collateral_token_storage.tokenType) == Fa2:
+                    token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
+
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    network             = ctx.datasource.network,
+                    token_address       = collateral_token_address,
+                    token_id            = token_id
+                )
+                await token.save()
+
+                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.get(
                     lending_controller          = lending_controller,
-                    token_address               = collateral_token_address
-                ).first()
+                    collateral_token            = token
+                )
                 lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
                     token                       = lending_controller_collateral_token

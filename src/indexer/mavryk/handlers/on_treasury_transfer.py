@@ -57,11 +57,18 @@ async def on_treasury_transfer(
             )
             await treasury_transfer_data.save()
 
+            # Get the related token
+            token, _            = await models.Token.get_or_create(
+                token_address   = token_contract_address,
+                token_id        = token_id,
+                network         = ctx.datasource.network
+            )
+            await token.save()
+
             # Update the treasury balance record
             treasury_balance, _ = await models.TreasuryBalance.get_or_create(
                 treasury        = treasury,
-                token_address   = token_contract_address,
-                token_id        = token_id
+                token           = token
             )
             treasury_balance.token_standard = token_standard
             treasury_balance.balance        -= amount
