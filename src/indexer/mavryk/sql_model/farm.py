@@ -8,10 +8,10 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContr
 class Farm(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farms', null=True)
     factory                                 = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
-    lp_token                                = fields.CharField(max_length=36, default="", index=True)
+    lp_token                                = fields.ForeignKeyField('models.Token', related_name='farms_lp_tokens', index=True, null=True)
     loan_token_name                         = fields.CharField(max_length=36, null=True, index=True)
-    token0                                  = fields.CharField(max_length=36, null=True, index=True)
-    token1                                  = fields.CharField(max_length=36, null=True, index=True)
+    token0                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_0', index=True, null=True)
+    token1                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_1', index=True, null=True)
     creation_timestamp                      = fields.DatetimeField(null=True, index=True)
     name                                    = fields.TextField(default='')
     force_rewards_from_transfer             = fields.BooleanField(default=False, index=True)
