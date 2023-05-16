@@ -13,7 +13,7 @@ async def on_m_token_origination(
 
     try:    
         # Get operation info
-        mvk_address                 = m_token_origination.data.originated_contract_address
+        m_token_address             = m_token_origination.data.originated_contract_address
         admin                       = m_token_origination.storage.admin
         governance_address          = m_token_origination.storage.governanceAddress
         loan_token_name             = m_token_origination.storage.loanToken
@@ -25,16 +25,24 @@ async def on_m_token_origination(
         # Persist token metadata
         await persist_token_metadata(
             ctx=ctx,
-            token_address=mvk_address
+            token_address=m_token_address
         )
     
         # Get or create governance record
         governance, _   = await models.Governance.get_or_create(address=governance_address)
         await governance.save();
+
+        # Get the related token
+        token, _            = await models.Token.get_or_create(
+            token_address       = m_token_address,
+            network             = ctx.datasource.network
+        )
+        await token.save()
     
         # Save MVK in DB
         m_token         = models.MToken(
-            address                     = mvk_address,
+            address                     = m_token_address,
+            token                       = token,
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,

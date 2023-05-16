@@ -28,7 +28,7 @@ async def on_lending_controller_mock_time_register_vault_creation(
             mock_time       = True
         )
         vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
-    
+
         for vault_storage in vaults_storage:
             vault_address                           = vault_storage.value.address
             vault_loan_token_name                   = vault_storage.value.loanToken
@@ -44,19 +44,31 @@ async def on_lending_controller_mock_time_register_vault_creation(
             vault_internal_id                       = int(vault_storage.key.id)
             loan_token_storage                      = register_vault_creation.storage.loanTokenLedger[vault_loan_token_name]
             loan_token_type_storage                 = loan_token_storage.tokenType
-            loan_token_address                      = ""
-    
+            loan_token_address                      = None
+            loan_token_id                           = 0
+
             # Get loan token address
             if type(loan_token_type_storage) == fa12:
                 loan_token_address          = loan_token_type_storage.fa12
             elif type(loan_token_type_storage) == fa2:
                 loan_token_address          = loan_token_type_storage.fa2.tokenContractAddress
+                loan_token_id               = int(loan_token_type_storage.fa2.tokenId)
             elif type(loan_token_type_storage) == tez:
                 loan_token_address          = "XTZ"
+
+            token                                   = None
+            if loan_token_address:
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    token_address       = loan_token_address,
+                    network             = ctx.datasource.network,
+                    token_id            = loan_token_id
+                )
+                await token.save()
     
-            lending_controller_loan_token                = await models.LendingControllerLoanToken.filter(
+            lending_controller_loan_token               = await models.LendingControllerLoanToken.filter(
                 lending_controller  = lending_controller,
-                loan_token_address  = loan_token_address,
+                loan_token          = token,
                 loan_token_name     = vault_loan_token_name
             ).first()
             vault, _                                = await models.Vault.get_or_create(

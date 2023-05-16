@@ -43,11 +43,22 @@ async def on_lending_controller_mock_time_set_collateral_token(
                 token_address=collateral_token_address,
                 token_id=str(collateral_token_id)
             )
+
+            # Get the related token
+            token, _                                    = await models.Token.get_or_create(
+                token_address       = collateral_token_address,
+                token_id            = collateral_token_id,
+                network             = ctx.datasource.network
+            )
+            await token.save()
     
             # Save token contract token standard
             if collateral_token_address[0:3] == 'KT1' and len(collateral_token_address) == 36:
-                contract_summary    = await ctx.datasource.get_contract_summary(address = collateral_token_address,)
-    
+                contract_summary    = None
+                try:
+                    contract_summary    = await ctx.datasource.get_contract_summary(address = collateral_token_address)
+                except BaseException as e:
+                    ...
                 if contract_summary:
                     if 'tzips' in contract_summary:
                         tzips   = contract_summary['tzips']
@@ -68,7 +79,7 @@ async def on_lending_controller_mock_time_set_collateral_token(
             oracle                      = await models.mavryk_user_cache.get(address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
                 lending_controller  = lending_controller,
-                token_address       = collateral_token_address,
+                collateral_token    = token,
                 oracle              = oracle
             )
             lending_controller_collateral_token.protected                                   = collateral_token_protected

@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
+from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem1 as Fa2
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
 from mavryk.types.lending_controller_mock_time.parameter.liquidate_vault import LiquidateVaultParameter
@@ -81,10 +81,23 @@ async def on_lending_controller_mock_time_liquidate_vault(
                     collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
                     collateral_token_storage                    = liquidate_vault.storage.collateralTokenLedger[collateral_token_name]
                     collateral_token_address                    = collateral_token_storage.tokenContractAddress
-    
-                    lending_controller_collateral_token                = await models.LendingControllerCollateralToken.filter(
+
+                    # Get token id
+                    token_id                                    = 0
+                    if type(collateral_token_storage.tokenType) == Fa2:
+                        token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
+
+                    # Get the related token
+                    token, _                                = await models.Token.get_or_create(
+                        network             = ctx.datasource.network,
+                        token_address       = collateral_token_address,
+                        token_id            = token_id
+                    )
+                    await token.save()
+
+                    lending_controller_collateral_token         = await models.LendingControllerCollateralToken.filter(
                         lending_controller          = lending_controller,
-                        token_address               = collateral_token_address
+                        collateral_token            = token
                     ).first()
                     lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
                         lending_controller_vault    = lending_controller_vault,

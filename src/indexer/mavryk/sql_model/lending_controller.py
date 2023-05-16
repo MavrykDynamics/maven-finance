@@ -62,6 +62,7 @@ class LendingControllerWhitelistContract(LinkedContract, Model):
 
 class LendingControllerWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
     contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_whitelist_token_contracts', index=True, null=True)
 
     class Meta:
         table = 'lending_controller_whitelist_token_contract'
@@ -99,8 +100,8 @@ class LendingControllerVaultCollateralBalance(Model):
 class LendingControllerCollateralToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_tokens', null=True)
-    token_address                           = fields.CharField(max_length=36, default="", index=True)
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_collateral_token_oracles', null=True, index=True)
+    collateral_token                        = fields.ForeignKeyField('models.Token', related_name='lending_controller_collateral_tokens', index=True, null=True)
     protected                               = fields.BooleanField(default=False, index=True)
     is_scaled_token                         = fields.BooleanField(default=False, index=True)
     is_staked_token                         = fields.BooleanField(default=False, index=True)
@@ -119,8 +120,8 @@ class LendingControllerLoanToken(Model):
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='loan_tokens', null=True)
     m_token                                 = fields.ForeignKeyField('models.MToken', related_name='lending_controller_loan_tokens', null=True, index=True)
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_loan_token_oracles', null=True, index=True)
+    loan_token                              = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_tokens', index=True, null=True)
     loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
-    loan_token_address                      = fields.CharField(max_length=36, default="", index=True)
     m_tokens_total                          = fields.FloatField(default=0.0)
     reserve_ratio                           = fields.SmallIntField(default=0)
     token_pool_total                        = fields.FloatField(default=0.0)

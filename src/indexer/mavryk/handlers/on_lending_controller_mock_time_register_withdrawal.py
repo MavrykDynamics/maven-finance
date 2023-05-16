@@ -1,7 +1,7 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.lending_controller_mock_time.parameter.register_withdrawal import RegisterWithdrawalParameter
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
+from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem1 as Fa2
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
@@ -19,8 +19,8 @@ async def on_lending_controller_mock_time_register_withdrawal(
         level                       = register_withdrawal.data.level
         operation_hash              = register_withdrawal.data.hash
         sender_address              = register_withdrawal.data.initiator_address
-        collateral_token_name       = register_withdrawal.parameter.tokenName
         vault_owner_address         = register_withdrawal.parameter.handle.owner
+        collateral_token_name       = register_withdrawal.parameter.tokenName
         vault_withdraw_amount       = float(register_withdrawal.parameter.amount)
         vault_internal_id           = int(register_withdrawal.parameter.handle.id)
         vaults_storage              = register_withdrawal.storage.vaults
@@ -82,9 +82,22 @@ async def on_lending_controller_mock_time_register_withdrawal(
                 collateral_token_storage                = register_withdrawal.storage.collateralTokenLedger[collateral_token_name]
                 collateral_token_address                = collateral_token_storage.tokenContractAddress
                 
+                # Get token id
+                token_id                                = 0
+                if type(collateral_token_storage.tokenType) == Fa2:
+                    token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
+
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    network             = ctx.datasource.network,
+                    token_address       = collateral_token_address,
+                    token_id            = token_id
+                )
+                await token.save()
+
                 lending_controller_collateral_token     = await models.LendingControllerCollateralToken.get(
                     lending_controller          = lending_controller,
-                    token_address               = collateral_token_address
+                    collateral_token            = token
                 )
                 lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
@@ -92,7 +105,7 @@ async def on_lending_controller_mock_time_register_withdrawal(
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()
-    
+
                 # Save history data
                 sender                                  = await models.mavryk_user_cache.get(address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
