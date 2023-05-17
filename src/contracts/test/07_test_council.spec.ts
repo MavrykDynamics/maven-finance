@@ -157,31 +157,6 @@ describe("Test: Council Contract", async () => {
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
-        // ------------------------------------------------------------------
-        // Setup funds in Council for transfer later
-        // ------------------------------------------------------------------
-        
-        // Alice transfers 25 XTZ to Council
-        await helperFunctions.signerFactory(tezos, alice.sk)
-        const aliceTransferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: councilAddress, amount: 25});
-        await aliceTransferTezToCouncilOperation.confirmation();
-
-        // set token amount to 25 tokens
-        tokenAmount = 25000000;
-
-        // Mallory transfers 0.250 MVK tokens to Treasury
-        await helperFunctions.signerFactory(tezos, mallory.sk);
-        transferOperation = await helperFunctions.fa2Transfer(mvkTokenInstance, mallory.pkh, councilAddress, tokenId, tokenAmount);
-        await transferOperation.confirmation();
-
-        // Mallory transfers 25 Mavryk FA12 Tokens to Council
-        transferOperation = await helperFunctions.fa12Transfer(mavrykFa12TokenInstance, mallory.pkh, councilAddress, tokenAmount);
-        await transferOperation.confirmation();
-
-        // Mallory transfers 25 Mavryk FA2 Tokens to Council
-        transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, councilAddress, tokenId, tokenAmount);
-        await transferOperation.confirmation();
-
     });
 
 
