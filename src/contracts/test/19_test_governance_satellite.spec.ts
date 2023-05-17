@@ -20,7 +20,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy, ivan, isaac, susie, david, oscar } from "../scripts/sandbox/accounts";
 import { aggregatorStorageType } from "../storage/storageTypes/aggregatorStorageType";
-import { mockPackedLambdaData } from "./helpers/mockSampleData"
+import { mockSatelliteData, mockPackedLambdaData } from "./helpers/mockSampleData"
 import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
 import { 
     signerFactory, 
@@ -50,6 +50,21 @@ describe("Governance Satellite tests", async () => {
 
     let admin 
     let adminSk 
+
+    let councilMember
+    let councilMemberSk
+
+    let councilMemberOne
+    let councilMemberOneSk
+
+    let councilMemberTwo
+    let councilMemberTwoSk
+
+    let councilMemberThree
+    let councilMemberThreeSk
+
+    let councilMemberFour
+    let councilMemberFourSk
 
     let satellite
     let satelliteOne 
@@ -85,6 +100,9 @@ describe("Governance Satellite tests", async () => {
     let delegateFour
     let delegateFourSk
 
+    let currentCycleInfoRound
+    let currentCycleInfoRoundString
+
     let doormanAddress 
     let governanceSatelliteAddress
     let aggregatorFactoryAddress
@@ -93,25 +111,32 @@ describe("Governance Satellite tests", async () => {
     let currentCycle
     let delegationRatio
     let approvalPercentage
+    let proposalSubmissionFeeMutez
     let governanceSatellitePercentageDecimals
 
-    let doormanInstance;
-    let delegationInstance;
-    let mvkTokenInstance;
+    let doormanInstance
+    let delegationInstance
+    let mvkTokenInstance
     let mavrykFa2TokenInstance
-    let governanceInstance;
-    let governanceSatelliteInstance;
-    let aggregatorInstance;
-    let aggregatorFactoryInstance;
+    let councilInstance
+    let governanceInstance
+    let governanceSatelliteInstance
+    let governanceFinancialInstance
+    let governanceProxyInstance
+    let aggregatorInstance
+    let aggregatorFactoryInstance
     
-    let doormanStorage;
-    let delegationStorage;
-    let mvkTokenStorage;
+    let doormanStorage
+    let delegationStorage
+    let mvkTokenStorage
     let mavrykFa2TokenStorage
-    let governanceStorage;
-    let governanceSatelliteStorage;
-    let aggregatorStorage;
-    let aggregatorFactoryStorage;
+    let councilStorage
+    let governanceStorage
+    let governanceSatelliteStorage
+    let governanceFinancialStorage
+    let governanceProxyStorage
+    let aggregatorStorage
+    let aggregatorFactoryStorage
 
     let updateOperatorsOperation 
     let transferOperation
@@ -150,8 +175,11 @@ describe("Governance Satellite tests", async () => {
             doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
             mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            councilInstance                 = await utils.tezos.contract.at(contractDeployments.council.address);
             governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress);
+            governanceFinancialInstance     = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
+            governanceProxyInstance         = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
             aggregatorInstance              = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress);
             mavrykFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
@@ -159,13 +187,34 @@ describe("Governance Satellite tests", async () => {
             doormanStorage                  = await doormanInstance.storage();
             delegationStorage               = await delegationInstance.storage();
             mvkTokenStorage                 = await mvkTokenInstance.storage();
-            governanceStorage               = await governanceSatelliteInstance.storage();
+            councilStorage                  = await councilInstance.storage();
+            governanceStorage               = await governanceInstance.storage();
             governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+            governanceFinancialStorage      = await governanceFinancialInstance.storage();
+            governanceProxyStorage          = await governanceProxyInstance.storage();
             aggregatorStorage               = await aggregatorInstance.storage();
             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
             mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
 
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+
+            // -----------------------------------------------
+            //
+            // Council Members
+            //
+            // -----------------------------------------------
+
+            councilMemberOne        = eve.pkh;
+            councilMemberOneSk      = eve.sk;
+
+            councilMemberTwo        = trudy.pkh;
+            councilMemberTwoSk      = trudy.sk;
+
+            councilMemberThree      = alice.pkh;
+            councilMemberThreeSk    = alice.sk;
+
+            councilMemberFour       = susie.pkh;
+            councilMemberFourSk     = susie.sk;
 
             // Initialise variables for financial request calculation
             approvalPercentage                      = governanceSatelliteStorage.config.approvalPercentage;
@@ -174,6 +223,9 @@ describe("Governance Satellite tests", async () => {
             // initialise variables for calculating satellite's total voting power
             delegationRatio = delegationStorage.config.delegationRatio;
             
+            // set governance proposal submission fee mutez
+            proposalSubmissionFeeMutez = governanceStorage.config.proposalSubmissionFeeMutez;
+
             // -----------------------------------------------
             //
             // Setup corresponds to 06_setup_satellites:
@@ -339,35 +391,7 @@ describe("Governance Satellite tests", async () => {
             // generate sample mock proposal data
             // -------------------
 
-            const delegationConfigChange  = 100;
-            const doormanConfigChange     = MVK(1.5);
             const councilConfigChange     = 1234;
-
-            const delegationLambdaFunction = await compileLambdaFunction(
-                'development',
-                contractDeployments.governanceProxy.address,
-                
-                'updateConfig',
-                [
-                    contractDeployments.delegation.address,
-                    "delegation",
-                    "ConfigMaxSatellites",
-                    delegationConfigChange
-                ]
-            );
-
-            const doormanLambdaFunction = await compileLambdaFunction(
-                'development',
-                contractDeployments.governanceProxy.address,
-                
-                'updateConfig',
-                [
-                    contractDeployments.doorman.address,
-                    "doorman",
-                    "ConfigMinMvkAmount",
-                    doormanConfigChange
-                ]
-            );
 
             const councilLambdaFunction = await compileLambdaFunction(
                 'development',
@@ -382,9 +406,20 @@ describe("Governance Satellite tests", async () => {
                 ]
             );
 
-            mockPackedLambdaData.updateDoormanConfig    = doormanLambdaFunction;
-            mockPackedLambdaData.updateDelegationConfig = delegationLambdaFunction;
-            mockPackedLambdaData.updateCouncilConfig    = councilLambdaFunction;
+            const setCouncilAdminLambdaFunction = await compileLambdaFunction(
+                'development',             
+                contractDeployments.governanceProxy.address,  
+                
+                'setAdmin',                
+                [
+                    contractDeployments.council.address,    
+                    admin                
+                ]
+            );
+
+            mockPackedLambdaData.updateCouncilConfig  = councilLambdaFunction;
+            mockPackedLambdaData.setCouncilAdmin      = setCouncilAdminLambdaFunction;
+
 
         } catch(e) {
             console.dir(e, {depth: 5})
@@ -663,7 +698,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
         
-        it('%banSatellite                       - Any satellite should be able to create a governance action to ban a satellite', async () => {
+        it('%banSatellite                       - satellites should be able to vote and approve a governance action to ban a satellite', async () => {
             try{        
 
                 // init action ids and counters
@@ -791,7 +826,7 @@ describe("Governance Satellite tests", async () => {
         });
 
     
-        it('%restoreSatellite                   - any satellite should be able to create a governance action to restore a banned satellite', async () => {
+        it('%restoreSatellite                   - satellites should be able to vote and approve a governance action to restore a banned satellite', async () => {
             try{        
 
                 // get initial action ids and counters
@@ -920,7 +955,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%addOracleToAggregator              - any satellite should be able to create a governance action to add an oracle to an aggregator', async () => {
+        it('%addOracleToAggregator              - satellites should be able to vote and approve a governance action to add an oracle to an aggregator', async () => {
             try{        
 
                 // init action ids and counters
@@ -1077,7 +1112,7 @@ describe("Governance Satellite tests", async () => {
         });
 
         
-        it('%removeOracleInAggregator           - any satellite should be able to create a governance action to remove an oracle from an aggregator', async () => {
+        it('%removeOracleInAggregator           - satellites should be able to vote and approve a governance action to remove an oracle from an aggregator', async () => {
         try{        
 
                 // init action ids and counters
@@ -1233,7 +1268,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%removeAllSatelliteOracles          - Any satellite should be able to create a governance action to remove all oracles/aggregators that satellite is subscribed to', async () => {
+        it('%removeAllSatelliteOracles          - satellites should be able to vote and approve a governance action to remove all oracles/aggregators that satellite is subscribed to', async () => {
             try{        
 
                 // init action ids and counters
@@ -1580,7 +1615,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%togglePauseAggregator              - Any satellite should be able to create a governance action to update aggregator status', async () => {
+        it('%togglePauseAggregator              - satellites should be able to vote and approve a governance action to update an aggregator status', async () => {
             try{        
 
                 // init action ids and counters
@@ -1720,7 +1755,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%fixMistakenTransfer                - Any satellite should be able to create a governance action to resolve a mistaken transfer made by a user (mallory)', async () => {
+        it('%fixMistakenTransfer                - satellites should be able to vote and approve a governance action to resolve a mistaken transfer', async () => {
             try{        
     
                 // set user to mallory
@@ -1894,7 +1929,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
         
-        it('%dropAction                         - satellite (eve) should be able to drop an action it created', async () => {
+        it('%dropAction                         - satellite (eve) should be able to drop an action she created', async () => {
             try{
 
                 // init action ids and counters
@@ -2007,7 +2042,7 @@ describe("Governance Satellite tests", async () => {
             } 
         });
 
-        it('%dropAction                         - satellite (eve) should not be able to drop an action it did not create', async () => {
+        it('%dropAction                         - satellite (eve) should not be able to drop an action she did not create', async () => {
             try{
 
                 // init action ids and counters
@@ -2173,8 +2208,8 @@ describe("Governance Satellite tests", async () => {
             var updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
             await updateStatusOperation.confirmation()
 
-            updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
-            await updateStatusOperation.confirmation()
+            // updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+            // await updateStatusOperation.confirmation()
 
         })
 
@@ -2182,6 +2217,7 @@ describe("Governance Satellite tests", async () => {
         
             // init storage
             governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+            governanceFinancialStorage     = await governanceFinancialInstance.storage();
             aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
             delegationStorage              = await delegationInstance.storage();
             governanceStorage              = await governanceInstance.storage();
@@ -2192,30 +2228,26 @@ describe("Governance Satellite tests", async () => {
 
         describe("Delegation Contract:", async () => {
 
-            it('%unregisterAsSatellite            - suspended satellite (trudy) should not be able to unregister as a satellite', async () => {
+            it('%unregisterAsSatellite            - suspended satellite (oscar) should not be able to unregister as a satellite', async () => {
                 try{
 
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
+                    // initial Values
                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-
-                    // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
-                    await chai.expect(delegationInstance.methods.unregisterAsSatellite(suspendedSatellite).send()).to.be.rejected;
+                    const unregisterAsSatelliteOperation = delegationInstance.methods.unregisterAsSatellite(suspendedSatellite);
+                    await chai.expect(unregisterAsSatelliteOperation.send()).to.be.rejected;
 
                 } catch(e){
                     console.dir(e, {depth: 5});
                 }
             });
 
-            it('%updateSatelliteRecord            - suspended satellite should be able to update its satellite record', async () => {
+            it('%updateSatelliteRecord            - suspended satellite (oscar) should be able to update its satellite record', async () => {
                 try{
 
-                    // Initial Values
-                    delegationStorage               = await delegationInstance.storage()
-                    
+                    // initial Values
                     const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(suspendedSatellite)
                     assert.strictEqual(initialSatelliteRecord.status, "SUSPENDED");
 
@@ -2274,19 +2306,185 @@ describe("Governance Satellite tests", async () => {
                     console.dir(e, {depth: 5});
                 }
             });
-        })
+        }) // End Delegation Contract Tests for Suspended Satellite
 
+        describe("Aggregator Contract:", async () => {
+
+            before("Admin initialize the aggregator contract", async () => {
+                try{
+                    // Initial values
+                    await signerFactory(tezos, adminSk)
+                    aggregatorStorage   = await aggregatorInstance.storage()
+    
+                    // Operation
+                    var addOracleOperation          = await aggregatorInstance.methods.addOracle(
+                        suspendedSatellite, 
+                        mockSatelliteData.trudy.oraclePublicKey, 
+                        mockSatelliteData.trudy.oraclePeerId
+                    ).send();
+                    await addOracleOperation.confirmation();
+    
+                } catch(e) {
+                    console.dir(e, {depth: 5})
+                }
+            })
+
+            it('%withdrawRewardXtz                - suspended satellite (oscar) should not be able to withdraw XTZ rewards', async () => {
+                try{
+                    
+                    aggregatorStorage               = await aggregatorInstance.storage()
+                    
+                    // check satellite is suspended
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(suspendedSatellite);
+                    await chai.expect(withdrawRewardXtzOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+            
+            it('%withdrawRewardStakedMvk          - suspended satellite (oscar) should not be able to withdraw SMVK rewards', async () => {
+                try{
+                    
+                    // Initial Values
+                    aggregatorStorage               = await aggregatorInstance.storage()
+
+                    // check satellite is suspended                    
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const withdrawRewardStakedMvkOperation = aggregatorInstance.methods.withdrawRewardStakedMvk(suspendedSatellite);
+                    await chai.expect(withdrawRewardStakedMvkOperation.send()).to.be.rejected;
+    
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        }) // End Aggregator Contract Tests for Suspended Satellite
+
+        describe("Governance Financial Contract:", async () => {
+
+            before("Create a governance financial request", async () => {
+                try{
+    
+                    // set council member and signer
+                    const councilMember = councilMemberOne;
+                    await signerFactory(tezos, councilMemberOneSk);
+    
+                    councilStorage              = await councilInstance.storage();
+                    const fromTreasury          = contractDeployments.treasury.address;
+                    const purpose               = "For testing purposes";
+                    const tokenAmount           = MVK(3);
+                    const actionId              = councilStorage.actionCounter;
+                    
+                    governanceFinancialStorage  = await governanceFinancialInstance.storage();
+                    const financialRequestId    = governanceFinancialStorage.financialRequestCounter; 
+    
+                    // Operation
+                    const councilActionOperation = await councilInstance.methods.councilActionRequestMint(
+                        fromTreasury,
+                        tokenAmount,
+                        purpose
+                    ).send();
+                    await councilActionOperation.confirmation();
+    
+                    // Final values
+                    councilStorage              = await councilInstance.storage();
+                    var action                  = await councilStorage.councilActionsLedger.get(actionId);
+                    var actionSigner            = action.signers.includes(councilMember)
+                    var dataMap                 = await action.dataMap;
+                    const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+                    const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+                    const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+    
+                    // Assertions
+                    assert.strictEqual(action.initiator,            councilMember);
+                    assert.strictEqual(action.status,               "PENDING");
+                    assert.strictEqual(action.actionType,           "requestMint");
+                    assert.equal(action.executed,                   false);
+                    assert.equal(actionSigner,                      true);
+                    assert.equal(action.signersCount,               1);
+                    assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
+                    assert.equal(dataMap.get("purpose"),            packedPurpose);
+                    assert.equal(dataMap.get("tokenAmount"),        packedTokenAmount);
+    
+                    // set signer as council member two
+                    await signerFactory(tezos, councilMemberTwoSk)
+                    let signActionOperation = await councilInstance.methods.signAction(actionId).send();
+                    await signActionOperation.confirmation();
+    
+                    // set signer as council member three
+                    await signerFactory(tezos, councilMemberThreeSk)
+                    signActionOperation = await councilInstance.methods.signAction(actionId).send();
+                    await signActionOperation.confirmation();
+    
+                    // Final values
+                    councilStorage      = await councilInstance.storage();
+                    action              = await councilStorage.councilActionsLedger.get(actionId);
+                    actionSigner        = action.signers.includes(councilMember)
+                    dataMap             = await action.dataMap;
+    
+                    assert.strictEqual(action.initiator,            councilMember);
+                    assert.strictEqual(action.status,               "EXECUTED");
+                    assert.strictEqual(action.actionType,           "requestMint");
+
+                    assert.equal(action.executed,                   true);
+                    assert.equal(actionSigner,                      true);
+                    assert.equal(action.signersCount,               3);
+
+                    assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
+                    assert.equal(dataMap.get("purpose"),            packedPurpose);
+                    assert.equal(dataMap.get("tokenAmount"),        packedTokenAmount);
+                    
+                    // check that financial governance request now exists
+                    governanceFinancialStorage      = await governanceFinancialInstance.storage();
+                    const financialRequest          = await governanceFinancialStorage.financialRequestLedger.get(financialRequestId)
+                    assert.notStrictEqual(financialRequest, undefined);
+    
+                } catch(e) {
+                    console.dir(e, {depth: 5})
+                }
+            })
+
+            it('%voteForRequest                   - suspended satellite (oscar) should not be able to vote for a financial governance request', async () => {
+                try{
+    
+                    // initial values
+                    governanceFinancialStorage  = await governanceFinancialInstance.storage();
+                    const requestId             = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
+
+                    // check that satellite is suspended
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const voteForRequestOperation =  governanceFinancialInstance.methods.voteForRequest(requestId, "nay");
+                    await chai.expect(voteForRequestOperation.send()).to.be.rejected;
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        }) // End Governance Financial Contract Tests for Suspended Satellite
 
         describe("Governance Satellite Contract:", async () => {
         
-            it('%suspendSatellite                 - suspended satellite (trudy) should not be able to create an action to suspend a satellite', async () => {
+            it('%suspendSatellite                 - suspended satellite (oscar) should not be able to create an action to suspend a satellite', async () => {
                 try{
     
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
+                    // initial Values
                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-    
-                    // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
@@ -2298,14 +2496,11 @@ describe("Governance Satellite tests", async () => {
                 }
             });
 
-            it('%restoreSatellite                 - suspended satellite (trudy) should not be able to create an action to restore a satellite', async () => {
+            it('%restoreSatellite                 - suspended satellite (oscar) should not be able to create an action to restore a satellite', async () => {
                 try{
     
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
+                    // initial Values
                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-                    
-                    // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
@@ -2320,14 +2515,11 @@ describe("Governance Satellite tests", async () => {
                 }
             });
 
-            it('%banSatellite                     - suspended satellite (trudy) should not be able to create an action to ban a satellite', async () => {
+            it('%banSatellite                     - suspended satellite (oscar) should not be able to create an action to ban a satellite', async () => {
                 try{
     
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
+                    // initial Values
                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-
-                    // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
     
                     // Operation
@@ -2339,14 +2531,11 @@ describe("Governance Satellite tests", async () => {
                 }
             });
 
-            it('%removeAllSatelliteOracles        - suspended satellite (trudy) should not be able to create an action to remove all oracles from a satellite', async () => {
+            it('%removeAllSatelliteOracles        - suspended satellite (oscar) should not be able to create an action to remove all oracles from a satellite', async () => {
                 try{
     
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
-                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-    
-                    // Assertions
+                    // initial Values
+                    const satelliteRecord = await delegationStorage.satelliteLedger.get(suspendedSatellite)
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
@@ -2358,14 +2547,11 @@ describe("Governance Satellite tests", async () => {
                 }
             });
 
-            it('%addOracleToAggregator            - suspended satellite (trudy) should not be able to create an action to add an oracle to an aggregator', async () => {
+            it('%addOracleToAggregator            - suspended satellite (oscar) should not be able to create an action to add an oracle to an aggregator', async () => {
                 try{
     
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
+                    // initial Values
                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-    
-                    // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
@@ -2382,14 +2568,11 @@ describe("Governance Satellite tests", async () => {
             });
     
 
-            it('%removeOracleInAggregator         - suspended satellite (trudy) should not be able to remove an oracle from an aggregator', async () => {
+            it('%removeOracleInAggregator         - suspended satellite (oscar) should not be able to create an action to remove an oracle from an aggregator', async () => {
                 try{
     
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
+                    // initial Values
                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-    
-                    // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
@@ -2405,14 +2588,11 @@ describe("Governance Satellite tests", async () => {
                 }
             });
     
-            it('%togglePauseAggregator            - suspended satellite (trudy) should not be able to update an aggregator status', async () => {
+            it('%togglePauseAggregator            - suspended satellite (oscar) should not be able to create an action to update an aggregator status', async () => {
                 try{
     
-                    // Initial Values
-                    delegationStorage       = await delegationInstance.storage()
+                    // initial Values
                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
-    
-                    // Assertions
                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 
                     // Operation
@@ -2428,9 +2608,1494 @@ describe("Governance Satellite tests", async () => {
                 }
             });
 
+            it('%fixMistakenTransfer              - suspended satellite (oscar) should not be able to create an action to resolve a mistaken transfer', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // init params
+                    const tokenAmount               = MVK(20);
+                    const purpose                   = "Transfer made by mistake to the aggregator factory"
+                    
+                    // Operation
+                    createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
+                        aggregatorFactoryAddress,
+                        purpose,
+                        [
+                            {
+                                "to_"    : suspendedSatellite,
+                                "token"  : {
+                                    "fa2" : {
+                                        "tokenContractAddress": contractDeployments.mvkToken.address,
+                                        "tokenId" : 0
+                                    }
+                                },
+                                "amount" : tokenAmount
+                            }
+                        ]
+                    );
+                    await chai.expect(createGovernanceSatelliteActionOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%dropAction                       - suspended satellite (oscar) should not be able to drop an action', async () => {
+                try{
+                    
+                    // ------------------------------
+                    // Create Sample Action
+                    // ------------------------------
+
+                    // remove satellite suspension temporarily to create a new governance satellite action
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+                    await updateStatusOperation.confirmation()
+
+                    // initial storage
+                    delegationStorage               = await delegationInstance.storage();
+                    governanceStorage               = await governanceInstance.storage()
+
+                    // check satellite status - should be active in order to make a proposal first
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
+
+                    // initial values
+                    const actionId                  = governanceSatelliteStorage.governanceSatelliteCounter.toNumber();
+    
+                    // Create sample governance satellite action
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const togglePauseAggregatorOperation = await governanceSatelliteInstance.methods.togglePauseAggregator(
+                        contractDeployments.aggregator.address, 
+                        "Test purpose", 
+                        "pauseAll"
+                    ).send()
+                    await togglePauseAggregatorOperation.confirmation()
+    
+                    // Final values
+                    governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+                    governanceStorage               = await governanceInstance.storage();
+                    delegationStorage               = await delegationInstance.storage();
+                    
+                    const action                    = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+        
+                    // Assertions
+                    assert.notStrictEqual(action, undefined);
+
+                    // ------------------------------
+                    // Test Drop Action
+                    // ------------------------------
+
+                    // Admin - set satellite status back to SUSPENDED
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    await updateStatusOperation.confirmation()
+
+                    // Check satellite is now suspended
+                    delegationStorage               = await delegationInstance.storage();
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // update storage
+                    delegationStorage           = await delegationInstance.storage();
+                    governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
+
+                    // should fail: drop governance action 
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const dropActionOperation = governanceSatelliteInstance.methods.dropAction(actionId);
+                    await chai.expect(dropActionOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%voteForAction                    - suspended satellite (oscar) should not be able to vote for an action', async () => {
+                try{
+
+                    // initial values
+                    const actionId              = governanceSatelliteStorage.governanceSatelliteCounter.toNumber() - 1;
+                    
+                    // check that satellite is suspended
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(suspendedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // Operation
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const voteForActionOperation = governanceSatelliteInstance.methods.voteForAction(actionId, "nay");
+                    await chai.expect(voteForActionOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        }) // End Governance Satellite Contract - Suspended tests
+
+        describe("Governance Contract:", async () => {
+
+            beforeEach("", async() => {
+                
+                // Initial Values
+                delegationStorage               = await delegationInstance.storage();
+                governanceStorage               = await governanceInstance.storage()
+
+                // check round operation
+                while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
+                    var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+                    await startNextRoundOperation.confirmation();
+
+                    governanceStorage               = await governanceInstance.storage();
+                    currentCycleInfoRound           = governanceStorage.currentCycleInfo.round
+                    currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0]
+                }
+
+                await signerFactory(tezos, suspendedSatelliteSk);
+            })
+
+            it('%propose                          - suspended satellite (oscar) should not be able to propose', async () => {
+                try{
+                    
+                    // Check satellite statues
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // init sample proposal params
+                    const proposalName              = "Quorum test";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "ActionExpiryDays#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+                    
+                    // Propose Operation
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode, 
+                        proposalData
+                    );
+                    await chai.expect(proposeOperation.send({amount: proposalSubmissionFeeMutez, mutez: true})).to.be.rejected;
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%updateProposalData               - suspended satellite (oscar) should not be update proposal data or payment data', async () => {
+                try{
+                    
+                    // remove satellite suspension temporarily to create a new proposal
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+                    await updateStatusOperation.confirmation()
+
+                    // initial storage
+                    delegationStorage               = await delegationInstance.storage();
+                    governanceStorage               = await governanceInstance.storage()
+
+                    // check satellite status - should be active in order to make a proposal first
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
+
+                    const proposalName              = "Quorum test";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+                    const proposalId                = governanceStorage.nextProposalId.toNumber();
+                    
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "Metadata#2",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+
+                    // propose operation by satellite
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode, 
+                        proposalData
+                    ).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+
+                    // Admin - set satellite status back to SUSPENDED
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    await updateStatusOperation.confirmation()
+
+                    // Check satellite is now suspended
+                    delegationStorage               = await delegationInstance.storage();
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // should fail: update proposal data by satellite
+                    await signerFactory(tezos, suspendedSatelliteSk)
+                    const updateProposalDataOperation = governanceInstance.methods.updateProposalData(proposalId, proposalData);
+                    await chai.expect(updateProposalDataOperation.send()).to.be.rejected;
+
+                    // sample payment data
+                    const paymentData               = [
+                        {
+                            addOrSetPaymentData: {
+                                title: "Payment#1",
+                                transaction: {
+                                    "to_"    : suspendedSatellite,
+                                    "token"  : {
+                                        "fa2" : {
+                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                            "tokenId" : 0
+                                        }
+                                    },
+                                    "amount" : MVK(50)
+                                }
+                            }
+                        }
+                    ]
+
+                    // should fail: update payment data by satellite
+                    await signerFactory(tezos, suspendedSatelliteSk)
+                    const updatePaymentDataOperation = governanceInstance.methods.updateProposalData(proposalId, null, paymentData);
+                    await chai.expect(updatePaymentDataOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%lockProposal                     - suspended satellite (oscar) should not be able to lock his proposal', async () => {
+                try{
+
+                    // get proposal just created in previous test
+                    const proposalId                = governanceStorage.nextProposalId.toNumber() - 1;
+
+                    // check satellite is suspended
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // should fail: lock proposal by satellite
+                    await signerFactory(tezos, suspendedSatelliteSk)
+                    const lockProposalOperation = governanceInstance.methods.lockProposal(proposalId);
+                    await chai.expect(lockProposalOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%dropProposal                     - suspended satellite (oscar) should not be able to drop his proposal', async () => {
+                try{
+
+                    // get proposal just created in previous test
+                    const proposalId                = governanceStorage.nextProposalId.toNumber() - 1;
+
+                    // check satellite is suspended
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // should fail: drop proposal by satellite
+                    await signerFactory(tezos, suspendedSatelliteSk)
+                    const dropProposalOperation = governanceInstance.methods.dropProposal(proposalId);
+                    await chai.expect(dropProposalOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+
+            it('%proposalRoundVote                - suspended satellite (oscar) should not be able to vote for a proposal during the proposal round', async () => {
+                try{
+
+                    // get proposal just created in previous test
+                    const proposalId                = governanceStorage.nextProposalId.toNumber() - 1;
+                    
+                    // check satellite is suspended
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "SUSPENDED");
+
+                    // should fail: SATELLITE ONE should not be able to vote
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const proposalRoundVoteOperation = governanceInstance.methods.proposalRoundVote(proposalId);
+                    await chai.expect(proposalRoundVoteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%votingRoundVote                  - suspended satellite (oscar) should not be able to vote for a proposal during the voting round', async () => {
+                try{
+
+                    // check satellite status - should be suspended
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "SUSPENDED");
+
+                    // set signer to satellite one and create proposal
+                    await signerFactory(tezos, satelliteOneSk);
+                    const proposalName              = "Quorum test";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+                    const proposalId                = governanceStorage.nextProposalId.toNumber();
+
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "ActionExpiryDays#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+                    
+                    // create proposal
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode,
+                        proposalData
+                    ).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+                
+                    const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                    await lockOperation.confirmation();
+
+                    var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+    
+                    await signerFactory(tezos, satelliteTwoSk);
+                    voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Start Next Round to Voting Round
+                    // ---------------------------------------
+
+                    var nextRoundOperation    = await governanceInstance.methods.startNextRound().send();
+                    await nextRoundOperation.confirmation();
+
+                    // Set signer back to suspended satellite 
+                    await signerFactory(tezos, suspendedSatelliteSk)
+                    const votingRoundVoteOperation = governanceInstance.methods.votingRoundVote("nay");
+                    await chai.expect(votingRoundVoteOperation.send()).to.be.rejected;
+
+                    // ---------------------------------------
+                    // Restart Cycle - Start Next Round to Proposal Round
+                    // ---------------------------------------
+
+                    await signerFactory(tezos, satelliteTwoSk);
+                    nextRoundOperation    = await governanceInstance.methods.startNextRound().send();
+                    await nextRoundOperation.confirmation();
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%processProposalPayment           - suspended satellite (oscar) should not be able to process proposal payments', async () => {
+                try{
+                    
+                    // remove satellite suspension temporarily to create a new governance satellite action
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+                    await updateStatusOperation.confirmation()
+
+                    // set Council contract admin temporarily to Governance Proxy Contract for governance process to be able to be executed successfully
+                    const setAdminOperation     = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send()
+                    await setAdminOperation.confirmation()
+
+                    // initial storage
+                    delegationStorage               = await delegationInstance.storage();
+                    governanceStorage               = await governanceInstance.storage()
+
+                    // check satellite status - should be active in order to make a proposal first
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
+
+                    // Initial Values
+                    const proposalName              = "Quorum test process proposal payment";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+                    const proposalId                = governanceStorage.nextProposalId.toNumber();
+                    
+                    const proposalPaymentData       = [
+                        {
+                            addOrSetPaymentData: {
+                                title: "Payment#0",
+                                transaction: {
+                                    "to_"    : suspendedSatellite,
+                                    "token"  : {
+                                        "fa2" : {
+                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                            "tokenId" : 0
+                                        }
+                                    },
+                                    "amount" : MVK(50)
+                                }
+                            }
+                        },
+                        {
+                            addOrSetPaymentData: {
+                                title: "Payment#1",
+                                transaction: {
+                                    "to_"    : bannedSatellite,
+                                    "token"  : {
+                                        "fa2" : {
+                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                            "tokenId" : 0
+                                        }
+                                    },
+                                    "amount" : MVK(50)
+                                }
+                            }
+                        }
+                    ]
+
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "ActionExpiryDays#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+
+                    // propose operation by satellite
+                    await signerFactory(tezos, suspendedSatelliteSk);
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode, 
+                        proposalData,
+                        proposalPaymentData
+                    ).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+
+                    // lock proposal 
+                    const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                    await lockOperation.confirmation();
+
+                    var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    await signerFactory(tezos, satelliteTwoSk);
+                    voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Start Next Round to Voting Round
+                    // ---------------------------------------
+
+                    var nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                    await nextRoundOperation.confirmation();
+
+                    var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+                    await votingRoundVoteOperation.confirmation();
+                    
+                    await signerFactory(tezos, satelliteOneSk);
+                    votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+                    await votingRoundVoteOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Start Next Round to Timelock Round
+                    // ---------------------------------------
+
+                    nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                    await nextRoundOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Restart Cycle - Start Next Round to new Proposal Round
+                    // ---------------------------------------
+
+                    nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                    await nextRoundOperation.confirmation();
+
+                    // Admin - set satellite status back to SUSPENDED
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "SUSPENDED").send()
+                    await updateStatusOperation.confirmation()
+
+                    // Check satellite is now suspended
+                    delegationStorage               = await delegationInstance.storage();
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(suspendedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+
+                    // should fail: process proposal payment by satellite
+                    await signerFactory(tezos, suspendedSatelliteSk)
+                    const processProposalPaymentOperation = governanceInstance.methods.processProposalPayment(proposalId);
+                    await chai.expect(processProposalPaymentOperation.send()).to.be.rejected;
+
+                    // reset Council contract admin back to original admin
+                    await signerFactory(tezos, adminSk)
+                    const resetAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(mockPackedLambdaData.setCouncilAdmin).send();
+                    await resetAdminOperation.confirmation();
+
+                    // check that council contract admin is reset to admin
+                    councilStorage = await councilInstance.storage();
+                    assert.equal(councilStorage.admin, admin);
+
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        }) // End Governance Contract Tests for Suspended Satellite
+
+    }) // End Satellite Status Check : SUSPENDED
+
+    describe("Satellite Status Checks: BANNED", async () => {
+
+        before("Set satellite status", async() => {
+        
+            await signerFactory(tezos, adminSk)
+            const updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+            await updateStatusOperation.confirmation()
+
         })
 
-    })
+        beforeEach("update storage", async() => {
+        
+            // init storage
+            governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+            governanceFinancialStorage     = await governanceFinancialInstance.storage();
+            aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
+            delegationStorage              = await delegationInstance.storage();
+            governanceStorage              = await governanceInstance.storage();
+            mvkTokenStorage                = await mvkTokenInstance.storage()
+
+            await signerFactory(tezos, bannedSatelliteSk)
+        })
+
+        describe("Delegation Contract:", async () => {
+
+            it('%unregisterAsSatellite            - banned satellite (susie) should not be able to unregister as a satellite', async () => {
+                try{
+
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    const unregisterAsSatelliteOperation = delegationInstance.methods.unregisterAsSatellite(bannedSatellite);
+                    await chai.expect(unregisterAsSatelliteOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%updateSatelliteRecord            - banned satellite (susie) should not be able to update its satellite record', async () => {
+                try{
+
+                    // initial Values
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(initialSatelliteRecord.status, "BANNED");
+
+                    // init values
+                    const updatedName           = "Test update name";
+                    const updatedDescription    = "Test update description";
+                    const updatedImage          = "https://imageTest.url";
+                    const updatedWebsite        = "https://websiteTest.url";
+                    const updatedFee            = 123;
+                    
+                    // Operation
+                    const updateSatelliteRecordOperation = delegationInstance.methods.updateSatelliteRecord(
+                        updatedName,
+                        updatedDescription,
+                        updatedImage,
+                        updatedWebsite,
+                        updatedFee
+                    );
+                    await chai.expect(updateSatelliteRecordOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+        }) // End Delegation Contract Tests for Banned Satellite
+
+
+        describe("Aggregator Contract:", async () => {
+
+            before("Admin initialize the aggregator contract", async () => {
+                try{
+                    // Initial values
+                    await signerFactory(tezos, adminSk)
+                    aggregatorStorage   = await aggregatorInstance.storage()
+    
+                    // Operation
+                    var addOracleOperation          = await aggregatorInstance.methods.addOracle(
+                        bannedSatellite, 
+                        mockSatelliteData.trudy.oraclePublicKey, 
+                        mockSatelliteData.trudy.oraclePeerId
+                    ).send();
+                    await addOracleOperation.confirmation();
+    
+                } catch(e) {
+                    console.dir(e, {depth: 5})
+                }
+            })
+
+            it('%withdrawRewardXtz                - banned satellite (susie) should not be able to withdraw XTZ rewards', async () => {
+                try{
+                    
+                    aggregatorStorage               = await aggregatorInstance.storage()
+                    
+                    // check satellite is banned
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(bannedSatellite);
+                    await chai.expect(withdrawRewardXtzOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+            
+            it('%withdrawRewardStakedMvk          - banned satellite (susie) should not be able to withdraw SMVK rewards', async () => {
+                try{
+                    
+                    // Initial Values
+                    aggregatorStorage               = await aggregatorInstance.storage()
+
+                    // check satellite is banned                    
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const withdrawRewardStakedMvkOperation = aggregatorInstance.methods.withdrawRewardStakedMvk(bannedSatellite);
+                    await chai.expect(withdrawRewardStakedMvkOperation.send()).to.be.rejected;
+    
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        })  // End Aggregator Contract Tests for Banned Satellite
+
+        describe("Governance Financial Contract:", async () => {
+
+            before("Create a governance financial request", async () => {
+                try{
+    
+                    // set council member and signer
+                    const councilMember = councilMemberOne;
+                    await signerFactory(tezos, councilMemberOneSk);
+    
+                    councilStorage              = await councilInstance.storage();
+                    const fromTreasury          = contractDeployments.treasury.address;
+                    const purpose               = "For testing purposes";
+                    const tokenAmount           = MVK(3);
+                    const actionId              = councilStorage.actionCounter;
+                    
+                    governanceFinancialStorage  = await governanceFinancialInstance.storage();
+                    const financialRequestId    = governanceFinancialStorage.financialRequestCounter; 
+    
+                    // Operation
+                    const councilActionOperation = await councilInstance.methods.councilActionRequestMint(
+                        fromTreasury,
+                        tokenAmount,
+                        purpose
+                    ).send();
+                    await councilActionOperation.confirmation();
+    
+                    // Final values
+                    councilStorage              = await councilInstance.storage();
+                    var action                  = await councilStorage.councilActionsLedger.get(actionId);
+                    var actionSigner            = action.signers.includes(councilMember)
+                    var dataMap                 = await action.dataMap;
+                    const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+                    const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+                    const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+    
+                    // Assertions
+                    assert.strictEqual(action.initiator,            councilMember);
+                    assert.strictEqual(action.status,               "PENDING");
+                    assert.strictEqual(action.actionType,           "requestMint");
+                    assert.equal(action.executed,                   false);
+                    assert.equal(actionSigner,                      true);
+                    assert.equal(action.signersCount,               1);
+                    assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
+                    assert.equal(dataMap.get("purpose"),            packedPurpose);
+                    assert.equal(dataMap.get("tokenAmount"),        packedTokenAmount);
+    
+                    // set signer as council member two
+                    await signerFactory(tezos, councilMemberTwoSk)
+                    let signActionOperation = await councilInstance.methods.signAction(actionId).send();
+                    await signActionOperation.confirmation();
+    
+                    // set signer as council member three
+                    await signerFactory(tezos, councilMemberThreeSk)
+                    signActionOperation = await councilInstance.methods.signAction(actionId).send();
+                    await signActionOperation.confirmation();
+    
+                    // Final values
+                    councilStorage      = await councilInstance.storage();
+                    action              = await councilStorage.councilActionsLedger.get(actionId);
+                    actionSigner        = action.signers.includes(councilMember)
+                    dataMap             = await action.dataMap;
+    
+                    assert.strictEqual(action.initiator,            councilMember);
+                    assert.strictEqual(action.status,               "EXECUTED");
+                    assert.strictEqual(action.actionType,           "requestMint");
+                    assert.equal(action.executed,                   true);
+                    assert.equal(actionSigner,                      true);
+                    assert.equal(action.signersCount,               3);
+                    assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
+                    assert.equal(dataMap.get("purpose"),            packedPurpose);
+                    assert.equal(dataMap.get("tokenAmount"),        packedTokenAmount);
+                    
+                    // check that financial governance request now exists
+                    governanceFinancialStorage      = await governanceFinancialInstance.storage();
+                    const financialRequest          = await governanceFinancialStorage.financialRequestLedger.get(financialRequestId)
+                    assert.notStrictEqual(financialRequest, undefined);
+    
+                } catch(e) {
+                    console.dir(e, {depth: 5})
+                }
+            })
+
+            it('%voteForRequest                   - banned satellite (susie) should not be able to vote for a financial governance request', async () => {
+                try{
+    
+                    // initial values
+                    governanceFinancialStorage  = await governanceFinancialInstance.storage();
+                    const requestId             = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
+
+                    // check that satellite is banned
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const voteForRequestOperation =  governanceFinancialInstance.methods.voteForRequest(requestId, "nay");
+                    await chai.expect(voteForRequestOperation.send()).to.be.rejected;
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        })  // End Governance Financial Contract Tests for Banned Satellite
+
+        describe("Governance Satellite Contract:", async () => {
+        
+            it('%suspendSatellite                 - banned satellite (susie) should not be able to create an action to suspend a satellite', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    const suspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(satelliteOne, "Test purpose");
+                    await chai.expect(suspendSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%restoreSatellite                 - banned satellite (susie) should not be able to create an action to restore a satellite', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    const restoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
+                        bannedSatellite,
+                        "Test purpose"
+                    );
+                    await chai.expect(restoreSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%banSatellite                     - banned satellite (susie) should not be able to create an action to ban a satellite', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+    
+                    // Operation
+                    const banSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(satelliteOne, "Test purpose");
+                    await chai.expect(banSatelliteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%removeAllSatelliteOracles        - banned satellite (susie) should not be able to create an action to remove all oracles from a satellite', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    const removeAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(satelliteOne, "Test purpose");
+                    await chai.expect(removeAllSatelliteOraclesOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%addOracleToAggregator            - banned satellite (susie) should not be able to create an action to add an oracle to an aggregator', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    const addOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
+                        bannedSatellite,
+                        contractDeployments.aggregator.address,
+                        "Test purpose"
+                    );
+                    await chai.expect(addOracleToAggregatorOperation.send()).to.be.rejected;
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+    
+
+            it('%removeOracleInAggregator         - banned satellite (susie) should not be able to create an action to remove an oracle from an aggregator', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    const removeOracleInAggregatorOperation = governanceSatelliteInstance.methods.removeOracleInAggregator(
+                        satelliteOne, 
+                        contractDeployments.aggregator.address, 
+                        "Test purpose"
+                    );
+                    await chai.expect(removeOracleInAggregatorOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+    
+            it('%togglePauseAggregator            - banned satellite (susie) should not be able to create an action to update an aggregator status', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    const togglePauseAggregatorOperation = governanceSatelliteInstance.methods.togglePauseAggregator(
+                        contractDeployments.aggregator.address, 
+                        "Test purpose", 
+                        "pauseAll"
+                    );
+                    await chai.expect(togglePauseAggregatorOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%fixMistakenTransfer              - banned satellite (susie) should not be able to create an action to resolve a mistaken transfer', async () => {
+                try{
+    
+                    // initial Values
+                    const satelliteRecord   = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // init params
+                    const tokenAmount               = MVK(20);
+                    const purpose                   = "Transfer made by mistake to the aggregator factory"
+                    
+                    // Operation
+                    createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
+                        aggregatorFactoryAddress,
+                        purpose,
+                        [
+                            {
+                                "to_"    : bannedSatellite,
+                                "token"  : {
+                                    "fa2" : {
+                                        "tokenContractAddress": contractDeployments.mvkToken.address,
+                                        "tokenId" : 0
+                                    }
+                                },
+                                "amount" : tokenAmount
+                            }
+                        ]
+                    );
+                    await chai.expect(createGovernanceSatelliteActionOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%dropAction                       - banned satellite (susie) should not be able to drop an action', async () => {
+                try{
+                    
+                    // ------------------------------
+                    // Create Sample Action
+                    // ------------------------------
+
+                    // remove satellite suspension temporarily to create a new governance satellite action
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
+                    await updateStatusOperation.confirmation()
+
+                    // initial storage
+                    delegationStorage               = await delegationInstance.storage();
+                    governanceStorage               = await governanceInstance.storage()
+
+                    // check satellite status - should be active in order to make a proposal first
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
+
+                    // initial values
+                    const actionId                  = governanceSatelliteStorage.governanceSatelliteCounter.toNumber();
+    
+                    // Create sample governance satellite action
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const togglePauseAggregatorOperation = await governanceSatelliteInstance.methods.togglePauseAggregator(
+                        contractDeployments.aggregator.address, 
+                        "Test purpose", 
+                        "pauseAll"
+                    ).send()
+                    await togglePauseAggregatorOperation.confirmation()
+    
+                    // Final values
+                    governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+                    governanceStorage               = await governanceInstance.storage();
+                    delegationStorage               = await delegationInstance.storage();
+                    
+                    const action                    = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+        
+                    // Assertions
+                    assert.notStrictEqual(action, undefined);
+
+                    // ------------------------------
+                    // Test Drop Action
+                    // ------------------------------
+
+                    // Admin - set satellite status back to BANNED
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    await updateStatusOperation.confirmation()
+
+                    // Check satellite is now banned
+                    delegationStorage               = await delegationInstance.storage();
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // update storage
+                    delegationStorage           = await delegationInstance.storage();
+                    governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
+
+                    // should fail: drop governance action 
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const dropActionOperation = governanceSatelliteInstance.methods.dropAction(actionId);
+                    await chai.expect(dropActionOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%voteForAction                    - banned satellite (susie) should not be able to vote for an action', async () => {
+                try{
+
+                    // initial values
+                    const actionId              = governanceSatelliteStorage.governanceSatelliteCounter.toNumber() - 1;
+                    
+                    // check that satellite is banned
+                    const satelliteRecord       = await delegationStorage.satelliteLedger.get(bannedSatellite)
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // Operation
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const voteForActionOperation = governanceSatelliteInstance.methods.voteForAction(actionId, "nay");
+                    await chai.expect(voteForActionOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        }) // End Governance Satellite Contract Tests for Banned Satellite
+
+        describe("Governance Contract:", async () => {
+
+            beforeEach("", async() => {
+                
+                // Initial Values
+                delegationStorage               = await delegationInstance.storage();
+                governanceStorage               = await governanceInstance.storage()
+
+                // check round operation
+                while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
+                    var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+                    await startNextRoundOperation.confirmation();
+
+                    governanceStorage               = await governanceInstance.storage();
+                    currentCycleInfoRound           = governanceStorage.currentCycleInfo.round
+                    currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0]
+                }
+
+                await signerFactory(tezos, bannedSatelliteSk);
+            })
+
+            it('%propose                          - banned satellite (susie) should not be able to propose', async () => {
+                try{
+                    
+                    // Check satellite statues
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // init sample proposal params
+                    const proposalName              = "Quorum test";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "ActionExpiryDays#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+                    
+                    // Propose Operation
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode, 
+                        proposalData
+                    );
+                    await chai.expect(proposeOperation.send({amount: proposalSubmissionFeeMutez, mutez: true})).to.be.rejected;
+                    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%updateProposalData               - banned satellite (susie) should not be update proposal data or payment data', async () => {
+                try{
+                    
+                    // remove satellite suspension temporarily to create a new proposal
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
+                    await updateStatusOperation.confirmation()
+
+                    // initial storage
+                    delegationStorage               = await delegationInstance.storage();
+                    governanceStorage               = await governanceInstance.storage()
+
+                    // check satellite status - should be active in order to make a proposal first
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
+
+                    const proposalName              = "Quorum test";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+                    const proposalId                = governanceStorage.nextProposalId.toNumber();
+                    
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "Metadata#2",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+
+                    // propose operation by satellite
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode, 
+                        proposalData
+                    ).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+
+                    // Admin - set satellite status back to BANNED
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    await updateStatusOperation.confirmation()
+
+                    // Check satellite is now banned
+                    delegationStorage               = await delegationInstance.storage();
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // should fail: update proposal data by satellite
+                    await signerFactory(tezos, bannedSatelliteSk)
+                    const updateProposalDataOperation = governanceInstance.methods.updateProposalData(proposalId, proposalData);
+                    await chai.expect(updateProposalDataOperation.send()).to.be.rejected;
+
+                    // sample payment data
+                    const paymentData               = [
+                        {
+                            addOrSetPaymentData: {
+                                title: "Payment#1",
+                                transaction: {
+                                    "to_"    : bannedSatellite,
+                                    "token"  : {
+                                        "fa2" : {
+                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                            "tokenId" : 0
+                                        }
+                                    },
+                                    "amount" : MVK(50)
+                                }
+                            }
+                        }
+                    ]
+
+                    // should fail: update payment data by satellite
+                    await signerFactory(tezos, bannedSatelliteSk)
+                    const updatePaymentDataOperation = governanceInstance.methods.updateProposalData(proposalId, null, paymentData);
+                    await chai.expect(updatePaymentDataOperation.send()).to.be.rejected;
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%lockProposal                     - banned satellite (susie) should not be able to lock her proposal', async () => {
+                try{
+
+                    // get proposal just created in previous test
+                    const proposalId                = governanceStorage.nextProposalId.toNumber() - 1;
+
+                    // check satellite is banned
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // should fail: lock proposal by satellite
+                    await signerFactory(tezos, bannedSatelliteSk)
+                    const lockProposalOperation = governanceInstance.methods.lockProposal(proposalId);
+                    await chai.expect(lockProposalOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%dropProposal                     - banned satellite (susie) should not be able to drop her proposal', async () => {
+                try{
+
+                    // get proposal just created in previous test
+                    const proposalId                = governanceStorage.nextProposalId.toNumber() - 1;
+
+                    // check satellite is banned
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // should fail: drop proposal by satellite
+                    await signerFactory(tezos, bannedSatelliteSk)
+                    const dropProposalOperation = governanceInstance.methods.dropProposal(proposalId);
+                    await chai.expect(dropProposalOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+
+            it('%proposalRoundVote                - banned satellite (susie) should not be able to vote for a proposal during the proposal round', async () => {
+                try{
+
+                    // get proposal just created in previous test
+                    const proposalId                = governanceStorage.nextProposalId.toNumber() - 1;
+                    
+                    // check satellite is banned
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "BANNED");
+
+                    // should fail: SATELLITE ONE should not be able to vote
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const proposalRoundVoteOperation = governanceInstance.methods.proposalRoundVote(proposalId);
+                    await chai.expect(proposalRoundVoteOperation.send()).to.be.rejected;
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%votingRoundVote                  - banned satellite (susie) should not be able to vote for a proposal during the voting round', async () => {
+                try{
+
+                    // check satellite status - should be banned
+                    const initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "BANNED");
+
+                    // set signer to satellite one and create proposal
+                    await signerFactory(tezos, satelliteOneSk);
+                    const proposalName              = "Quorum test";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+                    const proposalId                = governanceStorage.nextProposalId.toNumber();
+
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "ActionExpiryDays#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+                    
+                    // create proposal
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode,
+                        proposalData
+                    ).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+                
+                    const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                    await lockOperation.confirmation();
+
+                    var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+    
+                    await signerFactory(tezos, satelliteTwoSk);
+                    voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Start Next Round to Voting Round
+                    // ---------------------------------------
+
+                    var nextRoundOperation    = await governanceInstance.methods.startNextRound().send();
+                    await nextRoundOperation.confirmation();
+
+                    // Set signer back to Banned Satellite 
+                    await signerFactory(tezos, bannedSatelliteSk)
+                    const votingRoundVoteOperation = governanceInstance.methods.votingRoundVote("nay");
+                    await chai.expect(votingRoundVoteOperation.send()).to.be.rejected;
+
+                    // ---------------------------------------
+                    // Restart Cycle - Start Next Round to Proposal Round
+                    // ---------------------------------------
+
+                    await signerFactory(tezos, satelliteTwoSk);
+                    nextRoundOperation    = await governanceInstance.methods.startNextRound().send();
+                    await nextRoundOperation.confirmation();
+    
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+            it('%processProposalPayment           - banned satellite (susie) should not be able to process proposal payments', async () => {
+                try{
+                    
+                    // remove satellite suspension temporarily to create a new governance satellite action
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
+                    await updateStatusOperation.confirmation()
+
+                    // set Council contract admin temporarily to Governance Proxy Contract for governance process to be able to be executed successfully
+                    const setAdminOperation     = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send()
+                    await setAdminOperation.confirmation()
+
+                    // initial storage
+                    delegationStorage               = await delegationInstance.storage();
+                    governanceStorage               = await governanceInstance.storage()
+
+                    // check satellite status - should be active in order to make a proposal first
+                    const initialSatelliteRecord    = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(initialSatelliteRecord.status, "ACTIVE");
+
+                    // Initial Values
+                    const proposalName              = "Quorum test process proposal payment";
+                    const proposalDesc              = "Details about new proposal";
+                    const proposalIpfs              = "ipfs://QM123456789";
+                    const proposalSourceCode        = "Proposal Source Code";
+                    const proposalId                = governanceStorage.nextProposalId.toNumber();
+                    
+                    const proposalPaymentData       = [
+                        {
+                            addOrSetPaymentData: {
+                                title: "Payment#0",
+                                transaction: {
+                                    "to_"    : bannedSatellite,
+                                    "token"  : {
+                                        "fa2" : {
+                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                            "tokenId" : 0
+                                        }
+                                    },
+                                    "amount" : MVK(50)
+                                }
+                            }
+                        },
+                        {
+                            addOrSetPaymentData: {
+                                title: "Payment#1",
+                                transaction: {
+                                    "to_"    : bannedSatellite,
+                                    "token"  : {
+                                        "fa2" : {
+                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                            "tokenId" : 0
+                                        }
+                                    },
+                                    "amount" : MVK(50)
+                                }
+                            }
+                        }
+                    ]
+
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "ActionExpiryDays#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+                                codeDescription: ""
+                            }
+                        }
+                    ]
+
+                    // propose operation by satellite
+                    await signerFactory(tezos, bannedSatelliteSk);
+                    const proposeOperation = await governanceInstance.methods.propose(
+                        proposalName, 
+                        proposalDesc, 
+                        proposalIpfs, 
+                        proposalSourceCode, 
+                        proposalData,
+                        proposalPaymentData
+                    ).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+
+                    // lock proposal 
+                    const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                    await lockOperation.confirmation();
+
+                    var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    await signerFactory(tezos, satelliteTwoSk);
+                    voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Start Next Round to Voting Round
+                    // ---------------------------------------
+
+                    var nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                    await nextRoundOperation.confirmation();
+
+                    var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+                    await votingRoundVoteOperation.confirmation();
+                    
+                    await signerFactory(tezos, satelliteOneSk);
+                    votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+                    await votingRoundVoteOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Start Next Round to Timelock Round
+                    // ---------------------------------------
+
+                    nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                    await nextRoundOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Restart Cycle - Start Next Round to new Proposal Round
+                    // ---------------------------------------
+
+                    nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                    await nextRoundOperation.confirmation();
+
+                    // Admin - set satellite status back to BANNED
+                    await signerFactory(tezos, adminSk)
+                    var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+                    await updateStatusOperation.confirmation()
+
+                    // Check satellite is now banned
+                    delegationStorage               = await delegationInstance.storage();
+                    const satelliteRecord           = await delegationStorage.satelliteLedger.get(bannedSatellite);
+                    assert.strictEqual(satelliteRecord.status, "BANNED");
+
+                    // should fail: process proposal payment by satellite
+                    await signerFactory(tezos, bannedSatelliteSk)
+                    const processProposalPaymentOperation = governanceInstance.methods.processProposalPayment(proposalId);
+                    await chai.expect(processProposalPaymentOperation.send()).to.be.rejected;
+
+                    // reset Council contract admin back to original admin
+                    await signerFactory(tezos, adminSk)
+                    const resetAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(mockPackedLambdaData.setCouncilAdmin).send();
+                    await resetAdminOperation.confirmation();
+
+                    // check that council contract admin is reset to admin
+                    councilStorage = await councilInstance.storage();
+                    assert.equal(councilStorage.admin, admin);
+
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                }
+            });
+
+        }) // End Governance Contract Tests for Banned Satellite
+
+    }) // End Satellite Status Check - BANNED
+
 
     describe("Housekeeping Entrypoints", async () => {
 
@@ -2935,7 +4600,7 @@ describe("Governance Satellite tests", async () => {
             }
         })
 
-        it('satelliteGovernanceEntrypoints      -  non-admin and non-satellite user (mallory) should not be able to create any governance action', async () => {
+        it('satelliteGovernanceEntrypoints      - non-admin and non-satellite user (mallory) should not be able to create any governance action', async () => {
             try{        
 
                 // some init constants
