@@ -819,7 +819,7 @@ block {
         minYayVotePercentage                = s.config.minYayVotePercentage;                // log of min yay votes percentage - capture state at this point
         quorumCount                         = 0n;                                           // log of turnout for voting round - number of satellites who voted
         quorumStakedMvkTotal                = 0n;                                           // log of total positive votes in MVK  
-        startDateTime                       = Tezos.get_now();                                    // log of when the proposal was proposed
+        startDateTime                       = Tezos.get_now();                              // log of when the proposal was proposed
 
         cycle                               = s.cycleId;
         currentCycleStartLevel              = s.currentCycleInfo.roundStartLevel;           // log current round/cycle start level
