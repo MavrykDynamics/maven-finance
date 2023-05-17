@@ -124,7 +124,7 @@ export async function fa2Transfer (tokenContractInstance, from, to, tokenId, tok
 
 export async function fa2MultiTransfer (tokenContractInstance, from, transferDestination) {
     
-    let transactions = [];
+    let transactions : any = [];
     for(let i = 0; i < transferDestination.length; i++){
         const singleTransaction = {
             to_      : transferDestination[i][0],
