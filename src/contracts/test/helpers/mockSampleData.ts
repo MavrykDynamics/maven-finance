@@ -3,7 +3,7 @@ import { alice, bob, eve, mallory, oscar, ivan, trudy, susie } from "../../scrip
 export const mvkTokenDecimals = 9
 
 // ------------------------------------------------------------------------------
-// Mock Data Start
+// Mock Token Data
 // ------------------------------------------------------------------------------
 
 export const mockTokenData = {
@@ -253,6 +253,25 @@ export const mTokenMockData = {
             },
         })
     }
+
+}
+
+
+// ------------------------------------------------------------------------------
+// Mock Metadata
+// ------------------------------------------------------------------------------
+
+export const mockMetadata = {
+
+    "aggregator": Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK Aggregator Contract',
+            icon: 'https://logo.chainbit.xyz/xtz',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex')
 
 }
 
