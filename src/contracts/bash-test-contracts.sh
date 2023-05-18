@@ -114,7 +114,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         treasuryFactory)
             echo "Running tests for treasuryFactory"
-            COMMANDS+=("yarn ts-mocha --paths test/09_test_treasury_factory.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/14_test_treasury_factory.spec.ts --bail --timeout 9000000")
             ;;
         emergencyGovernance)
             echo "Running tests for emergencyGovernance"
@@ -147,11 +147,11 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         aggregator)
             echo "Running tests for aggregator"
-            COMMANDS+=("yarn ts-mocha --paths test/18_test_aggregator.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/15_test_aggregator.spec.ts --bail --timeout 9000000")
             ;;
         aggregatorFactory)
             echo "Running tests for aggregatorFactory"
-            COMMANDS+=("yarn ts-mocha --paths test/19_test_aggregator_factory.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/16_test_aggregator_factory.spec.ts --bail --timeout 9000000")
             ;;
         satelliteStatus)
             echo "Running tests for satelliteStatus"
