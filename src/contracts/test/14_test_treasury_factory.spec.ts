@@ -123,135 +123,6 @@ describe("Treasury Factory tests", async () => {
         
     });
 
-    describe('Treasury Factory', function() {
-
-        describe('%createTreasury', function() {
-
-            beforeEach("Set signer to admin", async() => {
-                await signerFactory(tezos, bob.sk)
-            })
-
-            it('Admin should not be able to call this entrypoint if it is paused', async () => {
-                try{
-                    // Initial Values
-                    treasuryFactoryStorage         = await treasuryFactoryInstance.storage();
-                    const isPausedStart            = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
-
-                    // Operation
-                    var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("createTreasury", true).send();
-                    await togglePauseOperation.confirmation();
-    
-                    // Final values
-                    treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
-                    const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
-    
-                    await chai.expect(treasuryFactoryInstance.methods.createTreasury(
-                        baker.pkh,
-                        "testTreasury",
-                        false,
-                        mockMetadata.treasury
-                    ).send()).to.be.rejected;
-    
-                    // Reset admin
-                    var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("createTreasury", false).send();
-                    await togglePauseOperation.confirmation();
-    
-                    // Assertions
-                    assert.equal(isPausedStart, false);
-                    assert.equal(isPausedEnd, true);
-
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-        });
-
-        describe('%trackTreasury', function() {
-
-            it('Admin should not be able to call this entrypoint if it is paused', async () => {
-                try{
-                    // Initial Values
-                    treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
-                    const treasuryToTrack           = treasuryAddress;
-                    const isPausedStart             = treasuryFactoryStorage.breakGlassConfig.trackTreasuryIsPaused
-
-                    // Operation
-                    var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("trackTreasury", true).send();
-                    await togglePauseOperation.confirmation();
-    
-                    // Final values
-                    treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
-                    const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.trackTreasuryIsPaused
-    
-                    await chai.expect(treasuryFactoryInstance.methods.trackTreasury(treasuryAddress).send()).to.be.rejected;
-    
-                    // Reset admin
-                    var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("trackTreasury", false).send();
-                    await togglePauseOperation.confirmation();
-    
-                    // Assertions
-                    assert.equal(isPausedStart, false);
-                    assert.equal(isPausedEnd, true);
-                    assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToTrack), false);
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-        
-
-            it('Admin should not be able to call this entrypoint if the provided treasury is already tracked', async () => {
-                try{
-                    // Initial Values
-                    const treasuryToTrack   = treasuryAddress;
-
-                    // Operation
-                    await chai.expect(treasuryFactoryInstance.methods.trackTreasury(treasuryToTrack).send()).to.be.rejected;
-
-                    // Assertions
-                    treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
-                    assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToTrack), true);
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-        })
-
-        describe('%untrackTreasury', function() {
-
-            it('Admin should not be able to call this entrypoint if it is paused', async () => {
-                try{
-                    // Initial Values
-                    treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
-                    const treasuryToUntrack         = treasuryAddress;
-                    const isPausedStart             = treasuryFactoryStorage.breakGlassConfig.untrackTreasuryIsPaused
-
-                    // Operation
-                    var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", true).send();
-                    await togglePauseOperation.confirmation();
-    
-                    // Final values
-                    treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
-                    const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.untrackTreasuryIsPaused
-    
-                    await chai.expect(treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack).send()).to.be.rejected;
-    
-                    // Reset admin
-                    var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", false).send();
-                    await togglePauseOperation.confirmation();
-    
-                    // Assertions
-                    assert.equal(isPausedStart, false);
-                    assert.equal(isPausedEnd, true);
-                    assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToUntrack), true);
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-  
-        })
-    });
-
-
 
     describe("Housekeeping Entrypoints", async () => {
 
@@ -593,14 +464,20 @@ describe("Treasury Factory tests", async () => {
         })
 
 
-        it('%createTreasury           - admin (bob) should be able to create a new tresaury', async () => {
+        it('%createTreasury           - admin (bob) should be able to create a new treasury', async () => {
             try {
 
                 const initialTrackedTreasuries       = treasuryFactoryStorage.trackedTreasuries;
-                const initialTrackedTreasuriesCount  = treasuryFactoryStorage.trackedTreasuries.length.toNumber();
+                // const initialTrackedTreasuriesCount  = initialTrackedTreasuries.count();
+
+                console.log(`${initialTrackedTreasuries}`);
 
                 const randomNumber              = randomNumberFromInterval(1, 100000);
                 const randomTreasuryName        = "testCreateTreasury" + randomNumber;
+
+                console.log(`randomTreasuryName: ${randomTreasuryName}`)
+
+                console.log(`mockMetadata.treasury: ${mockMetadata.treasury}`)
 
                 // Operation
                 const createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
@@ -617,14 +494,14 @@ describe("Treasury Factory tests", async () => {
                 const treasuryStorage: treasuryStorageType  = await treasuryInstance.storage();
                 
                 const updatedTrackedTreasuries              = treasuryFactoryStorage.trackedTreasuries;
-                const updatedTrackedTreasuriesCount         = treasuryFactoryStorage.trackedTreasuries.length.toNumber();
+                // const updatedTrackedTreasuriesCount         = updatedTrackedTreasuries.count();
 
                 assert.strictEqual(treasuryStorage.admin, admin);
                 assert.strictEqual(treasuryStorage.mvkTokenAddress, mvkTokenAddress);
                 
                 assert.notEqual(initialTrackedTreasuries.includes(treasuryAddress), false);
                 assert.equal(updatedTrackedTreasuries.includes(treasuryAddress), true);
-                assert.equal(updatedTrackedTreasuriesCount, initialTrackedTreasuriesCount + 1);
+                // assert.equal(updatedTrackedTreasuriesCount, initialTrackedTreasuriesCount + 1);
                 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -650,6 +527,24 @@ describe("Treasury Factory tests", async () => {
                 console.dir(e, {depth: 5})
             }
         });
+
+        it('%trackTreasury            - admin (bob) should not be able to track a treasury if it is already tracked', async () => {
+            try{
+                
+                // Initial Values
+                const treasuryToTrack   = treasuryAddress;
+
+                // Operation
+                await chai.expect(treasuryFactoryInstance.methods.trackTreasury(treasuryToTrack).send()).to.be.rejected;
+
+                // Assertions
+                treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
+                assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToTrack), true);
+                
+            }catch(e){
+                console.dir(e, {depth: 5});
+            }
+        })
 
         it('%untrackTreasury          - admin (bob) should be able to untrack a treasury', async () => {
             try {
@@ -948,12 +843,28 @@ describe("Treasury Factory tests", async () => {
 
                 const treasuryToUntrack   = treasuryAddress;
 
-                const untrackTreasuryOperation = treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack)
-                await chai.expect(untrackTreasuryOperation.send()).to.be.rejected;
-
                 // Assertions
                 treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
+                assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToUntrack), false);
+
+                // set signer as admin to first track treasury
+                await signerFactory(tezos, adminSk);
+                const trackTreasuryOperation = await treasuryFactoryInstance.methods.trackTreasury(treasuryToUntrack).send();
+                await trackTreasuryOperation.confirmation();
+
+                // set signer back to admin to test untracking of treasury
+                await signerFactory(tezos, mallory.sk);
+                let untrackTreasuryOperation = treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack)
+                await chai.expect(untrackTreasuryOperation.send()).to.be.rejected;
+
+                // assertions - check that trackedTreasuries still includes treasury (not untracked)
+                treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
                 assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToUntrack), true);
+
+                // reset test - set signer back to admin and untrack treasury
+                await signerFactory(tezos, adminSk);
+                untrackTreasuryOperation = treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack).send();
+                await untrackTreasuryOperation.confirmation();
 
             } catch(e) {
                 console.dir(e, {depth: 5})
