@@ -1,5 +1,6 @@
 import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -18,7 +19,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan, baker } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
-import { compileLambdaFunction } from '../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
+import { createLambdaBytes } from '@mavrykdynamics/create-lambda-bytes'
 
 // ------------------------------------------------------------------------------
 // Contract Notes
@@ -2263,8 +2264,8 @@ describe("Test: Break Glass Contract", async () => {
                         assert.equal(storage.admin, governanceProxyAddress)
 
                         // Set Admin Lambda
-                        const setAdminLambdaFunction = await compileLambdaFunction(
-                            'development',             // network
+                        const setAdminLambdaFunction = await createLambdaBytes(
+                            tezos.rpc.url,             // network
                             governanceProxyAddress,    // governance proxy address
                             
                             'setAdmin',                // entrypoint name
@@ -2288,8 +2289,8 @@ describe("Test: Break Glass Contract", async () => {
                     assert.equal(governanceStorage.admin, governanceProxyAddress);
 
                     // Set Admin Lambda
-                    const setAdminLambdaFunction = await compileLambdaFunction(
-                        'development',             // network
+                    const setAdminLambdaFunction = await createLambdaBytes(
+                        tezos.rpc.url,             // network
                         governanceProxyAddress,    // governance proxy address
                         
                         'setAdmin',                // entrypoint name
@@ -2321,8 +2322,8 @@ describe("Test: Break Glass Contract", async () => {
                 //     if(storage.hasOwnProperty('admin')){
 
                 //         // Set Admin Lambda
-                //         const setAdminLambdaFunction = await compileLambdaFunction(
-                //             'development',             // network
+                //         const setAdminLambdaFunction = await createLambdaBytes(
+                //             tezos.rpc.url,             // network
                 //             governanceProxyAddress,    // governance proxy address
                             
                 //             'setAdmin',                // entrypoint name

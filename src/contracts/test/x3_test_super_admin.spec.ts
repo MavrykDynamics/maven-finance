@@ -1,5 +1,6 @@
 import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -17,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, oscar} from "../scripts/sandbox/accounts";
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -321,8 +322,8 @@ describe("Break Glass Super Admin tests", async () => {
                         await setSingleContractAdminOperation.confirmation();
 
                         // Remove User from whitelisted dev
-                        const lambdaFunction        = await compileLambdaFunction(
-                            'development',
+                        const lambdaFunction        = await createLambdaBytes(
+                            tezos.rpc.url,
                             contractDeployments.governanceProxy.address,
                             
                             'updateWhitelistDevelopers',

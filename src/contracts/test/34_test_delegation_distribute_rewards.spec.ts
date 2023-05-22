@@ -18,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, oscar, susie, trudy, david, isaac, ivan } from "../scripts/sandbox/accounts";
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -444,8 +444,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
     //             // Prepare proposal data
-    //             const lambdaFunction                = await compileLambdaFunction(
-    //                 'development',
+    //             const lambdaFunction                = await createLambdaBytes(
+    //                 tezos.rpc.url,
     //                 contractDeployments.governanceProxy.address,
                     
     //                 'updateGeneralContracts',
@@ -598,8 +598,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
     //             // Prepare proposal metadata
-    //             const lambdaFunction                = await compileLambdaFunction(
-    //                 'development',
+    //             const lambdaFunction                = await createLambdaBytes(
+    //                 tezos.rpc.url,
     //                 contractDeployments.governanceProxy.address,
                     
     //                 'updateGeneralContracts',
