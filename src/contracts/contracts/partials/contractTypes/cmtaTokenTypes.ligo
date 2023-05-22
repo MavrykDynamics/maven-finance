@@ -6,9 +6,16 @@ type tokenIdType            is nat
 type ownerType              is address
 type snapshotTimestampType  is timestamp
 
+
+type operatorKeyType is [@layout:comb] record [
+    token_id    : nat;
+    owner       : address;
+    operator    : address; 
+]
+
 ///
 
-type ledgerKeyType is record [
+type ledgerKeyType is [@layout:comb] record [
     owner           : address;
     token_id        : nat;
 ]
@@ -16,11 +23,11 @@ type ledgerKeyType is record [
 
 ///
 
-type tokenMetadataInfoType is record [
+type tokenMetadataInfoType is [@layout:comb] record [
     token_id          : tokenIdType;
     token_info        : map(string, bytes);
 ]
-type ledgerType is big_map(address, tokenBalanceType);
+type ledgerType is big_map(ledgerKeyType, nat);
 
 type tokenMetadataType is big_map(tokenIdType, tokenMetadataInfoType);
 
@@ -30,6 +37,9 @@ type administratorsType is big_map(ledgerKeyType, nat)
 
 
 ///
+
+
+type totalSupplyType is big_map(nat, nat);
 
 
 type tokenAmountType is record [
@@ -100,7 +110,7 @@ type snapshotTotalSupplyType is big_map(snapshotLookupKeyType, nat)
 
 type tokenContextMapType is big_map(nat, tokenContextType)
 
-type identiferType is big_map(address, bytes)
+type identityType is big_map(address, bytes)
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -121,16 +131,14 @@ type cmtaTokenStorageType is record [
     
     administrators          : administratorsType;
 
-    metadata                : metadataType;
-
     token_metadata          : tokenMetadataType;
-    totalSupply             : tokenBalanceType;
+    total_supply            : totalSupplyType;
 
     snapshotLedger          : snapshotLedgerType;
-    snapshotLookup          : snapshotLookupType;
+    snapshot_lookup         : snapshotLookupType;
     snapshotTotalSupply     : snapshotTotalSupplyType;
-    tokenContext            : tokenContextMapType;
-    identifer               : identiferType;
+    token_context           : tokenContextMapType;
+    identities              : identityType;
 
     ledger                  : ledgerType;
     operators               : operatorsType;
