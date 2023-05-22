@@ -166,7 +166,7 @@ describe('Aggregator Tests', async () => {
         // Setup rounds and epoch
         // ------------------------------------------------------------------
 
-        const lastCompletedData = await aggregatorInstance.contractViews.getlastCompletedData().executeView({ viewCaller : bob.pkh});
+        const lastCompletedData = await aggregatorInstance.contractViews.getlastCompletedData().executeView({ viewCaller : admin});
 
         epoch = lastCompletedData.epoch.toNumber() == 1 ? 1 : lastCompletedData.epoch.toNumber() + 1;
         round = lastCompletedData.round.toNumber() == 1 ? 1 : lastCompletedData.round.toNumber() + 1;
@@ -174,8 +174,8 @@ describe('Aggregator Tests', async () => {
         // Set XTZ Reward to be higher for tests (from 0.0013 xtz to 1 xtz)
         // ------------------------------------------------------------------
 
-        // Bob sets reward amount to be 1 tez
-        await signerFactory(tezos, bob.sk)
+        // admin sets reward amount to be 1 tez
+        await signerFactory(tezos, adminSk);
         const rewardAmountXtz = TEZ(1); 
         const updateConfigOperation = await aggregatorInstance.methods.updateConfig(
             rewardAmountXtz, "configRewardAmountXtz"
