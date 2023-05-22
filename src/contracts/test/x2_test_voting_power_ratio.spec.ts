@@ -1,4 +1,5 @@
 import assert from "assert";
+
 import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
@@ -18,7 +19,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -450,8 +451,8 @@ describe("Governance - Voting Power Ratio - tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
 
-                const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'updateConfig',

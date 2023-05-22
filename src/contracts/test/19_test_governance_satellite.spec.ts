@@ -1,7 +1,8 @@
-import assert from "assert";
-import { MVK, Utils } from "./helpers/Utils";
 import { MichelsonMap } from "@taquito/taquito";
-import {BigNumber} from "bignumber.js";
+import assert from "assert";
+import { BigNumber } from "bignumber.js";
+
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -21,7 +22,7 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve, mallory, trudy, ivan, isaac, susie, david, oscar } from "../scripts/sandbox/accounts";
 import { aggregatorStorageType } from "../storage/storageTypes/aggregatorStorageType";
 import { mockSatelliteData, mockPackedLambdaData } from "./helpers/mockSampleData"
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { 
     signerFactory, 
     getStorageMapValue,
@@ -393,8 +394,8 @@ describe("Governance Satellite tests", async () => {
 
             const councilConfigChange     = 1234;
 
-            const councilLambdaFunction = await compileLambdaFunction(
-                'development',
+            const councilLambdaFunction = await createLambdaBytes(
+                tezos.rpc.url,
                 contractDeployments.governanceProxy.address,
                 
                 'updateConfig',
@@ -406,8 +407,8 @@ describe("Governance Satellite tests", async () => {
                 ]
             );
 
-            const setCouncilAdminLambdaFunction = await compileLambdaFunction(
-                'development',             
+            const setCouncilAdminLambdaFunction = await createLambdaBytes(
+                tezos.rpc.url,             
                 contractDeployments.governanceProxy.address,  
                 
                 'setAdmin',                

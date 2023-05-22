@@ -1,5 +1,6 @@
 import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -17,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { 
     signerFactory, 
     updateOperators,
@@ -253,8 +254,8 @@ describe("Governance quorum tests", async () => {
         //         const proposalSourceCode    = "Proposal Source Code";
                 
         //         // Update general map compiled params
-        //         const lambdaFunction        = await compileLambdaFunction(
-        //             'development',
+        //         const lambdaFunction        = await createLambdaBytes(
+        //             tezos.rpc.url,
         //             contractDeployments.governanceProxy.address,
                     
         //             'updateConfig',
@@ -360,8 +361,8 @@ describe("Governance quorum tests", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
                 
                 // Update general map compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'updateConfig',
@@ -470,8 +471,8 @@ describe("Governance quorum tests", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
                 
                 // Update general map compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'updateConfig',
@@ -588,8 +589,8 @@ describe("Governance quorum tests", async () => {
         //         const proposalSourceCode    = "Proposal Source Code";
                 
         //         // Update general map compiled params
-        //         const lambdaFunction        = await compileLambdaFunction(
-        //             'development',
+        //         const lambdaFunction        = await createLambdaBytes(
+        //             tezos.rpc.url,
         //             contractDeployments.governanceProxy.address,
                     
         //             'updateConfig',
@@ -698,8 +699,8 @@ describe("Governance quorum tests", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
                 
                 // Update general map compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'updateConfig',
@@ -812,8 +813,8 @@ describe("Governance quorum tests", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
                 
                 // Update general map compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'updateConfig',
