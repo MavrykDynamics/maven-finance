@@ -1,6 +1,8 @@
-import { BigNumber } from 'bignumber.js'
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import assert from "assert";
-import { Utils, zeroAddress, TEZ, MVK } from "./helpers/Utils";
+import { BigNumber } from 'bignumber.js'
+
+import { MVK, TEZ, Utils, zeroAddress } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -4711,8 +4713,8 @@ describe("Lending Controller tests", async () => {
     //             const proposalSourceCode    = "Proposal Source Code";
 
     //             // Set a contract admin compiled params
-    //             const lambdaFunction        = await compileLambdaFunction(
-    //                 'development',
+    //             const lambdaFunction        = await createLambdaBytes(
+    //                 tezos.rpc.url,
     //                 contractDeployments.governanceProxy.address,
     //                 
     //                 'setAdmin',
