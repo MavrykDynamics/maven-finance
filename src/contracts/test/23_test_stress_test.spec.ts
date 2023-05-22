@@ -1,6 +1,7 @@
-import { Utils, MVK } from "./helpers/Utils";
 import { Estimate, OpKind } from "@taquito/taquito";
+
 import randomUserAccounts from "./helpers/random_accounts.json";
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai              = require("chai");
 const chaiAsPromised    = require('chai-as-promised');
@@ -18,7 +19,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -629,8 +630,8 @@ describe("Stress tests", async () => {
                 ).toString('hex')
 
                 // Create a farm compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'development',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'createFarm',

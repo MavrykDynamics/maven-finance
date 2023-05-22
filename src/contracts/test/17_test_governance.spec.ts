@@ -1,4 +1,5 @@
 import assert from "assert";
+
 import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
@@ -17,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, trudy, oscar, susie, david, ivan, isaac, baker } from "../scripts/sandbox/accounts";
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { mockSatelliteData, mockPackedLambdaData } from "./helpers/mockSampleData"
 import { 
     signerFactory, 
@@ -278,8 +279,8 @@ describe("Governance tests", async () => {
             doormanConfigChange     = MVK(1.5);
             councilConfigChange     = 1234;
 
-            const delegationLambdaFunction = await compileLambdaFunction(
-                'development',
+            const delegationLambdaFunction = await createLambdaBytes(
+                tezos.rpc.url,
                 contractDeployments.governanceProxy.address,
                 
                 'updateConfig',
@@ -291,8 +292,8 @@ describe("Governance tests", async () => {
                 ]
             );
 
-            const doormanLambdaFunction = await compileLambdaFunction(
-                'development',
+            const doormanLambdaFunction = await createLambdaBytes(
+                tezos.rpc.url,
                 contractDeployments.governanceProxy.address,
                 
                 'updateConfig',
@@ -304,8 +305,8 @@ describe("Governance tests", async () => {
                 ]
             );
 
-            const councilLambdaFunction = await compileLambdaFunction(
-                'development',
+            const councilLambdaFunction = await createLambdaBytes(
+                tezos.rpc.url,
                 contractDeployments.governanceProxy.address,
                 
                 'updateConfig',
