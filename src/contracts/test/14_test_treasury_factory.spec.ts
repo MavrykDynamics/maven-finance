@@ -468,16 +468,10 @@ describe("Treasury Factory tests", async () => {
             try {
 
                 const initialTrackedTreasuries       = treasuryFactoryStorage.trackedTreasuries;
-                // const initialTrackedTreasuriesCount  = initialTrackedTreasuries.count();
-
-                console.log(`${initialTrackedTreasuries}`);
+                const initialTrackedTreasuriesCount  = initialTrackedTreasuries.length;
 
                 const randomNumber              = randomNumberFromInterval(1, 100000);
                 const randomTreasuryName        = "testCreateTreasury" + randomNumber;
-
-                console.log(`randomTreasuryName: ${randomTreasuryName}`)
-
-                console.log(`mockMetadata.treasury: ${mockMetadata.treasury}`)
 
                 // Operation
                 const createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
@@ -494,14 +488,14 @@ describe("Treasury Factory tests", async () => {
                 const treasuryStorage: treasuryStorageType  = await treasuryInstance.storage();
                 
                 const updatedTrackedTreasuries              = treasuryFactoryStorage.trackedTreasuries;
-                // const updatedTrackedTreasuriesCount         = updatedTrackedTreasuries.count();
+                const updatedTrackedTreasuriesCount         = updatedTrackedTreasuries.length;
 
                 assert.strictEqual(treasuryStorage.admin, admin);
                 assert.strictEqual(treasuryStorage.mvkTokenAddress, mvkTokenAddress);
                 
                 assert.notEqual(initialTrackedTreasuries.includes(treasuryAddress), false);
                 assert.equal(updatedTrackedTreasuries.includes(treasuryAddress), true);
-                // assert.equal(updatedTrackedTreasuriesCount, initialTrackedTreasuriesCount + 1);
+                assert.equal(updatedTrackedTreasuriesCount, initialTrackedTreasuriesCount + 1);
                 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -863,7 +857,7 @@ describe("Treasury Factory tests", async () => {
 
                 // reset test - set signer back to admin and untrack treasury
                 await signerFactory(tezos, adminSk);
-                untrackTreasuryOperation = treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack).send();
+                untrackTreasuryOperation = await treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack).send();
                 await untrackTreasuryOperation.confirmation();
 
             } catch(e) {
