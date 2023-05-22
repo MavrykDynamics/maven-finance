@@ -19,7 +19,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, trudy, baker } from '../scripts/sandbox/accounts';
-import { compileLambdaFunction } from '../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
+import { createLambdaBytes } from '@mavrykdynamics/create-lambda-bytes';
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -266,8 +266,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const newInflationRate              = initInflationRate * 2;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateInflationRate',
@@ -300,8 +300,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initMaximumSupply             = mvkTokenStorage.maximumSupply;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'triggerInflation',
@@ -333,8 +333,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initMvkGovernance     = mvkTokenStorage.governanceAddress;
     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'setGovernance',
@@ -368,8 +368,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initMvkAdmin  = mvkTokenStorage.admin;
     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'setAdmin',
@@ -426,8 +426,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord      = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'addVestee',
@@ -469,8 +469,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateVestee',
@@ -509,8 +509,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'toggleVesteeLock',
@@ -546,8 +546,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'removeVestee',
@@ -599,8 +599,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmName              = farmStorage.name;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'setName',
@@ -638,8 +638,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmOpen              = farmStorage.open;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'initFarm',
@@ -681,8 +681,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmOpen              = farmStorage.open;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'closeFarm',
@@ -713,8 +713,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmBreakGlassConfig  = await farmStorage.breakGlassConfig;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'pauseAll',
@@ -750,8 +750,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmBreakGlassConfig  = await farmStorage.breakGlassConfig;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'unpauseAll',
@@ -790,8 +790,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmStorage.config.forceRewardFromTransfer;
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -827,8 +827,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmStorage.breakGlassConfig.depositIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -887,7 +887,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const currentRewardPerBlock     = 123;
                     const metadataBytes             = Buffer.from(
                         JSON.stringify({
-                        name: 'MAVRYK PLENTY-USDTz Farm',
+                        name: 'MAVRYK Farm',
                         description: 'MAVRYK Farm Contract',
                         version: 'v1.0.0',
                         liquidityPairToken: {
@@ -913,8 +913,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmTestGovernance    = await governanceStorage.generalContracts.get(farmName);
     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'createFarm',
@@ -971,8 +971,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmUnstakeLambda         = farmFactoryStorage.farmLambdaLedger.get(lambdaName);
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'setProductLambda',
@@ -1008,8 +1008,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmFactoryStorage.config.farmNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -1045,8 +1045,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -1082,8 +1082,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = farmFactoryStorage.trackedFarms.length;
 
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'trackProductContract',
@@ -1117,8 +1117,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = farmFactoryStorage.trackedFarms.length;
 
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'trackProductContract',
@@ -1214,8 +1214,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initReceiverMvkBalance        = initReceiverMvkLedger ? initReceiverMvkLedger.toNumber() : 0;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'mintMvkAndTransfer',
@@ -1270,8 +1270,8 @@ describe('Governance proxy lambdas tests', async () => {
                     ];
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateMvkOperators',
@@ -1311,8 +1311,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'stakeMvk',
@@ -1348,8 +1348,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'unstakeMvk',
@@ -1414,8 +1414,8 @@ describe('Governance proxy lambdas tests', async () => {
                     ];
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'transfer',
@@ -1456,8 +1456,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = treasuryStorage.breakGlassConfig.transferIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -1535,8 +1535,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasuryTestGovernance    = await governanceStorage.generalContracts.get(treasuryName);
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'createTreasury',
@@ -1583,8 +1583,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = treasuryFactoryStorage.config.treasuryNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -1620,8 +1620,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -1657,8 +1657,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = treasuryFactoryStorage.trackedTreasuries.length;
 
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'trackProductContract',
@@ -1692,8 +1692,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = treasuryFactoryStorage.trackedTreasuries.length;
 
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'untrackProductContract',
@@ -1745,8 +1745,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initGovernanceProxyAddress    = governanceStorage.governanceProxyAddress;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'setGovernanceProxy',
@@ -1780,8 +1780,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initGovernanceWhitelistedDevelopers   = await governanceStorage.whitelistDevelopers;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateWhitelistDevelopers',
@@ -1815,8 +1815,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = governanceStorage.config.successReward.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -1872,8 +1872,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorStorage.config.decimals.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -1909,8 +1909,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -1966,8 +1966,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorFactoryStorage.config.aggregatorNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2026,8 +2026,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initAggregatorTestGovernance  = await governanceStorage.generalContracts.get(aggregatorName);
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'createAggregator',
@@ -2084,8 +2084,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -2121,8 +2121,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = aggregatorFactoryStorage.trackedAggregators.length;
 
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'trackProductContract',
@@ -2156,8 +2156,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = aggregatorFactoryStorage.trackedAggregators.length;
 
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'untrackProductContract',
@@ -2211,8 +2211,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = breakGlassStorage.config.actionExpiryDays.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2268,8 +2268,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = councilStorage.config.actionExpiryDays.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2325,8 +2325,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = delegationStorage.config.delegationRatio.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2362,8 +2362,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -2419,8 +2419,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = doormanStorage.config.minMvkAmount.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2456,8 +2456,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = doormanStorage.breakGlassConfig.stakeIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -2513,8 +2513,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = emergencyGovernanceStorage.config.voteExpiryDays.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2570,8 +2570,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = governanceFinancialStorage.config.financialRequestApprovalPercentage.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2627,8 +2627,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2684,8 +2684,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = lendingControllerStorage.config.collateralRatio.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -2753,8 +2753,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initLoanToken                 = lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         "setLoanToken",
@@ -2825,8 +2825,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initLoanToken                 = lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         "setLoanToken",
@@ -2892,8 +2892,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initCollateralToken                   = lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         "setCollateralToken",
@@ -2948,8 +2948,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initCollateralToken                   = lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         "setCollateralToken",
@@ -2988,8 +2988,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = lendingControllerStorage.breakGlassConfig.setLoanTokenIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -3046,8 +3046,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = vaultFactoryStorage.config.vaultNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateConfig',
@@ -3083,8 +3083,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = vaultFactoryStorage.breakGlassConfig.createVaultIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'togglePauseEntrypoint',
@@ -3123,8 +3123,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanUnstakeLambda      = doormanStorage.lambdaLedger.get(lambdaName);
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'setLambda',
@@ -3179,8 +3179,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanMetadata           = await doormanStorage.metadata.get(metadataKey);
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateMetadata',
@@ -3215,8 +3215,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanWhitelistContract  = await doormanStorage.whitelistContracts.get(whitelistContractName);
                     
                     // Operation
-                    const lambdaFunction        = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateWhitelistContracts',
@@ -3252,8 +3252,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanGeneralContract    = await doormanStorage.generalContracts.get(generalContractName);
                     
                     // Operation
-                    const lambdaFunction                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateGeneralContracts',
@@ -3289,8 +3289,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasuryFactoryWhitelistTokenContract     = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractName);
                     
                     // Operation
-                    const lambdaFunction                                = await compileLambdaFunction(
-                        'development',
+                    const lambdaFunction                                = await createLambdaBytes(
+                        tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'updateWhitelistTokenContracts',
