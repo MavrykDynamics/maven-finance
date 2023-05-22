@@ -275,22 +275,10 @@ export const mockMetadata = {
 
     "treasury": Buffer.from(
         JSON.stringify({
-          name: 'MAVRYK PLENTY-USDTz Farm',
-          description: 'MAVRYK Farm Contract',
-          version: 'v1.0.0',
-          liquidityPairToken: {
-            tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-            origin: ['Plenty'],
-            token0: {
-              symbol: ['PLENTY'],
-              tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-            },
-            token1: {
-              symbol: ['USDtz'],
-              tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-            }
-          },
-          authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            name: 'MAVRYK PLENTY-USDTz Treasury',
+            description: 'MAVRYK Treasury Contract',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
         }),
         'ascii',
     ).toString('hex'),
