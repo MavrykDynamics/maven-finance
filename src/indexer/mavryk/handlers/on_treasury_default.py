@@ -38,6 +38,7 @@ async def on_treasury_default(
         treasury_balance, _ = await models.TreasuryBalance.get_or_create(
             treasury        = treasury,
             token           = token,
+            whitelisted     = True,
         )
         treasury_balance.token_standard = token_standard
         treasury_balance.balance        += amount
