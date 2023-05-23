@@ -63,6 +63,7 @@ class TreasuryBalance(Model):
     token_standard                          = fields.CharField(max_length=4, null=True)
     tzkt_token_id                           = fields.BigIntField(null=True)
     balance                                 = fields.FloatField(default=0.0)
+    whitelisted                             = fields.BooleanField(default=False)
 
     class Meta:
         table = 'treasury_balance'

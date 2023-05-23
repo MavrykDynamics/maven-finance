@@ -39,6 +39,14 @@ async def on_treasury_transfer(
             elif type(token) == tez:
                 token_contract_address  = "XTZ"
                 token_standard          = "tez"
+
+            # Get the whitelisted token to check if the token can be added
+            whitelisted             = await models.TreasuryWhitelistTokenContract.exists(
+                contract            = treasury,
+                contract_address    = token_contract_address
+            )
+            if token_standard == "tez":
+                whitelisted         = True
     
             # Persist Token Metadata
             await persist_token_metadata(
@@ -72,6 +80,7 @@ async def on_treasury_transfer(
             )
             treasury_balance.token_standard = token_standard
             treasury_balance.balance        -= amount
+            treasury_balance.whitelisted    = whitelisted
             await treasury_balance.save()
 
     except BaseException as e:
