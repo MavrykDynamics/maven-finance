@@ -15,6 +15,34 @@ async def on_treasury_update_whitelist_token_contracts(
     try:    
         # Persist whitelist token contract
         await persist_linked_contract(models.Treasury, models.TreasuryWhitelistTokenContract, update_whitelist_token_contracts, ctx)
+
+        # Get operation info
+        treasury_address    = update_whitelist_token_contracts.data.target_address
+        token_address       = update_whitelist_token_contracts.parameter.tokenContractAddress
+        
+        # Update the record
+        treasury            = await models.Treasury.get(
+            address             = treasury_address
+        )
+        token, _            = await models.Token.get_or_create(
+            network             = ctx.datasource.network,
+            token_address       = token_address
+        )
+        await token.save()
+        whitelisted         = await models.TreasuryWhitelistTokenContract.exists(
+            contract            = treasury,
+            contract_address    = token_address
+        )
+        
+        # Whitelist all balances of this token for this treasury
+        treasury_balances   = await models.TreasuryBalance.filter(
+            treasury    = treasury,
+            token       = token
+        ).all()
+        for treasury_balance in treasury_balances:
+            treasury_balance.whitelisted    = whitelisted
+            await treasury_balance.save()
+
     except BaseException as e:
          await save_error_report(e)
 

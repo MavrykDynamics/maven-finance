@@ -47,6 +47,10 @@ async def on_treasury_token_transfer_receiver(
         treasury_balance.token_standard = token_standard
         treasury_balance.tzkt_token_id  = tzkt_token_id
         treasury_balance.balance        += amount
+        treasury_balance.whitelisted    = await models.TreasuryWhitelistTokenContract.exists(
+            contract            = treasury,
+            contract_address    = token_address
+        )
         await treasury_balance.save()
 
     except BaseException as e:
