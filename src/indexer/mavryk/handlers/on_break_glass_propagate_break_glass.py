@@ -12,7 +12,7 @@ async def on_break_glass_propagate_break_glass(
 ) -> None:
 
     try:    
-        await persist_break_glass_action(propagate_break_glass)
+        await persist_break_glass_action(ctx, propagate_break_glass)
     except BaseException as e:
          await save_error_report(e)
 

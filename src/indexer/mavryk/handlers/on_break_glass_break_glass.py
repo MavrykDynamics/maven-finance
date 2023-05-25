@@ -18,6 +18,7 @@ async def on_break_glass_break_glass(
     
         # Update record
         breakGlass  = await models.BreakGlass.get(
+            network = ctx.datasource.network,
             address = breakGlassAddress
         )
         breakGlass.glass_broken = breakGlassGlassBroken

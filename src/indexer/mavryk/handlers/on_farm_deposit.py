@@ -33,6 +33,7 @@ async def on_farm_deposit(
     
         # Create and update records
         farm                            = await models.Farm.get(
+            network = ctx.datasource.network,
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -47,7 +48,7 @@ async def on_farm_deposit(
         farm.paid_rewards               = paid_rewards
         await farm.save()
     
-        user                            = await models.mavryk_user_cache.get(address=depositor_address)
+        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
     
         farm_account, _                 = await models.FarmAccount.get_or_create(
             user = user,

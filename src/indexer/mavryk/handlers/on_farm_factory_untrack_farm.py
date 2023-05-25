@@ -17,6 +17,7 @@ async def on_farm_factory_untrack_farm(
     
         # Update record
         farm            = await models.Farm.get_or_none(
+            network = ctx.datasource.network,
             address = farm_address
         )
         if farm:    

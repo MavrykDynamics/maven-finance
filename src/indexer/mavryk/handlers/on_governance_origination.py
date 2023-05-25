@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
@@ -47,8 +47,8 @@ async def on_governance_origination(
         whitelisted_developers                  = governance_origination.storage.whitelistDevelopers
         timestamp                               = governance_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
@@ -63,7 +63,11 @@ async def on_governance_origination(
             governance_round_type = models.GovernanceRoundType.VOTING
     
         # Create record
-        governance, _  = await models.Governance.get_or_create(address = address)
+        governance, _  = await models.Governance.get_or_create(
+            address = address,
+            network = ctx.datasource.network
+        )
+        governance.metadata                                = contract_metadata
         governance.active                                  = True
         governance.admin                                   = admin
         governance.last_updated_at                         = timestamp
@@ -101,7 +105,7 @@ async def on_governance_origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.mavryk_user_cache.get(address=whitelisted_developer_address)
+            user                                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user

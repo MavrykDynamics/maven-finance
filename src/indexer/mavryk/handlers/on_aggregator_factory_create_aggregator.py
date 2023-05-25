@@ -3,7 +3,7 @@ from mavryk.utils.error_reporting import save_error_report
 from dipdup.models import Transaction
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.aggregator_factory.parameter.create_aggregator import CreateAggregatorParameter
 from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
 from mavryk.types.aggregator.storage import AggregatorStorage
@@ -42,7 +42,7 @@ async def on_aggregator_factory_create_aggregator(
     
         # Check aggregator does not already exists
         aggregator_exists                     = await models.Aggregator.get_or_none(
-            address     = aggregator_address
+            network=ctx.datasource.network,address     = aggregator_address
         )
     
         if not aggregator_exists:
@@ -64,20 +64,23 @@ async def on_aggregator_factory_create_aggregator(
                     )
                 )
     
-            # Persist contract metadata
-            await persist_contract_metadata(
+            # Get contract metadata
+            contract_metadata = await get_contract_metadata(
                 ctx=ctx,
                 contract_address=aggregator_address
             )
     
             # Create record
             aggregator_factory          = await models.AggregatorFactory.get(
+                network     = ctx.datasource.network,
                 address     = aggregator_factory_address
             )
             governance                  = await models.Governance.get(
+                network     = ctx.datasource.network,
                 address     = governance_address
             )
             existing_aggregator         = await models.Aggregator.get_or_none(
+                network             = ctx.datasource.network,
                 factory             = aggregator_factory,
                 address             = aggregator_address
             )
@@ -85,8 +88,10 @@ async def on_aggregator_factory_create_aggregator(
                 existing_aggregator.factory  = None
                 await existing_aggregator.save()
             aggregator, _               = await models.Aggregator.get_or_create(
-                address     = aggregator_address
+                network     = ctx.datasource.network,
+                address     = aggregator_address,
             )
+            aggregator.metadata                                     = contract_metadata
             aggregator.governance                                   = governance
             aggregator.admin                                        = admin
             aggregator.factory                                      = aggregator_factory
@@ -115,7 +120,7 @@ async def on_aggregator_factory_create_aggregator(
                 oracle_peer_id          = oracle_storage_record.oraclePeerId
     
                 # Create record
-                oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
+                oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
                 aggregator_oracle       = models.AggregatorOracle(
                     aggregator  = aggregator,
                     user        = oracle,
@@ -128,4 +133,3 @@ async def on_aggregator_factory_create_aggregator(
 
     except BaseException as e:
          await save_error_report(e)
-

@@ -16,6 +16,7 @@ async def on_lending_controller_mock_time_set_admin(
         # Get operation info
         target_contract = set_admin.data.target_address
         contract        = await models.LendingController.get(
+            network         = ctx.datasource.network,
             address         = target_contract,
             mock_time       = True
         )

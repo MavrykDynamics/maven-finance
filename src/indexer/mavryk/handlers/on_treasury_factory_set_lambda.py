@@ -14,7 +14,7 @@ async def on_treasury_factory_set_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.TreasuryFactory, models.TreasuryFactoryLambda, set_lambda)
+        await persist_lambda(ctx, models.TreasuryFactory, models.TreasuryFactoryLambda, set_lambda)
 
     except BaseException as e:
          await save_error_report(e)

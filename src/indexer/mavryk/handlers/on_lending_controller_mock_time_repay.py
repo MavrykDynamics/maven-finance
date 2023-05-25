@@ -23,6 +23,7 @@ async def on_lending_controller_mock_time_repay(
         vault_internal_id                       = int(repay.parameter.vaultId)
         vaults_storage                          = repay.storage.vaults
         lending_controller                      = await models.LendingController.get(
+            network             = ctx.datasource.network,
             address             = lending_controller_address,
             mock_time           = True
         )
@@ -93,7 +94,7 @@ async def on_lending_controller_mock_time_repay(
                     final_repay_amount  = vault_repay_amount
     
                 # Save history data
-                sender                                  = await models.mavryk_user_cache.get(address=sender_address)
+                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

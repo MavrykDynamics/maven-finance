@@ -1,7 +1,7 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.vault_factory.parameter.create_vault import CreateVaultParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -37,6 +37,7 @@ async def on_vault_factory_create_vault(
         # The creation timestamp check is made because a vault can also be created during
         # a lendingController vault registration
         vault_exists            = await models.Vault.get_or_none(
+            network = ctx.datasource.network,
             address = vault_address
         )
 
@@ -60,19 +61,22 @@ async def on_vault_factory_create_vault(
                     )
                 )
 
-            # Persist contract metadata
-            await persist_contract_metadata(
+            # Get contract metadata
+            contract_metadata = await get_contract_metadata(
                 ctx=ctx,
                 contract_address=vault_address
             )
     
             # Create vault record
             vault_factory       = await models.VaultFactory.get(
+                network = ctx.datasource.network,
                 address = vault_factory_address
             )
             vault, _            = await models.Vault.get_or_create(
-                address             = vault_address
+                address             = vault_address,
+                network             = ctx.datasource.network
             )
+            vault.metadata              = contract_metadata
             vault.name                  = name
             vault.factory               = vault_factory
             vault.admin                 = admin
@@ -82,7 +86,7 @@ async def on_vault_factory_create_vault(
     
             # Create a baker or not
             if baker_address:
-                baker       = await models.mavryk_user_cache.get(address=baker_address)
+                baker       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=baker_address)
                 vault.baker = baker
     
             # Save vault
@@ -90,7 +94,7 @@ async def on_vault_factory_create_vault(
     
             # Register depositors
             for depositor_address in whitelisted_addresses:
-                depositor           = await models.mavryk_user_cache.get(address=depositor_address)
+                depositor           = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
                 vault_depositor, _  = await models.VaultDepositor.get_or_create(
                     vault       = vault,
                     depositor   = depositor

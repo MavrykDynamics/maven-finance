@@ -1,5 +1,5 @@
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Treasury Factory Tables
@@ -39,7 +39,7 @@ class TreasuryFactoryWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'treasury_factory_whitelist_contract'
 
-class TreasuryFactoryWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
+class TreasuryFactoryWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_token_contracts')
     token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_factory_whitelist_token_contracts', index=True, null=True)
 

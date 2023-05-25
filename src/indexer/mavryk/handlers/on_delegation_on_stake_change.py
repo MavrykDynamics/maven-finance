@@ -19,8 +19,9 @@ async def on_delegation_on_stake_change(
         # Get and update records
         if user_address in on_stake_change.storage.satelliteRewardsLedger:
             rewards_record          = on_stake_change.storage.satelliteRewardsLedger[user_address]
-            user                    = await models.mavryk_user_cache.get(address=user_address)
+            user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
             delegation              = await models.Delegation.get(
+                network = ctx.datasource.network,
                 address = delegation_address
             )
             satellite_rewards, _    = await models.SatelliteRewards.get_or_create(

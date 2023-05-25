@@ -35,8 +35,8 @@ async def on_governance_satellite_vote_for_action(
         satellite_aggregator_ledger     = vote_for_action.storage.satelliteAggregatorLedger
     
         # Create or update vote record
-        governance              = await models.Governance.get(address   = governance_address)
-        governance_satellite    = await models.GovernanceSatellite.get(address  = governance_satellite_address)
+        governance              = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        governance_satellite    = await models.GovernanceSatellite.get(network=ctx.datasource.network, address= governance_satellite_address)
         action_record                   = await models.GovernanceSatelliteAction.filter(
             governance_satellite    = governance_satellite,
             internal_id             = action_id
@@ -49,7 +49,7 @@ async def on_governance_satellite_vote_for_action(
             action_record.execution_datetime    = timestamp
         await action_record.save()
     
-        voter                   = await models.mavryk_user_cache.get(address=voter_address)
+        voter                   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(
@@ -69,7 +69,7 @@ async def on_governance_satellite_vote_for_action(
     
         # Save other personal executions
         for oracle_address in satellite_aggregator_ledger:
-            oracle                      = await models.mavryk_user_cache.get(address=oracle_address)
+            oracle                      = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
             satellite_oracle_storage    = satellite_aggregator_ledger[oracle_address]
             aggregators                 = satellite_oracle_storage
             satellite_oracle_record, _  = await models.GovernanceSatelliteOracle.get_or_create(
@@ -91,7 +91,7 @@ async def on_governance_satellite_vote_for_action(
     
             # Create entries
             for aggregator_address in aggregators:
-                aggregator, _               = await models.Aggregator.get_or_create(address = aggregator_address)
+                aggregator, _               = await models.Aggregator.get_or_create(network=ctx.datasource.network, address= aggregator_address)
                 await aggregator.save()
     
                 start_timestamp                     = parser.parse(aggregators[aggregator_address])

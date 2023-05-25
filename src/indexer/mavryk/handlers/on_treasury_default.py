@@ -1,3 +1,4 @@
+from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -28,11 +29,14 @@ async def on_treasury_default(
             token_address       = token_address,
             network             = ctx.datasource.network
         )
-        token.metadata      = metadata
+        token.token_standard    = token_standard
+        if metadata:
+            token.metadata          = metadata
         await token.save()
 
         # Update records
         treasury            = await models.Treasury.get(
+            network         = ctx.datasource.network,
             address         = treasury_address
         )
         treasury_balance, _ = await models.TreasuryBalance.get_or_create(
@@ -40,7 +44,6 @@ async def on_treasury_default(
             token           = token,
             whitelisted     = True,
         )
-        treasury_balance.token_standard = token_standard
         treasury_balance.balance        += amount
         await treasury_balance.save()
 

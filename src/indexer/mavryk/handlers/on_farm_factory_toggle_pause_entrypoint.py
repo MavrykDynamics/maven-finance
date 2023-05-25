@@ -14,7 +14,7 @@ async def on_farm_factory_toggle_pause_entrypoint(
     try:
         # Get operation info
         farm_factory_address    = toggle_pause_entrypoint.data.target_address
-        farm_factory            = await models.FarmFactory.get(address=farm_factory_address)
+        farm_factory            = await models.FarmFactory.get(network=ctx.datasource.network, address=farm_factory_address)
     
         # Update record
         farm_factory.create_farm_paused         = toggle_pause_entrypoint.storage.breakGlassConfig.createFarmIsPaused

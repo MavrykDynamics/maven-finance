@@ -14,7 +14,7 @@ async def on_governance_proxy_set_admin(
     try:    
         # Get operation info
         target_contract = set_admin.data.target_address
-        contract        = await models.GovernanceProxy.get(address = target_contract)
+        contract        = await models.GovernanceProxy.get(network=ctx.datasource.network, address= target_contract)
     
         # Persist new admin
         await persist_admin(set_admin, contract)

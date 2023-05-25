@@ -2,7 +2,7 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.lending_controller.storage import LendingControllerStorage
 import mavryk.models as models
 
@@ -41,24 +41,27 @@ async def on_lending_controller_origination(
         repay_paused                            = lending_controller_origination.storage.breakGlassConfig.repayIsPaused
         set_loan_token_paused                   = lending_controller_origination.storage.breakGlassConfig.setLoanTokenIsPaused
         set_collateral_token_paused             = lending_controller_origination.storage.breakGlassConfig.setCollateralTokenIsPaused
-        vault_deposit_staked_token_paused           = lending_controller_origination.storage.breakGlassConfig.vaultDepositStakedTokenIsPaused
-        vault_withdraw_staked_token_paused          = lending_controller_origination.storage.breakGlassConfig.vaultWithdrawStakedTokenIsPaused
+        vault_deposit_staked_token_paused       = lending_controller_origination.storage.breakGlassConfig.vaultDepositStakedTokenIsPaused
+        vault_withdraw_staked_token_paused      = lending_controller_origination.storage.breakGlassConfig.vaultWithdrawStakedTokenIsPaused
         vault_deposit_paused                    = lending_controller_origination.storage.breakGlassConfig.vaultDepositIsPaused
         vault_withdraw_paused                   = lending_controller_origination.storage.breakGlassConfig.vaultWithdrawIsPaused
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=lending_controller_address
         )
         
         # Create record
         governance, _       = await models.Governance.get_or_create(
+            network = ctx.datasource.network,
             address = governance_address
         )
         await governance.save()
         lending_controller  = models.LendingController(
             address                                 = lending_controller_address,
+            network                                 = ctx.datasource.network,
+            metadata                                = contract_metadata,
             mock_time                               = False,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -87,8 +90,8 @@ async def on_lending_controller_origination(
             repay_paused                            = repay_paused,
             set_loan_token_paused                   = set_loan_token_paused,
             set_collateral_token_paused             = set_collateral_token_paused,
-            vault_deposit_staked_token_paused               = vault_deposit_staked_token_paused,
-            vault_withdraw_staked_token_paused              = vault_withdraw_staked_token_paused,
+            vault_deposit_staked_token_paused       = vault_deposit_staked_token_paused,
+            vault_withdraw_staked_token_paused      = vault_withdraw_staked_token_paused,
             vault_deposit_paused                    = vault_deposit_paused,
             vault_withdraw_paused                   = vault_withdraw_paused
         )
