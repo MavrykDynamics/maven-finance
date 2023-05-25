@@ -18,6 +18,7 @@ async def on_aggregator_set_name(
     
         # Update contract
         aggregator              = await models.Aggregator.get(
+            network = ctx.datasource.network,
             address = aggregator_address
         )
         aggregator.name         = name

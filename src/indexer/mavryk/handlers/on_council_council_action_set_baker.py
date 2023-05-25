@@ -12,7 +12,7 @@ async def on_council_council_action_set_baker(
 ) -> None:
 
     try:
-        await persist_council_action(council_action_set_baker)
+        await persist_council_action(ctx, council_action_set_baker)
     except BaseException as e:
          await save_error_report(e)
 

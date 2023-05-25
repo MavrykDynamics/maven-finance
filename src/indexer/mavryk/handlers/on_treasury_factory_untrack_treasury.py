@@ -17,6 +17,7 @@ async def on_treasury_factory_untrack_treasury(
     
         # Update record
         treasury            = await models.Treasury.get_or_none(
+            network = ctx.datasource.network,
             address = treasury_address
         )
         if treasury:

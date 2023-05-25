@@ -1,7 +1,7 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.doorman.storage import DoormanStorage
 from dipdup.context import HandlerContext
 import mavryk.models as models
@@ -24,19 +24,21 @@ async def on_doorman_origination(
         compound_paused                 = doorman_origination.storage.breakGlassConfig.compoundIsPaused
         timestamp                       = doorman_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=doorman_address
         )
         
         # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(address=governance_address)
+        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
         await governance.save();
     
         # Save Doorman in DB
         doorman = models.Doorman(
             address                     = doorman_address,
+            network                     = ctx.datasource.network,
+            metadata                    = contract_metadata,
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,

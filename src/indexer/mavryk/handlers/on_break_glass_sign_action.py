@@ -35,7 +35,7 @@ async def on_break_glass_sign_action(
             status_type = models.ActionStatus.EXECUTED
     
         # Update record
-        break_glass                 = await models.BreakGlass.get(address   = break_glass_address)
+        break_glass                 = await models.BreakGlass.get(network=ctx.datasource.network, address= break_glass_address)
         break_glass.admin           = admin
         break_glass.glass_broken    = glass_broken
         await break_glass.save()
@@ -77,7 +77,7 @@ async def on_break_glass_sign_action(
         for council_member_address in council_members:
             # Change or update records
             member_info             = council_members[council_member_address]
-            member_user             = await models.mavryk_user_cache.get(address=council_member_address)
+            member_user             = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=council_member_address)
             updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
                 break_glass = break_glass,
                 user        = member_user
@@ -88,7 +88,7 @@ async def on_break_glass_sign_action(
             await updated_member.save() 
         
         # Create signature record
-        user                    = await models.mavryk_user_cache.get(address=signer_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer_address)
         signer_record           = await models.BreakGlassActionSigner(
             break_glass_action          = action_record,
             signer                      = user

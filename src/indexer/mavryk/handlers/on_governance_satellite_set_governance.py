@@ -15,10 +15,10 @@ async def on_governance_satellite_set_governance(
     try:    
         # Get operation info
         target_contract = set_governance.data.target_address
-        contract        = await models.GovernanceSatellite.get(address = target_contract)
+        contract        = await models.GovernanceSatellite.get(network=ctx.datasource.network, address= target_contract)
     
         # Persist new admin
-        await persist_governance(set_governance, contract)
+        await persist_governance(ctx, set_governance, contract)
 
     except BaseException as e:
          await save_error_report(e)

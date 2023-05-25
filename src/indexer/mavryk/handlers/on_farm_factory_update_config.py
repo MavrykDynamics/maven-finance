@@ -20,6 +20,7 @@ async def on_farm_factory_update_config(
     
         # Update contract
         farm_factory = await models.FarmFactory.get(
+            network = ctx.datasource.network,
             address = farm_factory_address
         )
         farm_factory.last_updated_at    = timestamp

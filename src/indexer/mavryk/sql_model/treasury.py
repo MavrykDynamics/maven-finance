@@ -1,6 +1,6 @@
 from pickle import TRUE
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Treasury Tables
@@ -38,7 +38,7 @@ class TreasuryWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'treasury_whitelist_contract'
 
-class TreasuryWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
+class TreasuryWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
     token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts', index=True, null=True)
 
@@ -60,7 +60,6 @@ class TreasuryBalance(Model):
     id                                      = fields.BigIntField(pk=True)
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances', index=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances', index=True, null=True)
-    token_standard                          = fields.CharField(max_length=4, null=True)
     tzkt_token_id                           = fields.BigIntField(null=True)
     balance                                 = fields.FloatField(default=0.0)
     whitelisted                             = fields.BooleanField(default=False)

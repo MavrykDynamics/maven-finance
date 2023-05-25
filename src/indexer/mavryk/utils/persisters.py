@@ -1,65 +1,13 @@
 from dateutil import parser
+from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
 import mavryk.models as models
-
-###
-#
-# PERSIST METADATA
-#
-###
-async def persist_token_metadata(ctx, token_address, token_id='0'):
-    network                     = ctx.datasource.network
-    metadata_datasource_name    = 'metadata_' + network.lower()
-    token_metadata              = None
-
-    try:
-        metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-        token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
-
-        if not token_metadata:
-            # TODO: Remove in prod
-            # Check for mainnet as well
-            metadata_datasource_name    = 'metadata_mainnet'
-            metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-            token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
-    except BaseException as e:
-        ...
-
-    token, _        = await models.Token.get_or_create(
-        network         = network,
-        token_address   = token_address,
-        token_id        = token_id
-    )
-    token.metadata  = token_metadata
-    await token.save()
-
-async def persist_contract_metadata(ctx, contract_address):
-    network                     = ctx.datasource.network
-    metadata_datasource_name    = 'metadata_' + network.lower()
-    metadata_datasource         = None
-
-    try:
-        metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-    except BaseException as e:
-        ...
-
-    if metadata_datasource:
-        contract_metadata           = await metadata_datasource.get_contract_metadata(contract_address)
-        if contract_metadata:
-            try:
-                await ctx.update_contract_metadata(
-                    network     = network,
-                    address     = contract_address,
-                    metadata    = contract_metadata
-                )
-            except BaseException as e:
-                ...
 
 ###
 #
 # PERSIST ACTIONS
 #
 ###
-async def persist_council_action(action):
+async def persist_council_action(ctx, action):
     # Get operation values
     councilAddress                  = action.data.target_address
     councilActionRecordDiff         = action.data.diffs[-1]['content']['value']
@@ -84,13 +32,14 @@ async def persist_council_action(action):
         recordStatus    = models.ActionStatus.EXPIRED
 
     council = await models.Council.get(
+        network = ctx.datasource.network,
         address = councilAddress
     )
     council.action_counter      = councilActionCounter
     actionID                    = councilActionCounter - 1
     await council.save()
 
-    initiator   = await models.mavryk_user_cache.get(address=councilActionInitiator)
+    initiator   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=councilActionInitiator)
 
     councilActionRecord = await models.CouncilAction.get_or_none(
         internal_id = actionID
@@ -123,14 +72,14 @@ async def persist_council_action(action):
 
         # Signers
         for signer in councilActionSigners:
-            user    = await models.mavryk_user_cache.get(address=signer)
+            user    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer)
             councilActionRecordSigner = models.CouncilActionSigner(
                 signer                  = user,
                 council_action          = councilActionRecord
             )
             await councilActionRecordSigner.save()
 
-async def persist_break_glass_action(action):
+async def persist_break_glass_action(ctx, action):
     # Get operation values
     breakGlassAddress                  = action.data.target_address
     breakGlassActionRecordDiff         = action.data.diffs[-1]['content']['value']
@@ -155,13 +104,14 @@ async def persist_break_glass_action(action):
         recordStatus    = models.ActionStatus.EXPIRED
 
     breakGlass = await models.BreakGlass.get(
-        address = breakGlassAddress
+        network         = ctx.datasource.network,
+        address         = breakGlassAddress
     )
     breakGlass.action_counter   = breakGlassActionCounter
     actionID                    = breakGlassActionCounter - 1
     await breakGlass.save()
 
-    initiator    = await models.mavryk_user_cache.get(address=breakGlassActionInitiator)
+    initiator    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=breakGlassActionInitiator)
 
     breakGlassActionRecord = await models.BreakGlassAction.get_or_none(
         internal_id = actionID
@@ -194,7 +144,7 @@ async def persist_break_glass_action(action):
 
         # Signers
         for signer in breakGlassActionSigners:
-            user    = await models.mavryk_user_cache.get(address=signer)
+            user    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer)
 
             breakGlassActionRecordSigner = models.BreakGlassActionSigner(
                 signer                      = user,
@@ -210,7 +160,8 @@ async def persist_financial_request(ctx, action):
 
     # Create record
     governanceFinancial     = await models.GovernanceFinancial.get(
-        address = financialAddress
+        network         = ctx.datasource.network,
+        address         = financialAddress
     )
     governanceFinancial.fin_req_counter = requestCounter
     await governanceFinancial.save()
@@ -244,15 +195,22 @@ async def persist_financial_request(ctx, action):
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
 
             treasury, _     = await models.Treasury.get_or_create(
-                address     = treasuryAddress
+                network         = ctx.datasource.network,
+                address         = treasuryAddress
             )
             await treasury.save()
 
             # Persist Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=token_contract_address,
                 token_id=str(token_id)
+            )
+
+            # Get the token standard
+            standard        = await get_token_standard(
+                ctx,
+                token_contract_address
             )
 
             # Get the related token
@@ -261,9 +219,12 @@ async def persist_financial_request(ctx, action):
                 token_address   = token_contract_address,
                 token_id        = token_id
             )
+            if token_contract_metadata:
+                token.metadata          = token_contract_metadata
+            token.token_standard    = standard
             await token.save()
 
-            requester               = await models.mavryk_user_cache.get(address=requesterAddress)
+            requester               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=requesterAddress)
             requestRecord           = models.GovernanceFinancialRequest(
                 internal_id                     = int(requestID),
                 governance_financial            = governanceFinancial,
@@ -295,6 +256,7 @@ async def persist_governance_satellite_action(ctx, action):
 
     # Create record
     governance_satellite     = await models.GovernanceSatellite.get(
+        network = ctx.datasource.network,
         address = governance_satellite_address
     )
     governance_satellite.fin_req_counter = action_counter
@@ -324,7 +286,7 @@ async def persist_governance_satellite_action(ctx, action):
             start_datetime                  = parser.parse(action_record_storage.startDateTime)
             data                            = action_record_storage.dataMap
 
-            initiator                       = await models.mavryk_user_cache.get(address=initiator_address)
+            initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=initiator_address)
             action_record                   = models.GovernanceSatelliteAction(
                 internal_id                     = int(action_id),
                 governance_satellite            = governance_satellite,
@@ -361,16 +323,16 @@ async def persist_governance_satellite_action(ctx, action):
 # PERSIST CONTRACTS
 #
 ###
-async def persist_linked_contract(contract_class, linked_contract_class, update_linked_contracts, ctx=None):
+async def persist_linked_contract(ctx, contract_class, linked_contract_class, update_linked_contracts):
     # Get operation info
     target_address          = update_linked_contracts.data.target_address
     contract                = await contract_class.get(
+        network         = ctx.datasource.network,
         address         = target_address
     )
 
     contract_address        = ""
     contract_name           = ""
-    tzip                    = ""
     contract_in_storage     = False
     entrypoint_name         = update_linked_contracts.data.entrypoint
     if entrypoint_name == "updateGeneralContracts":
@@ -386,28 +348,10 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
         contract_name           = update_linked_contracts.parameter.tokenContractName
         contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistTokenContracts
         if ctx:
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=contract_address,
             )
-
-        # Save whitelist token contract token standard
-        if contract_address[0:3] == 'KT1' and len(contract_address) == 36:
-            contract_summary        = None
-            try:
-                contract_summary    = await ctx.datasource.get_contract_summary(
-                    address = contract_address
-                )
-            except BaseException as e:
-                ...
-            if contract_summary:
-                if 'tzips' in contract_summary:
-                    tzips   = contract_summary['tzips']
-                    if 'fa2' in tzips:
-                        tzip    = 'fa2'
-                    else:
-                        if 'fa12' in tzips:
-                            tzip    = 'fa12'
    
     # Update general contracts record
     linked_contract, _ = await linked_contract_class.get_or_create(
@@ -415,15 +359,24 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
         contract_name   = contract_name
     )
     linked_contract.contract_address        = contract_address
-    linked_contract.token_contract_standard = tzip
 
     # Save the whitelist token
     if entrypoint_name == "updateWhitelistTokenContracts":
+
+        # Get the token standard
+        standard = await get_token_standard(
+            ctx,
+            contract_address
+        )
+
         # Get the related token
         token, _                = await models.Token.get_or_create(
             network         = ctx.datasource.network,
             token_address   = contract_address
         )
+        if token_contract_metadata:
+            token.metadata          = token_contract_metadata
+        token.token_standard    = standard
         await token.save()
 
         # Update the contract record
@@ -445,10 +398,10 @@ async def persist_admin(set_admin,contract):
     contract.admin  = admin_address
     await contract.save()
 
-async def persist_governance(set_governance,contract):
+async def persist_governance(ctx, set_governance,contract):
     # Get operation info
     governance_address      = set_governance.parameter.__root__
-    governance, _           = await models.Governance.get_or_create(address = governance_address)
+    governance, _           = await models.Governance.get_or_create(network=ctx.datasource.network, address= governance_address)
     await governance.save()
     contract.governance     = governance
     await contract.save()
@@ -458,7 +411,7 @@ async def persist_governance(set_governance,contract):
 # PERSIST LAMBDAS
 #
 ###
-async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
+async def persist_lambda(ctx, contract_class, lambda_contract_class, set_lambda):
     
     # Get operation values
     contract_address        = set_lambda.data.target_address
@@ -468,6 +421,7 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
 
     # Save / Update record
     contract                = await contract_class.get(
+        network     = ctx.datasource.network,
         address     = contract_address
     )
     contract.last_updated_at            = timestamp
@@ -475,28 +429,6 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
     contract_lambda, _      = await lambda_contract_class.get_or_create(
         contract        = contract,
         lambda_name     = lambda_name,
-    )
-    contract_lambda.last_updated_at     = timestamp
-    contract_lambda.lambda_bytes        = lambda_bytes
-    await contract_lambda.save()
-
-async def persist_proxy_lambda(contract_class, proxy_lambda_contract_class, set_proxy_lambda):
-    
-    # Get operation values
-    contract_address        = set_proxy_lambda.data.target_address
-    timestamp               = set_proxy_lambda.data.timestamp
-    lambda_bytes            = set_proxy_lambda.parameter.func_bytes
-    lambda_name             = set_proxy_lambda.parameter.id
-
-    # Save / Update record
-    contract                = await contract_class.get(
-        address     = contract_address
-    )
-    contract.last_updated_at            = timestamp
-    await contract.save()
-    contract_lambda, _      = await proxy_lambda_contract_class.get_or_create(
-        contract        = contract,
-        lambda_name     = lambda_name
     )
     contract_lambda.last_updated_at     = timestamp
     contract_lambda.lambda_bytes        = lambda_bytes
