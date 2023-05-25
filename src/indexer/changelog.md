@@ -4,10 +4,10 @@
 
 ### Deployment
 
-- DEV: 0.41
-- STAGING: 0.41
-- PROD: 0.41
-- PROD2: 0.41
+- DEV: 0.42
+- STAGING: 0.42
+- PROD: 0.42
+- PROD2: 0.42
 
 ### Updated ERD Model
 
@@ -73,6 +73,9 @@
   - Column Whitelisted added
 
 ### Breaking changes
+
+- DipdupContractMetadata
+  - Table deprecated
 
 - GovernanceFinancialWhitelistTokenContract
   - Column TokenContractStandard removed
