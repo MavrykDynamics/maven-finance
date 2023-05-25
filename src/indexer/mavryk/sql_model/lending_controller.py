@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from .enums import LendingControllerOperationType
-from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Lending Controller Tables
@@ -60,7 +60,7 @@ class LendingControllerWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'lending_controller_whitelist_contract'
 
-class LendingControllerWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
+class LendingControllerWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_token_contracts')
     token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_whitelist_token_contracts', index=True, null=True)
 
@@ -109,7 +109,6 @@ class LendingControllerCollateralToken(Model):
     total_deposited                         = fields.FloatField(default=0.0)
     max_deposit_amount                      = fields.FloatField(null=True)
     token_name                              = fields.CharField(max_length=36, default="")
-    token_contract_standard                 = fields.CharField(max_length=4, default="")
     paused                                  = fields.BooleanField(default=False, index=True)
 
     class Meta:
@@ -138,7 +137,6 @@ class LendingControllerLoanToken(Model):
     accumulated_rewards_per_share           = fields.FloatField(default=0.0)
     borrow_index                            = fields.FloatField(default=0)
     min_repayment_amount                    = fields.FloatField(default=0.0)
-    loan_token_contract_standard            = fields.CharField(max_length=4, default="")
     paused                                  = fields.BooleanField(default=False, index=True)
 
     class Meta:

@@ -19,7 +19,7 @@ async def on_aggregator_pause_all(
         withdraw_reward_smvk_paused                         = pause_all.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
     
         # Update record
-        aggregator                                          = await models.Aggregator.get(address    = aggregator_address)
+        aggregator                                          = await models.Aggregator.get(network=ctx.datasource.network, address= aggregator_address)
         aggregator.update_data_paused                      = update_data_paused
         aggregator.withdraw_reward_xtz_paused               = withdraw_reward_xtz_paused
         aggregator.withdraw_reward_smvk_paused              = withdraw_reward_smvk_paused

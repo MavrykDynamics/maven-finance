@@ -14,7 +14,7 @@ async def on_doorman_toggle_pause_entrypoint(
     try:
         # Get doorman contract
         doorman_address = toggle_pause_entrypoint.data.target_address
-        doorman         = await models.Doorman.get(address=doorman_address)
+        doorman         = await models.Doorman.get(network=ctx.datasource.network, address=doorman_address)
     
         # Update doorman
         doorman.stake_paused                    = toggle_pause_entrypoint.storage.breakGlassConfig.stakeIsPaused

@@ -18,9 +18,11 @@ async def on_farm_factory_track_farm(
     
         # Update record
         farm_factory    = await models.FarmFactory.get(
+            network = ctx.datasource.network,
             address = farm_factory_address
         )
         farm            = await models.Farm.get_or_none(
+            network = ctx.datasource.network,
             address = farm_address
         )
         if farm:

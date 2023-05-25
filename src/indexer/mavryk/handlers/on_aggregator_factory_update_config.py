@@ -20,6 +20,7 @@ async def on_aggregator_factory_update_config(
     
         # Update contract
         aggregator_factory          = await models.AggregatorFactory.get(
+            network = ctx.datasource.network,
             address = aggregator_factory_address
         )
         aggregator_factory.last_updated_at  = timestamp

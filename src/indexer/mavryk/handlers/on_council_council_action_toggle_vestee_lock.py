@@ -11,7 +11,7 @@ async def on_council_council_action_toggle_vestee_lock(
 ) -> None:
 
     try:
-        await persist_council_action(council_action_toggle_vestee_lock)
+        await persist_council_action(ctx, council_action_toggle_vestee_lock)
     except BaseException as e:
          await save_error_report(e)
 

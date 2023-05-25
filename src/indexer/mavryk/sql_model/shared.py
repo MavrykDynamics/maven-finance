@@ -5,18 +5,31 @@ from dipdup.models import Model, fields
 # Shared Tables
 ###
 
+def token_metadata_default_value():
+    return {
+        "name": None,
+        "symbol": None,
+        "icon": None,
+        "decimals": None,
+        "shouldPreferSymbol": None,
+        "thumbnailUri": None,
+    }
+
 class Token(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    network                                 = fields.CharField(max_length=51)
+    network                                 = fields.CharField(max_length=51, index=True)
     token_address                           = fields.CharField(max_length=36)
     token_id                                = fields.SmallIntField(default=0)
-    metadata                                = fields.JSONField(null=True)
+    token_standard                          = fields.CharField(max_length=4, null=True)
+    metadata                                = fields.JSONField(default=token_metadata_default_value)
 
     class Meta:
         table = 'token'
 
 class MavrykUser(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
+    id                                      = fields.BigIntField(pk=True)
+    network                                 = fields.CharField(max_length=51, index=True)
+    address                                 = fields.CharField(max_length=36)
     mvk_balance                             = fields.FloatField(default=0)
     smvk_balance                            = fields.FloatField(default=0)
 
@@ -28,10 +41,10 @@ class MavrykUserCache:
         self._size = size
         self._mavryk_users: OrderedDict[str, MavrykUser] = OrderedDict()
 
-    async def get(self, address: str) -> MavrykUser:
+    async def get(self, network: str, address: str) -> MavrykUser:
         if address not in self._mavryk_users:
             # NOTE: Already created on origination
-            self._mavryk_users[address], _ = await MavrykUser.get_or_create(address=address)
+            self._mavryk_users[address], _ = await MavrykUser.get_or_create(network=network, address=address)
             if len(self._mavryk_users) > self._size:
                 self._mavryk_users.popitem(last=False)
 

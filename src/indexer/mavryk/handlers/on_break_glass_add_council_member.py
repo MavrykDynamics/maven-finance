@@ -12,7 +12,7 @@ async def on_break_glass_add_council_member(
 ) -> None:
 
     try:    
-        await persist_break_glass_action(add_council_member)
+        await persist_break_glass_action(ctx, add_council_member)
     
 
     except BaseException as e:

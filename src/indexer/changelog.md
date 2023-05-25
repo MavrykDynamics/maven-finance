@@ -17,8 +17,80 @@
 
 ### What's new
 
+- All contract tables:
+  - Column ID added
+  - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
+  - Column Metadata added
+  - Column Network added
+  - Tables affected by the changes:
+    - AggregatorFactory
+    - Aggregator
+    - BreakGlass
+    - Council
+    - Delegation
+    - Doorman
+    - EmergencyGovernance
+    - FarmFactory
+    - Farm
+    - GovernanceFinancial
+    - GovernanceProxy
+    - GovernanceSatellite
+    - Governance
+    - LendingController
+    - LiquidityBaking
+    - MToken
+    - TreasuryFactory
+    - Treasury
+    - VaultFactory
+    - Vault
+    - Vesting
+
+- MavrykUser
+  - Column ID added
+  - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
+  - Column Network added
+
+- MVKFaucet
+  - Column ID added
+  - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
+  - Column Network added
+
+- Token
+  - Column TokenStandard added
+  - Metadata column as now a Default value:
+  ```json
+  {
+    "name": null,
+    "symbol": null,
+    "icon": null,
+    "decimals": null,
+    "shouldPreferSymbol": null,
+    "thumbnailUri": null
+  }
+  ```
+
 - TreasuryBalance
   - Column Whitelisted added
+
+### Breaking changes
+
+- GovernanceFinancialWhitelistTokenContract
+  - Column TokenContractStandard removed
+
+- LendingControllerWhitelistTokenContract
+  - Column TokenContractStandard removed
+
+- LendingControllerCollateralToken
+  - Column TokenContractStandard removed
+
+- LendingControllerLoanToken
+  - Column LoanTokenContractStandard removed
+
+- TreasuryWhitelistTokenContract
+  - Column TokenContractStandard removed
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column TokenContractStandard removed
 
 <details><summary>Previous versions</summary>
 

@@ -1,3 +1,4 @@
+from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.lending_controller.parameter.register_vault_creation import RegisterVaultCreationParameter
@@ -24,10 +25,11 @@ async def on_lending_controller_register_vault_creation(
     
         # Create / Update record
         lending_controller          = await models.LendingController.get(
+            network         = ctx.datasource.network,
             address         = lending_controller_address,
             mock_time       = False
         )
-        vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
+        vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
 
         for vault_storage in vaults_storage:
             vault_address                           = vault_storage.value.address
@@ -58,12 +60,20 @@ async def on_lending_controller_register_vault_creation(
 
             token                                   = None
             if loan_token_address:
+
+                # Get the token standard
+                standard = await get_token_standard(
+                    ctx,
+                    loan_token_address
+                )
+
                 # Get the related token
                 token, _                                = await models.Token.get_or_create(
                     token_address       = loan_token_address,
                     network             = ctx.datasource.network,
                     token_id            = loan_token_id
                 )
+                token.token_standard    = standard
                 await token.save()
     
             lending_controller_loan_token               = await models.LendingControllerLoanToken.filter(
@@ -72,6 +82,7 @@ async def on_lending_controller_register_vault_creation(
                 loan_token_name     = vault_loan_token_name
             ).first()
             vault, _                                = await models.Vault.get_or_create(
+                network = ctx.datasource.network,
                 address = vault_address
             )
             await vault.save()
@@ -94,7 +105,7 @@ async def on_lending_controller_register_vault_creation(
             await lending_controller_vault.save()
     
             # Save history data
-            sender                                  = await models.mavryk_user_cache.get(address=sender_address)
+            sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
             history_data                            = models.LendingControllerHistoryData(
                 lending_controller  = lending_controller,
                 loan_token          = lending_controller_loan_token,

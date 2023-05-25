@@ -19,9 +19,10 @@ async def on_delegation_undelegate_from_satellite(
         satellite_address           = rewards_record.satelliteReferenceAddress
     
         # Create and/or update record
-        user                                                            = await models.mavryk_user_cache.get(address=user_address)
-        satellite                                                       = await models.mavryk_user_cache.get(address=satellite_address)
+        user                                                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
+        satellite                                                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
         delegation                                                      = await models.Delegation.get(
+            network = ctx.datasource.network,
             address = delegation_address
         )
         satellite_record                                                = await models.Satellite.filter(

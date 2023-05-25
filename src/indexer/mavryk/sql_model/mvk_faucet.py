@@ -1,12 +1,13 @@
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, MavrykContract
 
 ###
 # MVK Faucet Tables
 ###
 
 class MVKFaucet(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
+    id                                      = fields.BigIntField(pk=True)
+    address                                 = fields.CharField(max_length=36)
+    network                                 = fields.CharField(max_length=51, index=True)
     mvk_token_address                       = fields.CharField(max_length=36, default="")
     amount_per_user                         = fields.FloatField(default=0.0)
 

@@ -23,6 +23,7 @@ async def on_lending_controller_mock_time_borrow(
         vault_internal_id                       = int(borrow.parameter.vaultId)
         vaults_storage                          = borrow.storage.vaults
         lending_controller                      = await models.LendingController.get(
+            network             = ctx.datasource.network,
             address             = lending_controller_address,
             mock_time           = True
         )
@@ -80,7 +81,7 @@ async def on_lending_controller_mock_time_borrow(
                 await lending_controller_vault.save()
     
                 # Save history data
-                sender                                  = await models.mavryk_user_cache.get(address=sender_address)
+                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

@@ -14,7 +14,7 @@ async def on_emergency_governance_set_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.EmergencyGovernance, models.EmergencyGovernanceLambda, set_lambda)
+        await persist_lambda(ctx, models.EmergencyGovernance, models.EmergencyGovernanceLambda, set_lambda)
 
     except BaseException as e:
          await save_error_report(e)

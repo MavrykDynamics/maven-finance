@@ -3,7 +3,7 @@ from mavryk.utils.error_reporting import save_error_report
 from unicodedata import name
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.break_glass.storage import BreakGlassStorage
 import mavryk.models as models
 
@@ -27,19 +27,21 @@ async def on_break_glass_origination(
         council_members                     = break_glass_origination.storage.councilMembers
         timestamp                           = break_glass_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
         
         # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(address=governance_address)
+        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
         await governance.save();
     
         # Create record
         break_glass  = models.BreakGlass(
             address                             = address,
+            network                             = ctx.datasource.network,
+            metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,
             governance                          = governance,
@@ -54,7 +56,7 @@ async def on_break_glass_origination(
         await break_glass.save()
     
         for member_address in council_members:
-            user                = await models.mavryk_user_cache.get(address=member_address)
+            user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=member_address)
             memberInfo          = council_members[member_address]
             council_member      = await models.BreakGlassCouncilMember(
                 user        = user,

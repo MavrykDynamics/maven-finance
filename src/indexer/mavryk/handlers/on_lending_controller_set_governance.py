@@ -16,12 +16,13 @@ async def on_lending_controller_set_governance(
         # Get operation info
         target_contract = set_governance.data.target_address
         contract        = await models.LendingController.get(
+            network     = ctx.datasource.network,
             address     = target_contract,
             mock_time   = False
         )
     
         # Persist new admin
-        await persist_governance(set_governance, contract)
+        await persist_governance(ctx, set_governance, contract)
 
     except BaseException as e:
          await save_error_report(e)

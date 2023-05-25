@@ -14,7 +14,7 @@ async def on_treasury_unpause_all(
     try:
         # Get operation info
         treasury_address    = unpause_all.data.target_address
-        treasury            = await models.Treasury.get(address=treasury_address)
+        treasury            = await models.Treasury.get(network=ctx.datasource.network, address=treasury_address)
     
         # Update record
         treasury.transfer_paused                = unpause_all.storage.breakGlassConfig.transferIsPaused

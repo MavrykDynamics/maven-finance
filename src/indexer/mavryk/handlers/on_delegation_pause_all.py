@@ -22,7 +22,7 @@ async def on_delegation_pause_all(
         distribute_reward_paused            = pause_all.storage.breakGlassConfig.distributeRewardIsPaused
     
         # Update contract
-        delegation                                      = await models.Delegation.get(address=delegation_address)
+        delegation                                      = await models.Delegation.get(network=ctx.datasource.network, address=delegation_address)
         delegation.delegate_to_satellite_paused         = delegate_to_satellite_paused
         delegation.undelegate_from_satellite_paused     = undelegate_from_satellite_paused
         delegation.register_as_satellite_paused         = register_as_satellite_paused

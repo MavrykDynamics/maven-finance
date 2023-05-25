@@ -20,6 +20,7 @@ async def on_governance_satellite_update_config(
     
         # Update contract
         governance_satellite = await models.GovernanceSatellite.get(
+            network = ctx.datasource.network,
             address = satellite_address
         )
         governance_satellite.last_updated_at    = timestamp
