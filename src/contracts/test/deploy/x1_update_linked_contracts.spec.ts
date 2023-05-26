@@ -18,7 +18,9 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob } from '../../scripts/sandbox/accounts'
-import * as helperFunctions from '../helpers/helperFunctions'
+import { 
+    signerFactory
+} from './../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -63,7 +65,7 @@ describe('Linked contracts updates for Tests', async () => {
             // Set remaining contract addresses - post-deployment
             //----------------------------
 
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
 
             // Break Glass Contract - set whitelist contract addresses [emergencyGovernance]
             const breakGlassContractOperation = await breakGlassInstance.methods.updateWhitelistContracts("emergencyGovernance", contractDeployments.emergencyGovernance.address, 'update').send();
