@@ -75,7 +75,7 @@ block {
 
 
 // helper function to check farm exists
-function checkFarmExists(const farmAddress : address; const s : doormanStorageType) : bool is 
+function checkFarmAddressInFarmFactory(const farmAddress : address; const s : doormanStorageType) : bool is 
 block {
 
     // Get Farm Factory Contract Address from the General Contracts Map on the Governance Contract
@@ -96,7 +96,7 @@ block {
 function verifyFarmExists(const farmAddress : address; const s : doormanStorageType) : unit is 
 block {
 
-    const checkFarmExists : bool = checkFarmExists(farmAddress, s);
+    const checkFarmExists : bool = checkFarmAddressInFarmFactory(farmAddress, s);
     if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
 } with unit
