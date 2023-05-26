@@ -17,18 +17,11 @@ import contractDeployments from '../contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice } from '../../scripts/sandbox/accounts'
+import { bob } from '../../scripts/sandbox/accounts'
 import { 
     signerFactory, 
-    getStorageMapValue,
     fa12Transfer,
-    fa2Transfer,
-    updateOperators,
-    mistakenTransferFa2Token,
-    updateWhitelistContracts,
-    updateGeneralContracts,
-    calcStakedMvkRequiredForActionApproval, 
-    calcTotalVotingPower 
+    fa2Transfer
 } from './../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -46,54 +39,87 @@ describe('Setup and deploy funds for relevant contracts', async () => {
     before('setup', async () => {
         try{
 
+            utils = new Utils()
+            await utils.init(bob.sk)
+            tezos = utils.tezos;
+
+            const councilAddress            = contractDeployments.council.address;
+            const treasuryAddress           = contractDeployments.treasury.address;
+
             const mvkTokenInstance          = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
-            const treasuryInstance          = await utils.tezos.contract.at(contractDeployments.treasury.address);
+            const treasuryInstance          = await utils.tezos.contract.at(treasuryAddress);
             const mavrykFa12TokenInstance   = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
             const mavrykFa2TokenInstance    = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
 
-            const councilAddress            = contractDeployments.council.address;
-
-            await signerFactory(tezos, alice.sk);
+            await signerFactory(tezos, bob.sk);
             
             // make transfers if environment is not production
             if (utils.production !== "true"){
 
-                const sender         = alice.pkh;
+                const sender         = bob.pkh;
                 const mvkTokenAmount = MVK(100);
                 const tezAmount      = 100;
-                const tokenAmount    = 10000000; 
+                const tokenAmount    = 30000000; 
 
-                // transfer MVK to Treasury and Council contract
-                const transferToTreasury = await mvkTokenInstance.methods.transfer(
+                // ------------------------------------------------------------------
+                // MVK Token Transfer
+                // ------------------------------------------------------------------
+
+                // transfer MVK tokens to Treasury and Council contract
+                const transferMvkTokens = await mvkTokenInstance.methods.transfer(
                 [
                     {
                         from_: sender,
                         txs: [
                             {
-                                to_: contractDeployments.treasury.address,
+                                to_: treasuryAddress,
                                 token_id: 0,
                                 amount: mvkTokenAmount,
                             },
                             {
-                                to_: contractDeployments.council.address,
+                                to_: councilAddress,
                                 token_id: 0,
                                 amount: mvkTokenAmount,
                             }
                         ],
                     },
                 ]).send()
-                await transferToTreasury.confirmation();
+                await transferMvkTokens.confirmation();
+
+                // ------------------------------------------------------------------
+                // XTZ Transfer
+                // ------------------------------------------------------------------
 
                 // transfer xtz to Treasury
-                const transferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryInstance.address, amount: tezAmount});
+                const transferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: tezAmount});
                 await transferTezToTreasuryOperation.confirmation();
 
-                // transfer 25 Mavryk FA12 Tokens to Council
+                // transfer xtz to Council
+                const transferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: councilAddress, amount: tezAmount});
+                await transferTezToCouncilOperation.confirmation();
+
+                // ------------------------------------------------------------------
+                // Mock FA12 Token Transfer
+                // ------------------------------------------------------------------
+
+                // transfer 30 Mavryk FA12 Tokens to Council
                 transferOperation = await fa12Transfer(mavrykFa12TokenInstance, sender, councilAddress, tokenAmount);
                 await transferOperation.confirmation();
 
-                // transfer 25 Mavryk FA2 Tokens to Council
+                // transfer 30 Mavryk FA12 Tokens to Treasury
+                transferOperation = await fa12Transfer(mavrykFa12TokenInstance, sender, treasuryAddress, tokenAmount);
+                await transferOperation.confirmation();
+
+                // ------------------------------------------------------------------
+                // Mock FA2 Token Transfer
+                // ------------------------------------------------------------------
+
+                // transfer 30 Mavryk FA2 Tokens to Council
                 transferOperation = await fa2Transfer(mavrykFa2TokenInstance, sender, councilAddress, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+                
+                // transfer 30 Mavryk FA2 Tokens to Treasury
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, sender, treasuryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
             }
 
@@ -102,7 +128,7 @@ describe('Setup and deploy funds for relevant contracts', async () => {
             [
                 {
                     add_operator: {
-                        owner: contractDeployments.treasury.address,
+                        owner: treasuryAddress,
                         operator: contractDeployments.doorman.address,
                         token_id: 0,
                     },
