@@ -209,17 +209,17 @@ describe("Test: Governance Financial Contract", async () => {
             //    
             // -----------------------------------------------
 
-            satelliteOne    = eve.pkh;
-            satelliteOneSk  = eve.sk;
+            satelliteOne     = eve.pkh;
+            satelliteOneSk   = eve.sk;
 
-            satelliteTwo    = alice.pkh;
-            satelliteTwoSk  = alice.sk;
+            satelliteTwo     = alice.pkh;
+            satelliteTwoSk   = alice.sk;
 
             satelliteThree   = trudy.pkh;
             satelliteThreeSk = trudy.sk;
 
-            satelliteFour   = oscar.pkh;
-            satelliteFive   = susie.pkh;
+            satelliteFour    = oscar.pkh;
+            satelliteFive    = susie.pkh;
 
             delegateOne     = david.pkh;
             delegateOneSk   = david.sk;
@@ -259,32 +259,6 @@ describe("Test: Governance Financial Contract", async () => {
             var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
             await startNextRoundOperation.confirmation();
 
-            // ------------------------------------------------------------------
-            // Setup funds in Council for transfer later
-            // ------------------------------------------------------------------
-            
-            // Alice transfers 25 XTZ to Council
-            await signerFactory(tezos, alice.sk)
-            const aliceTransferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: 25});
-            await aliceTransferTezToCouncilOperation.confirmation();
-
-            // Mallory transfers 20 MVK tokens to Treasury
-            await signerFactory(tezos, mallory.sk);
-            const mvkTokenAmount = MVK(20);
-            transferOperation = await fa2Transfer(mvkTokenInstance, mallory.pkh, treasuryAddress, tokenId, mvkTokenAmount);
-            await transferOperation.confirmation();
-
-            // set token amount to 25 tokens
-            const tokenAmount = 25000000;
-
-            // Mallory transfers 25 Mavryk FA12 Tokens to Council
-            transferOperation = await fa12Transfer(mavrykFa12TokenInstance, mallory.pkh, treasuryAddress, tokenAmount);
-            await transferOperation.confirmation();
-
-            // Mallory transfers 25 Mavryk FA2 Tokens to Council
-            transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, treasuryAddress, tokenId, tokenAmount);
-            await transferOperation.confirmation();
-
         } catch(e) {
             console.dir(e, {depth: 5})
         }
@@ -310,13 +284,13 @@ describe("Test: Governance Financial Contract", async () => {
                 doormanStorage              = await doormanInstance.storage();
 
                 // request tokens params
-                const tokenAmount                   = 10000000; // 10 Mavryk FA12 Tokens
+                const tokenAmount                   = 5000000; // 5 Mavryk FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
                 let tokenContractAddress            = mavrykFa12TokenInstance.address; 
                 const tokenName                     = "MAVRYKFA12";
                 const tokenType                     = "FA12";
                 const tokenId                       = 0;
-                let purpose                       = "Test Council Request Transfer of 100 Mavryk FA12 Tokens";            
+                let purpose                         = "Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
 
                 // satellite tries to create a financial request for tokens
                 await signerFactory(tezos, satelliteOneSk)
@@ -373,13 +347,13 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
-                const tokenAmount                   = 10000000; // 10 Mavryk FA12 Tokens
+                const tokenAmount                   = 5000000; // 5 Mavryk FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
                 const mavrykFa12TokenContractAddress  = mavrykFa12TokenInstance.address; 
                 const tokenName                     = "MAVRYKFA12";
                 const tokenType                     = "FA12";
                 const tokenId                       = 0;
-                const purpose                       = "Test Council Request Transfer of 100 Mavryk FA12 Tokens";            
+                const purpose                       = "Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
 
                 // Council member (eve) requests for mavryk FA12 token to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
@@ -552,13 +526,13 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
-                const tokenAmount                   = 10000000; // 10 Mavryk FA2 Tokens
+                const tokenAmount                   = 5000000; // 5 Mavryk FA2 Tokens
                 const treasury                      = contractDeployments.treasury.address;
                 const mavrykFa2TokenContractAddress = mavrykFa2TokenInstance.address; 
                 const tokenName                     = "MAVRYKFA2";
                 const tokenType                     = "FA2";
                 const tokenId                       = 0;
-                const purpose                       = "Test Council Request Transfer of 100 Mavryk FA2 Tokens";            
+                const purpose                       = "Test Council Request Transfer of 5 Mavryk FA2 Tokens";            
 
                 // Council member (eve) requests for mavryk FA2 token to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
@@ -730,14 +704,14 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
-                const tokenAmount                   = 10000000; // 10 XTZ
+                const tokenAmount                   = 5000000; // 5 XTZ
                 const zeroAddress                   = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
                 const treasury                      = contractDeployments.treasury.address;
                 const tokenContractAddress          = zeroAddress;
                 const tokenName                     = "XTZ";
                 const tokenType                     = "TEZ";
                 const tokenId                       = 0;
-                const purpose                       = "Test Council Request Transfer of 100 XTZ";            
+                const purpose                       = "Test Council Request Transfer of 5 XTZ";            
 
                 // Council member (eve) requests for MVK to be minted
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
