@@ -625,6 +625,9 @@ describe("Test: Break Glass Contract", async () => {
                     await stakeOperation.confirmation();
                 }
 
+                assert.equal(emergencyProposal.stakedMvkPercentageRequired.toNumber()   , emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
+                assert.equal(emergencyProposal.stakedMvkRequiredForBreakGlass.toNumber(), stakedMvkRequiredForBreakGlass);
+
                 // ---------------------------------------------------------------
                 // Set all contracts admin to governance address if it is not
                 // ---------------------------------------------------------------
@@ -662,11 +665,20 @@ describe("Test: Break Glass Contract", async () => {
                 voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
                 await voteOperation.confirmation();
 
+                // user (alice) vote for emergency control
+                await helperFunctions.signerFactory(tezos, alice.sk)
+                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                await voteOperation.confirmation();
+
+                // user (bob) vote for emergency control
+                await helperFunctions.signerFactory(tezos, bob.sk)
+                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                await voteOperation.confirmation();
+
                 // Check if glass was broken
                 breakGlassStorage       = await breakGlassInstance.storage();
                 const glassBroken       = breakGlassStorage.glassBroken;
                 assert.equal(glassBroken, true);
-
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -902,7 +914,32 @@ describe("Test: Break Glass Contract", async () => {
             await helperFunctions.signerFactory(tezos, councilMemberOneSk)
         });
 
-        it('%setSingleContractAdmin         - council member (eve) should be able to create a new action to update the admin in one contract', async () => {
+        it('%setSingleContractAdmin         - council member (eve) should not be able to create a new action to set a non-whitelisted developer address (oscar) as a new contract admin', async () => {
+            try{
+                
+                // Initial Values
+                breakGlassStorage           = await breakGlassInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+                governanceStorage           = await governanceInstance.storage();
+
+                const newAdmin              = oscar.pkh;
+                const targetContract        = contractDeployments.doorman.address;
+                const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
+
+                // Assertions
+                assert.strictEqual(whitelistedDevelopers.includes(newAdmin), false)
+
+                // Operation
+                const newActionOperation = breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin);
+                await chai.expect(newActionOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        it('%setSingleContractAdmin         - council member (eve) should be able to create a new action to set a new admin (whitelisted developer - bob) on a target contract', async () => {
             try{
                 
                 // Initial Values
@@ -941,7 +978,177 @@ describe("Test: Break Glass Contract", async () => {
         });
 
 
-        it('%setAllContractsAdmin           - council member (eve) should be able to create a new action to set new admin (bob) in all contracts', async () => {
+        it('%setSingleContractAdmin         - council member (eve) should be able to create a new action to set a new admin (governance proxy contract) on a target contract', async () => {
+            try{
+                
+                // Initial Values
+                breakGlassStorage       = await breakGlassInstance.storage();
+                doormanStorage          = await doormanInstance.storage();
+                const nextActionID      = breakGlassStorage.actionCounter;
+                const newAdmin          = governanceProxyAddress;
+                const targetContract    = contractDeployments.doorman.address;
+
+                // Operation
+                const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                breakGlassStorage                   = await breakGlassInstance.storage();
+                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                const actionSigner                  = action.signers.includes(councilMember)
+                const dataMap                       = await action.dataMap;
+                const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
+                const packedContract                = (await utils.tezos.rpc.packData({ data: { string: targetContract }, type: { prim: 'address' } })).packed
+
+                // Assertions
+                assert.strictEqual(action.initiator, councilMember);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "setSingleContractAdmin");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
+                assert.equal(dataMap.get("targetContractAddress"), packedContract);
+                assert.equal(breakGlassStorage.glassBroken, true);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        it('%setSingleContractAdmin         - council member (eve) should be able to create a new action to set a new admin (break glass contract) on a target contract', async () => {
+            try{
+                
+                // Initial Values
+                breakGlassStorage       = await breakGlassInstance.storage();
+                doormanStorage          = await doormanInstance.storage();
+                const nextActionID      = breakGlassStorage.actionCounter;
+                const newAdmin          = contractDeployments.breakGlass.address;
+                const targetContract    = contractDeployments.doorman.address;
+
+                // Operation
+                const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                breakGlassStorage                   = await breakGlassInstance.storage();
+                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                const actionSigner                  = action.signers.includes(councilMember)
+                const dataMap                       = await action.dataMap;
+                const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
+                const packedContract                = (await utils.tezos.rpc.packData({ data: { string: targetContract }, type: { prim: 'address' } })).packed
+
+                // Assertions
+                assert.strictEqual(action.initiator, councilMember);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "setSingleContractAdmin");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
+                assert.equal(dataMap.get("targetContractAddress"), packedContract);
+                assert.equal(breakGlassStorage.glassBroken, true);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        it('%setAllContractsAdmin           - council member (eve) should not be able to create a new action to set a non-whitelisted developer address as the new admin in all contracts', async () => {
+            try{
+
+                // Initial Values
+                breakGlassStorage           = await breakGlassInstance.storage();
+                governanceStorage           = await governanceInstance.storage();
+
+                const newAdmin              = oscar.pkh;
+                const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
+
+                // Assertions
+                assert.strictEqual(whitelistedDevelopers.includes(newAdmin), false)
+
+                // Operation
+                const newActionOperation = breakGlassInstance.methods.setAllContractsAdmin(newAdmin);
+                await chai.expect(newActionOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        it('%setAllContractsAdmin           - council member (eve) should be able to create a new action to set new admin (governance proxy contract) in all contracts', async () => {
+            try{
+
+                // Initial Values
+                breakGlassStorage       = await breakGlassInstance.storage();
+                const nextActionID      = breakGlassStorage.actionCounter;
+                const newAdmin          = governanceProxyAddress;
+
+                // Operation
+                const newActionOperation = await breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                breakGlassStorage   = await breakGlassInstance.storage();
+                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                const actionSigner  = action.signers.includes(councilMember)
+                const dataMap       = await action.dataMap;
+                const packedAdmin   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
+
+                // Assertions
+                assert.strictEqual(action.initiator,councilMember);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "setAllContractsAdmin");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
+                assert.equal(breakGlassStorage.glassBroken, true);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        it('%setAllContractsAdmin           - council member (eve) should be able to create a new action to set new admin (breakGlass contract) in all contracts', async () => {
+            try{
+
+                // Initial Values
+                breakGlassStorage       = await breakGlassInstance.storage();
+                const nextActionID      = breakGlassStorage.actionCounter;
+                const newAdmin          = contractDeployments.breakGlass.address;
+
+                // Operation
+                const newActionOperation = await breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                breakGlassStorage   = await breakGlassInstance.storage();
+                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                const actionSigner  = action.signers.includes(councilMember)
+                const dataMap       = await action.dataMap;
+                const packedAdmin   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
+
+                // Assertions
+                assert.strictEqual(action.initiator,councilMember);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "setAllContractsAdmin");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
+                assert.equal(breakGlassStorage.glassBroken, true);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setAllContractsAdmin           - council member (eve) should be able to create a new action to set new admin (whitelisted developer - bob) in all contracts', async () => {
             try{
 
                 // Initial Values
@@ -974,6 +1181,8 @@ describe("Test: Break Glass Contract", async () => {
                 console.dir(e, {depth: 5});
             }
         });
+
+
         it('%pauseAllEntrypoints            - council member (eve) should be able to create a new action to pause entrypoints in all contracts', async () => {
             try{
                 // Initial Values
