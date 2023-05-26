@@ -393,7 +393,7 @@ describe("Governance Satellite tests", async () => {
             // -------------------
 
             const councilConfigChange     = 1234;
-
+            
             const councilLambdaFunction = await createLambdaBytes(
                 tezos.rpc.url,
                 contractDeployments.governanceProxy.address,
@@ -420,7 +420,6 @@ describe("Governance Satellite tests", async () => {
 
             mockPackedLambdaData.updateCouncilConfig  = councilLambdaFunction;
             mockPackedLambdaData.setCouncilAdmin      = setCouncilAdminLambdaFunction;
-
 
         } catch(e) {
             console.dir(e, {depth: 5})
@@ -3052,7 +3051,7 @@ describe("Governance Satellite tests", async () => {
                                             "tokenId" : 0
                                         }
                                     },
-                                    "amount" : MVK(50)
+                                    "amount" : MVK(5)
                                 }
                             }
                         },
@@ -3067,7 +3066,7 @@ describe("Governance Satellite tests", async () => {
                                             "tokenId" : 0
                                         }
                                     },
-                                    "amount" : MVK(50)
+                                    "amount" : MVK(5)
                                 }
                             }
                         }
@@ -4409,7 +4408,6 @@ describe("Governance Satellite tests", async () => {
     });
 
 
-
     describe('Access Control Checks', function () {
 
         beforeEach("Set signer to non-admin (mallory)", async () => {
@@ -4741,5 +4739,4 @@ describe("Governance Satellite tests", async () => {
 
     })
     
-
 });
