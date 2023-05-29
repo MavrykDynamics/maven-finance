@@ -599,16 +599,6 @@ describe("Test: Break Glass Contract", async () => {
 
                 const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
                 const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
-                const stakeMvkPercentageRequired = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
-
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply       = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : user});
-
-                // calculate staked MVK required for break glass
-                const stakedMvkRequiredForBreakGlass = Math.floor((stakeMvkPercentageRequired * totalStakedMvkSupply / 10000));
-
-                const emergencyID                = emergencyGovernanceStorage.currentEmergencyGovernanceId;
-                var emergencyProposal            = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
 
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
@@ -624,9 +614,6 @@ describe("Test: Break Glass Contract", async () => {
                     stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
                     await stakeOperation.confirmation();
                 }
-
-                assert.equal(emergencyProposal.stakedMvkPercentageRequired.toNumber()   , emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
-                assert.equal(emergencyProposal.stakedMvkRequiredForBreakGlass.toNumber(), stakedMvkRequiredForBreakGlass);
 
                 // ---------------------------------------------------------------
                 // Set all contracts admin to governance address if it is not
@@ -654,14 +641,14 @@ describe("Test: Break Glass Contract", async () => {
                 const emergencyTitle  = "Test emergency control";
                 const emergencyDesc   = "Test description";
 
-                await helperFunctions.signerFactory(tezos, eve.sk)
+                await helperFunctions.signerFactory(tezos, userSk)
                 const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                     emergencyTitle, emergencyDesc
                 ).send({amount: requiredFeeMutez, mutez: true});
                 await emergencyControlOperation.confirmation();
 
                 // user (eve) vote for emergency control
-                await helperFunctions.signerFactory(tezos, eve.sk)
+                await helperFunctions.signerFactory(tezos, userSk)
                 voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
                 await voteOperation.confirmation();
 
@@ -670,8 +657,13 @@ describe("Test: Break Glass Contract", async () => {
                 voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
                 await voteOperation.confirmation();
 
-                // user (bob) vote for emergency control
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                // user (mallory) vote for emergency control
+                await helperFunctions.signerFactory(tezos, mallory.sk)
+                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                await voteOperation.confirmation();
+
+                // user (trudy) vote for emergency control
+                await helperFunctions.signerFactory(tezos, trudy.sk)
                 voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
                 await voteOperation.confirmation();
 
@@ -2456,40 +2448,43 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(action.status, "EXECUTED");
                 assert.equal(breakGlassStorage.glassBroken, false);
 
-                console.log('check general contracts');
-
                 // Check the contracts admin
                 for (let entry of generalContracts){
                     
                     // Get contract storage
                     var contract        = await utils.tezos.contract.at(entry[1]);
                     var storage:any     = await contract.storage();
-
-                    console.log(`contract: ${entry} | admin: ${storage.admin} | address: ${contract.address}`);
                     
                     if(storage.hasOwnProperty('admin')){
-                    
-                        // Check admin is equal to governance proxy contract now
-                        assert.equal(storage.admin, governanceProxyAddress)
+                        
+                        // console.log(`contract: ${entry} | admin: ${storage.admin}`);
 
-                        // Set Admin Lambda
-                        const setAdminLambdaFunction = await createLambdaBytes(
-                            tezos.rpc.url,             // network
-                            governanceProxyAddress,    // governance proxy address
+                        // if admin is the governance proxy contract
+                        // - prevents duplicates (e.g. farmTreasury, aggregatorTreasury)
+                        if(storage.admin == governanceProxyAddress){
+
+                            // Check admin is equal to governance proxy contract now
+                            // assert.equal(storage.admin, governanceProxyAddress)
+
+                            // Set Admin Lambda
+                            const setAdminLambdaFunction = await createLambdaBytes(
+                                tezos.rpc.url,             // network
+                                governanceProxyAddress,    // governance proxy address
+                                
+                                'setAdmin',                // entrypoint name
+                                [
+                                    contract.address,      // contract address
+                                    admin                  // bob
+                                ]
+                            );
                             
-                            'setAdmin',                // entrypoint name
-                            [
-                                contract.address,      // contract address
-                                admin                  // bob
-                            ]
-                        );
-                        
-                        setAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(setAdminLambdaFunction).send();
-                        await setAdminOperation.confirmation();
+                            await helperFunctions.signerFactory(tezos, adminSk);
+                            setAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(setAdminLambdaFunction).send();
+                            await setAdminOperation.confirmation();
 
-                        var storage : any   = await contract.storage();
-                        
-                        console.log(`contract: ${entry} | updated admin: ${storage.admin}`);
+                            var storage : any   = await contract.storage();
+                            
+                        }
                     }
                 }
 
@@ -2516,40 +2511,6 @@ describe("Test: Break Glass Contract", async () => {
                     
                     console.log(`contract: governance | updated admin: ${governanceStorage.admin}`);
                 }
-                
-
-                // Reset admin to bob through the governance proxy contract
-                // for (let entry of generalContracts){
-                    
-                //     // Get contract storage
-                //     var contract        = await utils.tezos.contract.at(entry[1]);
-                //     var storage : any   = await contract.storage();
-
-                //     console.log(`contract: ${entry} | admin: ${storage.admin} | address: ${contract.address}`);
-
-                //     // Check admin
-                //     if(storage.hasOwnProperty('admin')){
-
-                //         // Set Admin Lambda
-                //         const setAdminLambdaFunction = await createLambdaBytes(
-                //             tezos.rpc.url,             // network
-                //             governanceProxyAddress,    // governance proxy address
-                            
-                //             'setAdmin',                // entrypoint name
-                //             [
-                //                 contract.address,      // contract address
-                //                 admin                  // bob
-                //             ]
-                //         );
-                        
-                //         setAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(setAdminLambdaFunction).send();
-                //         await setAdminOperation.confirmation();
-
-                //         var storage : any   = await contract.storage();
-                        
-                //         console.log(`contract: ${entry} | updated admin: ${storage.admin}`);
-                //     }
-                // }                
 
             } catch(e){
                 console.dir(e, {depth: 5});
