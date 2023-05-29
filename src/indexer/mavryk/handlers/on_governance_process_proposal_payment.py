@@ -19,7 +19,7 @@ async def on_governance_process_proposal_payment(
         payment_processed   = proposal_storage.paymentProcessed
     
         # Create or update record
-        governance          = await models.Governance.get(address   = governance_address)
+        governance          = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
         proposal            = await models.GovernanceProposal.filter(
             governance  = governance,
             internal_id = proposal_id

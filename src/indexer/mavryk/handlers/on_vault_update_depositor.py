@@ -19,6 +19,7 @@ async def on_vault_update_depositor(
     
         # Update record
         vault               = await models.Vault.get(
+            network = ctx.datasource.network,
             address = vault_address
         )
     
@@ -35,7 +36,7 @@ async def on_vault_update_depositor(
             allowance_type      = models.VaultAllowance.WHITELIST
             depositor_address   = depositor.whitelist.address
             add_depositor       = depositor.whitelist.bool
-            user                = await models.mavryk_user_cache.get(address=depositor_address)
+            user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = user

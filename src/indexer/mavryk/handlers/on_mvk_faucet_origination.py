@@ -18,6 +18,7 @@ async def on_mvk_faucet_origination(
         # Create record
         mvk_faucet          = models.MVKFaucet(
             address             = address,
+            network             = ctx.datasource.network,
             mvk_token_address   = mvk_token_address,
             amount_per_user     = amount_per_user
         )

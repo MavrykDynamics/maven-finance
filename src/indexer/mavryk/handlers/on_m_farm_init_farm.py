@@ -34,9 +34,11 @@ async def on_m_farm_init_farm(
     
         # Create record
         governance      = await models.Governance.get(
+            network = ctx.datasource.network,
             address = governance_address
         )
         farm, _         = await models.Farm.get_or_create(
+            network     = ctx.datasource.network,
             address     = farm_address,
             admin       = admin,
             governance  = governance

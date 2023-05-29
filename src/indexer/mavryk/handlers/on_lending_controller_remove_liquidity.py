@@ -1,3 +1,4 @@
+from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 from mavryk.types.lending_controller.parameter.remove_liquidity import RemoveLiquidityParameter
 from dipdup.context import HandlerContext
@@ -43,16 +44,25 @@ async def on_lending_controller_remove_liquidity(
 
         token                                   = None
         if loan_token_address:
+
+            # Get the token standard
+            standard = await get_token_standard(
+                ctx,
+                loan_token_address
+            )
+
             # Get the related token
             token, _                                = await models.Token.get_or_create(
                 network             = ctx.datasource.network,
                 token_address       = loan_token_address,
                 token_id            = loan_token_id
             )
+            token.token_standard    = standard
             await token.save()
     
         # Create / Update record
         lending_controller                      = await models.LendingController.get(
+            network         = ctx.datasource.network,
             address         = lending_controller_address,
             mock_time       = False
         )
@@ -72,7 +82,7 @@ async def on_lending_controller_remove_liquidity(
         await lending_controller_loan_token.save()
     
         # Save history data
-        sender                                  = await models.mavryk_user_cache.get(address=sender_address)
+        sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             sender              = sender,

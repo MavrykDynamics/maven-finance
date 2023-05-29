@@ -20,6 +20,7 @@ async def on_council_update_config(
     
         # Update contract
         council = await models.Council.get(
+            network = ctx.datasource.network,
             address = council_address
         )
         council.last_updated_at = timestamp 

@@ -17,6 +17,7 @@ async def on_vault_update_vault_name(
     
         # Update record
         vault               = await models.Vault.get(
+            network = ctx.datasource.network,
             address = vault_address
         )
         vault.name          = updated_name

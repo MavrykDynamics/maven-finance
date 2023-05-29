@@ -20,6 +20,7 @@ async def on_governance_financial_update_config(
     
         # Update contract
         governance_financial = await models.GovernanceFinancial.get(
+            network = ctx.datasource.network,
             address = financial_address
         )
         governance_financial.last_updated_at    = timestamp

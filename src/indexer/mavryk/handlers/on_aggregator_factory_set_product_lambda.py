@@ -14,7 +14,7 @@ async def on_aggregator_factory_set_product_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.AggregatorFactory, models.AggregatorFactoryAggregatorLambda, set_product_lambda)
+        await persist_lambda(ctx, models.AggregatorFactory, models.AggregatorFactoryAggregatorLambda, set_product_lambda)
 
     except BaseException as e:
          await save_error_report(e)

@@ -12,7 +12,7 @@ async def on_council_flush_action(
 ) -> None:
 
     try:
-        await persist_council_action(flush_action)
+        await persist_council_action(ctx, flush_action)
     except BaseException as e:
          await save_error_report(e)
 

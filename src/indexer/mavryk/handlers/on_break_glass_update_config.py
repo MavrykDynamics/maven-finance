@@ -20,6 +20,7 @@ async def on_break_glass_update_config(
     
         # Update contract
         breakGlass = await models.BreakGlass.get(
+            network = ctx.datasource.network,
             address = break_glass_address
         )
         breakGlass.last_updated_at  = timestamp

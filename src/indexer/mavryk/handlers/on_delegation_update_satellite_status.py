@@ -23,8 +23,8 @@ async def on_delegation_update_satellite_status(
             status_type = models.SatelliteStatus.BANNED
     
         # Create or update record
-        delegation          = await models.Delegation.get(address   = delegation_address)
-        user                = await models.mavryk_user_cache.get(address=satellite_address)
+        delegation          = await models.Delegation.get(network=ctx.datasource.network, address= delegation_address)
+        user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
         satellite           = await models.Satellite.filter(
             delegation  = delegation,
             user        = user

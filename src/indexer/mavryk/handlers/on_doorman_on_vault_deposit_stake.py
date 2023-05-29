@@ -30,11 +30,12 @@ async def on_doorman_on_vault_deposit_stake(
     
         # Update records
         doorman                                     = await models.Doorman.get(
+            network = ctx.datasource.network,
             address = doorman_address
         )
         
         # Vault owner
-        vault_owner                     = await models.mavryk_user_cache.get(address=vault_owner_address)
+        vault_owner                     = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
         vault_owner_smvk_amount         = vault_owner_smvk_balance - vault_owner.smvk_balance
         vault_owner.smvk_balance        = vault_owner_smvk_balance
         await vault_owner.save()
@@ -51,7 +52,7 @@ async def on_doorman_on_vault_deposit_stake(
         await vault_owner_stake_account.save()
         
         # Vault
-        vault                           = await models.mavryk_user_cache.get(address=vault_address)
+        vault                           = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_address)
         vault_smvk_amount               = vault_smvk_balance - vault.smvk_balance
         vault.smvk_balance              = vault_smvk_balance
         await vault_owner.save()
@@ -65,7 +66,7 @@ async def on_doorman_on_vault_deposit_stake(
         await vault_stake_account.save()
         
         # Get doorman info
-        doorman_user        = await models.mavryk_user_cache.get(address=doorman_address)
+        doorman_user        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=doorman_address)
         smvk_total_supply   = doorman_user.mvk_balance
         smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
         avg_smvk_per_user   = float(smvk_total_supply) / float(smvk_users)

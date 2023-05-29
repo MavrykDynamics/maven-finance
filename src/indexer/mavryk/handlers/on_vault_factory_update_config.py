@@ -20,6 +20,7 @@ async def on_vault_factory_update_config(
     
         # Update contract
         vault_factory = await models.VaultFactory.get(
+            network = ctx.datasource.network,
             address = vault_factory_address
         )
         vault_factory.last_updated_at    = timestamp

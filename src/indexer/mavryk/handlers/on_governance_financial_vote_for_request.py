@@ -33,8 +33,8 @@ async def on_governance_financial_vote_for_request(
             vote_type       = models.GovernanceVoteType.PASS
     
         # Create and update records
-        governance              = await models.Governance.get(address   = governance_address)
-        governance_financial    = await models.GovernanceFinancial.get(address  = financial_address)
+        governance              = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.network, address= financial_address)
         financial_request       = await models.GovernanceFinancialRequest.filter(
             governance_financial    = governance_financial,
             internal_id             = request_id
@@ -47,7 +47,7 @@ async def on_governance_financial_vote_for_request(
             financial_request.execution_datetime    = timestamp
         await financial_request.save()
     
-        voter                   = await models.mavryk_user_cache.get(address=voter_address)
+        voter                   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(

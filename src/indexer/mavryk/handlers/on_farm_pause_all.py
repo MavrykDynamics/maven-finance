@@ -14,7 +14,7 @@ async def on_farm_pause_all(
     try:
         # Get operation info
         farm_address    = pause_all.data.target_address
-        farm            = await models.Farm.get(address=farm_address)
+        farm            = await models.Farm.get(network=ctx.datasource.network, address=farm_address)
     
         # Update record
         farm.deposit_paused     = pause_all.storage.breakGlassConfig.depositIsPaused

@@ -12,7 +12,7 @@ async def on_break_glass_set_single_contract_admin(
 ) -> None:
 
     try:
-        await persist_break_glass_action(set_single_contract_admin)
+        await persist_break_glass_action(ctx, set_single_contract_admin)
     except BaseException as e:
          await save_error_report(e)
 

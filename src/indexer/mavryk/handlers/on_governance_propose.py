@@ -15,6 +15,7 @@ async def on_governance_propose(
         # Get operation values
         governance_address      = propose.data.target_address
         governance              = await models.Governance.get(
+            network = ctx.datasource.network,
             address = governance_address
         )
         next_proposal_id        = int(propose.storage.nextProposalId)
@@ -56,7 +57,7 @@ async def on_governance_propose(
         satellite_snapshots     = propose.storage.snapshotLedger
     
         # Proposal record
-        user                    = await models.mavryk_user_cache.get(address=proposer_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=proposer_address)
     
         proposalRecord              = models.GovernanceProposal(
             internal_id                     = int(current_id),
