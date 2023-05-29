@@ -15,10 +15,10 @@ class LinkedContract():
     contract_name                           = fields.CharField(max_length=36, default="")
     contract_address                        = fields.CharField(max_length=36, default="")
 
-class TokenContractStandard():
-    token_contract_standard                 = fields.CharField(max_length=8, default="")
-
 class MavrykContract():
-    address                                 = fields.CharField(pk=True, max_length=36)
+    id                                      = fields.BigIntField(pk=True)
+    address                                 = fields.CharField(max_length=36)
+    network                                 = fields.CharField(max_length=51, index=True)
     admin                                   = fields.CharField(max_length=36, default="", index=True)
+    metadata                                = fields.JSONField(null=True)
     last_updated_at                         = fields.DatetimeField(null=True, index=True)

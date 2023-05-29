@@ -14,7 +14,7 @@ async def on_farm_update_general_contracts(
 
     try:
         # Perists general contract
-        await persist_linked_contract(models.Farm, models.FarmGeneralContract, update_general_contracts)
+        await persist_linked_contract(ctx, models.Farm, models.FarmGeneralContract, update_general_contracts)
 
     except BaseException as e:
          await save_error_report(e)

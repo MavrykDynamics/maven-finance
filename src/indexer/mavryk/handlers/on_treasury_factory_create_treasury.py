@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
 from mavryk.types.treasury_factory.parameter.create_treasury import CreateTreasuryParameter
@@ -32,6 +32,7 @@ async def on_treasury_factory_create_treasury(
     
         # Check treasury does not already exists
         treasury_exists                     = await models.Treasury.get_or_none(
+            network     = ctx.datasource.network,
             address     = treasury_address
         )
     
@@ -64,22 +65,26 @@ async def on_treasury_factory_create_treasury(
                     )
                 )
     
-            # Persist contract metadata
-            await persist_contract_metadata(
+            # Get contract metadata
+            contract_metadata = await get_contract_metadata(
                 ctx=ctx,
                 contract_address=treasury_address
             )
     
             # Create record
             treasury_factory    = await models.TreasuryFactory.get(
+                network = ctx.datasource.network,
                 address = treasury_factory_address
             )
             governance          = await models.Governance.get(
+                network = ctx.datasource.network,
                 address = governance_address
             )
             treasury, _         = await models.Treasury.get_or_create(
-                address                         = treasury_address
+                address                         = treasury_address,
+                network                         = ctx.datasource.network
             )
+            treasury.metadata                        = contract_metadata
             treasury.governance                      = governance
             treasury.admin                           = admin
             treasury.name                            = name
@@ -92,7 +97,7 @@ async def on_treasury_factory_create_treasury(
     
             # Create a baker or not
             if baker_address:
-                baker       = await models.mavryk_user_cache.get(address=baker_address)
+                baker       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=baker_address)
                 treasury.baker = baker
     
             await treasury.save()

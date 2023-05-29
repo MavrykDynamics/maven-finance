@@ -14,7 +14,7 @@ async def on_treasury_update_general_contracts(
 
     try:
         # Perists general contract
-        await persist_linked_contract(models.Treasury, models.TreasuryGeneralContract, update_general_contracts)
+        await persist_linked_contract(ctx, models.Treasury, models.TreasuryGeneralContract, update_general_contracts)
 
     except BaseException as e:
          await save_error_report(e)

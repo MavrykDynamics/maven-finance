@@ -22,8 +22,8 @@ async def on_aggregator_add_oracle(
         init_epoch              = int(add_oracle.storage.lastCompletedData.epoch)
     
         # Create record
-        oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
-        aggregator              = await models.Aggregator.get(address=aggregator_address)
+        oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+        aggregator              = await models.Aggregator.get(network=ctx.datasource.network,address=aggregator_address)
         aggregator_oracle       = models.AggregatorOracle(
             aggregator  = aggregator,
             user        = oracle,

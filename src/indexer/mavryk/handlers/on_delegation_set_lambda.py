@@ -14,7 +14,7 @@ async def on_delegation_set_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.Delegation, models.DelegationLambda, set_lambda)
+        await persist_lambda(ctx, models.Delegation, models.DelegationLambda, set_lambda)
 
     except BaseException as e:
          await save_error_report(e)

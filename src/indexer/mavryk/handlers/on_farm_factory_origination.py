@@ -2,7 +2,7 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.farm_factory.storage import FarmFactoryStorage
 import mavryk.models as models
 
@@ -21,19 +21,21 @@ async def on_farm_factory_origination(
         untrack_farm_paused         = farm_factory_origination.storage.breakGlassConfig.untrackFarmIsPaused
         timestamp                   = farm_factory_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
         
         # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(address=governance_address)
+        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
         await governance.save();
     
         # Create farm factory
         farm_factory = models.FarmFactory(
             address                     = address,
+            network                     = ctx.datasource.network,
+            metadata                    = contract_metadata,
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,

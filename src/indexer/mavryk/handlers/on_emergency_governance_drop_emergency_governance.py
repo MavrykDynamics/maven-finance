@@ -15,6 +15,7 @@ async def on_emergency_governance_drop_emergency_governance(
         # Get operation values
         emergency_address           = drop_emergency_governance.data.target_address
         emergency   = await models.EmergencyGovernance.get(
+            network = ctx.datasource.network,
             address = emergency_address
         )
         emergency_current_id        = int(drop_emergency_governance.storage.currentEmergencyGovernanceId)

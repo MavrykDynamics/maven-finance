@@ -20,6 +20,7 @@ async def on_delegation_update_config(
     
         # Update contract
         delegation = await models.Delegation.get(
+            network = ctx.datasource.network,
             address = delegation_address
         )
         delegation.last_updated_at  = timestamp

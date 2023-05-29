@@ -18,9 +18,11 @@ async def on_treasury_factory_track_treasury(
     
         # Update record
         treasury_factory    = await models.TreasuryFactory.get(
+            network = ctx.datasource.network,
             address = treasury_factory_address
         )
         treasury            = await models.Treasury.get_or_none(
+            network = ctx.datasource.network,
             address = treasury_address
         )
         if treasury:

@@ -20,6 +20,7 @@ async def on_treasury_factory_update_config(
     
         # Update contract
         treasury_factory = await models.TreasuryFactory.get(
+            network = ctx.datasource.network,
             address = treasury_factory_address
         )
         treasury_factory.last_updated_at    = timestamp

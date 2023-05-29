@@ -39,6 +39,7 @@ async def on_liquidity_baking_remove_liquidity(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
+            network = ctx.datasource.network,
             address = liquidity_baking_address
         )
     
@@ -50,7 +51,7 @@ async def on_liquidity_baking_remove_liquidity(
         if token_pool_decimals > 0:
             price   = xtz_pool_decimals / token_pool_decimals
         
-        trader                  = await models.mavryk_user_cache.get(address=trader_address)
+        trader                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=trader_address)
     
         share_price             = 0
         if lqt_burned > 0:

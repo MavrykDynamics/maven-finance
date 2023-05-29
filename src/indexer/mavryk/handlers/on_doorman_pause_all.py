@@ -14,7 +14,7 @@ async def on_doorman_pause_all(
     try:
         # Get doorman contract
         doorman_address                         = pause_all.data.target_address
-        doorman                                 = await models.Doorman.get(address=doorman_address)
+        doorman                                 = await models.Doorman.get(network=ctx.datasource.network, address=doorman_address)
     
         # Update doorman
         doorman.stake_paused                    = pause_all.storage.breakGlassConfig.stakeIsPaused

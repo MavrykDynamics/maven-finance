@@ -34,6 +34,7 @@ async def on_lending_controller_pause_all(
     
         # Update record
         lending_controller           = await models.LendingController.get(
+            network         = ctx.datasource.network,
             address         = lending_controller_address,
             mock_time       = False
         )

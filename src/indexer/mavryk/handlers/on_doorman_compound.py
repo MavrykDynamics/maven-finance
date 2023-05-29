@@ -22,12 +22,12 @@ async def on_doorman_compound(
         total_farm_rewards_claimed      = float(sender_stake_balance_ledger.totalFarmRewardsClaimed)
         participation_fees_per_share    = float(sender_stake_balance_ledger.participationFeesPerShare)
         timestamp                       = compound.data.timestamp
-        doorman                         = await models.Doorman.get(address=doorman_address)
+        doorman                         = await models.Doorman.get(network=ctx.datasource.network, address=doorman_address)
         unclaimed_rewards               = float(compound.storage.unclaimedRewards)
         accumulated_fees_per_share      = float(compound.storage.accumulatedFeesPerShare)
     
         # Get or create the interacting user
-        user                            = await models.mavryk_user_cache.get(address=user_address)
+        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
         amount                          = smvk_balance - user.smvk_balance
         user.smvk_balance               = smvk_balance
         await user.save()
@@ -44,7 +44,7 @@ async def on_doorman_compound(
         await stake_account.save()
         
         # Get doorman info
-        doorman_user        = await models.mavryk_user_cache.get(address=doorman_address)
+        doorman_user        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=doorman_address)
         smvk_total_supply   = doorman_user.mvk_balance
         smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
         avg_smvk_per_user   = float(smvk_total_supply) / float(smvk_users)

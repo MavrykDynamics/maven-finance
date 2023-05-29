@@ -14,7 +14,7 @@ async def on_vault_factory_set_admin(
     try:    
         # Get operation info
         target_contract = set_admin.data.target_address
-        contract        = await models.VaultFactory.get(address = target_contract)
+        contract        = await models.VaultFactory.get(network=ctx.datasource.network, address = target_contract)
     
         # Persist new admin
         await persist_admin(set_admin, contract)
