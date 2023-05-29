@@ -27,9 +27,10 @@ async def on_vesting_claim(
     
         # Update and create record
         vesting = await models.Vesting.get(
+            network = ctx.datasource.network,
             address = vesting_address
         )
-        vestee  = await models.mavryk_user_cache.get(address=vestee_address)
+        vestee  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vestee_address)
         vesteeRecord    = await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting

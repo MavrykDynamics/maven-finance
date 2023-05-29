@@ -1,5 +1,5 @@
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import GovernanceActionStatus, GovernanceVoteType
 
 ###
@@ -33,7 +33,7 @@ class GovernanceFinancialWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'governance_financial_whitelist_contract'
 
-class GovernanceFinancialWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
+class GovernanceFinancialWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_token_contracts')
     token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_whitelist_token_contracts', index=True, null=True)
 

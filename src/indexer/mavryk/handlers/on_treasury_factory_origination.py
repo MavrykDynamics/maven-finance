@@ -1,7 +1,7 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
 from dipdup.models import Origination
 import mavryk.models as models
@@ -21,19 +21,21 @@ async def on_treasury_factory_origination(
         untrack_treasury_paused         = treasury_factory_origination.storage.breakGlassConfig.untrackTreasuryIsPaused
         timestamp                       = treasury_factory_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
         
         # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(address=governance_address)
+        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
         await governance.save();
     
         # Create record
         treasury_factory = models.TreasuryFactory(
             address                         = address,
+            network                         = ctx.datasource.network,
+            metadata                        = contract_metadata,
             admin                           = admin,
             last_updated_at                 = timestamp,
             governance                      = governance,

@@ -25,13 +25,14 @@ async def on_m_token_mint_or_burn(
     
         # Update record
         m_token                     = await models.MToken.get(
+            network = ctx.datasource.network,
             address = m_token_address
         )
         m_token.token_reward_index  = token_reward_index
         m_token.total_supply        = total_supply
         await m_token.save()
     
-        user                        = await models.mavryk_user_cache.get(address=user_address)
+        user                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
         user_account, _             = await models.MTokenAccount.get_or_create(
             m_token = m_token,
             user    = user

@@ -18,6 +18,7 @@ async def on_vault_factory_toggle_pause_entrypoint(
     
         # Update record
         vault_factory           = await models.VaultFactory.get(
+            network = ctx.datasource.network,
             address = vault_factory_address
         )
         vault_factory.create_vault_paused   = create_vault_paused

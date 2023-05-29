@@ -14,7 +14,7 @@ async def on_treasury_factory_unpause_all(
     try:
         # Get operation info
         treasury_factory_address    = unpause_all.data.target_address
-        treasury_factory            = await models.TreasuryFactory.get(address=treasury_factory_address)
+        treasury_factory            = await models.TreasuryFactory.get(network=ctx.datasource.network, address=treasury_factory_address)
     
         # Update record
         treasury_factory.create_treasury_paused     = unpause_all.storage.breakGlassConfig.createTreasuryIsPaused

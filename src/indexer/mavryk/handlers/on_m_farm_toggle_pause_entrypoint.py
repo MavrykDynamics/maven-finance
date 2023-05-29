@@ -13,7 +13,7 @@ async def on_m_farm_toggle_pause_entrypoint(
     try:
         # Get operation info
         farm_address    = toggle_pause_entrypoint.data.target_address
-        farm            = await models.Farm.get(address=farm_address)
+        farm            = await models.Farm.get(network=ctx.datasource.network, address=farm_address)
     
         # Update record
         farm.deposit_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.depositIsPaused

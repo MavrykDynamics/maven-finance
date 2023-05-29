@@ -20,6 +20,7 @@ async def on_emergency_governance_update_config(
     
         # Update contract
         emergency = await models.EmergencyGovernance.get(
+            network = ctx.datasource.network,
             address = emergency_address
         )
         emergency.last_updated_at   = timestamp 

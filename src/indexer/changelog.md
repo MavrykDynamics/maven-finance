@@ -4,14 +4,100 @@
 
 ### Deployment
 
-- DEV: 0.41
-- STAGING: 0.41
-- PROD: 0.41
-- PROD2: 0.41
+- DEV: 0.42
+- STAGING: 0.42
+- PROD: 0.42
+- PROD2: 0.42
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## 0.43
+
+### What's new
+
+- All contract tables:
+  - Column ID added
+  - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
+  - Column Metadata added
+  - Column Network added
+  - Tables affected by the changes:
+    - AggregatorFactory
+    - Aggregator
+    - BreakGlass
+    - Council
+    - Delegation
+    - Doorman
+    - EmergencyGovernance
+    - FarmFactory
+    - Farm
+    - GovernanceFinancial
+    - GovernanceProxy
+    - GovernanceSatellite
+    - Governance
+    - LendingController
+    - LiquidityBaking
+    - MToken
+    - TreasuryFactory
+    - Treasury
+    - VaultFactory
+    - Vault
+    - Vesting
+
+- MavrykUser
+  - Column ID added
+  - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
+  - Column Network added
+
+- MVKFaucet
+  - Column ID added
+  - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
+  - Column Network added
+
+- Token
+  - Column TokenStandard added
+  - Metadata column as now a Default value:
+  ```json
+  {
+    "name": null,
+    "symbol": null,
+    "icon": null,
+    "decimals": null,
+    "shouldPreferSymbol": null,
+    "thumbnailUri": null
+  }
+  ```
+
+- TreasuryBalance
+  - Column Whitelisted added
+
+### Breaking changes
+
+- DipdupContractMetadata
+  - Table deprecated
+
+- GovernanceFinancialWhitelistTokenContract
+  - Column TokenContractStandard removed
+
+- LendingControllerWhitelistTokenContract
+  - Column TokenContractStandard removed
+
+- LendingControllerCollateralToken
+  - Column TokenContractStandard removed
+
+- LendingControllerLoanToken
+  - Column LoanTokenContractStandard removed
+
+- TreasuryWhitelistTokenContract
+  - Column TokenContractStandard removed
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column TokenContractStandard removed
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.42</summary>
 
 ## 0.42
 
@@ -63,7 +149,7 @@
 - TreasuryBalance
   - Column TokenAddress TokenId and Metadata removed and replaced with a foreign key to the table Token called Token
 
-<details><summary>Previous versions</summary>
+</details
 
 <details><summary>0.41</summary>
 

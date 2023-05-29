@@ -19,7 +19,7 @@ async def on_mvk_trigger_inflation(
         next_inflation_timestamp    = parser.parse(trigger_inflation.storage.nextInflationTimestamp)
     
         # Update record
-        mvk_token                           = await models.MVKToken.get(address = mvk_address)
+        mvk_token                           = await models.MVKToken.get(network=ctx.datasource.network, address= mvk_address)
         mvk_token.maximum_supply            = maximum_supply
         mvk_token.next_inflation_timestamp  = next_inflation_timestamp
         await mvk_token.save()

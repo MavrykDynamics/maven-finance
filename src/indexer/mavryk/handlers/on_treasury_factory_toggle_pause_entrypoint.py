@@ -14,7 +14,7 @@ async def on_treasury_factory_toggle_pause_entrypoint(
     try:
         # Get operation info
         treasury_factory_address    = toggle_pause_entrypoint.data.target_address
-        treasury_factory            = await models.TreasuryFactory.get(address=treasury_factory_address)
+        treasury_factory            = await models.TreasuryFactory.get(network=ctx.datasource.network, address=treasury_factory_address)
     
         # Update record
         treasury_factory.create_treasury_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.createTreasuryIsPaused

@@ -15,10 +15,10 @@ async def on_aggregator_factory_set_governance(
     try:    
         # Get operation info
         target_contract = set_governance.data.target_address
-        contract        = await models.AggregatorFactory.get(address = target_contract)
+        contract        = await models.AggregatorFactory.get(network=ctx.datasource.network,address = target_contract)
     
         # Persist new admin
-        await persist_governance(set_governance, contract)
+        await persist_governance(ctx, set_governance, contract)
 
     except BaseException as e:
          await save_error_report(e)

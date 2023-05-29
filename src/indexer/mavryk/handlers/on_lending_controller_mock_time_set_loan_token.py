@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_token_metadata
+from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
 from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
 from mavryk.types.lending_controller_mock_time.parameter.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
 from dipdup.models import Transaction
@@ -44,43 +44,40 @@ async def on_lending_controller_mock_time_set_loan_token(
         loan_token_type_storage                             = loan_token_storage.tokenType
         loan_token_address                                  = ""
         loan_token_id                                       = 0
-        loan_token_contract_standard                        = ""
     
         # Loan Token attributes
         if type(loan_token_type_storage) == fa12:
             loan_token_address              = loan_token_type_storage.fa12
-            loan_token_contract_standard    = "fa12"
         elif type(loan_token_type_storage) == fa2:
             loan_token_address              = loan_token_type_storage.fa2.tokenContractAddress
             loan_token_id                   = loan_token_type_storage.fa2.tokenId
-            loan_token_contract_standard    = "fa2"
         elif type(loan_token_type_storage) == tez:
             loan_token_address              = "XTZ"
-            loan_token_contract_standard    = "tez"
     
+        token_contract_metadata = None
         if loan_token_address != "XTZ":
             # Persist loan Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=loan_token_address,
                 token_id=str(loan_token_id)
             )
     
-            # Persist M Token Metadata
-            await persist_token_metadata(
-                ctx=ctx,
-                token_address=loan_token_m_token_address,
-                token_id="0"
-            )
-    
         # Create / Update record
         lending_controller                  = await models.LendingController.get(
+            network         = ctx.datasource.network,
             address         = lending_controller_address,
             mock_time       = True
         )
-        oracle                              = await models.mavryk_user_cache.get(address=loan_token_oracle_address)
+        oracle                              = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=loan_token_oracle_address)
         m_token, _                          = await models.MToken.get_or_create(
             address = loan_token_m_token_address
+        )
+
+        # Get the token standard
+        standard = await get_token_standard(
+            ctx,
+            loan_token_address
         )
 
         # Get the related token
@@ -89,6 +86,9 @@ async def on_lending_controller_mock_time_set_loan_token(
             token_id            = loan_token_id,
             network             = ctx.datasource.network
         )
+        if token_contract_metadata:
+            token.metadata          = token_contract_metadata
+        token.token_standard    = standard
         await token.save()
     
         await m_token.save()
@@ -115,7 +115,6 @@ async def on_lending_controller_mock_time_set_loan_token(
         lending_controller_loan_token.accumulated_rewards_per_share             = loan_token_accumulated_rewards_per_share
         lending_controller_loan_token.borrow_index                              = loan_token_borrow_index
         lending_controller_loan_token.min_repayment_amount                      = loan_token_min_repayment_amount
-        lending_controller_loan_token.loan_token_contract_standard              = loan_token_contract_standard
         lending_controller_loan_token.paused                                    = loan_token_paused
         await lending_controller_loan_token.save()
 

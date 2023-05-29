@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_token_metadata
+from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
 from mavryk.types.treasury.parameter.transfer import TransferParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -17,7 +17,7 @@ async def on_treasury_transfer(
         treasury_address    = transfer.data.target_address
         txs                 = transfer.parameter.__root__
         timestamp           = transfer.data.timestamp
-        treasury, _         = await models.Treasury.get_or_create(address   = treasury_address)
+        treasury, _         = await models.Treasury.get_or_create(network=ctx.datasource.network, address= treasury_address)
         await treasury.save()
     
         # Create records
@@ -31,23 +31,33 @@ async def on_treasury_transfer(
     
             if type(token) == fa12:
                 token_contract_address  = token.fa12
-                token_standard          = "fa12"
             elif type(token) == fa2:
                 token_contract_address  = token.fa2.tokenContractAddress
-                token_standard          = "fa2"
                 token_id                = int(token.fa2.tokenId)
             elif type(token) == tez:
                 token_contract_address  = "XTZ"
-                token_standard          = "tez"
+
+            token_standard = await get_token_standard(
+                ctx,
+                token_contract_address
+            )
+
+            # Get the whitelisted token to check if the token can be added
+            whitelisted             = await models.TreasuryWhitelistTokenContract.exists(
+                contract            = treasury,
+                contract_address    = token_contract_address
+            )
+            if token_standard == "tez":
+                whitelisted         = True
     
             # Persist Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=token_contract_address,
                 token_id=str(token_id)
             )
     
-            receiver                = await models.mavryk_user_cache.get(address=receiver_address)
+            receiver                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
             treasury_transfer_data  = models.TreasuryTransferHistoryData(
                 timestamp                       = timestamp,
                 treasury                        = treasury,
@@ -58,11 +68,14 @@ async def on_treasury_transfer(
             await treasury_transfer_data.save()
 
             # Get the related token
-            token, _            = await models.Token.get_or_create(
+            token, _                = await models.Token.get_or_create(
                 token_address   = token_contract_address,
                 token_id        = token_id,
                 network         = ctx.datasource.network
             )
+            if token_contract_metadata:
+                token.metadata          = token_contract_metadata
+            token.token_standard    = token_standard
             await token.save()
 
             # Update the treasury balance record
@@ -70,8 +83,8 @@ async def on_treasury_transfer(
                 treasury        = treasury,
                 token           = token
             )
-            treasury_balance.token_standard = token_standard
             treasury_balance.balance        -= amount
+            treasury_balance.whitelisted    = whitelisted
             await treasury_balance.save()
 
     except BaseException as e:

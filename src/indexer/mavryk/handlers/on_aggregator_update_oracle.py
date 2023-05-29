@@ -19,8 +19,8 @@ async def on_aggregator_update_oracle(
         oracle_peer_id          = oracle_storage.oraclePeerId
     
         # Create record
-        oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
-        aggregator              = await models.Aggregator.get(address=aggregator_address)
+        oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+        aggregator              = await models.Aggregator.get(network=ctx.datasource.network, address=aggregator_address)
         aggregator_oracle       = await models.AggregatorOracle.filter(
             aggregator  = aggregator,
             user        = oracle

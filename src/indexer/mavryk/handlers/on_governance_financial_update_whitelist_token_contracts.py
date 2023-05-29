@@ -14,7 +14,7 @@ async def on_governance_financial_update_whitelist_token_contracts(
 
     try:    
         # Persist whitelist token contract
-        await persist_linked_contract(models.GovernanceFinancial, models.GovernanceFinancialWhitelistTokenContract, update_whitelist_token_contracts, ctx)
+        await persist_linked_contract(ctx, models.GovernanceFinancial, models.GovernanceFinancialWhitelistTokenContract, update_whitelist_token_contracts)
     except BaseException as e:
          await save_error_report(e)
 

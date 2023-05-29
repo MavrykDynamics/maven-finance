@@ -1,5 +1,5 @@
 from mavryk.utils.error_reporting import save_error_report
-from mavryk.utils.persisters import persist_contract_metadata, persist_token_metadata
+from mavryk.utils.contracts import get_contract_metadata, get_token_standard, get_contract_token_metadata
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
 from dipdup.models import Transaction
@@ -79,9 +79,15 @@ async def on_farm_factory_create_farm_m_token(
 
             token0                      = None
             if token0_address:
-                await persist_token_metadata(
+                token_contract_metadata = await get_contract_token_metadata(
                     ctx=ctx,
                     token_address=token0_address
+                )
+
+                # Get the token standard
+                standard                = await get_token_standard(
+                    ctx,
+                    token0_address
                 )
 
                 # Get the related token
@@ -89,13 +95,22 @@ async def on_farm_factory_create_farm_m_token(
                     token_address       = token0_address,
                     network             = ctx.datasource.network
                 )
+                if token_contract_metadata:
+                    token0.metadata          = token_contract_metadata
+                token0.token_standard   = standard
                 await token0.save()
     
             token1                      = None
             if token1_address: 
-                await persist_token_metadata(
+                token_contract_metadata = await get_contract_token_metadata(
                         ctx=ctx,
                     token_address=token1_address
+                )
+
+                # Get the token standard
+                standard = await get_token_standard(
+                    ctx,
+                    token1_address
                 )
 
                 # Get the related token
@@ -103,19 +118,28 @@ async def on_farm_factory_create_farm_m_token(
                     token_address       = token1_address,
                     network             = ctx.datasource.network
                 )
+                if token_contract_metadata:
+                    token1.metadata          = token_contract_metadata
+                token1.token_standard   = standard
                 await token1.save()
 
-            # Persist contract metadata
-            await persist_contract_metadata(
+            # Get contract metadata
+            contract_metadata = await get_contract_metadata(
                 ctx=ctx,
                 contract_address=farm_address
             )
     
             # Persist LP Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=lp_token_address,
                 token_id=str(lp_token_id)
+            )
+
+            # Get the token standard
+            standard = await get_token_standard(
+                ctx,
+                lp_token_address
             )
 
             # Get the related token
@@ -124,18 +148,25 @@ async def on_farm_factory_create_farm_m_token(
                 token_id            = lp_token_id,
                 network             = ctx.datasource.network
             )
+            if token_contract_metadata:
+                lp_token.metadata          = token_contract_metadata
+            lp_token.token_standard     = standard
             await lp_token.save()
     
             # Create record
             farm_factory    = await models.FarmFactory.get(
+                network = ctx.datasource.network,
                 address = farm_factory_address
             )
             governance      = await models.Governance.get(
+                network = ctx.datasource.network,
                 address = governance_address
             )
             farm, _         = await models.Farm.get_or_create(
-                address     = farm_address
+                address     = farm_address,
+                network     = ctx.datasource.network
             )
+            farm.metadata                        = contract_metadata 
             farm.governance                      = governance
             farm.admin                           = admin
             farm.name                            = name

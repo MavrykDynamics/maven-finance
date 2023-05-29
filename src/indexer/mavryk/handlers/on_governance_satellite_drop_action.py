@@ -22,7 +22,7 @@ async def on_governance_satellite_drop_action(
             status_type = models.GovernanceActionStatus.DROPPED
     
         # Create or update record
-        governance_satellite            = await models.GovernanceSatellite.get(address  = governance_satellite_address)
+        governance_satellite            = await models.GovernanceSatellite.get(network=ctx.datasource.network, address= governance_satellite_address)
         action_record                   = await models.GovernanceSatelliteAction.filter(
             internal_id             = action_id,
             governance_satellite    = governance_satellite

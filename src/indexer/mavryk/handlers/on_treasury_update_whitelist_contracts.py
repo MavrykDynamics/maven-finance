@@ -14,7 +14,7 @@ async def on_treasury_update_whitelist_contracts(
 
     try:
         # Persist whitelist contract
-        await persist_linked_contract(models.Treasury, models.TreasuryWhitelistContract, update_whitelist_contracts)
+        await persist_linked_contract(ctx, models.Treasury, models.TreasuryWhitelistContract, update_whitelist_contracts)
 
     except BaseException as e:
          await save_error_report(e)

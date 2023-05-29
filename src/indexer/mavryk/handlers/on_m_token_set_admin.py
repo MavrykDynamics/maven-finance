@@ -15,7 +15,7 @@ async def on_m_token_set_admin(
     try:    
         # Get operation info
         target_contract = set_admin.data.target_address
-        contract        = await models.MToken.get(address = target_contract)
+        contract        = await models.MToken.get(network=ctx.datasource.network, address= target_contract)
     
         # Persist new admin
         await persist_admin(set_admin, contract)

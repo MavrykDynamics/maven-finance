@@ -20,6 +20,7 @@ async def on_doorman_update_config(
     
         # Update contract
         doorman                 = await models.Doorman.get(
+            network = ctx.datasource.network,
             address = doorman_address
         )
         doorman.last_updated_at = timestamp

@@ -14,7 +14,7 @@ async def on_vesting_set_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.Vesting, models.VestingLambda, set_lambda)
+        await persist_lambda(ctx, models.Vesting, models.VestingLambda, set_lambda)
 
     except BaseException as e:
          await save_error_report(e)
