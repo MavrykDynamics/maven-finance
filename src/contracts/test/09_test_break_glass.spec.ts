@@ -2508,8 +2508,6 @@ describe("Test: Break Glass Contract", async () => {
                     await setAdminOperation.confirmation();
 
                     governanceStorage = await governanceInstance.storage();
-                    
-                    console.log(`contract: governance | updated admin: ${governanceStorage.admin}`);
                 }
 
             } catch(e){
