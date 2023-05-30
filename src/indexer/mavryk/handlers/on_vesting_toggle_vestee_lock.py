@@ -26,12 +26,12 @@ async def on_vesting_toggle_vestee_lock(
             address=vesting_address
         )
         vestee  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vestee_address)
-        vesteeRecord    = await models.VestingVestee.filter(
+        await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting
-        ).first()
-        vesteeRecord.locked = locked
-        await vesteeRecord.save()
+        ).update(
+            locked = locked
+        )
 
     except BaseException as e:
          await save_error_report(e)

@@ -66,7 +66,7 @@ async def on_lending_controller_mock_time_register_vault_creation(
                     ctx,
                     loan_token_address
                 )
-                
+
                 # Get the related token
                 token, _                                = await models.Token.get_or_create(
                     token_address       = loan_token_address,
@@ -76,17 +76,32 @@ async def on_lending_controller_mock_time_register_vault_creation(
                 token.token_standard    = standard
                 await token.save()
     
-            lending_controller_loan_token               = await models.LendingControllerLoanToken.filter(
+            lending_controller_loan_token               = await models.LendingControllerLoanToken.get(
                 lending_controller  = lending_controller,
-                loan_token          = token,
+                token               = token,
                 loan_token_name     = vault_loan_token_name
-            ).first()
-            vault, _                                = await models.Vault.get_or_create(
+            )
+            vault_exists                                = await models.Vault.filter(
                 network = ctx.datasource.network,
                 address = vault_address
-            )
-            await vault.save()
-            lending_controller_vault, _             = await models.LendingControllerVault.get_or_create(
+            ).exists()
+            if vault_exists:
+                vault                                   = await models.Vault.get(
+                    network = ctx.datasource.network,
+                    address = vault_address
+                )
+            else:
+                vault_factory                           = await models.VaultFactory.get(
+                    network             = ctx.datasource.network
+                )
+                vault                                   = models.Vault(
+                    network             = ctx.datasource.network,
+                    address             = vault_address,
+                    creation_timestamp  = timestamp,
+                    vault_factory       = vault_factory
+                )
+                await vault.save()
+            lending_controller_vault, _                 = await models.LendingControllerVault.get_or_create(
                 lending_controller  = lending_controller,
                 vault               = vault,
                 owner               = vault_owner,

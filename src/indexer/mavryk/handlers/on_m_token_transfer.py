@@ -24,7 +24,12 @@ async def on_m_token_transfer(
         operation_hash              = transfer.data.hash
     
         # Get MVK Token
-        m_token                     = await models.MToken.get(network=ctx.datasource.network, address=m_token_address)
+        token                       = await models.Token.get(
+            network         = ctx.datasource.network,
+            token_address   = m_token_address,
+            token_id        = 0
+        )
+        m_token                     = await models.MToken.get(network=ctx.datasource.network, address=m_token_address, token=token)
         m_token.token_reward_index  = token_reward_index
         m_token.total_supply        = total_supply
         await m_token.save()

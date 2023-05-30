@@ -28,11 +28,11 @@ async def on_lending_controller_mock_time_close_vault(
             mock_time           = True
         )
         owner                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
-        lending_controller_vault    = await models.LendingControllerVault.filter(
+        lending_controller_vault    = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
             owner               = owner,
             internal_id         = vault_internal_id
-        ).first()
+        )
         lending_controller_vault.open   = False
         loan_token                      = await lending_controller_vault.loan_token
         await lending_controller_vault.save()

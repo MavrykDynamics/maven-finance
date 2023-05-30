@@ -23,12 +23,12 @@ async def on_aggregator_update_metadata(
         )
 
         # Update record
-        aggregator          = await models.Aggregator.get(
+        await models.Aggregator.filter(
             address = aggregator_address,
             network = ctx.datasource.network
+        ).update(
+            metadata = contract_metadata
         )
-        aggregator.metadata = contract_metadata
-        await aggregator.save()
 
     except BaseException as e:
          await save_error_report(e)

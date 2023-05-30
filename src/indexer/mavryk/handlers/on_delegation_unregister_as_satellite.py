@@ -32,14 +32,12 @@ async def on_delegation_unregister_as_satellite(
         satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
         satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
     
-        satelliteRecord                                                     = await models.Satellite.filter(
+        await models.Satellite.filter(
             delegation  = delegation,
             user        = user
-        ).first()
-        await user.save()
-    
-        satelliteRecord.currently_registered    = False
-        await satelliteRecord.save()
+        ).update(
+            currently_registered    = False
+        )
 
     except BaseException as e:
          await save_error_report(e)

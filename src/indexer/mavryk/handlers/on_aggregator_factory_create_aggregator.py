@@ -41,9 +41,10 @@ async def on_aggregator_factory_create_aggregator(
         oracles                                     = aggregator_origination.storage.oracleLedger
     
         # Check aggregator does not already exists
-        aggregator_exists                     = await models.Aggregator.get_or_none(
-            network=ctx.datasource.network,address     = aggregator_address
-        )
+        aggregator_exists                           = await models.Aggregator.filter(
+            network     = ctx.datasource.network,
+            address     = aggregator_address
+        ).exists()
     
         if not aggregator_exists:
             # Create a contract and index it
@@ -79,38 +80,30 @@ async def on_aggregator_factory_create_aggregator(
                 network     = ctx.datasource.network,
                 address     = governance_address
             )
-            existing_aggregator         = await models.Aggregator.get_or_none(
-                network             = ctx.datasource.network,
-                factory             = aggregator_factory,
-                address             = aggregator_address
+            aggregator                  = models.Aggregator(
+                network                                     = ctx.datasource.network,
+                address                                     = aggregator_address,
+                metadata                                    = contract_metadata,
+                governance                                  = governance,
+                admin                                       = admin,
+                factory                                     = aggregator_factory,
+                creation_timestamp                          = creation_timestamp,
+                name                                        = name,
+                decimals                                    = decimals,
+                alpha_pct_per_thousand                      = alpha_pct_per_thousand,
+                pct_oracle_threshold                        = pct_oracle_threshold,
+                heart_beat_seconds                          = heart_beat_seconds,
+                reward_amount_smvk                          = reward_amount_smvk,
+                reward_amount_xtz                           = reward_amount_xtz,
+                update_data_paused                          = update_data_paused,
+                withdraw_reward_xtz_paused                  = withdraw_reward_xtz_paused,
+                withdraw_reward_smvk_paused                 = withdraw_reward_smvk_paused,
+                last_completed_data_round                   = last_completed_data_round,
+                last_completed_data_epoch                   = last_completed_data_epoch,
+                last_completed_data                         = last_completed_data,
+                last_completed_data_pct_oracle_resp         = last_completed_data_pct_oracle_resp,
+                last_completed_data_last_updated_at         = last_completed_data_last_updated_at
             )
-            if existing_aggregator:
-                existing_aggregator.factory  = None
-                await existing_aggregator.save()
-            aggregator, _               = await models.Aggregator.get_or_create(
-                network     = ctx.datasource.network,
-                address     = aggregator_address,
-            )
-            aggregator.metadata                                     = contract_metadata
-            aggregator.governance                                   = governance
-            aggregator.admin                                        = admin
-            aggregator.factory                                      = aggregator_factory
-            aggregator.creation_timestamp                           = creation_timestamp
-            aggregator.name                                         = name
-            aggregator.decimals                                     = decimals
-            aggregator.alpha_pct_per_thousand                       = alpha_pct_per_thousand
-            aggregator.pct_oracle_threshold                         = pct_oracle_threshold
-            aggregator.heart_beat_seconds                           = heart_beat_seconds
-            aggregator.reward_amount_smvk                           = reward_amount_smvk
-            aggregator.reward_amount_xtz                            = reward_amount_xtz
-            aggregator.update_data_paused                           = update_data_paused
-            aggregator.withdraw_reward_xtz_paused                   = withdraw_reward_xtz_paused
-            aggregator.withdraw_reward_smvk_paused                  = withdraw_reward_smvk_paused
-            aggregator.last_completed_data_round                    = last_completed_data_round
-            aggregator.last_completed_data_epoch                    = last_completed_data_epoch
-            aggregator.last_completed_data                          = last_completed_data
-            aggregator.last_completed_data_pct_oracle_resp          = last_completed_data_pct_oracle_resp
-            aggregator.last_completed_data_last_updated_at          = last_completed_data_last_updated_at
             await aggregator.save()
     
             # Add oracles to aggregator

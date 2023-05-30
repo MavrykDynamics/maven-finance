@@ -31,10 +31,10 @@ async def on_delegation_delegate_to_satellite(
                 network     = ctx.datasource.network,
                 address     = delegation_address
             )
-            satellite_record                                                    = await models.Satellite.filter(
+            satellite_record                                                    = await models.Satellite.get(
                 user        = satellite,
                 delegation  = delegation
-            ).first()
+            )
             satellite_reward_reference_record, _                                = await models.SatelliteRewards.get_or_create(
                 user        = satellite,
                 delegation  = delegation

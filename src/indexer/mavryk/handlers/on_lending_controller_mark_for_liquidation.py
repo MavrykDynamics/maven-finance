@@ -44,11 +44,11 @@ async def on_lending_controller_mark_for_liquidation(
                 vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
     
                 # Save updated vault
-                lending_controller_vault                = await models.LendingControllerVault.filter(
+                lending_controller_vault                = await models.LendingControllerVault.get(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
-                ).first()
+                )
                 lending_controller_vault.internal_id                        = vault_internal_id
                 lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
                 lending_controller_vault.loan_principal_total               = vault_loan_principal_total

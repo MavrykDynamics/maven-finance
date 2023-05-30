@@ -22,10 +22,10 @@ async def on_governance_update_proposal_data(
         
         # Update or create record
         governance      = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
-        proposal        = await models.GovernanceProposal.filter(
+        proposal        = await models.GovernanceProposal.get(
             internal_id         = proposal_id,
             governance          = governance
-        ).first()
+        )
     
         # Update proposal data
         for proposal_data_index in proposal_data_storage:
@@ -48,10 +48,10 @@ async def on_governance_update_proposal_data(
                 proposal_data.encoded_code       = None
                 proposal_data.code_description   = None
             await proposal_data.save()
-    
+
         # Update payment data
         for payment_data_index in payment_data_storage:
-    
+
             # Get or create payment data
             payment_single_data     = payment_data_storage[payment_data_index]
             payment_data, _         = await models.GovernanceProposalPayment.get_or_create(
@@ -59,7 +59,7 @@ async def on_governance_update_proposal_data(
                 internal_id         = int(payment_data_index)
             )
             await payment_data.save()
-    
+
             # Update payment data
             if payment_single_data:
     
@@ -98,11 +98,11 @@ async def on_governance_update_proposal_data(
                     token.metadata          = token_contract_metadata
                 token.token_standard    = standard
                 await token.save()
-    
+
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
                 receiver                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
-    
+
                 # Save the payment record
                 payment_data.title              = payment_single_data.title
                 payment_data.token              = token

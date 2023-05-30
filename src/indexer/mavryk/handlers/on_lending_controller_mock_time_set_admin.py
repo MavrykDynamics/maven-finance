@@ -12,17 +12,10 @@ async def on_lending_controller_mock_time_set_admin(
     set_admin: Transaction[SetAdminParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_admin.data.target_address
-        contract        = await models.LendingController.get(
-            network         = ctx.datasource.network,
-            address         = target_contract,
-            mock_time       = True
-        )
-    
+    try:
+
         # Persist new admin
-        await persist_admin(set_admin, contract)
+        await persist_admin(ctx, models.LendingController, set_admin)
 
     except BaseException as e:
          await save_error_report(e)

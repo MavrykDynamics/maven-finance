@@ -27,10 +27,10 @@ async def on_lending_controller_mock_time_borrow(
             address             = lending_controller_address,
             mock_time           = True
         )
-        lending_controller_vault                = await models.LendingControllerVault.filter(
+        lending_controller_vault                = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
             internal_id         = vault_internal_id
-        ).first()
+        )
         loan_token                              = await lending_controller_vault.loan_token
         loan_token_name                         = loan_token.loan_token_name
         loan_token_storage                      = borrow.storage.loanTokenLedger[loan_token_name]
