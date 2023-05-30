@@ -77,8 +77,7 @@ async def on_aggregator_factory_create_aggregator(
                 address     = aggregator_factory_address
             )
             governance                  = await models.Governance.get(
-                network     = ctx.datasource.network,
-                address     = governance_address
+                network     = ctx.datasource.network
             )
             aggregator                  = models.Aggregator(
                 network                                     = ctx.datasource.network,

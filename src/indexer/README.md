@@ -55,7 +55,7 @@
 # Run the indexer locally
 
 1. `yarn shell`: starts the virtual environment
-2. `yarn up`: run test instances of **Hasura** and **TimescaleDB**.
+2. `yarn start-sandbox`: run test instances of **Hasura** and **TimescaleDB**.
 3. `yarn start`: start to index
 4. Go to https://localhost:42000/ to log to **Hasura** admin console (password: **_hasura12345_**)
 

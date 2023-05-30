@@ -34,9 +34,8 @@ async def on_m_token_origination(
             contract_address=m_token_address
         )
     
-        # Get or create governance record
-        governance, _   = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
 
         # Get the token standard
         standard = await get_token_standard(

@@ -28,12 +28,8 @@ async def on_governance_snapshot_ledger_update(
             total_delegated_amount  = float(value.totalDelegatedAmount)
             total_voting_power      = float(value.totalVotingPower)
     
-            # Create a new snapshot record
-            governance, _           = await models.Governance.get_or_create(
-                network = ctx.datasource.network,
-                address = governance_address
-            )
-            await governance.save()
+            # Get governance record
+            governance                  = await models.Governance.get(network = ctx.datasource.network)
             
             user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
     

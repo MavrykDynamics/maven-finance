@@ -171,6 +171,7 @@
   - Column LastUpdatedAt now non-nullable
 
 - Governance
+  - Column Active removed
   - Column LastUpdatedAt now non-nullable
 
 - GovernanceLambda

@@ -160,8 +160,7 @@ async def on_farm_factory_create_farm_m_token(
                 address = farm_factory_address
             )
             governance      = await models.Governance.get(
-                network = ctx.datasource.network,
-                address = governance_address
+                network = ctx.datasource.network
             )
             farm            = models.Farm(
                 address                         = farm_address,
