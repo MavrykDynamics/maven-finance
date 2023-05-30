@@ -11,7 +11,7 @@ async def on_vault_factory_origination(
     vault_factory_origination: Origination[VaultFactoryStorage],
 ) -> None:
 
-    try:    
+    try:
         # Get operation info
         vault_factory_address   = vault_factory_origination.data.originated_contract_address
         governance_address      = vault_factory_origination.storage.governanceAddress
@@ -26,12 +26,8 @@ async def on_vault_factory_origination(
             contract_address=vault_factory_address
         )
     
-        # Create record
-        governance, _           = await models.Governance.get_or_create(
-            network = ctx.datasource.network,
-            address = governance_address
-        )
-        await governance.save()
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
         vault_factory           = models.VaultFactory(
             address                 = vault_factory_address,
             network                 = ctx.datasource.network,

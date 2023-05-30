@@ -15,8 +15,7 @@ async def on_governance_propose(
         # Get operation values
         governance_address      = propose.data.target_address
         governance              = await models.Governance.get(
-            network = ctx.datasource.network,
-            address = governance_address
+            network = ctx.datasource.network
         )
         next_proposal_id        = int(propose.storage.nextProposalId)
         current_id              = str(next_proposal_id - 1)

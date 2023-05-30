@@ -32,10 +32,10 @@ async def on_break_glass_origination(
             ctx=ctx,
             contract_address=address
         )
-        
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
-        await governance.save();
+    
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
+    
     
         # Create record
         break_glass  = models.BreakGlass(
