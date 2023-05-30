@@ -1,5 +1,4 @@
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Error handling tables

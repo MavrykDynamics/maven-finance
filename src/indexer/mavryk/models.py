@@ -19,7 +19,6 @@ from mavryk.sql_model.mvk_token import *
 from mavryk.sql_model.mvk_faucet import *
 from mavryk.sql_model.m_token import *
 from mavryk.sql_model.shared import *
-from mavryk.sql_model.token_sale import *
 from mavryk.sql_model.treasury_factory import *
 from mavryk.sql_model.treasury import *
 from mavryk.sql_model.vault import *

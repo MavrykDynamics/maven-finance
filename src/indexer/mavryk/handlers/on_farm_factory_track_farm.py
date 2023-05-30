@@ -21,13 +21,12 @@ async def on_farm_factory_track_farm(
             network = ctx.datasource.network,
             address = farm_factory_address
         )
-        farm            = await models.Farm.get_or_none(
+        await models.Farm.filter(
             network = ctx.datasource.network,
             address = farm_address
+        ).update(
+            factory    = farm_factory
         )
-        if farm:
-            farm.factory    = farm_factory
-            await farm.save()
 
     except BaseException as e:
          await save_error_report(e)

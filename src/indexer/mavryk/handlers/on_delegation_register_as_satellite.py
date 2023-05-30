@@ -34,9 +34,10 @@ async def on_delegation_register_as_satellite(
             address = delegation_address
         )
         satellite_record, _ = await models.Satellite.get_or_create(
-            user        = user,
-            delegation  = delegation
+            user                    = user,
+            delegation              = delegation,
         )
+        satellite_record.registration_timestamp          = registration_timestamp
         satellite_record.public_key                      = public_key
         satellite_record.peer_id                         = peer_id
         satellite_record.fee                             = fee
@@ -44,7 +45,6 @@ async def on_delegation_register_as_satellite(
         satellite_record.description                     = description
         satellite_record.image                           = image
         satellite_record.website                         = website
-        satellite_record.registration_timestamp          = registration_timestamp
         satellite_record.currently_registered            = True
     
         satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(

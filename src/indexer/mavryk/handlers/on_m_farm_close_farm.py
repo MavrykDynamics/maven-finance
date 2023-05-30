@@ -23,16 +23,16 @@ async def on_m_farm_close_farm(
         min_block_time_snapshot         = int(close_farm.storage.minBlockTimeSnapshot)
     
         # Update record
-        farm                                = await models.Farm.get(network=ctx.datasource.network, address= farm_address)
-        farm.last_block_update              = last_block_update
-        farm.open                           = open
-        farm.accumulated_rewards_per_share  = accumulated_rewards_per_share
-        farm.unpaid_rewards                 = unpaid_rewards
-        farm.total_rewards                  = total_rewards
-        farm.current_reward_per_block       = current_reward_per_block
-        farm.total_blocks                   = total_blocks
-        farm.min_block_time_snapshot        = min_block_time_snapshot
-        await farm.save()
+        await models.Farm.filter(network=ctx.datasource.network, address= farm_address).update(
+            last_block_update              = last_block_update,
+            open                           = open,
+            accumulated_rewards_per_share  = accumulated_rewards_per_share,
+            unpaid_rewards                 = unpaid_rewards,
+            total_rewards                  = total_rewards,
+            current_reward_per_block       = current_reward_per_block,
+            total_blocks                   = total_blocks,
+            min_block_time_snapshot        = min_block_time_snapshot
+        )
 
     except BaseException as e:
          await save_error_report(e)

@@ -41,25 +41,26 @@ async def on_vesting_update_vestee(
             network = ctx.datasource.network,
             address = vesting_address
         )
-        vestee_record    = await models.VestingVestee.filter(
+        await models.VestingVestee.filter(
             vesting                         = vesting,
             vestee                          = user
-        ).first()
-        vestee_record.total_allocated_amount          = total_allocated_amount
-        vestee_record.claim_amount_per_month          = claim_amount_per_month
-        vestee_record.start_timestamp                 = start_timestamp
-        vestee_record.vesting_months                  = vesting_months
-        vestee_record.cliff_months                    = cliff_months
-        vestee_record.end_cliff_timestamp             = end_cliff_timestamp
-        vestee_record.end_vesting_timestamp           = end_vesting_timestamp
-        vestee_record.locked                          = locked
-        vestee_record.total_remainder                 = total_remainder
-        vestee_record.total_claimed                   = total_claimed
-        vestee_record.months_claimed                  = months_claimed
-        vestee_record.months_remaining                = months_remaining
-        vestee_record.next_redemption_timestamp       = next_redemption_timestamp
-        vestee_record.last_claimed_timestamp          = last_claimed_timestamp
-        await vestee_record.save()
+        ).update(
+            total_allocated_amount          = total_allocated_amount,
+            claim_amount_per_month          = claim_amount_per_month,
+            start_timestamp                 = start_timestamp,
+            vesting_months                  = vesting_months,
+            cliff_months                    = cliff_months,
+            end_cliff_timestamp             = end_cliff_timestamp,
+            end_vesting_timestamp           = end_vesting_timestamp,
+            locked                          = locked,
+            total_remainder                 = total_remainder,
+            total_claimed                   = total_claimed,
+            months_claimed                  = months_claimed,
+            months_remaining                = months_remaining,
+            next_redemption_timestamp       = next_redemption_timestamp,
+            last_claimed_timestamp          = last_claimed_timestamp
+        )
+
     except BaseException as e:
          await save_error_report(e)
 

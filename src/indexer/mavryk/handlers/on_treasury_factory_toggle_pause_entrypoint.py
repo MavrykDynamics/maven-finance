@@ -14,13 +14,14 @@ async def on_treasury_factory_toggle_pause_entrypoint(
     try:
         # Get operation info
         treasury_factory_address    = toggle_pause_entrypoint.data.target_address
-        treasury_factory            = await models.TreasuryFactory.get(network=ctx.datasource.network, address=treasury_factory_address)
     
         # Update record
-        treasury_factory.create_treasury_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.createTreasuryIsPaused
-        treasury_factory.track_treasury_paused      = toggle_pause_entrypoint.storage.breakGlassConfig.trackTreasuryIsPaused
-        treasury_factory.untrack_treasury_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.untrackTreasuryIsPaused
-        await treasury_factory.save()
+        await models.TreasuryFactory.filter(network=ctx.datasource.network, address=treasury_factory_address).update(
+            create_treasury_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.createTreasuryIsPaused,
+            track_treasury_paused      = toggle_pause_entrypoint.storage.breakGlassConfig.trackTreasuryIsPaused,
+            untrack_treasury_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.untrackTreasuryIsPaused
+        )
+
     except BaseException as e:
          await save_error_report(e)
 

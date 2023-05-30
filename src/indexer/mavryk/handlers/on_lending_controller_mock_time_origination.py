@@ -28,6 +28,7 @@ async def on_lending_controller_mock_time_origination(
         max_decimals_for_calculation            = int(lending_controller_mock_time_origination.storage.config.maxDecimalsForCalculation)
         max_vault_liquidation_pct               = int(lending_controller_mock_time_origination.storage.config.maxVaultLiquidationPercent)
         liquidation_delay_in_minutes            = int(lending_controller_mock_time_origination.storage.config.liquidationDelayInMins)
+        liquidation_max_duration                = int(lending_controller_mock_time_origination.storage.config.liquidationMaxDuration)
         add_liquidity_paused                    = lending_controller_mock_time_origination.storage.breakGlassConfig.addLiquidityIsPaused
         remove_liquidity_paused                 = lending_controller_mock_time_origination.storage.breakGlassConfig.removeLiquidityIsPaused
         register_vault_creation_paused          = lending_controller_mock_time_origination.storage.breakGlassConfig.registerVaultCreationIsPaused
@@ -77,6 +78,7 @@ async def on_lending_controller_mock_time_origination(
             max_decimals_for_calculation            = max_decimals_for_calculation,
             max_vault_liquidation_pct               = max_vault_liquidation_pct,
             liquidation_delay_in_minutes            = liquidation_delay_in_minutes,
+            liquidation_max_duration                = liquidation_max_duration,
             add_liquidity_paused                    = add_liquidity_paused,
             remove_liquidity_paused                 = remove_liquidity_paused,
             register_vault_creation_paused          = register_vault_creation_paused,

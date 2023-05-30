@@ -39,12 +39,13 @@ async def persist_council_action(ctx, action):
     actionID                    = councilActionCounter - 1
     await council.save()
 
-    initiator   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=councilActionInitiator)
+    initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=councilActionInitiator)
 
-    councilActionRecord = await models.CouncilAction.get_or_none(
+    action_exists   = await models.CouncilAction.filter(
+        council     = council,
         internal_id = actionID
     )
-    if councilActionRecord == None:
+    if not action_exists:
         council_size        = len(await models.CouncilCouncilMember.filter(council=council).all())
         councilActionRecord = models.CouncilAction(
             internal_id                     = actionID,
@@ -111,12 +112,13 @@ async def persist_break_glass_action(ctx, action):
     actionID                    = breakGlassActionCounter - 1
     await breakGlass.save()
 
-    initiator    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=breakGlassActionInitiator)
+    initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=breakGlassActionInitiator)
 
-    breakGlassActionRecord = await models.BreakGlassAction.get_or_none(
+    action_exists   = await models.BreakGlassAction.filter(
+        break_glass = breakGlass,
         internal_id = actionID
-    )
-    if breakGlassActionRecord == None:
+    ).exists()
+    if not action_exists:
         council_size            = len(await models.BreakGlassCouncilMember.filter(break_glass=breakGlass).all())
         breakGlassActionRecord  = models.BreakGlassAction(
             internal_id                     = actionID,
@@ -167,10 +169,11 @@ async def persist_financial_request(ctx, action):
     await governanceFinancial.save()
 
     for requestID in requestLedger:
-        requestRecord       = await models.GovernanceFinancialRequest.get_or_none(
-            internal_id  = int(requestID)
-        )
-        if requestRecord == None:
+        request_exists                      = await models.GovernanceFinancialRequest.filter(
+            governance_financial    = governanceFinancial,
+            internal_id             = int(requestID)
+        ).exists()
+        if not request_exists:
             requestRecordStorage            = requestLedger[requestID]
             treasuryAddress                 = requestRecordStorage.treasuryAddress
             requesterAddress                = requestRecordStorage.requesterAddress
@@ -191,14 +194,24 @@ async def persist_financial_request(ctx, action):
             smvk_percentage_for_approval    = int(requestRecordStorage.stakedMvkPercentageForApproval)
             snapshot_smvk_total_supply      = float(requestRecordStorage.snapshotStakedMvkTotalSupply)
             smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
+            execution_datetime              = parser.parse(requestRecordStorage.requestedDateTime) # TODO: refactor when implemented in the contracts
             expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
 
-            treasury, _     = await models.Treasury.get_or_create(
+            # Check if treasury exists
+            treasury                        = await models.Treasury.get_or_none(
                 network         = ctx.datasource.network,
                 address         = treasuryAddress
             )
-            await treasury.save()
+            if not treasury:
+                # Create a temp treasury
+                governance  = await governanceFinancial.governance
+                treasury    = models.Treasury(
+                    address     = treasuryAddress,
+                    network     = ctx.datasource.network,
+                    governance  = governance
+                )
+                await treasury.save()
 
             # Persist Token Metadata
             token_contract_metadata = await get_contract_token_metadata(
@@ -243,6 +256,7 @@ async def persist_financial_request(ctx, action):
                 smvk_percentage_for_approval    = smvk_percentage_for_approval,
                 snapshot_smvk_total_supply      = snapshot_smvk_total_supply,
                 smvk_required_for_approval      = smvk_required_for_approval,
+                execution_datetime              = execution_datetime,
                 expiration_datetime             = expiration_datetime,
                 requested_datetime              = requested_datetime
             )
@@ -263,10 +277,11 @@ async def persist_governance_satellite_action(ctx, action):
     await governance_satellite.save()
 
     for action_id in action_ledger:
-        action_record       = await models.GovernanceSatelliteAction.get_or_none(
-            internal_id  = int(action_id)
-        )
-        if action_record == None:
+        action_exists                       = await models.GovernanceSatelliteAction.filter(
+            governance_satellite    = governance_satellite,
+            internal_id             = int(action_id)
+        ).exists()
+        if not action_exists:
             action_record_storage           = action_ledger[action_id]
             initiator_address               = action_record_storage.initiator
             action_purpose                  = action_record_storage.governancePurpose
@@ -282,6 +297,7 @@ async def persist_governance_satellite_action(ctx, action):
             snapshot_smvk_total_supply      = float(action_record_storage.snapshotStakedMvkTotalSupply)
             smvk_pct_for_approval           = int(action_record_storage.stakedMvkPercentageForApproval)
             smvk_required_for_approval      = float(action_record_storage.stakedMvkRequiredForApproval)
+            execution_datetime              = parser.parse(action_record_storage.startDateTime) # TODO: refactor when implemented in the contracts
             expiration_datetime             = parser.parse(action_record_storage.expiryDateTime)
             start_datetime                  = parser.parse(action_record_storage.startDateTime)
             data                            = action_record_storage.dataMap
@@ -301,6 +317,7 @@ async def persist_governance_satellite_action(ctx, action):
                 snapshot_smvk_total_supply      = snapshot_smvk_total_supply,
                 smvk_percentage_for_approval    = smvk_pct_for_approval,
                 smvk_required_for_approval      = smvk_required_for_approval,
+                execution_datetime              = execution_datetime,
                 expiration_datetime             = expiration_datetime,
                 start_datetime                  = start_datetime
             )
@@ -352,13 +369,9 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
                 ctx=ctx,
                 token_address=contract_address,
             )
-   
-    # Update general contracts record
-    linked_contract, _ = await linked_contract_class.get_or_create(
-        contract        = contract,
-        contract_name   = contract_name
-    )
-    linked_contract.contract_address        = contract_address
+
+    # Delete the record
+    await linked_contract_class.filter(contract = contract, contract_name = contract_name).delete()
 
     # Save the whitelist token
     if entrypoint_name == "updateWhitelistTokenContracts":
@@ -379,32 +392,57 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
         token.token_standard    = standard
         await token.save()
 
-        # Update the contract record
-        linked_contract.token   = token
-
-    if contract_in_storage:
-        await linked_contract.save()
+        if contract_in_storage:
+            # Update general contracts record
+            linked_contract, _  = await linked_contract_class.get_or_create(
+                contract        = contract,
+                contract_name   = contract_name,
+                token           = token
+            )
+            await linked_contract.save()
     else:
-        await linked_contract.delete()
+        if contract_in_storage:
+            # Update general contracts record
+            linked_contract, _  = await linked_contract_class.get_or_create(
+                contract        = contract,
+                contract_name   = contract_name,
+            )
+            await linked_contract.save()
 
 ###
 #
 # PERSIST ADMIN/GOVERNANCE
 #
 ###
-async def persist_admin(set_admin,contract):
+async def persist_admin(ctx, contract_class, set_admin):
+    
     # Get operation info
-    admin_address   = set_admin.parameter.__root__
-    contract.admin  = admin_address
-    await contract.save()
+    contract_address        = set_admin.data.target_address
+    admin_address           = set_admin.parameter.__root__
 
-async def persist_governance(ctx, set_governance,contract):
+    # Update record
+    await contract_class.filter(
+        network     = ctx.datasource.network, 
+        address     = contract_address
+    ).update(
+        admin       = admin_address
+    )
+
+async def persist_governance(ctx, contract_class, set_governance):
+    
     # Get operation info
+    contract_address        = set_governance.data.target_address
     governance_address      = set_governance.parameter.__root__
+
+    # Update record
     governance, _           = await models.Governance.get_or_create(network=ctx.datasource.network, address= governance_address)
     await governance.save()
-    contract.governance     = governance
-    await contract.save()
+    await contract_class.filter(
+        network     = ctx.datasource.network, 
+        address     = contract_address
+    ).update(
+        governance  = governance
+    )
 
 ###
 #

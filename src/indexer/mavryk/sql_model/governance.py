@@ -99,8 +99,8 @@ class GovernanceProposal(Model):
     min_yay_vote_percentage                 = fields.FloatField(default=0)
     quorum_count                            = fields.BigIntField(default=0)
     quorum_smvk_total                       = fields.FloatField(default=0)
-    start_datetime                          = fields.DatetimeField(null=True, index=True)
-    execution_datetime                      = fields.DatetimeField(null=True, index=True)
+    start_datetime                          = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(index=True)
     cycle                                   = fields.BigIntField(default=0, index=True)
     current_cycle_start_level               = fields.BigIntField(default=0, index=True)
     current_cycle_end_level                 = fields.BigIntField(default=0, index=True)
@@ -134,9 +134,9 @@ class GovernanceProposalPayment(Model):
 
 class GovernanceProposalVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='votes', null=True, index=True)
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='votes', index=True)
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_votes', index=True)
-    timestamp                               = fields.DatetimeField(null=True, index=True)
+    timestamp                               = fields.DatetimeField(auto_now=True, index=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY, index=True)
     voting_power                            = fields.FloatField(default=0.0)

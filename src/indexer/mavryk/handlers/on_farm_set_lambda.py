@@ -13,6 +13,7 @@ async def on_farm_set_lambda(
 ) -> None:
 
     try:
+
         # Persist lambda
         await persist_lambda(ctx, models.Farm, models.FarmLambda, set_lambda)
 

@@ -14,16 +14,16 @@ async def on_aggregator_toggle_pause_entrypoint(
     try:
         # Get operation info
         aggregator_address                                  = toggle_pause_entrypoint.data.target_address
-        update_data_paused                                 = toggle_pause_entrypoint.storage.breakGlassConfig.updateDataIsPaused
+        update_data_paused                                  = toggle_pause_entrypoint.storage.breakGlassConfig.updateDataIsPaused
         withdraw_reward_xtz_paused                          = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawRewardXtzIsPaused
         withdraw_reward_smvk_paused                         = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
     
         # Update record
-        aggregator                                          = await models.Aggregator.get(network=ctx.datasource.network, address= aggregator_address)
-        aggregator.update_data_paused                      = update_data_paused
-        aggregator.withdraw_reward_xtz_paused               = withdraw_reward_xtz_paused
-        aggregator.withdraw_reward_smvk_paused              = withdraw_reward_smvk_paused
-        await aggregator.save()
+        await models.Aggregator.filter(network=ctx.datasource.network, address= aggregator_address).update(
+            update_data_paused                       = update_data_paused,
+            withdraw_reward_xtz_paused               = withdraw_reward_xtz_paused,
+            withdraw_reward_smvk_paused              = withdraw_reward_smvk_paused
+        )
 
     except BaseException as e:
          await save_error_report(e)

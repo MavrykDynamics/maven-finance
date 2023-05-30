@@ -67,11 +67,11 @@ async def on_lending_controller_add_liquidity(
             address     = lending_controller_address,
             mock_time   = False
         )
-        lending_controller_loan_token           = await models.LendingControllerLoanToken.filter(
+        lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
             lending_controller  = lending_controller,
-            loan_token          = token,
+            token               = token,
             loan_token_name     = loan_token_name
-        ).first()
+        )
         lending_controller_loan_token.token_pool_total          = loan_token_token_pool_total
         lending_controller_loan_token.m_tokens_total            = loan_token_m_tokens_total
         lending_controller_loan_token.total_borrowed            = loan_token_total_borrowed

@@ -51,9 +51,9 @@ class EmergencyGovernanceRecord(Model):
     total_smvk_votes                        = fields.FloatField(default=0)
     smvk_percentage_required                = fields.FloatField(default=0)
     smvk_required_for_trigger               = fields.FloatField(default=0)
-    start_timestamp                         = fields.DatetimeField(null=True, index=True)
-    execution_datetime                      = fields.DatetimeField(null=True, index=True)
-    expiration_timestamp                    = fields.DatetimeField(null=True, index=True)
+    start_timestamp                         = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(index=True)
+    expiration_timestamp                    = fields.DatetimeField(index=True)
     start_level                             = fields.BigIntField(default=0, index=True)
     execution_level                         = fields.BigIntField(default=0, index=True)
 
@@ -64,7 +64,7 @@ class EmergencyGovernanceVote(Model):
     id                                      = fields.BigIntField(pk=True)
     emergency_governance_record             = fields.ForeignKeyField('models.EmergencyGovernanceRecord', related_name='voters', index=True)
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_votes', index=True)
-    timestamp                               = fields.DatetimeField(null=True, index=True)
+    timestamp                               = fields.DatetimeField(index=True)
     smvk_amount                             = fields.FloatField(default=0.0)
 
     class Meta:

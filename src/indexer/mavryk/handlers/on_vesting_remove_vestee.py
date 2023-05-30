@@ -22,11 +22,10 @@ async def on_vesting_remove_vestee(
             address=vesting_address
         )
         vestee  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vestee_address)
-        vesteeRecord    = await models.VestingVestee.filter(
+        await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting
-        ).first()
-        await vesteeRecord.delete()
+        ).delete()
     except BaseException as e:
          await save_error_report(e)
 
