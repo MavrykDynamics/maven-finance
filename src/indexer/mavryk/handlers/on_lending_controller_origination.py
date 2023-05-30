@@ -53,13 +53,9 @@ async def on_lending_controller_origination(
             contract_address=lending_controller_address
         )
         
-        # Create record
-        governance, _       = await models.Governance.get_or_create(
-            network = ctx.datasource.network,
-            address = governance_address
-        )
-        await governance.save()
-        lending_controller  = models.LendingController(
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
+        lending_controller          = models.LendingController(
             address                                 = lending_controller_address,
             network                                 = ctx.datasource.network,
             metadata                                = contract_metadata,

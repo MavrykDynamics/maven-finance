@@ -431,12 +431,12 @@ async def persist_admin(ctx, contract_class, set_admin):
 async def persist_governance(ctx, contract_class, set_governance):
     
     # Get operation info
-    contract_address        = set_governance.data.target_address
-    governance_address      = set_governance.parameter.__root__
+    contract_address            = set_governance.data.target_address
+    governance_address          = set_governance.parameter.__root__
 
     # Update record
-    governance, _           = await models.Governance.get_or_create(network=ctx.datasource.network, address= governance_address)
-    await governance.save()
+    # Get governance record
+    governance                  = await models.Governance.get(network = ctx.datasource.network)
     await contract_class.filter(
         network     = ctx.datasource.network, 
         address     = contract_address

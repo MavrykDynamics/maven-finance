@@ -28,9 +28,8 @@ async def on_aggregator_factory_origination(
             contract_address=aggregator_factory_address
         )
     
-        # Get or create governance record
-        governance, _                   = await models.Governance.get_or_create(network = ctx.datasource.network, address = governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Create record
         aggregator_factory          = models.AggregatorFactory(
