@@ -13,16 +13,21 @@ async def on_treasury_factory_untrack_treasury(
 
     try:
         # Get operation info
-        treasury_address    = untrack_treasury.parameter.__root__
+        treasury_factory_address    = untrack_treasury.data.target_address
+        treasury_address            = untrack_treasury.parameter.__root__
     
         # Update record
-        treasury            = await models.Treasury.get_or_none(
+        treasury_factory            = await models.TreasuryFactory.get(
+            network             = ctx.datasource.network,
+            address             = treasury_factory_address
+        )
+        treasury                    = await models.Treasury.get(
             network = ctx.datasource.network,
+            factory = treasury_factory,
             address = treasury_address
         )
-        if treasury:
-            treasury.factory        = None
-            await treasury.save()
+        treasury.factory            = None
+        await treasury.save()
 
     except BaseException as e:
          await save_error_report(e)

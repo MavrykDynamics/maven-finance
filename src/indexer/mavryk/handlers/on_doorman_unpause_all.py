@@ -14,17 +14,17 @@ async def on_doorman_unpause_all(
     try:
         # Get doorman contract
         doorman_address                         = unpause_all.data.target_address
-        doorman                                 = await models.Doorman.get(network=ctx.datasource.network, address=doorman_address)
     
         # Update doorman
-        doorman.stake_paused                    = unpause_all.storage.breakGlassConfig.stakeIsPaused
-        doorman.unstake_paused                  = unpause_all.storage.breakGlassConfig.unstakeIsPaused
-        doorman.compound_paused                 = unpause_all.storage.breakGlassConfig.compoundIsPaused
-        doorman.farm_claim_paused               = unpause_all.storage.breakGlassConfig.farmClaimIsPaused
-        doorman.on_vault_deposit_stake_paused    = unpause_all.storage.breakGlassConfig.onVaultDepositStakeIsPaused
-        doorman.on_vault_withdraw_stake_paused   = unpause_all.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused
-        doorman.on_vault_liquidate_stake_paused  = unpause_all.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
-        await doorman.save()
+        await models.Doorman.filter(network=ctx.datasource.network, address=doorman_address).update(
+            stake_paused                    = unpause_all.storage.breakGlassConfig.stakeIsPaused,
+            unstake_paused                  = unpause_all.storage.breakGlassConfig.unstakeIsPaused,
+            compound_paused                 = unpause_all.storage.breakGlassConfig.compoundIsPaused,
+            farm_claim_paused               = unpause_all.storage.breakGlassConfig.farmClaimIsPaused,
+            on_vault_deposit_stake_paused   = unpause_all.storage.breakGlassConfig.onVaultDepositStakeIsPaused,
+            on_vault_withdraw_stake_paused  = unpause_all.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused,
+            on_vault_liquidate_stake_paused = unpause_all.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
+        )
 
     except BaseException as e:
          await save_error_report(e)

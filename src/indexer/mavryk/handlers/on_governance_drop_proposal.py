@@ -20,12 +20,12 @@ async def on_governance_drop_proposal(
             network     = ctx.datasource.network,
             address     = governance_address
         )
-        proposal    = await models.GovernanceProposal.filter(
+        await models.GovernanceProposal.filter(
             governance  = governance,
             internal_id = proposal_id
-        ).first()
-        proposal.status = models.GovernanceActionStatus.DROPPED
-        await proposal.save()
+        ).update(
+            status      = models.GovernanceActionStatus.DROPPED
+        )
 
     except BaseException as e:
          await save_error_report(e)

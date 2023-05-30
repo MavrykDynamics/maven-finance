@@ -14,13 +14,13 @@ async def on_farm_toggle_pause_entrypoint(
     try:
         # Get operation info
         farm_address    = toggle_pause_entrypoint.data.target_address
-        farm            = await models.Farm.get(network=ctx.datasource.network, address=farm_address)
     
         # Update record
-        farm.deposit_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.depositIsPaused
-        farm.withdraw_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawIsPaused
-        farm.claim_paused       = toggle_pause_entrypoint.storage.breakGlassConfig.claimIsPaused
-        await farm.save()
+        await models.Farm.filter(network=ctx.datasource.network, address=farm_address).update(
+            deposit_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.depositIsPaused,
+            withdraw_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawIsPaused,
+            claim_paused       = toggle_pause_entrypoint.storage.breakGlassConfig.claimIsPaused
+        )
 
     except BaseException as e:
          await save_error_report(e)

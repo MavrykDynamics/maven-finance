@@ -22,12 +22,10 @@ async def on_governance_financial_drop_financial_request(
     
         # Update record
         governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.network, address= financial_address)
-        request                 = await models.GovernanceFinancialRequest.filter(
+        await models.GovernanceFinancialRequest.filter(
             governance_financial    = governance_financial,
             internal_id             = request_id
-        ).first()
-        request.status      = status
-        await request.save()
+        ).update(status = status)
 
     except BaseException as e:
          await save_error_report(e)

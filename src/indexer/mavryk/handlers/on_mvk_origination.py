@@ -48,7 +48,8 @@ async def on_mvk_origination(
         # Get the related token
         token, _            = await models.Token.get_or_create(
             token_address       = mvk_address,
-            network             = ctx.datasource.network
+            network             = ctx.datasource.network,
+            token_id            = 0
         )
         if token_contract_metadata:
             token.metadata          = token_contract_metadata

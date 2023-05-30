@@ -70,9 +70,15 @@ async def on_lending_controller_set_loan_token(
             mock_time       = False
         )
         oracle                              = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=loan_token_oracle_address)
+        token                               = await models.Token.get(
+            network         = ctx.datasource.network,
+            token_address   = loan_token_m_token_address,
+            token_id        = 0
+        )
         m_token, _                          = await models.MToken.get_or_create(
             network         = ctx.datasource.network,
-            address         = loan_token_m_token_address
+            address         = loan_token_m_token_address,
+            token           = token
         )
 
         # Get the token standard
@@ -96,10 +102,10 @@ async def on_lending_controller_set_loan_token(
         lending_controller_loan_token, _    = await models.LendingControllerLoanToken.get_or_create(
             lending_controller  = lending_controller,
             loan_token_name     = loan_token_name,
-            loan_token          = token,
-            m_token             = m_token
+            token               = token,
+            m_token             = m_token,
+            oracle              = oracle
         )
-        lending_controller_loan_token.oracle                                    = oracle
         lending_controller_loan_token.m_tokens_total                            = loan_token_m_tokens_total
         lending_controller_loan_token.reserve_ratio                             = loan_token_reserve_ratio
         lending_controller_loan_token.token_pool_total                          = loan_token_token_pool_total

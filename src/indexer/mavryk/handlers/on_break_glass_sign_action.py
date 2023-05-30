@@ -55,19 +55,20 @@ async def on_break_glass_sign_action(
         if len(sign_action.storage.actionsLedger) > 1:
             for single_action_id in sign_action.storage.actionsLedger:
                 action_status           = sign_action.storage.actionsLedger[single_action_id].status
-                single_action_record    = await models.BreakGlassAction.get(
-                    break_glass = break_glass,
-                    internal_id = single_action_id
-                )
+
                 # Select correct status
                 status_type = models.ActionStatus.PENDING
                 if action_status == "FLUSHED":
                     status_type = models.ActionStatus.FLUSHED
                 elif action_status == "EXECUTED":
                     status_type = models.ActionStatus.EXECUTED
-                single_action_record.council_size_snapshot  = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all())
-                single_action_record.status                 = status_type
-                await single_action_record.save()
+                await models.BreakGlassAction.filter(
+                    break_glass = break_glass,
+                    internal_id = single_action_id
+                ).update(
+                    council_size_snapshot  = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all()),
+                    status                 = status_type
+                )
     
         # Delete previous members
         council_members_records         = await models.BreakGlassCouncilMember.all()
