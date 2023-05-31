@@ -15,6 +15,7 @@ jobs:
       batch_size: 10000
 
 templates:
+  # Treasury token balance template
   treasury_token_transfer_receiver_template:
     kind: token_transfer
     datasource: tzkt_ghostnet
@@ -22,6 +23,8 @@ templates:
     - callback: on_treasury_token_transfer_receiver
       to: <treasury_contract>
       first_level: <first_level>
+
+  # Farm template
   farm_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -86,6 +89,8 @@ templates:
       pattern:
       - destination: <farm_contract>
         entrypoint: setLambda
+
+  # MFarm template
   m_farm_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -150,6 +155,8 @@ templates:
       pattern:
       - destination: <m_farm_contract>
         entrypoint: setLambda
+
+  # Treasury template
   treasury_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -206,6 +213,8 @@ templates:
       pattern:
       - destination: <treasury_contract>
         entrypoint: setLambda
+
+  # Aggregator template
   aggregator_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -282,6 +291,8 @@ templates:
       pattern:
       - destination: <aggregator_contract>
         entrypoint: setLambda
+
+  # Vault template
   vault_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -302,6 +313,7 @@ templates:
       pattern:
       - destination: <vault_contract>
         entrypoint: updateVaultName
+  # MToken template
   m_token_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -339,6 +351,8 @@ templates:
       pattern:
       - destination: <m_token_contract>
         entrypoint: mintOrBurn
+  # Governance satellite snapshot template
+  # Index the snapshot ledger bigmap of the governance contract
   governance_satellite_snapshot_template:
     kind: big_map
     datasource: tzkt_ghostnet
@@ -347,6 +361,8 @@ templates:
     - callback: on_governance_snapshot_ledger_update
       contract: <governance_contract>
       path: snapshotLedger
+  # Main Template - Mavryk Finance
+  # Ran after the governance origination and index the entire dApp
   mavryk_finance_template:
     kind: operation
     datasource: tzkt_ghostnet
@@ -373,6 +389,7 @@ templates:
     - <lending_controller_mock_time_contract>
     handlers:
     # Contracts origination
+    # Index contracts originations first
     - callback: on_mvk_origination
       pattern:
       - type: origination
@@ -392,7 +409,7 @@ templates:
     - callback: on_farm_factory_origination
       pattern:
       - type: origination
-        originated_contract: farm_factory
+        originated_contract: <farm_factory_contract>
     - callback: on_delegation_origination
       pattern:
       - type: origination
@@ -441,7 +458,9 @@ templates:
       pattern:
       - type: origination
         originated_contract: <lending_controller_mock_time_contract>
+
     # Contracts entrypoints
+    # MVK Token handlers
     - callback: on_mvk_set_admin
       pattern:
       - destination: <mvk_token_contract>
@@ -478,10 +497,14 @@ templates:
       pattern:
       - destination: <mvk_token_contract>
         entrypoint: triggerInflation
+
+    # MVK Faucet handlers
     - callback: on_mvk_faucet_request_mvk
       pattern:
       - destination: <mvk_faucet_contract>
         entrypoint: requestMvk
+
+    # Governance Proxy Handlers
     - callback: on_governance_proxy_set_admin
       pattern:
       - destination: <governance_proxy_contract>
@@ -494,6 +517,8 @@ templates:
       pattern:
       - destination: <governance_proxy_contract>
         entrypoint: setLambda
+
+    # Governance Handlers
     - callback: on_governance_break_glass
       pattern:
       - destination: <governance_contract>
@@ -570,6 +595,8 @@ templates:
       pattern:
       - destination: <governance_contract>
         entrypoint: setLambda
+    
+    # Doorman Handlers
     - callback: on_doorman_set_admin
       pattern:
       - destination: <doorman_contract>
@@ -640,68 +667,72 @@ templates:
       pattern:
       - destination: <doorman_contract>
         entrypoint: setLambda
+
+    # Farm Factory Handlers 
     - callback: on_farm_factory_set_admin
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: setAdmin
     - callback: on_farm_factory_set_governance
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: setGovernance
     - callback: on_farm_factory_update_config
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: updateConfig
     - callback: on_farm_factory_update_whitelist_contracts
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: updateWhitelistContracts
     - callback: on_farm_factory_update_general_contracts
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: updateGeneralContracts
     - callback: on_farm_factory_pause_all
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: pauseAll
     - callback: on_farm_factory_unpause_all
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: unpauseAll
     - callback: on_farm_factory_toggle_pause_entrypoint
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: togglePauseEntrypoint
     - callback: on_farm_factory_create_farm
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: createFarm
-      - source: farm_factory
+      - source: <farm_factory_contract>
         type: origination
         originated_contract: farm
     - callback: on_farm_factory_create_farm_m_token
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: createFarmMToken
-      - source: farm_factory
+      - source: <farm_factory_contract>
         type: origination
         originated_contract: farm_m_token
     - callback: on_farm_factory_track_farm
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: trackFarm
     - callback: on_farm_factory_untrack_farm
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: untrackFarm
     - callback: on_farm_factory_set_lambda
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: setLambda
     - callback: on_farm_factory_set_product_lambda
       pattern:
-      - destination: farm_factory
+      - destination: <farm_factory_contract>
         entrypoint: setProductLambda
+
+    # Delegation Handlers
     - callback: on_delegation_set_admin
       pattern:
       - destination: <delegation_contract>
@@ -770,6 +801,8 @@ templates:
       pattern:
       - destination: <delegation_contract>
         entrypoint: setLambda
+
+    # Vesting Handlers
     - callback: on_vesting_set_admin
       pattern:
       - destination: <vesting_contract>
@@ -810,6 +843,8 @@ templates:
       pattern:
       - destination: <vesting_contract>
         entrypoint: setLambda
+
+    # Emergency Governance Handlers
     - callback: on_emergency_governance_set_admin
       pattern:
       - destination: <emergency_governance_contract>
@@ -846,6 +881,8 @@ templates:
       pattern:
       - destination: <emergency_governance_contract>
         entrypoint: setLambda
+
+    # Council Handlers
     - callback: on_council_set_admin
       pattern:
       - destination: <council_contract>
@@ -934,6 +971,8 @@ templates:
       pattern:
       - destination: <council_contract>
         entrypoint: setLambda
+
+    # Break Glass Handlers
     - callback: on_break_glass_break_glass
       pattern:
       - destination: <break_glass_contract>
@@ -1010,6 +1049,8 @@ templates:
       pattern:
       - destination: <break_glass_contract>
         entrypoint: setLambda
+
+    # Governance Financial Handlers
     - callback: on_governance_financial_set_admin
       pattern:
       - destination: <governance_financial_contract>
@@ -1058,6 +1099,8 @@ templates:
       pattern:
       - destination: <governance_financial_contract>
         entrypoint: setLambda
+
+    # Governance Satellite Handlers
     - callback: on_governance_satellite_set_admin
       pattern:
       - destination: <governance_satellite_contract>
@@ -1122,6 +1165,8 @@ templates:
       pattern:
       - destination: <governance_satellite_contract>
         entrypoint: setLambda
+
+    # Aggregator Factory Handlers
     - callback: on_aggregator_factory_set_admin
       pattern:
       - destination: <aggregator_factory_contract>
@@ -1177,6 +1222,8 @@ templates:
       pattern:
       - destination: <aggregator_factory_contract>
         entrypoint: setProductLambda
+
+    # Treasury Factory Handlers
     - callback: on_treasury_factory_set_admin
       pattern:
       - destination: <treasury_factory_contract>
@@ -1236,6 +1283,8 @@ templates:
       pattern:
       - destination: <treasury_factory_contract>
         entrypoint: setProductLambda
+
+    # Vault Factory Handlers
     - callback: on_vault_factory_set_admin
       pattern:
       - destination: <vault_factory_contract>
@@ -1296,6 +1345,8 @@ templates:
       pattern:
       - destination: <vault_factory_contract>
         entrypoint: setProductLambda
+
+    # Lending Controller Handlers
     - callback: on_lending_controller_set_admin
       pattern:
       - destination: <lending_controller_contract>
@@ -1380,6 +1431,8 @@ templates:
       pattern:
       - destination: <lending_controller_contract>
         entrypoint: setLambda
+
+    # Lending Controller Mock Time Handlers
     - callback: on_lending_controller_mock_time_set_admin
       pattern:
       - destination: <lending_controller_mock_time_contract>
@@ -1474,7 +1527,9 @@ indexes:
     - transaction
     contracts:
     - liquidity_baking
+    - sirius
     handlers:
+    # Liquidity baking handlers
     - callback: on_liquidity_baking_add_liquidity
       pattern:
       - destination: liquidity_baking
@@ -1509,25 +1564,16 @@ indexes:
         entrypoint: xtzToToken
       - destination: tzbtc
         entrypoint: transfer
-  sirius:
-    kind: operation
-    datasource: tzkt_mainnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - sirius
-    handlers:
+    # Sirius handlers
     - callback: on_sirius_transfer
       pattern:
       - destination: sirius
         entrypoint: transfer
-  initializer:
+  mavryk_finance_ghostnet_init:
     kind: operation
     datasource: tzkt_ghostnet
     types:
     - origination
-    - transaction
     contracts:
     - governance
     handlers:
