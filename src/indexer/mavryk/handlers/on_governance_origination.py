@@ -159,6 +159,7 @@ async def on_governance_origination(
                 mvk_token_contract="mvk_token",
                 mvk_faucet_contract="mvk_faucet",
                 doorman_contract="doorman",
+                farm_factory_contract="farm_factory",
                 delegation_contract="delegation",
                 vesting_contract="vesting",
                 emergency_governance_contract="emergency_governance",

@@ -426,6 +426,8 @@ indexes:
     - lending_controller
     - lending_controller_mock_time
     handlers:
+    # Contracts origination
+    # Index contracts originations first
     - callback: on_governance_origination
       pattern:
       - type: origination
@@ -498,7 +500,9 @@ indexes:
       pattern:
       - type: origination
         originated_contract: lending_controller_mock_time
+
     # Contracts entrypoints
+    # MVK Token handlers
     - callback: on_mvk_set_admin
       pattern:
       - destination: mvk_token
@@ -535,10 +539,14 @@ indexes:
       pattern:
       - destination: mvk_token
         entrypoint: triggerInflation
+
+    # MVK Faucet handlers
     - callback: on_mvk_faucet_request_mvk
       pattern:
       - destination: mvk_faucet
         entrypoint: requestMvk
+
+    # Governance Proxy Handlers
     - callback: on_governance_proxy_set_admin
       pattern:
       - destination: governance_proxy
@@ -551,6 +559,8 @@ indexes:
       pattern:
       - destination: governance_proxy
         entrypoint: setLambda
+
+    # Governance Handlers
     - callback: on_governance_break_glass
       pattern:
       - destination: governance
@@ -627,6 +637,8 @@ indexes:
       pattern:
       - destination: governance
         entrypoint: setLambda
+    
+    # Doorman Handlers
     - callback: on_doorman_set_admin
       pattern:
       - destination: doorman
@@ -697,6 +709,8 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: setLambda
+
+    # Farm Factory Handlers 
     - callback: on_farm_factory_set_admin
       pattern:
       - destination: farm_factory
@@ -759,6 +773,8 @@ indexes:
       pattern:
       - destination: farm_factory
         entrypoint: setProductLambda
+
+    # Delegation Handlers
     - callback: on_delegation_set_admin
       pattern:
       - destination: delegation
@@ -827,6 +843,8 @@ indexes:
       pattern:
       - destination: delegation
         entrypoint: setLambda
+
+    # Vesting Handlers
     - callback: on_vesting_set_admin
       pattern:
       - destination: vesting
@@ -867,6 +885,8 @@ indexes:
       pattern:
       - destination: vesting
         entrypoint: setLambda
+
+    # Emergency Governance Handlers
     - callback: on_emergency_governance_set_admin
       pattern:
       - destination: emergency_governance
@@ -903,6 +923,8 @@ indexes:
       pattern:
       - destination: emergency_governance
         entrypoint: setLambda
+
+    # Council Handlers
     - callback: on_council_set_admin
       pattern:
       - destination: council
@@ -991,6 +1013,8 @@ indexes:
       pattern:
       - destination: council
         entrypoint: setLambda
+
+    # Break Glass Handlers
     - callback: on_break_glass_break_glass
       pattern:
       - destination: break_glass
@@ -1067,6 +1091,8 @@ indexes:
       pattern:
       - destination: break_glass
         entrypoint: setLambda
+
+    # Governance Financial Handlers
     - callback: on_governance_financial_set_admin
       pattern:
       - destination: governance_financial
@@ -1115,6 +1141,8 @@ indexes:
       pattern:
       - destination: governance_financial
         entrypoint: setLambda
+
+    # Governance Satellite Handlers
     - callback: on_governance_satellite_set_admin
       pattern:
       - destination: governance_satellite
@@ -1179,6 +1207,8 @@ indexes:
       pattern:
       - destination: governance_satellite
         entrypoint: setLambda
+
+    # Aggregator Factory Handlers
     - callback: on_aggregator_factory_set_admin
       pattern:
       - destination: aggregator_factory
@@ -1234,6 +1264,8 @@ indexes:
       pattern:
       - destination: aggregator_factory
         entrypoint: setProductLambda
+
+    # Treasury Factory Handlers
     - callback: on_treasury_factory_set_admin
       pattern:
       - destination: treasury_factory
@@ -1293,6 +1325,8 @@ indexes:
       pattern:
       - destination: treasury_factory
         entrypoint: setProductLambda
+
+    # Vault Factory Handlers
     - callback: on_vault_factory_set_admin
       pattern:
       - destination: vault_factory
@@ -1353,6 +1387,8 @@ indexes:
       pattern:
       - destination: vault_factory
         entrypoint: setProductLambda
+
+    # Lending Controller Handlers
     - callback: on_lending_controller_set_admin
       pattern:
       - destination: lending_controller
@@ -1437,6 +1473,8 @@ indexes:
       pattern:
       - destination: lending_controller
         entrypoint: setLambda
+
+    # Lending Controller Mock Time Handlers
     - callback: on_lending_controller_mock_time_set_admin
       pattern:
       - destination: lending_controller_mock_time
