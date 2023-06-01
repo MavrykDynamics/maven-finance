@@ -69,6 +69,11 @@ async def on_lending_controller_mock_time_register_withdrawal(
                 loan_token                              = await lending_controller_vault.loan_token
                 loan_token_name                         = loan_token.loan_token_name
                 loan_token_storage                      = register_withdrawal.storage.loanTokenLedger[loan_token_name]
+                loan_token_token_reward_index           = float(loan_token_storage.accumulatedRewardsPerShare) 
+                m_token                                 = await loan_token.m_token
+                if loan_token_token_reward_index > m_token.token_reward_index:
+                    m_token.token_reward_index          = loan_token_token_reward_index
+                    await m_token.save()
                 loan_token.token_pool_total             = float(loan_token_storage.tokenPoolTotal)
                 loan_token.m_tokens_total               = float(loan_token_storage.mTokensTotal)
                 loan_token.total_borrowed               = float(loan_token_storage.totalBorrowed)
