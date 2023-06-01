@@ -28,6 +28,7 @@ async def on_lending_controller_mock_time_remove_liquidity(
         loan_token_total_borrowed               = float(loan_token_storage.totalBorrowed)
         loan_token_total_remaining              = float(loan_token_storage.totalRemaining)
         loan_token_last_updated_block_level     = int(loan_token_storage.lastUpdatedBlockLevel)
+        loan_token_token_reward_index           = float(loan_token_storage.accumulatedRewardsPerShare) 
         loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
         loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
         loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)
@@ -72,6 +73,10 @@ async def on_lending_controller_mock_time_remove_liquidity(
             token               = token,
             loan_token_name     = loan_token_name
         )
+        m_token                                 = await lending_controller_loan_token.m_token
+        if loan_token_token_reward_index > m_token.token_reward_index:
+            m_token.token_reward_index          = loan_token_token_reward_index
+            await m_token.save()
         lending_controller_loan_token.token_pool_total          = loan_token_token_pool_total
         lending_controller_loan_token.m_tokens_total            = loan_token_m_tokens_total
         lending_controller_loan_token.total_borrowed            = loan_token_total_borrowed

@@ -37,6 +37,7 @@ async def on_lending_controller_set_loan_token(
         loan_token_interest_rate_above_optimal_utilisation  = float(loan_token_storage.interestRateAboveOptimalUtilisation)
         loan_token_current_interest_rate                    = float(loan_token_storage.currentInterestRate)
         loan_token_last_updated_block_level                 = int(loan_token_storage.lastUpdatedBlockLevel)
+        loan_token_token_reward_index                       = float(loan_token_storage.accumulatedRewardsPerShare)
         loan_token_accumulated_rewards_per_share            = float(loan_token_storage.accumulatedRewardsPerShare)
         loan_token_borrow_index                             = float(loan_token_storage.borrowIndex)
         loan_token_min_repayment_amount                     = float(loan_token_storage.minRepaymentAmount)
@@ -106,6 +107,10 @@ async def on_lending_controller_set_loan_token(
             m_token             = m_token,
             oracle              = oracle
         )
+        m_token                                                                 = await lending_controller_loan_token.m_token
+        if loan_token_token_reward_index > m_token.token_reward_index:
+            m_token.token_reward_index                                          = loan_token_token_reward_index
+            await m_token.save()
         lending_controller_loan_token.m_tokens_total                            = loan_token_m_tokens_total
         lending_controller_loan_token.reserve_ratio                             = loan_token_reserve_ratio
         lending_controller_loan_token.token_pool_total                          = loan_token_token_pool_total

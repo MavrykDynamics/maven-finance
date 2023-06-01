@@ -70,9 +70,9 @@ async def on_m_token_transfer(
                     m_token = m_token,
                     user    = to_user
                 )
-                to_account.rewards_earned += (token_reward_index - to_account.reward_index) * to_account.balance
-                to_account.balance      = float(user_ledger[to_address])
-                to_account.reward_index = float(reward_index_ledger[to_address])
+                to_account.rewards_earned   += (token_reward_index - to_account.reward_index) * to_account.balance
+                to_account.balance          = float(user_ledger[to_address])
+                to_account.reward_index     = float(reward_index_ledger[to_address])
                 await to_account.save()
     
                 to_account_history_data   = models.MTokenAccountHistoryData(
