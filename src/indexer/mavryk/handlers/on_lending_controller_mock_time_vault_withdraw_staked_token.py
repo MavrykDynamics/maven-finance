@@ -118,7 +118,7 @@ async def on_lending_controller_mock_time_vault_withdraw_staked_token(
 
                 lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
-                    token                       = lending_controller_collateral_token
+                    collateral_token            = lending_controller_collateral_token
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()

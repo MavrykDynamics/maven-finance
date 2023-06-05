@@ -92,7 +92,7 @@ class LendingControllerVault(Model):
 class LendingControllerVaultCollateralBalance(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     lending_controller_vault                = fields.ForeignKeyField('models.LendingControllerVault', related_name='collateral_balances')
-    token                                   = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='balances')
+    collateral_token                        = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='balances')
     balance                                 = fields.FloatField(default=0.0)
 
     class Meta:

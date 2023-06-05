@@ -399,6 +399,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
                 contract_name   = contract_name,
                 token           = token
             )
+            linked_contract.contract_address    = contract_address
             await linked_contract.save()
     else:
         if contract_in_storage:
@@ -407,6 +408,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
                 contract        = contract,
                 contract_name   = contract_name,
             )
+            linked_contract.contract_address    = contract_address
             await linked_contract.save()
 
 ###
