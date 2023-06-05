@@ -195,7 +195,7 @@
 
 - LendingControllerVaultCollateralBalance
   - Column LendingControllerVault now non-nullable
-  - Column Token now non-nullable
+  - Column Token now non-nullable and renamed to CollateralToken
 
 - LendingControllerCollateralToken
   - Column LendingController now non-nullable
