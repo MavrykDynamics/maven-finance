@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
@@ -10,34 +11,38 @@ async def on_farm_factory_origination(
     farm_factory_origination: Origination[FarmFactoryStorage],
 ) -> None:
 
-    # Get Factory address
-    address                     = farm_factory_origination.data.originated_contract_address
-    admin                       = farm_factory_origination.storage.admin
-    governance_address          = farm_factory_origination.storage.governanceAddress
-    create_farm_paused          = farm_factory_origination.storage.breakGlassConfig.createFarmIsPaused
-    track_farm_paused           = farm_factory_origination.storage.breakGlassConfig.trackFarmIsPaused
-    untrack_farm_paused         = farm_factory_origination.storage.breakGlassConfig.untrackFarmIsPaused
-    timestamp                   = farm_factory_origination.data.timestamp
-
-    # Persist contract metadata
-    await persist_contract_metadata(
-        ctx=ctx,
-        contract_address=address
-    )
+    try:
+        # Get Factory address
+        address                     = farm_factory_origination.data.originated_contract_address
+        admin                       = farm_factory_origination.storage.admin
+        governance_address          = farm_factory_origination.storage.governanceAddress
+        create_farm_paused          = farm_factory_origination.storage.breakGlassConfig.createFarmIsPaused
+        track_farm_paused           = farm_factory_origination.storage.breakGlassConfig.trackFarmIsPaused
+        untrack_farm_paused         = farm_factory_origination.storage.breakGlassConfig.untrackFarmIsPaused
+        timestamp                   = farm_factory_origination.data.timestamp
     
-    # Get or create governance record
-    governance, _ = await models.Governance.get_or_create(address=governance_address)
-    await governance.save();
+        # Persist contract metadata
+        await persist_contract_metadata(
+            ctx=ctx,
+            contract_address=address
+        )
+        
+        # Get or create governance record
+        governance, _ = await models.Governance.get_or_create(address=governance_address)
+        await governance.save();
+    
+        # Create farm factory
+        farm_factory = models.FarmFactory(
+            address                     = address,
+            admin                       = admin,
+            last_updated_at             = timestamp,
+            governance                  = governance,
+            track_farm_paused           = track_farm_paused,
+            create_farm_paused          = create_farm_paused,
+            untrack_farm_paused         = untrack_farm_paused
+        )
+    
+        await farm_factory.save()
+    except BaseException as e:
+         await save_error_report(e)
 
-    # Create farm factory
-    farm_factory = models.FarmFactory(
-        address                     = address,
-        admin                       = admin,
-        last_updated_at             = timestamp,
-        governance                  = governance,
-        track_farm_paused           = track_farm_paused,
-        create_farm_paused          = create_farm_paused,
-        untrack_farm_paused         = untrack_farm_paused
-    )
-
-    await farm_factory.save()

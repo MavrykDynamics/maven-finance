@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.aggregator.storage import AggregatorStorage
@@ -9,12 +10,17 @@ async def on_aggregator_update_metadata(
     ctx: HandlerContext,
     update_metadata: Transaction[UpdateMetadataParameter, AggregatorStorage],
 ) -> None:
-    
-    # Get operation info
-    aggregator_address  = update_metadata.data.target_address
 
-    # Persist contract metadata
-    await persist_contract_metadata(
-        ctx=ctx,
-        contract_address=aggregator_address
-    )
+    try:    
+        # Get operation info
+        aggregator_address  = update_metadata.data.target_address
+    
+        # Persist contract metadata
+        await persist_contract_metadata(
+            ctx=ctx,
+            contract_address=aggregator_address
+        )
+
+    except BaseException as e:
+         await save_error_report(e)
+
