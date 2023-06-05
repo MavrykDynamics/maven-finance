@@ -766,7 +766,7 @@ describe("Governance tests", async () => {
                                             "tokenId" : 0
                                         }
                                     },
-                                    "amount" : MVK(50)
+                                    "amount" : MVK(5)
                                 }
                             }
                         }
@@ -1162,7 +1162,7 @@ describe("Governance tests", async () => {
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(50)
+                        "amount" : MVK(5)
                     }
 
                     // Operation
@@ -1207,7 +1207,7 @@ describe("Governance tests", async () => {
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(50)
+                        "amount" : MVK(5)
                     }
 
                     // Operation
@@ -1279,7 +1279,7 @@ describe("Governance tests", async () => {
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(50)
+                        "amount" : MVK(5)
                     }
                     const secondTransaction     = {
                         "to_"    : bob.pkh,
@@ -1289,7 +1289,7 @@ describe("Governance tests", async () => {
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(50)
+                        "amount" : MVK(5)
                     }
 
                     // Operation
