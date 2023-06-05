@@ -48,12 +48,24 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: TELEGRAM_ENABLE_REPORTING
+          value: "True"
+        - name: TELEGRAM_BOT_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_BOT_API_TOKEN
+        - name: TELEGRAM_CHANNEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.15.2
+        tag: v2.23.0
       hpa:
         enabled: false
       resources:
@@ -147,12 +159,24 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: TELEGRAM_ENABLE_REPORTING
+          value: "True"
+        - name: TELEGRAM_BOT_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_BOT_API_TOKEN
+        - name: TELEGRAM_CHANNEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.15.2
+        tag: v2.23.0
       hpa:
         enabled: true
       resources:
@@ -246,12 +270,24 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: TELEGRAM_ENABLE_REPORTING
+          value: "True"
+        - name: TELEGRAM_BOT_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_BOT_API_TOKEN
+        - name: TELEGRAM_CHANNEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.15.2
+        tag: v2.23.0
       hpa:
         enabled: true
       resources:
@@ -345,12 +381,24 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: TELEGRAM_ENABLE_REPORTING
+          value: "True"
+        - name: TELEGRAM_BOT_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_BOT_API_TOKEN
+        - name: TELEGRAM_CHANNEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.15.2
+        tag: v2.23.0
       hpa:
         enabled: true
       resources:

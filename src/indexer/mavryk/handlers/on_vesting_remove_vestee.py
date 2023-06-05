@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.types.vesting.storage import VestingStorage
@@ -10,17 +11,21 @@ async def on_vesting_remove_vestee(
     remove_vestee: Transaction[RemoveVesteeParameter, VestingStorage],
 ) -> None:
 
-    # Get operation values
-    vesting_address = remove_vestee.data.target_address
-    vestee_address  = remove_vestee.parameter.__root__
+    try:
+        # Get operation values
+        vesting_address = remove_vestee.data.target_address
+        vestee_address  = remove_vestee.parameter.__root__
+    
+        # Delete record
+        vesting = await models.Vesting.get(
+            address=vesting_address
+        )
+        vestee  = await models.mavryk_user_cache.get(address=vestee_address)
+        vesteeRecord    = await models.VestingVestee.filter(
+            vestee  = vestee,
+            vesting = vesting
+        ).first()
+        await vesteeRecord.delete()
+    except BaseException as e:
+         await save_error_report(e)
 
-    # Delete record
-    vesting = await models.Vesting.get(
-        address=vesting_address
-    )
-    vestee  = await models.mavryk_user_cache.get(address=vestee_address)
-    vesteeRecord    = await models.VestingVestee.filter(
-        vestee  = vestee,
-        vesting = vesting
-    ).first()
-    await vesteeRecord.delete()
