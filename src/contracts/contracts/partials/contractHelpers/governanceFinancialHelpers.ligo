@@ -165,15 +165,6 @@ block {
         |   None         -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
     ];
 
-
-    // const stakedMvkTotalSupply : nat = case getStakedMvkSnapshotOptView of [
-    //         Some (_view)  -> case _view of [
-    //                 Some(_value) -> _value
-    //             |   None         -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
-    //         ]
-    //     |   None          -> failwith(error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    // ];
-
 } with stakedMvkTotalSupply 
 
 
