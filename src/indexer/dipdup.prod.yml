@@ -1,0 +1,47 @@
+spec_version: 1.2
+
+package: mavryk
+
+database:
+  kind: postgres
+  host: ${POSTGRES_HOST:-changeme}
+  port: ${POSTGRES_PORT:-changeme}
+  user: ${POSTGRES_USERNAME:-changeme}
+  password: ${POSTGRES_PASSWORD:-changeme}
+  database: ${POSTGRES_DB:-changeme}
+  schema_name: public
+
+hasura:
+  url: ${HASURA_URL:-changeme}
+  admin_secret: ${ADMIN_SECRET:-changeme}
+  select_limit: 1000
+
+prometheus:
+  host: 0.0.0.0
+  port: 9090
+  update_interval: 5
+
+advanced:
+  metadata_interface: true
+  reindex:
+    manual: wipe
+    migration: exception
+    rollback: ignore
+    config_modified: wipe
+    schema_modified: wipe
+
+datasources:
+  metadata_mainnet:
+    kind: metadata
+    url: https://metadata.dipdup.net
+    network: mainnet
+  metadata_ghostnet:
+    kind: metadata
+    url: https://metadata.dipdup.net
+    network: ghostnet
+  tzkt_ghostnet:
+    kind: tzkt
+    url: ${TZKT_GHOSTNET_URL:-changeme}
+  tzkt_mainnet:
+    kind: tzkt
+    url: ${TZKT_MAINNET_URL:-changeme}

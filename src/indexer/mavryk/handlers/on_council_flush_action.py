@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_council_action
@@ -10,4 +11,8 @@ async def on_council_flush_action(
     flush_action: Transaction[FlushActionParameter, CouncilStorage],
 ) -> None:
 
-    await persist_council_action(flush_action)
+    try:
+        await persist_council_action(flush_action)
+    except BaseException as e:
+         await save_error_report(e)
+

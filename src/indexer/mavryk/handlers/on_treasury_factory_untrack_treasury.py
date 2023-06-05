@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
@@ -10,13 +11,18 @@ async def on_treasury_factory_untrack_treasury(
     untrack_treasury: Transaction[UntrackTreasuryParameter, TreasuryFactoryStorage],
 ) -> None:
 
-    # Get operation info
-    treasury_address    = untrack_treasury.parameter.__root__
+    try:
+        # Get operation info
+        treasury_address    = untrack_treasury.parameter.__root__
+    
+        # Update record
+        treasury            = await models.Treasury.get_or_none(
+            address = treasury_address
+        )
+        if treasury:
+            treasury.factory        = None
+            await treasury.save()
 
-    # Update record
-    treasury            = await models.Treasury.get_or_none(
-        address = treasury_address
-    )
-    if treasury:
-        treasury.factory        = None
-        await treasury.save()
+    except BaseException as e:
+         await save_error_report(e)
+

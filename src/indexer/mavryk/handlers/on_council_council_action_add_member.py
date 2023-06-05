@@ -1,3 +1,4 @@
+from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.storage import CouncilStorage
 from dipdup.models import Transaction
@@ -9,4 +10,8 @@ async def on_council_council_action_add_member(
     council_action_add_member: Transaction[CouncilActionAddMemberParameter, CouncilStorage],
 ) -> None:
 
-    await persist_council_action(council_action_add_member)
+    try:
+        await persist_council_action(council_action_add_member)
+    except BaseException as e:
+         await save_error_report(e)
+
