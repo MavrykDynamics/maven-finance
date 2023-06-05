@@ -5,7 +5,7 @@ import { zeroAddress } from '../test/helpers/Utils'
 import { governanceFinancialStorageType } from './storageTypes/governanceFinancialStorageType'
 
 const config = {
-    financialRequestApprovalPercentage  : 6700,
+    approvalPercentage                  : 6700,
     financialRequestDurationInDays      : 3,
 }
 

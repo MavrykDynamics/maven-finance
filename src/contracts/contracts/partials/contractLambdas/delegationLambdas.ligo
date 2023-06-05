@@ -509,6 +509,7 @@ block {
                 var satelliteRewardsRecord : satelliteRewardsType := getOrCreateSatelliteRewardsRecord(userAddress, s);
 
                 satelliteRewardsRecord.participationRewardsPerShare        := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                satelliteRewardsRecord.tracked                             := True;
                 s.satelliteRewardsLedger[userAddress]                      := satelliteRewardsRecord;
                 
             }
@@ -557,11 +558,6 @@ block {
                 // remove sender from satellite ledger
                 s.satelliteLedger   := Big_map.remove(userAddress, s.satelliteLedger);
                 s.satelliteCounter  := abs(s.satelliteCounter - 1n);
-
-                // update satellite state
-                // var satelliteRecord : satelliteRecordType := getSatelliteRecord(userAddress, s);
-                // satelliteRecord.status := "INACTIVE";
-                // s.satelliteLedger[userAddress] := satelliteRecord;
 
             }
         |   _ -> skip
@@ -889,6 +885,8 @@ block {
                 // Init variables from parameters
                 const satelliteAddress  : address = updateSatelliteStatusParams.satelliteAddress;
                 const newStatus         : string  = updateSatelliteStatusParams.newStatus;
+
+                verifyValidSatelliteStatus(newStatus);
 
                 // Update the satellite snapshot on the governance contract before updating its record
                 operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);

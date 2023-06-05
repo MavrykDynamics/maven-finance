@@ -819,7 +819,7 @@ block {
         minYayVotePercentage                = s.config.minYayVotePercentage;                // log of min yay votes percentage - capture state at this point
         quorumCount                         = 0n;                                           // log of turnout for voting round - number of satellites who voted
         quorumStakedMvkTotal                = 0n;                                           // log of total positive votes in MVK  
-        startDateTime                       = Tezos.get_now();                                    // log of when the proposal was proposed
+        startDateTime                       = Tezos.get_now();                              // log of when the proposal was proposed
 
         cycle                               = s.cycleId;
         currentCycleStartLevel              = s.currentCycleInfo.roundStartLevel;           // log current round/cycle start level
@@ -918,6 +918,26 @@ block {
 
 
 
+// helper function to get satellite rewards record view from the delegation contract
+function getSatelliteRewardsRecord(const satelliteAddress : address; const s : governanceStorageType) : satelliteRewardsType is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
+    const satelliteRewards : satelliteRewardsType = case satelliteRewardsOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRewards)     -> _satelliteRewards
+                |   None                        -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteRewards
+
+
+
 // helper function to get delegation ratio from the delegation contract
 function getDelegationRatio(const s : governanceStorageType) : nat is 
 block {
@@ -941,19 +961,22 @@ function updateSatelliteSnapshotRecord (const updateSatelliteSnapshotParams : up
 block {
 
     // Get variables from parameter
-    const satelliteAddress: address                 = updateSatelliteSnapshotParams.satelliteAddress;
-    const satelliteRecord: satelliteRecordType      = updateSatelliteSnapshotParams.satelliteRecord;
-    const ready: bool                               = updateSatelliteSnapshotParams.ready;
-    const delegationRatio: nat                      = updateSatelliteSnapshotParams.delegationRatio;
+    const satelliteAddress : address                = updateSatelliteSnapshotParams.satelliteAddress;
+    const totalStakedMvkBalance : nat               = updateSatelliteSnapshotParams.totalStakedMvkBalance;
+    const totalDelegatedAmount : nat                = updateSatelliteSnapshotParams.totalDelegatedAmount;
+    const ready : bool                              = updateSatelliteSnapshotParams.ready;
+    const delegationRatio : nat                     = updateSatelliteSnapshotParams.delegationRatio;
+    const accumulatedRewardsPerShare : nat          = updateSatelliteSnapshotParams.accumulatedRewardsPerShare;
 
     // calculate total voting power
-    const totalVotingPower : nat = voteHelperCalculateVotingPower(delegationRatio, satelliteRecord.stakedMvkBalance, satelliteRecord.totalDelegatedAmount);
+    const totalVotingPower : nat = voteHelperCalculateVotingPower(delegationRatio, totalStakedMvkBalance, totalDelegatedAmount);
 
     const satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType = record [
-        totalStakedMvkBalance   = satelliteRecord.stakedMvkBalance;
-        totalDelegatedAmount    = satelliteRecord.totalDelegatedAmount;
-        totalVotingPower        = totalVotingPower;
-        ready                   = ready;
+        totalStakedMvkBalance       = totalStakedMvkBalance;
+        totalDelegatedAmount        = totalDelegatedAmount;
+        totalVotingPower            = totalVotingPower;
+        accumulatedRewardsPerShare  = accumulatedRewardsPerShare;
+        ready                       = ready;
     ];
 
     s.snapshotLedger[(s.cycleId,satelliteAddress)]  := satelliteSnapshotRecord;
@@ -986,17 +1009,20 @@ block {
     if createSatelliteSnapshot then {
         
         // Get the satellite record from delegation contract
-        const _satelliteRecord : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
+        const satelliteRecord   : satelliteRecordType   = getSatelliteRecord(satelliteAddress, s);
+        const satelliteRewards  : satelliteRewardsType  = getSatelliteRewardsRecord(satelliteAddress, s);
 
         // Get the delegation ratio
         const delegationRatio : nat = getDelegationRatio(s);
 
         // Prepare the record to create the snapshot
         const satelliteSnapshotParams : updateSatelliteSnapshotType = record[
-            satelliteAddress    = satelliteAddress;
-            satelliteRecord     = _satelliteRecord;
-            ready               = True;
-            delegationRatio     = delegationRatio;
+            satelliteAddress            = satelliteAddress;
+            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+            ready                       = True;
+            delegationRatio             = delegationRatio;
+            accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
         ];
 
         // Save the snapshot
@@ -1185,6 +1211,12 @@ block {
 
     // Increase the cycle counter
     s.cycleId      := s.cycleId + 1n;
+
+    // ------------------------------------------------------------------
+    // Save staked MVK Total supply to governance cycle counter
+    // ------------------------------------------------------------------
+
+    s.stakedMvkSnapshotLedger[s.cycleId] := stakedMvkTotalSupply;
 
 } with (s)
 

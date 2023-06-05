@@ -1,5 +1,5 @@
 import assert from "assert";
-import { MVK, Utils } from "./helpers/Utils";
+import { MVK, TEZ, Utils } from "./helpers/Utils";
 
 import BigNumber from 'bignumber.js';
 
@@ -20,7 +20,18 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, david, oscar, susie, trudy } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import { 
+    signerFactory, 
+    getStorageMapValue,
+    fa12Transfer,
+    fa2Transfer,
+    updateOperators,
+    mistakenTransferFa2Token,
+    updateWhitelistContracts,
+    updateGeneralContracts,
+    calcStakedMvkRequiredForActionApproval, 
+    calcTotalVotingPower 
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -134,27 +145,20 @@ describe('Aggregator Tests', async () => {
         // Setup oracles for test
         // ------------------------------------------------------------------
         
-        // bob as admin
-        await helperFunctions.signerFactory(tezos, adminSk);
+        await signerFactory(tezos, adminSk);
 
         if(aggregatorStorage.oracleLedger.get(satelliteOne) === undefined){
-            addOracleOperation = await aggregatorInstance.methods.addOracle(
-                satelliteOne
-            ).send();
+            addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteOne).send();
             await addOracleOperation.confirmation();
         }
 
         if(aggregatorStorage.oracleLedger.get(satelliteTwo) === undefined){
-            addOracleOperation = await aggregatorInstance.methods.addOracle(
-                satelliteTwo
-            ).send();
+            addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteTwo).send();
             await addOracleOperation.confirmation();
         }
 
         if(aggregatorStorage.oracleLedger.get(satelliteThree) === undefined){
-            addOracleOperation = await aggregatorInstance.methods.addOracle(
-                satelliteThree
-            ).send();
+            addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteThree).send();
             await addOracleOperation.confirmation();
         }
 
@@ -162,58 +166,33 @@ describe('Aggregator Tests', async () => {
         // Setup rounds and epoch
         // ------------------------------------------------------------------
 
-        const lastCompletedData = await aggregatorInstance.contractViews.getlastCompletedData().executeView({ viewCaller : bob.pkh});
+        const lastCompletedData = await aggregatorInstance.contractViews.getlastCompletedData().executeView({ viewCaller : admin});
 
         epoch = lastCompletedData.epoch.toNumber() == 1 ? 1 : lastCompletedData.epoch.toNumber() + 1;
         round = lastCompletedData.round.toNumber() == 1 ? 1 : lastCompletedData.round.toNumber() + 1;
 
-        // ------------------------------------------------------------------
-        // Setup funds in Treasury for transfer later
-        // ------------------------------------------------------------------
-
-        // Alice transfers 50 XTZ to Treasury
-        await helperFunctions.signerFactory(tezos, alice.sk)
-        const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryInstance.address, amount: 50});
-        await aliceTransferTezToTreasuryOperation.confirmation();
-
-        // Alice transfers 100 MVK Tokens to Treasury
-        const aliceTransferMvkTokensToTreasuryOperation = await mvkTokenInstance.methods.transfer([
-            {
-                from_: alice.pkh,
-                txs: [
-                    {
-                        to_: treasuryInstance.address,
-                        token_id: 0,
-                        amount: MVK(100)
-                    }
-                ]
-            }
-        ]).send();
-        await aliceTransferMvkTokensToTreasuryOperation.confirmation();
-
-
         // Set XTZ Reward to be higher for tests (from 0.0013 xtz to 1 xtz)
         // ------------------------------------------------------------------
 
-        // Bob sets reward amount to be 1 tez
-        await helperFunctions.signerFactory(tezos, bob.sk)
-        const rewardAmountXtz = 1000000; // 1 tez
-        const set_xtzRewardAmountOp = await aggregatorInstance.methods.updateConfig(
-        rewardAmountXtz, "configRewardAmountXtz"
+        // admin sets reward amount to be 1 tez
+        await signerFactory(tezos, adminSk);
+        const rewardAmountXtz = TEZ(1); 
+        const updateConfigOperation = await aggregatorInstance.methods.updateConfig(
+            rewardAmountXtz, "configRewardAmountXtz"
         ).send();
-        await set_xtzRewardAmountOp.confirmation();
+        await updateConfigOperation.confirmation();
     
     });
 
     describe('%addOracle', () => {
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Non-admin should not be able to call this entrypoint', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const oracleAddress     = susie.pkh;
     
                 // Operation
@@ -258,7 +237,7 @@ describe('Aggregator Tests', async () => {
 
     describe('%addOracle', () => {
         beforeEach("Set signer to susie", async () => {
-            await helperFunctions.signerFactory(tezos, susie.sk)
+            await signerFactory(tezos, susie.sk)
         });
 
         it('satellite should be able to update their public key and peer id', async () => {
@@ -306,13 +285,13 @@ describe('Aggregator Tests', async () => {
 
     describe('%removeOracle', () => {
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
         
         it('Non-admin should not be able to call this entrypoint', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const oracleAddress = susie.pkh;
 
                 // Operation    
@@ -388,15 +367,15 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
         
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
         
                 // Operation
-                await helperFunctions.signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, trudy.sk);
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -409,7 +388,7 @@ describe('Aggregator Tests', async () => {
                 aggregatorStorage                       = await aggregatorInstance.storage();
                 delegationStorage                       = await delegationInstance.storage();
                 const oracleObservations                = new MichelsonMap<string, IOracleObservationType>();
-                const oracleVotingPowers                = new Map<string, number>();
+                const oracleVotingPowers : any          = new Map<string, number>();
                 var totalVotingPower                    = 0;
                 for (const { oracle, data } of observations) {
                     // Get oracle voting power
@@ -435,11 +414,11 @@ describe('Aggregator Tests', async () => {
                 const rewardRatio                       = oracleVotingPowers.get(mallory.pkh) / totalVotingPower;
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -471,13 +450,13 @@ describe('Aggregator Tests', async () => {
             try {
                 // Pre-operations
                 // Increase oracle maintainer stake
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 const additionalStakeAmount             = MVK(10);
                 var stakeOperation                      = await doormanInstance.methods.stake(additionalStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // Add a delegate to another oracle
-                await helperFunctions.signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, trudy.sk);
                 var updateOperators = await mvkTokenInstance.methods
                     .update_operators([
                     {
@@ -525,11 +504,11 @@ describe('Aggregator Tests', async () => {
                 const rewardRatio                       = oracleVotingPowers.get(mallory.pkh) / totalVotingPower;
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -563,13 +542,13 @@ describe('Aggregator Tests', async () => {
             try {
                 // Pre-operations
                 // Increase oracle maintainer stake
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const unstakeAmount                     = MVK(10);
                 const unstakeOperation                  = await doormanInstance.methods.unstake(unstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // Add a delegate to another oracle
-                await helperFunctions.signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, trudy.sk);
                 const undelegateOperation               = await delegationInstance.methods.undelegateFromSatellite(trudy.pkh).send()
                 await undelegateOperation.confirmation();
 
@@ -603,15 +582,15 @@ describe('Aggregator Tests', async () => {
                 const rewardRatio                       = oracleVotingPowers.get(bob.pkh) / totalVotingPower;
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
                 await operation.confirmation();
 
@@ -650,11 +629,11 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -701,11 +680,11 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
                 
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -748,11 +727,11 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -799,11 +778,11 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -850,11 +829,11 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
       
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
       
                 // Operation
@@ -879,11 +858,11 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
    
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -908,11 +887,11 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, trudy.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
@@ -926,7 +905,7 @@ describe('Aggregator Tests', async () => {
     describe('%withdrawRewardStakedMvk', () => {
 
         beforeEach("Set signer to oracle", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Oracle should be able to withdraw SMVK rewards', async () => {
@@ -1008,7 +987,7 @@ describe('Aggregator Tests', async () => {
     describe('%withdrawRewardXtz', () => {
 
         beforeEach("Set signer to oracle", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Oracle should be able to withdraw XTZ rewards', async () => {
@@ -1021,7 +1000,7 @@ describe('Aggregator Tests', async () => {
     
                 // Operation
                 // use alice to withdraw reward to the oracles and pay the gas cost for easier testing
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 
                 const malloryWithdrawRewardXtzOp            = await aggregatorInstance.methods.withdrawRewardXtz(mallory.pkh).send();
                 await malloryWithdrawRewardXtzOp.confirmation();
@@ -1066,13 +1045,13 @@ describe('Aggregator Tests', async () => {
         const rewardAmountStakedMvk         : BigNumber = new BigNumber(100);
 
         beforeEach("Set signer to oracle", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
 
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateConfig(decimals, "configDecimals").send()).to.be.rejected;
@@ -1136,7 +1115,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
 
                 // Operation
                 await chai.expect(aggregatorInstance.methods.setAdmin(bob.pkh).send()).to.be.rejected;
@@ -1148,7 +1127,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to update the aggregator admin', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // Operation
                 const operation     = await aggregatorInstance.methods.setAdmin(bob.pkh).send();
@@ -1169,7 +1148,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
 
                 // Operation
                 await chai.expect(aggregatorInstance.methods.setGovernance(david.pkh).send()).to.be.rejected;
@@ -1181,7 +1160,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to update the governance address', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // Operation
                 const operation     = await aggregatorInstance.methods.setGovernance(contractDeployments.governance.address).send();
@@ -1202,7 +1181,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const newName   = "testName";
 
                 // Operation
@@ -1215,7 +1194,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to update the aggregator contract name and update its reference on the governanceSatellite contract', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const newName                   = "newName";
                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
                 aggregatorStorage               = await aggregatorInstance.storage();
@@ -1250,7 +1229,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const key   = ''
                 const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
 
@@ -1264,7 +1243,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to update the aggregator contract metadata', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const key   = ''
                 const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
 
@@ -1288,7 +1267,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const contractName      = 'testContract';
                 const contractAddress   = bob.pkh;
 
@@ -1302,7 +1281,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to update the aggregator contract whitelist contracts', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const contractName      = 'testContract';
                 const contractAddress   = bob.pkh;
 
@@ -1326,7 +1305,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const contractName      = 'testContract';
                 const contractAddress   = bob.pkh;
 
@@ -1340,7 +1319,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to update the aggregator contract whitelist contracts', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const contractName      = 'testContract';
                 const contractAddress   = bob.pkh;
 
@@ -1364,7 +1343,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.pauseAll().send()).to.be.rejected;
@@ -1376,7 +1355,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to pause all entrypoints', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 aggregatorStorage           = await aggregatorInstance.storage();
                 const initBreakGlassConfig  = await aggregatorStorage.breakGlassConfig;
 
@@ -1403,13 +1382,13 @@ describe('Aggregator Tests', async () => {
 
     describe('%togglePauseEntrypoint', () => {
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const entrypoint    = "updateData";
                 const pause         = true;
     
@@ -1454,15 +1433,15 @@ describe('Aggregator Tests', async () => {
                 const signatures            = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
                 const operation             = await aggregatorInstance.methods.togglePauseEntrypoint(entrypoint, pause).send();
                 await operation.confirmation();
 
@@ -1533,7 +1512,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.unpauseAll().send()).to.be.rejected;
@@ -1545,7 +1524,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to unpause all entrypoints', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 aggregatorStorage           = await aggregatorInstance.storage();
                 const initBreakGlassConfig  = await aggregatorStorage.breakGlassConfig;
 
@@ -1574,7 +1553,7 @@ describe('Aggregator Tests', async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await helperFunctions.signerFactory(tezos, david.sk);
+                await signerFactory(tezos, david.sk);
                 const bytes  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
     
                 // Operation

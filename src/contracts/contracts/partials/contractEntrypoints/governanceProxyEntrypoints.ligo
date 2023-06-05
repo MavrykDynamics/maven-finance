@@ -78,6 +78,8 @@ block {
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
 
+
+
 // ------------------------------------------------------------------------------
 // Main Entrypoints Start
 // ------------------------------------------------------------------------------
@@ -85,6 +87,8 @@ block {
 (* dataPackingHelper entrypoint - to simulate calling an entrypoint *)
 function dataPackingHelper(const _governanceAction : unit -> list(operation); const _s : governanceProxyStorageType) : return is 
     (failwith(error_DATA_PACKING_HELPER_ENTRYPOINT_SHOULD_NOT_BE_CALLED) : return)
+
+
 
 (*  executeGovernanceAction entrypoint *)
 function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceProxyStorageType) : return is
@@ -98,13 +102,16 @@ block {
             Some(_action) -> _action
         |   None          -> failwith(error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA)
     ];
-    var operations : list(operation)        := action(Unit);
+
+    var operations : list(operation) := action(Unit);
 
 } with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Main Entrypoints End
 // ------------------------------------------------------------------------------
+
+
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints Begin

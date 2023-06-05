@@ -15,6 +15,7 @@ export type governanceStorageType = {
 
     proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
     proposalRewards         : MichelsonMap<MichelsonMapKey, unknown>;
+    stakedMvkSnapshotLedger : MichelsonMap<MichelsonMapKey, unknown>;
     snapshotLedger          : MichelsonMap<MichelsonMapKey, unknown>;
 
     // startLevel              : BigNumber;

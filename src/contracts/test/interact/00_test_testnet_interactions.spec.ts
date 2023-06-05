@@ -1,7 +1,9 @@
-import { compileLambdaFunction } from '../../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker'
-import { MVK, Utils, zeroAddress } from "../helpers/Utils"
-import { BigNumber } from "bignumber.js"
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { MichelsonMap } from "@taquito/taquito"
+import { BigNumber } from "bignumber.js"
+
+import { MVK, Utils, zeroAddress } from "../helpers/Utils"
+
 // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 
 const chai = require("chai")
@@ -2857,8 +2859,8 @@ describe("Testnet interactions helper", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
 
                 // Create a farm compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'ghostnet',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'createFarm',
@@ -2977,8 +2979,8 @@ describe("Testnet interactions helper", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
 
                 // Create a farm compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'ghostnet',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'createFarm',
@@ -3081,8 +3083,8 @@ describe("Testnet interactions helper", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
 
                 // Create a farm compiled params
-                const lambdaFunction        = await compileLambdaFunction(
-                    'ghostnet',
+                const lambdaFunction        = await createLambdaBytes(
+                    tezos.rpc.url,
                     contractDeployments.governanceProxy.address,
                     
                     'createFarm',

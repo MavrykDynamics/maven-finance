@@ -320,7 +320,7 @@ export class GeneralContract {
         // get storage from array
         // const storage = generalControllerStorage[contractName];
 
-        const operation: OriginationOperation = await tezos.contract
+        const operation : OriginationOperation = await tezos.contract
         .originate({
             code: artifacts.michelson,
             storage: storage,
