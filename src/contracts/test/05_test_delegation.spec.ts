@@ -2112,7 +2112,7 @@ describe("Test: Delegation Contract", async () => {
         it("%distributeReward         - non-admin (mallory) should not be able to call this entrypoint", async() => {
             try{
 
-                const distributeRewardOperation = delegationInstance.methods.distributedReward([eve.pkh],MVK(50)); 
+                const distributeRewardOperation = delegationInstance.methods.distributeReward([eve.pkh],MVK(50)); 
                 await chai.expect(distributeRewardOperation.send()).to.be.rejected;
 
             } catch(e) {
