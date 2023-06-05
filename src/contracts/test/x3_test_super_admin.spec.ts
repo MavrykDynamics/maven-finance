@@ -286,7 +286,7 @@ describe("Break Glass Super Admin tests", async () => {
                 //     }
                 // })
 
-                it("Break Glass Council should not be able to call this entrypoint, if the new admin was a whitelisted developer that was being removed, before the break glass action was executed", async() => {
+                it("Break Glass Council should not be able to call this entrypoint, if the new admin was a whitelisted developer but was removed midway before the break glass action was executed", async() => {
                     try{
                         // Reset governance admin to proxy
                         const resetAdmin    = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
