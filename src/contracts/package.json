@@ -43,7 +43,7 @@
     "pytest-only": "pytest -s",
     "setup-prod-environment": "yarn test-net-deploy-prod && yarn test-net-setup"
   },
-  "author": "matej.sima@stove-labs.com",
+  "author": "devteam@mavryk.finance",
   "license": "MIT",
   "dependencies": {
     "@mavrykdynamics/create-lambda-bytes": "^0.0.5",
