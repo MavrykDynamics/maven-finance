@@ -45,7 +45,23 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Running tests for delegation"
             COMMANDS+=("yarn ts-mocha --paths test/04_test_doorman.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/05_test_delegation.spec.ts --bail --timeout 9000000")
-            # COMMANDS+=("yarn ts-mocha --paths test/34_test_delegation.spec.ts --bail --timeout 9000000")
+            ;;
+        delegationDistributeRewards)
+            echo "Running tests for delegation"
+            # COMMANDS+=("yarn ts-mocha --paths test/04_test_doorman.spec.ts --bail --timeout 9000000")
+            # COMMANDS+=("yarn ts-mocha --paths test/05_test_delegation.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/34_test_delegation_distribute_rewards.spec.ts --bail --timeout 9000000")
+            ;;
+        governanceFinancial)
+            echo "Running tests for governanceFinancial"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/18_test_governance_financial.spec.ts --bail --timeout 9000000")
+            ;;
+        governanceSatellite)
+            echo "Running tests for governanceSatellite"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/19_test_governance_satellite.spec.ts --bail --timeout 9000000")
             ;;
         satelliteSetup)
             echo "Setup satellite"
@@ -66,11 +82,11 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
         delegation)
             echo "Running tests for delegation"
             COMMANDS+=("yarn ts-mocha --paths test/05_test_delegation.spec.ts --bail --timeout 9000000")
-            # COMMANDS+=("yarn ts-mocha --paths test/34_test_delegation.spec.ts --bail --timeout 9000000")
             ;;
         governance)
             echo "Running tests for governance"
-            COMMANDS+=("yarn ts-mocha --paths test/33_test_governance.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/17_test_governance.spec.ts --bail --timeout 9000000")
             ;;
         council)
             echo "Running tests for council"
@@ -98,7 +114,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         treasuryFactory)
             echo "Running tests for treasuryFactory"
-            COMMANDS+=("yarn ts-mocha --paths test/09_test_treasury_factory.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/14_test_treasury_factory.spec.ts --bail --timeout 9000000")
             ;;
         emergencyGovernance)
             echo "Running tests for emergencyGovernance"
@@ -106,19 +122,12 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         breakGlass)
             echo "Running tests for breakGlass"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/09_test_break_glass.spec.ts --bail --timeout 9000000")
-            ;;
-        governanceFinancial)
-            echo "Running tests for governanceFinancial"
-            COMMANDS+=("yarn ts-mocha --paths test/12_test_governance_financial.spec.ts --bail --timeout 9000000")
-            ;;
-        governanceFinancial)
-            echo "Running tests for governanceFinancial"
-            COMMANDS+=("yarn ts-mocha --paths test/21_test_governance_financial.spec.ts --bail --timeout 9000000")
             ;;
         governanceProxy)
             echo "Running tests for governanceProxy"
-            COMMANDS+=("yarn ts-mocha --paths test/13_test_governance_proxy.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/22_test_governance_proxy.spec.ts --bail --timeout 9000000")
             ;;
         superAdmin)
             echo "Running tests for superAdmin"
@@ -134,15 +143,15 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         governanceQuorum)
             echo "Running tests for governanceQuorum"
-            COMMANDS+=("yarn ts-mocha --paths test/17_test_governance_quorum.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/21_test_governance_quorum.spec.ts --bail --timeout 9000000")
             ;;
         aggregator)
             echo "Running tests for aggregator"
-            COMMANDS+=("yarn ts-mocha --paths test/18_test_aggregator.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/15_test_aggregator.spec.ts --bail --timeout 9000000")
             ;;
         aggregatorFactory)
             echo "Running tests for aggregatorFactory"
-            COMMANDS+=("yarn ts-mocha --paths test/19_test_aggregator_factory.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/16_test_aggregator_factory.spec.ts --bail --timeout 9000000")
             ;;
         satelliteStatus)
             echo "Running tests for satelliteStatus"

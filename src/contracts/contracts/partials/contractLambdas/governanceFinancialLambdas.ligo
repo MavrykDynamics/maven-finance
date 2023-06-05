@@ -79,7 +79,7 @@ block {
                 const updateConfigNewValue  : governanceFinancialUpdateConfigNewValueType   = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    |   ConfigFinancialReqApprovalPct (_v)   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.financialRequestApprovalPercentage      := updateConfigNewValue
+                    |   ConfigApprovalPercentage (_v)        -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.approvalPercentage      := updateConfigNewValue
                     |   ConfigFinancialReqDurationDays (_v)  -> s.config.financialRequestDurationInDays          := updateConfigNewValue
                 ];
 
@@ -378,6 +378,7 @@ block {
 
                 // Get financial request record if financial request exists
                 var financialRequestRecord : financialRequestRecordType := getFinancialRequest(financialRequestId, s);
+                const governanceCycleId : nat = financialRequestRecord.governanceCycleId;
 
                 // Validate Financial Request (not dropped, executed, or expired)
                 validateFinancialRequest(financialRequestRecord);
@@ -387,7 +388,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
-                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), operations, s);
+                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), governanceCycleId, operations, s);
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to

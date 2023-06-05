@@ -18,7 +18,18 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import { mockMetadata, mockSatelliteData } from "./helpers/mockSampleData"
+import { 
+    signerFactory, 
+    getStorageMapValue,
+    fa12Transfer,
+    fa2Transfer,
+    mistakenTransferFa2Token,
+    updateWhitelistContracts,
+    updateGeneralContracts,
+    randomNumberFromInterval
+} from './helpers/helperFunctions'
+
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -51,28 +62,6 @@ describe("FarmFactory", async () => {
     let mvkTokenInstance;
     let mvkTokenStorage;
 
-    const farmMetadataBase = Buffer.from(
-      JSON.stringify({
-        name: 'MAVRYK PLENTY-USDTz Farm',
-        description: 'MAVRYK Farm Contract',
-        version: 'v1.0.0',
-        liquidityPairToken: {
-          tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-          origin: ['Plenty'],
-          token0: {
-            symbol: ['PLENTY'],
-            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-          },
-          token1: {
-            symbol: ['USDtz'],
-            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-          }
-        },
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-      }),
-      'ascii',
-    ).toString('hex')
-
     before("setup", async () => {
 
         utils = new Utils();
@@ -104,7 +93,7 @@ describe("FarmFactory", async () => {
         lpTokenStorage    = await lpTokenInstance.storage();
         doormanStorage    = await doormanInstance.storage();
         mvkTokenStorage    = await mvkTokenInstance.storage();
-        await helperFunctions.signerFactory(tezos, bob.sk)
+        await signerFactory(tezos, bob.sk)
     })
 
     describe('Farm Factory', function() {
@@ -119,7 +108,7 @@ describe("FarmFactory", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         lpTokenAddress,
                         0,
                         "fa12",
@@ -149,7 +138,7 @@ describe("FarmFactory", async () => {
 
             it('Create a farm without being the admin', async () => {
                 try{
-                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    await signerFactory(tezos, alice.sk)
                     // Create a transaction for initiating a farm
                     await chai.expect(farmFactoryInstance.methods.createFarm(
                         "testFarm",
@@ -158,7 +147,7 @@ describe("FarmFactory", async () => {
                         false,
                         12000,
                         0,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         lpTokenAddress,
                         0,
                         "fa12"
@@ -178,7 +167,7 @@ describe("FarmFactory", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         lpTokenAddress,
                         0,
                         "fa12"
@@ -226,7 +215,7 @@ describe("FarmFactory", async () => {
                     assert.strictEqual(previousAdmin,bob.pkh);
 
                     // Reset admin
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     const resetOperation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
                     await resetOperation.confirmation();
                 }catch(e){
@@ -237,7 +226,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to set a new admin', async() => {
                 try{
                     // Create a transaction for initiating a farm
-                    await helperFunctions.signerFactory(tezos, eve.sk)
+                    await signerFactory(tezos, eve.sk)
                     const operation = farmFactoryInstance.methods.setAdmin(bob.pkh);
                     await chai.expect(operation.send()).to.be.rejected;
 
@@ -255,7 +244,7 @@ describe("FarmFactory", async () => {
         describe('%pauseAll', function() {
             it('Admin should be able to pause all entrypoints on the factory and the tracked farms', async() => {
                 try{
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, bob.sk)
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
@@ -290,7 +279,7 @@ describe("FarmFactory", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         lpTokenAddress,
                         0,
                         "fa12"
@@ -316,7 +305,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to pause all entrypoints', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
@@ -350,7 +339,7 @@ describe("FarmFactory", async () => {
             it('Admin should be able to unpause all entrypoints and all tracked farms', async() => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, bob.sk)
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
@@ -386,7 +375,7 @@ describe("FarmFactory", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         lpTokenAddress,
                         0,
                         "fa12"
@@ -424,7 +413,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to unpause all entrypoints', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
@@ -455,7 +444,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to unpause all entrypoints on all tracked farms', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const trackedFarms = await farmFactoryStorage.trackedFarms;
@@ -508,7 +497,7 @@ describe("FarmFactory", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         lpTokenAddress,
                         0,
                         "fa12"
@@ -597,7 +586,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to pause and unpause the trackFarm entrypoint', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
@@ -671,7 +660,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to track a farm', async () => {
                 try{
                     // Create a transaction for initiating a farm
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
                 }catch(e){
                     console.dir(e, {depth: 5})
@@ -696,7 +685,7 @@ describe("FarmFactory", async () => {
                         false,
                         100,
                         12000,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         lpTokenAddress,
                         0,
                         "fa12"

@@ -17,7 +17,7 @@ export type governanceSatelliteStorageType = {
     governanceSatelliteVoters           : MichelsonMap<MichelsonMapKey, unknown>;
     governanceSatelliteCounter          : BigNumber;
 
-    actionsInitiators                   : MichelsonMap<MichelsonMapKey, unknown>;
+    satelliteActions                    : MichelsonMap<MichelsonMapKey, unknown>;
 
     satelliteAggregatorLedger           : MichelsonMap<MichelsonMapKey, unknown>;
     aggregatorLedger                    : MichelsonMap<MichelsonMapKey, unknown>;

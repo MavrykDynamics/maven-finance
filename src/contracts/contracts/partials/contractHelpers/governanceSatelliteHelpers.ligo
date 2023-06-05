@@ -214,17 +214,32 @@ block {
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
-function getStakedMvkTotalSupply(const s : governanceSatelliteStorageType) : nat is 
+// helper function to get the current governance cycle counter
+function getCurrentCycleCounter(const s : governanceSatelliteStorageType) : nat is 
 block {
 
-    // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+    // Get the current governance cycle counter from the governance contract
+    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle : nat = case cycleCounterView of [
+            Some (_cycleCounter)   -> _cycleCounter
+        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
-            Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+} with currentCycle
+
+
+
+// helper function to get staked mvk snapshot total supply based on the current governance cycle 
+function getStakedMvkSnapshotTotalSupply(const currentCycleId : nat; const s : governanceSatelliteStorageType) : nat is 
+block {
+
+    const getStakedMvkSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
+    const stakedMvkTotalSupply : nat = case getStakedMvkSnapshotOptView of [
+            Some (_view)  -> case _view of [
+                    Some(_value) -> _value
+                |   None         -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
+            ]
+        |   None          -> failwith(error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
 } with stakedMvkTotalSupply 
@@ -364,17 +379,21 @@ block {
     // Validate inputs
     validateStringLength(purpose, s.config.governancePurposeMaxLength, error_WRONG_INPUT_PROVIDED);
 
+    // Get the current cycle from the governance contract
+    const currentCycleId : nat = getCurrentCycleCounter(s);
+
     // ------------------------------------------------------------------
     // Get / Check Satellite Records
     // ------------------------------------------------------------------
 
-    // Check if the satellite created too much actions this cycle
-    var initiatorActions : set(actionIdType) := case Big_map.find_opt(Tezos.get_sender(), s.actionsInitiators) of [
+    // Check if the satellite has created too many actions this governance cycle
+    const satelliteActionKey : (nat * address) = (currentCycleId, Tezos.get_sender());
+    var satelliteActions : set(actionIdType) := case Big_map.find_opt(satelliteActionKey, s.satelliteActions) of [
             Some (_actionsIds)  -> _actionsIds
         |   None                -> set []
     ];
-    const createdActionsAmount: nat =   Set.cardinal(initiatorActions);
-    if createdActionsAmount >= s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
+    const satelliteActionsCount : nat =   Set.cardinal(satelliteActions);
+    if satelliteActionsCount >= s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTIONS_REACHED) else skip;
 
     // Verify sender is a satellite which is not suspended or banned
     verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
@@ -383,11 +402,11 @@ block {
     // Snapshot Staked MVK Total Supply
     // ------------------------------------------------------------------
 
-    // Take snapshot of current total staked MVK supply (Doorman contract's MVK balance)
-    const snapshotStakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
+    // Take snapshot of current total staked MVK supply 
+    const snapshotStakedMvkTotalSupply : nat = getStakedMvkSnapshotTotalSupply(currentCycleId, s);
 
     // Calculate staked MVK votes required for approval based on config's approval percentage
-    const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
+    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.approvalPercentage) / 10000);
 
     // ------------------------------------------------------------------
     // Create new Governance Satellite Action
@@ -410,12 +429,13 @@ block {
         nayVoteStakedMvkTotal              = 0n;
         passVoteStakedMvkTotal             = 0n;
 
+        governanceCycleId                  = currentCycleId;
         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-        stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
+        stakedMvkPercentageForApproval     = s.config.approvalPercentage; 
         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
         startDateTime                      = Tezos.get_now();            
-        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
+        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.satelliteActionDurationInDays);
         
     ];
 
@@ -430,8 +450,8 @@ block {
     s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
     // Add the new action to the satellite's set
-    initiatorActions                            := Set.add(actionId, initiatorActions);
-    s.actionsInitiators[Tezos.get_sender()]     := initiatorActions;
+    satelliteActions                            := Set.add(actionId, satelliteActions);
+    s.satelliteActions[satelliteActionKey]      := satelliteActions;
 
     // Increment governance satellite action counter
     s.governanceSatelliteCounter := actionId + 1n;
@@ -467,6 +487,27 @@ block {
 
 
 
+
+// helper function to get satellite rewards record view from the delegation contract
+function getSatelliteRewardsRecord(const satelliteAddress : address; const s : governanceSatelliteStorageType) : satelliteRewardsType is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
+    const satelliteRewards : satelliteRewardsType = case satelliteRewardsOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRewards)     -> _satelliteRewards
+                |   None                        -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteRewards
+
+
+
 // helper function to get delegation ratio from the delegation contract
 function getDelegationRatio(const s : governanceSatelliteStorageType) : nat is 
 block {
@@ -482,21 +523,6 @@ block {
     ];
 
 } with delegationRatio
-
-
-
-// helper function to get the current governance cycle counter
-function getCurrentCycleCounter(const s : governanceSatelliteStorageType) : nat is 
-block {
-
-    // Get the current governance cycle counter from the governance contract
-    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
-    const currentCycle : nat = case cycleCounterView of [
-            Some (_cycleCounter)   -> _cycleCounter
-        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
-} with currentCycle
 
 
 
@@ -543,15 +569,18 @@ function updateSatelliteSnapshotOperation(const satelliteAddress : address; cons
 block {
 
     // Get the satellite record and delgation ratio
-    const satelliteRecord : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
-    const delegationRatio : nat                 = getDelegationRatio(s);
+    const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
+    const satelliteRewards  : satelliteRewardsType = getSatelliteRewardsRecord(satelliteAddress, s);
+    const delegationRatio   : nat                  = getDelegationRatio(s);
 
     // Create a snapshot
     const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
-        satelliteAddress    = satelliteAddress;
-        satelliteRecord     = satelliteRecord;
-        ready               = ready;
-        delegationRatio     = delegationRatio;
+        satelliteAddress            = satelliteAddress;
+        totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+        totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+        ready                       = ready;
+        delegationRatio             = delegationRatio;
+        accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
     ];
 
     // Send the snapshot to the governance contract
@@ -608,34 +637,39 @@ block {
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; const actionGovernanceCycleId : nat; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
 block{
 
     // Get the current cycle from the governance contract to check if the snapshot is up to date
     const currentCycle : nat = getCurrentCycleCounter(s);
 
     // Check if a snapshot needs to be created
-    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
+    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(actionGovernanceCycleId, satelliteAddress, s);
 
     // Get the total voting power from the snapshot (default 0 if snapshot has not been created)
-    var totalVotingPower : nat := getSatelliteTotalVotingPower(currentCycle, satelliteAddress, s);
+    var totalVotingPower : nat := getSatelliteTotalVotingPower(actionGovernanceCycleId, satelliteAddress, s);
 
     // Create snapshot if it does not exist, verify snapshot is ready if it exists
     if createSatelliteSnapshotCheck then{
 
-        // update satellite snapshot operation
-        const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
-        operations := updateSatelliteSnapshotOperation # operations;
+        // check if current governance cycle matches with governance cycle of financial request
+        if currentCycle = actionGovernanceCycleId then block {
 
-        // Calculate the total voting power of the satellite
-        totalVotingPower := calculateVotingPower(satelliteAddress, s);
+            // update satellite snapshot operation
+            const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
+            operations := updateSatelliteSnapshotOperation # operations;
+
+            // Calculate the total voting power of the satellite
+            totalVotingPower := calculateVotingPower(satelliteAddress, s);
+
+        } else skip;
 
     } 
     // Check if satellite is ready to vote
     else {
 
         // Verify that satellite snapshot is ready
-        verifySatelliteSnapshotIsReady(currentCycle, satelliteAddress, s);
+        verifySatelliteSnapshotIsReady(actionGovernanceCycleId, satelliteAddress, s);
     }
 
 } with (totalVotingPower, operations)
@@ -896,12 +930,15 @@ block {
 
     // Remove the executed action from the satellite's set
     const initiator : address                   = actionRecord.initiator;
-    var initiatorActions : set(actionIdType)    := case s.actionsInitiators[initiator] of [
+    const governanceCycleId : nat               = actionRecord.governanceCycleId;
+    const satelliteActionKey : (nat * address)  = (governanceCycleId, initiator);
+
+    var satelliteActions : set(actionIdType)    := case s.satelliteActions[satelliteActionKey] of [
             Some (_actionsIds)  -> _actionsIds
-        |   None                -> failwith(error_INITIATOR_ACTIONS_NOT_FOUND)
+        |   None                -> failwith(error_SATELLITE_ACTIONS_NOT_FOUND)
     ];
-    initiatorActions                := Set.remove(actionId, initiatorActions);
-    s.actionsInitiators[initiator]  := initiatorActions;
+    satelliteActions                        := Set.remove(actionId, satelliteActions);
+    s.satelliteActions[satelliteActionKey]  := satelliteActions;
 
 } with (operations, s)
 

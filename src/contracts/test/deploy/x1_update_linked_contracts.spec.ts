@@ -18,7 +18,9 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob } from '../../scripts/sandbox/accounts'
-import * as helperFunctions from '../helpers/helperFunctions'
+import { 
+    signerFactory
+} from './../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -63,7 +65,7 @@ describe('Linked contracts updates for Tests', async () => {
             // Set remaining contract addresses - post-deployment
             //----------------------------
 
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
 
             // Break Glass Contract - set whitelist contract addresses [emergencyGovernance]
             const breakGlassContractOperation = await breakGlassInstance.methods.updateWhitelistContracts("emergencyGovernance", contractDeployments.emergencyGovernance.address, 'update').send();
@@ -119,41 +121,7 @@ describe('Linked contracts updates for Tests', async () => {
         
             console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
             
-            // Send MVK to treasury contract and council (TODO: keep?)
-            if (utils.production !== "true"){
-                const transferToTreasury = await mvkTokenInstance.methods
-                .transfer([
-                    {
-                    from_: bob.pkh,
-                    txs: [
-                        {
-                        to_: contractDeployments.treasury.address,
-                        token_id: 0,
-                        amount: MVK(6000),
-                        },
-                        {
-                        to_: contractDeployments.council.address,
-                        token_id: 0,
-                        amount: MVK(15),
-                        }
-                    ],
-                    },
-                ])
-                .send()
-                await transferToTreasury.confirmation();
-            }
-            const updateOperatorsTreasury = (await treasuryInstance.methods
-                .updateMvkOperators([
-                {
-                    add_operator: {
-                        owner: contractDeployments.treasury.address,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }])
-                .send()) as TransactionOperation
-        
-            await updateOperatorsTreasury.confirmation();
+            
 
             // Farm FA12 Contract - set general contract addresses [doorman]
             // Farm FA12 Contract - set whitelist contract addresses [council] 

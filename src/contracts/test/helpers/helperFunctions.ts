@@ -124,7 +124,7 @@ export async function fa2Transfer (tokenContractInstance, from, to, tokenId, tok
 
 export async function fa2MultiTransfer (tokenContractInstance, from, transferDestination) {
     
-    let transactions = [];
+    let transactions : any = [];
     for(let i = 0; i < transferDestination.length; i++){
         const singleTransaction = {
             to_      : transferDestination[i][0],
@@ -246,5 +246,52 @@ export const calcIncrementAccumulatedFeesPerShare = (paidFee : number, unstakeAm
         return Number(Math.trunc(paidFee / stakedTotalWithoutUnstakeAmount));
     }
 
+}
+
+
+
+// ------------------------------------------------------------------------------
+// Satellite Rewards Helpers
+// ------------------------------------------------------------------------------
+
+
+export const calcRewardsPerShareAfterDistributeRewards = (rewardAmount : number, satelliteFee : number, satelliteTotalStakedMvk : number) => {
+
+    const satelliteFeeReward                    = Math.floor((satelliteFee * rewardAmount) / 10000);
+    const totalDistributionAmountForDelegates   = rewardAmount - satelliteFeeReward;
+    const incrementRewardsPerShare              = totalDistributionAmountForDelegates / satelliteTotalStakedMvk;
+
+    return incrementRewardsPerShare
+} 
+
+
+
+export const calcTotalVotingPower = (delegationRatio : number, satelliteStakedMvkBalance : number, satelliteTotalDelegatedAmount : number) => {
+
+    var totalVotingPower    = 0;
+    var maxTotalVotingPower = 0;
+
+    if(delegationRatio == 0){
+        maxTotalVotingPower = satelliteStakedMvkBalance * 10000;
+    } else {
+        maxTotalVotingPower = Math.floor((satelliteStakedMvkBalance * 10000) / delegationRatio);
+    };
+
+    const mvkBalanceAndTotalDelegatedAmount = satelliteStakedMvkBalance + satelliteTotalDelegatedAmount;
+
+    if(mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower){
+        totalVotingPower = maxTotalVotingPower;
+    } else {
+        totalVotingPower = mvkBalanceAndTotalDelegatedAmount;
+    };
+
+    return totalVotingPower;
+}
+
+
+
+export const calcStakedMvkRequiredForActionApproval = (totalStakedMvkSupply : number, approvalPercentage : number, percentageDecimals : number) => {
+    const stakedMvkRequiredForApproval = Math.floor((totalStakedMvkSupply * approvalPercentage) / (10 ** percentageDecimals));
+    return stakedMvkRequiredForApproval
 }
 
