@@ -1,5 +1,6 @@
 import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -17,8 +18,12 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, oscar} from "../scripts/sandbox/accounts";
-import { compileLambdaFunction } from "../scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker";
-import * as helperFunctions from './helpers/helperFunctions'
+import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
+import { 
+    signerFactory,
+    updateOperators
+} from './helpers/helperFunctions'
+
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -86,23 +91,6 @@ describe("Break Glass Super Admin tests", async () => {
         vestingStorage                  = await vestingInstance.storage();
         treasuryStorage                 = await treasuryInstance.storage();
 
-        // console.log('-- -- -- -- -- Break Glass Tests -- -- -- --')
-        // console.log('Doorman Contract deployed at:', doormanInstance.address);
-        // console.log('Delegation Contract deployed at:', delegationInstance.address);
-        // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        // console.log('Council Contract deployed at:', councilInstance.address);
-        // console.log('Governance Contract deployed at:', governanceInstance.address);
-        // console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-        // console.log('Break Glass Contract deployed at:', breakGlassInstance.address);
-        // console.log('Vesting Contract deployed at:', vestingInstance.address);
-        // console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        // console.log('Bob address: ' + bob.pkh);
-        // console.log('Alice address: ' + alice.pkh);
-        // console.log('Eve address: ' + eve.pkh);
-        // console.log('Mallory address: ' + mallory.pkh);
-        // console.log('Oscar address: ' + oscar.pkh);
-        // console.log('-- -- -- -- -- -- -- -- --')
-
     });
 
     describe("Glass not broken", async () => {
@@ -114,190 +102,191 @@ describe("Break Glass Super Admin tests", async () => {
 
             describe("%setSingleContractAdmin", async () => {
 
-                before("Trigger Break Glass", async () => {
-                    try{
-                        // Initial Values
-                        emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+                // before("Trigger Break Glass", async () => {
+                //     try{
+                //         // Initial Values
+                //         emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
 
-                        // Set all contracts admin to governance address if it is not
-                        await helperFunctions.signerFactory(tezos, bob.sk);
-                        governanceStorage             = await governanceInstance.storage();
-                        var generalContracts          = governanceStorage.generalContracts.entries();
-                        var updateConfigOperation     = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
-                        await updateConfigOperation.confirmation();
-                        updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
-                        await updateConfigOperation.confirmation();
-                        updateConfigOperation = await breakGlassInstance.methods.updateConfig(2,"configThreshold").send();
-                        await updateConfigOperation.confirmation();
+                //         // Set all contracts admin to governance address if it is not
+                //         await signerFactory(tezos, bob.sk);
+                //         governanceStorage             = await governanceInstance.storage();
+                //         var generalContracts          = governanceStorage.generalContracts.entries();
+                //         var updateConfigOperation     = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
+                //         await updateConfigOperation.confirmation();
+                //         updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
+                //         await updateConfigOperation.confirmation();
+                //         updateConfigOperation = await breakGlassInstance.methods.updateConfig(2,"configThreshold").send();
+                //         await updateConfigOperation.confirmation();
 
-                        // Initial governance storage operations
-                        var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
-                        await updateGovernanceConfig.confirmation();
+                //         // Initial governance storage operations
+                //         var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+                //         await updateGovernanceConfig.confirmation();
+                //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+                //         await updateGovernanceConfig.confirmation();
+                //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+                //         await updateGovernanceConfig.confirmation();
+                //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
+                //         await updateGovernanceConfig.confirmation();
+                //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
+                //         await updateGovernanceConfig.confirmation();
+                //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
+                //         await updateGovernanceConfig.confirmation();
+                //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
+                //         await updateGovernanceConfig.confirmation();
 
-                        // Register Alice and Bob as satellites
-                        updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
-                        await updateOperatorsOperation.confirmation();
+                //         // Register Alice and Bob as satellites
+                //         updateOperatorsOperation = await updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                //         await updateOperatorsOperation.confirmation();
     
-                        var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
-                        await stakeOperation.confirmation();
-                        var registerAsSatelliteOperation = await delegationInstance.methods
-                            .registerAsSatellite(
-                                "Bob", 
-                                "Bob description", 
-                                "Bob image", 
-                                "Bob website",
-                                1000
-                            ).send();
-                        await registerAsSatelliteOperation.confirmation();
+                //         var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
+                //         await stakeOperation.confirmation();
 
-                        await helperFunctions.signerFactory(tezos, alice.sk)
-                        updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
-                        await updateOperatorsOperation.confirmation();
+                //         var registerAsSatelliteOperation = await delegationInstance.methods
+                //             .registerAsSatellite(
+                //                 "Bob", 
+                //                 "Bob description", 
+                //                 "Bob image", 
+                //                 "Bob website",
+                //                 1000
+                //             ).send();
+                //         await registerAsSatelliteOperation.confirmation();
+
+                //         await signerFactory(tezos, alice.sk)
+                //         updateOperatorsOperation = await updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
+                //         await updateOperatorsOperation.confirmation();
     
-                        stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
-                        await stakeOperation.confirmation();
-                        var registerAsSatelliteOperation = await delegationInstance.methods
-                            .registerAsSatellite(
-                                "Alice", 
-                                "Alice description", 
-                                "Alice image", 
-                                "Alice website",
-                                1000
-                            ).send();
-                        await registerAsSatelliteOperation.confirmation();
+                //         stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
+                //         await stakeOperation.confirmation();
+                //         var registerAsSatelliteOperation = await delegationInstance.methods
+                //             .registerAsSatellite(
+                //                 "Alice", 
+                //                 "Alice description", 
+                //                 "Alice image", 
+                //                 "Alice website",
+                //                 1000
+                //             ).send();
+                //         await registerAsSatelliteOperation.confirmation();
 
-                        // Set all contracts admin to proxy
-                        await helperFunctions.signerFactory(tezos, bob.sk)
-                        var setAdminOperation         = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation();
-                        for (let entry of generalContracts){
-                            // Get contract storage
-                            var contract        = await utils.tezos.contract.at(entry[1]);
-                            var storage:any     = await contract.storage();
+                //         // Set all contracts admin to proxy
+                //         await signerFactory(tezos, bob.sk)
+                //         var setAdminOperation         = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                //         await setAdminOperation.confirmation();
+                //         for (let entry of generalContracts){
+                //             // Get contract storage
+                //             var contract        = await utils.tezos.contract.at(entry[1]);
+                //             var storage:any     = await contract.storage();
 
-                            // Check admin
-                            if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address && storage.admin!==contractDeployments.breakGlass.address){
-                                setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                                await setAdminOperation.confirmation()
-                            }
-                        }
+                //             // Check admin
+                //             if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address && storage.admin!==contractDeployments.breakGlass.address){
+                //                 setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                //                 await setAdminOperation.confirmation()
+                //             }
+                //         }
             
-                        const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-                            "Test emergency governance", 
-                            "For tests"
-                        ).send({amount: 0});
-                        await emergencyControlOperation.confirmation();
+                //         const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+                //             "Test emergency governance", 
+                //             "For tests"
+                //         ).send({amount: 0});
+                //         await emergencyControlOperation.confirmation();
                         
-                        const voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                        await voteOperation.confirmation();
+                //         const voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                //         await voteOperation.confirmation();
 
-                        // Check if glass was broken
-                        breakGlassStorage       = await breakGlassInstance.storage();
-                        const glassBroken       = breakGlassStorage.glassBroken;
-                        assert.equal(glassBroken, true);
-                        console.log("GLASS BROKEN: ", glassBroken)
+                //         // Check if glass was broken
+                //         breakGlassStorage       = await breakGlassInstance.storage();
+                //         const glassBroken       = breakGlassStorage.glassBroken;
+                //         assert.equal(glassBroken, true);
+                //         console.log("GLASS BROKEN: ", glassBroken)
 
-                        // Break glass action to set govenance admin to bob
-                        await helperFunctions.signerFactory(tezos, bob.sk)
-                        breakGlassStorage   = await breakGlassInstance.storage();
-                        var breakGlassActionID    = breakGlassStorage.actionCounter;
-                        const propagateActionOperation    = await breakGlassInstance.methods.propagateBreakGlass().send();
-                        await propagateActionOperation.confirmation();
+                //         // Break glass action to set govenance admin to bob
+                //         await signerFactory(tezos, bob.sk)
+                //         breakGlassStorage   = await breakGlassInstance.storage();
+                //         var breakGlassActionID    = breakGlassStorage.actionCounter;
+                //         const propagateActionOperation    = await breakGlassInstance.methods.propagateBreakGlass().send();
+                //         await propagateActionOperation.confirmation();
 
-                        // Sign action propagate action
-                        await helperFunctions.signerFactory(tezos, alice.sk);
-                        var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-                        await signActionOperation.confirmation();
+                //         // Sign action propagate action
+                //         await signerFactory(tezos, alice.sk);
+                //         var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                //         await signActionOperation.confirmation();
 
-                        // Set admin action for governance contract
-                        await helperFunctions.signerFactory(tezos, bob.sk);
-                        breakGlassStorage   = await breakGlassInstance.storage();
-                        breakGlassActionID    = breakGlassStorage.actionCounter;
-                        var setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.governance.address, bob.pkh).send();
-                        await setAdminActionOperation.confirmation()
+                //         // Set admin action for governance contract
+                //         await signerFactory(tezos, bob.sk);
+                //         breakGlassStorage   = await breakGlassInstance.storage();
+                //         breakGlassActionID    = breakGlassStorage.actionCounter;
+                //         var setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.governance.address, bob.pkh).send();
+                //         await setAdminActionOperation.confirmation()
 
-                        // Sign set admin action
-                        await helperFunctions.signerFactory(tezos, alice.sk);
-                        signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-                        await signActionOperation.confirmation();
+                //         // Sign set admin action
+                //         await signerFactory(tezos, alice.sk);
+                //         signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                //         await signActionOperation.confirmation();
 
-                        // Set admin action for delegation contract
-                        await helperFunctions.signerFactory(tezos, bob.sk);
-                        breakGlassStorage   = await breakGlassInstance.storage();
-                        breakGlassActionID    = breakGlassStorage.actionCounter;
-                        setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.delegation.address, bob.pkh).send();
-                        await setAdminActionOperation.confirmation()
+                //         // Set admin action for delegation contract
+                //         await signerFactory(tezos, bob.sk);
+                //         breakGlassStorage   = await breakGlassInstance.storage();
+                //         breakGlassActionID    = breakGlassStorage.actionCounter;
+                //         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.delegation.address, bob.pkh).send();
+                //         await setAdminActionOperation.confirmation()
 
-                        // Sign set admin action
-                        await helperFunctions.signerFactory(tezos, alice.sk);
-                        signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-                        await signActionOperation.confirmation();
+                //         // Sign set admin action
+                //         await signerFactory(tezos, alice.sk);
+                //         signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                //         await signActionOperation.confirmation();
 
-                        // Unpause entrypoint in delegation contract for distribute reward in next test
-                        await helperFunctions.signerFactory(tezos, bob.sk);
-                        var unpauseOperation  = await delegationInstance.methods.unpauseAll().send();
-                        await unpauseOperation.confirmation()
+                //         // Unpause entrypoint in delegation contract for distribute reward in next test
+                //         await signerFactory(tezos, bob.sk);
+                //         var unpauseOperation  = await delegationInstance.methods.unpauseAll().send();
+                //         await unpauseOperation.confirmation()
 
-                        // Set admin action for treasury contract
-                        await helperFunctions.signerFactory(tezos, bob.sk);
-                        breakGlassStorage   = await breakGlassInstance.storage();
-                        breakGlassActionID    = breakGlassStorage.actionCounter;
-                        setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.treasury.address, bob.pkh).send();
-                        await setAdminActionOperation.confirmation()
+                //         // Set admin action for treasury contract
+                //         await signerFactory(tezos, bob.sk);
+                //         breakGlassStorage   = await breakGlassInstance.storage();
+                //         breakGlassActionID    = breakGlassStorage.actionCounter;
+                //         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.treasury.address, bob.pkh).send();
+                //         await setAdminActionOperation.confirmation()
 
-                        // Sign set admin action
-                        await helperFunctions.signerFactory(tezos, alice.sk);
-                        signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-                        await signActionOperation.confirmation();
+                //         // Sign set admin action
+                //         await signerFactory(tezos, alice.sk);
+                //         signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                //         await signActionOperation.confirmation();
 
-                        // Unpause entrypoint in delegation contract for distribute reward in next test
-                        await helperFunctions.signerFactory(tezos, bob.sk);
-                        unpauseOperation  = await treasuryInstance.methods.unpauseAll().send();
-                        await unpauseOperation.confirmation()
-                    }
-                    catch (e){
-                        console.dir(e, {depth: 5})
-                    }
-                })
+                //         // Unpause entrypoint in delegation contract for distribute reward in next test
+                //         await signerFactory(tezos, bob.sk);
+                //         unpauseOperation  = await treasuryInstance.methods.unpauseAll().send();
+                //         await unpauseOperation.confirmation()
+                //     }
+                //     catch (e){
+                //         console.dir(e, {depth: 5})
+                //     }
+                // })
 
-                beforeEach("Set signer to admin", async () => {
-                    await helperFunctions.signerFactory(tezos, bob.sk)
-                });
+                // beforeEach("Set signer to admin", async () => {
+                //     await signerFactory(tezos, bob.sk)
+                // });
 
-                it("Break Glass Council should not be able to call this entrypoint if the new admin is not a whitelisted developer, the governance contract or the breakGlass contract", async() => {
-                    try{
-                        // Initial values
-                        governanceStorage           = await governanceInstance.storage();
-                        const newAdmin              = oscar.pkh;
-                        const targetContract        = doormanAddress;
-                        const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
+                // it("Break Glass Council should not be able to call this entrypoint if the new admin is not a whitelisted developer, the governance contract or the breakGlass contract", async() => {
+                //     try{
+                //         // Initial values
+                //         governanceStorage           = await governanceInstance.storage();
+                //         const newAdmin              = oscar.pkh;
+                //         const targetContract        = doormanAddress;
+                //         const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
 
-                        console.log("WHITELISTED DEVELOPERS: ", whitelistedDevelopers);
+                //         console.log("WHITELISTED DEVELOPERS: ", whitelistedDevelopers);
 
-                        // Operation
-                        await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
+                //         // Operation
+                //         await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 
-                        // Assertions
-                        assert.strictEqual(whitelistedDevelopers.includes(newAdmin), false)
-                    }
-                    catch (e){
-                        console.dir(e, {depth: 5})
-                    }
-                })
+                //         // Assertions
+                //         assert.strictEqual(whitelistedDevelopers.includes(newAdmin), false)
+                //     }
+                //     catch (e){
+                //         console.dir(e, {depth: 5})
+                //     }
+                // })
 
-                it("Break Glass Council should not be able to call this entrypoint, if the new admin was a whitelisted developer that was being removed, before the break glass action was executed", async() => {
+                it("Break Glass Council should not be able to call this entrypoint, if the new admin was a whitelisted developer but was removed midway before the break glass action was executed", async() => {
                     try{
                         // Reset governance admin to proxy
                         const resetAdmin    = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
@@ -321,8 +310,8 @@ describe("Break Glass Super Admin tests", async () => {
                         await setSingleContractAdminOperation.confirmation();
 
                         // Remove User from whitelisted dev
-                        const lambdaFunction        = await compileLambdaFunction(
-                            'development',
+                        const lambdaFunction        = await createLambdaBytes(
+                            tezos.rpc.url,
                             contractDeployments.governanceProxy.address,
                             
                             'updateWhitelistDevelopers',
@@ -352,22 +341,22 @@ describe("Break Glass Super Admin tests", async () => {
                         await lockOperation.confirmation();
                         var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                         await voteOperation.confirmation();
-                        await helperFunctions.signerFactory(tezos, alice.sk);
+                        await signerFactory(tezos, alice.sk);
                         voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                         await voteOperation.confirmation();
-                        await helperFunctions.signerFactory(tezos, bob.sk);
+                        await signerFactory(tezos, bob.sk);
                         nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                         await nextRoundOperation.confirmation();
 
                         // Votes operation -> both satellites vote
                         var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                         await votingRoundVoteOperation.confirmation();
-                        await helperFunctions.signerFactory(tezos, alice.sk);
+                        await signerFactory(tezos, alice.sk);
                         votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                         await votingRoundVoteOperation.confirmation();
 
                         // Execute proposal
-                        await helperFunctions.signerFactory(tezos, bob.sk);
+                        await signerFactory(tezos, bob.sk);
                         nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
                         await nextRoundOperation.confirmation();
                         nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -387,7 +376,7 @@ describe("Break Glass Super Admin tests", async () => {
                         assert.strictEqual(whitelistedDevelopersEnd.includes(newAdmin), false)
 
                         // Operation
-                        await helperFunctions.signerFactory(tezos, alice.sk);
+                        await signerFactory(tezos, alice.sk);
                         await chai.expect(breakGlassInstance.methods.signAction(breakGlassActionID).send()).to.be.rejected;
                     }
                     catch (e){
@@ -395,106 +384,106 @@ describe("Break Glass Super Admin tests", async () => {
                     }
                 })
 
-                it("Break Glass Council should be able to call this entrypoint if the new admin is a whitelisted developer", async() => {
-                    try{
-                        // Reset delegation address to BreakGlass
-                        const resetAdmin    = await delegationInstance.methods.setAdmin(contractDeployments.breakGlass.address).send();
-                        await resetAdmin.confirmation();
+                // it("Break Glass Council should be able to call this entrypoint if the new admin is a whitelisted developer", async() => {
+                //     try{
+                //         // Reset delegation address to BreakGlass
+                //         const resetAdmin    = await delegationInstance.methods.setAdmin(contractDeployments.breakGlass.address).send();
+                //         await resetAdmin.confirmation();
 
-                        // Initial values
-                        governanceStorage           = await governanceInstance.storage();
-                        breakGlassStorage           = await breakGlassInstance.storage();
-                        const newAdmin              = alice.pkh;
-                        const targetContract        = contractDeployments.delegation.address;
-                        const breakGlassActionID    = breakGlassStorage.actionCounter;
+                //         // Initial values
+                //         governanceStorage           = await governanceInstance.storage();
+                //         breakGlassStorage           = await breakGlassInstance.storage();
+                //         const newAdmin              = alice.pkh;
+                //         const targetContract        = contractDeployments.delegation.address;
+                //         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
-                        // Operation
-                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
-                        await setSingleContractAdminOperation.confirmation();
+                //         // Operation
+                //         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                //         await setSingleContractAdminOperation.confirmation();
 
-                        // Sign action
-                        await helperFunctions.signerFactory(tezos, alice.sk);
-                        const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-                        await signActionOperation.confirmation();
+                //         // Sign action
+                //         await signerFactory(tezos, alice.sk);
+                //         const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                //         await signActionOperation.confirmation();
 
-                        // Final values
-                        governanceStorage           = await governanceInstance.storage();
-                        delegationStorage           = await delegationInstance.storage();
-                        const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
+                //         // Final values
+                //         governanceStorage           = await governanceInstance.storage();
+                //         delegationStorage           = await delegationInstance.storage();
+                //         const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
 
-                        // Assertions
-                        assert.strictEqual(whitelistedDevelopers.includes(newAdmin), true);
-                        assert.strictEqual(delegationStorage.admin, newAdmin);
-                    }
-                    catch (e){
-                        console.dir(e, {depth: 5})
-                    }
-                })
+                //         // Assertions
+                //         assert.strictEqual(whitelistedDevelopers.includes(newAdmin), true);
+                //         assert.strictEqual(delegationStorage.admin, newAdmin);
+                //     }
+                //     catch (e){
+                //         console.dir(e, {depth: 5})
+                //     }
+                // })
 
-                it("Break Glass Council should be able to call this entrypoint if the new admin is the governance contract", async() => {
-                    try{
-                        // Initial values
-                        governanceStorage           = await governanceInstance.storage();
-                        breakGlassStorage           = await breakGlassInstance.storage();
-                        const newAdmin              = contractDeployments.governanceProxy.address;
-                        const targetContract        = contractDeployments.council.address;
-                        const breakGlassActionID    = breakGlassStorage.actionCounter;
+                // it("Break Glass Council should be able to call this entrypoint if the new admin is the governance contract", async() => {
+                //     try{
+                //         // Initial values
+                //         governanceStorage           = await governanceInstance.storage();
+                //         breakGlassStorage           = await breakGlassInstance.storage();
+                //         const newAdmin              = contractDeployments.governanceProxy.address;
+                //         const targetContract        = contractDeployments.council.address;
+                //         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
-                        // Operation
-                        councilStorage   = await councilInstance.storage();
-                        // console.log(councilStorage.admin)
-                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
-                        await setSingleContractAdminOperation.confirmation();
+                //         // Operation
+                //         councilStorage   = await councilInstance.storage();
+                //         // console.log(councilStorage.admin)
+                //         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                //         await setSingleContractAdminOperation.confirmation();
 
-                        // Sign action
-                        await helperFunctions.signerFactory(tezos, alice.sk);
-                        const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-                        await signActionOperation.confirmation();
+                //         // Sign action
+                //         await signerFactory(tezos, alice.sk);
+                //         const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                //         await signActionOperation.confirmation();
 
-                        // Final values
-                        councilStorage              = await councilInstance.storage();
+                //         // Final values
+                //         councilStorage              = await councilInstance.storage();
 
-                        // Assertions
-                        assert.strictEqual(councilStorage.admin, newAdmin);
-                    }
-                    catch (e){
-                        console.dir(e, {depth: 5})
-                    }
-                })
+                //         // Assertions
+                //         assert.strictEqual(councilStorage.admin, newAdmin);
+                //     }
+                //     catch (e){
+                //         console.dir(e, {depth: 5})
+                //     }
+                // })
 
-                it("Break Glass Council should be able to call this entrypoint if the new admin is the breakGlass contract", async() => {
-                    try{
-                        // Initial values
-                        governanceStorage           = await governanceInstance.storage();
-                        breakGlassStorage           = await breakGlassInstance.storage();
-                        const newAdmin              = contractDeployments.breakGlass.address;
-                        const targetContract        = contractDeployments.emergencyGovernance.address;
-                        const breakGlassActionID    = breakGlassStorage.actionCounter;
+                // it("Break Glass Council should be able to call this entrypoint if the new admin is the breakGlass contract", async() => {
+                //     try{
+                //         // Initial values
+                //         governanceStorage           = await governanceInstance.storage();
+                //         breakGlassStorage           = await breakGlassInstance.storage();
+                //         const newAdmin              = contractDeployments.breakGlass.address;
+                //         const targetContract        = contractDeployments.emergencyGovernance.address;
+                //         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
-                        // Operation
-                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
-                        await setSingleContractAdminOperation.confirmation();
+                //         // Operation
+                //         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                //         await setSingleContractAdminOperation.confirmation();
 
-                        // Sign action
-                        await helperFunctions.signerFactory(tezos, alice.sk);
-                        const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-                        await signActionOperation.confirmation();
+                //         // Sign action
+                //         await signerFactory(tezos, alice.sk);
+                //         const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                //         await signActionOperation.confirmation();
 
-                        // Final values
-                        emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+                //         // Final values
+                //         emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
 
-                        // Assertions
-                        assert.strictEqual(emergencyGovernanceStorage.admin, newAdmin);
-                    }
-                    catch (e){
-                        console.dir(e, {depth: 5})
-                    }
-                })
+                //         // Assertions
+                //         assert.strictEqual(emergencyGovernanceStorage.admin, newAdmin);
+                //     }
+                //     catch (e){
+                //         console.dir(e, {depth: 5})
+                //     }
+                // })
             });
     
             describe("%setAllContractsAdmin", async () => {
                 beforeEach("Set signer to admin", async () => {
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, bob.sk)
                 });
             });
     

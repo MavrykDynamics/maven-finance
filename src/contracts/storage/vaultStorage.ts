@@ -11,7 +11,7 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'Alice\'s MAVRYK Vault',
+        name: 'MAVRYK Vault',
         version: 'v1.0.0',
         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
         source: {

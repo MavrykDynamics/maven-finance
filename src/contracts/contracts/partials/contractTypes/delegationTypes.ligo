@@ -7,8 +7,10 @@ type satelliteRewardsType is [@layout:comb] record [
     unpaid                                  : nat;
     paid                                    : nat;
     participationRewardsPerShare            : nat;
-    satelliteAccumulatedRewardsPerShare     : nat; // 0n if delegate
+    satelliteAccumulatedRewardsPerShare     : nat;      // 0n if delegate
     satelliteReferenceAddress               : address;
+    referenceGovernanceCycleId              : nat;      // governance cycle id reference
+    tracked                                 : bool;     // if rewards have started to be tracked
 ];
 type satelliteRewardsLedgerType is big_map (address, satelliteRewardsType)
 

@@ -185,6 +185,11 @@ describe("Test: Delegation Contract", async () => {
 
                 }; 
 
+                // update user staked balance for assertion check below (satellite's staked mvk balance)
+                doormanStorage                      = await doormanInstance.storage();
+                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
+
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
 
@@ -208,7 +213,7 @@ describe("Test: Delegation Contract", async () => {
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                     assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                     assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    stakeAmount);
+                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
                     assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -1878,16 +1883,16 @@ describe("Test: Delegation Contract", async () => {
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
-                delegationStorage        = await delegationInstance.storage();
-                const currentAdmin  = doormanStorage.admin;
+                delegationStorage   = await delegationInstance.storage();
+                const currentAdmin  = delegationStorage.admin;
 
                 // Operation
                 setAdminOperation = await delegationInstance.methods.setAdmin(mallory.pkh);
                 await chai.expect(setAdminOperation.send()).to.be.rejected;
 
                 // Final values
-                delegationStorage    = await delegationInstance.storage();
-                const newAdmin  = delegationStorage.admin;
+                delegationStorage   = await delegationInstance.storage();
+                const newAdmin      = delegationStorage.admin;
 
                 // Assertions
                 assert.strictEqual(newAdmin, currentAdmin);
@@ -2097,6 +2102,51 @@ describe("Test: Delegation Contract", async () => {
 
                 unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("distributeReward", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+
+        it("%distributeReward         - non-admin (mallory) should not be able to call this entrypoint", async() => {
+            try{
+
+                const distributeRewardOperation = delegationInstance.methods.distributeReward([eve.pkh],MVK(50)); 
+                await chai.expect(distributeRewardOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%onStakeChange            - non-admin (mallory) should not be able to call this entrypoint", async() => {
+            try{
+
+                // calling onStakeChange on herself
+                var onStakeChangeOperation = delegationInstance.methods.onStakeChange(mallory.pkh); 
+                await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
+
+                // calling onStakeChange on satellite (eve)
+                onStakeChangeOperation = delegationInstance.methods.onStakeChange(eve.pkh); 
+                await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%updateSatelliteStatus    - non-admin (mallory) should not be able to call this entrypoint", async() => {
+            try{
+
+                var updateSatelliteStatusOperation = delegationInstance.methods.updateSatelliteStatus(eve.pkh, "SUSPENDED"); 
+                await chai.expect(updateSatelliteStatusOperation.send()).to.be.rejected;
+
+                updateSatelliteStatusOperation = delegationInstance.methods.updateSatelliteStatus(eve.pkh, "BANNED"); 
+                await chai.expect(updateSatelliteStatusOperation.send()).to.be.rejected;
+
+                updateSatelliteStatusOperation = delegationInstance.methods.updateSatelliteStatus(eve.pkh, "ACTIVE"); 
+                await chai.expect(updateSatelliteStatusOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})

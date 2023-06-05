@@ -32,6 +32,7 @@ type financialRequestRecordType is [@layout:comb] record [
     nayVoteStakedMvkTotal               : nat;
     passVoteStakedMvkTotal              : nat;
 
+    governanceCycleId                   : nat;
     snapshotStakedMvkTotalSupply        : nat;
     stakedMvkPercentageForApproval      : nat; 
     stakedMvkRequiredForApproval        : nat; 
@@ -46,7 +47,7 @@ type financialRequestLedgerType is big_map (actionIdType, financialRequestRecord
 // ------------------------------------------------------------------------------
 
 type governanceFinancialConfigType is [@layout:comb] record [
-    financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
+    approvalPercentage                  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
     financialRequestDurationInDays      : nat;  // duration of final request before expiry
 ]
 
@@ -65,7 +66,7 @@ type governanceFinancialUpdateConfigNewValueType is nat
 
 
 type governanceFinancialUpdateConfigActionType is
-    |   ConfigFinancialReqApprovalPct     of unit
+    |   ConfigApprovalPercentage          of unit
     |   ConfigFinancialReqDurationDays    of unit
 
 type governanceFinancialUpdateConfigParamsType is [@layout:comb] record [

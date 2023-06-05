@@ -18,7 +18,7 @@ import contractDeployments from '../contractDeployments.json'
 
 import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
 import { bob } from '../../scripts/sandbox/accounts'
-import * as helperFunctions from '../helpers/helperFunctions'
+import { signerFactory } from "../helpers/helperFunctions" 
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -53,7 +53,7 @@ describe('Treasury', async () => {
             /* ---- ---- ---- ---- ---- */
         
             tezos = treasury.tezos
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
         
             // Set Lambdas
             await setGeneralContractLambdas(tezos, "treasury", treasury.contract);
