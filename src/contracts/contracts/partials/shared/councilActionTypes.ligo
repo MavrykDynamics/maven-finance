@@ -22,7 +22,7 @@ type councilMemberInfoType is [@layout:comb] record [
     website       : string;
     image         : string;
 ]
-type councilMembersType is map(address, councilMemberInfoType)
+type councilMembersType is big_map(address, councilMemberInfoType)
 
 type actionIdType is (nat)
 type signersType is set(address)

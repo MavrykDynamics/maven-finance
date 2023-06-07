@@ -84,7 +84,7 @@ block {
                 const updateConfigNewValue  : councilUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                        ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
+                        ConfigThreshold (_v)                  -> if updateConfigNewValue > s.councilSize then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
                     |   ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
                     |   ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue
                     |   ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
@@ -148,7 +148,7 @@ block {
         |   LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
                 
                 // Check if sender is a member of the council
-                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.get_sender(), s.councilMembers) of [
+                var councilMember: councilMemberInfoType := case Big_map.find_opt(Tezos.get_sender(), s.councilMembers) of [
                         Some (_info) -> _info
                     |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 ];

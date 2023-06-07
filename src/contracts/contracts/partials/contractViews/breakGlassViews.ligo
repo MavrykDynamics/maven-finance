@@ -22,9 +22,9 @@
 
 
 
-(* View: get council members *)
-[@view] function getCouncilMembers(const _ : unit; const s : breakGlassStorageType) : councilMembersType is
-    s.councilMembers
+(* View: get council member opt *)
+[@view] function getCouncilMemberOpt(const councilMemberAddress : address; const s : breakGlassStorageType) : option(councilMemberInfoType) is
+    Big_map.find_opt(councilMemberAddress, s.councilMembers)
 
 
 
