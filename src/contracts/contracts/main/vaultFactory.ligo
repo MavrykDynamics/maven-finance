@@ -61,7 +61,6 @@ type vaultFactoryAction is
     
         // Lambda Entrypoints
     |   SetLambda                   of setLambdaType
-    |   SetProductLambda            of setLambdaType
 
 
 type return is list (operation) * vaultFactoryStorageType
@@ -126,6 +125,5 @@ function main (const action : vaultFactoryAction; var s : vaultFactoryStorageTyp
 
             // Lambda Entrypoints
         |   SetLambda (parameters)                  -> setLambda(parameters, s)
-        |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
     ]
 

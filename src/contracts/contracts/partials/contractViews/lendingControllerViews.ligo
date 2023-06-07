@@ -87,13 +87,7 @@ block {
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName : string; var s : lendingControllerStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : lendingControllerStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //
