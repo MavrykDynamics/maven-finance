@@ -54,8 +54,13 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             ;;
         councilTest)
         echo "Deploying council"
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/00_deploy_mvk.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/01_deploy_governance.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/02_deploy_doorman.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/03_deploy_delegation.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/05_deploy_vesting.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/09_deploy_council.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/11_deploy_governance_financial.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x2_setup_funds.spec.ts --bail --timeout 9000000")
             ;;
@@ -82,6 +87,7 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             echo "Deploying emergencyGovernance"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/01_deploy_governance.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/04_deploy_emergency_governance.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/09_deploy_council.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/10_deploy_break_glass.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/12_deploy_treasury.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 9000000")
