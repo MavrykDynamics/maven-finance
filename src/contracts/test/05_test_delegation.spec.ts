@@ -219,7 +219,7 @@ describe("Test: Delegation Contract", async () => {
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
                     // check user's staked balance is updated
-                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
+                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance);
                 }
 
             } catch(e){
@@ -262,7 +262,9 @@ describe("Test: Delegation Contract", async () => {
                 }; 
 
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
-                initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
+                doormanStorage           = await doormanInstance.storage();
+                initialUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
                 if(initialSatelliteRecord == null){
@@ -293,7 +295,7 @@ describe("Test: Delegation Contract", async () => {
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
                     // check user's staked balance is updated
-                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
+                    assert.equal(updatedUserStakedBalance   , initialUserStakedBalance);
                 }
 
             } catch(e){
@@ -1956,7 +1958,7 @@ describe("Test: Delegation Contract", async () => {
                 // Initial Values
                 delegationStorage                   = await delegationInstance.storage();
                 const initialConfigValue            = delegationStorage.config.minimumStakedMvkBalance;
-                const newMinimumStakedMvkBalance    = MVK(10);
+                const newMinimumStakedMvkBalance    = MVK(11.11);
 
                 // Operation
                 const updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkBalance, "configMinimumStakedMvkBalance");

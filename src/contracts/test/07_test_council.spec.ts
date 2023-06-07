@@ -157,6 +157,10 @@ describe("Test: Council Contract", async () => {
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
+        // Operation
+        const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+        await startNextRoundOperation.confirmation();
+
     });
 
 
