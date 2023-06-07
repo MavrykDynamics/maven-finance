@@ -48,25 +48,19 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName : string; const s : farmFactoryStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : farmFactoryStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get a farm lambda *)
-[@view] function farmLambdaOpt(const lambdaName : string; const s : farmFactoryStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.farmLambdaLedger)
+[@view] function getFarmLambdaOpt(const lambdaName : string; const s : farmFactoryStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.farmLambdaLedger)
 
 
 
-(* View: get the farm lambda ledger *)
-[@view] function farmLambdaLedger(const _ : unit; const s : farmFactoryStorageType) : lambdaLedgerType is
-    s.farmLambdaLedger
+(* View: get a mfarm lambda *)
+[@view] function getMFarmLambdaOpt(const lambdaName : string; const s : farmFactoryStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.mFarmLambdaLedger)
 
 // ------------------------------------------------------------------------------
 //
