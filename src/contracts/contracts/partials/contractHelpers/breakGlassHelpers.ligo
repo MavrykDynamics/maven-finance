@@ -12,7 +12,7 @@
 function verifySenderIsCouncilMember(var s : breakGlassStorageType) : unit is
 block {
     
-    if Map.mem(Tezos.get_sender(), s.councilMembers) then skip
+    if Big_map.mem(Tezos.get_sender(), s.councilMembers) then skip
     else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 } with unit
@@ -143,7 +143,7 @@ block {
 function verifyCouncilMemberExists(const councilMemberAddress : address; const  s : breakGlassStorageType) : unit is 
 block {
 
-    if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+    if not Big_map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
     else skip;
 
 } with unit
@@ -154,7 +154,7 @@ block {
 function verifyCouncilMemberDoesNotExist(const councilMemberAddress : address; const  s : breakGlassStorageType) : unit is 
 block {
 
-    if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
+    if Big_map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
     else skip;
 
 } with unit
@@ -165,7 +165,7 @@ block {
 function verifyValidCouncilThreshold(const  s : breakGlassStorageType) : unit is 
 block {
 
-    if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
+    if (abs(s.councilSize - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
     else skip;
 
 } with unit
@@ -363,8 +363,11 @@ block {
     ];
 
     // Check if new council member is already in the council
-    if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
-    else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
+    if Big_map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
+    else{
+        s.councilMembers    := Big_map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
+        s.councilSize       := s.councilSize + 1n;
+    }
 
 } with (s)
 
@@ -384,7 +387,8 @@ block {
     // Check if removing the council member won't impact the threshold
     verifyValidCouncilThreshold(s);
 
-    s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
+    s.councilMembers    := Big_map.remove(councilMemberAddress, s.councilMembers);
+    s.councilSize       := abs(s.councilSize - 1n);
 
 } with (s)
 
@@ -419,8 +423,8 @@ block {
         website = newCouncilMemberWebsite;
     ];
 
-    s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
-    s.councilMembers := Map.remove(oldCouncilMemberAddress, s.councilMembers);
+    s.councilMembers := Big_map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
+    s.councilMembers := Big_map.remove(oldCouncilMemberAddress, s.councilMembers);
 
 } with (s)
 
