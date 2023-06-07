@@ -190,7 +190,7 @@ describe("Test: Break Glass Contract", async () => {
                 
                 // initial storage
                 breakGlassStorage               = await breakGlassInstance.storage();
-                const initialCouncilMemberInfo  = breakGlassStorage.councilMembers.get(councilMember);
+                const initialCouncilMemberInfo  = await breakGlassStorage.councilMembers.get(councilMember);
                 
                 const oldMemberName     = initialCouncilMemberInfo.name
                 const oldMemberImage    = initialCouncilMemberInfo.image
@@ -206,8 +206,8 @@ describe("Test: Break Glass Contract", async () => {
                 await councilActionOperation.confirmation();
 
                 // Final values
-                breakGlassStorage             = await breakGlassInstance.storage();
-                const updatedCouncilMemberInfo   = breakGlassStorage.councilMembers.get(councilMember);
+                breakGlassStorage               = await breakGlassInstance.storage();
+                const updatedCouncilMemberInfo   = await breakGlassStorage.councilMembers.get(councilMember);
 
                 // Assertions
                 assert.strictEqual(updatedCouncilMemberInfo.name       , newMemberName);
@@ -326,7 +326,7 @@ describe("Test: Break Glass Contract", async () => {
                 
                 breakGlassStorage       = await breakGlassInstance.storage();
                 const oldThreshold      = breakGlassStorage.config.threshold;
-                const newThreshold      = breakGlassStorage.councilMembers.size;
+                const newThreshold      = breakGlassStorage.councilSize;
                 
                 // set signer as admin and update config
                 await helperFunctions.signerFactory(tezos, adminSk);
@@ -836,6 +836,7 @@ describe("Test: Break Glass Contract", async () => {
                 const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
                 const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
                 const signerThreshold               = breakGlassStorage.config.threshold;
+                const councilSize                   = breakGlassStorage.councilSize;
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -862,12 +863,14 @@ describe("Test: Break Glass Contract", async () => {
                 breakGlassStorage       = await breakGlassInstance.storage();
                 action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
 
-                const newCouncilStorage = breakGlassStorage.councilMembers.has(newCouncilMember)
+                const newCouncilStorage = await breakGlassStorage.councilMembers.get(newCouncilMember);
+                const newCouncilSize    = breakGlassStorage.councilSize;
 
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
                 assert.equal(action.status, "EXECUTED");
-                assert.equal(newCouncilStorage, true);
+                assert.notStrictEqual(newCouncilStorage, undefined);
+                assert.deepEqual(newCouncilSize, councilSize.plus(1))
 
                 // Operation
                 await helperFunctions.signerFactory(tezos, councilMemberOneSk);
@@ -1407,7 +1410,8 @@ describe("Test: Break Glass Contract", async () => {
                 const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
                 const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
                 const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
-                const signerThreshold   = breakGlassStorage.config.threshold;
+                const signerThreshold               = breakGlassStorage.config.threshold;
+                const councilSize                   = breakGlassStorage.councilSize;
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1438,8 +1442,10 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
                 assert.equal(action.status, "EXECUTED");
 
-                const newCouncilStorage = breakGlassStorage.councilMembers.has(newCouncilMember)
-                assert.equal(newCouncilStorage, true);
+                const newCouncilStorage = await breakGlassStorage.councilMembers.get(newCouncilMember)
+                const newCouncilSize    = breakGlassStorage.councilSize;
+                assert.deepEqual(newCouncilSize, councilSize.plus(1));
+                assert.notStrictEqual(newCouncilStorage, undefined);
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -1463,7 +1469,8 @@ describe("Test: Break Glass Contract", async () => {
                 const actionSigner                  = action.signers.includes(councilMember)
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: removedCouncilMember }, type: { prim: 'address' } })).packed
-                const signerThreshold   = breakGlassStorage.config.threshold;
+                const signerThreshold               = breakGlassStorage.config.threshold;
+                const councilSize                   = breakGlassStorage.councilSize;
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1491,8 +1498,10 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
                 assert.equal(action.status, "EXECUTED");
 
-                const newCouncilStorage = breakGlassStorage.councilMembers.has(removedCouncilMember)
-                assert.equal(newCouncilStorage, false);
+                const newCouncilStorage = await breakGlassStorage.councilMembers.get(removedCouncilMember)
+                const newCouncilSize    = breakGlassStorage.councilSize;
+                assert.strictEqual(newCouncilStorage, undefined);
+                assert.deepEqual(newCouncilSize, councilSize.minus(1))
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -1518,7 +1527,7 @@ describe("Test: Break Glass Contract", async () => {
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
-                const councilMembersSize            = councilStorage.councilMembers.size;   // 4 
+                const councilMembersSize            = councilStorage.councilSize;   // 4 
                 const oldThreshold                  = councilStorage.config.threshold;      // 3
                 const newThreshold                  = councilMembersSize;                   // 4
 
@@ -1582,6 +1591,7 @@ describe("Test: Break Glass Contract", async () => {
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
+                const councilSize                       = breakGlassStorage.councilSize;
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1609,8 +1619,9 @@ describe("Test: Break Glass Contract", async () => {
                 var actionSigner    = action.signers.includes(councilMember)
                 dataMap             = await action.dataMap;
 
-                const memberRemoved = breakGlassStorage.councilMembers.has(oldMemberAddress);
-                const memberAdded   = breakGlassStorage.councilMembers.has(newMemberAddress);
+                const memberRemoved = await breakGlassStorage.councilMembers.get(oldMemberAddress);
+                const memberAdded   = await breakGlassStorage.councilMembers.get(newMemberAddress);
+                const newCouncilSize= breakGlassStorage.councilSize;
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1621,8 +1632,9 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
-                assert.equal(memberRemoved, false);
-                assert.equal(memberAdded, true);
+                assert.strictEqual(memberRemoved, undefined);
+                assert.notStrictEqual(memberAdded, undefined);
+                assert.deepEqual(newCouncilSize, councilSize);
 
                 // Reset change - set alice back as council member
                 breakGlassStorage   = await breakGlassInstance.storage();
@@ -2679,7 +2691,7 @@ describe("Test: Break Glass Contract", async () => {
                 
                 // Initial Values
                 breakGlassStorage               = await breakGlassInstance.storage();
-                const currentCouncilMembersSize = breakGlassStorage.councilMembers.size;
+                const currentCouncilMembersSize = breakGlassStorage.councilSize;
                 const newThreshold              = currentCouncilMembersSize + 1;
 
                 // update config operations
