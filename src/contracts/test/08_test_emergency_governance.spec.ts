@@ -19,7 +19,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { GeneralContract, setGeneralContractLambdas } from './helpers/deploymentTestHelper'
-import { bob, alice, eve, mallory, oscar } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, oscar, trudy, susie } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
 
 import { breakGlassStorage as resetBreakGlassStorage } from '../storage/breakGlassStorage'
@@ -781,7 +781,7 @@ describe("Emergency Governance tests", async () => {
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await helperFunctions.signerFactory(tezos, trudy.sk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -793,10 +793,10 @@ describe("Emergency Governance tests", async () => {
                 resetBreakGlassStorage.governanceAddress = contractDeployments.governance.address
                 resetBreakGlassStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
             
-                resetBreakGlassStorage.councilMembers.set(bob.pkh, {
-                    name: "Bob",
-                    image: "Bob image",
-                    website: "Bob website"
+                resetBreakGlassStorage.councilMembers.set(trudy.pkh, {
+                    name: "Trudy",
+                    image: "Trudy image",
+                    website: "Trudy website"
                 })
                 resetBreakGlassStorage.councilMembers.set(alice.pkh, {
                     name: "Alice",
@@ -1107,7 +1107,7 @@ describe("Emergency Governance tests", async () => {
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(highTestValue, "configMinStakedMvkForVoting").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(highTestValue, "configMinStakedMvkForTrigger").send();
+                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(highTestValue, "configMinStakedMvkToTrigger").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configProposalTitleMaxLength").send();
@@ -1142,7 +1142,7 @@ describe("Emergency Governance tests", async () => {
                 resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.minStakedMvkRequiredToVote, "configMinStakedMvkForVoting").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.minStakedMvkRequiredToTrigger, "configMinStakedMvkForTrigger").send();
+                resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.minStakedMvkRequiredToTrigger, "configMinStakedMvkToTrigger").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.proposalTitleMaxLength, "configProposalTitleMaxLength").send();
@@ -1396,7 +1396,7 @@ describe("Emergency Governance tests", async () => {
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(highTestValue, "configMinStakedMvkForVoting");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(highTestValue, "configMinStakedMvkForTrigger");
+                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(highTestValue, "configMinStakedMvkToTrigger");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configProposalTitleMaxLength");
