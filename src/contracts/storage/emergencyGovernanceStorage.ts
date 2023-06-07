@@ -10,7 +10,7 @@ const config = {
     requiredFeeMutez                : 10000000,
     stakedMvkPercentageRequired     : 5000,         // prod should be 10% or 1000   
     minStakedMvkRequiredToVote      : MVK(1),
-    minStakedMvkRequiredToTrigger   : MVK(10),
+    minStakedMvkRequiredToTrigger   : MVK(11),
     proposalTitleMaxLength          : 400,
     proposalDescMaxLength           : 400,
 }
@@ -43,7 +43,7 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
 
     emergencyGovernanceLedger           : MichelsonMap.fromLiteral({}),
     currentEmergencyGovernanceId        : new BigNumber(0),
-    nextEmergencyGovernanceId   : new BigNumber(1),
+    nextEmergencyGovernanceId           : new BigNumber(1),
 
     lambdaLedger                        : MichelsonMap.fromLiteral({}),
     
