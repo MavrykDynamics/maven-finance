@@ -15,7 +15,6 @@ async def on_treasury_factory_origination(
         # Get operation values
         address                         = treasury_factory_origination.data.originated_contract_address
         admin                           = treasury_factory_origination.storage.admin
-        governance_address              = treasury_factory_origination.storage.governanceAddress
         create_treasury_paused          = treasury_factory_origination.storage.breakGlassConfig.createTreasuryIsPaused
         track_treasury_paused           = treasury_factory_origination.storage.breakGlassConfig.trackTreasuryIsPaused
         untrack_treasury_paused         = treasury_factory_origination.storage.breakGlassConfig.untrackTreasuryIsPaused

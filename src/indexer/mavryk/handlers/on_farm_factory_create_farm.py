@@ -20,7 +20,6 @@ async def on_farm_factory_create_farm(
         farm_address                    = farm_origination.data.originated_contract_address
         farm_factory_address            = create_farm.data.target_address
         admin                           = farm_origination.storage.admin
-        governance_address              = farm_origination.storage.governanceAddress
         name                            = farm_origination.storage.name
         creation_timestamp              = farm_origination.data.timestamp
         force_rewards_from_transfer     = farm_origination.storage.config.forceRewardFromTransfer

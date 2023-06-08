@@ -15,7 +15,6 @@ async def on_governance_proxy_origination(
         # Get operation values
         governance_proxy_address    = governance_proxy_origination.data.originated_contract_address
         admin_address               = governance_proxy_origination.storage.admin
-        governance_address          = governance_proxy_origination.storage.governanceAddress
         timestamp                   = governance_proxy_origination.data.timestamp
     
         # Get contract metadata

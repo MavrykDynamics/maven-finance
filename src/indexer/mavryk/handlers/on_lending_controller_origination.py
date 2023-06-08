@@ -15,7 +15,6 @@ async def on_lending_controller_origination(
         # Get operation info
         lending_controller_address              = lending_controller_origination.data.originated_contract_address
         timestamp                               = lending_controller_origination.data.timestamp
-        governance_address                      = lending_controller_origination.storage.governanceAddress
         admin                                   = lending_controller_origination.storage.admin
         collateral_ratio                        = int(lending_controller_origination.storage.config.collateralRatio)
         liquidation_ratio                       = int(lending_controller_origination.storage.config.liquidationRatio)

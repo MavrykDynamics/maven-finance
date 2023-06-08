@@ -15,7 +15,6 @@ async def on_vesting_origination(
         # Get operation values
         address                         = vesting_origination.data.originated_contract_address
         admin                           = vesting_origination.storage.admin
-        governance_address              = vesting_origination.storage.governanceAddress
         total_vested_amount             = int(vesting_origination.storage.totalVestedAmount)
         timestamp                       = vesting_origination.data.timestamp
     

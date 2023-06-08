@@ -13,7 +13,6 @@ async def on_governance_lock_proposal(
 
     try:
         # Get operation values
-        governance_address  = lock_proposal.data.target_address
         proposalID          = int(lock_proposal.parameter.__root__)
     
         # Update record
