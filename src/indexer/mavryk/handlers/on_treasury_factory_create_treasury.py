@@ -22,7 +22,6 @@ async def on_treasury_factory_create_treasury(
         level                           = create_treasury.data.level
         treasury_factory_address        = create_treasury.data.target_address
         admin                           = treasury_origination.storage.admin
-        governance_address              = treasury_origination.storage.governanceAddress
         name                            = treasury_origination.storage.name
         creation_timestamp              = treasury_origination.data.timestamp
         transfer_paused                 = treasury_origination.storage.breakGlassConfig.transferIsPaused

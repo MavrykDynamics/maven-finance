@@ -20,7 +20,6 @@ async def on_farm_factory_create_farm_m_token(
         farm_address                    = m_farm_origination.data.originated_contract_address
         farm_factory_address            = create_farm_m_token.data.target_address
         admin                           = m_farm_origination.storage.admin
-        governance_address              = m_farm_origination.storage.governanceAddress
         name                            = m_farm_origination.storage.name
         creation_timestamp              = m_farm_origination.data.timestamp
         force_rewards_from_transfer     = m_farm_origination.storage.config.forceRewardFromTransfer

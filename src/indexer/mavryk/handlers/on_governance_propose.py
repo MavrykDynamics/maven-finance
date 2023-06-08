@@ -13,7 +13,6 @@ async def on_governance_propose(
 
     try:
         # Get operation values
-        governance_address      = propose.data.target_address
         governance              = await models.Governance.get(
             network = ctx.datasource.network
         )

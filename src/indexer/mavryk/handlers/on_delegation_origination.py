@@ -15,7 +15,6 @@ async def on_delegation_origination(
         # Get operation values
         address                             = delegation_origination.data.originated_contract_address
         admin                               = delegation_origination.storage.admin
-        governance_address                  = delegation_origination.storage.governanceAddress
         minimum_smvk_balance                = float(delegation_origination.storage.config.minimumStakedMvkBalance)
         delegation_ratio                    = int(delegation_origination.storage.config.delegationRatio)
         max_satellites                      = int(delegation_origination.storage.config.maxSatellites)

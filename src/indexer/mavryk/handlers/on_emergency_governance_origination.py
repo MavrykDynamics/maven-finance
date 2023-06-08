@@ -15,7 +15,6 @@ async def on_emergency_governance_origination(
         # Get operation values
         address                         = emergency_governance_origination.data.originated_contract_address
         admin                           = emergency_governance_origination.storage.admin
-        governance_address              = emergency_governance_origination.storage.governanceAddress
         decimals                        = int(emergency_governance_origination.storage.config.decimals)
         required_fee                    = int(emergency_governance_origination.storage.config.requiredFeeMutez)
         min_smvk_required_to_trigger    = float(emergency_governance_origination.storage.config.minStakedMvkRequiredToTrigger)
