@@ -66,7 +66,7 @@ block {
 function verifyLoanTokenDoesNotExist(const loanTokenName : string; const s : lendingControllerStorageType) : unit is 
 block {
 
-    if Map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+    if Big_map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
 
 } with unit
 

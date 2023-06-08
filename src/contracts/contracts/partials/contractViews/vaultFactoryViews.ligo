@@ -42,6 +42,12 @@
 [@view] function getLambdaOpt(const lambdaName : string; var s : vaultFactoryStorageType) : option(bytes) is
     Big_map.find_opt(lambdaName, s.lambdaLedger)
 
+
+
+(* View: get a vault lambda *)
+[@view] function getVaultLambdaOpt(const lambdaName : string; var s : vaultFactoryStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.vaultLambdaLedger)
+
 // ------------------------------------------------------------------------------
 //
 // Views End

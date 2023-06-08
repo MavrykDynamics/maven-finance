@@ -91,7 +91,7 @@ type collateralTokenRecordType is [@layout:comb] record [
     
     isPaused                : bool; 
 ]
-type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
+type collateralTokenLedgerType is big_map(string, collateralTokenRecordType) 
 
 
 type loanTokenRecordType is [@layout:comb] record [
@@ -126,7 +126,7 @@ type loanTokenRecordType is [@layout:comb] record [
     isPaused                                : bool; 
 ]
 
-type loanTokenLedgerType is map(string, loanTokenRecordType)
+type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)

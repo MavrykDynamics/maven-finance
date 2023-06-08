@@ -3750,7 +3750,7 @@ describe("Lending Controller tests", async () => {
             const vaultId              = eveVaultSet[0]; 
             const vaultOwner           = eve.pkh;
             const withdrawAmount       = 1000000; // 1 mockFa12 token
-            const tokenName            = 'mockFa12';
+            const tokenName            = 'usdt';
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -3809,7 +3809,7 @@ describe("Lending Controller tests", async () => {
             const vaultId              = eveVaultSet[0]; 
             const vaultOwner           = eve.pkh;
             const withdrawAmount       = 1000000; // 1 mockFa2 token
-            const tokenName            = 'mockFa2';
+            const tokenName            = 'eurl';
 
             const vaultHandle = {
                 "id"     : vaultId,
