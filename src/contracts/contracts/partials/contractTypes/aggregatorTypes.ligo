@@ -8,8 +8,8 @@ type oracleInformationType is [@layout:comb] record [
     oraclePeerId     : string;
 ];
 type oracleLedgerType            is map (address, oracleInformationType);
-type oracleRewardStakedMvkType   is map (address, nat);
-type oracleRewardXtzType         is map (address, nat);
+type oracleRewardStakedMvkType   is big_map (address, nat);
+type oracleRewardXtzType         is big_map (address, nat);
 
 type aggregatorConfigType is [@layout:comb] record [
     decimals                            : nat;
