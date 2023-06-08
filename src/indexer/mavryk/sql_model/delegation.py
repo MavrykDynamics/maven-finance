@@ -68,7 +68,7 @@ class Satellite(Model):
     description                             = fields.TextField(default="")
     image                                   = fields.TextField(default="")
     website                                 = fields.TextField(default="")
-    registration_timestamp                  = fields.DatetimeField(null=True)
+    registration_timestamp                  = fields.DatetimeField(auto_now=True)
     currently_registered                    = fields.BooleanField(default=True, index=True)
 
     class Meta:
@@ -76,10 +76,10 @@ class Satellite(Model):
 
 class DelegationRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations', null=True, index=True)
+    satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations', index=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='delegations', index=True)
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='delegations')
-    satellite_registration_timestamp        = fields.DatetimeField(null=True)
+    satellite_registration_timestamp        = fields.DatetimeField(auto_now=True)
 
     class Meta:
         table = 'delegation_record'

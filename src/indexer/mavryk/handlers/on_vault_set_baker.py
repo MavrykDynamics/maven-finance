@@ -16,12 +16,12 @@ async def on_vault_set_baker(
         baker_address       = set_baker.parameter.__root__
     
         # Update record
-        vault               = await models.Vault.get(network=ctx.datasource.network, address= vault_address)
         baker               = None
         if baker_address:
             baker   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=baker_address)
-        vault.baker      = baker
-        await vault.save()
+        await models.Vault.filter(network=ctx.datasource.network, address= vault_address).update(
+            baker   = baker
+        )
 
     except BaseException as e:
          await save_error_report(e)

@@ -20,12 +20,12 @@ async def on_governance_execute_proposal(
         timestamp           = execute_proposal.data.timestamp
     
         # Update record
-        proposal     = await models.GovernanceProposal.get(
+        await models.GovernanceProposal.filter(
             internal_id  = proposal_id
+        ).update(
+            executed            = executed,
+            execution_datetime  = timestamp
         )
-        proposal.executed               = executed
-        proposal.execution_timestamp    = timestamp
-        await proposal.save()
 
     except BaseException as e:
          await save_error_report(e)

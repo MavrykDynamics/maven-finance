@@ -4,18 +4,18 @@ from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
 from dipdup.models import Transaction
-from mavryk.types.lending_controller.parameter.register_vault_creation import RegisterVaultCreationParameter
-from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from mavryk.types.lending_controller_mock_time.parameter.register_vault_creation import RegisterVaultCreationParameter
+from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
 from mavryk.types.vault.storage import VaultStorage, Depositor as Any, Depositor1 as Whitelist
 from mavryk.types.vault_factory.parameter.create_vault import CreateVaultParameter
 from mavryk.types.vault_factory.storage import VaultFactoryStorage
 from dateutil import parser
 
-async def on_vault_factory_create_vault(
+async def on_vault_factory_create_vault_mock_time(
     ctx: HandlerContext,
     create_vault: Transaction[CreateVaultParameter, VaultFactoryStorage],
     vault_origination: Origination[VaultStorage],
-    register_vault_creation: Transaction[RegisterVaultCreationParameter, LendingControllerStorage],
+    register_vault_creation: Transaction[RegisterVaultCreationParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:
@@ -115,7 +115,7 @@ async def on_vault_factory_create_vault(
             lending_controller          = await models.LendingController.get(
                 network         = ctx.datasource.network,
                 address         = lending_controller_address,
-                mock_time       = False
+                mock_time       = True
             )
             vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
 

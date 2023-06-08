@@ -68,7 +68,7 @@ async def on_lending_controller_set_collateral_token(
             oracle                      = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
                 lending_controller  = lending_controller,
-                collateral_token    = token,
+                token               = token,
                 oracle              = oracle
             )
             lending_controller_collateral_token.protected                                   = collateral_token_protected

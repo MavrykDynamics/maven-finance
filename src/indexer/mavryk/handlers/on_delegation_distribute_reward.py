@@ -34,7 +34,9 @@ async def on_delegation_distribute_reward(
             await satellite_rewards.save()
     
         # Create a stake record
-        doorman         = await models.Doorman.all().first()
+        doorman         = await models.Doorman.get(
+            network     = ctx.datasource.network
+        )
         stake_record    = models.StakeHistoryData(
             timestamp           = timestamp,
             type                = models.StakeType.SATELLITE_REWARD,

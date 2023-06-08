@@ -35,7 +35,7 @@ class GovernanceFinancialWhitelistContract(LinkedContract, Model):
 
 class GovernanceFinancialWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_whitelist_token_contracts', index=True, null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_whitelist_token_contracts', index=True)
 
     class Meta:
         table = 'governance_financial_whitelist_token_contract'
@@ -46,7 +46,7 @@ class GovernanceFinancialRequest(Model):
     governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests')
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_requests', index=True)
     requester                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_requester', index=True)
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests', index=True, null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests', index=True)
     request_type                            = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE, index=True)
     executed                                = fields.BooleanField(default=False, index=True)
@@ -58,9 +58,9 @@ class GovernanceFinancialRequest(Model):
     smvk_percentage_for_approval            = fields.SmallIntField(default=0)
     snapshot_smvk_total_supply              = fields.FloatField(default=0.0)
     smvk_required_for_approval              = fields.FloatField(default=0.0)
-    execution_datetime                      = fields.DatetimeField(null=True, index=True)
-    expiration_datetime                     = fields.DatetimeField(null=True, index=True)
-    requested_datetime                      = fields.DatetimeField(null=True, index=True)
+    execution_datetime                      = fields.DatetimeField(index=True)
+    expiration_datetime                     = fields.DatetimeField(index=True)
+    requested_datetime                      = fields.DatetimeField(index=True)
 
     class Meta:
         table = 'governance_financial_request'
@@ -69,8 +69,8 @@ class GovernanceFinancialRequestVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequest', related_name='votes', index=True)
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_votes', index=True)
-    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_financial_requests_votes', null=True, index=True)
-    timestamp                               = fields.DatetimeField(null=True, index=True)
+    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_financial_requests_votes', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY, index=True)
 
     class Meta:

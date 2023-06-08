@@ -7,11 +7,11 @@ from mavryk.sql_model.parents import LinkedContract, MavrykContract
 
 class MVKToken(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='mvk_tokens')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='mvk_tokens', index=True, null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='mvk_tokens', index=True)
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)
     inflation_rate                          = fields.SmallIntField(default=0)
-    next_inflation_timestamp                = fields.DatetimeField(null=True, index=True)
+    next_inflation_timestamp                = fields.DatetimeField(index=True)
 
     class Meta:
         table = 'mvk_token'

@@ -13,6 +13,7 @@ async def on_emergency_governance_set_lambda(
 ) -> None:
 
     try:
+
         # Persist lambda
         await persist_lambda(ctx, models.EmergencyGovernance, models.EmergencyGovernanceLambda, set_lambda)
 

@@ -15,7 +15,6 @@ async def on_governance_satellite_origination(
         # Get operation info
         address                     = governance_satellite_origination.data.originated_contract_address
         admin                       = governance_satellite_origination.storage.admin
-        governance_address          = governance_satellite_origination.storage.governanceAddress
         gov_sat_approval_pct        = int(governance_satellite_origination.storage.config.governanceSatelliteApprovalPercentage)
         gov_sat_duration_in_days    = int(governance_satellite_origination.storage.config.governanceSatelliteDurationInDays)
         gov_purpose_max_length      = int(governance_satellite_origination.storage.config.governancePurposeMaxLength)
@@ -29,12 +28,11 @@ async def on_governance_satellite_origination(
             contract_address=address
         )
         
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Create record
-        governance_satellite = models.GovernanceSatellite(
+        governance_satellite        = models.GovernanceSatellite(
             address                         = address,
             network                         = ctx.datasource.network,
             metadata                        = contract_metadata,

@@ -17,12 +17,12 @@ async def on_aggregator_set_name(
         name                    = set_name.parameter.__root__
     
         # Update contract
-        aggregator              = await models.Aggregator.get(
+        await models.Aggregator.filter(
             network = ctx.datasource.network,
             address = aggregator_address
+        ).update(
+            name    = name
         )
-        aggregator.name         = name
-        await aggregator.save()
 
     except BaseException as e:
          await save_error_report(e)
