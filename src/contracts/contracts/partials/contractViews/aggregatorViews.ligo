@@ -50,15 +50,15 @@
     s.oracleLedger
 
 
-(* View: get oracle reward staked MVK *)
-[@view] function getOracleRewardStakedMvk(const _ : unit; const s : aggregatorStorageType) : oracleRewardStakedMvkType is
-    s.oracleRewardStakedMvk
+(* View: get oracle reward staked MVK opt *)
+[@view] function getOracleRewardStakedMvkOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
+    Big_map.find_opt(oracleAddress, s.oracleRewardStakedMvk)
 
 
 
-(* View: get oracle reward xtz *)
-[@view] function getOracleRewardXtz(const _ : unit; const s : aggregatorStorageType) : oracleRewardXtzType is
-    s.oracleRewardXtz
+(* View: get oracle reward xtz opt *)
+[@view] function getOracleRewardXtzOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
+    Big_map.find_opt(oracleAddress, s.oracleRewardXtz)
 
 
 
