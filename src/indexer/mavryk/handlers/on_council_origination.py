@@ -15,7 +15,6 @@ async def on_council_origination(
         # Get operation values
         address                             = council_origination.data.originated_contract_address
         admin                               = council_origination.storage.admin
-        governance_address                  = council_origination.storage.governanceAddress
         threshold                           = int(council_origination.storage.config.threshold)
         action_expiry_days                  = int(council_origination.storage.config.actionExpiryDays)
         council_member_name_max_length      = int(council_origination.storage.config.councilMemberNameMaxLength)
