@@ -159,7 +159,7 @@ describe('Linked contracts updates for Tests', async () => {
             const delegationContractsBatchOperation = await delegationContractsBatch.send()
             await delegationContractsBatchOperation.confirmation();
             console.log('Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]')
-        
+            console.log("MOCK?:", process.env.MOCK_TIME)
             // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
             const governanceContractsBatch = await utils.tezos.wallet
             .batch()
