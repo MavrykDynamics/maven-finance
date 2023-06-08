@@ -198,8 +198,8 @@ block {
         percentOracleResponse     = 0n;
         lastUpdatedAt             = Tezos.get_now();
     ];
-    const oracleRewardXtz        : oracleRewardXtzType        = map[];
-    const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
+    const oracleRewardXtz        : oracleRewardXtzType        = Big_map.empty;
+    const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = Big_map.empty;
 
     // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
