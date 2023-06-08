@@ -21,7 +21,6 @@ async def on_aggregator_factory_create_aggregator(
         aggregator_address                          = aggregator_origination.data.originated_contract_address
         aggregator_factory_address                  = create_aggregator.data.target_address
         admin                                       = aggregator_origination.storage.admin
-        governance_address                          = aggregator_origination.storage.governanceAddress
         creation_timestamp                          = aggregator_origination.data.timestamp
         name                                        = aggregator_origination.storage.name
         decimals                                    = int(aggregator_origination.storage.config.decimals)

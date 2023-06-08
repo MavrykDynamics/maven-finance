@@ -16,7 +16,6 @@ async def on_mvk_origination(
         # Get operation info
         mvk_address                 = mvk_origination.data.originated_contract_address
         admin                       = mvk_origination.storage.admin
-        governance_address          = mvk_origination.storage.governanceAddress
         total_supply                = int(mvk_origination.storage.totalSupply)
         maximum_supply              = int(mvk_origination.storage.maximumSupply)
         inflation_rate              = int(mvk_origination.storage.inflationRate)

@@ -44,7 +44,7 @@ async def persist_council_action(ctx, action):
     action_exists   = await models.CouncilAction.filter(
         council     = council,
         internal_id = actionID
-    )
+    ).exists()
     if not action_exists:
         council_size        = len(await models.CouncilCouncilMember.filter(council=council).all())
         councilActionRecord = models.CouncilAction(
@@ -434,7 +434,6 @@ async def persist_governance(ctx, contract_class, set_governance):
     
     # Get operation info
     contract_address            = set_governance.data.target_address
-    governance_address          = set_governance.parameter.__root__
 
     # Update record
     # Get governance record
