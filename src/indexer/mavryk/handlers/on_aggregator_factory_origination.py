@@ -15,7 +15,6 @@ async def on_aggregator_factory_origination(
         # Get operation info
         aggregator_factory_address      = aggregator_factory_origination.data.originated_contract_address
         admin                           = aggregator_factory_origination.storage.admin
-        governance_address              = aggregator_factory_origination.storage.governanceAddress
         create_aggregator_paused        = aggregator_factory_origination.storage.breakGlassConfig.createAggregatorIsPaused
         track_aggregator_paused         = aggregator_factory_origination.storage.breakGlassConfig.trackAggregatorIsPaused
         untrack_aggregator_paused       = aggregator_factory_origination.storage.breakGlassConfig.untrackAggregatorIsPaused
@@ -28,9 +27,8 @@ async def on_aggregator_factory_origination(
             contract_address=aggregator_factory_address
         )
     
-        # Get or create governance record
-        governance, _                   = await models.Governance.get_or_create(network = ctx.datasource.network, address = governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Create record
         aggregator_factory          = models.AggregatorFactory(

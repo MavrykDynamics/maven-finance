@@ -17,9 +17,15 @@ async def on_m_token_update_operators(
         m_token_address     = update_operators.data.target_address
     
         # Update records
+        token               = await models.Token.get(
+            network         = ctx.datasource.network,
+            token_address   = m_token_address,
+            token_id        = 0
+        )
         m_token             = await models.MToken.get(
             network = ctx.datasource.network,
-            address = m_token_address
+            address = m_token_address,
+            token   = token
         )
         for operatorChange in operator_changes:
             if hasattr(operatorChange, 'add_operator'):

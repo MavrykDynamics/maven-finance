@@ -21,14 +21,13 @@ async def on_aggregator_factory_untrack_aggregator(
             network             = ctx.datasource.network,
             address             = aggregator_factory_address
         )
-        aggregator                  = await models.Aggregator.get_or_none(
+        aggregator                  = await models.Aggregator.get(
             network             = ctx.datasource.network,
             factory             = aggregator_factory,
             address             = aggregator_address
         )
-        if aggregator:    
-            aggregator.factory          = None
-            await aggregator.save()
+        aggregator.factory          = None
+        await aggregator.save()
 
     except BaseException as e:
          await save_error_report(e)

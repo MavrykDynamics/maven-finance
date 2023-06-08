@@ -4,7 +4,7 @@
 
 ### Deployment
 
-- DEV: 0.42
+- DEV: 0.43
 - STAGING: 0.42
 - PROD: 0.42
 - PROD2: 0.42
@@ -12,6 +12,292 @@
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## 0.44
+
+### What's new
+
+- LendingController
+  - Column LiquidationMaxDuration added
+
+### Breaking changes
+
+- AggregatorFactory
+  - Column LastUpdatedAt now non-nullable
+
+- AggregatorFactoryLambda
+  - Column LastUpdatedAt now non-nullable
+
+- AggregatorFactoryAggregatorLambda
+  - Column LastUpdatedAt now non-nullable
+
+- Aggregator
+  - Column Governance now non-nullable
+  - Column CreationTimestamp now non-nullable
+  - Column LastCompletedDataLastUpdatedAt now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- AggregatorLambda
+  - Column LastUpdatedAt now non-nullable
+
+- BreakGlass
+  - Column LastUpdatedAt now non-nullable
+
+- BreakGlassAction
+  - Column StartDatetime now non-nullable
+  - Column ExecutionDatetime now non-nullable
+  - Column ExpirationDatetime now non-nullable
+
+- BreakGlassLambda
+  - Column LastUpdatedAt now non-nullable
+
+- Council
+  - Column LastUpdatedAt now non-nullable
+
+- CouncilAction
+  - Column StartDatetime now non-nullable
+  - Column ExecutionDatetime now non-nullable
+  - Column ExpirationDatetime now non-nullable
+
+- CouncilLambda
+  - Column LastUpdatedAt now non-nullable
+
+- Satellite
+  - Column RegistrationTimestamp now non-nullable
+
+- Delegation
+  - Column LastUpdatedAt now non-nullable
+
+- DelegationRecord
+  - Column Satellite now non-nullable
+  - Column SatelliteRegistrationTimestamp now non-nullable
+
+- DelegationLambda
+  - Column LastUpdatedAt now non-nullable
+
+- Doorman
+  - Column FarmClaimedPaused renamed to FarmClaimPaused
+  - Column LastUpdatedAt now non-nullable
+
+- DoormanStakeAccount
+  - Column Doorman now non-nullable
+
+- DoormanLambda
+  - Column LastUpdatedAt now non-nullable
+
+- EmergencyGovernance
+  - Column LastUpdatedAt now non-nullable
+
+- EmergencyGovernanceRecord
+  - Column StartDatetime now non-nullable
+  - Column ExecutionDatetime now non-nullable
+  - Column ExpirationDatetime now non-nullable
+
+- EmergencyGovernanceVote
+  - Column Timestamp now non-nullable
+
+- EmergencyGovernanceLambda
+  - Column LastUpdatedAt now non-nullable
+
+- FarmFactory
+  - Column LastUpdatedAt now non-nullable
+
+- FarmFactoryLambda
+  - Column LastUpdatedAt now non-nullable
+
+- FarmFactoryFarmLambda
+  - Column LastUpdatedAt now non-nullable
+
+- FarmFactoryMFarmLambda
+  - Column LastUpdatedAt now non-nullable
+
+- Farm
+  - Column Governance now non-nullable
+  - Column LPToken now non-nullable
+  - Column CreationTimestamp now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- FarmLambda
+  - Column LastUpdatedAt now non-nullable
+
+- GovernanceProposal
+  - Column StartDatetime now non-nullable
+  - Column ExecutionDatetime now non-nullable
+
+- GovernanceProposalVote
+  - Column GovernanceProposal now non-nullable
+  - Column Timestamp now non-nullable
+
+- GovernanceFinancial
+  - Column LastUpdatedAt now non-nullable
+
+- GovernanceFinancialWhitelistTokenContract
+  - Column Token now non-nullable
+
+- GovernanceFinancialRequest
+  - Column RequestedDatetime now non-nullable
+  - Column ExecutionDatetime now non-nullable
+  - Column ExpirationDatetime now non-nullable
+
+- GovernanceFinancialRequestVote
+  - Column SatelliteSnapshot now non-nullable
+  - Column Timestamp now non-nullable
+
+- GovernanceFinancialLambda
+  - Column LastUpdatedAt now non-nullable
+
+- GovernanceProxy
+  - Column LastUpdatedAt now non-nullable
+
+- GovernanceProxyLambda
+  - Column LastUpdatedAt now non-nullable
+
+- GovernanceSatellite
+  - Column LastUpdatedAt now non-nullable
+
+- GovernanceSatelliteAction
+  - Column StartDatetime now non-nullable
+  - Column ExecutionDatetime now non-nullable
+  - Column ExpirationDatetime now non-nullable
+
+- GovernanceSatelliteActionVote
+  - Column SatelliteSnapshot now non-nullable
+  - Column Timestamp now non-nullable
+
+- GovernanceSatelliteOracleAggregator
+  - Column StartTimestamp now non-nullable
+
+- GovernanceSatelliteLambda
+  - Column LastUpdatedAt now non-nullable
+
+- Governance
+  - Column Active removed
+  - Column LastUpdatedAt now non-nullable
+
+- GovernanceLambda
+  - Column LastUpdatedAt now non-nullable
+
+- LiquidityBaking
+  - Column LastUpdatedAt now non-nullable
+
+- LendingController
+  - Column Governance now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- LendingControllerWhitelistTokenContract
+  - Column Token now non-nullable
+
+- LendingControllerVault
+  - Column LendingController now non-nullable
+  - Column Owner now non-nullable
+  - Column LoanToken now non-nullable
+  - Column LastUpdatedTimestamp now non-nullable
+
+- LendingControllerVaultCollateralBalance
+  - Column LendingControllerVault now non-nullable
+  - Column Token now non-nullable and renamed to CollateralToken
+
+- LendingControllerCollateralToken
+  - Column LendingController now non-nullable
+  - Column Oracle now non-nullable
+  - Column CollateralToken now non-nullable and renamed to Token
+
+- LendingControllerLoanToken
+  - Column LendingController now non-nullable
+  - Column MToken now non-nullable
+  - Column Oracle now non-nullable
+  - Column LoanToken now non-nullable and renamed to Token
+
+- LendingControllerLambda
+  - Column LastUpdatedAt now non-nullable
+
+- MToken
+  - Column Governance now non-nullable
+  - Column Token now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- MVKToken
+  - Column Token now non-nullable
+  - Column NextInflationTimestamp now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- TokenSale
+  - Contract removed
+  - Tables removed:
+    - TokenSale
+    - TokenSaleBuyOption
+    - TokenSaleWhitelistedUser
+    - TokenSaleBuyer
+    - TokenSaleBuyerOption
+
+- TreasuryFactory
+  - Column LastUpdatedAt now non-nullable
+
+- TreasuryFactoryLambda
+  - Column LastUpdatedAt now non-nullable
+
+- TreasuryFactoryTreasuryLambda
+  - Column LastUpdatedAt now non-nullable
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column Token now non-nullable
+
+- Treasury
+  - Column Governance now non-nullable
+  - Column CreationTimestamp now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- TreasuryBalance
+  - Column Token now non-nullable
+  - Column TZKTTokenID now non-nullable
+
+- TreasuryLambda
+  - Column LastUpdatedAt now non-nullable
+
+- TreasuryWhitelistTokenContract
+  - Column Token now non-nullable
+
+- TreasuryTransferHistoryData
+  - Column To_ now non-nullable
+
+- VaultFactory
+  - Column Governance now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- VaultFactoryLambda
+  - Column LastUpdatedAt now non-nullable
+
+- VaultFactoryVaultLambda
+  - Column LastUpdatedAt now non-nullable
+
+- Vault
+  - Column Factory now non-nullable
+  - Column CreationTimestamp now non-nullable
+  - Column LastUpdatedAt now non-nullable
+
+- VaultDepositor
+  - Column Vault now non-nullable
+  - Column Depositor now non-nullable
+
+- Vesting
+  - Column LastUpdatedAt now non-nullable
+
+- VaultLambda
+  - Column LastUpdatedAt now non-nullable
+
+- VestingLambda
+  - Column LastUpdatedAt now non-nullable
+
+- VestingVestee
+  - Column StartTimestamp now non-nullable
+  - Column EndCliffTimestamp now non-nullable
+  - Column EndVestingTimestamp now non-nullable
+  - Column NextRedemptionTimestamp now non-nullable
+  - Column LastClaimedTimestamp now non-nullable
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.43</summary>
 
 ## 0.43
 
@@ -95,7 +381,7 @@
 - TreasuryFactoryWhitelistTokenContract
   - Column TokenContractStandard removed
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.42</summary>
 
@@ -149,7 +435,7 @@
 - TreasuryBalance
   - Column TokenAddress TokenId and Metadata removed and replaced with a foreign key to the table Token called Token
 
-</details
+</details>
 
 <details><summary>0.41</summary>
 
@@ -177,7 +463,7 @@
 - LendingControllerHistoryData
   - Column CollateralToken added
 
-</details
+</details>
 
 <details><summary>0.39</summary>
 

@@ -17,7 +17,7 @@ async def on_treasury_transfer(
         treasury_address    = transfer.data.target_address
         txs                 = transfer.parameter.__root__
         timestamp           = transfer.data.timestamp
-        treasury, _         = await models.Treasury.get_or_create(network=ctx.datasource.network, address= treasury_address)
+        treasury            = await models.Treasury.get(network=ctx.datasource.network, address= treasury_address)
         await treasury.save()
     
         # Create records

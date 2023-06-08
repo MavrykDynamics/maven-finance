@@ -13,20 +13,18 @@ async def on_governance_lock_proposal(
 
     try:
         # Get operation values
-        governance_address  = lock_proposal.data.target_address
         proposalID          = int(lock_proposal.parameter.__root__)
     
         # Update record
         governance          = await models.Governance.get(
-            network = ctx.datasource.network,
-            address = governance_address
+            network = ctx.datasource.network
         )
-        proposal    = await models.GovernanceProposal.filter(
+        await models.GovernanceProposal.filter(
             governance  = governance,
             internal_id = proposalID
-        ).first()
-        proposal.locked = True
-        await proposal.save()
+        ).update(
+            locked = True
+        )
 
     except BaseException as e:
          await save_error_report(e)

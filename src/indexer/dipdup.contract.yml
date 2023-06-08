@@ -65,9 +65,6 @@ contracts:
   treasury_factory:
     address: KT1TuF2yk5AydbgepNKG98nYeYgrRtbLWNR6
     typename: treasury_factory
-  token_sale:
-    address: KT1Mo57cJmPYDNM6K6ecUHrPfCyhD9RPiN8S
-    typename: token_sale
   lending_controller:
     address: KT19y75empekR1QM27F89Hawih54Vis9s3iu
     typename: lending_controller

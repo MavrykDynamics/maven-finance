@@ -14,7 +14,6 @@ async def on_m_farm_init_farm(
         # Get operation info
         farm_address                    = init_farm.data.target_address
         admin                           = init_farm.storage.admin
-        governance_address              = init_farm.storage.governanceAddress
         force_rewards_from_transfer     = init_farm.storage.config.forceRewardFromTransfer
         infinite                        = init_farm.storage.config.infinite
         total_blocks                    = int(init_farm.storage.config.plannedRewards.totalBlocks)
@@ -34,31 +33,30 @@ async def on_m_farm_init_farm(
     
         # Create record
         governance      = await models.Governance.get(
-            network = ctx.datasource.network,
-            address = governance_address
+            network = ctx.datasource.network
         )
-        farm, _         = await models.Farm.get_or_create(
-            network     = ctx.datasource.network,
-            address     = farm_address,
-            admin       = admin,
-            governance  = governance
+        farm            = models.Farm(
+            network                         = ctx.datasource.network,
+            address                         = farm_address,
+            admin                           = admin,
+            governance                      = governance,
+            force_rewards_from_transfer     = force_rewards_from_transfer,
+            infinite                        = infinite,
+            total_blocks                    = total_blocks,
+            current_reward_per_block        = current_reward_per_block,
+            total_rewards                   = total_rewards,
+            deposit_paused                  = deposit_paused,
+            withdraw_paused                 = withdraw_paused,
+            claim_paused                    = claim_paused,
+            last_block_update               = last_block_update,
+            open                            = open,
+            init                            = init,
+            init_block                      = init_block,
+            accumulated_rewards_per_share   = accumulated_rewards_per_share,
+            unpaid_rewards                  = unpaid_rewards,
+            paid_rewards                    = paid_rewards,
+            min_block_time_snapshot         = min_block_time_snapshot
         )
-        farm.force_rewards_from_transfer     = force_rewards_from_transfer
-        farm.infinite                        = infinite
-        farm.total_blocks                    = total_blocks
-        farm.current_reward_per_block        = current_reward_per_block
-        farm.total_rewards                   = total_rewards
-        farm.deposit_paused                  = deposit_paused
-        farm.withdraw_paused                 = withdraw_paused
-        farm.claim_paused                    = claim_paused
-        farm.last_block_update               = last_block_update
-        farm.open                            = open
-        farm.init                            = init
-        farm.init_block                      = init_block
-        farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
-        farm.unpaid_rewards                  = unpaid_rewards
-        farm.paid_rewards                    = paid_rewards
-        farm.min_block_time_snapshot        = min_block_time_snapshot
         await farm.save()
 
     except BaseException as e:

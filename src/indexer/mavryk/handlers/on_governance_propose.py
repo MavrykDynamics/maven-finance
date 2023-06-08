@@ -13,10 +13,8 @@ async def on_governance_propose(
 
     try:
         # Get operation values
-        governance_address      = propose.data.target_address
         governance              = await models.Governance.get(
-            network = ctx.datasource.network,
-            address = governance_address
+            network = ctx.datasource.network
         )
         next_proposal_id        = int(propose.storage.nextProposalId)
         current_id              = str(next_proposal_id - 1)
@@ -51,6 +49,7 @@ async def on_governance_propose(
         quorum_count            = int(storage_record.quorumCount)
         quorum_smvk             = float(storage_record.quorumStakedMvkTotal)
         start_datetime          = parser.parse(storage_record.startDateTime)
+        execution_datetime      = parser.parse(storage_record.startDateTime) # TODO: refactor when implemented in the contracts
         cycle                   = int(storage_record.cycle)
         current_cycle_start     = int(storage_record.currentCycleStartLevel)
         current_cycle_end       = int(storage_record.currentCycleEndLevel)
@@ -90,6 +89,7 @@ async def on_governance_propose(
             quorum_vote_count               = quorum_count,
             quorum_smvk_total               = quorum_smvk,
             start_datetime                  = start_datetime,
+            execution_datetime              = execution_datetime,
             cycle                           = cycle,
             current_cycle_start_level       = current_cycle_start,
             current_cycle_end_level         = current_cycle_end,
@@ -114,7 +114,7 @@ async def on_governance_propose(
             governance_snapshot.total_delegated_amount  = float(satellite_snapshot.totalDelegatedAmount)
             governance_snapshot.total_voting_power      = float(satellite_snapshot.totalVotingPower)
             await governance_snapshot.save()
-        
+
     except BaseException as e:
          await save_error_report(e)
 
