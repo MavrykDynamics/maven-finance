@@ -413,7 +413,7 @@ block {
                     |   CreateCollateralToken(createCollateralTokenParams) -> block {
 
                             // Check if collateral token already exists
-                            if Map.mem(createCollateralTokenParams.tokenName, s.collateralTokenLedger) then failwith(error_COLLATERAL_TOKEN_ALREADY_EXISTS) else skip;
+                            if Big_map.mem(createCollateralTokenParams.tokenName, s.collateralTokenLedger) then failwith(error_COLLATERAL_TOKEN_ALREADY_EXISTS) else skip;
 
                             // update collateral token ledger
                             s.collateralTokenLedger[createCollateralTokenParams.tokenName] := createCollateralTokenRecord(createCollateralTokenParams);

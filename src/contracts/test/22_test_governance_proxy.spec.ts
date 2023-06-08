@@ -18,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve, trudy, baker } from '../scripts/sandbox/accounts';
+import { bob, alice, eve, trudy, baker, mallory } from '../scripts/sandbox/accounts';
 import { createLambdaBytes } from '@mavrykdynamics/create-lambda-bytes';
 import { mockPackedLambdaData } from "./helpers/mockSampleData"
 import { 
@@ -2703,7 +2703,7 @@ describe('Governance proxy lambdas tests', async () => {
                             tokenType                           : tokenType
                         }
                     };
-                    const initLoanToken                 = lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const initLoanToken                 = await lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Operation
                     const lambdaFunction                = await createLambdaBytes(
@@ -2721,7 +2721,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalLoanToken                = lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const finalLoanToken                = await lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Assertions
                     assert.strictEqual(initLoanToken, undefined);
@@ -2775,7 +2775,7 @@ describe('Governance proxy lambdas tests', async () => {
                             isPaused                            : isPaused
                         }
                     };
-                    const initLoanToken                 = lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const initLoanToken                 = await lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Operation
                     const lambdaFunction                = await createLambdaBytes(
@@ -2793,7 +2793,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalLoanToken                = lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const finalLoanToken                = await lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Assertions
                     assert.notStrictEqual(initLoanToken, undefined);
@@ -2842,7 +2842,7 @@ describe('Governance proxy lambdas tests', async () => {
                             tokenType                               : tokenType
                         }
                     };
-                    const initCollateralToken                   = lendingControllerStorage.collateralTokenLedger.get(tokenName);
+                    const initCollateralToken                   = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Operation
                     const lambdaFunction                = await createLambdaBytes(
@@ -2860,7 +2860,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalCollateralToken          = lendingControllerStorage.loanTokenLedger.get("Test");
+                    const finalCollateralToken          = await lendingControllerStorage.loanTokenLedger.get("Test");
 
                     // Assertions
                     assert.strictEqual(initCollateralToken, undefined);
@@ -2898,7 +2898,7 @@ describe('Governance proxy lambdas tests', async () => {
                             maxDepositAmount                        : maxDepositAmount
                         }
                     };
-                    const initCollateralToken                   = lendingControllerStorage.collateralTokenLedger.get(tokenName);
+                    const initCollateralToken                   = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Operation
                     const lambdaFunction                = await createLambdaBytes(
@@ -2916,7 +2916,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalCollateralToken          = lendingControllerStorage.loanTokenLedger.get("Test");
+                    const finalCollateralToken          = await lendingControllerStorage.loanTokenLedger.get("Test");
 
                     // Assertions
                     assert.notStrictEqual(initCollateralToken, undefined);

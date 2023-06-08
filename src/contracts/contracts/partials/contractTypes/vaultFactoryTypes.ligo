@@ -96,4 +96,5 @@ type vaultFactoryStorageType is [@layout:comb] record[
     vaultCounter           : nat;      
 
     lambdaLedger           : lambdaLedgerType;
+    vaultLambdaLedger      : lambdaLedgerType;
 ]

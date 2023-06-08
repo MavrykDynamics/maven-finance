@@ -1147,7 +1147,7 @@ error_ONLY_VAULT_FACTORY_CONTRACT_ALLOWED                                       
 error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED                                          = 810
 error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                       = 811
 
-error_VAULT_LAMBDA_OPT_NOT_FOUND_IN_VAULT_FACTORY                                                       = 812
+error_GET_VAULT_LAMBDA_OPT_NOT_FOUND_IN_VAULT_FACTORY                                                       = 812
 error_GET_GOVERNANCE_ADDRESS_VIEW_NOT_FOUND_IN_VAULT_FACTORY                                            = 813
 error_GET_CONFIG_VIEW_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                               = 814
 
