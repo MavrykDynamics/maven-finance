@@ -42,34 +42,13 @@
 
 (* View: get token in collateral token ledger *)
 [@view] function getColTokenRecordByNameOpt(const tokenName : string; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
-    Map.find_opt(tokenName, s.collateralTokenLedger)
-
-
-
-(* View: get token by token contract address in collateral token ledger *)
-[@view] function getColTokenRecordByAddressOpt(const tokenContractAddress : address; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
-block {
-
-    var tokenName : string := "empty";
-    for _key -> value in map s.collateralTokenLedger block {
-        if value.tokenContractAddress = tokenContractAddress then tokenName := _key else skip;
-    };
-
-    const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)
-
-} with collateralTokenRecord
+    Big_map.find_opt(tokenName, s.collateralTokenLedger)
 
 
 
 (* View: get loan token record *)
 [@view] function getLoanTokenRecordOpt(const tokenName : string; const s : lendingControllerStorageType) : option(loanTokenRecordType) is
-    Map.find_opt(tokenName, s.loanTokenLedger)
-
-
-
-(* View: get loan token ledger *)
-[@view] function getLoanTokenLedger(const _ : unit; const s : lendingControllerStorageType) : loanTokenLedgerType is 
-    s.loanTokenLedger
+    Big_map.find_opt(tokenName, s.loanTokenLedger)
 
 
 
