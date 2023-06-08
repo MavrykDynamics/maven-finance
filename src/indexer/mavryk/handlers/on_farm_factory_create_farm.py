@@ -20,7 +20,6 @@ async def on_farm_factory_create_farm(
         farm_address                    = farm_origination.data.originated_contract_address
         farm_factory_address            = create_farm.data.target_address
         admin                           = farm_origination.storage.admin
-        governance_address              = farm_origination.storage.governanceAddress
         name                            = farm_origination.storage.name
         creation_timestamp              = farm_origination.data.timestamp
         force_rewards_from_transfer     = farm_origination.storage.config.forceRewardFromTransfer
@@ -44,9 +43,10 @@ async def on_farm_factory_create_farm(
         contract_metadata               = json.loads(bytes.fromhex(create_farm.parameter.metadata).decode('utf-8'))
     
         # Check farm does not already exists
-        farm_exists                     = await models.Farm.get_or_none(
+        farm_exists                     = await models.Farm.filter(
+            network     = ctx.datasource.network,
             address     = farm_address
-        )
+        ).exists()
     
         if not farm_exists:
             # Create a contract and index it
@@ -158,38 +158,37 @@ async def on_farm_factory_create_farm(
                 address = farm_factory_address
             )
             governance      = await models.Governance.get(
-                network = ctx.datasource.network,
-                address = governance_address
+                network = ctx.datasource.network
             )
-            farm, _         = await models.Farm.get_or_create(
-                address     = farm_address,
-                network     = ctx.datasource.network
+            farm            = models.Farm(
+                address                         = farm_address,
+                network                         = ctx.datasource.network,
+                lp_token                        = lp_token,
+                metadata                        = contract_metadata,
+                governance                      = governance,
+                admin                           = admin,
+                name                            = name,
+                creation_timestamp              = creation_timestamp ,
+                factory                         = farm_factory,
+                force_rewards_from_transfer     = force_rewards_from_transfer,
+                infinite                        = infinite,
+                lp_token_balance                = lp_token_balance,
+                token0                          = token0,
+                token1                          = token1,
+                total_blocks                    = total_blocks,
+                current_reward_per_block        = current_reward_per_block,
+                total_rewards                   = total_rewards,
+                deposit_paused                  = deposit_paused,
+                withdraw_paused                 = withdraw_paused,
+                claim_paused                    = claim_paused,
+                last_block_update               = last_block_update,
+                open                            = open,
+                init                            = init,
+                init_block                      = init_block,
+                accumulated_rewards_per_share   = accumulated_rewards_per_share,
+                unpaid_rewards                  = unpaid_rewards,
+                paid_rewards                    = paid_rewards
             )
-            farm.metadata                        = contract_metadata
-            farm.governance                      = governance
-            farm.admin                           = admin
-            farm.name                            = name
-            farm.creation_timestamp              = creation_timestamp 
-            farm.factory                         = farm_factory
-            farm.force_rewards_from_transfer     = force_rewards_from_transfer
-            farm.infinite                        = infinite
-            farm.lp_token                        = lp_token
-            farm.lp_token_balance                = lp_token_balance
-            farm.token0                          = token0
-            farm.token1                          = token1
-            farm.total_blocks                    = total_blocks
-            farm.current_reward_per_block        = current_reward_per_block
-            farm.total_rewards                   = total_rewards
-            farm.deposit_paused                  = deposit_paused
-            farm.withdraw_paused                 = withdraw_paused
-            farm.claim_paused                    = claim_paused
-            farm.last_block_update               = last_block_update
-            farm.open                            = open
-            farm.init                            = init
-            farm.init_block                      = init_block
-            farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
-            farm.unpaid_rewards                  = unpaid_rewards
-            farm.paid_rewards                    = paid_rewards
             await farm.save()
 
     except BaseException as e:

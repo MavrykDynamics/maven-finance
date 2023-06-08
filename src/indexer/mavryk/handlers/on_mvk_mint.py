@@ -27,7 +27,12 @@ async def on_mvk_mint(
         await user.save()
     
         # Create record
-        mvk_token               = await models.MVKToken.get(network=ctx.datasource.network, address= mvk_token_address)
+        token               = await models.Token.get(
+            network         = ctx.datasource.network,
+            token_address   = mvk_token_address,
+            token_id        = 0
+        )
+        mvk_token               = await models.MVKToken.get(network=ctx.datasource.network, address= mvk_token_address, token=token)
         mvk_token.total_supply  = total_supply
         await mvk_token.save()
         

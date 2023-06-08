@@ -25,10 +25,10 @@ async def on_delegation_undelegate_from_satellite(
             network = ctx.datasource.network,
             address = delegation_address
         )
-        satellite_record                                                = await models.Satellite.filter(
+        satellite_record                                                = await models.Satellite.get(
             user        = satellite,
             delegation  = delegation
-        ).first()
+        )
         satellite_reward_record, _                                      = await models.SatelliteRewards.get_or_create(
             user        = user,
             delegation  = delegation
@@ -37,15 +37,19 @@ async def on_delegation_undelegate_from_satellite(
         satellite_reward_record.paid                                    = float(rewards_record.paid)
         satellite_reward_record.participation_rewards_per_share         = float(rewards_record.participationRewardsPerShare)
         satellite_reward_record.satellite_accumulated_reward_per_share  = float(rewards_record.satelliteAccumulatedRewardsPerShare)
-        delegation_record                                               = await models.DelegationRecord.filter(
+        delegation_record_exists                                        = await models.DelegationRecord.filter(
             user        = user,
             delegation  = delegation,
             satellite   = satellite_record
-        ).first()
-        # TODO: remove this temp fix
-        if delegation_record:
+        ).exists()
+
+        if delegation_record_exists:
             await user.save()
-            await delegation_record.delete()
+            await models.DelegationRecord.filter(
+                user        = user,
+                delegation  = delegation,
+                satellite   = satellite_record
+            ).delete()
             await satellite_reward_record.save()
 
     except BaseException as e:

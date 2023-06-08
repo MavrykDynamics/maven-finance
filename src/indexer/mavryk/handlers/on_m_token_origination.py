@@ -15,7 +15,6 @@ async def on_m_token_origination(
         # Get operation info
         m_token_address             = m_token_origination.data.originated_contract_address
         admin                       = m_token_origination.storage.admin
-        governance_address          = m_token_origination.storage.governanceAddress
         loan_token_name             = m_token_origination.storage.loanToken
         is_scaled_token             = m_token_origination.storage.isScaledToken
         total_supply                = float(m_token_origination.storage.totalSupply)
@@ -34,9 +33,8 @@ async def on_m_token_origination(
             contract_address=m_token_address
         )
     
-        # Get or create governance record
-        governance, _   = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
 
         # Get the token standard
         standard = await get_token_standard(
@@ -47,7 +45,8 @@ async def on_m_token_origination(
         # Get the related token
         token, _            = await models.Token.get_or_create(
             token_address       = m_token_address,
-            network             = ctx.datasource.network
+            network             = ctx.datasource.network,
+            token_id            = 0
         )
         if token_contract_metadata:
             token.metadata          = token_contract_metadata

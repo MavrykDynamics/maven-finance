@@ -12,13 +12,10 @@ async def on_delegation_set_admin(
     set_admin: Transaction[SetAdminParameter, DelegationStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_admin.data.target_address
-        contract        = await models.Delegation.get(network=ctx.datasource.network, address= target_contract)
-    
+    try:
+
         # Persist new admin
-        await persist_admin(set_admin, contract)
+        await persist_admin(ctx, models.Delegation, set_admin)
 
     except BaseException as e:
          await save_error_report(e)

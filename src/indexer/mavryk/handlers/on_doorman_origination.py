@@ -15,7 +15,6 @@ async def on_doorman_origination(
         # Get operation values
         doorman_address                 = doorman_origination.data.originated_contract_address
         admin                           = doorman_origination.storage.admin
-        governance_address              = doorman_origination.storage.governanceAddress
         min_mvk_amount                  = int(doorman_origination.storage.config.minMvkAmount)
         unclaimed_rewards               = int(doorman_origination.storage.unclaimedRewards)
         accumulated_fees_per_share      = int(doorman_origination.storage.accumulatedFeesPerShare)
@@ -30,9 +29,8 @@ async def on_doorman_origination(
             contract_address=doorman_address
         )
         
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Save Doorman in DB
         doorman = models.Doorman(

@@ -16,13 +16,12 @@ async def on_vault_update_vault_name(
         updated_name        = update_vault_name.parameter.__root__
     
         # Update record
-        vault               = await models.Vault.get(
+        await models.Vault.filter(
             network = ctx.datasource.network,
             address = vault_address
+        ).update(
+            name          = updated_name
         )
-        vault.name          = updated_name
-    
-        await vault.save()
 
     except BaseException as e:
          await save_error_report(e)

@@ -16,7 +16,6 @@ async def on_mvk_origination(
         # Get operation info
         mvk_address                 = mvk_origination.data.originated_contract_address
         admin                       = mvk_origination.storage.admin
-        governance_address          = mvk_origination.storage.governanceAddress
         total_supply                = int(mvk_origination.storage.totalSupply)
         maximum_supply              = int(mvk_origination.storage.maximumSupply)
         inflation_rate              = int(mvk_origination.storage.inflationRate)
@@ -35,9 +34,8 @@ async def on_mvk_origination(
             contract_address=mvk_address
         )
     
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
 
         # Get the token standard
         standard = await get_token_standard(
@@ -48,7 +46,8 @@ async def on_mvk_origination(
         # Get the related token
         token, _            = await models.Token.get_or_create(
             token_address       = mvk_address,
-            network             = ctx.datasource.network
+            network             = ctx.datasource.network,
+            token_id            = 0
         )
         if token_contract_metadata:
             token.metadata          = token_contract_metadata

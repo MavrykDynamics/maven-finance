@@ -14,7 +14,6 @@ async def on_lending_controller_mock_time_origination(
         # Get operation info
         lending_controller_address              = lending_controller_mock_time_origination.data.originated_contract_address
         timestamp                               = lending_controller_mock_time_origination.data.timestamp
-        governance_address                      = lending_controller_mock_time_origination.storage.governanceAddress
         admin                                   = lending_controller_mock_time_origination.storage.admin
         collateral_ratio                        = int(lending_controller_mock_time_origination.storage.config.collateralRatio)
         liquidation_ratio                       = int(lending_controller_mock_time_origination.storage.config.liquidationRatio)
@@ -28,6 +27,7 @@ async def on_lending_controller_mock_time_origination(
         max_decimals_for_calculation            = int(lending_controller_mock_time_origination.storage.config.maxDecimalsForCalculation)
         max_vault_liquidation_pct               = int(lending_controller_mock_time_origination.storage.config.maxVaultLiquidationPercent)
         liquidation_delay_in_minutes            = int(lending_controller_mock_time_origination.storage.config.liquidationDelayInMins)
+        liquidation_max_duration                = int(lending_controller_mock_time_origination.storage.config.liquidationMaxDuration)
         add_liquidity_paused                    = lending_controller_mock_time_origination.storage.breakGlassConfig.addLiquidityIsPaused
         remove_liquidity_paused                 = lending_controller_mock_time_origination.storage.breakGlassConfig.removeLiquidityIsPaused
         register_vault_creation_paused          = lending_controller_mock_time_origination.storage.breakGlassConfig.registerVaultCreationIsPaused
@@ -51,13 +51,9 @@ async def on_lending_controller_mock_time_origination(
             contract_address=lending_controller_address
         )
         
-        # Create record
-        governance, _       = await models.Governance.get_or_create(
-            network = ctx.datasource.network,
-            address = governance_address
-        )
-        await governance.save()
-        lending_controller  = models.LendingController(
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
+        lending_controller          = models.LendingController(
             address                                 = lending_controller_address,
             network                                 = ctx.datasource.network,
             metadata                                = contract_metadata,
@@ -77,6 +73,7 @@ async def on_lending_controller_mock_time_origination(
             max_decimals_for_calculation            = max_decimals_for_calculation,
             max_vault_liquidation_pct               = max_vault_liquidation_pct,
             liquidation_delay_in_minutes            = liquidation_delay_in_minutes,
+            liquidation_max_duration                = liquidation_max_duration,
             add_liquidity_paused                    = add_liquidity_paused,
             remove_liquidity_paused                 = remove_liquidity_paused,
             register_vault_creation_paused          = register_vault_creation_paused,

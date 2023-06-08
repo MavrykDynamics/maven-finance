@@ -15,7 +15,6 @@ async def on_vesting_origination(
         # Get operation values
         address                         = vesting_origination.data.originated_contract_address
         admin                           = vesting_origination.storage.admin
-        governance_address              = vesting_origination.storage.governanceAddress
         total_vested_amount             = int(vesting_origination.storage.totalVestedAmount)
         timestamp                       = vesting_origination.data.timestamp
     
@@ -25,9 +24,8 @@ async def on_vesting_origination(
             contract_address=address
         )
         
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(network = ctx.datasource.network, address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Create record
         vesting = models.Vesting(

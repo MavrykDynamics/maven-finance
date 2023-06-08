@@ -1,7 +1,7 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.lending_controller.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configAdminLiquidationFee, UpdateConfigActionItem1 as configCollateralRatio, UpdateConfigActionItem2 as configInterestTreasuryShare, UpdateConfigActionItem3 as configLiquidationFeePercent, UpdateConfigActionItem4 as configLiquidationRatio, UpdateConfigActionItem5 as configMinLoanFeeTreasuryShare, UpdateConfigActionItem6 as configMinimumLoanFeePercent
+from mavryk.types.lending_controller.parameter.update_config import UpdateConfigParameter
 from dipdup.models import Transaction
 from mavryk.types.lending_controller.storage import LendingControllerStorage
 import mavryk.models as models
@@ -14,34 +14,28 @@ async def on_lending_controller_update_config(
     try:
         # Get operation values
         lending_controller_address  = update_config.data.target_address
-        updated_value               = int(update_config.parameter.updateConfigNewValue)
-        update_config_action        = type(update_config.parameter.updateConfigAction)
         timestamp                   = update_config.data.timestamp
     
         # Update contract
-        lending_controller = await models.LendingController.get(
+        await models.LendingController.filter(
             network         = ctx.datasource.network,
-            address         = lending_controller_address,
-            mock_time       = False
+            address         = lending_controller_address
+        ).update(
+            last_updated_at                 = timestamp,
+            collateral_ratio                = update_config.storage.config.collateralRatio,
+            liquidation_ratio               = update_config.storage.config.liquidationRatio,
+            liquidation_fee_pct             = update_config.storage.config.liquidationFeePercent,
+            admin_liquidation_fee_pct       = update_config.storage.config.adminLiquidationFeePercent,
+            minimum_loan_fee_pct            = update_config.storage.config.minimumLoanFeePercent,
+            minimum_loan_treasury_share     = update_config.storage.config.minimumLoanFeeTreasuryShare,
+            interest_treasury_share         = update_config.storage.config.interestTreasuryShare,
+            decimals                        = update_config.storage.config.decimals,
+            interest_rate_decimals          = update_config.storage.config.interestRateDecimals,
+            max_decimals_for_calculation    = update_config.storage.config.maxDecimalsForCalculation,
+            max_vault_liquidation_pct       = update_config.storage.config.maxVaultLiquidationPercent,
+            liquidation_delay_in_minutes    = update_config.storage.config.liquidationDelayInMins,
+            liquidation_max_duration        = update_config.storage.config.liquidationMaxDuration,
         )
-        lending_controller.last_updated_at    = timestamp
-        if update_config_action == configAdminLiquidationFee:
-            lending_controller.admin_liquidation_fee_pct    = updated_value
-        elif update_config_action == configCollateralRatio:
-            lending_controller.collateral_ratio             = updated_value
-        elif update_config_action == configInterestTreasuryShare:
-            lending_controller.interest_treasury_share      = updated_value
-        elif update_config_action == configLiquidationFeePercent:
-            lending_controller.liquidation_fee_pct          = updated_value
-        elif update_config_action == configLiquidationRatio:
-            lending_controller.liquidation_ratio            = updated_value
-        elif update_config_action == configMinLoanFeeTreasuryShare:
-            lending_controller.minimum_loan_treasury_share  = updated_value
-        elif update_config_action == configMinimumLoanFeePercent:
-            lending_controller.minimum_loan_fee_pct         = updated_value
-    
-        
-        await lending_controller.save()
 
     except BaseException as e:
          await save_error_report(e)
