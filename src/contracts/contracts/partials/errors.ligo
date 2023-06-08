@@ -1147,7 +1147,7 @@
 [@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED                                          = 810n;
 [@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                       = 811n;
 
-[@inline] const error_VAULT_LAMBDA_OPT_NOT_FOUND_IN_VAULT_FACTORY                                                       = 812n;
+[@inline] const error_GET_VAULT_LAMBDA_OPT_NOT_FOUND_IN_VAULT_FACTORY                                                       = 812n;
 [@inline] const error_GET_GOVERNANCE_ADDRESS_VIEW_NOT_FOUND_IN_VAULT_FACTORY                                            = 813n;
 [@inline] const error_GET_CONFIG_VIEW_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                               = 814n;
 

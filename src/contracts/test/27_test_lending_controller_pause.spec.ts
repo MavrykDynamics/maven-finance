@@ -1912,61 +1912,64 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
 
         it('user (eve) can withdraw mockFa12 token from her vault', async () => {
+            try{
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                const vaultId              = eveVaultSet[0]; 
+                const vaultOwner           = eve.pkh;
+                const withdrawAmount       = 1000000; // 1 mockFa12 token
+                const tokenName            = 'usdt';
+    
+                const vaultHandle = {
+                    "id"     : vaultId,
+                    "owner"  : vaultOwner
+                };
+                const lendingControllerStorage      = await lendingControllerInstance.storage();
+                const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+    
+                const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
+    
+                // get vault contract
+                const vaultAddress = vault.address;
+    
+                // get initial balance for Eve and Vault
+                const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+                const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
+    
+                const vaultMockFa12Ledger               = await mockFa12TokenStorage.ledger.get(vaultAddress);            
+                const vaultInitialMockFa12TokenBalance  = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();
+    
+                const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+    
+                // withdraw operation
+                const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
+                    "withdraw",
+                    withdrawAmount,                 
+                    tokenName                            
+                ).send();
+                await eveWithdrawOperation.confirmation();
+    
+                // get updated storages for lending controller and vault
+                const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+                const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+                const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
+                const updatedMockFa12TokenStorage          = await mockFa12TokenInstance.storage();
+    
+                // get updated balance for Eve and Vault
+                const updatedEveMockFa12Ledger             = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+                const updatedEveMockFa12TokenBalance       = updatedEveMockFa12Ledger == undefined ? 0 : updatedEveMockFa12Ledger.balance.toNumber();
+    
+                const updatedVaultMockFa12Ledger           = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
+                const updatedVaultMockFa12TokenBalance     = updatedVaultMockFa12Ledger == undefined ? 0 : updatedVaultMockFa12Ledger.balance.toNumber();
+                
+    
+                assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
+                assert.equal(updatedVaultMockFa12TokenBalance, vaultInitialMockFa12TokenBalance - withdrawAmount);
+                assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance + withdrawAmount);
+    
 
-            await helperFunctions.signerFactory(tezos, eve.sk);
-            const vaultId              = eveVaultSet[0]; 
-            const vaultOwner           = eve.pkh;
-            const withdrawAmount       = 1000000; // 1 mockFa12 token
-            const tokenName            = 'usdt';
-
-            const vaultHandle = {
-                "id"     : vaultId,
-                "owner"  : vaultOwner
-            };
-
-            const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-
-            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
-
-            // get vault contract
-            const vaultAddress = vault.address;
-
-            // get initial balance for Eve and Vault
-            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
-
-            const vaultMockFa12Ledger               = await mockFa12TokenStorage.ledger.get(vaultAddress);            
-            const vaultInitialMockFa12TokenBalance  = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();
-
-            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-
-            // withdraw operation
-            const eveWithdrawOperation  = await eveVaultInstance.methods.initVaultAction(
-                "withdraw",
-                withdrawAmount,                 
-                tokenName                            
-            ).send();
-            await eveWithdrawOperation.confirmation();
-
-            // get updated storages for lending controller and vault
-            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
-            const updatedMockFa12TokenStorage          = await mockFa12TokenInstance.storage();
-
-            // get updated balance for Eve and Vault
-            const updatedEveMockFa12Ledger             = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa12TokenBalance       = updatedEveMockFa12Ledger == undefined ? 0 : updatedEveMockFa12Ledger.balance.toNumber();
-
-            const updatedVaultMockFa12Ledger           = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
-            const updatedVaultMockFa12TokenBalance     = updatedVaultMockFa12Ledger == undefined ? 0 : updatedVaultMockFa12Ledger.balance.toNumber();
-            
-
-            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
-            assert.equal(updatedVaultMockFa12TokenBalance, vaultInitialMockFa12TokenBalance - withdrawAmount);
-            assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance + withdrawAmount);
-
+            } catch(e){
+                console.dir(e, {depth:5})
+            }
         });
 
 

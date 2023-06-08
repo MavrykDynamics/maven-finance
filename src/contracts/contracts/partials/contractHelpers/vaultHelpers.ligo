@@ -248,13 +248,13 @@ block {
     const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
 
     // get vault lambda view from vault factory
-    const getVaultLambdaOptView : option(option (bytes)) = Tezos.call_view ("vaultLambdaOpt", lambdaName, vaultFactoryAddress);
+    const getVaultLambdaOptView : option(option (bytes)) = Tezos.call_view ("getVaultLambdaOpt", lambdaName, vaultFactoryAddress);
     const vaultLambdaBytes : bytes = case getVaultLambdaOptView of [
             Some (_viewResult) -> case _viewResult of [
                     Some (_lambda)  -> _lambda
                 |   None            -> failwith (error_VAULT_LAMBDA_NOT_FOUND_IN_VAULT_FACTORY_VAULT_LAMBDA_LEDGER)
             ]
-        |   None           -> failwith(error_VAULT_LAMBDA_OPT_NOT_FOUND_IN_VAULT_FACTORY)
+        |   None           -> failwith(error_GET_VAULT_LAMBDA_OPT_NOT_FOUND_IN_VAULT_FACTORY)
     ];
 
 } with vaultLambdaBytes
