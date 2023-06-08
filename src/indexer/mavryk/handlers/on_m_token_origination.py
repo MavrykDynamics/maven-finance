@@ -15,7 +15,6 @@ async def on_m_token_origination(
         # Get operation info
         m_token_address             = m_token_origination.data.originated_contract_address
         admin                       = m_token_origination.storage.admin
-        governance_address          = m_token_origination.storage.governanceAddress
         loan_token_name             = m_token_origination.storage.loanToken
         is_scaled_token             = m_token_origination.storage.isScaledToken
         total_supply                = float(m_token_origination.storage.totalSupply)

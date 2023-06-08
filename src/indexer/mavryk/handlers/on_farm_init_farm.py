@@ -15,7 +15,6 @@ async def on_farm_init_farm(
         # Get operation info
         farm_address                    = init_farm.data.target_address
         admin                           = init_farm.storage.admin
-        governance_address              = init_farm.storage.governanceAddress
         force_rewards_from_transfer     = init_farm.storage.config.forceRewardFromTransfer
         infinite                        = init_farm.storage.config.infinite
         total_blocks                    = int(init_farm.storage.config.plannedRewards.totalBlocks)

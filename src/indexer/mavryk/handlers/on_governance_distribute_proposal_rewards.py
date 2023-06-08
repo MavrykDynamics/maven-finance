@@ -12,7 +12,6 @@ async def on_governance_distribute_proposal_rewards(
 
     try:
         # Get operation info
-        governance_address  = distribute_proposal_rewards.data.target_address
         satellite_address   = distribute_proposal_rewards.parameter.satelliteAddress
         proposal_ids        = distribute_proposal_rewards.parameter.proposalIds
     

@@ -14,7 +14,6 @@ async def on_vault_factory_origination(
     try:
         # Get operation info
         vault_factory_address   = vault_factory_origination.data.originated_contract_address
-        governance_address      = vault_factory_origination.storage.governanceAddress
         admin                   = vault_factory_origination.storage.admin
         timestamp               = vault_factory_origination.data.timestamp
         vault_name_max_length   = int(vault_factory_origination.storage.config.vaultNameMaxLength)

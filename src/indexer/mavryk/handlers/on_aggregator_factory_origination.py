@@ -15,7 +15,6 @@ async def on_aggregator_factory_origination(
         # Get operation info
         aggregator_factory_address      = aggregator_factory_origination.data.originated_contract_address
         admin                           = aggregator_factory_origination.storage.admin
-        governance_address              = aggregator_factory_origination.storage.governanceAddress
         create_aggregator_paused        = aggregator_factory_origination.storage.breakGlassConfig.createAggregatorIsPaused
         track_aggregator_paused         = aggregator_factory_origination.storage.breakGlassConfig.trackAggregatorIsPaused
         untrack_aggregator_paused       = aggregator_factory_origination.storage.breakGlassConfig.untrackAggregatorIsPaused

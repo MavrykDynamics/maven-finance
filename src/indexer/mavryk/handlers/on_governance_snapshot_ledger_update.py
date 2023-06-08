@@ -20,7 +20,6 @@ async def on_governance_snapshot_ledger_update(
         # Create snapshot record
         if key and value:
             # Get the data
-            governance_address      = snapshot_ledger.data.contract_address
             governance_cycle        = int(key.nat)
             satellite_address       = key.address
             ready                   = value.ready
