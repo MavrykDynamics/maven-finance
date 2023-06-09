@@ -23,7 +23,7 @@ block {
 function verifySenderIsEmergencyGovernanceContract(var s : breakGlassStorageType) : unit is
 block{
     
-    const emergencyGovernanceAddress : address = getLocalWhitelistContract("emergencyGovernance", s.whitelistContracts, error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND);
+    const emergencyGovernanceAddress : address = getContractAddressFromGovernanceContract("emergencyGovernance", s.governanceAddress, error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[emergencyGovernanceAddress], error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED)
 
 } with unit

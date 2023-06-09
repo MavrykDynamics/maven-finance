@@ -37,9 +37,8 @@ type updateGeneralContractsType is [@layout:comb] record [
 // Whitelist Contract Types
 // ------------------------------------------------------------------------------
 
-type whitelistContractsType is map (string, address)
+type whitelistContractsType is big_map (address, unit)
 type updateWhitelistContractsType is [@layout:comb] record [
-    whitelistContractName     : string;
     whitelistContractAddress  : address;
     updateType                : updateType;
 ]
@@ -48,9 +47,8 @@ type updateWhitelistContractsType is [@layout:comb] record [
 // Whitelist Token Contract Types
 // ------------------------------------------------------------------------------
 
-type whitelistTokenContractsType is map (string, address)
+type whitelistTokenContractsType is big_map (address, unit)
 type updateWhitelistTokenContractsType is [@layout:comb] record [
-    tokenContractName     : string;
     tokenContractAddress  : address;
     updateType            : updateType;
 ]

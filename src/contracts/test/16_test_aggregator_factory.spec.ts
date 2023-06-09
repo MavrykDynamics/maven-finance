@@ -286,19 +286,19 @@ describe('AggregatorFactory', () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await getStorageMapValue(aggregatorFactoryStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(aggregatorFactoryInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(aggregatorFactoryInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(aggregatorFactoryStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -309,18 +309,18 @@ describe('AggregatorFactory', () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(aggregatorFactoryStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(aggregatorFactoryInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(aggregatorFactoryInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(aggregatorFactoryStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
@@ -807,12 +807,12 @@ describe('AggregatorFactory', () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(aggregatorFactoryStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await aggregatorFactoryInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
+                updateWhitelistContractsOperation = await aggregatorFactoryInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage()

@@ -152,6 +152,7 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             echo "Deploying treasury"
             COMMANDS+=("yarn ts-mocha --paths test/deploy/12_deploy_treasury.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x2_setup_funds.spec.ts --bail --timeout 9000000")
             ;;
         treasuryFactory)
             echo "Deploying treasuryFactory"

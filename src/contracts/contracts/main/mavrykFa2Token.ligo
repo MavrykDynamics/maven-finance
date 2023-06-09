@@ -171,9 +171,9 @@ block{
 
 
 
-(* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const store : mavrykFa2TokenStorageType) : whitelistContractsType is
-    store.whitelistContracts
+(* get: whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mavrykFa2TokenStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 

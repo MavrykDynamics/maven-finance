@@ -548,7 +548,7 @@ describe("Stress tests", async () => {
         before("Add Admin to delegation whitelist contracts", async () => {
             try{
                 await helperFunctions.signerFactory(tezos, bob.sk)
-                const updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts('Admin', bob.pkh).send()
+                const updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(bob.pkh, 'update').send()
                 await updateWhitelistContractsOperation.confirmation();
             } catch(e) {
                 console.dir(e, {depth: 5})
