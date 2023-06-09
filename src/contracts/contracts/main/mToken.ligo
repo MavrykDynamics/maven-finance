@@ -270,9 +270,9 @@ block {
 
 
 
-(* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : mTokenStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* get: whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mTokenStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 

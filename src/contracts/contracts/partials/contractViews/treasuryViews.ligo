@@ -22,15 +22,15 @@
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : treasuryStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : treasuryStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContracts(const _ : unit; const s : treasuryStorageType) : whitelistTokenContractsType is
-    s.whitelistTokenContracts
+[@view] function getWhitelistTokenContractOpt(const contractAddress : address; const s : treasuryStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, s.whitelistTokenContracts)
 
 
 

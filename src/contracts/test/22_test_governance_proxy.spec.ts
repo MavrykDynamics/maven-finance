@@ -1106,9 +1106,9 @@ describe('Governance proxy lambdas tests', async () => {
                     treasuryStorage     = await treasuryInstance.storage();
     
                     // Set WhitelistContracts Operation
-                    const adminWhitelist        = await treasuryStorage.whitelistContracts.get("admin");
+                    const adminWhitelist        = await treasuryStorage.whitelistContracts.get(contractDeployments.governanceProxy.address);
                     if(adminWhitelist === undefined){
-                        const updateWhitelistContractsOperation    = await treasuryInstance.methods.updateWhitelistContracts("admin", contractDeployments.governanceProxy.address, "update").send();
+                        const updateWhitelistContractsOperation    = await treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address, "update").send();
                         await updateWhitelistContractsOperation.confirmation();
                     }
     
@@ -1118,18 +1118,18 @@ describe('Governance proxy lambdas tests', async () => {
                     await transferXTZOperation.confirmation();
                     
                     // FA12
-                    const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get("mavrykFa12");
+                    const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavrykFa12Token.address);
                     if(fa12InTreasury === undefined){
-                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa12", contractDeployments.mavrykFa12Token.address, "update").send();
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
                     }
                     const transferFA12Operation = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasury.address, 50).send();
                     await transferFA12Operation.confirmation();
                     
                     // FA2
-                    const fa2InTreasury         = await treasuryStorage.whitelistTokenContracts.get("mavrykFa2");
+                    const fa2InTreasury         = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavrykFa2Token.address);
                     if(fa2InTreasury === undefined){
-                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts("mavrykFa2", contractDeployments.mavrykFa2Token.address, "update").send();
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
                     }
                     const transferFA2Operation  = await mavrykFa2TokenInstance.methods.transfer([
@@ -3163,9 +3163,8 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     doormanStorage                      = await doormanInstance.storage();
-                    const whitelistContractName         = "test";
                     const whitelistContractAddress      = bob.pkh;
-                    const initDoormanWhitelistContract  = await doormanStorage.whitelistContracts.get(whitelistContractName);
+                    const initDoormanWhitelistContract  = await doormanStorage.whitelistContracts.get(whitelistContractAddress);
                     
                     // Operation
                     const lambdaFunction        = await createLambdaBytes(
@@ -3175,7 +3174,6 @@ describe('Governance proxy lambdas tests', async () => {
                         'updateWhitelistContracts',
                         [
                             contractDeployments.doorman.address,
-                            whitelistContractName,
                             whitelistContractAddress,
                             "Update"
                         ]
@@ -3185,7 +3183,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalDoormanWhitelistContract = await doormanStorage.whitelistContracts.get(whitelistContractName);
+                    const finalDoormanWhitelistContract = await doormanStorage.whitelistContracts.get(whitelistContractAddress);
 
                     // Assertions
                     assert.notStrictEqual(initDoormanWhitelistContract, finalDoormanWhitelistContract);
@@ -3237,9 +3235,8 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     treasuryFactoryStorage                              = await treasuryFactoryInstance.storage();
-                    const whitelistTokenContractName                    = "test";
                     const whitelistTokenContractAddress                 = bob.pkh;
-                    const initTreasuryFactoryWhitelistTokenContract     = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractName);
+                    const initTreasuryFactoryWhitelistTokenContract     = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractAddress);
                     
                     // Operation
                     const lambdaFunction                                = await createLambdaBytes(
@@ -3249,7 +3246,6 @@ describe('Governance proxy lambdas tests', async () => {
                         'updateWhitelistTokenContracts',
                         [
                             contractDeployments.treasuryFactory.address,
-                            whitelistTokenContractName,
                             whitelistTokenContractAddress,
                             "Update"
                         ]
@@ -3259,11 +3255,11 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     treasuryFactoryStorage                              = await treasuryFactoryInstance.storage();
-                    const finalTreasuryFactoryWhitelistTokenContract    = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractName);
+                    const finalTreasuryFactoryWhitelistTokenContract    = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractAddress);
 
                     // Assertions
                     assert.notStrictEqual(initTreasuryFactoryWhitelistTokenContract, finalTreasuryFactoryWhitelistTokenContract);
-                    assert.strictEqual(finalTreasuryFactoryWhitelistTokenContract, whitelistTokenContractAddress);
+                    assert.notStrictEqual(finalTreasuryFactoryWhitelistTokenContract, undefined);
 
                 } catch(e){
                     console.dir(e, {depth: 5});

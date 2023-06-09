@@ -1,5 +1,6 @@
 import assert from "assert";
 import { Utils, MVK } from "./helpers/Utils";
+import { BigNumber } from 'bignumber.js'
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -56,6 +57,7 @@ describe("Treasury tests", async () => {
         await utils.init(bob.sk);
         tezos = utils.tezos;
 
+        mvkTokenAddress         = contractDeployments.mvkToken.address;
         doormanAddress          = contractDeployments.doorman.address;
         delegationAddress       = contractDeployments.delegation.address;
         treasuryAddress         = contractDeployments.treasury.address;
@@ -133,15 +135,16 @@ describe("Treasury tests", async () => {
             try{        
                 
                 // Alice transfers 80 XTZ to Treasury
-                const depositAmount = 80;
-                const depositAmountMutez = 80000000;
+                const depositAmount             = 80;
+                const depositAmountMutez        = 80000000;
+                const initTreasuryTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
                 
                 await helperFunctions.signerFactory(tezos, alice.sk)
                 const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: depositAmount});
                 await aliceTransferTezToTreasuryOperation.confirmation();
 
-                const treasuryTezBalance         = await utils.tezos.tz.getBalance(treasuryAddress);
-                assert.equal(treasuryTezBalance, depositAmountMutez);
+                const treasuryTezBalance        = await utils.tezos.tz.getBalance(treasuryAddress);
+                assert.deepEqual(treasuryTezBalance, initTreasuryTezBalance.plus(depositAmountMutez));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -152,7 +155,10 @@ describe("Treasury tests", async () => {
             try{        
                 
                 // Alice transfers 80 Mavryk FA12 Tokens to Treasury
-                const depositAmount = 80000000;
+                const depositAmount                         = 80000000;
+                mavrykFa12TokenStorage                      = await mavrykFa12TokenInstance.storage();
+                var initTreasuryMavrykFa12TokenBalance      = await mavrykFa12TokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMavrykFa12TokenBalance          = initTreasuryMavrykFa12TokenBalance ? initTreasuryMavrykFa12TokenBalance.balance : new BigNumber(0);
         
                 await helperFunctions.signerFactory(tezos, alice.sk)
                 const aliceTransferMavrykFa12ToTreasuryOperation = await mavrykFa12TokenInstance.methods.transfer(
@@ -162,10 +168,10 @@ describe("Treasury tests", async () => {
                     ).send();
                 await aliceTransferMavrykFa12ToTreasuryOperation.confirmation();
 
-                const updatedMavrykFa12TokenStorage       = await mavrykFa12TokenInstance.storage();
-                const treasuryMavrykFa12TokenBalance      = await updatedMavrykFa12TokenStorage.ledger.get(treasuryAddress);
+                mavrykFa12TokenStorage                      = await mavrykFa12TokenInstance.storage();
+                const treasuryMavrykFa12TokenBalance        = await mavrykFa12TokenStorage.ledger.get(treasuryAddress);
 
-                assert.equal(treasuryMavrykFa12TokenBalance.balance, depositAmount);
+                assert.deepEqual(treasuryMavrykFa12TokenBalance.balance, initTreasuryMavrykFa12TokenBalance.plus(depositAmount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -177,6 +183,9 @@ describe("Treasury tests", async () => {
                 
                 // Alice transfers 80 Mavryk FA2 Tokens to Treasury
                 const depositAmount = 80000000;
+                mavrykFa2TokenStorage                       = await mavrykFa2TokenInstance.storage();
+                var initTreasuryMavrykFa2TokenBalance       = await mavrykFa2TokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMavrykFa2TokenBalance           = initTreasuryMavrykFa2TokenBalance ? initTreasuryMavrykFa2TokenBalance : new BigNumber(0);
         
                 await helperFunctions.signerFactory(tezos, alice.sk)
                 const aliceTransferMavrykFa2ToTreasuryOperation = await mavrykFa2TokenInstance.methods.transfer([
@@ -193,10 +202,10 @@ describe("Treasury tests", async () => {
                     ]).send();
                 await aliceTransferMavrykFa2ToTreasuryOperation.confirmation();
 
-                const updatedMavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const treasuryMavrykFa2TokenBalance      = await updatedMavrykFa2TokenStorage.ledger.get(treasuryAddress);
+                mavrykFa2TokenStorage                       = await mavrykFa2TokenInstance.storage();
+                const treasuryMavrykFa2TokenBalance         = await mavrykFa2TokenStorage.ledger.get(treasuryAddress);
 
-                assert.equal(treasuryMavrykFa2TokenBalance, depositAmount);
+                assert.deepEqual(treasuryMavrykFa2TokenBalance, initTreasuryMavrykFa2TokenBalance.plus(depositAmount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -209,8 +218,9 @@ describe("Treasury tests", async () => {
                 // Alice transfers 80 MVK Tokens to Treasury
                 const depositAmount = MVK(80);
         
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
-                const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress);
+                mvkTokenStorage                         = await mvkTokenInstance.storage();
+                var initTreasuryMvkTokenBalance         = await mvkTokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMvkTokenBalance             = initTreasuryMvkTokenBalance ? initTreasuryMvkTokenBalance : new BigNumber(0);
 
                 await helperFunctions.signerFactory(tezos, alice.sk)
                 const aliceTransferMavrykFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
@@ -227,7 +237,7 @@ describe("Treasury tests", async () => {
                     ]).send();
                 await aliceTransferMavrykFa2ToTreasuryOperation.confirmation();
 
-                mvkTokenStorage       = await mvkTokenInstance.storage();
+                mvkTokenStorage                         = await mvkTokenInstance.storage();
                 const finalTreasuryMvkTokenBalance      = await mvkTokenStorage.ledger.get(treasuryAddress);
 
                 assert.equal(finalTreasuryMvkTokenBalance.toNumber(), initTreasuryMvkTokenBalance.toNumber() + depositAmount);
@@ -244,14 +254,14 @@ describe("Treasury tests", async () => {
         before("Set Bob as whitelist", async() => {
             await helperFunctions.signerFactory(tezos, bob.sk);
             const adminUpdateWhitelistContractsOperation = await treasuryInstance.methods.updateWhitelistContracts(
-                 "admin",
-                 bob.pkh
+                bob.pkh,
+                "update"
             ).send();
             await adminUpdateWhitelistContractsOperation.confirmation();
 
             const treasuryStorage            = await treasuryInstance.storage();
-            const treasuryWhitelistContracts = await treasuryStorage.whitelistContracts.get("admin");
-            assert.equal(treasuryWhitelistContracts, bob.pkh);
+            const treasuryWhitelistContracts = await treasuryStorage.whitelistContracts.get(bob.pkh);
+            assert.notStrictEqual(treasuryWhitelistContracts, undefined);
         })
 
         it('Whitelist contract should be able to call this entrypoint and transfer XTZ', async () => {
@@ -261,6 +271,8 @@ describe("Treasury tests", async () => {
                 const amount     = 10000000;
 
                 await helperFunctions.signerFactory(tezos, bob.sk);
+                const initTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
+
                 const adminTransferTezOperation = await treasuryInstance.methods.transfer(
                 [
                     {
@@ -274,9 +286,8 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminTransferTezOperation.confirmation();
 
-                const finalTezBalance    = 70000000;
                 const treasuryTezBalance = await utils.tezos.tz.getBalance(treasuryAddress);
-                assert.equal(treasuryTezBalance, finalTezBalance);
+                assert.deepEqual(treasuryTezBalance, initTezBalance.plus(amount));
                 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -286,9 +297,12 @@ describe("Treasury tests", async () => {
         it('Whitelist contract should be able to call this entrypoint and transfer FA12', async () => {
             try{        
                 
-                const to_                   = bob.pkh;
-                const amount                = 10000000;
-                const tokenContractAddress  = mavrykFa12TokenAddress;
+                const to_                               = bob.pkh;
+                const amount                            = 10000000;
+                const tokenContractAddress              = mavrykFa12TokenAddress;
+                mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
+                var initMavrykFa12TokenBalance          = await mavrykFa12TokenStorage.ledger.get(treasuryAddress);
+                initMavrykFa12TokenBalance              = initMavrykFa12TokenBalance ? initMavrykFa12TokenBalance.balance : new BigNumber(0);
 
                 await helperFunctions.signerFactory(tezos, bob.sk);
                 const adminTransferMavrykFa12TokenOperation = await treasuryInstance.methods.transfer(
@@ -303,12 +317,10 @@ describe("Treasury tests", async () => {
                     ]
                 ).send();
                 await adminTransferMavrykFa12TokenOperation.confirmation();
+                mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
+                const treasuryMavrykFa12TokenBalance    = await mavrykFa12TokenStorage.ledger.get(treasuryAddress);
 
-                const finalMavrykFa12TokenBalance      = 70000000;
-                const updatedMavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
-                const treasuryMavrykFa12TokenBalance   = await updatedMavrykFa12TokenStorage.ledger.get(treasuryAddress);
-
-                assert.equal(treasuryMavrykFa12TokenBalance.balance, finalMavrykFa12TokenBalance);
+                assert.deepEqual(treasuryMavrykFa12TokenBalance.balance, initMavrykFa12TokenBalance.plus(amount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -322,6 +334,10 @@ describe("Treasury tests", async () => {
                 const amount                 = 10000000;
                 const tokenContractAddress   = mavrykFa2TokenAddress;
                 const tokenId                = 0;
+
+                mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+                var initMavrykFa2TokenBalance   = await mavrykFa2TokenStorage.ledger.get(treasuryAddress);
+                initMavrykFa2TokenBalance       = initMavrykFa2TokenBalance ? initMavrykFa2TokenBalance : new BigNumber(0);
 
                 await helperFunctions.signerFactory(tezos, bob.sk);
                 const adminTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
@@ -339,12 +355,10 @@ describe("Treasury tests", async () => {
                     ]
                 ).send();
                 await adminTransferMavrykFa2TokenOperation.confirmation();
+                mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+                const treasuryMavrykFa2TokenBalance = await mavrykFa2TokenStorage.ledger.get(treasuryAddress);
 
-                const finalMavrykFa2TokenBalance      = 70000000;
-                const updatedMavrykFa2TokenStorage    = await mavrykFa2TokenInstance.storage();
-                const treasuryMavrykFa2TokenBalance   = await updatedMavrykFa2TokenStorage.ledger.get(treasuryAddress);
-
-                assert.equal(treasuryMavrykFa2TokenBalance, finalMavrykFa2TokenBalance);
+                assert.deepEqual(treasuryMavrykFa2TokenBalance, initMavrykFa2TokenBalance.plus(amount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -891,7 +905,7 @@ describe("Treasury tests", async () => {
                 const stakeAmount                   = MVK(10);
 
                 // Operations
-                const stakeOperation = await treasuryInstance.methods.stakeMvk(stakeAmount).send();
+                const stakeOperation                = await treasuryInstance.methods.stakeMvk(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // Final values
@@ -929,7 +943,7 @@ describe("Treasury tests", async () => {
 
                 // Update config
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
+                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send();
                 await updateGeneralContractOperation.confirmation();
 
                 // Operations
@@ -938,7 +952,7 @@ describe("Treasury tests", async () => {
 
                 // Reset config
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
+                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -995,7 +1009,7 @@ describe("Treasury tests", async () => {
 
                 // Update config
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
+                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send();
                 await updateGeneralContractOperation.confirmation();
 
                 // Operations
@@ -1004,7 +1018,7 @@ describe("Treasury tests", async () => {
 
                 // Reset config
                 await helperFunctions.signerFactory(tezos, bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress).send();
+                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth:  5});

@@ -118,7 +118,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
 
         // Whitelist Bob in the delegation contract (to be able to call the %distributeReward entrypoint)
         await helperFunctions.signerFactory(tezos, adminSk)
-        const updateWhitelistOperation  = await delegationInstance.methods.updateWhitelistContracts("admin", admin, 'update').send();
+        const updateWhitelistOperation  = await delegationInstance.methods.updateWhitelistContracts(admin, 'update').send();
         await updateWhitelistOperation.confirmation();
 
         // Set doorman admin in order for the packed data to work

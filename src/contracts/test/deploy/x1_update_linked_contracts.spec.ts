@@ -68,19 +68,19 @@ describe('Linked contracts updates for Tests', async () => {
             await signerFactory(tezos, bob.sk);
 
             // Break Glass Contract - set whitelist contract addresses [emergencyGovernance]
-            const breakGlassContractOperation = await breakGlassInstance.methods.updateWhitelistContracts("emergencyGovernance", contractDeployments.emergencyGovernance.address, 'update').send();
+            const breakGlassContractOperation = await breakGlassInstance.methods.updateWhitelistContracts(contractDeployments.emergencyGovernance.address, 'update').send();
             await breakGlassContractOperation.confirmation();
 
             console.log('Break Glass Contract - set whitelist contract addresses [emergencyGovernance]')
             
             // Treasury Factory Contract - set whitelist contract addresses [mvkToken]
-            const treasuryFactoryContractOperation = await treasuryFactoryInstance.methods.updateWhitelistContracts("mvk", contractDeployments.mvkToken.address, 'update').send();
+            const treasuryFactoryContractOperation = await treasuryFactoryInstance.methods.updateWhitelistContracts(contractDeployments.mvkToken.address, 'update').send();
             await treasuryFactoryContractOperation.confirmation();
         
             console.log('Treasury Factory Contract - set whitelist contract addresses [mvkToken]')
             
             // Governance Satellite Contract - set whitelist contract addresses [mvkToken]
-            const governanceSatelliteContractOperation = await governanceSatelliteInstance.methods.updateWhitelistContracts("aggregatorFactory", contractDeployments.aggregatorFactory.address, 'update').send();
+            const governanceSatelliteContractOperation = await governanceSatelliteInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send();
             await governanceSatelliteContractOperation.confirmation();
 
             console.log('Governance Satellite Contract - set whitelist contract addresses [aggregatorFactory]')
@@ -89,7 +89,7 @@ describe('Linked contracts updates for Tests', async () => {
             // Aggregator Factory Contract - set general contract addresses [governanceSatellite]
             const aggregatorFactoryContractsBatch = await utils.tezos.wallet
             .batch()
-            .withContractCall(aggregatorFactoryInstance.methods.updateWhitelistContracts("governanceSatellite", contractDeployments.governanceSatellite.address, 'update'))
+            .withContractCall(aggregatorFactoryInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update'))
             
             const aggregatorFactoryContractsBatchOperation = await aggregatorFactoryContractsBatch.send()
             await aggregatorFactoryContractsBatchOperation.confirmation();
@@ -99,8 +99,8 @@ describe('Linked contracts updates for Tests', async () => {
             // Aggregator Contract - set whitelist contract addresses [aggregatorFactory]
             const aggregatorContractsBatch = await utils.tezos.wallet
             .batch()
-            .withContractCall(aggregatorInstance.methods.updateWhitelistContracts("aggregatorFactory", contractDeployments.aggregatorFactory.address, 'update'))
-            .withContractCall(aggregatorInstance.methods.updateWhitelistContracts("governanceSatellite", contractDeployments.governanceSatellite.address, 'update'))
+            .withContractCall(aggregatorInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update'))
+            .withContractCall(aggregatorInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update'))
             
             const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
             await aggregatorContractsBatchOperation.confirmation();
@@ -112,9 +112,9 @@ describe('Linked contracts updates for Tests', async () => {
             const mvkContractsBatch = await utils.tezos.wallet
                 .batch()
                 .withContractCall(mvkTokenInstance.methods.setGovernance(contractDeployments.governance.address, 'update'))
-                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts("doorman", contractDeployments.doorman.address, 'update'))
-                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts('vesting', contractDeployments.vesting.address, 'update'))
-                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts('treasury', contractDeployments.treasury.address, 'update'))
+                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address, 'update'))
+                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts(contractDeployments.vesting.address, 'update'))
+                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts(contractDeployments.treasury.address, 'update'))
                 
             const mvkContractsBatchOperation = await mvkContractsBatch.send()
             await mvkContractsBatchOperation.confirmation();
@@ -129,8 +129,8 @@ describe('Linked contracts updates for Tests', async () => {
             // Farm FA2 Contract - set whitelist contract addresses [council]
             const farmContractsBatch = await utils.tezos.wallet
                 .batch()
-                .withContractCall(farmInstance.methods.updateWhitelistContracts('council', contractDeployments.council.address, 'update'))
-                .withContractCall(farmFa2Instance.methods.updateWhitelistContracts('council', contractDeployments.council.address, 'update'))
+                .withContractCall(farmInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update'))
+                .withContractCall(farmFa2Instance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update'))
             const farmContractsBatchOperation = await farmContractsBatch.send()
             await farmContractsBatchOperation.confirmation();
         
@@ -140,7 +140,7 @@ describe('Linked contracts updates for Tests', async () => {
         
         
             // Farm Factory Contract - set whitelist contract addresses [council]
-            const setCouncilContractAddressInFarmFactoryOperation = (await farmFactoryInstance.methods.updateWhitelistContracts('council', contractDeployments.council.address, 'update').send()) as TransactionOperation
+            const setCouncilContractAddressInFarmFactoryOperation = (await farmFactoryInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()) as TransactionOperation
             await setCouncilContractAddressInFarmFactoryOperation.confirmation();
             console.log('Farm Factory Contract - set whitelist contract addresses [council]')
         
@@ -151,15 +151,15 @@ describe('Linked contracts updates for Tests', async () => {
             .batch()
 
             // whitelist contracts
-            .withContractCall(delegationInstance.methods.updateWhitelistContracts('treasury', contractDeployments.treasury.address,                         'update'))
-            .withContractCall(delegationInstance.methods.updateWhitelistContracts("governance", contractDeployments.governance.address,                     'update'))
-            .withContractCall(delegationInstance.methods.updateWhitelistContracts("governanceSatellite", contractDeployments.governanceSatellite.address,   'update'))
-            .withContractCall(delegationInstance.methods.updateWhitelistContracts("aggregatorFactory", contractDeployments.aggregatorFactory.address,       'update'))
+            .withContractCall(delegationInstance.methods.updateWhitelistContracts(contractDeployments.treasury.address,                                     'update'))
+            .withContractCall(delegationInstance.methods.updateWhitelistContracts(contractDeployments.governance.address,                                   'update'))
+            .withContractCall(delegationInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address,                          'update'))
+            .withContractCall(delegationInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address,                            'update'))
 
             const delegationContractsBatchOperation = await delegationContractsBatch.send()
             await delegationContractsBatchOperation.confirmation();
             console.log('Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]')
-            console.log("MOCK?:", process.env.MOCK_TIME)
+
             // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
             const governanceContractsBatch = await utils.tezos.wallet
             .batch()
@@ -186,13 +186,13 @@ describe('Linked contracts updates for Tests', async () => {
             .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , process.env.MOCK_TIME === "true" ? contractDeployments.lendingControllerMockTime.address : contractDeployments.lendingController.address,    'update'))
         
             // whitelist contracts
-            .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory'        , contractDeployments.vaultFactory.address,         'update'))
-            .withContractCall(governanceInstance.methods.updateWhitelistContracts('farmFactory'         , contractDeployments.farmFactory.address,          'update'))
-            .withContractCall(governanceInstance.methods.updateWhitelistContracts('treasuryFactory'     , contractDeployments.treasuryFactory.address,      'update'))
-            .withContractCall(governanceInstance.methods.updateWhitelistContracts('aggregatorFactory'   , contractDeployments.aggregatorFactory.address,    'update'))
-            .withContractCall(governanceInstance.methods.updateWhitelistContracts('delegation'          , contractDeployments.delegation.address,           'update'))
-            .withContractCall(governanceInstance.methods.updateWhitelistContracts('governanceSatellite' , contractDeployments.governanceSatellite.address,  'update'))
-            .withContractCall(governanceInstance.methods.updateWhitelistContracts('governanceFinancial' , contractDeployments.governanceFinancial.address,  'update'))
+            .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.vaultFactory.address,         'update'))
+            .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.farmFactory.address,          'update'))
+            .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address,      'update'))
+            .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address,    'update'))
+            .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.delegation.address,           'update'))
+            .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address,  'update'))
+            .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.governanceFinancial.address,  'update'))
         
             // governance proxy
             .withContractCall(governanceInstance.methods.setGovernanceProxy(contractDeployments.governanceProxy.address))
@@ -209,9 +209,9 @@ describe('Linked contracts updates for Tests', async () => {
             .batch()
 
             // whitelist token contracts
-            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MavrykFA2", contractDeployments.mavrykFa2Token.address,    'update'))
-            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MavrykFA12", contractDeployments.mavrykFa12Token.address,  'update'))
-            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MVK", contractDeployments.mvkToken.address,                'update'))
+            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address,     'update'))
+            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address,    'update'))
+            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvkToken.address,           'update'))
 
             const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
             await governanceFinancialContractsBatchOperation.confirmation();
@@ -226,18 +226,18 @@ describe('Linked contracts updates for Tests', async () => {
             .batch()
         
             // whitelist contracts
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts('governanceProxy', contractDeployments.governanceProxy.address,         'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", contractDeployments.aggregatorFactory.address,     'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts("treasuryFactory", contractDeployments.treasuryFactory.address,         'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", contractDeployments.doorman.address,                         'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", contractDeployments.delegation.address,                   'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governanceFinancial", contractDeployments.governanceFinancial.address, 'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governance", contractDeployments.governance.address,                   'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address,         'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address,     'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address,         'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address,                         'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.delegation.address,                   'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceFinancial.address, 'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governance.address,                   'update'))
         
             // whitelist token contracts
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MavrykFA2", contractDeployments.mavrykFa2Token.address,           'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MavrykFA12", contractDeployments.mavrykFa12Token.address,         'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MVK", contractDeployments.mvkToken.address,                       'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address,                        'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address,                       'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvkToken.address,                              'update'))
         
             const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
             await treasuryContractsBatchOperation.confirmation();
@@ -246,7 +246,7 @@ describe('Linked contracts updates for Tests', async () => {
             console.log('Treasury Contract - set whitelist token contract addresses map [MavrykFA12, MavrykFA2, MVK]')
         
             // Vesting Contract - set whitelist contract addresses map [council]
-            const setCouncilContractAddressInVesting = (await vestingInstance.methods.updateWhitelistContracts('council', contractDeployments.council.address, 'update').send()) as TransactionOperation
+            const setCouncilContractAddressInVesting = (await vestingInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()) as TransactionOperation
             await setCouncilContractAddressInVesting.confirmation();
         
             console.log('Vesting Contract - set whitelist contract addresses map [council]')

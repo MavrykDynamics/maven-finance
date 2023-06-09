@@ -50,8 +50,8 @@ export async function getStorageMapValue (contractStorage, mapName, key) {
 }
 
 
-export async function updateWhitelistContracts (contractInstance, key, address, updateType) {
-    const updateWhitelistContractsOperation = await contractInstance.methods.updateWhitelistContracts(key, address, updateType).send();
+export async function updateWhitelistContracts (contractInstance, address, updateType) {
+    const updateWhitelistContractsOperation = await contractInstance.methods.updateWhitelistContracts(address, updateType).send();
     return updateWhitelistContractsOperation;
 }
 
@@ -62,8 +62,8 @@ export async function updateGeneralContracts (contractInstance, key, address, up
 }
 
 
-export async function updateWhitelistTokenContracts (contractInstance, key, address, updateType) {
-    const updateWhitelistTokenContractsOperation = await contractInstance.methods.updateWhitelistTokenContracts(key, address, updateType).send();
+export async function updateWhitelistTokenContracts (contractInstance, address, updateType) {
+    const updateWhitelistTokenContractsOperation = await contractInstance.methods.updateWhitelistTokenContracts(address, updateType).send();
     return updateWhitelistTokenContractsOperation;
 }
 

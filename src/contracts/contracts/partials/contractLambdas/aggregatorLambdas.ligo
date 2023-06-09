@@ -81,10 +81,7 @@ block {
                 ) # operations;
 
                 // Get aggregator factory address
-                const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
             
                 // Get aggregator name max length from factory contract
                 const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Tezos.call_view ("getConfig", unit, aggregatorFactoryAddress);

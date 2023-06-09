@@ -232,10 +232,7 @@ function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contract
 function distributeRewardXtzOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
 block {
 
-    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-    ];
+    const factoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
     
     const distributeRewardXtzParams : distributeRewardXtzType = record [
         recipient = oracleAddress;
@@ -256,10 +253,7 @@ block {
 function distributeRewardStakedMvkOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
 block {
 
-    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-    ];
+    const factoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
     
     const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
         eligibleSatellites     = set[oracleAddress];
