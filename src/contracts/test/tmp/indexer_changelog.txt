@@ -37,3 +37,6 @@ Governance Contract
 12. Add stakedMvkSnapshotLedgerType: big_map(nat, nat); // cycleId -> staked MVK total supply
 13. updateSatelliteSnapshotType to remove satelliteRecord and to include totalStakedMvkBalance, totalDelegatedAmount, and accumulatedRewardsPerShare
 14. Setup Proposal Round: create snapshot of staked mvk total supply at this point in time
+
+Aggregator Contract
+15. OracleLedgerSize added in storage
