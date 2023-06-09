@@ -68,27 +68,10 @@ block {
 // Whitelist Contract Helpers
 // ------------------------------------------------------------------------------
 
-
-function getLocalWhitelistContract(const contractName : string; const whitelistContractsMap : whitelistContractsType; const errorCode : nat) : address is
-block {
-
-    const whitelistContract : address = case whitelistContractsMap[contractName] of [
-            Some(_contr) -> _contr
-        |   None -> failwith(errorCode)
-    ];
-
-} with whitelistContract
-
-
-
 function checkInWhitelistContracts(const contractAddress : address; var whitelistContracts : whitelistContractsType) : bool is 
 block {
 
-    var inWhitelistContractsMap : bool := False;
-    for _key -> value in map whitelistContracts block {
-        if contractAddress = value then inWhitelistContractsMap := True
-        else skip;
-    }
+    var inWhitelistContractsMap : bool := Big_map.mem(contractAddress, whitelistContracts)
 
 } with inWhitelistContractsMap
 
@@ -98,13 +81,12 @@ block {
 function updateWhitelistContractsMap(const updateWhitelistContractsParams : updateWhitelistContractsType; var whitelistContracts : whitelistContractsType) : whitelistContractsType is 
 block {
 
-    const contractName     : string     = updateWhitelistContractsParams.whitelistContractName;
     const contractAddress  : address    = updateWhitelistContractsParams.whitelistContractAddress;
     const updateType       : updateType = updateWhitelistContractsParams.updateType; 
 
     whitelistContracts := case updateType of [
-            Update(_) -> Map.update(contractName, (Some(contractAddress)), whitelistContracts)
-        |   Remove(_) -> Map.update(contractName, (None : option(address)), whitelistContracts)
+            Update(_) -> Big_map.update(contractAddress, Some(unit), whitelistContracts)
+        |   Remove(_) -> Big_map.remove(contractAddress, whitelistContracts)
     ]
 
 } with (whitelistContracts)
@@ -118,11 +100,7 @@ block {
 function checkInWhitelistTokenContracts(const contractAddress : address; var whitelistTokenContracts : whitelistTokenContractsType) : bool is 
 block {
 
-    var inWhitelistTokenContractsMap : bool := False;
-    for _key -> value in map whitelistTokenContracts block {
-        if contractAddress = value then inWhitelistTokenContractsMap := True
-        else skip;
-    } 
+    var inWhitelistTokenContractsMap : bool := Big_map.mem(contractAddress, whitelistTokenContracts);
      
 } with inWhitelistTokenContractsMap
 
@@ -132,13 +110,12 @@ block {
 function updateWhitelistTokenContractsMap(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var whitelistTokenContracts : whitelistTokenContractsType) : whitelistTokenContractsType is 
 block {
 
-    const contractName     : string     = updateWhitelistTokenContractsParams.tokenContractName;
     const contractAddress  : address    = updateWhitelistTokenContractsParams.tokenContractAddress;
     const updateType       : updateType = updateWhitelistTokenContractsParams.updateType; 
 
     whitelistTokenContracts := case updateType of [
-            Update(_) -> Map.update(contractName, (Some(contractAddress)), whitelistTokenContracts)
-        |   Remove(_) -> Map.update(contractName, (None : option(address)), whitelistTokenContracts)
+            Update(_) -> Big_map.update(contractAddress, Some(unit), whitelistTokenContracts)
+        |   Remove(_) -> Big_map.remove(contractAddress, whitelistTokenContracts)
     ]
 
 } with (whitelistTokenContracts)

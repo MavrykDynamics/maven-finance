@@ -60,10 +60,10 @@ describe('Lending Controller Supporting Contracts', async () => {
             // mToken for Mock FA12 Token in Lending Controller Token Pool 
             mTokenStorage.governanceAddress = contractDeployments.governance.address;
             if('lendingControllerMockTime' in contractDeployments){ // to be removed in prod
-                mTokenStorage.whitelistContracts.set("lendingControllerMockTime", contractDeployments.lendingControllerMockTime.address)
+                mTokenStorage.whitelistContracts.set(contractDeployments.lendingControllerMockTime.address, null)
             }
             if('lendingController' in contractDeployments){
-                mTokenStorage.whitelistContracts.set("lendingController", contractDeployments.lendingController.address)
+                mTokenStorage.whitelistContracts.set(contractDeployments.lendingController.address, null)
             }
 
             mTokenStorage.loanToken      = mTokenMockData.mTokenUsdt.loanToken;  // should correspond to loan token record in lending controller
