@@ -7,7 +7,7 @@ type oracleInformationType is [@layout:comb] record [
     oraclePublicKey  : key;
     oraclePeerId     : string;
 ];
-type oracleLedgerType            is map (address, oracleInformationType);
+type oracleLedgerType            is big_map (address, oracleInformationType);
 type oracleRewardStakedMvkType   is big_map (address, nat);
 type oracleRewardXtzType         is big_map (address, nat);
 
@@ -157,6 +157,7 @@ type aggregatorStorageType is [@layout:comb] record [
     generalContracts          : generalContractsType;
 
     oracleLedger              : oracleLedgerType;
+    oracleLedgerSize          : nat;
     
     lastCompletedData         : lastCompletedDataType;
 

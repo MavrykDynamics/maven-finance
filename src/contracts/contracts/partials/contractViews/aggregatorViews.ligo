@@ -46,8 +46,8 @@
 
 
 (* View: get oracle ledger *)
-[@view] function getOracleLedger(const _ : unit; const s : aggregatorStorageType) : oracleLedgerType is
-    s.oracleLedger
+[@view] function getOracleOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(oracleInformationType) is
+    Big_map.find_opt(oracleAddress, s.oracleLedger)
 
 
 (* View: get oracle reward staked MVK opt *)

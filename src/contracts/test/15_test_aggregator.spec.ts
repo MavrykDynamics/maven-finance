@@ -139,17 +139,17 @@ describe('Aggregator Tests', async () => {
         
         await signerFactory(tezos, adminSk);
 
-        if(aggregatorStorage.oracleLedger.get(satelliteOne) === undefined){
+        if(await aggregatorStorage.oracleLedger.get(satelliteOne) === undefined){
             addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteOne).send();
             await addOracleOperation.confirmation();
         }
 
-        if(aggregatorStorage.oracleLedger.get(satelliteTwo) === undefined){
+        if(await aggregatorStorage.oracleLedger.get(satelliteTwo) === undefined){
             addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteTwo).send();
             await addOracleOperation.confirmation();
         }
 
-        if(aggregatorStorage.oracleLedger.get(satelliteThree) === undefined){
+        if(await aggregatorStorage.oracleLedger.get(satelliteThree) === undefined){
             addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteThree).send();
             await addOracleOperation.confirmation();
         }
@@ -209,17 +209,21 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to add an oracle to the aggregator', async () => {
             try {
                 // Initial values
+                aggregatorStorage       = await aggregatorInstance.storage();
                 const oracleAddress     = susie.pkh;
+                const oracleLedgerSize  = aggregatorStorage.oracleLedgerSize;
     
                 // Operation
                 const operation         = await aggregatorInstance.methods.addOracle(oracleAddress).send();
                 await operation.confirmation();
                 
                 // Final values
-                aggregatorStorage       = await aggregatorInstance.storage();
+                aggregatorStorage           = await aggregatorInstance.storage();
+                const finalOracleLedgerSize = aggregatorStorage.oracleLedgerSize;
                 
                 // Assertions
-                assert.deepEqual(aggregatorStorage.oracleLedger?.has(oracleAddress),true);
+                assert.notStrictEqual(await aggregatorStorage.oracleLedger.get(oracleAddress),undefined);
+                assert.deepEqual(finalOracleLedgerSize, oracleLedgerSize.plus(1));
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -227,7 +231,7 @@ describe('Aggregator Tests', async () => {
     });
 
 
-    describe('%addOracle', () => {
+    describe('%updateOracle', () => {
         beforeEach("Set signer to susie", async () => {
             await signerFactory(tezos, susie.sk)
         });
@@ -259,7 +263,7 @@ describe('Aggregator Tests', async () => {
                 
                 // Final values
                 aggregatorStorage       = await aggregatorInstance.storage();
-                const susieOracleInfo   = aggregatorStorage.oracleLedger.get(oracleAddress);
+                const susieOracleInfo   = await aggregatorStorage.oracleLedger.get(oracleAddress);
                 
                 const publicKey = susieOracleInfo.oraclePublicKey;
                 const peerId = susieOracleInfo.oraclePeerId;
@@ -308,18 +312,21 @@ describe('Aggregator Tests', async () => {
         it('Admin should be able to remove an oracle from the aggregator', async () => {
             try {
                 // Initial values
-                aggregatorStorage   = await aggregatorInstance.storage();
-                const oracleAddress = susie.pkh;
+                aggregatorStorage       = await aggregatorInstance.storage();
+                const oracleAddress     = susie.pkh;
+                const oracleLedgerSize  = aggregatorStorage.oracleLedgerSize;
 
                 // Operation
                 const operation     = await aggregatorInstance.methods.removeOracle(oracleAddress).send();
                 await operation.confirmation();
     
                 // Final values
-                aggregatorStorage   = await aggregatorInstance.storage();
+                aggregatorStorage           = await aggregatorInstance.storage();
+                const finalOracleLedgerSize = aggregatorStorage.oracleLedgerSize;
 
                 // Assertion
-                assert.deepEqual(aggregatorStorage.oracleLedger?.has(susie.pkh), false);
+                assert.strictEqual(await aggregatorStorage.oracleLedger.get(susie.pkh), undefined);
+                assert.deepEqual(finalOracleLedgerSize, oracleLedgerSize.minus(1));
             } catch(e){
                 console.dir(e, {depth: 5})
             }
