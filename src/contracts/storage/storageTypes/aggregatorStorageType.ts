@@ -31,6 +31,7 @@ export type aggregatorStorageType = {
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
     oracleLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+    oracleLedgerSize          : BigNumber;
     
     lastCompletedData: {
         round                 : BigNumber;
