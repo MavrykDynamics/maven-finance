@@ -131,6 +131,7 @@ describe('Lending Controller Supporting Contracts', async () => {
                 rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
             };
             aggregatorStorage.oracleLedger      = oracleMap;
+            aggregatorStorage.oracleLedgerSize  = new BigNumber(oracleMap.size);
             aggregatorStorage.mvkTokenAddress   = contractDeployments.mvkToken.address;
             aggregatorStorage.governanceAddress = contractDeployments.governance.address;
 
