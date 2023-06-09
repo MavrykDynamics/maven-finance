@@ -564,13 +564,13 @@ describe('AggregatorFactory', () => {
                 await signerFactory(tezos, satelliteOneSk);
                 signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
                 
-                signerFactory(tezos, satelliteTwoSk);
+                await signerFactory(tezos, satelliteTwoSk);
                 signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
                 
-                signerFactory(tezos, satelliteThreeSk);
+                await signerFactory(tezos, satelliteThreeSk);
                 signatures.set(satelliteThree, await utils.signOracleDataResponses(oracleObservations));
 
-                signerFactory(tezos, satelliteOneSk);
+                await signerFactory(tezos, satelliteOneSk);
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
                 await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(satelliteOne).send()).to.be.rejected;
                 await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteOne).send()).to.be.rejected;
