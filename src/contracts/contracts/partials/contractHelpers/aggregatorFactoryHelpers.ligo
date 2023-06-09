@@ -205,9 +205,9 @@ block {
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
     // Add Aggregator Factory Contract and Governance Satellite Contract to Whitelisted Contracts Map on the new Aggregator Contract
-    const aggregatorWhitelistContracts : whitelistContractsType = map[
-        ("aggregatorFactory")   -> (Tezos.get_self_address() : address);
-        ("governanceSatellite") -> (governanceSatelliteAddress : address);
+    const aggregatorWhitelistContracts : whitelistContractsType = big_map[
+        (Tezos.get_self_address())   -> unit;
+        (governanceSatelliteAddress) -> unit;
     ];
     
     const aggregatorGeneralContracts : generalContractsType = map[];

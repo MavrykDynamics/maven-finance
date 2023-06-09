@@ -1409,7 +1409,7 @@ describe("Test: Farm Contract", async () => {
                 // Initial Values
                 farmStorage           = await farmInstance.storage();
                 const initialConfigValue = farmStorage.config.forceRewardFromTransfer;
-                const newConfigValue     = !initialConfigValue;
+                const newConfigValue     = initialConfigValue == 1 ? 0 : 1;
 
                 // Operation
                 const updateConfigOperation = await farmInstance.methods.updateConfig(newConfigValue, "configForceRewardFromTransfer");
@@ -1432,12 +1432,12 @@ describe("Test: Farm Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(farmStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await farmInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh)
+                updateWhitelistContractsOperation = await farmInstance.methods.updateWhitelistContracts(contractMapKey, "update")
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 farmStorage = await farmInstance.storage()
@@ -1489,20 +1489,6 @@ describe("Test: Farm Contract", async () => {
 
             } catch (e) {
                 console.log(e)
-            }
-        })
-
-        it("%migrateFunds             - non-admin (mallory) should not be able to migrate the Doorman contract MVK funds", async() => {
-            try{
-                
-                const destination = alice.pkh;
-                
-                // migrate operation
-                migrateOperation = farmInstance.methods.migrateFunds(destination); 
-                await chai.expect(migrateOperation.send()).to.be.rejected;
-
-            } catch(e) {
-                console.dir(e, {depth: 5})
             }
         })
 
