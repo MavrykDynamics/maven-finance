@@ -2871,19 +2871,19 @@ describe("Test: Governance Financial Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceFinancialInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceFinancialInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceFinancialStorage = await governanceFinancialInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -2894,18 +2894,18 @@ describe("Test: Governance Financial Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceFinancialInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceFinancialInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceFinancialStorage = await governanceFinancialInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
@@ -2963,19 +2963,19 @@ describe("Test: Governance Financial Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistTokenContracts";
 
                 initialContractMapValue           = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistTokenContracts(governanceFinancialInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistTokenContracts(governanceFinancialInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceFinancialStorage = await governanceFinancialInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Token Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Token Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Token Contracts map after adding her to it')
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -2986,18 +2986,18 @@ describe("Test: Governance Financial Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistTokenContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistTokenContracts(governanceFinancialInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistTokenContracts(governanceFinancialInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceFinancialStorage = await governanceFinancialInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Token Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Token Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Token Contracts map after adding her to it');
 
             } catch (e) {
@@ -3465,12 +3465,12 @@ describe("Test: Governance Financial Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await governanceFinancialInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
+                updateWhitelistContractsOperation = await governanceFinancialInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 governanceFinancialStorage       = await governanceFinancialInstance.storage()
@@ -3509,12 +3509,12 @@ describe("Test: Governance Financial Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistTokenContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceFinancialStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractMapKey, alice.pkh, 'update')
+                updateWhitelistContractsOperation = await governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 governanceFinancialStorage       = await governanceFinancialInstance.storage()

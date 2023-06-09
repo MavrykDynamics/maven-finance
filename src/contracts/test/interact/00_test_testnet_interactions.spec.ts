@@ -260,7 +260,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.updateWhitelistContracts("test", bob.pkh, "update").send();
+                const operation = await mvkTokenInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -457,7 +457,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.updateWhitelistContracts("test", bob.pkh, "update").send();
+                const operation = await doormanInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -676,7 +676,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.updateWhitelistContracts("test", bob.pkh, "update").send();
+                const operation = await delegationInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -992,7 +992,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await councilInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await councilInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1246,7 +1246,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await vestingInstance.methods.updateWhitelistContracts("test", bob.pkh, "update").send();
+                const operation = await vestingInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1373,7 +1373,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist token contracts', async () => {
             try{
                 // Operation
-                const operation = await governanceFinancialInstance.methods.updateWhitelistTokenContracts("test", bob.pkh, "update").send();
+                const operation = await governanceFinancialInstance.methods.updateWhitelistTokenContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1482,7 +1482,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await treasuryFactoryInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await treasuryFactoryInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1502,7 +1502,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist token contracts', async () => {
             try{
                 // Operation
-                const operation = await treasuryFactoryInstance.methods.updateWhitelistTokenContracts("test", bob.pkh, "update").send();
+                const operation = await treasuryFactoryInstance.methods.updateWhitelistTokenContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1646,7 +1646,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await treasuryInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1666,7 +1666,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist token contracts', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.updateWhitelistTokenContracts("test", bob.pkh, "update").send();
+                const operation = await treasuryInstance.methods.updateWhitelistTokenContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1762,7 +1762,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await farmFactoryInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await farmFactoryInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1973,7 +1973,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await farmInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await farmInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2123,7 +2123,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await aggregatorFactoryInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2395,7 +2395,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await aggregatorInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3202,7 +3202,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await governanceSatelliteInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await governanceSatelliteInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3627,7 +3627,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await breakGlassInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3789,7 +3789,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist token contracts', async () => {
             try{
                 // Operation
-                const operation = await lendingControllerInstance.methods.updateWhitelistTokenContracts("test", bob.pkh, "update").send();
+                const operation = await lendingControllerInstance.methods.updateWhitelistTokenContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4507,7 +4507,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin updates whitelist token contracts', async () => {
     //         try{
     //             // Operation
-    //             const operation = await lendingControllerMockTimeInstance.methods.updateWhitelistTokenContracts("test", bob.pkh, "update").send();
+    //             const operation = await lendingControllerMockTimeInstance.methods.updateWhitelistTokenContracts(bob.pkh, "update").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -5306,7 +5306,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await farmMTokenInstance.methods.updateWhitelistContracts("bob", bob.pkh, "update").send();
+                const operation = await farmMTokenInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5456,7 +5456,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.updateWhitelistContracts("test", bob.pkh, "update").send();
+                const operation = await mTokenEurlInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5544,7 +5544,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await vaultFactoryInstance.methods.updateWhitelistContracts("test", bob.pkh, "update").send();
+                const operation = await vaultFactoryInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

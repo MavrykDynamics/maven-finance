@@ -3212,19 +3212,19 @@ describe("Test: Council Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await helperFunctions.getStorageMapValue(councilStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(councilInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(councilInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 councilStorage = await councilInstance.storage()
                 updatedContractMapValue = await helperFunctions.getStorageMapValue(councilStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.log(e)
@@ -3235,18 +3235,18 @@ describe("Test: Council Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(councilStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(councilInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(councilInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 councilStorage = await councilInstance.storage()
                 updatedContractMapValue = await helperFunctions.getStorageMapValue(councilStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
@@ -3433,12 +3433,12 @@ describe("Test: Council Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(councilStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await councilInstance.methods.updateWhitelistContracts(contractMapKey, mallory.pkh, 'update')
+                updateWhitelistContractsOperation = await councilInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 councilStorage       = await councilInstance.storage()

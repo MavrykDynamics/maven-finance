@@ -21,15 +21,7 @@ import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { 
     signerFactory, 
-    updateOperators,
-    getStorageMapValue,
-    fa12Transfer,
-    fa2Transfer,
-    mistakenTransferFa2Token,
-    updateWhitelistContracts,
-    updateGeneralContracts,
-    calcStakedMvkRequiredForActionApproval, 
-    calcTotalVotingPower 
+    updateOperators
 } from './helpers/helperFunctions'
 
 

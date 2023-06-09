@@ -249,19 +249,19 @@ describe("Treasury Factory tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await getStorageMapValue(treasuryFactoryStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(treasuryFactoryInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(treasuryFactoryInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(treasuryFactoryStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -272,18 +272,18 @@ describe("Treasury Factory tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(treasuryFactoryStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(treasuryFactoryInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(treasuryFactoryInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(treasuryFactoryStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
@@ -493,7 +493,7 @@ describe("Treasury Factory tests", async () => {
                 assert.strictEqual(treasuryStorage.admin, admin);
                 assert.strictEqual(treasuryStorage.mvkTokenAddress, mvkTokenAddress);
                 
-                assert.notEqual(initialTrackedTreasuries.includes(treasuryAddress), false);
+                assert.equal(initialTrackedTreasuries.includes(treasuryAddress), false);
                 assert.equal(updatedTrackedTreasuries.includes(treasuryAddress), true);
                 assert.equal(updatedTrackedTreasuriesCount, initialTrackedTreasuriesCount + 1);
                 
@@ -685,12 +685,12 @@ describe("Treasury Factory tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(treasuryFactoryStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await treasuryFactoryInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
+                updateWhitelistContractsOperation = await treasuryFactoryInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage()

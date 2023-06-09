@@ -21,16 +21,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, david, oscar, susie, trudy } from "../scripts/sandbox/accounts";
 import { 
-    signerFactory, 
-    getStorageMapValue,
-    fa12Transfer,
-    fa2Transfer,
-    updateOperators,
-    mistakenTransferFa2Token,
-    updateWhitelistContracts,
-    updateGeneralContracts,
-    calcStakedMvkRequiredForActionApproval, 
-    calcTotalVotingPower 
+    signerFactory
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -92,6 +83,7 @@ describe('Aggregator Tests', async () => {
         
         utils = new Utils();
         await utils.init(bob.sk);
+        tezos = utils.tezos
 
         admin               = bob.pkh;
         adminSk             = bob.sk;
@@ -1268,11 +1260,10 @@ describe('Aggregator Tests', async () => {
             try {
                 // Initial values
                 await signerFactory(tezos, david.sk);
-                const contractName      = 'testContract';
                 const contractAddress   = bob.pkh;
 
                 // Operation
-                await chai.expect(aggregatorInstance.methods.updateWhitelistContracts(contractName, contractAddress).send()).to.be.rejected;
+                await chai.expect(aggregatorInstance.methods.updateWhitelistContracts(contractAddress, "update").send()).to.be.rejected;
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -1282,19 +1273,18 @@ describe('Aggregator Tests', async () => {
             try {
                 // Initial values
                 await signerFactory(tezos, bob.sk);
-                const contractName      = 'testContract';
                 const contractAddress   = bob.pkh;
 
                 // Operation
-                const operation         = await aggregatorInstance.methods.updateWhitelistContracts(contractName, contractAddress).send();
+                const operation         = await aggregatorInstance.methods.updateWhitelistContracts(contractAddress, 'update').send();
                 await operation.confirmation();
     
                 // Final values
                 aggregatorStorage       = await aggregatorInstance.storage();
-                const contractsMapEntry = await aggregatorStorage.whitelistContracts.get(contractName);
+                const contractsMapEntry = await aggregatorStorage.whitelistContracts.get(contractAddress);
 
                 // Assertion
-                assert.deepEqual(contractsMapEntry, contractAddress);
+                assert.notStrictEqual(contractsMapEntry, undefined);
             } catch (e) {
                 console.dir(e, {depth: 5})
             }
@@ -1316,7 +1306,7 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Admin should be able to update the aggregator contract whitelist contracts', async () => {
+        it('Admin should be able to update the aggregator contract general contracts', async () => {
             try {
                 // Initial values
                 await signerFactory(tezos, bob.sk);
@@ -1324,7 +1314,7 @@ describe('Aggregator Tests', async () => {
                 const contractAddress   = bob.pkh;
 
                 // Operation
-                const operation         = await aggregatorInstance.methods.updateGeneralContracts(contractName, contractAddress).send();
+                const operation         = await aggregatorInstance.methods.updateGeneralContracts(contractName, contractAddress, 'update').send();
                 await operation.confirmation();
     
                 // Final values
