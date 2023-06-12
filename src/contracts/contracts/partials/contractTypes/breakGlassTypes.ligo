@@ -105,6 +105,7 @@ type breakGlassStorageType is [@layout:comb] record [
     councilSize                 : nat;
     
     actionsLedger               : councilActionsLedgerType;         // record of past actions taken by council members
+    actionsSigners              : signersType;
     actionCounter               : nat;
 
     lambdaLedger                : lambdaLedgerType;

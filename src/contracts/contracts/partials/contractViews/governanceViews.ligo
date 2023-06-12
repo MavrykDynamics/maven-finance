@@ -46,6 +46,12 @@
 
 
 
+(* View: get a proposal voter *)
+[@view] function getProposalVoterOpt(const voterId : voterIdentifierType; const s : governanceStorageType) : option(voteType) is
+    Big_map.find_opt(voterId, s.proposalVoters)
+
+
+
 (* View: get a proposal reward *)
 [@view] function getProposalRewardOpt(const proposalIdAndVoter : (actionIdType*address); const s : governanceStorageType) : option(unit) is
     Big_map.find_opt(proposalIdAndVoter, s.proposalRewards)

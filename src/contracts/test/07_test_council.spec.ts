@@ -194,7 +194,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
@@ -206,7 +206,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.actionType    , "addVestee");
                 assert.strictEqual(action.status        , "PENDING");
                 
-                assert.equal(actionSigner               , true);
+                assert.notStrictEqual(actionSigner      , undefined);
                 assert.equal(action.executed            , false);
                 assert.equal(action.signersCount        , 1);
 
@@ -268,7 +268,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
@@ -280,7 +280,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.actionType    , "updateVestee");
                 assert.strictEqual(action.status        , "PENDING");
                 
-                assert.equal(actionSigner               , true);
+                assert.notStrictEqual(actionSigner      , undefined);
                 assert.equal(action.executed            , false);
                 assert.equal(action.signersCount        , 1);
 
@@ -330,7 +330,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember);
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember});
                 const dataMap                       = await action.dataMap;
                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
@@ -340,7 +340,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.actionType    , "toggleVesteeLock");
                 
                 assert.equal(action.executed            , false);
-                assert.equal(actionSigner               , true);
+                assert.notStrictEqual(actionSigner      , undefined);
                 assert.equal(action.signersCount        , 1);
                 
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
@@ -384,7 +384,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 const action                = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner          = action.signers.includes(councilMemberOne)
+                const actionSigner          = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMemberOne})
                 const dataMap               = await action.dataMap;
                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
@@ -393,7 +393,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeVestee");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 
@@ -493,7 +493,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
                 const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
@@ -506,7 +506,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.actionType    , "addCouncilMember");
                 
                 assert.equal(action.executed            , false);
-                assert.equal(actionSigner               , true);
+                assert.notStrictEqual(actionSigner      , undefined);
                 assert.equal(action.signersCount        , 1);
 
                 assert.equal(dataMap.get("councilMemberAddress")    , packedCouncilMemberAddress);
@@ -552,7 +552,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberToBeRemoved }, type: { prim: 'address' } })).packed
 
@@ -561,7 +561,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
@@ -641,7 +641,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldMember }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
@@ -651,7 +651,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
@@ -715,7 +715,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
 
                 // Assertions
@@ -723,7 +723,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "setBaker");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
 
             } catch(e){
@@ -770,7 +770,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -784,7 +784,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "transfer");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("receiverAddress"), packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
@@ -854,7 +854,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -869,7 +869,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestTokens");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
@@ -937,7 +937,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -948,7 +948,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -988,7 +988,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedTargetContractAddress   = (await utils.tezos.rpc.packData({ data: { string: targetContractAddress }, type: { prim: 'address' } })).packed
 
@@ -997,7 +997,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "setContractBaker");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("targetContractAddress"), packedTargetContractAddress);
 
@@ -1032,7 +1032,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 const action                = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner          = action.signers.includes(councilMember)
+                const actionSigner          = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap               = await action.dataMap;
                 const packedRequestId       = (await utils.tezos.rpc.packData({ data: { int: requestId.toString() }, type: { prim: 'nat' } })).packed
 
@@ -1041,7 +1041,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "dropFinancialRequest");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("requestId"), packedRequestId);
 
@@ -1099,7 +1099,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 const action            = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner      = action.signers.includes(councilMember)
+                const actionSigner      = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap           = await action.dataMap;
                 const packedRequestId   = (await utils.tezos.rpc.packData({ data: { int: actionId.toString() }, type: { prim: 'nat' } })).packed
 
@@ -1108,7 +1108,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("actionId"), packedRequestId);
 
@@ -1152,7 +1152,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(actionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                 var flushDataMap                    = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
 
@@ -1161,7 +1161,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(flushDataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
@@ -1177,7 +1177,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 action                  = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner            = action.signers.includes(councilMember)
+                actionSigner            = await councilStorage.councilActionsSigners.get({0: flushActionID, 1: councilMember})
                 var dataMap             = await action.dataMap;
                 const packedActionId    = (await utils.tezos.rpc.packData({ data: { int: actionId.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
@@ -1186,7 +1186,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
@@ -1252,7 +1252,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(memberActionID);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: memberActionID, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
                 const councilSize                   = councilStorage.councilSize;
@@ -1262,7 +1262,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
@@ -1348,7 +1348,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
@@ -1360,7 +1360,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addVestee");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
@@ -1380,7 +1380,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 vestingStorage      = await vestingInstance.storage();
@@ -1391,7 +1391,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "addVestee");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
@@ -1424,7 +1424,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
@@ -1436,7 +1436,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "updateVestee");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
@@ -1456,7 +1456,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 vestingStorage      = await vestingInstance.storage();
@@ -1467,7 +1467,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "updateVestee");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
@@ -1497,7 +1497,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
                 vestingStorage              = await vestingInstance.storage();
@@ -1508,7 +1508,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "toggleVesteeLock");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.strictEqual(vestee.status, "ACTIVE")
@@ -1526,7 +1526,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap                     = await action.dataMap;
                 vestingStorage              = await vestingInstance.storage();
                 vestee                      = await vestingStorage.vesteeLedger.get(vesteeAddress);
@@ -1536,7 +1536,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "toggleVesteeLock");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.notStrictEqual(vestee, undefined);
@@ -1560,7 +1560,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
@@ -1569,7 +1569,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeVestee");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 
@@ -1586,7 +1586,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 vestingStorage      = await vestingInstance.storage();
@@ -1597,7 +1597,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "removeVestee");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
                 assert.strictEqual(vestee, undefined);
@@ -1624,7 +1624,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
                 const councilSize                   = councilStorage.councilSize;
@@ -1634,7 +1634,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
@@ -1651,7 +1651,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap      = await action.dataMap;
 
                 const memberUpdated     = await councilStorage.councilMembers.get(david.pkh);
@@ -1662,7 +1662,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "addCouncilMember");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
                 assert.notStrictEqual(memberUpdated, undefined);
@@ -1690,7 +1690,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
                 const councilSize                   = councilStorage.councilSize;
@@ -1700,7 +1700,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
@@ -1717,7 +1717,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap         = await action.dataMap;
 
                 const memberUpdated     = await councilStorage.councilMembers.get(memberAddress);
@@ -1728,7 +1728,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
                 assert.strictEqual(memberUpdated, undefined);
@@ -1755,7 +1755,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
@@ -1768,7 +1768,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "removeCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
@@ -1839,7 +1839,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                        = action.signers.includes(councilMember)
+                var actionSigner                        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
@@ -1850,7 +1850,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
@@ -1868,7 +1868,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 const memberRemoved = await councilStorage.councilMembers.get(oldMemberAddress);
@@ -1880,7 +1880,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
@@ -1932,7 +1932,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(actionId);
-                var actionSigner                        = action.signers.includes(councilMember)
+                var actionSigner                        = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
@@ -1942,7 +1942,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
@@ -2025,7 +2025,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(actionId);
-                var actionSigner                        = action.signers.includes(councilMember)
+                var actionSigner                        = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
@@ -2035,7 +2035,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "changeCouncilMember");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
@@ -2111,7 +2111,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                        = action.signers.includes(councilMember)
+                var actionSigner                        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                             = await action.dataMap;
 
                 // Assertions
@@ -2119,7 +2119,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "setBaker");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
 
                 // set signer as council member two
@@ -2135,7 +2135,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 // Assertions
@@ -2143,7 +2143,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "setBaker");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
             
             } catch(e){
@@ -2166,7 +2166,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                          = await councilInstance.storage();
                 var action                              = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                        = action.signers.includes(councilMember)
+                var actionSigner                        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                             = await action.dataMap;
 
                 // Assertions
@@ -2174,7 +2174,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "setBaker");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
 
                 // set signer as council member two
@@ -2190,7 +2190,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 // Assertions
@@ -2198,7 +2198,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "setBaker");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
             
             } catch(e){
@@ -2231,7 +2231,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -2248,7 +2248,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "transfer");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
 
                 assert.equal(dataMap.get("receiverAddress"), packedReceiverAddress);
@@ -2271,7 +2271,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 var action          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner    = action.signers.includes(councilMember)
+                var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 mvkTokenStorage             = await mvkTokenInstance.storage();
@@ -2282,7 +2282,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "transfer");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("receiverAddress"), packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
@@ -2332,7 +2332,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
@@ -2347,7 +2347,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestTokens");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
@@ -2370,14 +2370,14 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(nextActionId);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "requestTokens");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
@@ -2419,7 +2419,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2430,7 +2430,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -2449,14 +2449,14 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(nextActionId);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -2493,7 +2493,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 var action                          = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner                    = action.signers.includes(councilMember)
+                var actionSigner                    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedTargetContractAddress   = (await utils.tezos.rpc.packData({ data: { string: targetContractAddress }, type: { prim: 'address' } })).packed
                 
@@ -2502,7 +2502,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "setContractBaker");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("targetContractAddress"), packedTargetContractAddress);
                 
@@ -2519,14 +2519,14 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(nextActionId);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "setContractBaker");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("targetContractAddress"), packedTargetContractAddress);
 
@@ -2555,7 +2555,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 var action              = await councilStorage.councilActionsLedger.get(nextActionId);
-                var actionSigner        = action.signers.includes(councilMember)
+                var actionSigner        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 var dataMap             = await action.dataMap;
                 const packedRequestId   = (await utils.tezos.rpc.packData({ data: { int: requestId.toString() }, type: { prim: 'nat' } })).packed
 
@@ -2564,7 +2564,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "dropFinancialRequest");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("requestId"), packedRequestId);
 
@@ -2581,7 +2581,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(nextActionId);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 governanceFinancialStorage     = await governanceFinancialInstance.storage();
@@ -2591,7 +2591,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "dropFinancialRequest");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("requestId"), packedRequestId);
                 assert.equal(dropAction.status, false);
@@ -2622,7 +2622,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: mintActionID, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2633,7 +2633,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -2651,7 +2651,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage          = await councilInstance.storage();
                 action                  = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner            = action.signers.includes(councilMember)
+                actionSigner            = await councilStorage.councilActionsSigners.get({0: flushActionID, 1: councilMember})
                 dataMap                 = await action.dataMap;
                 var packedActionId      = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
@@ -2660,7 +2660,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
@@ -2728,7 +2728,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: mintActionID, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2739,7 +2739,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -2757,7 +2757,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: flushActionID, 1: councilMember})
                 dataMap             = await action.dataMap;
                 var packedActionId  = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
@@ -2766,7 +2766,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
@@ -2782,7 +2782,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(reflushActionID);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: reflushActionID, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 // Assertions
@@ -2790,7 +2790,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
@@ -2830,7 +2830,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: mintActionID, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2841,7 +2841,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -2859,7 +2859,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: flushActionID, 1: councilMember})
                 dataMap             = await action.dataMap;
                 var packedActionId  = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
@@ -2868,7 +2868,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("actionId"), packedActionId);
 
@@ -2887,7 +2887,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-                actionSigner        = action.signers.includes(councilMember)
+                actionSigner        = await councilStorage.councilActionsSigners.get({0: flushActionID, 1: councilMember})
                 dataMap             = await action.dataMap;
 
                 const flushedAction = await councilStorage.councilActionsLedger.get(mintActionID);
@@ -2897,7 +2897,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "EXECUTED");
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, true);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 3);
                 assert.equal(dataMap.get("actionId"), packedActionId);
                 assert.strictEqual(flushedAction.status, "FLUSHED");
@@ -2983,7 +2983,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: mintActionID, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2994,7 +2994,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -3783,7 +3783,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage                      = await councilInstance.storage();
                 const action                        = await councilStorage.councilActionsLedger.get(nextActionId);
-                const actionSigner                  = action.signers.includes(councilMember)
+                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -3794,7 +3794,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -3850,7 +3850,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(actionId);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -3861,7 +3861,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);
@@ -3906,7 +3906,7 @@ describe("Test: Council Contract", async () => {
                 // Final values
                 councilStorage              = await councilInstance.storage();
                 var action                  = await councilStorage.councilActionsLedger.get(actionId);
-                var actionSigner            = action.signers.includes(councilMember)
+                var actionSigner            = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                 var dataMap                 = await action.dataMap;
                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -3917,7 +3917,7 @@ describe("Test: Council Contract", async () => {
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "requestMint");
                 assert.equal(action.executed, false);
-                assert.equal(actionSigner, true);
+                assert.notStrictEqual(actionSigner, undefined);
                 assert.equal(action.signersCount, 1);
                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
                 assert.equal(dataMap.get("purpose"), packedPurpose);

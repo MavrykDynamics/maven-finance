@@ -327,10 +327,10 @@ block {
 
 
 // helper function to verify that satellite has voted on the proposal
-function verifySatelliteHasVotedForProposal(const satelliteAddress : address; const proposalRecord : proposalRecordType) : unit is
+function verifySatelliteHasVotedForProposal(const satelliteAddress : address; const proposalId : actionIdType; const s : governanceStorageType) : unit is
 block {
     
-    if Set.mem(satelliteAddress, proposalRecord.voters) 
+    if Big_map.mem((proposalId, satelliteAddress), s.proposalVoters) 
     then skip 
     else failwith(error_VOTE_NOT_FOUND);
 
@@ -774,7 +774,6 @@ block {
     validateStringLength(newProposal.sourceCode     , s.config.proposalSourceCodeMaxLength      , error_WRONG_INPUT_PROVIDED);
 
     // init new proposal params
-    const emptyVotersSet  : set(address)                         = set [];
     const proposalData    : map(nat, option(proposalDataType))   = map [];
     const paymentData     : map(nat, option(paymentDataType))    = map [];
 
@@ -812,7 +811,6 @@ block {
         nayVoteStakedMvkTotal               = 0n;                                           // voting round: nay MVK total 
         passVoteCount                       = 0n;                                           // voting round: pass count
         passVoteStakedMvkTotal              = 0n;                                           // voting round: pass MVK total 
-        voters                              = emptyVotersSet;                               // voting round ledger
 
         minQuorumPercentage                 = s.config.minQuorumPercentage;                 // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
         minQuorumStakedMvkTotal             = s.currentCycleInfo.minQuorumStakedMvkTotal;   // log of min quorum in MVK

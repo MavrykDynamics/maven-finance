@@ -2400,7 +2400,7 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage              = await councilInstance.storage();
                     var action                  = await councilStorage.councilActionsLedger.get(actionId);
-                    var actionSigner            = action.signers.includes(councilMember)
+                    var actionSigner            = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     var dataMap                 = await action.dataMap;
                     const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                     const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2411,7 +2411,7 @@ describe("Governance Satellite tests", async () => {
                     assert.strictEqual(action.status,               "PENDING");
                     assert.strictEqual(action.actionType,           "requestMint");
                     assert.equal(action.executed,                   false);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               1);
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
                     assert.equal(dataMap.get("purpose"),            packedPurpose);
@@ -2430,7 +2430,7 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage      = await councilInstance.storage();
                     action              = await councilStorage.councilActionsLedger.get(actionId);
-                    actionSigner        = action.signers.includes(councilMember)
+                    actionSigner        = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     dataMap             = await action.dataMap;
     
                     assert.strictEqual(action.initiator,            councilMember);
@@ -2438,7 +2438,7 @@ describe("Governance Satellite tests", async () => {
                     assert.strictEqual(action.actionType,           "requestMint");
 
                     assert.equal(action.executed,                   true);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               3);
 
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
@@ -3331,7 +3331,7 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage              = await councilInstance.storage();
                     var action                  = await councilStorage.councilActionsLedger.get(actionId);
-                    var actionSigner            = action.signers.includes(councilMember)
+                    var actionSigner            = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     var dataMap                 = await action.dataMap;
                     const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                     const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -3342,7 +3342,7 @@ describe("Governance Satellite tests", async () => {
                     assert.strictEqual(action.status,               "PENDING");
                     assert.strictEqual(action.actionType,           "requestMint");
                     assert.equal(action.executed,                   false);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               1);
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
                     assert.equal(dataMap.get("purpose"),            packedPurpose);
@@ -3361,14 +3361,14 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage      = await councilInstance.storage();
                     action              = await councilStorage.councilActionsLedger.get(actionId);
-                    actionSigner        = action.signers.includes(councilMember)
+                    actionSigner        = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     dataMap             = await action.dataMap;
     
                     assert.strictEqual(action.initiator,            councilMember);
                     assert.strictEqual(action.status,               "EXECUTED");
                     assert.strictEqual(action.actionType,           "requestMint");
                     assert.equal(action.executed,                   true);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               3);
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
                     assert.equal(dataMap.get("purpose"),            packedPurpose);

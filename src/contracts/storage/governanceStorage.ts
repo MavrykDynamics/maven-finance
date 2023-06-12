@@ -56,6 +56,7 @@ export const governanceStorage: governanceStorageType = {
     generalContracts        : MichelsonMap.fromLiteral({}),
 
     proposalLedger          : MichelsonMap.fromLiteral({}),
+    proposalVoters          : MichelsonMap.fromLiteral({}),
     proposalRewards         : MichelsonMap.fromLiteral({}),
     stakedMvkSnapshotLedger : MichelsonMap.fromLiteral({}),
     snapshotLedger          : MichelsonMap.fromLiteral({}),

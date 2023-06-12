@@ -164,10 +164,10 @@ block {
 
 
 // helper function to verify user has not voted for emergency governance
-function verifyUserHasNotVoted(const userAddress : address; const emergencyGovernanceRecord : emergencyGovernanceRecordType) : unit is 
+function verifyUserHasNotVoted(const userAddress : address; const emergencyGovernanceRecordId : actionIdType; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    if not Map.mem(userAddress, emergencyGovernanceRecord.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
+    if not Big_map.mem((emergencyGovernanceRecordId, userAddress), s.emergencyGovernanceVoters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
 } with unit
 
@@ -190,9 +190,6 @@ block {
 function createEmergencyGovernance(const userAddress : address; const title : string; const description : string; const stakedMvkRequiredForBreakGlass : nat; const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
 block {
 
-    // Init empty voters map
-    const emptyVotersMap : voterMapType = map[];
-
     // Create new emergency governance record
     const newEmergencyGovernanceRecord : emergencyGovernanceRecordType = record [
         proposerAddress                  = userAddress;
@@ -201,7 +198,6 @@ block {
 
         title                            = title;
         description                      = description; 
-        voters                           = emptyVotersMap;
         totalStakedMvkVotes              = 0n;
         stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
         stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
