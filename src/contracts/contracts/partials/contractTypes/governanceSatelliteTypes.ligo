@@ -29,7 +29,6 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     
     governanceType                     : string;   // "SUSPEND", "BAN", "RESTORE", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "TOGGLE_PAUSE_AGGREGATOR"
     governancePurpose                  : string;
-    voters                             : set(address);
 
     dataMap                            : dataMapType;
 
@@ -201,7 +200,7 @@ type governanceSatelliteStorageType is record [
     // governance satellite storage 
     governanceSatelliteActionLedger         : governanceSatelliteActionLedgerType;
     governanceSatelliteCounter              : nat;
-    governanceSatelliteVoters               : big_map((actionIdType*address), voteType);
+    governanceSatelliteVoters               : votersType;
 
     // spam check
     satelliteActions                        : satelliteActionsType;

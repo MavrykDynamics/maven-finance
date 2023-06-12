@@ -169,7 +169,6 @@ block {
         actionType            = actionType;
         executed              = False;
 
-        signers               = set[Tezos.get_sender()];
         signersCount          = 1n;
 
         dataMap               = dataMap;
@@ -181,6 +180,7 @@ block {
         expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
     s.actionsLedger[s.actionCounter] := actionRecord; 
+    s.actionsSigners                 := Big_map.add((s.actionCounter, Tezos.get_sender()), unit, s.actionsSigners);
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;

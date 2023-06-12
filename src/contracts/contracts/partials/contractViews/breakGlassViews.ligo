@@ -40,9 +40,15 @@
 
 
 
-(* View: get an action *)
+(* View: get an action opt *)
 [@view] function getActionOpt(const actionId: nat; const s : breakGlassStorageType) : option(councilActionRecordType) is
     Big_map.find_opt(actionId, s.actionsLedger)
+
+
+
+(* View: get a action signer opt *)
+[@view] function getActionSignerOpt(const signerId: (nat * address); const s : breakGlassStorageType) : option(unit) is
+    Big_map.find_opt(signerId, s.actionsSigners)
 
 
 
