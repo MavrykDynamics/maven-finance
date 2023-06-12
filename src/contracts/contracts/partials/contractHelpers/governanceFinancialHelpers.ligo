@@ -230,7 +230,6 @@ block{
         tokenType                           = tokenType;
         tokenId                             = tokenId;
         requestPurpose                      = purpose;
-        voters                              = set[];
         keyHash                             = keyHash;
 
         yayVoteStakedMvkTotal               = 0n;
@@ -414,9 +413,6 @@ block {
 // helper function to compute new vote
 function computeNewVote(var financialRequestRecord : financialRequestRecordType; const voteType : voteType; const totalVotingPower : nat) : financialRequestRecordType is 
 block {
-
-    // Save voter in financial request record's set of voters
-    financialRequestRecord.voters := Set.add(Tezos.get_sender(), financialRequestRecord.voters);
 
     // compute new vote totals
     case voteType of [

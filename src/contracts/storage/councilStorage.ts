@@ -39,6 +39,7 @@ export const councilStorage: councilStorageType = {
     generalContracts      : MichelsonMap.fromLiteral({}),
 
     councilActionsLedger  : MichelsonMap.fromLiteral({}),
+    councilActionsSigners : MichelsonMap.fromLiteral({}),
 
     actionCounter         : new BigNumber(1),
 

@@ -654,12 +654,12 @@ block {
                 validateAction(actionRecord);
 
                 // check if council member has already signed for this action
-                if Set.mem(Tezos.get_sender(), actionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Big_map.mem((actionId, Tezos.get_sender()), s.actionsSigners) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for Break Glass Council Action  record
                 var signersCount : nat             := actionRecord.signersCount + 1n;
                 actionRecord.signersCount          := signersCount;
-                actionRecord.signers               := Set.add(Tezos.get_sender(), actionRecord.signers);
+                s.actionsSigners                   := Big_map.add((actionId, Tezos.get_sender()), unit, s.actionsSigners);
                 s.actionsLedger[actionId]          := actionRecord;
 
                 // check if threshold has been reached

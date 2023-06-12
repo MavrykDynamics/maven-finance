@@ -53,8 +53,8 @@
 
 
 (* View: get a financial request voter *)
-[@view] function getFinancialRequestVoterOpt(const requestIdAndVoter : (actionIdType*address); const s : governanceFinancialStorageType) : option(voteType) is
-    Big_map.find_opt(requestIdAndVoter, s.financialRequestVoters)
+[@view] function getFinancialRequestVoterOpt(const voterId : voterIdentifierType; const s : governanceFinancialStorageType) : option(voteType) is
+    Big_map.find_opt(voterId, s.financialRequestVoters)
 
 
 

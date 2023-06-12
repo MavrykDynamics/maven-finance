@@ -421,7 +421,6 @@ block {
 
         governanceType                     = actionType;
         governancePurpose                  = purpose;
-        voters                             = set [];
 
         dataMap                            = dataMap;
 
