@@ -13,6 +13,8 @@ export type emergencyGovernanceStorageType = {
     generalContracts                      : MichelsonMap<MichelsonMapKey, unknown>;
 
     emergencyGovernanceLedger             : MichelsonMap<MichelsonMapKey, unknown>;
+    emergencyGovernanceVoters             : MichelsonMap<MichelsonMapKey, unknown>;
+
     currentEmergencyGovernanceId          : BigNumber;
     nextEmergencyGovernanceId             : BigNumber;
 

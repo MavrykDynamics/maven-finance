@@ -29,9 +29,15 @@
 
 
 
-(* View: get emergency governance *)
+(* View: get emergency governance record opt *)
 [@view] function getEmergencyGovernanceOpt (const recordId : nat; const s : emergencyGovernanceStorageType) : option(emergencyGovernanceRecordType) is
     Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
+
+
+
+(* View: get emergency governance voter opt *)
+[@view] function getEmergencyGovernanceVoterOpt (const voterId : voterIdentifierType; const s : emergencyGovernanceStorageType) : option((nat * timestamp)) is
+    Big_map.find_opt(voterId, s.emergencyGovernanceVoters)
 
 
 
