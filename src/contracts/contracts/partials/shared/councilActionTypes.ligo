@@ -25,14 +25,13 @@ type councilMemberInfoType is [@layout:comb] record [
 type councilMembersType is big_map(address, councilMemberInfoType)
 
 type actionIdType is (nat)
-type signersType is set(address)
+type signersType is big_map((nat * address), unit)
 type dataMapType is map(string, bytes);
 
 type councilActionRecordType is [@layout:comb] record [
 
     initiator                       : address;          // address of action initiator
     actionType                      : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestTokens / requestMint
-    signers                         : signersType;      // set of signers
     executed                        : bool;             // boolean of whether action has been executed
 
     status                          : string;           // PENDING / FLUSHED / EXECUTED 

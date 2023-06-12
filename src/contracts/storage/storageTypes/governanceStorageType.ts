@@ -14,6 +14,7 @@ export type governanceStorageType = {
     generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
     proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
+    proposalVoters          : MichelsonMap<MichelsonMapKey, unknown>;
     proposalRewards         : MichelsonMap<MichelsonMapKey, unknown>;
     stakedMvkSnapshotLedger : MichelsonMap<MichelsonMapKey, unknown>;
     snapshotLedger          : MichelsonMap<MichelsonMapKey, unknown>;

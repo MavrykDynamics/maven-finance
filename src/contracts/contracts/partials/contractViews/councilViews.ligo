@@ -34,9 +34,15 @@
 
 
 
-(* View: get a council action *)
+(* View: get a council action opt *)
 [@view] function getCouncilActionOpt(const actionId: nat; const s : councilStorageType) : option(councilActionRecordType) is
     Big_map.find_opt(actionId, s.councilActionsLedger)
+
+
+
+(* View: get a council action signer opt *)
+[@view] function getCouncilActionSignerOpt(const signerId: (nat * address); const s : councilStorageType) : option(unit) is
+    Big_map.find_opt(signerId, s.councilActionsSigners)
 
 
 

@@ -17,6 +17,7 @@ export type breakGlassStorageType = {
     generalContracts    : MichelsonMap<MichelsonMapKey, unknown>;
 
     actionsLedger       : MichelsonMap<MichelsonMapKey, unknown>;
+    actionsSigners      : MichelsonMap<MichelsonMapKey, unknown>;
     actionCounter       : BigNumber;
 
     lambdaLedger        : MichelsonMap<MichelsonMapKey, unknown>;

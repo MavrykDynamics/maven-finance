@@ -152,7 +152,8 @@ type councilStorageType is [@layout:comb] record [
     
     councilMembers              : councilMembersType;
     councilSize                 : nat;
-    councilActionsLedger        : councilActionsLedgerType; 
+    councilActionsLedger        : councilActionsLedgerType;
+    councilActionsSigners       : signersType;
     actionCounter               : nat;
 
     lambdaLedger                : lambdaLedgerType;

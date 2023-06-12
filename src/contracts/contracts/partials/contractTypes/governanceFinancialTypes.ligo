@@ -25,7 +25,6 @@ type financialRequestRecordType is [@layout:comb] record [
     tokenType                           : string;
     tokenId                             : nat;
     requestPurpose                      : string;
-    voters                              : set(address);
     keyHash                             : option(key_hash);
 
     yayVoteStakedMvkTotal               : nat;
@@ -122,7 +121,7 @@ type governanceFinancialStorageType is [@layout:comb] record [
     // financial governance storage 
     financialRequestLedger              : financialRequestLedgerType;
     financialRequestCounter             : nat;
-    financialRequestVoters              : big_map((actionIdType*address), voteType);
+    financialRequestVoters              : votersType;
 
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;

@@ -583,7 +583,10 @@ describe("Emergency Governance tests", async () => {
 
                 emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
                 updatedTotalStakedMvkVotes  = emergencyProposal.totalStakedMvkVotes;
-                const userVote              = await emergencyProposal.voters.get(user)
+                const userVote              = await emergencyGovernanceStorage.emergencyGovernanceVoters.get({
+                    0: emergencyGovernanceStorage.currentEmergencyGovernanceId,
+                    1: user
+                });
 
                 // check that user vote is recorded in emergency proposal
                 assert.notStrictEqual(userVote, undefined);
@@ -646,7 +649,10 @@ describe("Emergency Governance tests", async () => {
 
                 emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
                 updatedTotalStakedMvkVotes  = emergencyProposal.totalStakedMvkVotes;
-                const userVote              = await emergencyProposal.voters.get(user)
+                const userVote              = await emergencyGovernanceStorage.emergencyGovernanceVoters.get({
+                    0: emergencyGovernanceStorage.currentEmergencyGovernanceId,
+                    1: user
+                });
 
                 // check that user vote is recorded in emergency proposal
                 assert.notStrictEqual(userVote, undefined);

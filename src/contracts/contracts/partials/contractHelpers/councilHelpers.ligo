@@ -179,7 +179,6 @@ block {
     const councilActionRecord : councilActionRecordType = record[
         initiator             = Tezos.get_sender();
         actionType            = actionType;
-        signers               = set[Tezos.get_sender()];
 
         status                = "PENDING";
         signersCount          = 1n;
@@ -193,7 +192,8 @@ block {
         executedLevel         = Tezos.get_level();
         expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
-    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord;
+    s.councilActionsSigners                 := Big_map.add((s.actionCounter, Tezos.get_sender()), unit, s.councilActionsSigners);
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
