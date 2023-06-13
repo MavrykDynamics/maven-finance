@@ -242,9 +242,10 @@ block{
         stakedMvkPercentageForApproval      = s.config.approvalPercentage; 
         stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
 
-        requestedDateTime                   = Tezos.get_now();               
+        requestedDateTime                   = Tezos.get_now();
         expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
-    
+        executedDateTime                    = Tezos.get_now();
+
     ];
 
     // ------------------------------------------------------------------
