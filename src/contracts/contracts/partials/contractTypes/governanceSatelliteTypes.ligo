@@ -43,7 +43,8 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     stakedMvkRequiredForApproval       : nat; 
 
     startDateTime                      : timestamp;           
-    expiryDateTime                     : timestamp;               
+    expiryDateTime                     : timestamp;
+    executedDateTime                   : timestamp; // will follow startDateTime and be updated when executed
 ]
 type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSatelliteActionRecordType);
 
