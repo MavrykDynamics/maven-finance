@@ -1190,8 +1190,9 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update proposal and set "executed" boolean to True
-                proposal.executed            := True;
-                s.proposalLedger[proposalId] := proposal;
+                proposal.executed               := True;
+                proposal.executedDateTime       := Tezos.get_now();
+                s.proposalLedger[proposalId]    := proposal;
 
                 // ------------------------------------------------------------------
                 // Process Metadata Loop
@@ -1420,10 +1421,13 @@ block {
                 if proposal.proposalDataExecutionCounter >= Map.size(proposal.proposalData) then {
                     
                     // Set proposal "executed" boolean to True
-                    proposal.executed := True;
+                    proposal.executed           := True;
+                    
+                    // Update the execution datetime
+                    proposal.executedDateTime   := Tezos.get_now();
 
                     // Send reward to proposer
-                    operations := sendRewardToProposer(s) # operations;
+                    operations                  := sendRewardToProposer(s) # operations;
 
                 } else skip;
 
