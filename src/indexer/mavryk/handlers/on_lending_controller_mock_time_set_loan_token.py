@@ -53,10 +53,10 @@ async def on_lending_controller_mock_time_set_loan_token(
             loan_token_address              = loan_token_type_storage.fa2.tokenContractAddress
             loan_token_id                   = loan_token_type_storage.fa2.tokenId
         elif type(loan_token_type_storage) == tez:
-            loan_token_address              = "XTZ"
+            loan_token_address              = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
     
         token_contract_metadata = None
-        if loan_token_address != "XTZ":
+        if loan_token_address != "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":
             # Persist loan Token Metadata
             token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
