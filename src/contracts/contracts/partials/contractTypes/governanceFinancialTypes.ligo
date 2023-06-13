@@ -38,7 +38,8 @@ type financialRequestRecordType is [@layout:comb] record [
     stakedMvkRequiredForApproval        : nat; 
 
     requestedDateTime                   : timestamp;  // log of when the request was submitted
-    expiryDateTime                      : timestamp;               
+    expiryDateTime                      : timestamp;
+    executedDateTime                    : timestamp; // will follow startDateTime and be updated when executed
 ]
 type financialRequestLedgerType is big_map (actionIdType, financialRequestRecordType);
 
