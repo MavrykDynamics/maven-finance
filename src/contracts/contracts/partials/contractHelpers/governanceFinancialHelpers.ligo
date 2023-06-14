@@ -102,13 +102,13 @@ function setTreasuryBaker(const contractAddress : address) : contract(setBakerTy
 
 
 
-// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
-function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+// helper function to %updateSatellitesSnapshot entrypoint on the Governance contract
+function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatellitesSnapshotType) is
     case (Tezos.get_entrypoint_opt(
-        "%updateSatelliteSnapshot",
-        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+        "%updateSatellitesSnapshot",
+        governanceAddress) : option(contract(updateSatellitesSnapshotType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatellitesSnapshotType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -573,32 +573,42 @@ block {
 
 
 // helper function to update satellite snapshot
-function updateSatelliteSnapshotOperation(const satelliteAddress : address; const ready : bool; const s : governanceFinancialStorageType) : operation is 
+function updateSatellitesSnapshotOperation(const satelliteAddresses : list(address); const ready : bool; const s : governanceFinancialStorageType) : operation is 
 block {
 
-    // Get the satellite record and delgation ratio
-    const satelliteRecord   : satelliteRecordType   = getSatelliteRecord(satelliteAddress, s);
-    const satelliteRewards  : satelliteRewardsType  = getSatelliteRewardsRecord(satelliteAddress, s);
-    const delegationRatio   : nat                   = getDelegationRatio(s);
+    // Prepare the satellites to update
+    var satellitesSnapshots : updateSatellitesSnapshotType   := list[];
 
-    // Create a snapshot
-    const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
-        satelliteAddress            = satelliteAddress;
-        totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
-        totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
-        ready                       = ready;
-        delegationRatio             = delegationRatio;
-        accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
-    ];
+    for satelliteAddress in list satelliteAddresses block {
+
+        // Get the satellite record and delgation ratio
+        const satelliteRecord   : satelliteRecordType   = getSatelliteRecord(satelliteAddress, s);
+        const satelliteRewards  : satelliteRewardsType  = getSatelliteRewardsRecord(satelliteAddress, s);
+        const delegationRatio   : nat                   = getDelegationRatio(s);
+
+        // Create a snapshot
+        const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
+            satelliteAddress            = satelliteAddress;
+            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+            ready                       = ready;
+            delegationRatio             = delegationRatio;
+            accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
+        ];
+
+        // Add the snapshot to the list
+        satellitesSnapshots := satelliteSnapshot # satellitesSnapshots;
+
+    };
 
     // Send the snapshot to the governance contract
-    const updateSatelliteSnapshotOperation : operation   = Tezos.transaction(
-        (satelliteSnapshotParams),
+    const updateSatellitesSnapshotOperation : operation   = Tezos.transaction(
+        (satellitesSnapshots),
         0tez, 
-        sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+        sendUpdateSatellitesSnapshotOperationToGovernance(s.governanceAddress)
     );
 
-} with updateSatelliteSnapshotOperation
+} with updateSatellitesSnapshotOperation
 
 
 
@@ -664,8 +674,8 @@ block{
         if currentCycle = requestGovernanceCycleId then block {
             
             // update satellite snapshot operation
-            const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
-            operations := updateSatelliteSnapshotOperation # operations;
+            const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(list[satelliteAddress], True, s);
+            operations := updateSatellitesSnapshotOperation # operations;
 
             // Calculate and set the total voting power of the satellite
             totalVotingPower := calculateVotingPower(satelliteAddress, s);

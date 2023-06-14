@@ -928,11 +928,11 @@ describe("Stress tests", async () => {
 
                         // Estimate
                         await helperFunctions.signerFactory(tezos, account.sk)
-                        const claimParams       = await farmInstance.methods.claim(account.pkh).toTransferParams({})
+                        const claimParams       = await farmInstance.methods.claim([account.pkh]).toTransferParams({})
                         const claimEstimate     = await utils.tezos.estimate.transfer(claimParams);
         
                         // Send operation
-                        const claimOperation    = await farmInstance.methods.claim(account.pkh).send();
+                        const claimOperation    = await farmInstance.methods.claim([account.pkh]).send();
                         await claimOperation.confirmation(),
         
                         // Print Estimation

@@ -2126,11 +2126,11 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // calling onStakeChange on herself
-                var onStakeChangeOperation = delegationInstance.methods.onStakeChange(mallory.pkh); 
+                var onStakeChangeOperation = delegationInstance.methods.onStakeChange([mallory.pkh]);
                 await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
 
                 // calling onStakeChange on satellite (eve)
-                onStakeChangeOperation = delegationInstance.methods.onStakeChange(eve.pkh); 
+                onStakeChangeOperation = delegationInstance.methods.onStakeChange([eve.pkh]);
                 await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
 
             } catch(e) {
