@@ -164,13 +164,13 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
 
 
 
-// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
-function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+// helper function to %updateSatellitesSnapshot entrypoint on the Governance contract
+function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatellitesSnapshotType) is
     case (Tezos.get_entrypoint_opt(
-        "%updateSatelliteSnapshot",
-        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+        "%updateSatellitesSnapshot",
+        governanceAddress) : option(contract(updateSatellitesSnapshotType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatellitesSnapshotType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -593,51 +593,72 @@ block {
 
 
 // helper function to update satellite snapshot
-function updateSatelliteSnapshotOperation(const satelliteAddress : address; const ready : bool; const s : delegationStorageType) : operation is 
+function updateSatellitesSnapshotOperation(const satelliteAddresses : list(address); const ready : bool; const s : delegationStorageType) : operation is 
 block {
 
-    // Get the satellite record
-    const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
-    const satelliteRewards  : satelliteRewardsType = getOrCreateSatelliteRewardsRecord(satelliteAddress, s);
+    // Prepare the satellites to update
+    var satellitesSnapshots : updateSatellitesSnapshotType   := list[];
 
-    // Create a snapshot
-    const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
-        satelliteAddress            = satelliteAddress;
-        totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
-        totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
-        ready                       = ready;
-        delegationRatio             = s.config.delegationRatio;
-        accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
-    ];
+    for satelliteAddress in list satelliteAddresses block {
+
+        // Get the satellite record
+        const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
+        const satelliteRewards  : satelliteRewardsType = getOrCreateSatelliteRewardsRecord(satelliteAddress, s);
+
+        // Create a snapshot
+        const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
+            satelliteAddress            = satelliteAddress;
+            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+            ready                       = ready;
+            delegationRatio             = s.config.delegationRatio;
+            accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
+        ];
+
+        // Add the snapshot to the list
+        satellitesSnapshots := satelliteSnapshot # satellitesSnapshots;
+
+    };
 
     // Send the snapshot to the governance contract
-    const updateSatelliteSnapshotOperation : operation   = Tezos.transaction(
-        (satelliteSnapshotParams),
+    const updateSatellitesSnapshotOperation : operation   = Tezos.transaction(
+        (satellitesSnapshots),
         0tez, 
-        sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+        sendUpdateSatellitesSnapshotOperationToGovernance(s.governanceAddress)
     );
 
-} with updateSatelliteSnapshotOperation
+} with updateSatellitesSnapshotOperation
 
 
 
 // helper function to refresh a satellite governance snapshot
-function updateGovernanceSnapshot (const satelliteAddress : address; const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
+function updateGovernanceSnapshot (const satelliteAddresses : list(address); const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
 block {
 
     // Get the current round 
-    const currentCycle : nat = getCurrentCycleCounter(s);
+    const currentCycle : nat                = getCurrentCycleCounter(s);
 
-    // Check if satellite snapshot exists in the current governance cycle
-    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
+    // Init parameters
+    var satellitesToUpdate : list(address)  := list[];
 
-    // Create satellite snapshot if it does not exist in the current governance cycle
-    if createSatelliteSnapshotCheck and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
+    // Create snapshot for each satellite provided
+    for satelliteAddress in list satelliteAddresses block {
+ 
+        // Check if satellite snapshot exists in the current governance cycle
+        const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
 
-        const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, ready, s);
-        operations := updateSatelliteSnapshotOperation # operations;
+        // Create satellite snapshot if it does not exist in the current governance cycle
+        if createSatelliteSnapshotCheck and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
+            satellitesToUpdate  := satelliteAddress # satellitesToUpdate;
+        } else skip;
 
-    } else skip;
+    };
+
+    // Update the satellites snapshot
+    if List.size(satellitesToUpdate) > 0n then {
+        const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(satellitesToUpdate, ready, s);
+        operations := updateSatellitesSnapshotOperation # operations;
+    }
 
 } with operations
 

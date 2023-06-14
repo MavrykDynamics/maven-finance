@@ -292,14 +292,14 @@ block{
 
 
 (* Claim Entrypoint *)
-function claim(const depositor: depositorType; var s: farmMTokenStorageType) : return is
+function claim(const depositors: claimType; var s: farmMTokenStorageType) : return is
 block{
 
     // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaClaim", s.lambdaLedger);
 
     // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaClaim(depositor);
+    const farmLambdaAction : farmLambdaActionType = LambdaClaim(depositors);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  

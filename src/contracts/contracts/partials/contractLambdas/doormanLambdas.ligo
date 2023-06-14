@@ -331,7 +331,7 @@ block {
                 // -------------------------------------------
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);                                
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);                                
                 operations := list [transferOperation; delegationOnStakeChangeOperation];
 
                 // -------------------------------------------
@@ -472,7 +472,7 @@ block {
                 // -------------------------------------------
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
 
                 // Execute operations list
                 operations := list[transferOperation; delegationOnStakeChangeOperation]
@@ -589,7 +589,7 @@ block {
                     // -------------------------------------------
 
                     // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                    const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+                    const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
 
                     // Execute operations list
                     operations := list[transferOperation; delegationOnStakeChangeOperation]
@@ -625,7 +625,7 @@ block{
                 s := compoundUserRewards(userAddress, s);
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
                 operations := list [delegationOnStakeChangeOperation]
             }
         |   _ -> skip
@@ -664,10 +664,10 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
         |   LambdaFarmClaim(farmClaim) -> {
                 
                 // Init parameter values from input
-                const delegator      : address   = farmClaim.0;
-                var claimAmount      : nat      := farmClaim.1;
-                var transferAmount   : nat      := 0n;
-                const forceTransfer  : bool      = farmClaim.2;
+                const delegatorsRewards : set(farmClaimDepositorType)  = farmClaim.0;
+                var transferAmount      : nat                          := 0n;
+                const forceTransfer     : bool                         = farmClaim.1;
+                var onStakeChangeUsers  : onStakeChangeType            := set[];
 
                 // Get farm address
                 const farmAddress : address = Tezos.get_sender();
@@ -683,67 +683,78 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Compound and update user's staked balance record
                 // ------------------------------------------------------------------
 
-                // Compound user rewards
-                s := compoundUserRewards(delegator, s);
+                for delegatorReward in set delegatorsRewards block {
 
-                // Get user's staked balance record
-                var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(delegator, s);
+                    // Parse parameters
+                    const delegator      : address  = delegatorReward.0;
+                    var claimAmount      : nat      := delegatorReward.1;
 
-                // Update user's stake balance record
-                userStakeBalanceRecord.balance                 := userStakeBalanceRecord.balance + claimAmount; 
-                userStakeBalanceRecord.totalFarmRewardsClaimed := userStakeBalanceRecord.totalFarmRewardsClaimed + claimAmount;
-                s.userStakeBalanceLedger[delegator] := userStakeBalanceRecord;
+                    // Compound user rewards
+                    s := compoundUserRewards(delegator, s);
 
-                // ------------------------------------------------------------------
-                // Check if MVK Tokens should be minted or transferred from Treasury
-                // ------------------------------------------------------------------
+                    // Get user's staked balance record
+                    var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(delegator, s);
 
-                // Check if MVK Force Transfer is enabled (no minting new MVK Tokens)
-                if forceTransfer then {
+                    // Update user's stake balance record
+                    userStakeBalanceRecord.balance                 := userStakeBalanceRecord.balance + claimAmount; 
+                    userStakeBalanceRecord.totalFarmRewardsClaimed := userStakeBalanceRecord.totalFarmRewardsClaimed + claimAmount;
+                    s.userStakeBalanceLedger[delegator] := userStakeBalanceRecord;
 
-                    transferAmount   := claimAmount;
-                    claimAmount      := 0n;
+                    // ------------------------------------------------------------------
+                    // Check if MVK Tokens should be minted or transferred from Treasury
+                    // ------------------------------------------------------------------
 
-                }
-                else {
+                    // Check if MVK Force Transfer is enabled (no minting new MVK Tokens)
+                    if forceTransfer then {
 
-                    // get MVK Total Supply, and MVK Maximum Total Supply
-                    const mvkTotalSupply    : nat = getMvkTotalSupply(s);
-                    const mvkMaximumSupply  : nat = getMvkMaximumTotalSupply(s);
+                        transferAmount   := claimAmount;
+                        claimAmount      := 0n;
 
-                    // Check if the desired minted amount will surpass the maximum total supply
-                    const tempTotalSupply : nat = mvkTotalSupply + claimAmount;
-                    if tempTotalSupply > mvkMaximumSupply then {
-                        
-                        transferAmount   := abs(tempTotalSupply - mvkMaximumSupply);
-                        claimAmount      := abs(claimAmount - transferAmount);
+                    }
+                    else {
+
+                        // get MVK Total Supply, and MVK Maximum Total Supply
+                        const mvkTotalSupply    : nat = getMvkTotalSupply(s);
+                        const mvkMaximumSupply  : nat = getMvkMaximumTotalSupply(s);
+
+                        // Check if the desired minted amount will surpass the maximum total supply
+                        const tempTotalSupply : nat = mvkTotalSupply + claimAmount;
+                        if tempTotalSupply > mvkMaximumSupply then {
+                            
+                            transferAmount   := abs(tempTotalSupply - mvkMaximumSupply);
+                            claimAmount      := abs(claimAmount - transferAmount);
+
+                        } else skip;
+
+                    };
+
+                    // Mint MVK Tokens if claimAmount is greater than 0
+                    if claimAmount > 0n then {
+
+                    const mintMvkAndTransferOperation : operation = mintMvkAndTransferOperation(claimAmount, s);
+                    operations := mintMvkAndTransferOperation # operations;
 
                     } else skip;
 
+                    // Transfer MVK Tokens from treasury if transferredToken is greater than 0
+                    if transferAmount > 0n then {
+                        
+                        const transferFromTreasuryOperation : operation = transferFromTreasuryOperation(transferAmount, s);
+                        operations := transferFromTreasuryOperation # operations;
+
+                    } else skip;
+
+                    // Add the user for the future onStakeChange
+                    onStakeChangeUsers  := Set.add(delegator, onStakeChangeUsers);
+
                 };
-
-                // Mint MVK Tokens if claimAmount is greater than 0
-                if claimAmount > 0n then {
-
-                  const mintMvkAndTransferOperation : operation = mintMvkAndTransferOperation(claimAmount, s);
-                  operations := mintMvkAndTransferOperation # operations;
-
-                } else skip;
-
-                // Transfer MVK Tokens from treasury if transferredToken is greater than 0
-                if transferAmount > 0n then {
-                    
-                    const transferFromTreasuryOperation : operation = transferFromTreasuryOperation(transferAmount, s);
-                    operations := transferFromTreasuryOperation # operations;
-
-                } else skip;
 
                 // -------------------------------------------
                 // Update Delegation contract since user staked MVK balance has changed
                 // -------------------------------------------
                 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(delegator, s);
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(onStakeChangeUsers, s);
                 operations := delegationOnStakeChangeOperation # operations;
 
             }
@@ -812,10 +823,9 @@ block{
                 s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const ownerOnStakeChangeOperation : operation = Tezos.transaction((vaultOwner)  , 0tez, delegationOnStakeChange(delegationAddress));
-                const vaultOnStakeChangeOperation : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Tezos.transaction(set[vaultAddress; vaultOwner]  , 0tez, delegationOnStakeChange(delegationAddress));
 
-                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [onStakeChangeOperation];
             }
         | _ -> skip
     ];
@@ -876,10 +886,9 @@ block{
                 s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const ownerOnStakeChangeOperation : operation = Tezos.transaction((vaultOwner)  , 0tez, delegationOnStakeChange(delegationAddress));
-                const vaultOnStakeChangeOperation : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Tezos.transaction(set[vaultAddress; vaultOwner]  , 0tez, delegationOnStakeChange(delegationAddress));
 
-                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [onStakeChangeOperation]
             }
         | _ -> skip
     ];
@@ -946,10 +955,9 @@ block{
                 s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const liquidatorOnStakeChangeOperation    : operation = Tezos.transaction((liquidator)  , 0tez, delegationOnStakeChange(delegationAddress));
-                const vaultOnStakeChangeOperation         : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Tezos.transaction(set[vaultAddress; liquidator]  , 0tez, delegationOnStakeChange(delegationAddress));
 
-                operations  := list [liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [onStakeChangeOperation]
             }
         | _ -> skip
     ];
@@ -1061,7 +1069,7 @@ block {
                 s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
 
                 // update satellite balance if user is delegated to a satellite
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
 
                 // fill a list of operations
                 operations := list[transferOperation; delegationOnStakeChangeOperation]
