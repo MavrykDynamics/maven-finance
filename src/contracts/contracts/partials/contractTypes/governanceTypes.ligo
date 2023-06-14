@@ -237,7 +237,7 @@ type setContractGovernanceType is [@layout:comb] record [
 
 type whitelistDevelopersType is set(address)
 
-type updateSatelliteSnapshotType is [@layout:comb] record [
+type updateSatelliteSingleSnapshotType is [@layout:comb] record [
     satelliteAddress            : address;
     totalStakedMvkBalance       : nat;
     totalDelegatedAmount        : nat;
@@ -245,6 +245,7 @@ type updateSatelliteSnapshotType is [@layout:comb] record [
     delegationRatio             : nat;
     accumulatedRewardsPerShare  : nat;
 ]
+type updateSatellitesSnapshotType is list(updateSatelliteSingleSnapshotType)
 
 type distributeProposalRewardsType is [@layout:comb] record [
     satelliteAddress        : address;
@@ -275,7 +276,7 @@ type governanceLambdaActionType is
     |   LambdaSetContractGovernance                 of setContractGovernanceType
 
         // Governance Cycle Lambdas
-    |   LambdaUpdateSatelliteSnapshot               of updateSatelliteSnapshotType
+    |   LambdaUpdateSatellitesSnapshot               of updateSatellitesSnapshotType
     |   LambdaStartNextRound                        of (bool)
     |   LambdaPropose                               of newProposalType
     |   LambdaProposalRoundVote                     of actionIdType

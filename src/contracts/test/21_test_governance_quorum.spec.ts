@@ -77,6 +77,7 @@ describe("Governance quorum tests", async () => {
         try {
             utils = new Utils();
             await utils.init(bob.sk);
+            tezos = utils.tezos;
 
             doormanAddress                  = contractDeployments.doorman.address;
     

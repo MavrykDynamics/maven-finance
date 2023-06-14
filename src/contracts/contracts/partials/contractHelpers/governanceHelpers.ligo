@@ -956,7 +956,7 @@ block {
 
 
 // helper function to update a satellite snapshot 
-function updateSatelliteSnapshotRecord (const updateSatelliteSnapshotParams : updateSatelliteSnapshotType; var s : governanceStorageType) : governanceStorageType is
+function updateSatellitesSnapshotRecord (const updateSatelliteSnapshotParams : updateSatelliteSingleSnapshotType; var s : governanceStorageType) : governanceStorageType is
 block {
 
     // Get variables from parameter
@@ -1015,7 +1015,7 @@ block {
         const delegationRatio : nat = getDelegationRatio(s);
 
         // Prepare the record to create the snapshot
-        const satelliteSnapshotParams : updateSatelliteSnapshotType = record[
+        const satelliteSnapshotParams : updateSatelliteSingleSnapshotType = record[
             satelliteAddress            = satelliteAddress;
             totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
             totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
@@ -1025,7 +1025,7 @@ block {
         ];
 
         // Save the snapshot
-        s := updateSatelliteSnapshotRecord(satelliteSnapshotParams, s);
+        s := updateSatellitesSnapshotRecord(satelliteSnapshotParams, s);
 
     } else skip;
 

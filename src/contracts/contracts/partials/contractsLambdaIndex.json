@@ -346,7 +346,7 @@
     "lambdaSetContractAdmin",
     "lambdaSetContractGovernance",
 
-    "lambdaUpdateSatelliteSnapshot",
+    "lambdaUpdateSatellitesSnapshot",
     "lambdaStartNextRound",
     "lambdaPropose",
     "lambdaProposalRoundVote",

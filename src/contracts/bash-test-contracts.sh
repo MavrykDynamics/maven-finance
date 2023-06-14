@@ -99,7 +99,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         farmMToken)
             echo "Running tests for farm mToken"
-            COMMANDS+=("yarn ts-mocha --paths test/06a_test_farm_mToken.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/x4_test_farm_mToken.spec.ts --bail --timeout 9000000")
             ;;
         farmFactory)
             echo "Running tests for farmFactory"
@@ -107,7 +107,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         farmFactoryMToken)
             echo "Running tests for farmFactoryMToken"
-            COMMANDS+=("yarn ts-mocha --paths test/07a_test_mFarm_factory.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/x5_test_mFarm_factory.spec.ts --bail --timeout 9000000")
             ;;
         treasury)
             echo "Running tests for treasury"
