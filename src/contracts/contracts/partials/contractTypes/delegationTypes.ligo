@@ -144,7 +144,7 @@ type delegationTogglePauseEntrypointType is [@layout:comb] record [
     empty             : unit
 ];
 
-type onStakeChangeType is (address)
+type onStakeChangeType is set(address)
 
 
 // ------------------------------------------------------------------------------

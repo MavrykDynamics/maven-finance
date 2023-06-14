@@ -313,14 +313,14 @@ block {
 // ------------------------------------------------------------------------------
 
 (* onStakeChange entrypoint *)
-function onStakeChange(const userAddress : address; var s : delegationStorageType) : return is 
+function onStakeChange(const userAddresses : onStakeChangeType; var s : delegationStorageType) : return is 
 block {
 
     // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaOnStakeChange", s.lambdaLedger);
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaOnStakeChange(userAddress);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaOnStakeChange(userAddresses);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);

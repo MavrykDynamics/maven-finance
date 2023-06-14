@@ -389,20 +389,22 @@ block {
 // Governance Cycle Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  updateSatelliteSnapshot lambda *)
-function lambdaUpdateSatelliteSnapshot(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
+(*  updateSatellitesSnapshot lambda *)
+function lambdaUpdateSatellitesSnapshot(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaUpdateSatelliteSnapshot(updateSatelliteSnapshotParams) -> {
+        |   LambdaUpdateSatellitesSnapshot(updateSatellitesSnapshotParams) -> {
 
                 // Verify sender is whitelisted or is the admin
                 verifySenderIsWhitelistedOrAdmin(s);
                 
-                // Update the storage with the new snapshot
-                s := updateSatelliteSnapshotRecord(updateSatelliteSnapshotParams, s);
+                // Update the storage with the new snapshots
+                for satelliteSnapshot in list updateSatellitesSnapshotParams block{
+                    s := updateSatellitesSnapshotRecord(satelliteSnapshot, s);
+                }
 
             }
         |   _ -> skip
