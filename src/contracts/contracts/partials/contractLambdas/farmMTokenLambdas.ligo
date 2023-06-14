@@ -589,7 +589,7 @@ block{
     var operations : list(operation) := nil;
 
     case farmLambdaAction of [
-        |   LambdaClaim(depositor) -> {
+        |   LambdaClaim(depositors) -> {
 
                 // --- Get required inputs from mToken contract and loan token record from Lending Controller
                 const farmMTokenBalance : nat = getMTokenBalance(s);
@@ -600,36 +600,47 @@ block{
                 // Update farm
                 s := updateFarm(farmMTokenBalance, s);
 
-                // Check if sender is an existing depositor
-                var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
+                // Init farm claim parameters
+                var farmClaimDepositors : set(farmClaimDepositorType)   := set[];
 
-                // update balance with any accrual to mToken
-                depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
+                // Loop through depositors and claim rewards
+                for depositor in set depositors block{
 
-                // Update user's unclaimed rewards
-                const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
-                s := updateRewards.0;
-                depositorRecord := updateRewards.1;
+                    // Check if sender is an existing depositor
+                    var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
-                // Get depositor's unclaimed rewards
-                const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
+                    // update balance with any accrual to mToken
+                    depositorRecord := updateBalanceWithMTokenAccrual(depositorRecord, latestTokenRewardIndex);
 
-                // Process unclaimed rewards if user has more than 0 rewards to claim
-                if unclaimedRewards > 0n then {
+                    // Update user's unclaimed rewards
+                    const updateRewards : (farmMTokenStorageType * depositorRecordType) = updateUnclaimedRewards(depositorRecord, s);
+                    s := updateRewards.0;
+                    depositorRecord := updateRewards.1;
 
-                    // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
-                    depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
-                    depositorRecord.unclaimedRewards    := 0n;
+                    // Get depositor's unclaimed rewards
+                    const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
 
-                    // Update storage with new depositor record
-                    s.depositorLedger[depositor] := depositorRecord;
+                    // Process unclaimed rewards if user has more than 0 rewards to claim
+                    if unclaimedRewards > 0n then {
 
-                    // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
-                    const transferRewardOperation : operation = transferReward(depositor, unclaimedRewards, s);
+                        // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
+                        depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
+                        depositorRecord.unclaimedRewards    := 0n;
 
-                    operations := transferRewardOperation # operations;
+                        // Update storage with new depositor record
+                        s.depositorLedger[depositor]        := depositorRecord;
 
-                } else skip;
+                        // Add the claim to the set
+                        farmClaimDepositors                 := Set.add((depositor, unclaimedRewards), farmClaimDepositors);
+                    }
+
+                };
+
+                // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
+                if Set.cardinal(farmClaimDepositors) > 0n then {
+                    const transferRewardOperation : operation   = transferReward(farmClaimDepositors, s);
+                    operations                                  := transferRewardOperation # operations;
+                }
 
             }
         |   _ -> skip

@@ -57,7 +57,7 @@ type farmAction is
         // Farm Entrypoints
     |   Deposit                     of nat
     |   Withdraw                    of nat
-    |   Claim                       of address
+    |   Claim                       of claimType
 
         // Lambda Entrypoints
     |   SetLambda                   of setLambdaType

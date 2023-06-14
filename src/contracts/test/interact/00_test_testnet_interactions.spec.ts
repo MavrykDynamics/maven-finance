@@ -2067,7 +2067,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 var operation   = await farmFactoryInstance.methods.trackFarm(contractDeployments.farm.address).send()
                 await operation.confirmation();
-                operation       = await farmInstance.methods.claim(bob.pkh).send()
+                operation       = await farmInstance.methods.claim([bob.pkh]).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5399,7 +5399,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 var operation   = await farmFactoryInstance.methods.trackFarm(contractDeployments.farmMToken.address).send()
                 await operation.confirmation();
-                operation       = await farmMTokenInstance.methods.claim(bob.pkh).send()
+                operation       = await farmMTokenInstance.methods.claim([bob.pkh]).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
