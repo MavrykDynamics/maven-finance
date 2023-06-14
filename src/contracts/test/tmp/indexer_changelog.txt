@@ -1,5 +1,6 @@
 Delegation Contract
 1. SatelliteRewardsType: add referenceGovernanceCycleId : nat , and tracked : bool
+2. %onStakeChange parameter refactored (now list of addresses)
 
 Emergency Governance Contract
 1. Config: In emergencyUpdateConfigActionType: change ConfigMinStakedMvkForTrigger to ConfigMinStakedMvkToTrigger
@@ -47,6 +48,8 @@ Governance Contract
 5. Storage update
 - prosalVoters bigmap added in storage
 4. voters removed from emergencyGovernanceRecordType
+5. %updateSatelliteSnapshot parameter refactored (now list of addresses)
+6. %updateSatelliteSnapshot renamed to %updateSatellitesSnapshot
 
 Aggregator Contract
 1. OracleLedgerSize added in storage
@@ -54,3 +57,12 @@ Aggregator Contract
 lendingController & MockTime
 1. accumulatedRewardsPerShare renamed to tokenRewardIndex
 2. mTokensTotal renamed to rawMTokensTotalSupply
+
+Farm Contract
+1. %claim parameter refactored (now list of addresses)
+
+FarmMToken Contract
+1. %claim parameter refactored (now list of addresses)
+
+Doorman Contract
+1. %farmClaim parameter refactored (now list of addresses)

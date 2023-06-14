@@ -191,7 +191,7 @@ describe("Test: Farm Contract", async () => {
                     const farmInit          = farmStorage.init;
     
                     // Operation
-                    await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
 
                     // Assertion
                     assert.equal(farmInit, false);
@@ -656,7 +656,7 @@ describe("Test: Farm Contract", async () => {
                     farmStorage             = await farmInstance.storage();
 
                     // Operation
-                    await chai.expect(farmInstance.methods.claim(eve.pkh).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.claim([eve.pkh]).send()).to.be.rejected;
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
@@ -672,9 +672,9 @@ describe("Test: Farm Contract", async () => {
 
                     // Operations
                     await helperFunctions.wait(4 * blockTime * 1000);
-                    // const firstClaimOperation   = await farmInstance.methods.claim(mallory.pkh).send();
+                    // const firstClaimOperation   = await farmInstance.methods.claim([mallory.pkh]).send();
                     // await firstClaimOperation.confirmation();
-                    await chai.expect(farmInstance.methods.claim(mallory.pkh).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.claim([mallory.pkh]).send()).to.be.rejected;
 
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -693,7 +693,7 @@ describe("Test: Farm Contract", async () => {
 
                     // Operations
                     await helperFunctions.wait(10 * blockTime * 1000);
-                    const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
+                    const firstClaimOperation   = await farmInstance.methods.claim([bob.pkh]).send();
                     await firstClaimOperation.confirmation();
 
                     // Final values
@@ -737,7 +737,7 @@ describe("Test: Farm Contract", async () => {
                     const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalance).send();
                     await withdrawOperation.confirmation();
 
-                    const firstClaimOperation   = await farmInstance.methods.claim(bob.pkh).send();
+                    const firstClaimOperation   = await farmInstance.methods.claim([bob.pkh]).send();
                     await firstClaimOperation.confirmation();
 
                     // Final values
@@ -883,7 +883,7 @@ describe("Test: Farm Contract", async () => {
 
                     // Test operation
                     await helperFunctions.wait(4 * blockTime * 1000);
-                    await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
 
                     // Operation
                     var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("claim", false).send();
@@ -895,7 +895,7 @@ describe("Test: Farm Contract", async () => {
 
                     // Test operation
                     await helperFunctions.wait(4 * blockTime * 1000);
-                    const testOperation = await farmInstance.methods.claim(bob.pkh).send();
+                    const testOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await testOperation.confirmation();
 
                     // Assertions
@@ -964,7 +964,7 @@ describe("Test: Farm Contract", async () => {
                     console.log(userDepositRecordMid);
 
                     // First claim operation - sMVK rewards should be minted (hence increase in sMVK total supply)
-                    var claimOperation  = await farmInstance.methods.claim(bob.pkh).send();
+                    var claimOperation  = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
                     await helperFunctions.signerFactory(tezos, bob.sk);
@@ -991,7 +991,7 @@ describe("Test: Farm Contract", async () => {
 
                     // Do another claim - sMVK rewards should be transferred from Farm Treasury
                     await helperFunctions.wait(12 * blockTime * 1000);
-                    claimOperation = await farmInstance.methods.claim(bob.pkh).send();
+                    claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
                     // Updated values
@@ -1012,7 +1012,7 @@ describe("Test: Farm Contract", async () => {
 
                     //Do another claim
                     await helperFunctions.wait(12 * blockTime * 1000);
-                    claimOperation = await farmInstance.methods.claim(bob.pkh).send();
+                    claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
                     // Updated values
@@ -1215,7 +1215,7 @@ describe("Test: Farm Contract", async () => {
                     
                     // Operation
                     await helperFunctions.wait(4 * blockTime * 1000);
-                    const claimOperation        = await farmInstance.methods.claim(bob.pkh).send();
+                    const claimOperation        = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
                     // Final values
@@ -1248,7 +1248,7 @@ describe("Test: Farm Contract", async () => {
                     
                     // Operation - let alice claim her eligible rewards 
                     await helperFunctions.wait(4 * blockTime * 1000);
-                    const claimOperation = await farmInstance.methods.claim(alice.pkh).send();
+                    const claimOperation = await farmInstance.methods.claim([alice.pkh]).send();
                     await claimOperation.confirmation();
 
                     // Update storage
@@ -1268,7 +1268,7 @@ describe("Test: Farm Contract", async () => {
 
                     // Second operation to check no change in sMVK balance
                     await helperFunctions.wait(4 * blockTime * 1000);
-                    const secondClaimOperation = await farmInstance.methods.claim(alice.pkh).send();
+                    const secondClaimOperation = await farmInstance.methods.claim([alice.pkh]).send();
                     await secondClaimOperation.confirmation();
 
                     // Update storage
@@ -1417,7 +1417,7 @@ describe("Test: Farm Contract", async () => {
 
                 // Final values
                 farmStorage           = await farmInstance.storage();
-                const updatedConfigValue = farmStorage.config.minMvkAmount;
+                const updatedConfigValue = farmStorage.config.forceRewardFromTransfer;
 
                 // check that there is no change in config values
                 assert.equal(updatedConfigValue, initialConfigValue);

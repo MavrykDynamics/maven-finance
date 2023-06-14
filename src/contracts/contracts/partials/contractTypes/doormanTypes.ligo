@@ -37,10 +37,8 @@ type doormanConfigType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
-
-type delegationOnStakeChangeType is (address)
-
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
+type farmClaimDepositorType is (address * nat)
+type farmClaimType is (set(farmClaimDepositorType) * bool) // Recipient address + Amount claimed + forceTransfer instead of mintOrTransfer
 
 type doormanUpdateConfigNewValueType is nat
 type doormanUpdateConfigActionType is 
