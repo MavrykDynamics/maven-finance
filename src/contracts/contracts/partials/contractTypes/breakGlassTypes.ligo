@@ -42,6 +42,10 @@ type breakGlassUpdateConfigParamsType is [@layout:comb] record [
     updateConfigAction    : breakGlassUpdateConfigActionType;
 ]
 
+type setContractsAdminType is [@layout:comb] record [
+    contractAddressSet  : set(address);
+    newAdminAddress     : address;
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -69,12 +73,11 @@ type breakGlassLambdaActionType is
     |   LambdaCouncilChangeMember           of councilActionChangeMemberType
 
         // Glass Broken Required
-    |   LambdaPropagateBreakGlass           of (unit)
-    |   LambdaSetSingleContractAdmin        of setContractAdminType
-    |   LambdaSetAllContractsAdmin          of (address)               
-    |   LambdaPauseAllEntrypoints           of (unit)             
-    |   LambdaUnpauseAllEntrypoints         of (unit)
-    |   LambdaRemoveBreakGlassControl       of (unit)
+    |   LambdaPropagateBreakGlass           of set(address)
+    |   LambdaSetContractsAdmin             of setContractsAdminType
+    |   LambdaPauseAllEntrypoints           of set(address)
+    |   LambdaUnpauseAllEntrypoints         of set(address)
+    |   LambdaRemoveBreakGlassControl       of set(address)
 
         // Council Signing of Actions
     |   LambdaFlushAction                   of actionIdType

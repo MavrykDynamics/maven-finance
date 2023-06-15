@@ -209,9 +209,9 @@ block{
 
 
 
-(* get: general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const store : mvkTokenStorageType) : generalContractsType is
-    store.generalContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
+    Big_map.find_opt(contractName, store.generalContracts)
 
 
 

@@ -53,13 +53,13 @@ block {
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaPropagateBreakGlass(_parameters) -> {
+        |   LambdaPropagateBreakGlass(contractAddressSet) -> {
                 
                 // Verify that glass is broken on the Break Glass contract
                 verifyGlassBroken(s);
 
                 // Loop to propagate break glass in all general contracts
-                for _contractName -> contractAddress in map s.generalContracts block {
+                for contractAddress in set contractAddressSet block {
                     
                     // Order of operations: first in last out
                     // 1. First, trigger pauseAll entrypoint in contract 

@@ -22,15 +22,9 @@
 
 
 
-(* View: get general contracts *)
+(* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : governanceStorageType) : option(address) is
-    Map.find_opt(contractName, s.generalContracts)
-
-
-
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : governanceStorageType) : generalContractsType is
-    s.generalContracts
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 

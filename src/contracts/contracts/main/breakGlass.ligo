@@ -51,12 +51,11 @@ type breakGlassAction is
     |   CouncilActionChangeMember     of councilActionChangeMemberType
     
         // Break Glass Actions: Glass Broken Required
-    |   PropagateBreakGlass           of (unit)
-    |   SetSingleContractAdmin        of setContractAdminType
-    |   SetAllContractsAdmin          of (address)
-    |   PauseAllEntrypoints           of (unit)
-    |   UnpauseAllEntrypoints         of (unit)
-    |   RemoveBreakGlassControl       of (unit)
+    |   PropagateBreakGlass           of set(address)
+    |   SetContractsAdmin             of setContractsAdminType
+    |   PauseAllEntrypoints           of set(address)
+    |   UnpauseAllEntrypoints         of set(address)
+    |   RemoveBreakGlassControl       of set(address)
 
         // Council Signing of Actions
     |   FlushAction                   of actionIdType
@@ -133,12 +132,11 @@ block {
         |   CouncilActionChangeMember(parameters) -> councilActionChangeMember(parameters, s)
         
             // Break Glass Actions: Glass Broken Required
-        |   PropagateBreakGlass(_parameters)      -> propagateBreakGlass(s)
-        |   SetSingleContractAdmin(parameters)    -> setSingleContractAdmin(parameters, s)
-        |   SetAllContractsAdmin(parameters)      -> setAllContractsAdmin(parameters, s)
-        |   PauseAllEntrypoints(_parameters)      -> pauseAllEntrypoints(s)
-        |   UnpauseAllEntrypoints(_parameters)    -> unpauseAllEntrypoints(s)
-        |   RemoveBreakGlassControl(_parameters)  -> removeBreakGlassControl(s)
+        |   PropagateBreakGlass(parameters)       -> propagateBreakGlass(parameters, s)
+        |   SetContractsAdmin(parameters)         -> setContractsAdmin(parameters, s)
+        |   PauseAllEntrypoints(parameters)       -> pauseAllEntrypoints(parameters, s)
+        |   UnpauseAllEntrypoints(parameters)     -> unpauseAllEntrypoints(parameters, s)
+        |   RemoveBreakGlassControl(parameters)   -> removeBreakGlassControl(parameters, s)
 
             // Council Signing of Actions
         |   FlushAction(parameters)               -> flushAction(parameters, s)

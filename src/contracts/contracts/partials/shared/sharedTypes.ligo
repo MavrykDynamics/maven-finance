@@ -26,7 +26,7 @@ type updateType is
     |   Update of unit
     |   Remove of unit
 
-type generalContractsType is map (string, address)
+type generalContractsType is big_map (string, address)
 type updateGeneralContractsType is [@layout:comb] record [
     generalContractName     : string;
     generalContractAddress  : address;

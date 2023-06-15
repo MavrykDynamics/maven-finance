@@ -261,7 +261,7 @@ type governanceLambdaActionType is
   
         // Break Glass Entrypoint
     |   LambdaBreakGlass                            of (unit)
-    |   LambdaPropagateBreakGlass                   of (unit)
+    |   LambdaPropagateBreakGlass                   of set(address)
 
         // Housekeeping Lambdas
     |   LambdaSetAdmin                              of address
