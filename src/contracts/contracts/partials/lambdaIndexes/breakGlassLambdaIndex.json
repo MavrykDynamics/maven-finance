@@ -53,30 +53,26 @@
 	},
 	{
 		"index": 13,
-		"name": "lambdaSetSingleContractAdmin"
+		"name": "lambdaSetContractsAdmin"
 	},
 	{
 		"index": 14,
-		"name": "lambdaSetAllContractsAdmin"
-	},
-	{
-		"index": 15,
 		"name": "lambdaPauseAllEntrypoints"
 	},
 	{
-		"index": 16,
+		"index": 15,
 		"name": "lambdaUnpauseAllEntrypoints"
 	},
 	{
-		"index": 17,
+		"index": 16,
 		"name": "lambdaRemoveBreakGlassControl"
 	},
 	{
-		"index": 18,
+		"index": 17,
 		"name": "lambdaFlushAction"
 	},
 	{
-		"index": 19,
+		"index": 18,
 		"name": "lambdaSignAction"
 	}
 ]

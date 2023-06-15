@@ -131,8 +131,7 @@
     "lambdaCouncilChangeMember",
 
     "lambdaPropagateBreakGlass",
-    "lambdaSetSingleContractAdmin",
-    "lambdaSetAllContractsAdmin",
+    "lambdaSetContractsAdmin",
     "lambdaPauseAllEntrypoints",
     "lambdaUnpauseAllEntrypoints",
     "lambdaRemoveBreakGlassControl",
