@@ -51,7 +51,7 @@ block {
     ];
     
     // Init empty General Contracts map (local contract scope, to be used if necessary)
-    const farmGeneralContracts : generalContractsType = map[];
+    const farmGeneralContracts : generalContractsType = big_map[];
 
     // Create needed records for Farm contract
     const farmClaimedRewards : claimedRewardsType = record[
@@ -152,7 +152,7 @@ block {
     ];
     
     // Init empty General Contracts map (local contract scope, to be used if necessary)
-    const farmGeneralContracts : generalContractsType = map[];
+    const farmGeneralContracts : generalContractsType = big_map[];
 
     // Create needed records for Farm contract
     const farmClaimedRewards : claimedRewardsType = record[

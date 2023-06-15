@@ -210,7 +210,7 @@ block {
         (governanceSatelliteAddress) -> unit;
     ];
     
-    const aggregatorGeneralContracts : generalContractsType = map[];
+    const aggregatorGeneralContracts : generalContractsType = big_map[];
 
     const aggregatorLambdaLedger : lambdaLedgerType = s.aggregatorLambdaLedger;
 

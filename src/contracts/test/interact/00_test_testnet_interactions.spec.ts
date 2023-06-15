@@ -3684,20 +3684,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin sets single contract admin', async () => {
+        it('Admin sets contracts admin', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.setSingleContractAdmin(contractDeployments.governance.address, bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin sets all contracts admin', async () => {
-            try{
-                // Operation
-                const operation = await breakGlassInstance.methods.setAllContractsAdmin(bob.pkh).send();
+                const operation = await breakGlassInstance.methods.setContractsAdmin(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
