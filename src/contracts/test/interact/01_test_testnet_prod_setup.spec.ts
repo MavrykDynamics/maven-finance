@@ -202,10 +202,24 @@ describe("Testnet setup helper", async () => {
             try{
                 // Set general contracts admin
                 governanceStorage             = await governanceInstance.storage();
-                var generalContracts          = governanceStorage.generalContracts.entries();
+                var generalContracts          = [
+                    contractDeployments.aggregatorFactory.address,
+                    contractDeployments.breakGlass.address,
+                    contractDeployments.council.address,
+                    contractDeployments.delegation.address,
+                    contractDeployments.doorman.address,
+                    contractDeployments.emergencyGovernance.address,
+                    contractDeployments.farmFactory.address,
+                    contractDeployments.vesting.address,
+                    contractDeployments.treasuryFactory.address,
+                    contractDeployments.lendingController.address,
+                    contractDeployments.vaultFactory.address,
+                    contractDeployments.governance.address,
+                ]
+                
                 for (let entry of generalContracts){
                     // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
+                    var contract        = await utils.tezos.contract.at(entry);
                     var storage:any     = await contract.storage();
 
                     // Check admin

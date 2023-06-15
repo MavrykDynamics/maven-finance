@@ -81,7 +81,7 @@ block {
     const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
     // Init empty General Contracts map (local contract scope, to be used if necessary)
-    const treasuryGeneralContracts : generalContractsType = map[];
+    const treasuryGeneralContracts : generalContractsType = big_map[];
 
     // Init break glass config
     const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[

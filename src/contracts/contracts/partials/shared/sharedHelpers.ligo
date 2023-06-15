@@ -16,20 +16,6 @@ function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
 function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
 
-function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
-block {
-    
-    var inContractAddressMap : bool := False;
-    
-    for _key -> value in map generalContracts block {
-        
-        if contractAddress = value then inContractAddressMap := True
-        else skip;
-
-    }  
-
-} with inContractAddressMap
-
 
 
 (* UpdateGeneralContracts Entrypoint *)
@@ -41,8 +27,8 @@ block {
     const updateType       : updateType = updateGeneralContractsParams.updateType; 
 
     generalContracts := case updateType of [
-            Update(_) -> Map.update(contractName, (Some(contractAddress)), generalContracts)
-        |   Remove(_) -> Map.update(contractName, (None : option(address)), generalContracts)
+            Update(_) -> Big_map.update(contractName, (Some(contractAddress)), generalContracts)
+        |   Remove(_) -> Big_map.update(contractName, (None : option(address)), generalContracts)
     ]
 
 } with (generalContracts)
@@ -131,7 +117,7 @@ block {
 
     if String.length(inputString) > maxLength then failwith(errorCode) else skip;
 
-} with unit 
+} with unit
 
 
 
