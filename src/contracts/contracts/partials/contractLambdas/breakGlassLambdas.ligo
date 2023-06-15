@@ -398,12 +398,16 @@ block {
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaPauseAllEntrypoints(_parameters) -> {
+        |   LambdaPauseAllEntrypoints(councilActionPauseAllaEntrypointsParams) -> {
+
+                const dataMap : dataMapType = map [
+                    ("contractAddressSet"       : string)  -> Bytes.pack(councilActionPauseAllaEntrypointsParams);
+                ];
 
                 // create break glass action
                 s := createBreakGlassAction(
                     "pauseAllEntrypoints",
-                    emptyDataMap,
+                    dataMap,
                     s
                 );
 
@@ -430,12 +434,16 @@ block {
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaUnpauseAllEntrypoints(_parameters) -> {
+        |   LambdaUnpauseAllEntrypoints(councilActionUnpauseAllaEntrypointsParams) -> {
+
+                const dataMap : dataMapType = map [
+                    ("contractAddressSet"       : string)  -> Bytes.pack(councilActionUnpauseAllaEntrypointsParams);
+                ];
 
                 // create break glass action
                 s := createBreakGlassAction(
                     "unpauseAllEntrypoints",
-                    emptyDataMap,
+                    dataMap,
                     s
                 );
 
@@ -462,68 +470,15 @@ block {
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaPropagateBreakGlass(_parameters) -> {
-
-                // create break glass action
-                s := createBreakGlassAction(
-                    "propagateBreakGlass",
-                    emptyDataMap,
-                    s
-                );
-                
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  setSingleContractAdmin lambda  *)
-function lambdaSetSingleContractAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
-block {
-
-    // Steps Overview:
-    // 1. Check that glass has been broken (since this is a protected entrypoint)
-    // 2. Check if sender is a Break Glass Council Member
-    // 3. Check if the provided contract has a setAdmin entrypoint
-    // 4. Check if the provided new admin address is allowed
-    //    - Get whitelist developers map from the Governance Contract
-    //    - Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
-    //    - Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
-    // 5. Create and save new council action record, set the sender as a signer of the action
-    //      - Action Type: setSingleContractAdmin
-    // 6. Increment action counter
-
-    checkGlassIsBroken(s);         
-    verifySenderIsCouncilMember(s);
-
-    case breakGlassLambdaAction of [
-        |   LambdaSetSingleContractAdmin(setSingleContractParams) -> {
-
-                const newAdminAddress        : address = setSingleContractParams.newContractAdmin;
-                const targetContractAddress  : address = setSingleContractParams.targetContractAddress;
-
-                // Check if the provided contract has a setAdmin entrypoint
-                const _checkEntrypoint: contract(address) = setAdminInContract(targetContractAddress);
-
-                // Get Whitelist Developers map from the Governance Contract
-                const whitelistDevelopers : whitelistDevelopersType = getWhitelistDevelopersMap(s);
-
-                // Get Governance Proxy Contract address directly from the Governance Contract
-                const governanceProxyAddress : address = getGovernanceProxyAddress(s);
-
-                // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
-                verifyValidAdminAddress(newAdminAddress, whitelistDevelopers, governanceProxyAddress);
+        |   LambdaPropagateBreakGlass(councilActionPropagateBreakGlassParams) -> {
 
                 const dataMap : dataMapType = map [
-                    ("newAdminAddress"       : string) -> Bytes.pack(newAdminAddress);
-                    ("targetContractAddress" : string) -> Bytes.pack(targetContractAddress);
+                    ("contractAddressSet"       : string)  -> Bytes.pack(councilActionPropagateBreakGlassParams);
                 ];
 
                 // create break glass action
                 s := createBreakGlassAction(
-                    "setSingleContractAdmin",
+                    "propagateBreakGlass",
                     dataMap,
                     s
                 );
@@ -536,8 +491,8 @@ block {
 
 
 
-(*  setAllContractsAdmin lambda  *)
-function lambdaSetAllContractsAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
+(*  setContractsAdmin lambda  *)
+function lambdaSetContractsAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -548,14 +503,14 @@ block {
     //    - Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
     //    - Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
     // 4. Create and save new council action record, set the sender as a signer of the action
-    //      - Action Type: setAllContractsAdmin
+    //      - Action Type: setContractsAdmin
     // 5. Increment action counter
 
     checkGlassIsBroken(s);          
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaSetAllContractsAdmin(newAdminAddress) -> {
+        |   LambdaSetContractsAdmin(councilActionSetContractsAdminParams) -> {
 
                 // Get Whitelist Developers map from the Governance Contract
                 const whitelistDevelopers : whitelistDevelopersType = getWhitelistDevelopersMap(s);
@@ -564,15 +519,16 @@ block {
                 const governanceProxyAddress : address = getGovernanceProxyAddress(s);
 
                 // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
-                verifyValidAdminAddress(newAdminAddress, whitelistDevelopers, governanceProxyAddress);
+                verifyValidAdminAddress(councilActionSetContractsAdminParams.newAdminAddress, whitelistDevelopers, governanceProxyAddress);
                 
                 const dataMap : dataMapType = map [
-                    ("newAdminAddress" : string) -> Bytes.pack(newAdminAddress);
+                    ("newAdminAddress"          : string)  -> Bytes.pack(councilActionSetContractsAdminParams.newAdminAddress);
+                    ("contractAddressSet"       : string)  -> Bytes.pack(councilActionSetContractsAdminParams.contractAddressSet);
                 ];
 
                 // create break glass action
                 s := createBreakGlassAction(
-                    "setAllContractsAdmin",
+                    "setContractsAdmin",
                     dataMap,
                     s
                 );
@@ -600,12 +556,16 @@ block {
     verifySenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        |   LambdaRemoveBreakGlassControl(_parameters) -> {
+        |   LambdaRemoveBreakGlassControl(councilActionRemoveBreakGlassControlParams) -> {
+
+                const dataMap : dataMapType = map [
+                    ("contractAddressSet"       : string)  -> Bytes.pack(councilActionRemoveBreakGlassControlParams);
+                ];
 
                 // create break glass action
                 s := createBreakGlassAction(
                     "removeBreakGlassControl",
-                    emptyDataMap,
+                    dataMap,
                     s
                 );
 

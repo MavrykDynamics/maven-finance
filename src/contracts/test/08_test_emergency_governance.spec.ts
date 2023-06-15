@@ -774,7 +774,7 @@ describe("Emergency Governance tests", async () => {
                 const targetAddress     = contractDeployments.governance.address;
 
                 await helperFunctions.signerFactory(tezos, eve.sk);
-                const resetAdminOperation = await breakGlassInstance.methods.setSingleContractAdmin(targetAddress, admin).send();
+                const resetAdminOperation = await breakGlassInstance.methods.setContractsAdmin([targetAddress], admin).send();
                 await resetAdminOperation.confirmation();
 
                 await helperFunctions.signerFactory(tezos, alice.sk);

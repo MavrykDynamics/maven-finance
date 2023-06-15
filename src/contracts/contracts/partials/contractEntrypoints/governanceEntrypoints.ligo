@@ -26,14 +26,14 @@ block {
 
 
 (*  propagateBreakGlass entrypoint *)
-function propagateBreakGlass(var s : governanceStorageType) : return is 
+function propagateBreakGlass(const propagateBreakGlassParams : set(address); var s : governanceStorageType) : return is 
 block {
 
     // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaPropagateBreakGlass", s.lambdaLedger);
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaPropagateBreakGlass(unit);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaPropagateBreakGlass(propagateBreakGlassParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
