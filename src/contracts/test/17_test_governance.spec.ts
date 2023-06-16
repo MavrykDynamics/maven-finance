@@ -3751,6 +3751,9 @@ describe("Governance tests", async () => {
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
 
+                governanceStorage           = await governanceInstance.storage();
+                currentCycle                = governanceStorage.cycleId;
+
                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
                 await proposeOperation.confirmation();
                 

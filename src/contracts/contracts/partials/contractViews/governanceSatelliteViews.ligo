@@ -47,8 +47,8 @@
 
 
 (* View: get governance satellite voter *)
-[@view] function getGovernanceSatelliteVoterOpt(const requestIdAndVoter : (actionIdType*address); const s : governanceSatelliteStorageType) : option(voteType) is
-    Big_map.find_opt(requestIdAndVoter, s.governanceSatelliteVoters)
+[@view] function getGovernanceSatelliteVoterOpt(const voterId : voterIdentifierType; const s : governanceSatelliteStorageType) : option(voteType) is
+    Big_map.find_opt(voterId, s.governanceSatelliteVoters)
 
 
 

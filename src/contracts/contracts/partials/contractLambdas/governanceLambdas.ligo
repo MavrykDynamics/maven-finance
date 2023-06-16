@@ -1092,7 +1092,7 @@ block {
 
                             // Save new vote
                             s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            _proposal.voters    := Set.add(Tezos.get_sender(), _proposal.voters);
+                            s.proposalVoters    := Big_map.update((s.cycleHighestVotedProposalId, Tezos.get_sender()), Some(voteType), s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1112,7 +1112,7 @@ block {
                             
                             // Save new vote
                             s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            _proposal.voters    := Set.add(Tezos.get_sender(), _proposal.voters);
+                            s.proposalVoters    := Big_map.add((s.cycleHighestVotedProposalId, Tezos.get_sender()), voteType, s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1465,7 +1465,7 @@ block {
                         Some (_record) -> block{
 
                             // Verify that satellite voted on the proposal
-                            verifySatelliteHasVotedForProposal(satelliteAddress, _record);
+                            verifySatelliteHasVotedForProposal(satelliteAddress, proposalId, s);
 
                             // Verify that satellite has not claimed its reward for given proposal
                             verifyRewardNotClaimed(satelliteAddress, proposalId, s);
@@ -1478,7 +1478,8 @@ block {
                             s.proposalRewards[satelliteRewardProposalKey] := unit;
 
                             // Calculate the reward
-                            const satelliteReward: nat = _record.totalVotersReward / Set.cardinal(_record.voters);
+                            const globalVoteCount : nat = _record.yayVoteCount + _record.nayVoteCount + _record.passVoteCount;
+                            const satelliteReward : nat = _record.totalVotersReward / globalVoteCount;
 
                             // Create distribute reward operation
                             const distributeRewardOperation : operation = distributeRewardOperation(claimSatellite, satelliteReward, s);

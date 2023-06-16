@@ -287,7 +287,7 @@ block {
                 verifyEmergencyGovernanceNotExecuted(_emergencyGovernance);
 
                 // Verify that user has not voted for the current Emergency Governance
-                verifyUserHasNotVoted(userAddress, _emergencyGovernance);
+                verifyUserHasNotVoted(userAddress, s.currentEmergencyGovernanceId, s);
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalance : nat = getUserStakedMvkBalance(userAddress, s);
@@ -299,9 +299,9 @@ block {
                 const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
                 // Update emergency governance record with new votes
-                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.get_now());
                 _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
+                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvkBalance, Tezos.get_now()), s.emergencyGovernanceVoters);
 
                 // Check if total votes has exceed threshold - if yes, trigger operation to break glass contract
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {

@@ -39,6 +39,7 @@ export const breakGlassStorage: breakGlassStorageType = {
     generalContracts    : MichelsonMap.fromLiteral({}),
     
     actionsLedger       : MichelsonMap.fromLiteral({}),
+    actionsSigners      : MichelsonMap.fromLiteral({}),
     actionCounter       : new BigNumber(1),
 
     lambdaLedger        : MichelsonMap.fromLiteral({})

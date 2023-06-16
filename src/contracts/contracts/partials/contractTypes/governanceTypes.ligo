@@ -95,8 +95,7 @@ type proposalRecordType is [@layout:comb] record [
     nayVoteStakedMvkTotal             : nat;                     // voting round: nay MVK total
     passVoteCount                     : nat;                     // voting round: pass count - number of satellites
     passVoteStakedMvkTotal            : nat;                     // voting round: pass MVK total
-    voters                            : set(address);            // voting round ledger
-  
+
     minQuorumPercentage               : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
     minQuorumStakedMvkTotal           : nat;                     // log of min quorum in MVK - capture state at this point
     minYayVotePercentage              : nat;                     // log of min yay votes percentage - capture state at this point
@@ -309,6 +308,7 @@ type governanceStorageType is [@layout:comb] record [
     whitelistDevelopers               : whitelistDevelopersType;  
 
     proposalLedger                    : proposalLedgerType;
+    proposalVoters                    : votersType;
     proposalRewards                   : big_map((actionIdType*address), unit);  // proposalId*Satellite address
 
     snapshotLedger                    : snapshotLedgerType;             // satellite snapshot ledger
