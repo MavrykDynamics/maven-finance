@@ -3,7 +3,7 @@ async def get_token_standard(ctx, contract_address):
     standard                = None
     
     # XTZ case 
-    if contract_address.upper() == 'XTZ' or contract_address.upper() == 'TEZ':
+    if contract_address.upper() == 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg':
         standard    = "tez"
     elif contract_address[0:3] == 'KT1' and len(contract_address) == 36:
         contract_summary        = None

@@ -42,7 +42,7 @@ async def on_lending_controller_mock_time_remove_liquidity(
             loan_token_address  = loan_token_type_storage.fa2.tokenContractAddress
             loan_token_id       = int(loan_token_type_storage.fa2.tokenId)
         elif type(loan_token_type_storage) == tez:
-            loan_token_address  = "XTZ"
+            loan_token_address  = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
 
         token                                   = None
         if loan_token_address:
