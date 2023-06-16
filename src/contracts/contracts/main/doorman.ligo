@@ -57,7 +57,7 @@ type doormanAction is
     |   Stake                       of (nat)
     |   Unstake                     of (nat)
     |   Exit                        of (unit)
-    |   Compound                    of (address)
+    |   Compound                    of set(address)
     |   FarmClaim                   of farmClaimType
 
         // Vault Entrypoints - callable only by Lending Controller

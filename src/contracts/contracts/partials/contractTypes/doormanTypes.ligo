@@ -108,7 +108,7 @@ type doormanLambdaActionType is
     |   LambdaStake                       of (nat)
     |   LambdaUnstake                     of (nat)
     |   LambdaExit                        of (unit)
-    |   LambdaCompound                    of (address)
+    |   LambdaCompound                    of set(address)
     |   LambdaFarmClaim                   of farmClaimType
 
         // Vault Lambdas
