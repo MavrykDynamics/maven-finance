@@ -35,7 +35,7 @@ async def on_treasury_transfer(
                 token_contract_address  = token.fa2.tokenContractAddress
                 token_id                = int(token.fa2.tokenId)
             elif type(token) == tez:
-                token_contract_address  = "XTZ"
+                token_contract_address  = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
 
             token_standard = await get_token_standard(
                 ctx,
