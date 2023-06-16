@@ -268,7 +268,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
     
-                    assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
+                    assert.equal(mockFa12LoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(mockFa12LoanToken.mTokenAddress , mTokenContractAddress);
     
                     assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
@@ -388,7 +388,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-                    assert.equal(mockFa2LoanToken.mTokensTotal          , 0);
+                    assert.equal(mockFa2LoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(mockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
@@ -510,7 +510,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                     assert.equal(tezLoanToken.tokenName              , tokenName);
                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
-                    assert.equal(tezLoanToken.mTokensTotal          , 0);
+                    assert.equal(tezLoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(tezLoanToken.mTokenAddress , mTokenContractAddress);
     
                     assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
@@ -633,7 +633,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-                    assert.equal(mockFa2LoanToken.mTokensTotal          , 0);
+                    assert.equal(mockFa2LoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(mockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
@@ -703,7 +703,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                     assert.equal(updatedMockFa2LoanToken.tokenName              , tokenName);
 
-                    assert.equal(updatedMockFa2LoanToken.mTokensTotal          , 0);
+                    assert.equal(updatedMockFa2LoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(updatedMockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
                     assert.equal(updatedMockFa2LoanToken.reserveRatio           , newReserveRatio);
