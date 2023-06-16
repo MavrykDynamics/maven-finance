@@ -619,14 +619,16 @@ block{
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        |   LambdaCompound(userAddress) -> {
+        |   LambdaCompound(userAddresses) -> {
                 
                 // Compound rewards
-                s := compoundUserRewards(userAddress, s);
+                for userAddress in set userAddresses block {
+                    s := compoundUserRewards(userAddress, s);
+                };
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
-                operations := list [delegationOnStakeChangeOperation]
+                const delegationOnStakeChangeOperation : operation  = delegationOnStakeChangeOperation(userAddresses, s);
+                operations                                          := list [delegationOnStakeChangeOperation]
             }
         |   _ -> skip
     ];
