@@ -62,3 +62,4 @@ FarmMToken Contract
 
 Doorman Contract
 1. %farmClaim parameter refactored (now list of addresses)
+1. %compound parameter refactored (now list of addresses)

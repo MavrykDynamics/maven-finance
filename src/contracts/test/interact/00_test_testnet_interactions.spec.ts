@@ -407,7 +407,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin compounds', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.compound(bob.pkh).send();
+                const operation = await doormanInstance.methods.compound([bob.pkh]).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
