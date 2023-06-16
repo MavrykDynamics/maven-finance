@@ -860,12 +860,12 @@ block {
                 var councilActionRecord : councilActionRecordType := getCouncilActionRecord(actionId, s);
 
                 // check if council member has already signed for this action
-                if Set.mem(Tezos.get_sender(), councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Big_map.mem((actionId, Tezos.get_sender()), s.councilActionsSigners) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
                 var signersCount : nat             := councilActionRecord.signersCount + 1n;
                 councilActionRecord.signersCount   := signersCount;
-                councilActionRecord.signers        := Set.add(Tezos.get_sender(), councilActionRecord.signers);
+                s.councilActionsSigners            := Big_map.add((actionId, Tezos.get_sender()), unit, s.councilActionsSigners);
                 s.councilActionsLedger[actionId]   := councilActionRecord;
 
                 // check if threshold has been reached

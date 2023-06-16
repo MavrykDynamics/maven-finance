@@ -16,6 +16,7 @@ export type councilStorageType = {
     generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
     councilActionsLedger    : MichelsonMap<MichelsonMapKey, unknown>;
+    councilActionsSigners   : MichelsonMap<MichelsonMapKey, unknown>;
 
     actionCounter           : BigNumber;
 
