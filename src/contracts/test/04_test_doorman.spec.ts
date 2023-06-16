@@ -198,7 +198,7 @@ describe("Test: Doorman Contract", async () => {
                 initialUserTokenBalance   = (await mvkTokenStorage.ledger.get(user)).toNumber();
 
                 // Compound first so values are updated below (for retesting if required)
-                compoundOperation   = await doormanInstance.methods.compound(user).send();
+                compoundOperation   = await doormanInstance.methods.compound([user]).send();
                 await compoundOperation.confirmation();
                 
                 initialUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
@@ -323,7 +323,7 @@ describe("Test: Doorman Contract", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk);
 
                 // Compound first so values are updated below (for retesting if required)
-                compoundOperation   = await doormanInstance.methods.compound(user).send();
+                compoundOperation   = await doormanInstance.methods.compound([user]).send();
                 await compoundOperation.confirmation();
 
                 // Update storage
@@ -395,7 +395,7 @@ describe("Test: Doorman Contract", async () => {
                 assert.equal(updatedUserStakedRecord.participationFeesPerShare.toNumber(), updatedAccumulatedFeesPerShare.toNumber())
 
                 // Compound for next tests
-                compoundOperation   = await doormanInstance.methods.compound(user).send();
+                compoundOperation   = await doormanInstance.methods.compound([user]).send();
                 await compoundOperation.confirmation();
                 
             } catch(e) {
@@ -475,10 +475,10 @@ describe("Test: Doorman Contract", async () => {
                 await unstakeOperation.confirmation()
 
                 // Compound operations for first and second user
-                compoundOperation    = await doormanInstance.methods.compound(firstUser).send();
+                compoundOperation    = await doormanInstance.methods.compound([firstUser]).send();
                 await compoundOperation.confirmation()
 
-                compoundOperation    = await doormanInstance.methods.compound(secondUser).send();
+                compoundOperation    = await doormanInstance.methods.compound([secondUser]).send();
                 await compoundOperation.confirmation()
 
                 // update storage
@@ -541,10 +541,10 @@ describe("Test: Doorman Contract", async () => {
                 assert.equal(secondUserUpdatedParticipationFeesPerShare.toNumber(), updatedAccumulatedFeesPerShare.toNumber())
 
                 // Compound operation for first and second user for subsequent tests
-                compoundOperation   = await doormanInstance.methods.compound(firstUser).send();
+                compoundOperation   = await doormanInstance.methods.compound([firstUser]).send();
                 await compoundOperation.confirmation();
 
-                compoundOperation   = await doormanInstance.methods.compound(secondUser).send();
+                compoundOperation   = await doormanInstance.methods.compound([secondUser]).send();
                 await compoundOperation.confirmation();
 
             } catch(e) {
@@ -712,7 +712,7 @@ describe("Test: Doorman Contract", async () => {
                 secondUserStakedBalance = secondUserStakedRecord === undefined ? 0 : secondUserStakedRecord.balance.toNumber()
 
                 // compound operation to increment rewards for second user
-                compoundOperation = await doormanInstance.methods.compound(secondUser).send();
+                compoundOperation = await doormanInstance.methods.compound([secondUser]).send();
                 await compoundOperation.confirmation();
 
                 // Update storage
@@ -781,7 +781,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // compound operation for third user - should have no rewards
                 await helperFunctions.signerFactory(tezos, thirdUserSk);
-                compoundOperation = await doormanInstance.methods.compound(thirdUser).send();
+                compoundOperation = await doormanInstance.methods.compound([thirdUser]).send();
                 await compoundOperation.confirmation();
 
                 // Update storage
@@ -796,13 +796,13 @@ describe("Test: Doorman Contract", async () => {
 
 
                 // Compound for next test
-                compoundOperation   = await doormanInstance.methods.compound(firstUser).send();
+                compoundOperation   = await doormanInstance.methods.compound([firstUser]).send();
                 await compoundOperation.confirmation();
                 
-                compoundOperation   = await doormanInstance.methods.compound(secondUser).send();
+                compoundOperation   = await doormanInstance.methods.compound([secondUser]).send();
                 await compoundOperation.confirmation();
                 
-                compoundOperation   = await doormanInstance.methods.compound(thirdUser).send();
+                compoundOperation   = await doormanInstance.methods.compound([thirdUser]).send();
                 await compoundOperation.confirmation();
 
             } catch(e) {
@@ -856,7 +856,7 @@ describe("Test: Doorman Contract", async () => {
                 unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
-                compoundOperation = await doormanInstance.methods.compound(firstUser).send();
+                compoundOperation = await doormanInstance.methods.compound([firstUser]).send();
                 await compoundOperation.confirmation();
 
                 // Final value
@@ -918,7 +918,7 @@ describe("Test: Doorman Contract", async () => {
                 await unstakeOperation.confirmation();
 
                 await helperFunctions.signerFactory(tezos, secondUserSk);
-                compoundOperation = await doormanInstance.methods.compound(secondUser).send();
+                compoundOperation = await doormanInstance.methods.compound([secondUser]).send();
                 await compoundOperation.confirmation();
 
                 // update storage
@@ -929,7 +929,7 @@ describe("Test: Doorman Contract", async () => {
                 secondUserStakedBalance = secondUserStakedRecord === undefined ? 0 : secondUserStakedRecord.balance.toNumber()
 
                 // compound operation
-                compoundOperation = await doormanInstance.methods.compound(secondUser).send();
+                compoundOperation = await doormanInstance.methods.compound([secondUser]).send();
                 await compoundOperation.confirmation();
 
                 // post-compound update storage
@@ -959,7 +959,7 @@ describe("Test: Doorman Contract", async () => {
             await helperFunctions.signerFactory(tezos, userSk);
 
             // Compound first so values are updated below (for retesting if required)
-            compoundOperation   = await doormanInstance.methods.compound(user).send();
+            compoundOperation   = await doormanInstance.methods.compound([user]).send();
             await compoundOperation.confirmation();
             
             // update storage
@@ -1021,7 +1021,7 @@ describe("Test: Doorman Contract", async () => {
             await helperFunctions.signerFactory(tezos, userSk);
 
             // Compound first so values are updated below (for retesting if required)
-            compoundOperation   = await doormanInstance.methods.compound(user).send();
+            compoundOperation   = await doormanInstance.methods.compound([user]).send();
             await compoundOperation.confirmation();
             
             // update storage
