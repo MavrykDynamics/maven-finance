@@ -150,7 +150,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
             // Claim operations
-            var claimOperation = await doormanInstance.methods.compound(satelliteOne).send();
+            var claimOperation = await doormanInstance.methods.compound([satelliteOne]).send();
             await claimOperation.confirmation()
             
             // update storage
@@ -163,7 +163,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
             await helperFunctions.signerFactory(tezos, delegateOneSk);
-            claimOperation = await doormanInstance.methods.compound(delegateOne).send();
+            claimOperation = await doormanInstance.methods.compound([delegateOne]).send();
             await claimOperation.confirmation()
 
             // update storage
@@ -176,7 +176,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
             await helperFunctions.signerFactory(tezos, delegateTwoSk);
-            claimOperation = await doormanInstance.methods.compound(delegateTwo).send();
+            claimOperation = await doormanInstance.methods.compound([delegateTwo]).send();
             await claimOperation.confirmation()
             
             // update storage
@@ -209,7 +209,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
     //             // Claim operations
-    //             var claimOperation = await doormanInstance.methods.compound(bob.pkh).send();
+    //             var claimOperation = await doormanInstance.methods.compound([bob.pkh]).send();
     //             await claimOperation.confirmation()
     //             delegationStorage = await delegationInstance.storage();
     //             doormanStorage  = await doormanInstance.storage();
@@ -218,7 +218,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
     //             await helperFunctions.signerFactory(tezos, alice.sk);
-    //             claimOperation = await doormanInstance.methods.compound(alice.pkh).send();
+    //             claimOperation = await doormanInstance.methods.compound([alice.pkh]).send();
     //             await claimOperation.confirmation()
     //             delegationStorage = await delegationInstance.storage();
     //             doormanStorage  = await doormanInstance.storage();
@@ -227,7 +227,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
     //             await helperFunctions.signerFactory(tezos, eve.sk);
-    //             claimOperation = await doormanInstance.methods.compound(eve.pkh).send();
+    //             claimOperation = await doormanInstance.methods.compound([eve.pkh]).send();
     //             await claimOperation.confirmation()
     //             delegationStorage = await delegationInstance.storage();
     //             doormanStorage  = await doormanInstance.storage();
@@ -265,7 +265,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             const distributeOperation       = await delegationInstance.methods.distributeReward([bob.pkh, mallory.pkh],reward).send();
     //             await distributeOperation.confirmation();
 
-    //             // var claimOperation = await doormanInstance.methods.compound().send();
+    //             // var claimOperation = await doormanInstance.methods.compound([bob.pkh]).send();
     //             // await claimOperation.confirmation()
     //             delegationStorage               = await delegationInstance.storage();
     //             doormanStorage                  = await doormanInstance.storage();
@@ -325,9 +325,9 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             satelliteRewards = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
     //             console.log("START: ", satelliteRewards)
 
-    //             var claimOperation = await doormanInstance.methods.compound(bob.pkh).send();
+    //             var claimOperation = await doormanInstance.methods.compound([bob.pkh]).send();
     //             await claimOperation.confirmation()
-    //             claimOperation = await doormanInstance.methods.compound(mallory.pkh).send(); // COMPOUND FOR MALLORY TO PREPARE NEXT TEXT
+    //             claimOperation = await doormanInstance.methods.compound([mallory.pkh]).send(); // COMPOUND FOR MALLORY TO PREPARE NEXT TEXT
     //             await claimOperation.confirmation()
     //             delegationStorage = await delegationInstance.storage();
     //             doormanStorage  = await doormanInstance.storage();
@@ -357,7 +357,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             console.log("POST-DELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
     //             // Claims operations
-    //             claimOperation = await doormanInstance.methods.compound(alice.pkh).send();
+    //             claimOperation = await doormanInstance.methods.compound([alice.pkh]).send();
     //             await claimOperation.confirmation()
     //             delegationStorage = await delegationInstance.storage();
     //             doormanStorage  = await doormanInstance.storage();
@@ -373,7 +373,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             await helperFunctions.signerFactory(tezos, eve.sk);
     //             const initEveSMVK     = await doormanStorage.userStakeBalanceLedger.get(eve.pkh) 
     //             const initEveRewards  = await delegationStorage.satelliteRewardsLedger.get(eve.pkh)
-    //             claimOperation = await doormanInstance.methods.compound(eve.pkh).send();
+    //             claimOperation = await doormanInstance.methods.compound([eve.pkh]).send();
     //             await claimOperation.confirmation()
     //             delegationStorage = await delegationInstance.storage();
     //             doormanStorage  = await doormanInstance.storage();
@@ -532,10 +532,10 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
 
     //             // Claim operations
     //             await helperFunctions.signerFactory(tezos, bob.sk)
-    //             var claimOperation              = await doormanInstance.methods.compound(bob.pkh).send();
+    //             var claimOperation              = await doormanInstance.methods.compound([bob.pkh]).send();
     //             await claimOperation.confirmation();
     //             await helperFunctions.signerFactory(tezos, mallory.sk)
-    //             claimOperation                  = await doormanInstance.methods.compound(mallory.pkh).send();
+    //             claimOperation                  = await doormanInstance.methods.compound([mallory.pkh]).send();
     //             await claimOperation.confirmation();
 
     //             // Final values
@@ -685,9 +685,9 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
     //             console.log("POST-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordNoClaim.unpaid.toNumber(), " | ", secondSatelliteStakeNoClaim.balance.toNumber())
 
     //             // Claim operations
-    //             var claimOperation  = await doormanInstance.methods.compound(bob.pkh).send();
+    //             var claimOperation  = await doormanInstance.methods.compound([bob.pkh]).send();
     //             await claimOperation.confirmation();
-    //             claimOperation  = await doormanInstance.methods.compound(mallory.pkh).send();
+    //             claimOperation  = await doormanInstance.methods.compound([mallory.pkh]).send();
     //             await claimOperation.confirmation();
 
     //             // Final values
