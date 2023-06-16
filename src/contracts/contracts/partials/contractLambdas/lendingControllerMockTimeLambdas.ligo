@@ -545,7 +545,7 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
-                loanTokenRecord.mTokensTotal     := loanTokenRecord.mTokensTotal + amount;
+                loanTokenRecord.rawMTokensTotalSupply     := loanTokenRecord.rawMTokensTotalSupply + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
                 // send tokens to token pool (self address) operation / skip if loan token name is tez
@@ -620,12 +620,12 @@ block {
                 const loanTotalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 
                 const mTokenAddress             : address     = loanTokenRecord.mTokenAddress;
-                const mTokensTotal              : nat         = loanTokenRecord.mTokensTotal;
+                const rawMTokensTotalSupply              : nat         = loanTokenRecord.rawMTokensTotalSupply;
                 const mTokensBurned             : nat         = amount;
 
-                // Calculate new total of LP Tokens - verify that mTokensBurned is less than mTokensTotal
-                verifyLessThanOrEqual(mTokensBurned, mTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
-                const newMTokensTotal : nat = abs(mTokensTotal - mTokensBurned);
+                // Calculate new total of LP Tokens - verify that mTokensBurned is less than rawMTokensTotalSupply
+                verifyLessThanOrEqual(mTokensBurned, rawMTokensTotalSupply, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
+                const newMTokensTotal : nat = abs(rawMTokensTotalSupply - mTokensBurned);
 
                 // Calculate new token pool amount - verify that amount is less than loan token pool total
                 verifyLessThanOrEqual(amount, loanTokenPoolTotal, error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE);
@@ -650,7 +650,7 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := newTokenPoolTotal;
-                loanTokenRecord.mTokensTotal     := newMTokensTotal;
+                loanTokenRecord.rawMTokensTotalSupply     := newMTokensTotal;
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
@@ -935,7 +935,7 @@ block {
                 const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
                 const loanTokenDecimals   : nat         = loanTokenRecord.tokenDecimals;
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
+                const accRewardsPerShare  : nat         = loanTokenRecord.tokenRewardIndex;
 
                 // Get loan token price
                 const loanTokenLastCompletedData  : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
@@ -1146,11 +1146,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
 
                 // Update Loan Token State again: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
@@ -1369,7 +1369,7 @@ block {
                 const totalBorrowed         : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 const loanTokenType         : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare    : nat         = loanTokenRecord.accumulatedRewardsPerShare;
+                const accRewardsPerShare    : nat         = loanTokenRecord.tokenRewardIndex;
 
                 // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
@@ -1464,11 +1464,11 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Update loan token storage
-                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
@@ -1541,7 +1541,7 @@ block {
                 const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
                 const minRepaymentAmount  : nat         = loanTokenRecord.minRepaymentAmount;
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
+                const accRewardsPerShare  : nat         = loanTokenRecord.tokenRewardIndex;
 
                 // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
                 verifyGreaterThanOrEqual(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
@@ -1699,11 +1699,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);

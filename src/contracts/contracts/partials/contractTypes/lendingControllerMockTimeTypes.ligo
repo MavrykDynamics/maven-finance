@@ -102,7 +102,7 @@ type loanTokenRecordType is [@layout:comb] record [
 
     oracleAddress                           : address;   
 
-    mTokensTotal                            : nat;
+    rawMTokensTotalSupply                            : nat;
     mTokenAddress                           : address;
 
     tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
@@ -120,7 +120,7 @@ type loanTokenRecordType is [@layout:comb] record [
 
     currentInterestRate                     : nat;
     lastUpdatedBlockLevel                   : nat; 
-    accumulatedRewardsPerShare              : nat;
+    tokenRewardIndex                        : nat;
     borrowIndex                             : nat;
 
     isPaused                                : bool; 
