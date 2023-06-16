@@ -13,7 +13,7 @@ async def on_treasury_default(
     try:    
         # Get operation info
         treasury_address    = default.data.target_address
-        token_address       = "XTZ"
+        token_address       = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
         token_standard      = "tez"
         amount              = float(default.data.amount)
         metadata            = {
