@@ -227,7 +227,7 @@ block {
 
         oracleAddress                       = oracleAddress;
 
-        mTokensTotal                        = 0n;
+        rawMTokensTotalSupply               = 0n;
         mTokenAddress                       = mTokenAddress;
 
         reserveRatio                        = reserveRatio;
@@ -245,7 +245,7 @@ block {
 
         currentInterestRate                 = baseInterestRate;
         lastUpdatedBlockLevel               = Tezos.get_level();
-        accumulatedRewardsPerShare          = fixedPointAccuracy;
+        tokenRewardIndex                    = fixedPointAccuracy;
         borrowIndex                         = fixedPointAccuracy;
 
         isPaused                            = False;

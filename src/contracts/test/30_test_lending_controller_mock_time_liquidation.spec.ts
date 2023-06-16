@@ -795,7 +795,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                     assert.equal(usdtLoanToken.tokenName              , tokenName);
     
-                    assert.equal(usdtLoanToken.mTokensTotal          , 0);
+                    assert.equal(usdtLoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(usdtLoanToken.mTokenAddress        , mTokenAddress);
     
                     assert.equal(usdtLoanToken.reserveRatio           , reserveRatio);
@@ -894,7 +894,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                     assert.equal(eurlLoanToken.tokenName              , tokenName);
 
-                    assert.equal(eurlLoanToken.mTokensTotal          , 0);
+                    assert.equal(eurlLoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(eurlLoanToken.mTokenAddress , mTokenAddress);
 
                     assert.equal(eurlLoanToken.reserveRatio           , reserveRatio);
@@ -994,7 +994,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     assert.equal(tezLoanToken.tokenName              , tokenName);
                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
-                    assert.equal(tezLoanToken.mTokensTotal          , 0);
+                    assert.equal(tezLoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(tezLoanToken.mTokenAddress , mTokenAddress);
     
                     assert.equal(tezLoanToken.reserveRatio           , reserveRatio);

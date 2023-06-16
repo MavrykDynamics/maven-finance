@@ -331,8 +331,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
     
-                    assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
-                    assert.equal(mockFa12LoanToken.mTokenAddress , mTokenContractAddress);
+                    assert.equal(mockFa12LoanToken.rawMTokensTotalSupply  , 0);
+                    assert.equal(mockFa12LoanToken.mTokenAddress          , mTokenContractAddress);
     
                     assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
                     assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
@@ -430,7 +430,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-                    assert.equal(mockFa2LoanToken.mTokensTotal          , 0);
+                    assert.equal(mockFa2LoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(mockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
@@ -530,7 +530,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                     assert.equal(tezLoanToken.tokenName              , tokenName);
                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
-                    assert.equal(tezLoanToken.mTokensTotal          , 0);
+                    assert.equal(tezLoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(tezLoanToken.mTokenAddress , mTokenContractAddress);
     
                     assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
