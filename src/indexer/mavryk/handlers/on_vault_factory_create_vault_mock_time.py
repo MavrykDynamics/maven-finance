@@ -144,7 +144,7 @@ async def on_vault_factory_create_vault_mock_time(
                     loan_token_address          = loan_token_type_storage.fa2.tokenContractAddress
                     loan_token_id               = int(loan_token_type_storage.fa2.tokenId)
                 elif type(loan_token_type_storage) == tez:
-                    loan_token_address          = "XTZ"
+                    loan_token_address          = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
 
                 token                                   = None
                 if loan_token_address:

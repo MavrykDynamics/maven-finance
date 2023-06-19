@@ -73,7 +73,7 @@ async def on_governance_update_proposal_data(
                     token_address   = token.fa2.tokenContractAddress
                     token_id        = int(token.fa2.tokenId)
                 elif type(token) == tez:
-                    token_address   = "XTZ"
+                    token_address   = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
     
                 # Persist Token Metadata
                 token_contract_metadata = await get_contract_token_metadata(
