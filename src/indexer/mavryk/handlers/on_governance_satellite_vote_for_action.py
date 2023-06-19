@@ -35,12 +35,12 @@ async def on_governance_satellite_vote_for_action(
         satellite_aggregator_ledger     = vote_for_action.storage.satelliteAggregatorLedger
     
         # Create or update vote record
-        governance              = await models.Governance.get(address   = governance_address)
-        governance_satellite    = await models.GovernanceSatellite.get(address  = governance_satellite_address)
-        action_record                   = await models.GovernanceSatelliteAction.filter(
+        governance              = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        governance_satellite    = await models.GovernanceSatellite.get(network=ctx.datasource.network, address= governance_satellite_address)
+        action_record           = await models.GovernanceSatelliteAction.get(
             governance_satellite    = governance_satellite,
             internal_id             = action_id
-        ).first()
+        )
         action_record.yay_vote_smvk_total   = yay_vote_smvk_total
         action_record.nay_vote_smvk_total   = nay_vote_smvk_total
         action_record.pass_vote_smvk_total  = pass_vote_smvk_total
@@ -49,7 +49,7 @@ async def on_governance_satellite_vote_for_action(
             action_record.execution_datetime    = timestamp
         await action_record.save()
     
-        voter                   = await models.mavryk_user_cache.get(address=voter_address)
+        voter                   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(
@@ -60,16 +60,16 @@ async def on_governance_satellite_vote_for_action(
         await satellite_snapshot.save()
         vote_record, _          = await models.GovernanceSatelliteActionVote.get_or_create(
             governance_satellite_action = action_record,
-            voter                       = voter
+            voter                       = voter,
+            satellite_snapshot          = satellite_snapshot
         )
         vote_record.timestamp               = timestamp
-        vote_record.satellite_snapshot      = satellite_snapshot
         vote_record.vote                    = vote_type
         await vote_record.save()
     
         # Save other personal executions
         for oracle_address in satellite_aggregator_ledger:
-            oracle                      = await models.mavryk_user_cache.get(address=oracle_address)
+            oracle                      = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
             satellite_oracle_storage    = satellite_aggregator_ledger[oracle_address]
             aggregators                 = satellite_oracle_storage
             satellite_oracle_record, _  = await models.GovernanceSatelliteOracle.get_or_create(
@@ -91,17 +91,21 @@ async def on_governance_satellite_vote_for_action(
     
             # Create entries
             for aggregator_address in aggregators:
-                aggregator, _               = await models.Aggregator.get_or_create(address = aggregator_address)
-                await aggregator.save()
-    
-                start_timestamp                     = parser.parse(aggregators[aggregator_address])
-    
-                aggregator_pair_record              = models.GovernanceSatelliteOracleAggregator(
-                    governance_satellite_oracle                     = satellite_oracle_record,
-                    aggregator                                      = aggregator,
-                    start_timestamp                                 = start_timestamp,
-                )
-                await aggregator_pair_record.save()
+
+                # Aggregators not created by the factory won't be saved
+                # TODO: keep?
+                aggregator  = await models.Aggregator.get_or_none(network=ctx.datasource.network, address= aggregator_address)
+                
+                if aggregator:
+                    start_timestamp                     = parser.parse(aggregators[aggregator_address])
+        
+                    aggregator_pair_record              = models.GovernanceSatelliteOracleAggregator(
+                        governance_satellite_oracle                     = satellite_oracle_record,
+                        aggregator                                      = aggregator,
+                        start_timestamp                                 = start_timestamp
+                    )
+                    await aggregator_pair_record.save()
+
     except BaseException as e:
          await save_error_report(e)
 

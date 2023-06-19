@@ -12,13 +12,10 @@ async def on_council_set_governance(
     set_governance: Transaction[SetGovernanceParameter, CouncilStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_governance.data.target_address
-        contract        = await models.Council.get(address = target_contract)
-    
-        # Persist new admin
-        await persist_governance(set_governance, contract)
+    try:
+
+        # Persist new governance
+        await persist_governance(ctx, models.Council, set_governance)
 
     except BaseException as e:
          await save_error_report(e)

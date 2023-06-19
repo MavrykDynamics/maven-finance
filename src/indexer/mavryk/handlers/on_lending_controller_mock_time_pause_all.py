@@ -33,28 +33,28 @@ async def on_lending_controller_mock_time_pause_all(
         vault_withdraw_paused                   = pause_all.storage.breakGlassConfig.vaultWithdrawIsPaused
     
         # Update record
-        lending_controller           = await models.LendingController.get(
-            address         = lending_controller_address,
-            mock_time       = True
+        await models.LendingController.filter(
+            network         = ctx.datasource.network,
+            address         = lending_controller_address
+        ).update(
+            add_liquidity_paused                     = add_liquidity_paused,
+            remove_liquidity_paused                  = remove_liquidity_paused,
+            register_vault_creation_paused           = register_vault_creation_paused,
+            close_vault_paused                       = close_vault_paused,
+            register_deposit_paused                  = register_deposit_paused,
+            register_withdrawal_paused               = register_withdrawal_paused,
+            liquidate_vault_paused                   = liquidate_vault_paused,
+            mark_for_liquidation_paused              = mark_for_liquidation_paused,
+            borrow_paused                            = borrow_paused,
+            repay_paused                             = repay_paused,
+            set_loan_token_paused                    = set_loan_token_paused,
+            set_collateral_token_paused              = set_collateral_token_paused,
+            vault_deposit_staked_token_paused        = vault_deposit_staked_token_paused,
+            vault_withdraw_staked_token_paused       = vault_withdraw_staked_token_paused,
+            vault_on_liquidate_paused                = vault_on_liquidate_paused,
+            vault_deposit_paused                     = vault_deposit_paused,
+            vault_withdraw_paused                    = vault_withdraw_paused
         )
-        lending_controller.add_liquidity_paused                     = add_liquidity_paused
-        lending_controller.remove_liquidity_paused                  = remove_liquidity_paused
-        lending_controller.register_vault_creation_paused           = register_vault_creation_paused
-        lending_controller.close_vault_paused                       = close_vault_paused
-        lending_controller.register_deposit_paused                  = register_deposit_paused
-        lending_controller.register_withdrawal_paused               = register_withdrawal_paused
-        lending_controller.liquidate_vault_paused                   = liquidate_vault_paused
-        lending_controller.mark_for_liquidation_paused              = mark_for_liquidation_paused
-        lending_controller.borrow_paused                            = borrow_paused
-        lending_controller.repay_paused                             = repay_paused
-        lending_controller.set_loan_token_paused                    = set_loan_token_paused
-        lending_controller.set_collateral_token_paused              = set_collateral_token_paused
-        lending_controller.vault_deposit_staked_token_paused        = vault_deposit_staked_token_paused
-        lending_controller.vault_withdraw_staked_token_paused       = vault_withdraw_staked_token_paused
-        lending_controller.vault_on_liquidate_paused                = vault_on_liquidate_paused
-        lending_controller.vault_deposit_paused                     = vault_deposit_paused
-        lending_controller.vault_withdraw_paused                    = vault_withdraw_paused
-        await lending_controller.save()
 
     except BaseException as e:
          await save_error_report(e)

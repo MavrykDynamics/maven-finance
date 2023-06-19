@@ -11,7 +11,7 @@ async def on_council_council_action_remove_member(
 ) -> None:
 
     try:
-        await persist_council_action(council_action_remove_member)
+        await persist_council_action(ctx, council_action_remove_member)
     except BaseException as e:
          await save_error_report(e)
 

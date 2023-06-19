@@ -18,8 +18,9 @@ async def on_delegation_unregister_as_satellite(
         rewards_record          = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
     
         # Delete records
-        user                    = await models.mavryk_user_cache.get(address=satellite_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
         delegation = await models.Delegation.get(
+            network = ctx.datasource.network,
             address = delegation_address
         )
         satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
@@ -31,14 +32,12 @@ async def on_delegation_unregister_as_satellite(
         satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
         satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
     
-        satelliteRecord                                                     = await models.Satellite.filter(
+        await models.Satellite.filter(
             delegation  = delegation,
             user        = user
-        ).first()
-        await user.save()
-    
-        satelliteRecord.currently_registered    = False
-        await satelliteRecord.save()
+        ).update(
+            currently_registered    = False
+        )
 
     except BaseException as e:
          await save_error_report(e)

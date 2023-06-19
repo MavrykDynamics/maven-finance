@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
 from mavryk.types.treasury_factory.parameter.create_treasury import CreateTreasuryParameter
@@ -22,7 +22,6 @@ async def on_treasury_factory_create_treasury(
         level                           = create_treasury.data.level
         treasury_factory_address        = create_treasury.data.target_address
         admin                           = treasury_origination.storage.admin
-        governance_address              = treasury_origination.storage.governanceAddress
         name                            = treasury_origination.storage.name
         creation_timestamp              = treasury_origination.data.timestamp
         transfer_paused                 = treasury_origination.storage.breakGlassConfig.transferIsPaused
@@ -31,9 +30,10 @@ async def on_treasury_factory_create_treasury(
         unstake_mvk_paused              = treasury_origination.storage.breakGlassConfig.unstakeMvkIsPaused
     
         # Check treasury does not already exists
-        treasury_exists                     = await models.Treasury.get_or_none(
+        treasury_exists                     = await models.Treasury.filter(
+            network     = ctx.datasource.network,
             address     = treasury_address
-        )
+        ).exists()
     
         if not treasury_exists:
             # Create a contract and index it
@@ -64,35 +64,38 @@ async def on_treasury_factory_create_treasury(
                     )
                 )
     
-            # Persist contract metadata
-            await persist_contract_metadata(
+            # Get contract metadata
+            contract_metadata = await get_contract_metadata(
                 ctx=ctx,
                 contract_address=treasury_address
             )
     
             # Create record
             treasury_factory    = await models.TreasuryFactory.get(
+                network = ctx.datasource.network,
                 address = treasury_factory_address
             )
             governance          = await models.Governance.get(
-                address = governance_address
+                network = ctx.datasource.network
             )
-            treasury, _         = await models.Treasury.get_or_create(
-                address                         = treasury_address
+            treasury            = models.Treasury(
+                address                         = treasury_address,
+                network                         = ctx.datasource.network,
+                metadata                        = contract_metadata,
+                governance                      = governance,
+                admin                           = admin,
+                name                            = name,
+                creation_timestamp              = creation_timestamp,
+                factory                         = treasury_factory,
+                transfer_paused                 = transfer_paused,
+                mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused,
+                stake_mvk_paused                = stake_mvk_paused,
+                unstake_mvk_paused              = unstake_mvk_paused
             )
-            treasury.governance                      = governance
-            treasury.admin                           = admin
-            treasury.name                            = name
-            treasury.creation_timestamp              = creation_timestamp
-            treasury.factory                         = treasury_factory
-            treasury.transfer_paused                 = transfer_paused
-            treasury.mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused
-            treasury.stake_mvk_paused                = stake_mvk_paused
-            treasury.unstake_mvk_paused              = unstake_mvk_paused
     
             # Create a baker or not
             if baker_address:
-                baker       = await models.mavryk_user_cache.get(address=baker_address)
+                baker       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=baker_address)
                 treasury.baker = baker
     
             await treasury.save()

@@ -28,12 +28,12 @@ async def on_doorman_unstake(
         timestamp                               = unstake.data.timestamp
         desired_amount                          = float(unstake.parameter.__root__)
         final_amount                            = float(transfer.parameter.__root__[0].txs[0].amount)
-        doorman                                 = await models.Doorman.get(address=doorman_address)
+        doorman                                 = await models.Doorman.get(network=ctx.datasource.network, address=doorman_address)
         unclaimed_rewards                       = float(unstake.storage.unclaimedRewards)
         accumulated_fees_per_share              = float(unstake.storage.accumulatedFeesPerShare)
-    
+
         # Get or create the interacting user
-        user                                    = await models.mavryk_user_cache.get(address=initiator_address)
+        user                                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=initiator_address)
         user.mvk_balance                        = mvk_balance
         user.smvk_balance                       = smvk_balance
         await user.save()
@@ -48,7 +48,7 @@ async def on_doorman_unstake(
         stake_account.total_farm_rewards_claimed        = total_farm_rewards_claimed
         stake_account.smvk_balance                      = smvk_balance
         await stake_account.save()
-    
+
         # Create a stake record
         stake_record = models.StakeHistoryData(
             timestamp           = timestamp,
@@ -59,7 +59,7 @@ async def on_doorman_unstake(
             from_               = user
         )
         await stake_record.save()
-    
+
         # Update doorman contract
         doorman.unclaimed_rewards               = unclaimed_rewards
         doorman.accumulated_fees_per_share      = accumulated_fees_per_share
@@ -67,4 +67,3 @@ async def on_doorman_unstake(
 
     except BaseException as e:
          await save_error_report(e)
-

@@ -23,6 +23,7 @@ async def on_aggregator_update_data(
     
         # Update / create record
         aggregator                      = await models.Aggregator.get(
+            network = ctx.datasource.network,
             address = aggregator_address
         )
         aggregator.last_completed_data_round            = int(last_completed_data.round)
@@ -32,11 +33,11 @@ async def on_aggregator_update_data(
         aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
         await aggregator.save()
     
-        user                            = await models.mavryk_user_cache.get(address=oracle_address)
-        oracle                          = await models.AggregatorOracle.filter(
+        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+        oracle                          = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = user
-        ).first()
+        )
         await oracle.save()
         oracle_reward_xtz, _            = await models.AggregatorOracleReward.get_or_create(
             oracle      = oracle,
@@ -71,11 +72,11 @@ async def on_aggregator_update_data(
             round                           = int(oracle_observation.round)
     
             # Create observation records
-            user                            = await models.mavryk_user_cache.get(address=oracle_address)
-            oracle                          = await models.AggregatorOracle.filter(
+            user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+            oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user
-            ).first()
+            )
             await oracle.save()
             observation                     = models.AggregatorOracleObservation(
                 oracle          = oracle,

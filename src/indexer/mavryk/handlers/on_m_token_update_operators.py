@@ -17,16 +17,23 @@ async def on_m_token_update_operators(
         m_token_address     = update_operators.data.target_address
     
         # Update records
+        token               = await models.Token.get(
+            network         = ctx.datasource.network,
+            token_address   = m_token_address,
+            token_id        = 0
+        )
         m_token             = await models.MToken.get(
-            address = m_token_address
+            network = ctx.datasource.network,
+            address = m_token_address,
+            token   = token
         )
         for operatorChange in operator_changes:
             if hasattr(operatorChange, 'add_operator'):
                 owner_address       = operatorChange.add_operator.owner
                 operator_address    = operatorChange.add_operator.operator
                 
-                owner               = await models.mavryk_user_cache.get(address=owner_address)            
-                operator            = await models.mavryk_user_cache.get(address=operator_address)
+                owner               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=owner_address)            
+                operator            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,
@@ -38,8 +45,8 @@ async def on_m_token_update_operators(
                 owner_address       = operatorChange.remove_operator.owner
                 operator_address    = operatorChange.remove_operator.operator
                 
-                owner               = await models.mavryk_user_cache.get(address=owner_address)
-                operator            = await models.mavryk_user_cache.get(address=operator_address)
+                owner               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=owner_address)
+                operator            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,

@@ -3,7 +3,7 @@ from mavryk.utils.error_reporting import save_error_report
 from dipdup.models import Transaction
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.aggregator_factory.parameter.create_aggregator import CreateAggregatorParameter
 from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
 from mavryk.types.aggregator.storage import AggregatorStorage
@@ -21,7 +21,6 @@ async def on_aggregator_factory_create_aggregator(
         aggregator_address                          = aggregator_origination.data.originated_contract_address
         aggregator_factory_address                  = create_aggregator.data.target_address
         admin                                       = aggregator_origination.storage.admin
-        governance_address                          = aggregator_origination.storage.governanceAddress
         creation_timestamp                          = aggregator_origination.data.timestamp
         name                                        = aggregator_origination.storage.name
         decimals                                    = int(aggregator_origination.storage.config.decimals)
@@ -41,9 +40,10 @@ async def on_aggregator_factory_create_aggregator(
         oracles                                     = aggregator_origination.storage.oracleLedger
     
         # Check aggregator does not already exists
-        aggregator_exists                     = await models.Aggregator.get_or_none(
+        aggregator_exists                           = await models.Aggregator.filter(
+            network     = ctx.datasource.network,
             address     = aggregator_address
-        )
+        ).exists()
     
         if not aggregator_exists:
             # Create a contract and index it
@@ -64,48 +64,44 @@ async def on_aggregator_factory_create_aggregator(
                     )
                 )
     
-            # Persist contract metadata
-            await persist_contract_metadata(
+            # Get contract metadata
+            contract_metadata = await get_contract_metadata(
                 ctx=ctx,
                 contract_address=aggregator_address
             )
     
             # Create record
             aggregator_factory          = await models.AggregatorFactory.get(
+                network     = ctx.datasource.network,
                 address     = aggregator_factory_address
             )
             governance                  = await models.Governance.get(
-                address     = governance_address
+                network     = ctx.datasource.network
             )
-            existing_aggregator         = await models.Aggregator.get_or_none(
-                factory             = aggregator_factory,
-                address             = aggregator_address
+            aggregator                  = models.Aggregator(
+                network                                     = ctx.datasource.network,
+                address                                     = aggregator_address,
+                metadata                                    = contract_metadata,
+                governance                                  = governance,
+                admin                                       = admin,
+                factory                                     = aggregator_factory,
+                creation_timestamp                          = creation_timestamp,
+                name                                        = name,
+                decimals                                    = decimals,
+                alpha_pct_per_thousand                      = alpha_pct_per_thousand,
+                pct_oracle_threshold                        = pct_oracle_threshold,
+                heart_beat_seconds                          = heart_beat_seconds,
+                reward_amount_smvk                          = reward_amount_smvk,
+                reward_amount_xtz                           = reward_amount_xtz,
+                update_data_paused                          = update_data_paused,
+                withdraw_reward_xtz_paused                  = withdraw_reward_xtz_paused,
+                withdraw_reward_smvk_paused                 = withdraw_reward_smvk_paused,
+                last_completed_data_round                   = last_completed_data_round,
+                last_completed_data_epoch                   = last_completed_data_epoch,
+                last_completed_data                         = last_completed_data,
+                last_completed_data_pct_oracle_resp         = last_completed_data_pct_oracle_resp,
+                last_completed_data_last_updated_at         = last_completed_data_last_updated_at
             )
-            if existing_aggregator:
-                existing_aggregator.factory  = None
-                await existing_aggregator.save()
-            aggregator, _               = await models.Aggregator.get_or_create(
-                address     = aggregator_address
-            )
-            aggregator.governance                                   = governance
-            aggregator.admin                                        = admin
-            aggregator.factory                                      = aggregator_factory
-            aggregator.creation_timestamp                           = creation_timestamp
-            aggregator.name                                         = name
-            aggregator.decimals                                     = decimals
-            aggregator.alpha_pct_per_thousand                       = alpha_pct_per_thousand
-            aggregator.pct_oracle_threshold                         = pct_oracle_threshold
-            aggregator.heart_beat_seconds                           = heart_beat_seconds
-            aggregator.reward_amount_smvk                           = reward_amount_smvk
-            aggregator.reward_amount_xtz                            = reward_amount_xtz
-            aggregator.update_data_paused                           = update_data_paused
-            aggregator.withdraw_reward_xtz_paused                   = withdraw_reward_xtz_paused
-            aggregator.withdraw_reward_smvk_paused                  = withdraw_reward_smvk_paused
-            aggregator.last_completed_data_round                    = last_completed_data_round
-            aggregator.last_completed_data_epoch                    = last_completed_data_epoch
-            aggregator.last_completed_data                          = last_completed_data
-            aggregator.last_completed_data_pct_oracle_resp          = last_completed_data_pct_oracle_resp
-            aggregator.last_completed_data_last_updated_at          = last_completed_data_last_updated_at
             await aggregator.save()
     
             # Add oracles to aggregator
@@ -115,7 +111,7 @@ async def on_aggregator_factory_create_aggregator(
                 oracle_peer_id          = oracle_storage_record.oraclePeerId
     
                 # Create record
-                oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
+                oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
                 aggregator_oracle       = models.AggregatorOracle(
                     aggregator  = aggregator,
                     user        = oracle,
@@ -128,4 +124,3 @@ async def on_aggregator_factory_create_aggregator(
 
     except BaseException as e:
          await save_error_report(e)
-

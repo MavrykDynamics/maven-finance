@@ -1,5 +1,5 @@
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import ContractLambda, MavrykContract
 
 ###
 # Governance Proxy Tables

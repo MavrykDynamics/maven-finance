@@ -17,11 +17,12 @@ async def on_vault_factory_pause_all(
         create_vault_paused     = pause_all.storage.breakGlassConfig.createVaultIsPaused
     
         # Update record
-        vault_factory           = await models.VaultFactory.get(
+        await models.VaultFactory.filter(
+            network = ctx.datasource.network,
             address = vault_factory_address
+        ).update(
+            create_vault_paused   = create_vault_paused
         )
-        vault_factory.create_vault_paused   = create_vault_paused
-        await vault_factory.save()
 
     except BaseException as e:
          await save_error_report(e)

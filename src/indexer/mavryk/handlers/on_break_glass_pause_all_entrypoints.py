@@ -12,7 +12,7 @@ async def on_break_glass_pause_all_entrypoints(
 ) -> None:
 
     try:
-        await persist_break_glass_action(pause_all_entrypoints)
+        await persist_break_glass_action(ctx, pause_all_entrypoints)
     except BaseException as e:
          await save_error_report(e)
 

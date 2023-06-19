@@ -11,13 +11,10 @@ async def on_governance_proxy_set_admin(
     set_admin: Transaction[SetAdminParameter, GovernanceProxyStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_admin.data.target_address
-        contract        = await models.GovernanceProxy.get(address = target_contract)
-    
+    try:
+
         # Persist new admin
-        await persist_admin(set_admin, contract)
+        await persist_admin(ctx, models.GovernanceProxy, set_admin)
 
     except BaseException as e:
          await save_error_report(e)

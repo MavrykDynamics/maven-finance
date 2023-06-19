@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_token_metadata
+from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
 from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -32,49 +32,49 @@ async def on_lending_controller_mock_time_set_collateral_token(
             collateral_token_total_deposited            = float(collateral_token_storage.totalDeposited)
             collateral_token_paused                     = collateral_token_storage.isPaused
             collateral_token_id                         = 0
-            collateral_token_standard                   = ""
             collateral_token_max_deposit_amount         = collateral_token_storage.maxDepositAmount
             if collateral_token_storage.maxDepositAmount:
                 collateral_token_max_deposit_amount         = float(collateral_token_max_deposit_amount)
     
             # Persist collateral Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=collateral_token_address,
                 token_id=str(collateral_token_id)
             )
-    
-            # Save token contract token standard
-            if collateral_token_address[0:3] == 'KT1' and len(collateral_token_address) == 36:
-                contract_summary    = await ctx.datasource.get_contract_summary(address = collateral_token_address,)
-    
-                if contract_summary:
-                    if 'tzips' in contract_summary:
-                        tzips   = contract_summary['tzips']
-                        if 'fa2' in tzips:
-                            collateral_token_standard       = 'fa2'
-                        else:
-                            if 'fa12' in tzips:
-                                collateral_token_standard   = 'fa12'
-    
-            if collateral_token_name == 'XTZ' or collateral_token_name == 'tez':
-                collateral_token_standard = 'tez'
+
+            # Get the token standard
+            standard = await get_token_standard(
+                ctx,
+                collateral_token_address
+            )
+
+            # Get the related token
+            token, _                                    = await models.Token.get_or_create(
+                token_address       = collateral_token_address,
+                token_id            = collateral_token_id,
+                network             = ctx.datasource.network
+            )
+            if token_contract_metadata:
+                token.metadata          = token_contract_metadata
+            token.token_standard    = standard
+            await token.save()
     
             # Create / Update record
             lending_controller          = await models.LendingController.get(
+                network         = ctx.datasource.network,
                 address         = lending_controller_address,
                 mock_time       = True
             )
-            oracle                      = await models.mavryk_user_cache.get(address=collateral_token_oracle_address)
+            oracle                      = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
                 lending_controller  = lending_controller,
-                token_address       = collateral_token_address,
+                token               = token,
                 oracle              = oracle
             )
             lending_controller_collateral_token.protected                                   = collateral_token_protected
             lending_controller_collateral_token.is_scaled_token                             = collateral_token_scaled
             lending_controller_collateral_token.token_name                                  = collateral_token_name
-            lending_controller_collateral_token.token_contract_standard                     = collateral_token_standard
             lending_controller_collateral_token.is_staked_token                             = collateral_token_staked
             lending_controller_collateral_token.staking_contract_address                    = collateral_token_staking_contract_address
             lending_controller_collateral_token.total_deposited                             = collateral_token_total_deposited

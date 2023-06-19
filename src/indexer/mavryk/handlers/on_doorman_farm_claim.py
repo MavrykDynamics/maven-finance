@@ -22,12 +22,12 @@ async def on_doorman_farm_claim(
         total_farm_rewards_claimed      = float(sender_stake_balance_ledger.totalFarmRewardsClaimed)
         participation_fees_per_share    = float(sender_stake_balance_ledger.participationFeesPerShare)
         timestamp                       = farm_claim.data.timestamp
-        doorman                         = await models.Doorman.get(address=doorman_address)
+        doorman                         = await models.Doorman.get(network=ctx.datasource.network, address=doorman_address)
         unclaimed_rewards               = float(farm_claim.storage.unclaimedRewards)
         accumulated_fees_per_share      = float(farm_claim.storage.accumulatedFeesPerShare)
     
         # Get or create the interacting user
-        user                = await models.mavryk_user_cache.get(address=sender_address)
+        user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
         amount                          = smvk_balance - user.smvk_balance
         user.smvk_balance               = smvk_balance
         await user.save()

@@ -13,13 +13,13 @@ async def on_m_farm_pause_all(
     try:
         # Get operation info
         farm_address    = pause_all.data.target_address
-        farm            = await models.Farm.get(address=farm_address)
     
         # Update record
-        farm.deposit_paused     = pause_all.storage.breakGlassConfig.depositIsPaused
-        farm.withdraw_paused    = pause_all.storage.breakGlassConfig.withdrawIsPaused
-        farm.claim_paused       = pause_all.storage.breakGlassConfig.claimIsPaused
-        await farm.save()
+        await models.Farm.filter(network=ctx.datasource.network, address=farm_address).update(
+            deposit_paused     = pause_all.storage.breakGlassConfig.depositIsPaused,
+            withdraw_paused    = pause_all.storage.breakGlassConfig.withdrawIsPaused,
+            claim_paused       = pause_all.storage.breakGlassConfig.claimIsPaused
+        )
 
     except BaseException as e:
          await save_error_report(e)

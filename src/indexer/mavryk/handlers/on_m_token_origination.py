@@ -1,8 +1,8 @@
+from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard, get_contract_metadata
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
 from mavryk.types.m_token.storage import MTokenStorage
-from ..utils.persisters import persist_token_metadata
 import mavryk.models as models
 
 
@@ -13,9 +13,8 @@ async def on_m_token_origination(
 
     try:    
         # Get operation info
-        mvk_address                 = m_token_origination.data.originated_contract_address
+        m_token_address             = m_token_origination.data.originated_contract_address
         admin                       = m_token_origination.storage.admin
-        governance_address          = m_token_origination.storage.governanceAddress
         loan_token_name             = m_token_origination.storage.loanToken
         is_scaled_token             = m_token_origination.storage.isScaledToken
         total_supply                = float(m_token_origination.storage.totalSupply)
@@ -23,18 +22,43 @@ async def on_m_token_origination(
         timestamp                   = m_token_origination.data.timestamp
     
         # Persist token metadata
-        await persist_token_metadata(
+        token_contract_metadata = await get_contract_token_metadata(
             ctx=ctx,
-            token_address=mvk_address
+            token_address=m_token_address
+        )
+        
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
+            ctx=ctx,
+            contract_address=m_token_address
         )
     
-        # Get or create governance record
-        governance, _   = await models.Governance.get_or_create(address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
+
+        # Get the token standard
+        standard = await get_token_standard(
+            ctx,
+            m_token_address
+        )
+
+        # Get the related token
+        token, _            = await models.Token.get_or_create(
+            token_address       = m_token_address,
+            network             = ctx.datasource.network,
+            token_id            = 0
+        )
+        if token_contract_metadata:
+            token.metadata          = token_contract_metadata
+        token.token_standard    = standard
+        await token.save()
     
         # Save MVK in DB
         m_token         = models.MToken(
-            address                     = mvk_address,
+            address                     = m_token_address,
+            network                     = ctx.datasource.network,
+            metadata                    = contract_metadata,
+            token                       = token,
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,
@@ -49,7 +73,7 @@ async def on_m_token_origination(
         originated_ledger               = m_token_origination.storage.ledger
         originated_reward_index_ledger  = m_token_origination.storage.rewardIndexLedger
         for address in originated_ledger:
-            new_user                    = await models.mavryk_user_cache.get(address=address)
+            new_user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=address)
             await new_user.save()
     
             user_account                = await models.MTokenAccount.get_or_create(

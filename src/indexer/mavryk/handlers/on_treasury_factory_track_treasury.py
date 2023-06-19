@@ -18,14 +18,15 @@ async def on_treasury_factory_track_treasury(
     
         # Update record
         treasury_factory    = await models.TreasuryFactory.get(
+            network = ctx.datasource.network,
             address = treasury_factory_address
         )
-        treasury            = await models.Treasury.get_or_none(
+        await models.Treasury.filter(
+            network = ctx.datasource.network,
             address = treasury_address
+        ).update(
+            factory        = treasury_factory
         )
-        if treasury:
-            treasury.factory        = treasury_factory
-            await treasury.save()
 
     except BaseException as e:
          await save_error_report(e)

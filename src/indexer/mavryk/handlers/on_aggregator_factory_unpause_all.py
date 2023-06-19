@@ -21,13 +21,13 @@ async def on_aggregator_factory_unpause_all(
         distribute_reward_smvk_paused                       = unpause_all.storage.breakGlassConfig.distributeRewardStakedMvkIsPaused
     
         # Update record
-        aggregator_factory                                  = await models.AggregatorFactory.get(address    = aggregator_factory_address)
-        aggregator_factory.create_aggregator_paused         = create_aggregator_paused
-        aggregator_factory.track_aggregator_paused          = track_aggregator_paused
-        aggregator_factory.untrack_aggregator_paused        = untrack_aggregator_paused
-        aggregator_factory.distribute_reward_xtz_paused     = distribute_reward_xtz_paused
-        aggregator_factory.distribute_reward_smvk_paused    = distribute_reward_smvk_paused
-        await aggregator_factory.save()
+        await models.AggregatorFactory.filter(network=ctx.datasource.network,address    = aggregator_factory_address).update(
+            create_aggregator_paused         = create_aggregator_paused,
+            track_aggregator_paused          = track_aggregator_paused,
+            untrack_aggregator_paused        = untrack_aggregator_paused,
+            distribute_reward_xtz_paused     = distribute_reward_xtz_paused,
+            distribute_reward_smvk_paused    = distribute_reward_smvk_paused
+        )
 
     except BaseException as e:
          await save_error_report(e)

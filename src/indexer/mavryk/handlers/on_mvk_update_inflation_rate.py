@@ -17,9 +17,9 @@ async def on_mvk_update_inflation_rate(
         inflation_rate              = int(update_inflation_rate.parameter.__root__)
     
         # Update record
-        mvk_token                   = await models.MVKToken.get(address = mvk_address)
-        mvk_token.inflation_rate    = inflation_rate
-        await mvk_token.save()
+        await models.MVKToken.filter(network=ctx.datasource.network, address= mvk_address).update(
+            inflation_rate    = inflation_rate
+        )
 
     except BaseException as e:
          await save_error_report(e)
