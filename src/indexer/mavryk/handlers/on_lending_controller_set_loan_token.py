@@ -2,7 +2,7 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.utils.persisters import persist_token_metadata
+from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
 from mavryk.types.lending_controller.parameter.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
 from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
 import mavryk.models as models
@@ -37,6 +37,7 @@ async def on_lending_controller_set_loan_token(
         loan_token_interest_rate_above_optimal_utilisation  = float(loan_token_storage.interestRateAboveOptimalUtilisation)
         loan_token_current_interest_rate                    = float(loan_token_storage.currentInterestRate)
         loan_token_last_updated_block_level                 = int(loan_token_storage.lastUpdatedBlockLevel)
+        loan_token_token_reward_index                       = float(loan_token_storage.accumulatedRewardsPerShare)
         loan_token_accumulated_rewards_per_share            = float(loan_token_storage.accumulatedRewardsPerShare)
         loan_token_borrow_index                             = float(loan_token_storage.borrowIndex)
         loan_token_min_repayment_amount                     = float(loan_token_storage.minRepaymentAmount)
@@ -44,52 +45,72 @@ async def on_lending_controller_set_loan_token(
         loan_token_type_storage                             = loan_token_storage.tokenType
         loan_token_address                                  = ""
         loan_token_id                                       = 0
-        loan_token_contract_standard                        = ""
     
         # Loan Token attributes
         if type(loan_token_type_storage) == fa12:
             loan_token_address              = loan_token_type_storage.fa12
-            loan_token_contract_standard    = "fa12"
         elif type(loan_token_type_storage) == fa2:
             loan_token_address              = loan_token_type_storage.fa2.tokenContractAddress
             loan_token_id                   = loan_token_type_storage.fa2.tokenId
-            loan_token_contract_standard    = "fa2"
         elif type(loan_token_type_storage) == tez:
             loan_token_address              = "XTZ"
-            loan_token_contract_standard    = "tez"
     
+        token_contract_metadata = None
         if loan_token_address != "XTZ":
             # Persist loan Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=loan_token_address,
                 token_id=str(loan_token_id)
             )
     
-            # Persist M Token Metadata
-            await persist_token_metadata(
-                ctx=ctx,
-                token_address=loan_token_m_token_address,
-                token_id="0"
-            )
-    
         # Create / Update record
         lending_controller                  = await models.LendingController.get(
+            network         = ctx.datasource.network,
             address         = lending_controller_address,
             mock_time       = False
         )
-        oracle                              = await models.mavryk_user_cache.get(address=loan_token_oracle_address)
-        m_token, _                          = await models.MToken.get_or_create(
-            address = loan_token_m_token_address
+        oracle                              = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=loan_token_oracle_address)
+        token                               = await models.Token.get(
+            network         = ctx.datasource.network,
+            token_address   = loan_token_m_token_address,
+            token_id        = 0
         )
+        m_token, _                          = await models.MToken.get_or_create(
+            network         = ctx.datasource.network,
+            address         = loan_token_m_token_address,
+            token           = token
+        )
+
+        # Get the token standard
+        standard = await get_token_standard(
+            ctx,
+            loan_token_address
+        )
+
+        # Get the related token
+        token, _                            = await models.Token.get_or_create(
+            token_address       = loan_token_address,
+            token_id            = loan_token_id,
+            network             = ctx.datasource.network
+        )
+        if token_contract_metadata:
+            token.metadata          = token_contract_metadata
+        token.token_standard    = standard
+        await token.save()
+
         await m_token.save()
         lending_controller_loan_token, _    = await models.LendingControllerLoanToken.get_or_create(
             lending_controller  = lending_controller,
             loan_token_name     = loan_token_name,
-            loan_token_address  = loan_token_address,
-            m_token             = m_token
+            token               = token,
+            m_token             = m_token,
+            oracle              = oracle
         )
-        lending_controller_loan_token.oracle                                    = oracle
+        m_token                                                                 = await lending_controller_loan_token.m_token
+        if loan_token_token_reward_index > m_token.token_reward_index:
+            m_token.token_reward_index                                          = loan_token_token_reward_index
+            await m_token.save()
         lending_controller_loan_token.m_tokens_total                            = loan_token_m_tokens_total
         lending_controller_loan_token.reserve_ratio                             = loan_token_reserve_ratio
         lending_controller_loan_token.token_pool_total                          = loan_token_token_pool_total
@@ -106,7 +127,6 @@ async def on_lending_controller_set_loan_token(
         lending_controller_loan_token.accumulated_rewards_per_share             = loan_token_accumulated_rewards_per_share
         lending_controller_loan_token.borrow_index                              = loan_token_borrow_index
         lending_controller_loan_token.min_repayment_amount                      = loan_token_min_repayment_amount
-        lending_controller_loan_token.loan_token_contract_standard              = loan_token_contract_standard
         lending_controller_loan_token.paused                                    = loan_token_paused
         await lending_controller_loan_token.save()
 

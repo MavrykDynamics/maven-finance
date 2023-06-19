@@ -1,7 +1,7 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.emergency_governance.storage import EmergencyGovernanceStorage
 from dipdup.models import Origination
 import mavryk.models as models
@@ -15,7 +15,6 @@ async def on_emergency_governance_origination(
         # Get operation values
         address                         = emergency_governance_origination.data.originated_contract_address
         admin                           = emergency_governance_origination.storage.admin
-        governance_address              = emergency_governance_origination.storage.governanceAddress
         decimals                        = int(emergency_governance_origination.storage.config.decimals)
         required_fee                    = int(emergency_governance_origination.storage.config.requiredFeeMutez)
         min_smvk_required_to_trigger    = float(emergency_governance_origination.storage.config.minStakedMvkRequiredToTrigger)
@@ -28,19 +27,20 @@ async def on_emergency_governance_origination(
         next_emergency_record_id        = int(emergency_governance_origination.storage.nextEmergencyGovernanceId)
         timestamp                       = emergency_governance_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
         
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Create record
         emergencyGovernance = models.EmergencyGovernance(
             address                         = address,
+            network                         = ctx.datasource.network,
+            metadata                        = contract_metadata,
             admin                           = admin,
             last_updated_at                 = timestamp,
             governance                      = governance,

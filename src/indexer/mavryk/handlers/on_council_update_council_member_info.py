@@ -21,16 +21,17 @@ async def on_council_update_council_member_info(
         image                   = council_member_storage.image
     
         # Update record
-        council                 = await models.Council.get(address   = council_address)
-        user                    = await models.mavryk_user_cache.get(address=council_member_address)
-        council_member          = await models.CouncilCouncilMember.filter(
+        council                 = await models.Council.get(network=ctx.datasource.network, address= council_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=council_member_address)
+        await models.CouncilCouncilMember.filter(
             council     = council,
             user        = user
-        ).first()
-        council_member.name     = name
-        council_member.website  = website
-        council_member.image    = image
-        await council_member.save()
+        ).update(
+            name     = name,
+            website  = website,
+            image    = image
+        )
+
     except BaseException as e:
          await save_error_report(e)
 

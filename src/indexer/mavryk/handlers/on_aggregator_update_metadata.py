@@ -1,10 +1,11 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.aggregator.storage import AggregatorStorage
 from mavryk.types.aggregator.parameter.update_metadata import UpdateMetadataParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
+import mavryk.models as models
 
 async def on_aggregator_update_metadata(
     ctx: HandlerContext,
@@ -15,10 +16,18 @@ async def on_aggregator_update_metadata(
         # Get operation info
         aggregator_address  = update_metadata.data.target_address
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata   = await get_contract_metadata(
             ctx=ctx,
             contract_address=aggregator_address
+        )
+
+        # Update record
+        await models.Aggregator.filter(
+            address = aggregator_address,
+            network = ctx.datasource.network
+        ).update(
+            metadata = contract_metadata
         )
 
     except BaseException as e:

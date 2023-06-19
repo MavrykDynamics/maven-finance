@@ -11,13 +11,10 @@ async def on_vault_factory_set_admin(
     set_admin: Transaction[SetAdminParameter, VaultFactoryStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_admin.data.target_address
-        contract        = await models.VaultFactory.get(address = target_contract)
-    
+    try:
+
         # Persist new admin
-        await persist_admin(set_admin, contract)
+        await persist_admin(ctx, models.VaultFactory, set_admin)
 
     except BaseException as e:
          await save_error_report(e)

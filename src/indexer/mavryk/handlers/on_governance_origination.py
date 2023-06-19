@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
@@ -47,8 +47,8 @@ async def on_governance_origination(
         whitelisted_developers                  = governance_origination.storage.whitelistDevelopers
         timestamp                               = governance_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
@@ -63,50 +63,117 @@ async def on_governance_origination(
             governance_round_type = models.GovernanceRoundType.VOTING
     
         # Create record
-        governance, _  = await models.Governance.get_or_create(address = address)
-        governance.active                                  = True
-        governance.admin                                   = admin
-        governance.last_updated_at                         = timestamp
-        governance.address                                 = address
-        governance.governance_proxy_address                = governance_proxy_address
-        governance.success_reward                          = success_reward
-        governance.cycle_voters_reward                     = cycle_voters_reward
-        governance.proposal_round_vote_percentage          = proposal_round_vote_percentage
-        governance.proposal_round_vote_required            = proposal_round_vote_required
-        governance.min_quorum_percentage                   = min_quorum_percentage
-        governance.min_yay_vote_percentage                 = min_yay_vote_percentage
-        governance.proposal_submission_fee_mutez           = proposal_submission_fee
-        governance.max_proposal_per_satellite              = max_proposals_per_delegate
-        governance.blocks_per_proposal_round               = blocks_per_Proposal_round
-        governance.blocks_per_voting_round                 = blocks_per_voting_round
-        governance.blocks_per_timelock_round               = blocks_per_timelock_round
-        governance.proposal_metadata_title_max_length      = proposal_metadata_title_max_length
-        governance.proposal_title_max_length               = proposal_title_max_length
-        governance.proposal_description_max_length         = proposal_description_max_length
-        governance.proposal_invoice_max_length             = proposal_invoice_max_length
-        governance.proposal_source_code_max_length         = proposal_source_code_max_length
-        governance.current_round                           = governance_round_type
-        governance.current_blocks_per_proposal_round       = current_blocks_per_proposal_round
-        governance.current_blocks_per_voting_round         = current_blocks_per_voting_round
-        governance.current_blocks_per_timelock_round       = current_blocks_per_timelock_round
-        governance.current_round_start_level               = current_round_start_level
-        governance.current_round_end_level                 = current_round_end_level
-        governance.current_cycle_end_level                 = current_cycle_end_level
-        governance.current_cycle_total_voters_reward       = current_cycle_total_voters_reward
-        governance.next_proposal_id                        = next_proposal_id
-        governance.cycle_id                                = cycle_id
-        governance.cycle_highest_voted_proposal_id         = cycle_highest_voted_proposal_id 
-        governance.timelock_proposal_id                    = timelock_proposal_id
+        governance          = models.Governance(
+            address                                 = address,
+            network                                 = ctx.datasource.network,
+            metadata                                = contract_metadata,
+            admin                                   = admin,
+            last_updated_at                         = timestamp,
+            governance_proxy_address                = governance_proxy_address,
+            success_reward                          = success_reward,
+            cycle_voters_reward                     = cycle_voters_reward,
+            proposal_round_vote_percentage          = proposal_round_vote_percentage,
+            proposal_round_vote_required            = proposal_round_vote_required,
+            min_quorum_percentage                   = min_quorum_percentage,
+            min_yay_vote_percentage                 = min_yay_vote_percentage,
+            proposal_submission_fee_mutez           = proposal_submission_fee,
+            max_proposal_per_satellite              = max_proposals_per_delegate,
+            blocks_per_proposal_round               = blocks_per_Proposal_round,
+            blocks_per_voting_round                 = blocks_per_voting_round,
+            blocks_per_timelock_round               = blocks_per_timelock_round,
+            proposal_metadata_title_max_length      = proposal_metadata_title_max_length,
+            proposal_title_max_length               = proposal_title_max_length,
+            proposal_description_max_length         = proposal_description_max_length,
+            proposal_invoice_max_length             = proposal_invoice_max_length,
+            proposal_source_code_max_length         = proposal_source_code_max_length,
+            current_round                           = governance_round_type,
+            current_blocks_per_proposal_round       = current_blocks_per_proposal_round,
+            current_blocks_per_voting_round         = current_blocks_per_voting_round,
+            current_blocks_per_timelock_round       = current_blocks_per_timelock_round,
+            current_round_start_level               = current_round_start_level,
+            current_round_end_level                 = current_round_end_level,
+            current_cycle_end_level                 = current_cycle_end_level,
+            current_cycle_total_voters_reward       = current_cycle_total_voters_reward,
+            next_proposal_id                        = next_proposal_id,
+            cycle_id                                = cycle_id,
+            cycle_highest_voted_proposal_id         = cycle_highest_voted_proposal_id ,
+            timelock_proposal_id                    = timelock_proposal_id
+        )
         await governance.save()
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.mavryk_user_cache.get(address=whitelisted_developer_address)
+            user                                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user
             )
             await whitelist_developer.save()
+
+        # Start the snapshot indexing
+        await ctx.add_index(
+            name="governance_satellite_snapshot",
+            template="governance_satellite_snapshot_template",
+            values=dict(
+                governance_contract="governance"
+            )
+        )
+
+        # Start the MToken indexing
+        await ctx.add_index(
+            name="m_token_xtz",
+            template="m_token_template",
+            values=dict(
+                m_token_contract="m_token_xtz"
+            )
+        )
+        await ctx.add_index(
+            name="m_token_eurl",
+            template="m_token_template",
+            values=dict(
+                m_token_contract="m_token_eurl"
+            )
+        )
+        await ctx.add_index(
+            name="m_token_tzbtc",
+            template="m_token_template",
+            values=dict(
+                m_token_contract="m_token_tzbtc"
+            )
+        )
+        await ctx.add_index(
+            name="m_token_usdt",
+            template="m_token_template",
+            values=dict(
+                m_token_contract="m_token_usdt"
+            )
+        )
+
+        # Start Mavryk Finance indexer
+        await ctx.add_index(
+            name="mavryk_finance",
+            template="mavryk_finance_template",
+            values=dict(
+                governance_contract="governance",
+                governance_proxy_contract="governance_proxy",
+                mvk_token_contract="mvk_token",
+                mvk_faucet_contract="mvk_faucet",
+                doorman_contract="doorman",
+                farm_factory_contract="farm_factory",
+                delegation_contract="delegation",
+                vesting_contract="vesting",
+                emergency_governance_contract="emergency_governance",
+                council_contract="council",
+                break_glass_contract="break_glass",
+                governance_financial_contract="governance_financial",
+                governance_satellite_contract="governance_satellite",
+                aggregator_factory_contract="aggregator_factory",
+                treasury_factory_contract="treasury_factory",
+                vault_factory_contract="vault_factory",
+                lending_controller_contract="lending_controller",
+                lending_controller_mock_time_contract="lending_controller_mock_time"
+            )
+        )
 
     except BaseException as e:
          await save_error_report(e)

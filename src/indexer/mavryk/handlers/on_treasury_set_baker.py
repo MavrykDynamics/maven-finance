@@ -16,12 +16,12 @@ async def on_treasury_set_baker(
         baker_address       = set_baker.parameter.__root__
     
         # Update record
-        treasury            = await models.Treasury.get(address = treasury_address)
         baker               = None
         if baker_address:
-            baker   = await models.mavryk_user_cache.get(address=baker_address)
-        treasury.baker      = baker
-        await treasury.save()
+            baker   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=baker_address)
+        await models.Treasury.filter(network=ctx.datasource.network, address= treasury_address).update(
+            baker   = baker
+        )
 
     except BaseException as e:
          await save_error_report(e)

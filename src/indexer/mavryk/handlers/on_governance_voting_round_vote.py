@@ -38,8 +38,8 @@ async def on_governance_voting_round_vote(
             vote    = models.GovernanceVoteType.NAY
     
         # Create and update records
-        governance  = await models.Governance.get(address   = governance_address)
-        voter       = await models.mavryk_user_cache.get(address=voter_address)
+        governance  = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        voter       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=voter_address)
     
         # Update or a satellite snapshot record
         governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(
@@ -61,10 +61,10 @@ async def on_governance_voting_round_vote(
             await governance_snapshot.save()
     
         # Update proposal with vote
-        proposal        = await models.GovernanceProposal.filter(
+        proposal        = await models.GovernanceProposal.get(
             internal_id = proposal_id,
             governance  = governance
-        ).first()
+        )
         proposal.yay_vote_count                 = yay_vote_count
         proposal.yay_vote_smvk_total            = yay_vote_smvk_total
         proposal.nay_vote_count                 = nay_vote_count

@@ -22,12 +22,17 @@ async def on_mvk_mint(
         total_supply        = float(mint.storage.totalSupply)
 
         # Get mint account
-        user                = await models.mavryk_user_cache.get(address = mint_address)
+        user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=mint_address)
         user.mvk_balance    = new_user_balance
         await user.save()
-
+    
         # Create record
-        mvk_token               = await models.MVKToken.get(address = mvk_token_address)
+        token               = await models.Token.get(
+            network         = ctx.datasource.network,
+            token_address   = mvk_token_address,
+            token_id        = 0
+        )
+        mvk_token               = await models.MVKToken.get(network=ctx.datasource.network, address= mvk_token_address, token=token)
         mvk_token.total_supply  = total_supply
         await mvk_token.save()
         
@@ -41,6 +46,6 @@ async def on_mvk_mint(
             mvk_total_supply    = total_supply
         )
         await mint_burn_history_data.save()
+
     except BaseException as e:
          await save_error_report(e)
-

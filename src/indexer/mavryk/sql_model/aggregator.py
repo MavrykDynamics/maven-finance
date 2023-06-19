@@ -7,9 +7,9 @@ from mavryk.sql_model.enums import RewardType
 ###
 
 class Aggregator(MavrykContract, Model):
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators')
     factory                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
-    creation_timestamp                      = fields.DatetimeField(null=True, index=True)
+    creation_timestamp                      = fields.DatetimeField(index=True)
     name                                    = fields.TextField(default='')
     decimals                                = fields.SmallIntField(default=0)
     alpha_pct_per_thousand                  = fields.SmallIntField(default=0)
@@ -24,7 +24,7 @@ class Aggregator(MavrykContract, Model):
     last_completed_data_epoch               = fields.BigIntField(default=0, index=True)
     last_completed_data                     = fields.FloatField(default=0.0)
     last_completed_data_pct_oracle_resp     = fields.SmallIntField(default=0)
-    last_completed_data_last_updated_at     = fields.DatetimeField(null=True, index=True)
+    last_completed_data_last_updated_at     = fields.DatetimeField(index=True)
 
     class Meta:
         table = 'aggregator'

@@ -27,22 +27,23 @@ async def on_vesting_claim(
     
         # Update and create record
         vesting = await models.Vesting.get(
+            network = ctx.datasource.network,
             address = vesting_address
         )
-        vestee  = await models.mavryk_user_cache.get(address=vestee_address)
-        vesteeRecord    = await models.VestingVestee.filter(
+        vestee  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vestee_address)
+        await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting
-        ).first()
-        vesteeRecord.months_remaining               = months_remaining
-        vesteeRecord.months_claimed                 = months_claimed
-        vesteeRecord.next_redemption_timestamp      = next_redemption_timestamp
-        vesteeRecord.last_claimed_timestamp         = last_claimed_timestamp
-        vesteeRecord.total_claimed                  = total_claimed
-        vesteeRecord.total_remainder                = total_remainder
+        ).update(
+            months_remaining               = months_remaining,
+            months_claimed                 = months_claimed,
+            next_redemption_timestamp      = next_redemption_timestamp,
+            last_claimed_timestamp         = last_claimed_timestamp,
+            total_claimed                  = total_claimed,
+            total_remainder                = total_remainder
+        )
         vesting.months_remaining                    = total_vested_amount
         await vesting.save()
-        await vesteeRecord.save()
     except BaseException as e:
          await save_error_report(e)
 

@@ -6,7 +6,7 @@ from mavryk.types.governance.storage import GovernanceStorage
 from dipdup.models import Transaction
 import mavryk.models as models
 
-async def on_governance_process_proposal_single_date(
+async def on_governance_process_proposal_single_data(
     ctx: HandlerContext,
     process_proposal_single_data: Transaction[ProcessProposalSingleDataParameter, GovernanceStorage],
 ) -> None:
@@ -21,17 +21,21 @@ async def on_governance_process_proposal_single_date(
         timestamp           = process_proposal_single_data.data.timestamp
     
         # Update record
-        governance          = await models.Governance.get(address   = governance_address)
-        proposal            = await models.GovernanceProposal.filter(
+        governance          = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        await models.GovernanceProposal.filter(
             governance  = governance,
             internal_id = proposal_id
-        ).first()
-        proposal.execution_counter  = execution_counter
-        proposal.executed           = executed
+        ).update(
+            execution_counter  = execution_counter,
+            executed           = executed
+        )
         if executed:
-            proposal.execution_timestamp   = timestamp
-        await proposal.save()
+            await models.GovernanceProposal.filter(
+                governance          = governance,
+                internal_id         = proposal_id
+            ).update(
+                execution_datetime  = timestamp
+            )
 
     except BaseException as e:
          await save_error_report(e)
-

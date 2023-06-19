@@ -25,15 +25,16 @@ async def on_delegation_delegate_to_satellite(
             delegate_storage        = delegate_to_satellite.storage.delegateLedger[user_address]
     
             # Create and/or update record
-            user                                                                = await models.mavryk_user_cache.get(address=user_address)
-            satellite                                                           = await models.mavryk_user_cache.get(address=satellite_address)
+            user                                                                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
+            satellite                                                           = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
             delegation                                                          = await models.Delegation.get(
+                network     = ctx.datasource.network,
                 address     = delegation_address
             )
-            satellite_record                                                    = await models.Satellite.filter(
+            satellite_record                                                    = await models.Satellite.get(
                 user        = satellite,
                 delegation  = delegation
-            ).first()
+            )
             satellite_reward_reference_record, _                                = await models.SatelliteRewards.get_or_create(
                 user        = satellite,
                 delegation  = delegation

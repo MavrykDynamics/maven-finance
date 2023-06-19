@@ -1,8 +1,9 @@
+from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.lending_controller_mock_time.parameter.vault_deposit_staked_token import VaultDepositStakedTokenParameter
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
+from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem1 as Fa2
 import mavryk.models as models
 from dateutil import parser
 
@@ -26,10 +27,11 @@ async def on_lending_controller_mock_time_vault_deposit_staked_token(
     
         # Update record
         lending_controller          = await models.LendingController.get(
+            network             = ctx.datasource.network,
             address             = lending_controller_address,
             mock_time           = True
         )
-        vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
+        vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -45,11 +47,11 @@ async def on_lending_controller_mock_time_vault_deposit_staked_token(
                 vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
     
                 # Save updated vault
-                lending_controller_vault                = await models.LendingControllerVault.filter(
+                lending_controller_vault                = await models.LendingControllerVault.get(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
-                ).first()
+                )
                 lending_controller_vault.internal_id                        = vault_internal_id
                 lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
                 lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -66,6 +68,11 @@ async def on_lending_controller_mock_time_vault_deposit_staked_token(
                 loan_token                              = await lending_controller_vault.loan_token
                 loan_token_name                         = loan_token.loan_token_name
                 loan_token_storage                      = vault_deposit_staked_token.storage.loanTokenLedger[loan_token_name]
+                loan_token_token_reward_index           = float(loan_token_storage.accumulatedRewardsPerShare) 
+                m_token                                 = await loan_token.m_token
+                if loan_token_token_reward_index > m_token.token_reward_index:
+                    m_token.token_reward_index          = loan_token_token_reward_index
+                    await m_token.save()
                 loan_token.token_pool_total             = float(loan_token_storage.tokenPoolTotal)
                 loan_token.m_tokens_total               = float(loan_token_storage.mTokensTotal)
                 loan_token.total_borrowed               = float(loan_token_storage.totalBorrowed)
@@ -82,22 +89,42 @@ async def on_lending_controller_mock_time_vault_deposit_staked_token(
                 collateral_token_total_deposited        = float(collateral_token_storage.totalDeposited)
                 collateral_token_address                = collateral_token_storage.tokenContractAddress
 
-                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.filter(
+                # Get token id
+                token_id                                = 0
+                if type(collateral_token_storage.tokenType) == Fa2:
+                    token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
+
+                # Get the token standard
+                standard = await get_token_standard(
+                    ctx,
+                    collateral_token_address
+                )
+
+                # Get the related token
+                token, _                                = await models.Token.get_or_create(
+                    network             = ctx.datasource.network,
+                    token_address       = collateral_token_address,
+                    token_id            = token_id
+                )
+                token.token_standard    = standard
+                await token.save()
+
+                lending_controller_collateral_token     = await models.LendingControllerCollateralToken.get(
                     lending_controller          = lending_controller,
-                    token_address               = collateral_token_address
-                ).first()
+                    token                       = token
+                )
                 lending_controller_collateral_token.total_deposited = collateral_token_total_deposited
                 await lending_controller_collateral_token.save()
 
                 lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
-                    token                       = lending_controller_collateral_token
+                    collateral_token            = lending_controller_collateral_token
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()
     
                 # Save history data
-                sender                                  = await models.mavryk_user_cache.get(address=sender_address)
+                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

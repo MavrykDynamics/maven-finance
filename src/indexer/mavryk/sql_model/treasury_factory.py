@@ -1,5 +1,5 @@
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Treasury Factory Tables
@@ -28,19 +28,20 @@ class TreasuryFactoryTreasuryLambda(ContractLambda, Model):
         table = 'treasury_factory_treasury_lambda'
 
 class TreasuryFactoryGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='general_contracts')
 
     class Meta:
         table = 'treasury_factory_general_contract'
 
 class TreasuryFactoryWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_contracts')
 
     class Meta:
         table = 'treasury_factory_whitelist_contract'
 
-class TreasuryFactoryWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
-    contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_token_contracts')
+class TreasuryFactoryWhitelistTokenContract(LinkedContract, Model):
+    contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_factory_whitelist_token_contracts', index=True)
 
     class Meta:
         table = 'treasury_factory_whitelist_token_contract'

@@ -14,13 +14,13 @@ async def on_treasury_factory_unpause_all(
     try:
         # Get operation info
         treasury_factory_address    = unpause_all.data.target_address
-        treasury_factory            = await models.TreasuryFactory.get(address=treasury_factory_address)
     
         # Update record
-        treasury_factory.create_treasury_paused     = unpause_all.storage.breakGlassConfig.createTreasuryIsPaused
-        treasury_factory.track_treasury_paused      = unpause_all.storage.breakGlassConfig.trackTreasuryIsPaused
-        treasury_factory.untrack_treasury_paused    = unpause_all.storage.breakGlassConfig.untrackTreasuryIsPaused
-        await treasury_factory.save()
+        await models.TreasuryFactory.filter(network=ctx.datasource.network, address=treasury_factory_address).update(
+            create_treasury_paused     = unpause_all.storage.breakGlassConfig.createTreasuryIsPaused,
+            track_treasury_paused      = unpause_all.storage.breakGlassConfig.trackTreasuryIsPaused,
+            untrack_treasury_paused    = unpause_all.storage.breakGlassConfig.untrackTreasuryIsPaused
+        )
 
     except BaseException as e:
          await save_error_report(e)

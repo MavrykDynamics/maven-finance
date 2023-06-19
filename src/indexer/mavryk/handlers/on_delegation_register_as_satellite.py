@@ -28,14 +28,16 @@ async def on_delegation_register_as_satellite(
         registration_timestamp  = parser.parse(satellite_storage.registeredDateTime)
     
         # Create and/or update record
-        user                    = await models.mavryk_user_cache.get(address=satellite_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
         delegation = await models.Delegation.get(
+            network = ctx.datasource.network,
             address = delegation_address
         )
         satellite_record, _ = await models.Satellite.get_or_create(
-            user        = user,
-            delegation  = delegation
+            user                    = user,
+            delegation              = delegation,
         )
+        satellite_record.registration_timestamp          = registration_timestamp
         satellite_record.public_key                      = public_key
         satellite_record.peer_id                         = peer_id
         satellite_record.fee                             = fee
@@ -43,7 +45,6 @@ async def on_delegation_register_as_satellite(
         satellite_record.description                     = description
         satellite_record.image                           = image
         satellite_record.website                         = website
-        satellite_record.registration_timestamp          = registration_timestamp
         satellite_record.currently_registered            = True
     
         satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(

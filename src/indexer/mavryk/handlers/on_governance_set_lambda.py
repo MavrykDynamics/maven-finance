@@ -14,7 +14,7 @@ async def on_governance_set_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.Governance, models.GovernanceLambda, set_lambda)
+        await persist_lambda(ctx, models.Governance, models.GovernanceLambda, set_lambda)
 
     except BaseException as e:
          await save_error_report(e)

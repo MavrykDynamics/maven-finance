@@ -7,7 +7,6 @@ from mavryk.sql_model.enums import GovernanceRoundType, GovernanceActionStatus, 
 ###
 
 class Governance(MavrykContract, Model):
-    active                                  = fields.BooleanField(default=False, index=True)
     governance_proxy_address                = fields.CharField(max_length=36, default="")
     success_reward                          = fields.FloatField(default=0)
     cycle_voters_reward                     = fields.FloatField(default=0)
@@ -99,8 +98,8 @@ class GovernanceProposal(Model):
     min_yay_vote_percentage                 = fields.FloatField(default=0)
     quorum_count                            = fields.BigIntField(default=0)
     quorum_smvk_total                       = fields.FloatField(default=0)
-    start_datetime                          = fields.DatetimeField(null=True, index=True)
-    execution_datetime                      = fields.DatetimeField(null=True, index=True)
+    start_datetime                          = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(index=True)
     cycle                                   = fields.BigIntField(default=0, index=True)
     current_cycle_start_level               = fields.BigIntField(default=0, index=True)
     current_cycle_end_level                 = fields.BigIntField(default=0, index=True)
@@ -124,8 +123,7 @@ class GovernanceProposalPayment(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='payments', index=True)
     internal_id                             = fields.SmallIntField(default=0, index=True)
-    token_address                           = fields.CharField(max_length=36, default="", index=True, null=True)
-    token_id                                = fields.SmallIntField(default=0, null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposals_payments', index=True, null=True)
     title                                   = fields.TextField(default="", null=True)
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_payments', null=True)
     token_amount                            = fields.FloatField(default=0.0, null=True)
@@ -135,9 +133,9 @@ class GovernanceProposalPayment(Model):
 
 class GovernanceProposalVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='votes', null=True, index=True)
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='votes', index=True)
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_votes', index=True)
-    timestamp                               = fields.DatetimeField(null=True, index=True)
+    timestamp                               = fields.DatetimeField(auto_now=True, index=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY, index=True)
     voting_power                            = fields.FloatField(default=0.0)

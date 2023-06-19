@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
@@ -15,25 +15,25 @@ async def on_governance_financial_origination(
         # Get operation values
         address                     = governance_financial_origination.data.originated_contract_address
         admin                       = governance_financial_origination.storage.admin
-        governance_address          = governance_financial_origination.storage.governanceAddress
         fin_req_approval_percentage = int(governance_financial_origination.storage.config.financialRequestApprovalPercentage)
         fin_req_duration_in_days    = int(governance_financial_origination.storage.config.financialRequestDurationInDays)
         fin_req_counter             = int(governance_financial_origination.storage.financialRequestCounter)
         timestamp                   = governance_financial_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
         
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Create farm factory
         governance_financial = models.GovernanceFinancial(
             address                     = address,
+            network                     = ctx.datasource.network,
+            metadata                    = contract_metadata,
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,

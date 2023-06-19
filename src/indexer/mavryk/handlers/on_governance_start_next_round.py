@@ -38,7 +38,7 @@ async def on_governance_start_next_round(
             current_round_type = models.GovernanceRoundType.VOTING
     
         # Update record
-        governance  = await models.Governance.get(address   = governance_address)
+        governance  = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
         governance.current_round                            = current_round_type
         governance.current_blocks_per_proposal_round        = current_blocks_proposal_round
         governance.current_blocks_per_voting_round          = current_block_voting_round
@@ -55,22 +55,22 @@ async def on_governance_start_next_round(
         # Update highest voted proposal
         if start_next_round.storage.cycleHighestVotedProposalId in start_next_round.storage.proposalLedger:
             highest_voted_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.cycleHighestVotedProposalId]
-            highest_voted_proposal_record   = await models.GovernanceProposal.filter(
+            await models.GovernanceProposal.filter(
                 governance  = governance,
                 internal_id = highest_voted_proposal
-            ).first()
-            highest_voted_proposal_record.reward_claim_ready    = highest_voted_proposal_storage.rewardClaimReady
-            await highest_voted_proposal_record.save()
+            ).update(
+                reward_claim_ready    = highest_voted_proposal_storage.rewardClaimReady
+            )
     
         # Update timelock proposal
         if start_next_round.storage.timelockProposalId in start_next_round.storage.proposalLedger:
             timelock_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.timelockProposalId]
-            timelock_proposal_record   = await models.GovernanceProposal.filter(
+            await models.GovernanceProposal.filter(
                 governance  = governance,
                 internal_id = timelock_proposal
-            ).first()
-            timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
-            await timelock_proposal_record.save()
+            ).update(
+                execution_ready            = timelock_proposal_storage.executionReady
+            )
     
         # Update round proposals
         round_proposals = await models.GovernanceProposal.filter(current_round_proposal=True).all()
@@ -82,7 +82,7 @@ async def on_governance_start_next_round(
         # Update round votes
         round_votes = await models.GovernanceProposalVote.filter(current_round_vote=True).all()
         for vote_record in round_votes:
-            voter   = await vote_record.voter.first()
+            voter   = await vote_record.voter
             if not voter in current_round_votes:
                 vote_record.current_round_vote  = False
                 await vote_record.save()

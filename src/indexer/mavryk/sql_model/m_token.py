@@ -8,7 +8,8 @@ from mavryk.sql_model.parents import LinkedContract
 ###
 
 class MToken(MavrykContract, Model):
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='m_tokens', null=True)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='m_tokens')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='m_tokens', index=True)
     loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
     total_supply                            = fields.FloatField(default=0.0)
     token_reward_index                      = fields.FloatField(default=0.0)

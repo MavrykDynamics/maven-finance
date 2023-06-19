@@ -19,15 +19,16 @@ async def on_aggregator_update_oracle(
         oracle_peer_id          = oracle_storage.oraclePeerId
     
         # Create record
-        oracle                  = await models.mavryk_user_cache.get(address=oracle_address)
-        aggregator              = await models.Aggregator.get(address=aggregator_address)
-        aggregator_oracle       = await models.AggregatorOracle.filter(
+        oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+        aggregator              = await models.Aggregator.get(network=ctx.datasource.network, address=aggregator_address)
+        await models.AggregatorOracle.filter(
             aggregator  = aggregator,
             user        = oracle
-        ).first()
-        aggregator_oracle.peer_id       = oracle_peer_id
-        aggregator_oracle.public_key    = oracle_pk
-        await aggregator_oracle.save()
+        ).update(
+            peer_id       = oracle_peer_id,
+            public_key    = oracle_pk
+        )
+
     except BaseException as e:
          await save_error_report(e)
 

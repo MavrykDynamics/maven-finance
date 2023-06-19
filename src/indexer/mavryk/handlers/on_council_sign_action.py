@@ -33,7 +33,7 @@ async def on_council_sign_action(
             status_type = models.ActionStatus.EXECUTED
     
         # Update record
-        council = await models.Council.get(address  = council_address)
+        council = await models.Council.get(network=ctx.datasource.network, address= council_address)
         action_record   = await models.CouncilAction.get(
             council     = council,
             internal_id = action_id
@@ -49,10 +49,6 @@ async def on_council_sign_action(
         # Update the status if there are multiple records (flush)
         if len(sign_action.storage.councilActionsLedger) > 1:
             for single_action_id in sign_action.storage.councilActionsLedger:
-                single_action_record    = await models.CouncilAction.get(
-                    council     = council,
-                    internal_id = single_action_id
-                )
                 status                  = sign_action.storage.councilActionsLedger[single_action_id]
                 # Select correct status
                 status_type = models.ActionStatus.PENDING
@@ -60,9 +56,13 @@ async def on_council_sign_action(
                     status_type = models.ActionStatus.FLUSHED
                 elif status == "EXECUTED":
                     status_type = models.ActionStatus.EXECUTED
-                single_action_record.council_size_snapshot  = len(await models.CouncilCouncilMember.filter(council=council).all())
-                single_action_record.status                 = status_type
-                await single_action_record.save()
+                await models.CouncilAction.filter(
+                    council     = council,
+                    internal_id = single_action_id
+                ).update(
+                    council_size_snapshot  = len(await models.CouncilCouncilMember.filter(council=council).all()),
+                    status                 = status_type
+                )
     
         # Delete previous members
         council_members_records         = await models.CouncilCouncilMember.all()
@@ -74,7 +74,7 @@ async def on_council_sign_action(
         for council_member_address in council_members:
             # Change or update records
             member_info             = council_members[council_member_address]
-            member_user             = await models.mavryk_user_cache.get(address=council_member_address)
+            member_user             = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=council_member_address)
             updated_member, _       = await models.CouncilCouncilMember.get_or_create(
                 council     = council,
                 user        = member_user
@@ -85,7 +85,7 @@ async def on_council_sign_action(
             await updated_member.save() 
         
         # Create signature record
-        user                    = await models.mavryk_user_cache.get(address=signer_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer_address)
         signer_record           = await models.CouncilActionSigner(
             council_action              = action_record,
             signer                      = user

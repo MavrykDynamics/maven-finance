@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_token_metadata
+from mavryk.utils.contracts import get_token_standard, get_contract_token_metadata
 from mavryk.types.governance.storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -21,11 +21,11 @@ async def on_governance_update_proposal_data(
         payment_data_storage    = storage_proposal.paymentData
         
         # Update or create record
-        governance      = await models.Governance.get(address   = governance_address)
-        proposal        = await models.GovernanceProposal.filter(
+        governance      = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        proposal        = await models.GovernanceProposal.get(
             internal_id         = proposal_id,
             governance          = governance
-        ).first()
+        )
     
         # Update proposal data
         for proposal_data_index in proposal_data_storage:
@@ -48,10 +48,10 @@ async def on_governance_update_proposal_data(
                 proposal_data.encoded_code       = None
                 proposal_data.code_description   = None
             await proposal_data.save()
-    
+
         # Update payment data
         for payment_data_index in payment_data_storage:
-    
+
             # Get or create payment data
             payment_single_data     = payment_data_storage[payment_data_index]
             payment_data, _         = await models.GovernanceProposalPayment.get_or_create(
@@ -59,7 +59,7 @@ async def on_governance_update_proposal_data(
                 internal_id         = int(payment_data_index)
             )
             await payment_data.save()
-    
+
             # Update payment data
             if payment_single_data:
     
@@ -76,26 +76,41 @@ async def on_governance_update_proposal_data(
                     token_address   = "XTZ"
     
                 # Persist Token Metadata
-                await persist_token_metadata(
+                token_contract_metadata = await get_contract_token_metadata(
                     ctx=ctx,
                     token_address=token_address,
                     token_id=str(token_id)
                 )
-    
+
+                # Get the token standard
+                standard = await get_token_standard(
+                    ctx,
+                    token_address
+                )
+
+                # Get the related token
+                token, _            = await models.Token.get_or_create(
+                    token_address       = token_address,
+                    token_id            = token_id,
+                    network             = ctx.datasource.network
+                )
+                if token_contract_metadata:
+                    token.metadata          = token_contract_metadata
+                token.token_standard    = standard
+                await token.save()
+
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
-                receiver                        = await models.mavryk_user_cache.get(address=receiver_address)
-    
+                receiver                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
+
                 # Save the payment record
                 payment_data.title              = payment_single_data.title
-                payment_data.token_address      = token_address
-                payment_data.token_id           = token_id
+                payment_data.token              = token
                 payment_data.to_                = receiver
                 payment_data.token_amount       = float(payment_single_data.transaction.amount)
             else:
                 payment_data.title              = None
-                payment_data.token_address      = None
-                payment_data.token_id           = None
+                payment_data.token              = None
                 payment_data.to_                = None
                 payment_data.token_amount       = None
             await payment_data.save()

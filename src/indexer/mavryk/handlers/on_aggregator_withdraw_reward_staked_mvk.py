@@ -18,13 +18,12 @@ async def on_aggregator_withdraw_reward_staked_mvk(
         oracle_reward_smvk_storage  = withdraw_reward_staked_mvk.storage.oracleRewardStakedMvk[oracle_address]
     
         # Update record
-        user                            = await models.mavryk_user_cache.get(address=oracle_address)
-        aggregator                      = await models.Aggregator.get(address   = aggregator_address)
-        oracle                          = await models.AggregatorOracle.filter(
+        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+        aggregator                      = await models.Aggregator.get(network=ctx.datasource.network, address= aggregator_address)
+        oracle                          = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = user
-        ).first()
-        await oracle.save()
+        )
         oracle_reward_smvk, _       = await models.AggregatorOracleReward.get_or_create(
             oracle      = oracle,
             type        = models.RewardType.SMVK

@@ -14,7 +14,7 @@ async def on_treasury_set_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.Treasury, models.TreasuryLambda, set_lambda)
+        await persist_lambda(ctx, models.Treasury, models.TreasuryLambda, set_lambda)
 
     except BaseException as e:
          await save_error_report(e)

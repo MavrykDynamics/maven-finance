@@ -12,13 +12,11 @@ async def on_delegation_set_governance(
     set_governance: Transaction[SetGovernanceParameter, DelegationStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_governance.data.target_address
-        contract        = await models.Delegation.get(address = target_contract)
-    
-        # Persist new admin
-        await persist_governance(set_governance, contract)
+    try:
+
+        # Persist new governance
+        await persist_governance(ctx, models.Delegation, set_governance)
+
     except BaseException as e:
          await save_error_report(e)
 
