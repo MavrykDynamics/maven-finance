@@ -424,7 +424,7 @@ block{
                 // --- Get required inputs from mToken contract and loan token record from Lending Controller
                 const farmMTokenBalance : nat = getMTokenBalance(s);
                 const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
                 // --- --- ---
 
                 // Update pool farmMTokenStorageType
@@ -509,7 +509,7 @@ block{
                 // --- Get required inputs from mToken contract and loan token record from Lending Controller
                 const farmMTokenBalance : nat = getMTokenBalance(s);
                 const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
                 // --- --- ---
                 
                 // Update pool farmMTokenStorageType
@@ -594,7 +594,7 @@ block{
                 // --- Get required inputs from mToken contract and loan token record from Lending Controller
                 const farmMTokenBalance : nat = getMTokenBalance(s);
                 const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-                const latestTokenRewardIndex   : nat           = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+                const latestTokenRewardIndex   : nat           = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
                 // --- --- ---
                 
                 // Update farm

@@ -477,7 +477,7 @@ block{
 
             // get loan token record from Lending Controller through on-chain views
             const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-            const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+            const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
              
             function transferTokens(var accumulator : mTokenStorageType; const destination : transferDestination) : mTokenStorageType is
             block {
@@ -561,7 +561,7 @@ block{
 
     // get loan token record from Lending Controller through on-chain views
     const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
 
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
     block{
@@ -641,7 +641,7 @@ block {
 
     // get loan token record from Lending Controller through on-chain views
     const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
 
     // check token id
     checkTokenId(tokenId);
