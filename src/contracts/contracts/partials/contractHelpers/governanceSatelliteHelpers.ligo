@@ -349,8 +349,8 @@ block {
 
 
 
-// helper function to check if a satellite can interact with an action
-function validateAction(const actionRecord : governanceSatelliteActionRecordType) : unit is
+// helper function to check if a satellite can interact with an action without checking for the expiration datetime
+function validateActionWithoutExpiration(const actionRecord : governanceSatelliteActionRecordType) : unit is
 block {
 
     // Check if governance satellite action has been dropeed
@@ -359,12 +359,21 @@ block {
     // Check if governance satellite action has already been executed
     if actionRecord.executed  = True  then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXECUTED) else skip;
 
+} with (unit)
+
+
+
+// helper function to check if a satellite can interact with an action
+function validateAction(const actionRecord : governanceSatelliteActionRecordType) : unit is
+block {
+
+    // Check if governance satellite action has been dropped or executed
+    validateActionWithoutExpiration(actionRecord);
+
     // Check if governance satellite action has expired
     if Tezos.get_now() > actionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
 
 } with (unit)
-
-
 
 
 
