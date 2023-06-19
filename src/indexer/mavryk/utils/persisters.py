@@ -350,7 +350,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
 
     contract_address        = ""
     contract_name           = ""
-    contract_in_storage     = False
+    update                  = hasattr(update_linked_contracts.parameter.updateType, "update")
     entrypoint_name         = update_linked_contracts.data.entrypoint
     if entrypoint_name == "updateGeneralContracts":
         contract_address        = update_linked_contracts.parameter.generalContractAddress
@@ -389,7 +389,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
         token.token_standard    = standard
         await token.save()
 
-        if contract_in_storage:
+        if update:
             # Update general contracts record
             linked_contract, _  = await linked_contract_class.get_or_create(
                 contract        = contract,
@@ -399,7 +399,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
             linked_contract.contract_address    = contract_address
             await linked_contract.save()
     else:
-        if contract_in_storage:
+        if update:
             # Update general contracts record
             linked_contract, _  = await linked_contract_class.get_or_create(
                 contract        = contract,

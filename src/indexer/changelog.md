@@ -19,6 +19,7 @@
 
 - Doorman exit
 - MVK Burn
+- contracts map update
 
 <details><summary>Previous versions</summary>
 
