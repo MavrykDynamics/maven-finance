@@ -165,7 +165,7 @@ describe("Testnet interactions helper", async () => {
             aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
-            lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
+            // lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
             mTokenEurlInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
@@ -190,7 +190,7 @@ describe("Testnet interactions helper", async () => {
             aggregatorStorage                       = await aggregatorInstance.storage();
             aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
-            lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
+            // lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
             mTokenEurlStorage                       = await mTokenEurlInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
@@ -212,7 +212,7 @@ describe("Testnet interactions helper", async () => {
             console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
             console.log('Aggregator Factory Contract deployed at:'              , contractDeployments.aggregatorFactory.address);
             console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
-            console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
+            // console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
             console.log('MToken USDT Contract deployed at:'                     , contractDeployments.mTokenUsdt.address);
             console.log('MToken EURL Contract deployed at:'                     , contractDeployments.mTokenEurl.address);
             console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
