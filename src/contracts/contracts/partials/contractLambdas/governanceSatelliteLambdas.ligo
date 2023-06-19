@@ -666,7 +666,7 @@ block {
                 verifySenderIsInitiator(initiator);
 
                 // Check if the action can still be interacted with
-                validateAction(governanceSatelliteActionRecord);
+                validateActionWithoutExpiration(governanceSatelliteActionRecord);
 
                 // Drop governance satellite action record  - update status to false
                 governanceSatelliteActionRecord.status := False;
