@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Extra
-
-
 class ExitParameter(BaseModel):
     pass
-
     class Config:
         extra = Extra.forbid
+
+    name: str
+    func_bytes: str

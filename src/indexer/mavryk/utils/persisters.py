@@ -1,55 +1,13 @@
 from dateutil import parser
+from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
 import mavryk.models as models
-
-###
-#
-# PERSIST METADATA
-#
-###
-async def persist_token_metadata(ctx, token_address, token_id='0'):
-    network                     = ctx.datasource.network
-    metadata_datasource_name    = 'metadata_' + network.lower()
-    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-    token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
-    if token_metadata:
-        await ctx.update_token_metadata(
-            network     = network,
-            address     = token_address,
-            token_id    = token_id,
-            metadata    = token_metadata
-        )
-    else:
-        # TODO: Remove in prod
-        # Check for mainnet as well
-        metadata_datasource_name    = 'metadata_mainnet'
-        metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-        token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
-        if token_metadata:
-            await ctx.update_token_metadata(
-                network     = "mainnet",
-                address     = token_address,
-                token_id    = token_id,
-                metadata    = token_metadata
-            )
-
-async def persist_contract_metadata(ctx, contract_address):
-    network                     = ctx.datasource.network
-    metadata_datasource_name    = 'metadata_' + network.lower()
-    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-    contract_metadata           = await metadata_datasource.get_contract_metadata(contract_address)
-    if contract_metadata:
-        await ctx.update_contract_metadata(
-            network     = network,
-            address     = contract_address,
-            metadata    = contract_metadata
-        )
 
 ###
 #
 # PERSIST ACTIONS
 #
 ###
-async def persist_council_action(action):
+async def persist_council_action(ctx, action):
     # Get operation values
     councilAddress                  = action.data.target_address
     councilActionRecordDiff         = action.data.diffs[-1]['content']['value']
@@ -74,18 +32,20 @@ async def persist_council_action(action):
         recordStatus    = models.ActionStatus.EXPIRED
 
     council = await models.Council.get(
+        network = ctx.datasource.network,
         address = councilAddress
     )
     council.action_counter      = councilActionCounter
     actionID                    = councilActionCounter - 1
     await council.save()
 
-    initiator   = await models.mavryk_user_cache.get(address=councilActionInitiator)
+    initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=councilActionInitiator)
 
-    councilActionRecord = await models.CouncilAction.get_or_none(
+    action_exists   = await models.CouncilAction.filter(
+        council     = council,
         internal_id = actionID
-    )
-    if councilActionRecord == None:
+    ).exists()
+    if not action_exists:
         council_size        = len(await models.CouncilCouncilMember.filter(council=council).all())
         councilActionRecord = models.CouncilAction(
             internal_id                     = actionID,
@@ -113,14 +73,14 @@ async def persist_council_action(action):
 
         # Signers
         for signer in councilActionSigners:
-            user    = await models.mavryk_user_cache.get(address=signer)
+            user    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer)
             councilActionRecordSigner = models.CouncilActionSigner(
                 signer                  = user,
                 council_action          = councilActionRecord
             )
             await councilActionRecordSigner.save()
 
-async def persist_break_glass_action(action):
+async def persist_break_glass_action(ctx, action):
     # Get operation values
     breakGlassAddress                  = action.data.target_address
     breakGlassActionRecordDiff         = action.data.diffs[-1]['content']['value']
@@ -145,18 +105,20 @@ async def persist_break_glass_action(action):
         recordStatus    = models.ActionStatus.EXPIRED
 
     breakGlass = await models.BreakGlass.get(
-        address = breakGlassAddress
+        network         = ctx.datasource.network,
+        address         = breakGlassAddress
     )
     breakGlass.action_counter   = breakGlassActionCounter
     actionID                    = breakGlassActionCounter - 1
     await breakGlass.save()
 
-    initiator    = await models.mavryk_user_cache.get(address=breakGlassActionInitiator)
+    initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=breakGlassActionInitiator)
 
-    breakGlassActionRecord = await models.BreakGlassAction.get_or_none(
+    action_exists   = await models.BreakGlassAction.filter(
+        break_glass = breakGlass,
         internal_id = actionID
-    )
-    if breakGlassActionRecord == None:
+    ).exists()
+    if not action_exists:
         council_size            = len(await models.BreakGlassCouncilMember.filter(break_glass=breakGlass).all())
         breakGlassActionRecord  = models.BreakGlassAction(
             internal_id                     = actionID,
@@ -184,7 +146,7 @@ async def persist_break_glass_action(action):
 
         # Signers
         for signer in breakGlassActionSigners:
-            user    = await models.mavryk_user_cache.get(address=signer)
+            user    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer)
 
             breakGlassActionRecordSigner = models.BreakGlassActionSigner(
                 signer                      = user,
@@ -200,16 +162,18 @@ async def persist_financial_request(ctx, action):
 
     # Create record
     governanceFinancial     = await models.GovernanceFinancial.get(
-        address = financialAddress
+        network         = ctx.datasource.network,
+        address         = financialAddress
     )
     governanceFinancial.fin_req_counter = requestCounter
     await governanceFinancial.save()
 
     for requestID in requestLedger:
-        requestRecord       = await models.GovernanceFinancialRequest.get_or_none(
-            internal_id  = int(requestID)
-        )
-        if requestRecord == None:
+        request_exists                      = await models.GovernanceFinancialRequest.filter(
+            governance_financial    = governanceFinancial,
+            internal_id             = int(requestID)
+        ).exists()
+        if not request_exists:
             requestRecordStorage            = requestLedger[requestID]
             treasuryAddress                 = requestRecordStorage.treasuryAddress
             requesterAddress                = requestRecordStorage.requesterAddress
@@ -221,9 +185,7 @@ async def persist_financial_request(ctx, action):
             executed                        = requestRecordStorage.executed
             token_contract_address          = requestRecordStorage.tokenContractAddress
             token_amount                    = float(requestRecordStorage.tokenAmount)
-            token_name                      = requestRecordStorage.tokenName
             token_id                        = int(requestRecordStorage.tokenId)
-            token_type                      = requestRecordStorage.tokenType
             key_hash                        = requestRecordStorage.keyHash
             request_purpose                 = requestRecordStorage.requestPurpose
             yay_vote_smvk_total             = float(requestRecordStorage.yayVoteStakedMvkTotal)
@@ -232,22 +194,50 @@ async def persist_financial_request(ctx, action):
             smvk_percentage_for_approval    = int(requestRecordStorage.stakedMvkPercentageForApproval)
             snapshot_smvk_total_supply      = float(requestRecordStorage.snapshotStakedMvkTotalSupply)
             smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
+            execution_datetime              = parser.parse(requestRecordStorage.requestedDateTime) # TODO: refactor when implemented in the contracts
             expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
 
-            treasury, _     = await models.Treasury.get_or_create(
-                address     = treasuryAddress
+            # Check if treasury exists
+            treasury                        = await models.Treasury.get_or_none(
+                network         = ctx.datasource.network,
+                address         = treasuryAddress
             )
-            await treasury.save()
+            if not treasury:
+                # Create a temp treasury
+                governance  = await governanceFinancial.governance
+                treasury    = models.Treasury(
+                    address     = treasuryAddress,
+                    network     = ctx.datasource.network,
+                    governance  = governance
+                )
+                await treasury.save()
 
             # Persist Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=token_contract_address,
                 token_id=str(token_id)
             )
 
-            requester               = await models.mavryk_user_cache.get(address=requesterAddress)
+            # Get the token standard
+            standard        = await get_token_standard(
+                ctx,
+                token_contract_address
+            )
+
+            # Get the related token
+            token, _         = await models.Token.get_or_create(
+                network         = ctx.datasource.network,
+                token_address   = token_contract_address,
+                token_id        = token_id
+            )
+            if token_contract_metadata:
+                token.metadata          = token_contract_metadata
+            token.token_standard    = standard
+            await token.save()
+
+            requester               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=requesterAddress)
             requestRecord           = models.GovernanceFinancialRequest(
                 internal_id                     = int(requestID),
                 governance_financial            = governanceFinancial,
@@ -257,7 +247,7 @@ async def persist_financial_request(ctx, action):
                 status                          = statusType,
                 key_hash                        = key_hash,
                 executed                        = executed,
-                token_address                   = token_contract_address,
+                token                           = token,
                 token_amount                    = token_amount,
                 request_purpose                 = request_purpose,
                 yay_vote_smvk_total             = yay_vote_smvk_total,
@@ -266,6 +256,7 @@ async def persist_financial_request(ctx, action):
                 smvk_percentage_for_approval    = smvk_percentage_for_approval,
                 snapshot_smvk_total_supply      = snapshot_smvk_total_supply,
                 smvk_required_for_approval      = smvk_required_for_approval,
+                execution_datetime              = execution_datetime,
                 expiration_datetime             = expiration_datetime,
                 requested_datetime              = requested_datetime
             )
@@ -279,16 +270,18 @@ async def persist_governance_satellite_action(ctx, action):
 
     # Create record
     governance_satellite     = await models.GovernanceSatellite.get(
+        network = ctx.datasource.network,
         address = governance_satellite_address
     )
     governance_satellite.fin_req_counter = action_counter
     await governance_satellite.save()
 
     for action_id in action_ledger:
-        action_record       = await models.GovernanceSatelliteAction.get_or_none(
-            internal_id  = int(action_id)
-        )
-        if action_record == None:
+        action_exists                       = await models.GovernanceSatelliteAction.filter(
+            governance_satellite    = governance_satellite,
+            internal_id             = int(action_id)
+        ).exists()
+        if not action_exists:
             action_record_storage           = action_ledger[action_id]
             initiator_address               = action_record_storage.initiator
             action_purpose                  = action_record_storage.governancePurpose
@@ -304,11 +297,12 @@ async def persist_governance_satellite_action(ctx, action):
             snapshot_smvk_total_supply      = float(action_record_storage.snapshotStakedMvkTotalSupply)
             smvk_pct_for_approval           = int(action_record_storage.stakedMvkPercentageForApproval)
             smvk_required_for_approval      = float(action_record_storage.stakedMvkRequiredForApproval)
+            execution_datetime              = parser.parse(action_record_storage.startDateTime) # TODO: refactor when implemented in the contracts
             expiration_datetime             = parser.parse(action_record_storage.expiryDateTime)
             start_datetime                  = parser.parse(action_record_storage.startDateTime)
             data                            = action_record_storage.dataMap
 
-            initiator                       = await models.mavryk_user_cache.get(address=initiator_address)
+            initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=initiator_address)
             action_record                   = models.GovernanceSatelliteAction(
                 internal_id                     = int(action_id),
                 governance_satellite            = governance_satellite,
@@ -323,6 +317,7 @@ async def persist_governance_satellite_action(ctx, action):
                 snapshot_smvk_total_supply      = snapshot_smvk_total_supply,
                 smvk_percentage_for_approval    = smvk_pct_for_approval,
                 smvk_required_for_approval      = smvk_required_for_approval,
+                execution_datetime              = execution_datetime,
                 expiration_datetime             = expiration_datetime,
                 start_datetime                  = start_datetime
             )
@@ -345,17 +340,17 @@ async def persist_governance_satellite_action(ctx, action):
 # PERSIST CONTRACTS
 #
 ###
-async def persist_linked_contract(contract_class, linked_contract_class, update_linked_contracts, ctx=None):
+async def persist_linked_contract(ctx, contract_class, linked_contract_class, update_linked_contracts):
     # Get operation info
     target_address          = update_linked_contracts.data.target_address
     contract                = await contract_class.get(
+        network         = ctx.datasource.network,
         address         = target_address
     )
 
     contract_address        = ""
     contract_name           = ""
-    update                  = hasattr(update_linked_contracts.parameter.updateType, "update")
-    tzip                    = ""
+    contract_in_storage     = False
     entrypoint_name         = update_linked_contracts.data.entrypoint
     if entrypoint_name == "updateGeneralContracts":
         contract_address        = update_linked_contracts.parameter.generalContractAddress
@@ -367,63 +362,92 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
         contract_address        = update_linked_contracts.parameter.tokenContractAddress
         contract_name           = update_linked_contracts.parameter.tokenContractName
         if ctx:
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=contract_address,
             )
 
-        # Save whitelist token contract token standard
-        if contract_address[0:3] == 'KT1' and len(contract_address) == 36:
-            contract_summary    = await ctx.datasource.get_contract_summary(
-                address = contract_address,
-            )
-            if contract_summary:
-                if 'tzips' in contract_summary:
-                    tzips   = contract_summary['tzips']
-                    if 'fa2' in tzips:
-                        tzip    = 'fa2'
-                    else:
-                        if 'fa12' in tzips:
-                            tzip    = 'fa12'
-   
-    # Update general contracts record
-    linked_contract, _ = await linked_contract_class.get_or_create(
-        contract        = contract,
-        contract_name   = contract_name
-    )
-    linked_contract.contract_address        = contract_address
-    linked_contract.token_contract_standard = tzip
+    # Delete the record
+    await linked_contract_class.filter(contract = contract, contract_name = contract_name).delete()
 
-    if update:
-        await linked_contract.save()
+    # Save the whitelist token
+    if entrypoint_name == "updateWhitelistTokenContracts":
+
+        # Get the token standard
+        standard = await get_token_standard(
+            ctx,
+            contract_address
+        )
+
+        # Get the related token
+        token, _                = await models.Token.get_or_create(
+            network         = ctx.datasource.network,
+            token_address   = contract_address
+        )
+        if token_contract_metadata:
+            token.metadata          = token_contract_metadata
+        token.token_standard    = standard
+        await token.save()
+
+        if contract_in_storage:
+            # Update general contracts record
+            linked_contract, _  = await linked_contract_class.get_or_create(
+                contract        = contract,
+                contract_name   = contract_name,
+                token           = token
+            )
+            linked_contract.contract_address    = contract_address
+            await linked_contract.save()
     else:
-        await linked_contract.delete()
+        if contract_in_storage:
+            # Update general contracts record
+            linked_contract, _  = await linked_contract_class.get_or_create(
+                contract        = contract,
+                contract_name   = contract_name,
+            )
+            linked_contract.contract_address    = contract_address
+            await linked_contract.save()
 
 ###
 #
 # PERSIST ADMIN/GOVERNANCE
 #
 ###
-async def persist_admin(set_admin,contract):
+async def persist_admin(ctx, contract_class, set_admin):
+    
     # Get operation info
-    admin_address   = set_admin.parameter.__root__
-    contract.admin  = admin_address
-    await contract.save()
+    contract_address        = set_admin.data.target_address
+    admin_address           = set_admin.parameter.__root__
 
-async def persist_governance(set_governance,contract):
+    # Update record
+    await contract_class.filter(
+        network     = ctx.datasource.network, 
+        address     = contract_address
+    ).update(
+        admin       = admin_address
+    )
+
+async def persist_governance(ctx, contract_class, set_governance):
+    
     # Get operation info
-    governance_address      = set_governance.parameter.__root__
-    governance, _           = await models.Governance.get_or_create(address = governance_address)
-    await governance.save()
-    contract.governance     = governance
-    await contract.save()
+    contract_address            = set_governance.data.target_address
+
+    # Update record
+    # Get governance record
+    governance                  = await models.Governance.get(network = ctx.datasource.network)
+    await contract_class.filter(
+        network     = ctx.datasource.network, 
+        address     = contract_address
+    ).update(
+        governance  = governance
+    )
 
 ###
 #
 # PERSIST LAMBDAS
 #
 ###
-async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
+async def persist_lambda(ctx, contract_class, lambda_contract_class, set_lambda):
     
     # Get operation values
     contract_address        = set_lambda.data.target_address
@@ -433,6 +457,7 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
 
     # Save / Update record
     contract                = await contract_class.get(
+        network     = ctx.datasource.network,
         address     = contract_address
     )
     contract.last_updated_at            = timestamp
@@ -440,28 +465,6 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
     contract_lambda, _      = await lambda_contract_class.get_or_create(
         contract        = contract,
         lambda_name     = lambda_name,
-    )
-    contract_lambda.last_updated_at     = timestamp
-    contract_lambda.lambda_bytes        = lambda_bytes
-    await contract_lambda.save()
-
-async def persist_proxy_lambda(contract_class, proxy_lambda_contract_class, set_proxy_lambda):
-    
-    # Get operation values
-    contract_address        = set_proxy_lambda.data.target_address
-    timestamp               = set_proxy_lambda.data.timestamp
-    lambda_bytes            = set_proxy_lambda.parameter.func_bytes
-    lambda_name             = set_proxy_lambda.parameter.id
-
-    # Save / Update record
-    contract                = await contract_class.get(
-        address     = contract_address
-    )
-    contract.last_updated_at            = timestamp
-    await contract.save()
-    contract_lambda, _      = await proxy_lambda_contract_class.get_or_create(
-        contract        = contract,
-        lambda_name     = lambda_name
     )
     contract_lambda.last_updated_at     = timestamp
     contract_lambda.lambda_bytes        = lambda_bytes

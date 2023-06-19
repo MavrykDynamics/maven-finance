@@ -17,7 +17,7 @@ async def on_governance_set_governance_proxy(
         governance_proxy_address    = set_governance_proxy.parameter.__root__
     
         # Update record
-        governance                              = await models.Governance.get(address   = governance_address)
+        governance                              = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
         governance.governance_proxy_address     = governance_proxy_address
         await governance.save()
     except BaseException as e:

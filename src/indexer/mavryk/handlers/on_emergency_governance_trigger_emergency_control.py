@@ -34,13 +34,14 @@ async def on_emergency_governance_trigger_emergency_control(
         
         # Create record
         emergency  = await models.EmergencyGovernance.get(
+            network = ctx.datasource.network,
             address = emergency_address
         )
         emergency.current_emergency_record_id   = int(emergency_id)
         emergency.next_emergency_record_id      = int(emergency_next_id)
         await emergency.save()
     
-        proposer    = await models.mavryk_user_cache.get(address=proposer_address)
+        proposer    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=proposer_address)
     
         emergency_record = models.EmergencyGovernanceRecord(
             internal_id                     = emergency_id,

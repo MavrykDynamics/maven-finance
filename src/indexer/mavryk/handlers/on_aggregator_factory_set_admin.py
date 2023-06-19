@@ -12,13 +12,10 @@ async def on_aggregator_factory_set_admin(
     set_admin: Transaction[SetAdminParameter, AggregatorFactoryStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_admin.data.target_address
-        contract        = await models.AggregatorFactory.get(address = target_contract)
-    
+    try:
+
         # Persist new admin
-        await persist_admin(set_admin, contract)
+        await persist_admin(ctx, models.AggregatorFactory, set_admin)
 
     except BaseException as e:
          await save_error_report(e)

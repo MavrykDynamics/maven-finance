@@ -12,13 +12,10 @@ async def on_aggregator_set_governance(
     set_governance: Transaction[SetGovernanceParameter, AggregatorStorage],
 ) -> None:
 
-    try:    
-        # Get operation info
-        target_contract = set_governance.data.target_address
-        contract        = await models.Aggregator.get(address = target_contract)
-    
-        # Persist new admin
-        await persist_governance(set_governance, contract)
+    try:
+
+        # Persist new governance
+        await persist_governance(ctx, models.Aggregator, set_governance)
 
     except BaseException as e:
          await save_error_report(e)

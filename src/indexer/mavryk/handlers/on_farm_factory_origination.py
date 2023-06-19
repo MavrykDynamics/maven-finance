@@ -2,7 +2,7 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.farm_factory.storage import FarmFactoryStorage
 import mavryk.models as models
 
@@ -15,25 +15,25 @@ async def on_farm_factory_origination(
         # Get Factory address
         address                     = farm_factory_origination.data.originated_contract_address
         admin                       = farm_factory_origination.storage.admin
-        governance_address          = farm_factory_origination.storage.governanceAddress
         create_farm_paused          = farm_factory_origination.storage.breakGlassConfig.createFarmIsPaused
         track_farm_paused           = farm_factory_origination.storage.breakGlassConfig.trackFarmIsPaused
         untrack_farm_paused         = farm_factory_origination.storage.breakGlassConfig.untrackFarmIsPaused
         timestamp                   = farm_factory_origination.data.timestamp
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=address
         )
         
-        # Get or create governance record
-        governance, _ = await models.Governance.get_or_create(address=governance_address)
-        await governance.save();
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
     
         # Create farm factory
         farm_factory = models.FarmFactory(
             address                     = address,
+            network                     = ctx.datasource.network,
+            metadata                    = contract_metadata,
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,

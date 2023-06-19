@@ -6,7 +6,7 @@ from mavryk.sql_model.parents import ContractLambda, MavrykContract, LinkedContr
 ###
 
 class VaultFactory(MavrykContract, Model):
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='vault_factories', null=True)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='vault_factories')
     vault_name_max_length                   = fields.SmallIntField(default=0)
     create_vault_paused                     = fields.BooleanField(default=False)
 

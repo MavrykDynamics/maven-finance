@@ -25,10 +25,11 @@ async def on_lending_controller_mark_for_liquidation(
     
         # Update records
         lending_controller          = await models.LendingController.get(
+            network         = ctx.datasource.network,
             address         = lending_controller_address,
             mock_time       = False
         )
-        vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
+        vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -43,11 +44,11 @@ async def on_lending_controller_mark_for_liquidation(
                 vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
     
                 # Save updated vault
-                lending_controller_vault                = await models.LendingControllerVault.filter(
+                lending_controller_vault                = await models.LendingControllerVault.get(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
-                ).first()
+                )
                 lending_controller_vault.internal_id                        = vault_internal_id
                 lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
                 lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -64,6 +65,11 @@ async def on_lending_controller_mark_for_liquidation(
                 loan_token                              = await lending_controller_vault.loan_token
                 loan_token_name                         = loan_token.loan_token_name
                 loan_token_storage                      = mark_for_liquidation.storage.loanTokenLedger[loan_token_name]
+                loan_token_token_reward_index           = float(loan_token_storage.accumulatedRewardsPerShare) 
+                m_token                                 = await loan_token.m_token
+                if loan_token_token_reward_index > m_token.token_reward_index:
+                    m_token.token_reward_index          = loan_token_token_reward_index
+                    await m_token.save()
                 loan_token.token_pool_total             = float(loan_token_storage.tokenPoolTotal)
                 loan_token.m_tokens_total               = float(loan_token_storage.mTokensTotal)
                 loan_token.total_borrowed               = float(loan_token_storage.totalBorrowed)
@@ -75,7 +81,7 @@ async def on_lending_controller_mark_for_liquidation(
                 await loan_token.save()
     
                 # Save history data
-                sender                                  = await models.mavryk_user_cache.get(address=sender_address)
+                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

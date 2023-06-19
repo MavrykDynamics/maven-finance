@@ -13,7 +13,7 @@ async def on_vault_factory_set_product_lambda(
 
     try:
         # Persist lambda
-        await persist_lambda(models.VaultFactory, models.VaultFactoryVaultLambda, set_product_lambda)
+        await persist_lambda(ctx, models.VaultFactory, models.VaultFactoryVaultLambda, set_product_lambda)
 
     except BaseException as e:
          await save_error_report(e)

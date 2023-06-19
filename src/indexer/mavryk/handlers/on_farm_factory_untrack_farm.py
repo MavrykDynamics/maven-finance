@@ -13,15 +13,21 @@ async def on_farm_factory_untrack_farm(
 
     try:
         # Get operation info
-        farm_address    = untrack_farm.parameter.__root__
+        farm_factory_address    = untrack_farm.data.target_address
+        farm_address            = untrack_farm.parameter.__root__
     
         # Update record
-        farm            = await models.Farm.get_or_none(
+        farm_factory            = await models.FarmFactory.get(
+            network             = ctx.datasource.network,
+            address             = farm_factory_address
+        )
+        farm            = await models.Farm.get(
+            network = ctx.datasource.network,
+            factory = farm_factory,
             address = farm_address
         )
-        if farm:    
-            farm.factory    = None
-            await farm.save()
+        farm.factory    = None
+        await farm.save()
 
     except BaseException as e:
          await save_error_report(e)

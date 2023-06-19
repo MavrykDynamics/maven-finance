@@ -25,21 +25,23 @@ async def on_delegation_update_satellite_record(
         rewards_record          = update_satellite_record.storage.satelliteRewardsLedger[satellite_address]
     
         # Create and/or update record
-        user                    = await models.mavryk_user_cache.get(address=satellite_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
         delegation = await models.Delegation.get(
+            network = ctx.datasource.network,
             address = delegation_address
         )
-        satellite_record, _ = await models.Satellite.get_or_create(
+        await models.Satellite.filter(
             user        = user,
             delegation  = delegation
+        ).update(
+            public_key                      = public_key,
+            peer_id                         = peer_id,
+            fee                             = fee,
+            name                            = name,
+            description                     = description,
+            image                           = image,
+            website                         = website
         )
-        satellite_record.public_key                      = public_key
-        satellite_record.peer_id                         = peer_id
-        satellite_record.fee                             = fee
-        satellite_record.name                            = name
-        satellite_record.description                     = description
-        satellite_record.image                           = image
-        satellite_record.website                         = website
     
         satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(
             user        = user,
@@ -51,7 +53,6 @@ async def on_delegation_update_satellite_record(
         satellite_reward_record.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
     
         await user.save()
-        await satellite_record.save()
         await satellite_reward_record.save()
 
     except BaseException as e:

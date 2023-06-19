@@ -15,7 +15,7 @@ class Doorman(MavrykContract, Model):
     unstake_paused                          = fields.BooleanField(default=False)
     compound_paused                         = fields.BooleanField(default=False)
     exit_paused                             = fields.BooleanField(default=False)
-    farm_claimed_paused                     = fields.BooleanField(default=False)
+    farm_claim_paused                       = fields.BooleanField(default=False)
     on_vault_deposit_stake_paused           = fields.BooleanField(default=False)
     on_vault_withdraw_stake_paused          = fields.BooleanField(default=False)
     on_vault_liquidate_stake_paused         = fields.BooleanField(default=False)
@@ -44,7 +44,7 @@ class DoormanWhitelistContract(LinkedContract, Model):
 class DoormanStakeAccount(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='doorman_stake_accounts', index=True)
-    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
+    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts')
     participation_fees_per_share            = fields.FloatField(default=0)
     total_exit_fee_rewards_claimed          = fields.FloatField(default=0)
     total_satellite_rewards_claimed         = fields.FloatField(default=0)

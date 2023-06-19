@@ -12,7 +12,7 @@ async def on_break_glass_remove_break_glass_control(
 ) -> None:
 
     try:
-        await persist_break_glass_action(remove_break_glass_control)
+        await persist_break_glass_action(ctx, remove_break_glass_control)
     except BaseException as e:
          await save_error_report(e)
 

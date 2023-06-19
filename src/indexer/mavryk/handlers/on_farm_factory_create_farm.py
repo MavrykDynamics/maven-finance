@@ -1,6 +1,5 @@
 from mavryk.utils.error_reporting import save_error_report
-
-from mavryk.utils.persisters import persist_contract_metadata, persist_token_metadata
+from mavryk.utils.contracts import get_contract_metadata, get_token_standard, get_contract_token_metadata
 from mavryk.types.farm_factory.parameter.create_farm import CreateFarmParameter
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -21,7 +20,6 @@ async def on_farm_factory_create_farm(
         farm_address                    = farm_origination.data.originated_contract_address
         farm_factory_address            = create_farm.data.target_address
         admin                           = farm_origination.storage.admin
-        governance_address              = farm_origination.storage.governanceAddress
         name                            = farm_origination.storage.name
         creation_timestamp              = farm_origination.data.timestamp
         force_rewards_from_transfer     = farm_origination.storage.config.forceRewardFromTransfer
@@ -45,9 +43,10 @@ async def on_farm_factory_create_farm(
         contract_metadata               = json.loads(bytes.fromhex(create_farm.parameter.metadata).decode('utf-8'))
     
         # Check farm does not already exists
-        farm_exists                     = await models.Farm.get_or_none(
+        farm_exists                     = await models.Farm.filter(
+            network     = ctx.datasource.network,
             address     = farm_address
-        )
+        ).exists()
     
         if not farm_exists:
             # Create a contract and index it
@@ -69,71 +68,127 @@ async def on_farm_factory_create_farm(
                 )
     
             # Get Farm Contract Metadata and save the two Tokens involved in the LP Token
-            token0_address              = ""
-            token1_address              = ""
+            token0_address              = None
+            token1_address              = None
     
             if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
                 token0_address  = contract_metadata['liquidityPairToken']['token0']['tokenAddress'][0]
             if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
                 token1_address  = contract_metadata['liquidityPairToken']['token1']['tokenAddress'][0]
+
+            token0                      = None
+            if token0_address:
+                token_contract_metadata = await get_contract_token_metadata(
+                    ctx=ctx,
+                    token_address=token0_address
+                )
+
+                # Get the token standard
+                standard = await get_token_standard(
+                    ctx,
+                    token0_address
+                )
+
+                # Get the related token
+                token0, _               = await models.Token.get_or_create(
+                    token_address       = token0_address,
+                    network             = ctx.datasource.network
+                )
+                if token_contract_metadata:
+                    token0.metadata          = token_contract_metadata
+                token0.token_standard   = standard
+                await token0.save()
     
-            await persist_token_metadata(
-                ctx=ctx,
-                token_address=token0_address
-            )
-    
-            await persist_token_metadata(
-                ctx=ctx,
-                token_address=token1_address
-            )
-    
-            # Persist contract metadata
-            await persist_contract_metadata(
+            token1                      = None
+            if token1_address: 
+                token_contract_metadata = await get_contract_token_metadata(
+                        ctx=ctx,
+                    token_address=token1_address
+                )
+
+                # Get the token standard
+                standard = await get_token_standard(
+                    ctx,
+                    token1_address
+                )
+
+                # Get the related token
+                token1, _               = await models.Token.get_or_create(
+                    token_address       = token1_address,
+                    network             = ctx.datasource.network
+                )
+                if token_contract_metadata:
+                    token1.metadata          = token_contract_metadata
+                token1.token_standard   = standard
+                await token1.save()
+
+            # Get contract metadata
+            contract_metadata = await get_contract_metadata(
                 ctx=ctx,
                 contract_address=farm_address
             )
     
             # Persist LP Token Metadata
-            await persist_token_metadata(
+            token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=lp_token_address,
                 token_id=str(lp_token_id)
             )
+
+            # Get the token standard
+            standard = await get_token_standard(
+                ctx,
+                lp_token_address
+            )
+
+            # Get the related token
+            lp_token, _                 = await models.Token.get_or_create(
+                token_address       = lp_token_address,
+                token_id            = lp_token_id,
+                network             = ctx.datasource.network
+            )
+            if token_contract_metadata:
+                lp_token.metadata          = token_contract_metadata
+            lp_token.token_standard     = standard
+            await lp_token.save()
     
             # Create record
             farm_factory    = await models.FarmFactory.get(
+                network = ctx.datasource.network,
                 address = farm_factory_address
             )
             governance      = await models.Governance.get(
-                address = governance_address
+                network = ctx.datasource.network
             )
-            farm, _         = await models.Farm.get_or_create(
-                address     = farm_address
+            farm            = models.Farm(
+                address                         = farm_address,
+                network                         = ctx.datasource.network,
+                lp_token                        = lp_token,
+                metadata                        = contract_metadata,
+                governance                      = governance,
+                admin                           = admin,
+                name                            = name,
+                creation_timestamp              = creation_timestamp ,
+                factory                         = farm_factory,
+                force_rewards_from_transfer     = force_rewards_from_transfer,
+                infinite                        = infinite,
+                lp_token_balance                = lp_token_balance,
+                token0                          = token0,
+                token1                          = token1,
+                total_blocks                    = total_blocks,
+                current_reward_per_block        = current_reward_per_block,
+                total_rewards                   = total_rewards,
+                deposit_paused                  = deposit_paused,
+                withdraw_paused                 = withdraw_paused,
+                claim_paused                    = claim_paused,
+                last_block_update               = last_block_update,
+                open                            = open,
+                init                            = init,
+                init_block                      = init_block,
+                accumulated_rewards_per_share   = accumulated_rewards_per_share,
+                unpaid_rewards                  = unpaid_rewards,
+                paid_rewards                    = paid_rewards
             )
-            farm.governance                      = governance
-            farm.admin                           = admin
-            farm.name                            = name
-            farm.creation_timestamp              = creation_timestamp 
-            farm.factory                         = farm_factory
-            farm.force_rewards_from_transfer     = force_rewards_from_transfer
-            farm.infinite                        = infinite
-            farm.lp_token_address                = lp_token_address
-            farm.lp_token_balance                = lp_token_balance
-            farm.token0_address                  = token0_address
-            farm.token1_address                  = token1_address
-            farm.total_blocks                    = total_blocks
-            farm.current_reward_per_block        = current_reward_per_block
-            farm.total_rewards                   = total_rewards
-            farm.deposit_paused                  = deposit_paused
-            farm.withdraw_paused                 = withdraw_paused
-            farm.claim_paused                    = claim_paused
-            farm.last_block_update               = last_block_update
-            farm.open                            = open
-            farm.init                            = init
-            farm.init_block                      = init_block
-            farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
-            farm.unpaid_rewards                  = unpaid_rewards
-            farm.paid_rewards                    = paid_rewards
             await farm.save()
 
     except BaseException as e:

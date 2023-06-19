@@ -1,6 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.utils.persisters import persist_contract_metadata
+from mavryk.utils.contracts import get_contract_metadata
 from mavryk.types.vault_factory.storage import VaultFactoryStorage
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
@@ -11,28 +11,26 @@ async def on_vault_factory_origination(
     vault_factory_origination: Origination[VaultFactoryStorage],
 ) -> None:
 
-    try:    
+    try:
         # Get operation info
         vault_factory_address   = vault_factory_origination.data.originated_contract_address
-        governance_address      = vault_factory_origination.storage.governanceAddress
         admin                   = vault_factory_origination.storage.admin
         timestamp               = vault_factory_origination.data.timestamp
         vault_name_max_length   = int(vault_factory_origination.storage.config.vaultNameMaxLength)
         create_vault_paused     = vault_factory_origination.storage.breakGlassConfig.createVaultIsPaused
     
-        # Persist contract metadata
-        await persist_contract_metadata(
+        # Get contract metadata
+        contract_metadata = await get_contract_metadata(
             ctx=ctx,
             contract_address=vault_factory_address
         )
     
-        # Create record
-        governance, _           = await models.Governance.get_or_create(
-            address = governance_address
-        )
-        await governance.save()
+        # Get governance record
+        governance                  = await models.Governance.get(network = ctx.datasource.network)
         vault_factory           = models.VaultFactory(
             address                 = vault_factory_address,
+            network                 = ctx.datasource.network,
+            metadata                = contract_metadata,
             admin                   = admin,
             governance              = governance,
             vault_name_max_length   = vault_name_max_length,

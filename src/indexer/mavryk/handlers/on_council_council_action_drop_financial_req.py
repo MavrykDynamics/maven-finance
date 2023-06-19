@@ -12,7 +12,7 @@ async def on_council_council_action_drop_financial_req(
 ) -> None:
 
     try:
-        await persist_council_action(council_action_drop_financial_req)
+        await persist_council_action(ctx, council_action_drop_financial_req)
     except BaseException as e:
          await save_error_report(e)
 

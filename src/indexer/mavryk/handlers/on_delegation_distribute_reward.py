@@ -19,9 +19,9 @@ async def on_delegation_distribute_reward(
         reward_amount           = float(distribute_reward.parameter.totalStakedMvkReward)
     
         # Get and update records
-        delegation  = await models.Delegation.get(address = delegation_address)
+        delegation  = await models.Delegation.get(network=ctx.datasource.network, address= delegation_address)
         for satellite_address in elligible_satellites:
-            user                    = await models.mavryk_user_cache.get(address=satellite_address)
+            user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
             rewards_record          = distribute_reward.storage.satelliteRewardsLedger[satellite_address]
             satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
                 user        = user,
@@ -34,7 +34,9 @@ async def on_delegation_distribute_reward(
             await satellite_rewards.save()
     
         # Create a stake record
-        doorman         = await models.Doorman.all().first()
+        doorman         = await models.Doorman.get(
+            network     = ctx.datasource.network
+        )
         stake_record    = models.StakeHistoryData(
             timestamp           = timestamp,
             type                = models.StakeType.SATELLITE_REWARD,

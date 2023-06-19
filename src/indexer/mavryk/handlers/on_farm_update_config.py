@@ -26,20 +26,21 @@ async def on_farm_update_config(
         timestamp                       = update_config.data.timestamp
     
         # Update contract
-        farm = await models.Farm.get(
+        await models.Farm.filter(
+            network = ctx.datasource.network,
             address = farm_address
+        ).update(
+            last_updated_at                = timestamp,
+            force_rewards_from_transfer    = force_rewards_from_transfer,
+            last_block_update              = last_block_update,
+            open                           = open,
+            accumulated_rewards_per_share  = accumulated_rewards_per_share,
+            unpaid_rewards                 = unpaid_rewards,
+            current_reward_per_block       = current_reward_per_block,
+            total_rewards                  = total_rewards,
+            min_block_time_snapshot        = min_block_time_snapshot,
+            total_blocks                   = total_blocks
         )
-        farm.last_updated_at                = timestamp
-        farm.force_rewards_from_transfer    = force_rewards_from_transfer
-        farm.last_block_update              = last_block_update
-        farm.open                           = open
-        farm.accumulated_rewards_per_share  = accumulated_rewards_per_share
-        farm.unpaid_rewards                 = unpaid_rewards
-        farm.current_reward_per_block       = current_reward_per_block
-        farm.total_rewards                  = total_rewards
-        farm.min_block_time_snapshot        = min_block_time_snapshot
-        farm.total_blocks                   = total_blocks
-        await farm.save()
 
     except BaseException as e:
          await save_error_report(e)

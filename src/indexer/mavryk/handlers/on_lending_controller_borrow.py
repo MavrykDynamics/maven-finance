@@ -23,13 +23,14 @@ async def on_lending_controller_borrow(
         vault_internal_id                       = int(borrow.parameter.vaultId)
         vaults_storage                          = borrow.storage.vaults
         lending_controller                      = await models.LendingController.get(
+            network             = ctx.datasource.network,
             address             = lending_controller_address,
             mock_time           = False
         )
-        lending_controller_vault                = await models.LendingControllerVault.filter(
+        lending_controller_vault                = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
             internal_id         = vault_internal_id
-        ).first()
+        )
         loan_token                              = await lending_controller_vault.loan_token
         loan_token_name                         = loan_token.loan_token_name
         loan_token_storage                      = borrow.storage.loanTokenLedger[loan_token_name]
@@ -37,12 +38,17 @@ async def on_lending_controller_borrow(
         loan_token_m_tokens_total               = float(loan_token_storage.mTokensTotal)
         loan_token_total_remaining              = float(loan_token_storage.totalRemaining)
         loan_token_total_borrowed               = float(loan_token_storage.totalBorrowed)
+        loan_token_token_reward_index           = float(loan_token_storage.accumulatedRewardsPerShare)
         loan_token_last_updated_block_level     = int(loan_token_storage.lastUpdatedBlockLevel)
         loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
         loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
         loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)
     
         # Update loan token
+        m_token                                 = await loan_token.m_token
+        if loan_token_token_reward_index > m_token.token_reward_index:
+            m_token.token_reward_index          = loan_token_token_reward_index
+            await m_token.save()
         loan_token.token_pool_total             = loan_token_token_pool_total
         loan_token.m_tokens_total               = loan_token_m_tokens_total
         loan_token.total_borrowed               = loan_token_total_borrowed
@@ -80,7 +86,7 @@ async def on_lending_controller_borrow(
                 await lending_controller_vault.save()
     
                 # Save history data
-                sender                                                      = await models.mavryk_user_cache.get(address=sender_address)
+                sender                                                      = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

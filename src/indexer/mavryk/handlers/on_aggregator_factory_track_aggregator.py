@@ -18,14 +18,13 @@ async def on_aggregator_factory_track_aggregator(
     
         # Update record
         aggregator_factory  = await models.AggregatorFactory.get(
-            address = aggregator_factory_address
+            network=ctx.datasource.network, address = aggregator_factory_address
         )
-        aggregator          = await models.Aggregator.get_or_none(
-            address = aggregator_address
+        await models.Aggregator.filter(
+            network=ctx.datasource.network, address = aggregator_address
+        ).update(
+            factory = aggregator_factory
         )
-        if aggregator:
-            aggregator.factory              = aggregator_factory
-            await aggregator.save()
 
     except BaseException as e:
          await save_error_report(e)

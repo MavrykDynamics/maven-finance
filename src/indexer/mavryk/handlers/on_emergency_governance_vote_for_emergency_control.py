@@ -27,18 +27,18 @@ async def on_emergency_governance_vote_for_emergency_control(
         execution_level             = int(emergency_storage.executedLevel)
     
         # Create and update record
-        emergency                   = await models.EmergencyGovernance.get(address  = emergency_address)
-        emergency_record            = await models.EmergencyGovernanceRecord.filter(
+        emergency                   = await models.EmergencyGovernance.get(network=ctx.datasource.network, address= emergency_address)
+        emergency_record            = await models.EmergencyGovernanceRecord.get(
             emergency_governance        = emergency,
             internal_id                 = emergency_id
-        ).first()
+        )
         emergency_record.total_smvk_votes      = total_smvk_votes
         emergency_record.executed              = executed
         emergency_record.execution_datetime    = execution_datetime
         emergency_record.execution_level       = execution_level
         await emergency_record.save()
     
-        voter                       = await models.mavryk_user_cache.get(address=voter_address)
+        voter                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=voter_address)
     
         emergency_vote_record       = models.EmergencyGovernanceVote(
             timestamp                   = timestamp,
