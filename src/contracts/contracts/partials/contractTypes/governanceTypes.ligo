@@ -276,7 +276,7 @@ type governanceLambdaActionType is
     |   LambdaSetContractGovernance                 of setContractGovernanceType
 
         // Governance Cycle Lambdas
-    |   LambdaUpdateSatellitesSnapshot               of updateSatellitesSnapshotType
+    |   LambdaUpdateSatellitesSnapshot              of updateSatellitesSnapshotType
     |   LambdaStartNextRound                        of (bool)
     |   LambdaPropose                               of newProposalType
     |   LambdaProposalRoundVote                     of actionIdType
