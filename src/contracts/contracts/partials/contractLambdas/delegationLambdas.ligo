@@ -748,13 +748,13 @@ block {
                 // Verify that sender is the Doorman Contract
                 verifySenderIsDoormanContract(s);
 
-                // Update user's rewards
-                // s := updateRewards(userAddress, s);
+                // Update the satellite snapshot
+                var satellitesToUpdate : list(address)  := list[];
 
                 for userAddress in set userAddresses block {
 
-                    // Satellites to update the snapshot of
-                    var satellitesToUpdate : list(address)  := list[userAddress];
+                    // Add the user to update
+                    satellitesToUpdate  := userAddress # satellitesToUpdate;
 
                     // Check if user has a satellite rewards record
                     if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
@@ -858,10 +858,10 @@ block {
                         else skip
                     };
 
-                    // Update the satellites snapshots
-                    operations := updateGovernanceSnapshot(satellitesToUpdate, True, operations, s);
+                };
 
-                }
+                // Update the satellites snapshots
+                operations := updateGovernanceSnapshot(satellitesToUpdate, True, operations, s);
 
             }
         |   _ -> skip

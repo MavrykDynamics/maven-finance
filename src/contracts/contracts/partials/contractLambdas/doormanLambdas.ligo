@@ -664,10 +664,12 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
         |   LambdaFarmClaim(farmClaim) -> {
                 
                 // Init parameter values from input
-                const delegatorsRewards : set(farmClaimDepositorType)  = farmClaim.0;
-                var transferAmount      : nat                          := 0n;
-                const forceTransfer     : bool                         = farmClaim.1;
-                var onStakeChangeUsers  : onStakeChangeType            := set[];
+                const delegatorsRewards : set(farmClaimDepositorType)   = farmClaim.0;
+                var transferAmount      : nat                           := 0n;
+                const forceTransfer     : bool                          = farmClaim.1;
+                var onStakeChangeUsers  : onStakeChangeType             := set[];
+                var totalClaimAmount    : nat                           := 0n;
+                var totalTransferAmount : nat                           := 0n;
 
                 // Get farm address
                 const farmAddress : address = Tezos.get_sender();
@@ -728,19 +730,17 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
                     };
 
-                    // Mint MVK Tokens if claimAmount is greater than 0
+                    // Add the claim amount to the total if claimAmount is greater than 0
                     if claimAmount > 0n then {
 
-                    const mintMvkAndTransferOperation : operation = mintMvkAndTransferOperation(claimAmount, s);
-                    operations := mintMvkAndTransferOperation # operations;
+                        totalClaimAmount    := totalClaimAmount + claimAmount;
 
                     } else skip;
 
-                    // Transfer MVK Tokens from treasury if transferredToken is greater than 0
+                    // Add the transfer amount to the total if transferAmount is greater than 0
                     if transferAmount > 0n then {
-                        
-                        const transferFromTreasuryOperation : operation = transferFromTreasuryOperation(transferAmount, s);
-                        operations := transferFromTreasuryOperation # operations;
+
+                        totalTransferAmount := totalTransferAmount + transferAmount;
 
                     } else skip;
 
@@ -748,6 +748,26 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                     onStakeChangeUsers  := Set.add(delegator, onStakeChangeUsers);
 
                 };
+
+                // -------------------------------------------
+                // Mint and/or transfer rewards to the Doorman Contract
+                // -------------------------------------------
+
+                // Mint MVK Tokens if claimAmount is greater than 0
+                if totalClaimAmount > 0n then {
+                    
+                    const mintMvkAndTransferOperation : operation = mintMvkAndTransferOperation(totalClaimAmount, s);
+                    operations := mintMvkAndTransferOperation # operations;
+
+                } else skip;
+
+                // Transfer MVK Tokens from treasury if transferredToken is greater than 0
+                if totalTransferAmount > 0n then {
+                    
+                    const transferFromTreasuryOperation : operation = transferFromTreasuryOperation(totalTransferAmount, s);
+                    operations := transferFromTreasuryOperation # operations;
+
+                } else skip;
 
                 // -------------------------------------------
                 // Update Delegation contract since user staked MVK balance has changed
