@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
@@ -27,8 +27,8 @@ class TreasuryStorage(BaseModel):
     name: str
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, str]
+    whitelistTokenContracts: Dict[str, Dict[str, Any]]
     breakGlassConfig: BreakGlassConfig
     lambdaLedger: Dict[str, str]

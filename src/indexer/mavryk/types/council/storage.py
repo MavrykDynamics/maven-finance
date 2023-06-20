@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -36,7 +36,6 @@ class CouncilActionsLedger(BaseModel):
 
     initiator: str
     actionType: str
-    signers: List[str]
     executed: bool
     status: str
     signersCount: str
@@ -48,6 +47,22 @@ class CouncilActionsLedger(BaseModel):
     expirationDateTime: str
 
 
+class Key(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nat: str
+    address: str
+
+
+class CouncilActionsSigner(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key
+    value: Dict[str, Any]
+
+
 class CouncilStorage(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -57,9 +72,11 @@ class CouncilStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     councilMembers: Dict[str, CouncilMembers]
+    councilSize: str
     councilActionsLedger: Dict[str, CouncilActionsLedger]
+    councilActionsSigners: List[CouncilActionsSigner]
     actionCounter: str
     lambdaLedger: Dict[str, str]
