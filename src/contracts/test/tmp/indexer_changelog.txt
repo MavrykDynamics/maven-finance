@@ -7,6 +7,7 @@ Emergency Governance Contract
 2. Storage update
 - emergencyGovernanceVoters bigmap added in storage
 3. voters removed from emergencyGovernanceRecordType
+4. executedDateTime is now an option
 
 Break Glass Contract
 1. Rename council-related entrypoints to be consistent with Council entrypoints 
@@ -16,11 +17,13 @@ Break Glass Contract
 2. Storage update
 - councilSize added in storage
 - actionsSigners bigmap added in storage
+3. executedDateTime is now an option
 
 Council Contract
 1. Storage update
 - councilSize added in storage
 - councilActionsSigners bigmap added in storage
+2. executedDateTime is now an option
 
 Governance Satellite Contract
 1. Governance Satellite Action Record Type: add governanceCycleId
@@ -32,6 +35,7 @@ Governance Satellite Contract
 - Rename config "governanceSatelliteDurationInDays" to "satelliteActionDurationInDays"
 - Rename config "governanceSatelliteApprovalPercentage" to "approvalPercentage"
 4. voters removed from emergencyGovernanceRecordType
+5. executedDateTime is now an option
 
 Governance Financial Contract
 1. Financial Request Record Type: add governanceCycleId
@@ -39,6 +43,7 @@ Governance Financial Contract
 - rename update config variant "ConfigFinancialReqApprovalPct" to "ConfigApprovalPercentage"
 - rename config "financialRequestApprovalPercentage" to "approvalPercentage"
 3. voters removed from emergencyGovernanceRecordType
+4. executedDateTime is now an option
 
 Governance Contract 
 1. governanceSatelliteSnapshotRecordType to include accumulatedRewardsPerShare (for calculation of delegates' rewards in delegation contract)
@@ -50,6 +55,7 @@ Governance Contract
 4. voters removed from emergencyGovernanceRecordType
 5. %updateSatelliteSnapshot parameter refactored (now list of addresses)
 6. %updateSatelliteSnapshot renamed to %updateSatellitesSnapshot
+7. executedDateTime is now an option
 
 Aggregator Contract
 1. OracleLedgerSize added in storage

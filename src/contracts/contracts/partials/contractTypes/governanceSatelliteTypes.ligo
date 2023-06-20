@@ -43,7 +43,7 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
 
     startDateTime                      : timestamp;           
     expiryDateTime                     : timestamp;
-    executedDateTime                   : timestamp; // will follow startDateTime and be updated when executed
+    executedDateTime                   : option(timestamp);
 ]
 type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSatelliteActionRecordType);
 

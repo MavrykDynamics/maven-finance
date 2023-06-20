@@ -38,7 +38,7 @@ type financialRequestRecordType is [@layout:comb] record [
 
     requestedDateTime                   : timestamp;  // log of when the request was submitted
     expiryDateTime                      : timestamp;
-    executedDateTime                    : timestamp; // will follow startDateTime and be updated when executed
+    executedDateTime                    : option(timestamp);
 ]
 type financialRequestLedgerType is big_map (actionIdType, financialRequestRecordType);
 

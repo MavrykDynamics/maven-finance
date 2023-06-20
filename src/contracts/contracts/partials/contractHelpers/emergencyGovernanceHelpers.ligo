@@ -204,8 +204,8 @@ block {
 
         startDateTime                    = Tezos.get_now();
         startLevel                       = Tezos.get_level();             
-        executedDateTime                 = zeroTimestamp;
-        executedLevel                    = 0n;
+        executedDateTime                 = None;
+        executedLevel                    = None;
         expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
     ];
 

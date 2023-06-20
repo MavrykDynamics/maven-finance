@@ -25,8 +25,8 @@ type emergencyGovernanceRecordType is [@layout:comb] record [
     
     startDateTime                    : timestamp;
     startLevel                       : nat;              // block level of submission, used to order proposals
-    executedDateTime                 : timestamp;        // will follow startDateTime and be updated when executed
-    executedLevel                    : nat;              // will follow startLevel and be updated when executed
+    executedDateTime                 : option(timestamp);
+    executedLevel                    : option(nat);
     expirationDateTime               : timestamp;
 ]
 

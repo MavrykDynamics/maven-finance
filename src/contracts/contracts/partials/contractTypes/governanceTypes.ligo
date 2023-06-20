@@ -102,7 +102,7 @@ type proposalRecordType is [@layout:comb] record [
     quorumCount                       : nat;                     // log of turnout for voting round - number of satellites who voted
     quorumStakedMvkTotal              : nat;                     // log of total positive votes in MVK 
     startDateTime                     : timestamp;               // log of when the proposal was proposed
-    executedDateTime                  : timestamp;               // log of when the proposal was executed
+    executedDateTime                  : option(timestamp);       // log of when the proposal was executed
   
     cycle                             : nat;                     // log of cycle that proposal belongs to
     currentCycleStartLevel            : nat;                     // log of current cycle starting block level

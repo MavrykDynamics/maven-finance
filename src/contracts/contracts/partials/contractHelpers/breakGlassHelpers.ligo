@@ -174,9 +174,9 @@ block {
         dataMap               = dataMap;
 
         startDateTime         = Tezos.get_now();
-        startLevel            = Tezos.get_level();             
-        executedDateTime      = Tezos.get_now();
-        executedLevel         = Tezos.get_level();
+        startLevel            = Tezos.get_level();
+        executedDateTime      = None;
+        executedLevel         = None;
         expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
     s.actionsLedger[s.actionCounter] := actionRecord; 
@@ -615,8 +615,8 @@ block {
     // update break glass action record status
     actionRecord.status              := "EXECUTED";
     actionRecord.executed            := True;
-    actionRecord.executedDateTime    := Tezos.get_now();
-    actionRecord.executedLevel       := Tezos.get_level();
+    actionRecord.executedDateTime    := Some(Tezos.get_now());
+    actionRecord.executedLevel       := Some(Tezos.get_level());
     
     // save break glass action record
     s.actionsLedger[actionId]         := actionRecord;
