@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -34,7 +34,6 @@ class ActionsLedger(BaseModel):
 
     initiator: str
     actionType: str
-    signers: List[str]
     executed: bool
     status: str
     signersCount: str
@@ -46,6 +45,22 @@ class ActionsLedger(BaseModel):
     expirationDateTime: str
 
 
+class Key(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nat: str
+    address: str
+
+
+class ActionsSigner(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key
+    value: Dict[str, Any]
+
+
 class BreakGlassStorage(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -55,10 +70,12 @@ class BreakGlassStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     glassBroken: bool
     councilMembers: Dict[str, CouncilMembers]
+    councilSize: str
     actionsLedger: Dict[str, ActionsLedger]
+    actionsSigners: List[ActionsSigner]
     actionCounter: str
     lambdaLedger: Dict[str, str]

@@ -1024,14 +1024,10 @@ templates:
       pattern:
       - destination: <break_glass_contract>
         entrypoint: propagateBreakGlass
-    - callback: on_break_glass_set_single_contract_admin
+    - callback: on_break_glass_set_contracts_admin
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: setSingleContractAdmin
-    - callback: on_break_glass_set_all_contracts_admin
-      pattern:
-      - destination: <break_glass_contract>
-        entrypoint: setAllContractsAdmin
+        entrypoint: setContractsAdmin
     - callback: on_break_glass_pause_all_entrypoints
       pattern:
       - destination: <break_glass_contract>

@@ -1054,30 +1054,26 @@ indexes:
       pattern:
       - destination: break_glass
         entrypoint: updateCouncilMemberInfo
-    - callback: on_break_glass_add_council_member
+    - callback: on_break_glass_council_action_add_member
       pattern:
       - destination: break_glass
-        entrypoint: addCouncilMember
-    - callback: on_break_glass_remove_council_member
+        entrypoint: councilActionAddMember
+    - callback: on_break_glass_council_action_remove_member
       pattern:
       - destination: break_glass
-        entrypoint: removeCouncilMember
-    - callback: on_break_glass_change_council_member
+        entrypoint: councilActionRemoveMember
+    - callback: on_break_glass_council_action_change_member
       pattern:
       - destination: break_glass
-        entrypoint: changeCouncilMember
+        entrypoint: councilActionChangeMember
     - callback: on_break_glass_propagate_break_glass
       pattern:
       - destination: break_glass
         entrypoint: propagateBreakGlass
-    - callback: on_break_glass_set_single_contract_admin
+    - callback: on_break_glass_set_contracts_admin
       pattern:
       - destination: break_glass
-        entrypoint: setSingleContractAdmin
-    - callback: on_break_glass_set_all_contracts_admin
-      pattern:
-      - destination: break_glass
-        entrypoint: setAllContractsAdmin
+        entrypoint: setContractsAdmin
     - callback: on_break_glass_pause_all_entrypoints
       pattern:
       - destination: break_glass
