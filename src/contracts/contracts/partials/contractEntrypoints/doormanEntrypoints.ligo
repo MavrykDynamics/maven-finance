@@ -262,14 +262,14 @@ block {
 
 
 (*  compound entrypoint *)
-function compound(const userAddress : address; var s : doormanStorageType) : return is
+function compound(const userAddresses : set(address); var s : doormanStorageType) : return is
 block{
     
     // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaCompound", s.lambdaLedger);
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(userAddress);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(userAddresses);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  

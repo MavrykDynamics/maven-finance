@@ -37,10 +37,8 @@ type doormanConfigType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
-
-type delegationOnStakeChangeType is (address)
-
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
+type farmClaimDepositorType is (address * nat)
+type farmClaimType is (set(farmClaimDepositorType) * bool) // Recipient address + Amount claimed + forceTransfer instead of mintOrTransfer
 
 type doormanUpdateConfigNewValueType is nat
 type doormanUpdateConfigActionType is 
@@ -110,7 +108,7 @@ type doormanLambdaActionType is
     |   LambdaStake                       of (nat)
     |   LambdaUnstake                     of (nat)
     |   LambdaExit                        of (unit)
-    |   LambdaCompound                    of (address)
+    |   LambdaCompound                    of set(address)
     |   LambdaFarmClaim                   of farmClaimType
 
         // Vault Lambdas

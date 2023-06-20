@@ -12,7 +12,7 @@
 function verifySenderIsAdminOrGovernanceFinancial(const s : treasuryStorageType) : unit is
 block{
 
-    const governanceFinancialAddress : address = getLocalWhitelistContract("governanceFinancial", s.whitelistContracts, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; governanceFinancialAddress], error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_FINANCIAL_ALLOWED)
 
 } with(unit)
@@ -23,7 +23,7 @@ block{
 function verifySenderIsAdminOrGovernanceOrFactory(const s : treasuryStorageType) : unit is
 block {
 
-    const treasuryFactoryAddress : address = getLocalWhitelistContract("treasuryFactory", s.whitelistContracts, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+    const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; s.governanceAddress; treasuryFactoryAddress], error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED)
 
 } with(unit)

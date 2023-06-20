@@ -12,7 +12,7 @@
 function verifySenderIsCouncilOrAdmin(var s : vestingStorageType) : unit is
 block{
 
-    const councilAddress : address = getLocalWhitelistContract("council", s.whitelistContracts, error_COUNCIL_CONTRACT_NOT_FOUND);
+    const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; councilAddress], error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
 
 } with (unit)

@@ -1,5 +1,6 @@
 import { Utils } from "../helpers/Utils"
 const saveContractAddress = require("../helpers/saveContractAddress")
+import { BigNumber } from "bignumber.js"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -69,6 +70,7 @@ describe('Break Glass', async () => {
                 image: "Trudy image",
                 website: "Trudy website"
             })
+            breakGlassStorage.councilSize       = new BigNumber(4),
             
             breakGlass = await GeneralContract.originate(utils.tezos, "breakGlass", breakGlassStorage);
             await saveContractAddress('breakGlassAddress', breakGlass.contract.address)

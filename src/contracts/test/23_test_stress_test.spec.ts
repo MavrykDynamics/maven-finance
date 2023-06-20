@@ -548,7 +548,7 @@ describe("Stress tests", async () => {
         before("Add Admin to delegation whitelist contracts", async () => {
             try{
                 await helperFunctions.signerFactory(tezos, bob.sk)
-                const updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts('Admin', bob.pkh).send()
+                const updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(bob.pkh, 'update').send()
                 await updateWhitelistContractsOperation.confirmation();
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -928,11 +928,11 @@ describe("Stress tests", async () => {
 
                         // Estimate
                         await helperFunctions.signerFactory(tezos, account.sk)
-                        const claimParams       = await farmInstance.methods.claim(account.pkh).toTransferParams({})
+                        const claimParams       = await farmInstance.methods.claim([account.pkh]).toTransferParams({})
                         const claimEstimate     = await utils.tezos.estimate.transfer(claimParams);
         
                         // Send operation
-                        const claimOperation    = await farmInstance.methods.claim(account.pkh).send();
+                        const claimOperation    = await farmInstance.methods.claim([account.pkh]).send();
                         await claimOperation.confirmation(),
         
                         // Print Estimation

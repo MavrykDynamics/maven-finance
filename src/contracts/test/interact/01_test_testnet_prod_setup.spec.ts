@@ -202,10 +202,24 @@ describe("Testnet setup helper", async () => {
             try{
                 // Set general contracts admin
                 governanceStorage             = await governanceInstance.storage();
-                var generalContracts          = governanceStorage.generalContracts.entries();
+                var generalContracts          = [
+                    contractDeployments.aggregatorFactory.address,
+                    contractDeployments.breakGlass.address,
+                    contractDeployments.council.address,
+                    contractDeployments.delegation.address,
+                    contractDeployments.doorman.address,
+                    contractDeployments.emergencyGovernance.address,
+                    contractDeployments.farmFactory.address,
+                    contractDeployments.vesting.address,
+                    contractDeployments.treasuryFactory.address,
+                    contractDeployments.lendingController.address,
+                    contractDeployments.vaultFactory.address,
+                    contractDeployments.governance.address,
+                ]
+                
                 for (let entry of generalContracts){
                     // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
+                    var contract        = await utils.tezos.contract.at(entry);
                     var storage:any     = await contract.storage();
 
                     // Check admin
@@ -231,12 +245,12 @@ describe("Testnet setup helper", async () => {
 
                     // Check whitelist [Council, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get("council") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('council', contractDeployments.council.address, 'update').send()
+                        if(await storage.whitelistContracts.get(contractDeployments.council.address) === undefined){
+                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()
                             await operation.confirmation()
                         }
-                        if(storage.whitelistContracts.get("farmFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('farmFactory', contractDeployments.farmFactory.address, 'update').send()
+                        if(await storage.whitelistContracts.get(contractDeployments.farmFactory.address) === undefined){
+                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.farmFactory.address, 'update').send()
                             await operation.confirmation()
                         }
                     }
@@ -258,12 +272,12 @@ describe("Testnet setup helper", async () => {
 
                     // Check whitelist [Gov proxy, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get("governanceProxy") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('governanceProxy', contractDeployments.governanceProxy.address, 'update').send()
+                        if(storage.whitelistContracts.get(contractDeployments.governanceProxy.address) === undefined){
+                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address, 'update').send()
                             await operation.confirmation()
                         }
-                        if(storage.whitelistContracts.get("treasuryFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('treasuryFactory', contractDeployments.treasuryFactory.address, 'update').send()
+                        if(storage.whitelistContracts.get(contractDeployments.treasuryFactory.address) === undefined){
+                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address, 'update').send()
                             await operation.confirmation()
                         }
                     }
@@ -285,12 +299,12 @@ describe("Testnet setup helper", async () => {
 
                     // Check whitelist [Gov satellite, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get("governanceSatellite") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('governanceSatellite', contractDeployments.governanceSatellite.address, 'update').send()
+                        if(storage.whitelistContracts.get(contractDeployments.governanceSatellite.address) === undefined){
+                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update').send()
                             await operation.confirmation()
                         }
-                        if(storage.whitelistContracts.get("aggregatorFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('aggregatorFactory', contractDeployments.aggregatorFactory.address, 'update').send()
+                        if(storage.whitelistContracts.get(contractDeployments.aggregatorFactory.address) === undefined){
+                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send()
                             await operation.confirmation()
                         }
                     }

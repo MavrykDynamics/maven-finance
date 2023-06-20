@@ -26,39 +26,27 @@
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _ : unit; const s : vaultFactoryStorageType) : whitelistContractsType is 
-    s.whitelistContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : vaultFactoryStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts (const _ : unit; const s : vaultFactoryStorageType) : generalContractsType is 
-    s.generalContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : vaultFactoryStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName : string; var s : vaultFactoryStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : vaultFactoryStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get a vault lambda *)
-[@view] function vaultLambdaOpt(const lambdaName : string; var s : vaultFactoryStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.vaultLambdaLedger)
-
-
-
-(* View: get the vault lambda ledger *)
-[@view] function vaultLambdaLedger(const _ : unit; var s : vaultFactoryStorageType) : lambdaLedgerType is
-    s.vaultLambdaLedger
+[@view] function getVaultLambdaOpt(const lambdaName : string; var s : vaultFactoryStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.vaultLambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

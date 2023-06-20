@@ -666,7 +666,7 @@ block {
                 verifySenderIsInitiator(initiator);
 
                 // Check if the action can still be interacted with
-                validateAction(governanceSatelliteActionRecord);
+                validateActionWithoutExpiration(governanceSatelliteActionRecord);
 
                 // Drop governance satellite action record  - update status to false
                 governanceSatelliteActionRecord.status := False;
@@ -782,9 +782,6 @@ block {
 
                 // Update governance satellite action map of voters with new vote
                 s.governanceSatelliteVoters[(actionId, Tezos.get_sender())] := voteType;
-
-                // Save voter in the storage
-                _governanceSatelliteActionRecord.voters := Set.add(Tezos.get_sender(), _governanceSatelliteActionRecord.voters);
 
                 // Compute governance satellite action vote totals and execute governance satellite action if enough votes have been gathered
                 case voteType of [

@@ -89,7 +89,7 @@ type collateralTokenRecordType is [@layout:comb] record [
 
     isPaused                : bool;
 ]
-type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
+type collateralTokenLedgerType is big_map(string, collateralTokenRecordType) 
 
 
 type loanTokenRecordType is [@layout:comb] record [
@@ -100,7 +100,7 @@ type loanTokenRecordType is [@layout:comb] record [
 
     oracleAddress                           : address;   
 
-    mTokensTotal                            : nat;
+    rawMTokensTotalSupply                   : nat;
     mTokenAddress                           : address;
 
     tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
@@ -118,13 +118,13 @@ type loanTokenRecordType is [@layout:comb] record [
 
     currentInterestRate                     : nat;
     lastUpdatedBlockLevel                   : nat; 
-    accumulatedRewardsPerShare              : nat;
+    tokenRewardIndex                        : nat;
     borrowIndex                             : nat;
 
     isPaused                                : bool;
 ]
 
-type loanTokenLedgerType is map(string, loanTokenRecordType)
+type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)

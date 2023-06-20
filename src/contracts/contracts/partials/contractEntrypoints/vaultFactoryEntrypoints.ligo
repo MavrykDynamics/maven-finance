@@ -238,10 +238,10 @@ block{
 (* setProductLambda entrypoint *)
 function setProductLambda(const setLambdaParams : setLambdaType; var s : vaultFactoryStorageType) : return is
 block{
-    
+
     // verify that sender is admin
     verifySenderIsAdmin(s.admin);
-    
+
     // assign params to constants for better code readability
     const lambdaName    = setLambdaParams.name;
     const lambdaBytes   = setLambdaParams.func_bytes;

@@ -3751,6 +3751,9 @@ describe("Governance tests", async () => {
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
 
+                governanceStorage           = await governanceInstance.storage();
+                currentCycle                = governanceStorage.cycleId;
+
                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
                 await proposeOperation.confirmation();
                 
@@ -4471,19 +4474,19 @@ describe("Governance tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await getStorageMapValue(governanceStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceStorage = await governanceInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -4494,18 +4497,18 @@ describe("Governance tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceStorage = await governanceInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
@@ -4762,12 +4765,12 @@ describe("Governance tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await governanceInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
+                updateWhitelistContractsOperation = await governanceInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 governanceStorage       = await governanceInstance.storage()

@@ -20,14 +20,7 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve } from "../scripts/sandbox/accounts";
 import { mockMetadata, mockSatelliteData } from "./helpers/mockSampleData"
 import { 
-    signerFactory, 
-    getStorageMapValue,
-    fa12Transfer,
-    fa2Transfer,
-    mistakenTransferFa2Token,
-    updateWhitelistContracts,
-    updateGeneralContracts,
-    randomNumberFromInterval
+    signerFactory
 } from './helpers/helperFunctions'
 
 
@@ -288,7 +281,7 @@ describe("FarmFactory", async () => {
                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
                     await chai.expect(farmInstance.methods.deposit(MVK(2)).send()).to.be.rejected;
                     await chai.expect(farmInstance.methods.withdraw(MVK()).send()).to.be.rejected;
-                    await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
 
                     // Assertion
                     assert.notEqual(depositIsPaused,depositIsPausedEnd);
@@ -395,7 +388,7 @@ describe("FarmFactory", async () => {
                     await depositOperation.confirmation();
                     const withdrawOperation = await farmInstance.methods.withdraw(1).send();
                     await withdrawOperation.confirmation();
-                    const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
+                    const claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
                     // Assertion
@@ -716,7 +709,7 @@ describe("FarmFactory", async () => {
 
                     // Claim operation after a few blocks
                     await new Promise(resolve => setTimeout(resolve, 6000));
-                    const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
+                    const claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation()
                     
                     farmStorage = await farmInstance.storage();
@@ -766,7 +759,7 @@ describe("FarmFactory", async () => {
 
                     // Claim operation after a few blocks
                     await new Promise(resolve => setTimeout(resolve, 6000));
-                    await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
                 }catch(e){
                     console.log(e)
                 }

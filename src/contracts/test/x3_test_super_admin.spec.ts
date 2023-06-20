@@ -110,7 +110,21 @@ describe("Break Glass Super Admin tests", async () => {
                 //         // Set all contracts admin to governance address if it is not
                 //         await signerFactory(tezos, bob.sk);
                 //         governanceStorage             = await governanceInstance.storage();
-                //         var generalContracts          = governanceStorage.generalContracts.entries();
+                //         var generalContracts          = [
+                //             contractDeployments.aggregatorFactory.address,
+                //             contractDeployments.breakGlass.address,
+                //             contractDeployments.council.address,
+                //             contractDeployments.delegation.address,
+                //             contractDeployments.doorman.address,
+                //             contractDeployments.emergencyGovernance.address,
+                //             contractDeployments.farmFactory.address,
+                //             contractDeployments.vesting.address,
+                //             contractDeployments.treasuryFactory.address,
+                //             contractDeployments.lendingController.address,
+                //             contractDeployments.vaultFactory.address,
+                //             contractDeployments.governance.address,
+                //         ]
+                        
                 //         var updateConfigOperation     = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
                 //         await updateConfigOperation.confirmation();
                 //         updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
@@ -173,7 +187,7 @@ describe("Break Glass Super Admin tests", async () => {
                 //         await setAdminOperation.confirmation();
                 //         for (let entry of generalContracts){
                 //             // Get contract storage
-                //             var contract        = await utils.tezos.contract.at(entry[1]);
+                //             var contract        = await utils.tezos.contract.at(entry);
                 //             var storage:any     = await contract.storage();
 
                 //             // Check admin
@@ -481,7 +495,7 @@ describe("Break Glass Super Admin tests", async () => {
                 // })
             });
     
-            describe("%setAllContractsAdmin", async () => {
+            describe("%setContractsAdmin", async () => {
                 beforeEach("Set signer to admin", async () => {
                     await signerFactory(tezos, bob.sk)
                 });

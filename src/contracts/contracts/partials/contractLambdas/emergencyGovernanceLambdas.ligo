@@ -287,7 +287,7 @@ block {
                 verifyEmergencyGovernanceNotExecuted(_emergencyGovernance);
 
                 // Verify that user has not voted for the current Emergency Governance
-                verifyUserHasNotVoted(userAddress, _emergencyGovernance);
+                verifyUserHasNotVoted(userAddress, s.currentEmergencyGovernanceId, s);
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalance : nat = getUserStakedMvkBalance(userAddress, s);
@@ -299,9 +299,9 @@ block {
                 const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
                 // Update emergency governance record with new votes
-                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.get_now());
                 _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
+                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvkBalance, Tezos.get_now()), s.emergencyGovernanceVoters);
 
                 // Check if total votes has exceed threshold - if yes, trigger operation to break glass contract
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
@@ -312,8 +312,8 @@ block {
 
                     // Update emergency governance record
                     _emergencyGovernance.executed            := True;
-                    _emergencyGovernance.executedDateTime    := Tezos.get_now();
-                    _emergencyGovernance.executedLevel       := Tezos.get_level();
+                    _emergencyGovernance.executedDateTime    := Some(Tezos.get_now());
+                    _emergencyGovernance.executedLevel       := Some(Tezos.get_level());
                     
                     // Save emergency governance record
                     s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
@@ -363,7 +363,7 @@ block {
                 verifySenderIsProposer(emergencyGovernance);
 
                 // Update Emergency Governance Record dropped boolean to true and update storage
-                emergencyGovernance.dropped := True; 
+                emergencyGovernance.dropped := True;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := emergencyGovernance;
 
                 // Reset currentEmergencyGovernanceId to 0
