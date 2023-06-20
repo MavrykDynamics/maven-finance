@@ -128,9 +128,9 @@ function getAllowance (const ownerAccount : accountType; const spender : address
 
 
 
-(* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : mavrykFa12TokenStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* get: whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mavrykFa12TokenStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 

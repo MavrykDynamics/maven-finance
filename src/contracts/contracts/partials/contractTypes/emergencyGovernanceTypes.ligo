@@ -1,10 +1,17 @@
 // ------------------------------------------------------------------------------
+// Required Partial Types
+// ------------------------------------------------------------------------------
+
+
+// Vote Types
+#include "../shared/voteTypes.ligo"
+
+
+// ------------------------------------------------------------------------------
 // Storage Types
 // ------------------------------------------------------------------------------
 
 
-type voteType is (nat * timestamp)              // mvk amount, timestamp
-type voterMapType is map (address, voteType)
 type emergencyGovernanceRecordType is [@layout:comb] record [
     proposerAddress                  : address;
     executed                         : bool;
@@ -12,18 +19,18 @@ type emergencyGovernanceRecordType is [@layout:comb] record [
 
     title                            : string;
     description                      : string;   
-    voters                           : voterMapType; 
     totalStakedMvkVotes              : nat;              
     stakedMvkPercentageRequired      : nat;              // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
     stakedMvkRequiredForBreakGlass   : nat;              // capture state of min staked MVK vote required
     
     startDateTime                    : timestamp;
     startLevel                       : nat;              // block level of submission, used to order proposals
-    executedDateTime                 : timestamp;        // will follow startDateTime and be updated when executed
-    executedLevel                    : nat;              // will follow startLevel and be updated when executed
+    executedDateTime                 : option(timestamp);
+    executedLevel                    : option(nat);
     expirationDateTime               : timestamp;
 ]
 
+type emergencyGovernanceVotersType is big_map(voterIdentifierType, (nat * timestamp)) // mvk amount, timestamp
 type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
 
 type emergencyConfigType is record [
@@ -103,7 +110,8 @@ type emergencyGovernanceStorageType is [@layout:comb] record [
     whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                    : generalContractsType;
 
-    emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
+    emergencyGovernanceLedger           : emergencyGovernanceLedgerType;
+    emergencyGovernanceVoters           : emergencyGovernanceVotersType;
     
     currentEmergencyGovernanceId        : nat;
     nextEmergencyGovernanceId           : nat;

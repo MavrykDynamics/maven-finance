@@ -35,7 +35,7 @@ type governanceAction is
 
         // Break Glass Entrypoint
         BreakGlass                      of (unit)
-    |   PropagateBreakGlass             of (unit)
+    |   PropagateBreakGlass             of set(address)
 
         // Housekeeping Entrypoints
     |   SetAdmin                        of (address)
@@ -50,7 +50,7 @@ type governanceAction is
     |   SetContractGovernance           of setContractGovernanceType
     
         // Governance Cycle Entrypoints
-    |   UpdateSatelliteSnapshot         of updateSatelliteSnapshotType
+    |   UpdateSatellitesSnapshot        of updateSatellitesSnapshotType
     |   StartNextRound                  of bool
     |   Propose                         of newProposalType
     |   ProposalRoundVote               of actionIdType
@@ -110,7 +110,7 @@ function main (const action : governanceAction; const s : governanceStorageType)
 
             // Break Glass Entrypoint
         |   BreakGlass(_parameters)                     -> breakGlass(s)
-        |   PropagateBreakGlass(_parameters)            -> propagateBreakGlass(s)
+        |   PropagateBreakGlass(parameters)             -> propagateBreakGlass(parameters, s)
         
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                        -> setAdmin(parameters, s)
@@ -125,7 +125,7 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
 
             // Governance Cycle Entrypoints
-        |   UpdateSatelliteSnapshot(parameters)         -> updateSatelliteSnapshot(parameters, s)
+        |   UpdateSatellitesSnapshot(parameters)        -> updateSatellitesSnapshot(parameters, s)
         |   StartNextRound(parameters)                  -> startNextRound(parameters, s)
         |   Propose(parameters)                         -> propose(parameters, s)
         |   ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)

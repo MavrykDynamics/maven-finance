@@ -22,27 +22,33 @@
 
 
 
-(* View: get council members *)
-[@view] function getCouncilMembers(const _ : unit; const s : breakGlassStorageType) : councilMembersType is
-    s.councilMembers
+(* View: get council member opt *)
+[@view] function getCouncilMemberOpt(const councilMemberAddress : address; const s : breakGlassStorageType) : option(councilMemberInfoType) is
+    Big_map.find_opt(councilMemberAddress, s.councilMembers)
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : breakGlassStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : breakGlassStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : breakGlassStorageType) : generalContractsType is
-    s.generalContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : breakGlassStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
-(* View: get an action *)
+(* View: get an action opt *)
 [@view] function getActionOpt(const actionId: nat; const s : breakGlassStorageType) : option(councilActionRecordType) is
     Big_map.find_opt(actionId, s.actionsLedger)
+
+
+
+(* View: get a action signer opt *)
+[@view] function getActionSignerOpt(const signerId: (nat * address); const s : breakGlassStorageType) : option(unit) is
+    Big_map.find_opt(signerId, s.actionsSigners)
 
 
 
@@ -54,13 +60,7 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName: string; const s : breakGlassStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : breakGlassStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

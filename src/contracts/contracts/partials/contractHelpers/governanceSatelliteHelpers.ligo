@@ -81,13 +81,13 @@ case (Tezos.get_entrypoint_opt(
 
 
 
-// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
-function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+// helper function to %updateSatellitesSnapshot entrypoint on the Governance contract
+function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatellitesSnapshotType) is
     case (Tezos.get_entrypoint_opt(
-        "%updateSatelliteSnapshot",
-        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+        "%updateSatellitesSnapshot",
+        governanceAddress) : option(contract(updateSatellitesSnapshotType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatellitesSnapshotType))
         ];
 
 
@@ -349,8 +349,8 @@ block {
 
 
 
-// helper function to check if a satellite can interact with an action
-function validateAction(const actionRecord : governanceSatelliteActionRecordType) : unit is
+// helper function to check if a satellite can interact with an action without checking for the expiration datetime
+function validateActionWithoutExpiration(const actionRecord : governanceSatelliteActionRecordType) : unit is
 block {
 
     // Check if governance satellite action has been dropeed
@@ -359,12 +359,21 @@ block {
     // Check if governance satellite action has already been executed
     if actionRecord.executed  = True  then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXECUTED) else skip;
 
+} with (unit)
+
+
+
+// helper function to check if a satellite can interact with an action
+function validateAction(const actionRecord : governanceSatelliteActionRecordType) : unit is
+block {
+
+    // Check if governance satellite action has been dropped or executed
+    validateActionWithoutExpiration(actionRecord);
+
     // Check if governance satellite action has expired
     if Tezos.get_now() > actionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
 
 } with (unit)
-
-
 
 
 
@@ -421,7 +430,6 @@ block {
 
         governanceType                     = actionType;
         governancePurpose                  = purpose;
-        voters                             = set [];
 
         dataMap                            = dataMap;
 
@@ -434,8 +442,9 @@ block {
         stakedMvkPercentageForApproval     = s.config.approvalPercentage; 
         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-        startDateTime                      = Tezos.get_now();            
+        startDateTime                      = Tezos.get_now();
         expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.satelliteActionDurationInDays);
+        executedDateTime                   = None;
         
     ];
 
@@ -565,32 +574,42 @@ block {
 
 
 // helper function to update satellite snapshot
-function updateSatelliteSnapshotOperation(const satelliteAddress : address; const ready : bool; const s : governanceSatelliteStorageType) : operation is 
+function updateSatellitesSnapshotOperation(const satelliteAddresses : list(address); const ready : bool; const s : governanceSatelliteStorageType) : operation is 
 block {
 
-    // Get the satellite record and delgation ratio
-    const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
-    const satelliteRewards  : satelliteRewardsType = getSatelliteRewardsRecord(satelliteAddress, s);
-    const delegationRatio   : nat                  = getDelegationRatio(s);
+    // Prepare the satellites to update
+    var satellitesSnapshots : updateSatellitesSnapshotType   := list[];
 
-    // Create a snapshot
-    const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
-        satelliteAddress            = satelliteAddress;
-        totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
-        totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
-        ready                       = ready;
-        delegationRatio             = delegationRatio;
-        accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
-    ];
+    for satelliteAddress in list satelliteAddresses block {
+
+        // Get the satellite record and delgation ratio
+        const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
+        const satelliteRewards  : satelliteRewardsType = getSatelliteRewardsRecord(satelliteAddress, s);
+        const delegationRatio   : nat                  = getDelegationRatio(s);
+
+        // Create a snapshot
+        const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
+            satelliteAddress            = satelliteAddress;
+            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+            ready                       = ready;
+            delegationRatio             = delegationRatio;
+            accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
+        ];
+
+        // Add the snapshot to the list
+        satellitesSnapshots := satelliteSnapshot # satellitesSnapshots;
+
+    };
 
     // Send the snapshot to the governance contract
-    const updateSatelliteSnapshotOperation : operation   = Tezos.transaction(
-        (satelliteSnapshotParams),
+    const updateSatellitesSnapshotOperation : operation   = Tezos.transaction(
+        (satellitesSnapshots),
         0tez, 
-        sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+        sendUpdateSatellitesSnapshotOperationToGovernance(s.governanceAddress)
     );
 
-} with updateSatelliteSnapshotOperation
+} with updateSatellitesSnapshotOperation
 
 
 
@@ -656,8 +675,8 @@ block{
         if currentCycle = actionGovernanceCycleId then block {
 
             // update satellite snapshot operation
-            const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
-            operations := updateSatelliteSnapshotOperation # operations;
+            const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(list[satelliteAddress], True, s);
+            operations := updateSatellitesSnapshotOperation # operations;
 
             // Calculate the total voting power of the satellite
             totalVotingPower := calculateVotingPower(satelliteAddress, s);
@@ -926,6 +945,7 @@ block {
     if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then operations         := triggerFixMistakenTransferSatelliteAction(actionRecord, operations);
 
     actionRecord.executed                       := True;
+    actionRecord.executedDateTime               := Some(Tezos.get_now());
     s.governanceSatelliteActionLedger[actionId] := actionRecord;
 
     // Remove the executed action from the satellite's set

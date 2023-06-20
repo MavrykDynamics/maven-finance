@@ -95,23 +95,23 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         farm)
             echo "Running tests for farm"
-            COMMANDS+=("yarn ts-mocha --paths test/06_test_farm.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/10_test_farm.spec.ts --bail --timeout 9000000")
             ;;
         farmMToken)
             echo "Running tests for farm mToken"
-            COMMANDS+=("yarn ts-mocha --paths test/06a_test_farm_mToken.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/x4_test_farm_mToken.spec.ts --bail --timeout 9000000")
             ;;
         farmFactory)
             echo "Running tests for farmFactory"
-            COMMANDS+=("yarn ts-mocha --paths test/07_test_farm_factory.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/12_test_farm_factory.spec.ts --bail --timeout 9000000")
             ;;
         farmFactoryMToken)
             echo "Running tests for farmFactoryMToken"
-            COMMANDS+=("yarn ts-mocha --paths test/07a_test_mFarm_factory.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/x5_test_mFarm_factory.spec.ts --bail --timeout 9000000")
             ;;
         treasury)
             echo "Running tests for treasury"
-            COMMANDS+=("yarn ts-mocha --paths test/08_test_treasury.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/13_test_treasury.spec.ts --bail --timeout 9000000")
             ;;
         treasuryFactory)
             echo "Running tests for treasuryFactory"
@@ -148,6 +148,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         aggregator)
             echo "Running tests for aggregator"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/15_test_aggregator.spec.ts --bail --timeout 9000000")
             ;;
         aggregatorFactory)
@@ -207,7 +208,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/06a_test_farm_mToken.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/07_test_farm_factory.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/07a_test_mFarm_factory.spec.ts --bail --timeout 9000000")
-            COMMANDS+=("yarn ts-mocha --paths test/08_test_treasury.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/13_test_treasury.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/09_test_treasury_factory.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/10_test_emergency_governance.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/11_test_break_glass.spec.ts --bail --timeout 9000000")

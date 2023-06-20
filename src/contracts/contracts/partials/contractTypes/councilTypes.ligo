@@ -150,8 +150,10 @@ type councilStorageType is [@layout:comb] record [
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType;
     
-    councilMembers              : councilMembersType;  
-    councilActionsLedger        : councilActionsLedgerType; 
+    councilMembers              : councilMembersType;
+    councilSize                 : nat;
+    councilActionsLedger        : councilActionsLedgerType;
+    councilActionsSigners       : signersType;
     actionCounter               : nat;
 
     lambdaLedger                : lambdaLedgerType;

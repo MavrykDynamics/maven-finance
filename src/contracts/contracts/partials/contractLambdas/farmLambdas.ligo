@@ -560,35 +560,48 @@ block{
     var operations : list(operation) := nil;
 
     case farmLambdaAction of [
-        |   LambdaClaim(depositor) -> {
+        |   LambdaClaim(depositors) -> {
                 
                 // Update farm
                 s := updateFarm(s);
 
-                // Update user's unclaimed rewards
-                s := updateUnclaimedRewards(depositor, s);
+                // Init farm claim parameters
+                var farmClaimDepositors : set(farmClaimDepositorType)   := set[];
 
-                // Check if sender is an existing depositor
-                var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
+                // Loop through depositors and claim rewards
+                for depositor in set depositors block{
 
-                // Get depositor's unclaimed rewards
-                const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
+                    // Update user's unclaimed rewards
+                    s := updateUnclaimedRewards(depositor, s);
 
-                // Process unclaimed rewards if user has more than 0 rewards to claim
-                if unclaimedRewards > 0n then {
+                    // Check if sender is an existing depositor
+                    var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
-                    // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
-                    depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
-                    depositorRecord.unclaimedRewards    := 0n;
+                    // Get depositor's unclaimed rewards
+                    const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
 
-                    // Update storage with new depositor record
-                    s.depositorLedger[depositor] := depositorRecord;
+                    // Process unclaimed rewards if user has more than 0 rewards to claim
+                    if unclaimedRewards > 0n then {
 
-                    // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
-                    const transferRewardOperation : operation = transferReward(depositor, unclaimedRewards, s);
+                        // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
+                        depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
+                        depositorRecord.unclaimedRewards    := 0n;
 
-                    operations := transferRewardOperation # operations;
+                        // Update storage with new depositor record
+                        s.depositorLedger[depositor]        := depositorRecord;
+
+                        // Add the claim to the set
+                        farmClaimDepositors                 := Set.add((depositor, unclaimedRewards), farmClaimDepositors);
+                    }
+
+                };
+
+                // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
+                if Set.cardinal(farmClaimDepositors) > 0n then {
+                    const transferRewardOperation : operation   = transferReward(farmClaimDepositors, s);
+                    operations                                  := transferRewardOperation # operations;
                 }
+
             }
         |   _ -> skip
     ];

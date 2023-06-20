@@ -131,8 +131,7 @@
     "lambdaCouncilChangeMember",
 
     "lambdaPropagateBreakGlass",
-    "lambdaSetSingleContractAdmin",
-    "lambdaSetAllContractsAdmin",
+    "lambdaSetContractsAdmin",
     "lambdaPauseAllEntrypoints",
     "lambdaUnpauseAllEntrypoints",
     "lambdaRemoveBreakGlassControl",
@@ -347,7 +346,7 @@
     "lambdaSetContractAdmin",
     "lambdaSetContractGovernance",
 
-    "lambdaUpdateSatelliteSnapshot",
+    "lambdaUpdateSatellitesSnapshot",
     "lambdaStartNextRound",
     "lambdaPropose",
     "lambdaProposalRoundVote",

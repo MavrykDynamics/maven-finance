@@ -22,11 +22,12 @@ type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 
+type oracleLedgerMapType is map (address, oracleInformationType);
 type createAggregatorParamsType is [@layout:comb] record[
     name                    : string;
     addToGeneralContracts   : bool;
 
-    oracleLedger            : oracleLedgerType;
+    oracleLedger            : oracleLedgerMapType;
     
     aggregatorConfig        : aggregatorConfigType;
     metadata                : bytes;

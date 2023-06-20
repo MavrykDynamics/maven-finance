@@ -33,11 +33,13 @@ export const councilStorage: councilStorageType = {
     
     config                : config,
     councilMembers        : MichelsonMap.fromLiteral({}),
+    councilSize           : new BigNumber(0),
 
     whitelistContracts    : MichelsonMap.fromLiteral({}),
     generalContracts      : MichelsonMap.fromLiteral({}),
 
     councilActionsLedger  : MichelsonMap.fromLiteral({}),
+    councilActionsSigners : MichelsonMap.fromLiteral({}),
 
     actionCounter         : new BigNumber(1),
 

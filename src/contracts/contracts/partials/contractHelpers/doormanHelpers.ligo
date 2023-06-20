@@ -184,12 +184,12 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to %onStakeChange entrypoint in the Delegation Contract
-function delegationOnStakeChange(const delegationAddress : address) : contract(delegationOnStakeChangeType) is
+function delegationOnStakeChange(const delegationAddress : address) : contract(onStakeChangeType) is
     case (Tezos.get_entrypoint_opt(
         "%onStakeChange",
-        delegationAddress) : option(contract(delegationOnStakeChangeType))) of [
+        delegationAddress) : option(contract(onStakeChangeType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegationOnStakeChangeType))
+            |   None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(onStakeChangeType))
         ];
 
 
@@ -214,7 +214,7 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
 // ------------------------------------------------------------------------------
 
 // helper function to create a onStakeChange operation on the delegation contract
-function delegationOnStakeChangeOperation(const userAddress : address; const s : doormanStorageType) : operation is 
+function delegationOnStakeChangeOperation(const userAddresses : onStakeChangeType; const s : doormanStorageType) : operation is 
 block {
 
     // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
@@ -222,7 +222,7 @@ block {
 
     // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     const delegationOnStakeChangeOperation : operation = Tezos.transaction(
-        (userAddress),
+        (userAddresses),
         0tez,
         delegationOnStakeChange(delegationAddress)
     );

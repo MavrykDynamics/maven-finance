@@ -209,15 +209,15 @@ block{
 
 
 
-(* get: general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const store : mvkTokenStorageType) : generalContractsType is
-    store.generalContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
+    Big_map.find_opt(contractName, store.generalContracts)
 
 
 
-(* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const store : mvkTokenStorageType) : whitelistContractsType is
-    store.whitelistContracts
+(* get: whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mvkTokenStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 

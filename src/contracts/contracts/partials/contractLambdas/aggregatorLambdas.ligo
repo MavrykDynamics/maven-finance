@@ -81,10 +81,7 @@ block {
                 ) # operations;
 
                 // Get aggregator factory address
-                const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
             
                 // Get aggregator name max length from factory contract
                 const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Tezos.call_view ("getConfig", unit, aggregatorFactoryAddress);
@@ -245,7 +242,8 @@ block {
                 const oracleInformation : oracleInformationType = getOracleInformation(oracleAddress, s);
                 
                 // update storage
-                s.oracleLedger[oracleAddress] := oracleInformation;
+                s.oracleLedger[oracleAddress]   := oracleInformation;
+                s.oracleLedgerSize              := s.oracleLedgerSize + 1n;
 
             }
         |   _ -> skip
@@ -269,7 +267,7 @@ block {
                 const oracleInformation : oracleInformationType = getOracleInformation(Tezos.get_sender(), s);
                 
                 // Update storage
-                s.oracleLedger[Tezos.get_sender()] := oracleInformation;
+                s.oracleLedger[Tezos.get_sender()]  := oracleInformation;
 
             }
         |   _ -> skip
@@ -293,7 +291,8 @@ block {
                 verifySatelliteIsRegisteredOracle(oracleAddress, s);
 
                 // Remove oracle from oracle addresses
-                s.oracleLedger := Map.remove(oracleAddress, s.oracleLedger);
+                s.oracleLedger      := Big_map.remove(oracleAddress, s.oracleLedger);
+                s.oracleLedgerSize  := abs(s.oracleLedgerSize - 1n);
 
             }
         |   _ -> skip
@@ -428,7 +427,7 @@ block{
                 const median: nat = getMedianFromMap(pivotObservationMap(params.oracleObservations), Map.size (params.oracleObservations));
 
                 // calculate percent oracle response
-                const percentOracleResponse: nat    = Map.size (params.oracleObservations) * 100_00n / Map.size (s.oracleLedger);
+                const percentOracleResponse: nat    = Map.size (params.oracleObservations) * 100_00n / s.oracleLedgerSize;
 
                 var newlastCompletedData := record [
                     round                   = epochAndRound.1;
