@@ -410,7 +410,7 @@ block {
                     // Execute financial request, and set executed boolean to true
                     operations := executeFinancialRequest(financialRequestRecord, operations, s);
                     financialRequestRecord.executed         := True;
-                    financialRequestRecord.executedDateTime := Tezos.get_now();
+                    financialRequestRecord.executedDateTime := Some(Tezos.get_now());
 
                 } else skip;
 

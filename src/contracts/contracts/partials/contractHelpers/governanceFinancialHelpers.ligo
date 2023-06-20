@@ -243,7 +243,7 @@ block{
 
         requestedDateTime                   = Tezos.get_now();
         expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
-        executedDateTime                    = Tezos.get_now();
+        executedDateTime                    = None;
 
     ];
 

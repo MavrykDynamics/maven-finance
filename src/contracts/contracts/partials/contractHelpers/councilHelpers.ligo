@@ -188,8 +188,8 @@ block {
 
         startDateTime         = Tezos.get_now();
         startLevel            = Tezos.get_level();             
-        executedDateTime      = Tezos.get_now();
-        executedLevel         = Tezos.get_level();
+        executedDateTime      = None;
+        executedLevel         = None;
         expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord;
@@ -1107,8 +1107,8 @@ block {
     // update council action record status
     actionRecord.status              := "EXECUTED";
     actionRecord.executed            := True;
-    actionRecord.executedDateTime    := Tezos.get_now();
-    actionRecord.executedLevel       := Tezos.get_level();
+    actionRecord.executedDateTime    := Some(Tezos.get_now());
+    actionRecord.executedLevel       := Some(Tezos.get_level());
     
     // save council action record
     s.councilActionsLedger[actionId] := actionRecord;
