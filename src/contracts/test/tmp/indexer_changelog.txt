@@ -3,47 +3,47 @@ Delegation Contract
 2. %onStakeChange parameter refactored (now list of addresses)
 
 Emergency Governance Contract
-1. Config: In emergencyUpdateConfigActionType: change ConfigMinStakedMvkForTrigger to ConfigMinStakedMvkToTrigger
+1. Config: In emergencyUpdateConfigActionType: change ConfigMinStakedMvkForTrigger to ConfigMinStakedMvkToTrigger --> good?
 2. Storage update
 - emergencyGovernanceVoters bigmap added in storage
 3. voters removed from emergencyGovernanceRecordType
-4. executedDateTime is now an option
+4. executedDateTime is now an option --> good
 
 Break Glass Contract
-1. Rename council-related entrypoints to be consistent with Council entrypoints 
-- AddCouncilMember to CouncilActionAddMember
-- RemoveCouncilMember to CouncilActionRemoveMember
-- ChangeCouncilMember to CouncilActionChangeMember
+1. Rename council-related entrypoints to be consistent with Council entrypoints --> good
+- AddCouncilMember to CouncilActionAddMember --> good
+- RemoveCouncilMember to CouncilActionRemoveMember --> good
+- ChangeCouncilMember to CouncilActionChangeMember --> good
 2. Storage update
 - councilSize added in storage
 - actionsSigners bigmap added in storage
-3. executedDateTime is now an option
+3. executedDateTime is now an option --> good
 
 Council Contract
 1. Storage update
 - councilSize added in storage
 - councilActionsSigners bigmap added in storage
-2. executedDateTime is now an option
+2. executedDateTime is now an option --> good
 
 Governance Satellite Contract
 1. Governance Satellite Action Record Type: add governanceCycleId
 2. Rename actionInitiators bigmap to satelliteActions
 - key for satelliteActions big map to include governance cycle id in the form (nat*address)
 - corresponding view getActionsInitiatorOpt changed to getSatelliteActionsOpt
-3. Rename config variables
-- rename update config variant "ConfigSatelliteDurationInDays" to "ConfigActionDurationInDays"
-- Rename config "governanceSatelliteDurationInDays" to "satelliteActionDurationInDays"
-- Rename config "governanceSatelliteApprovalPercentage" to "approvalPercentage"
+3. Rename config variables --> good?
+- rename update config variant "ConfigSatelliteDurationInDays" to "ConfigActionDurationInDays" --> good?
+- Rename config "governanceSatelliteDurationInDays" to "satelliteActionDurationInDays" --> good?
+- Rename config "governanceSatelliteApprovalPercentage" to "approvalPercentage" --> good?
 4. voters removed from emergencyGovernanceRecordType
-5. executedDateTime is now an option
+5. executedDateTime is now an option --> good
 
 Governance Financial Contract
 1. Financial Request Record Type: add governanceCycleId
 2. Rename config variables
-- rename update config variant "ConfigFinancialReqApprovalPct" to "ConfigApprovalPercentage"
-- rename config "financialRequestApprovalPercentage" to "approvalPercentage"
+- rename update config variant "ConfigFinancialReqApprovalPct" to "ConfigApprovalPercentage" --> good?
+- rename config "financialRequestApprovalPercentage" to "approvalPercentage" --> good?
 3. voters removed from emergencyGovernanceRecordType
-4. executedDateTime is now an option
+4. executedDateTime is now an option --> good
 
 Governance Contract 
 1. governanceSatelliteSnapshotRecordType to include accumulatedRewardsPerShare (for calculation of delegates' rewards in delegation contract)
@@ -51,18 +51,18 @@ Governance Contract
 3. updateSatelliteSnapshotType to remove satelliteRecord and to include totalStakedMvkBalance, totalDelegatedAmount, and accumulatedRewardsPerShare
 4. Setup Proposal Round: create snapshot of staked mvk total supply at this point in time
 5. Storage update
-- prosalVoters bigmap added in storage
-4. voters removed from emergencyGovernanceRecordType
-5. %updateSatelliteSnapshot parameter refactored (now list of addresses)
-6. %updateSatelliteSnapshot renamed to %updateSatellitesSnapshot
-7. executedDateTime is now an option
+- proposalVoters bigmap added in storage
+4. voters removed from emergencyGovernanceRecordType --> good
+5. %updateSatelliteSnapshot parameter refactored (now list of addresses) --> good
+6. %updateSatelliteSnapshot renamed to %updateSatellitesSnapshot --> good
+7. executedDateTime is now an option --> good
 
 Aggregator Contract
 1. OracleLedgerSize added in storage
 
 lendingController & MockTime
-1. accumulatedRewardsPerShare renamed to tokenRewardIndex
-2. mTokensTotal renamed to rawMTokensTotalSupply
+1. accumulatedRewardsPerShare renamed to tokenRewardIndex --> good?
+2. mTokensTotal renamed to rawMTokensTotalSupply --> good?
 
 Farm Contract
 1. %claim parameter refactored (now list of addresses)
