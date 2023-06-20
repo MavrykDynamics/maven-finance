@@ -48,4 +48,4 @@ class MvkTokenStorage(BaseModel):
     operators: List[Operator]
     token_metadata: Dict[str, TokenMetadata]
     totalSupply: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
