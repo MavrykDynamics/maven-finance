@@ -22,21 +22,15 @@
 
 
 
-(* View: get general contracts *)
+(* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : governanceStorageType) : option(address) is
-    Map.find_opt(contractName, s.generalContracts)
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : governanceStorageType) : generalContractsType is
-    s.generalContracts
-
-
-
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : governanceStorageType) : whitelistContractsType is 
-    s.whitelistContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : governanceStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
@@ -49,6 +43,12 @@
 (* View: get a proposal *)
 [@view] function getProposalOpt(const proposalId : nat; const s : governanceStorageType) : option(proposalRecordType) is
     Big_map.find_opt(proposalId, s.proposalLedger)
+
+
+
+(* View: get a proposal voter *)
+[@view] function getProposalVoterOpt(const voterId : voterIdentifierType; const s : governanceStorageType) : option(voteType) is
+    Big_map.find_opt(voterId, s.proposalVoters)
 
 
 
@@ -120,13 +120,7 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName : string; const s : governanceStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : governanceStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

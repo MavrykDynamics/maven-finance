@@ -56,7 +56,7 @@ block {
 function verifyLoanTokenDoesNotExist(const loanTokenName : string; const s : lendingControllerStorageType) : unit is 
 block {
 
-    if Map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+    if Big_map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
 
 } with unit
 
@@ -227,7 +227,7 @@ block {
 
         oracleAddress                       = oracleAddress;
 
-        mTokensTotal                        = 0n;
+        rawMTokensTotalSupply               = 0n;
         mTokenAddress                       = mTokenAddress;
 
         reserveRatio                        = reserveRatio;
@@ -245,7 +245,7 @@ block {
 
         currentInterestRate                 = baseInterestRate;
         lastUpdatedBlockLevel               = Tezos.get_level();
-        accumulatedRewardsPerShare          = fixedPointAccuracy;
+        tokenRewardIndex                    = fixedPointAccuracy;
         borrowIndex                         = fixedPointAccuracy;
 
         isPaused                            = False;

@@ -17,21 +17,27 @@
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts (const _ : unit; const s : emergencyGovernanceStorageType) : generalContractsType is
-    s.generalContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : emergencyGovernanceStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _ : unit; const s : emergencyGovernanceStorageType) : whitelistContractsType is 
-    s.whitelistContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : emergencyGovernanceStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
-(* View: get emergency governance *)
+(* View: get emergency governance record opt *)
 [@view] function getEmergencyGovernanceOpt (const recordId : nat; const s : emergencyGovernanceStorageType) : option(emergencyGovernanceRecordType) is
     Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
+
+
+
+(* View: get emergency governance voter opt *)
+[@view] function getEmergencyGovernanceVoterOpt (const voterId : voterIdentifierType; const s : emergencyGovernanceStorageType) : option((nat * timestamp)) is
+    Big_map.find_opt(voterId, s.emergencyGovernanceVoters)
 
 
 
@@ -49,13 +55,7 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName : string; const s : emergencyGovernanceStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : emergencyGovernanceStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

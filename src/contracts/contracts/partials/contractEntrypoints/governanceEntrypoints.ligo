@@ -26,14 +26,14 @@ block {
 
 
 (*  propagateBreakGlass entrypoint *)
-function propagateBreakGlass(var s : governanceStorageType) : return is 
+function propagateBreakGlass(const propagateBreakGlassParams : set(address); var s : governanceStorageType) : return is 
 block {
 
     // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaPropagateBreakGlass", s.lambdaLedger);
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaPropagateBreakGlass(unit);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaPropagateBreakGlass(propagateBreakGlassParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -229,15 +229,15 @@ block {
 // Governance Cycle Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  updateSatelliteSnapshot entrypoint *)
-function updateSatelliteSnapshot(const updateSatelliteSnapshotParams : updateSatelliteSnapshotType; var s : governanceStorageType) : return is
+(*  updateSatellitesSnapshot entrypoint *)
+function updateSatellitesSnapshot(const updateSatellitesSnapshotParams : updateSatellitesSnapshotType; var s : governanceStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatelliteSnapshot", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateSatellitesSnapshot", s.lambdaLedger);
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateSatelliteSnapshot(updateSatelliteSnapshotParams);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateSatellitesSnapshot(updateSatellitesSnapshotParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);

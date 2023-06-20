@@ -2400,7 +2400,7 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage              = await councilInstance.storage();
                     var action                  = await councilStorage.councilActionsLedger.get(actionId);
-                    var actionSigner            = action.signers.includes(councilMember)
+                    var actionSigner            = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     var dataMap                 = await action.dataMap;
                     const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                     const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -2411,7 +2411,7 @@ describe("Governance Satellite tests", async () => {
                     assert.strictEqual(action.status,               "PENDING");
                     assert.strictEqual(action.actionType,           "requestMint");
                     assert.equal(action.executed,                   false);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               1);
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
                     assert.equal(dataMap.get("purpose"),            packedPurpose);
@@ -2430,7 +2430,7 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage      = await councilInstance.storage();
                     action              = await councilStorage.councilActionsLedger.get(actionId);
-                    actionSigner        = action.signers.includes(councilMember)
+                    actionSigner        = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     dataMap             = await action.dataMap;
     
                     assert.strictEqual(action.initiator,            councilMember);
@@ -2438,7 +2438,7 @@ describe("Governance Satellite tests", async () => {
                     assert.strictEqual(action.actionType,           "requestMint");
 
                     assert.equal(action.executed,                   true);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               3);
 
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
@@ -3331,7 +3331,7 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage              = await councilInstance.storage();
                     var action                  = await councilStorage.councilActionsLedger.get(actionId);
-                    var actionSigner            = action.signers.includes(councilMember)
+                    var actionSigner            = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     var dataMap                 = await action.dataMap;
                     const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
                     const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -3342,7 +3342,7 @@ describe("Governance Satellite tests", async () => {
                     assert.strictEqual(action.status,               "PENDING");
                     assert.strictEqual(action.actionType,           "requestMint");
                     assert.equal(action.executed,                   false);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               1);
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
                     assert.equal(dataMap.get("purpose"),            packedPurpose);
@@ -3361,14 +3361,14 @@ describe("Governance Satellite tests", async () => {
                     // Final values
                     councilStorage      = await councilInstance.storage();
                     action              = await councilStorage.councilActionsLedger.get(actionId);
-                    actionSigner        = action.signers.includes(councilMember)
+                    actionSigner        = await councilStorage.councilActionsSigners.get({0: actionId, 1: councilMember})
                     dataMap             = await action.dataMap;
     
                     assert.strictEqual(action.initiator,            councilMember);
                     assert.strictEqual(action.status,               "EXECUTED");
                     assert.strictEqual(action.actionType,           "requestMint");
                     assert.equal(action.executed,                   true);
-                    assert.equal(actionSigner,                      true);
+                    assert.notStrictEqual(actionSigner,             undefined);
                     assert.equal(action.signersCount,               3);
                     assert.equal(dataMap.get("treasuryAddress"),    packedTreasuryAddress);
                     assert.equal(dataMap.get("purpose"),            packedPurpose);
@@ -4286,19 +4286,19 @@ describe("Governance Satellite tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await getStorageMapValue(governanceSatelliteStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceSatelliteInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceSatelliteInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceSatelliteStorage = await governanceSatelliteInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceSatelliteStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -4309,18 +4309,18 @@ describe("Governance Satellite tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceSatelliteStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceSatelliteInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(governanceSatelliteInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 governanceSatelliteStorage = await governanceSatelliteInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(governanceSatelliteStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
@@ -4540,12 +4540,12 @@ describe("Governance Satellite tests", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(governanceSatelliteStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await governanceSatelliteInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
+                updateWhitelistContractsOperation = await governanceSatelliteInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 governanceSatelliteStorage       = await governanceSatelliteInstance.storage()

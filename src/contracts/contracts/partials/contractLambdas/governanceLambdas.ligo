@@ -53,13 +53,13 @@ block {
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaPropagateBreakGlass(_parameters) -> {
+        |   LambdaPropagateBreakGlass(contractAddressSet) -> {
                 
                 // Verify that glass is broken on the Break Glass contract
                 verifyGlassBroken(s);
 
                 // Loop to propagate break glass in all general contracts
-                for _contractName -> contractAddress in map s.generalContracts block {
+                for contractAddress in set contractAddressSet block {
                     
                     // Order of operations: first in last out
                     // 1. First, trigger pauseAll entrypoint in contract 
@@ -389,20 +389,22 @@ block {
 // Governance Cycle Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  updateSatelliteSnapshot lambda *)
-function lambdaUpdateSatelliteSnapshot(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
+(*  updateSatellitesSnapshot lambda *)
+function lambdaUpdateSatellitesSnapshot(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaUpdateSatelliteSnapshot(updateSatelliteSnapshotParams) -> {
+        |   LambdaUpdateSatellitesSnapshot(updateSatellitesSnapshotParams) -> {
 
                 // Verify sender is whitelisted or is the admin
                 verifySenderIsWhitelistedOrAdmin(s);
                 
-                // Update the storage with the new snapshot
-                s := updateSatelliteSnapshotRecord(updateSatelliteSnapshotParams, s);
+                // Update the storage with the new snapshots
+                for satelliteSnapshot in list updateSatellitesSnapshotParams block{
+                    s := updateSatellitesSnapshotRecord(satelliteSnapshot, s);
+                }
 
             }
         |   _ -> skip
@@ -1092,7 +1094,7 @@ block {
 
                             // Save new vote
                             s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            _proposal.voters    := Set.add(Tezos.get_sender(), _proposal.voters);
+                            s.proposalVoters    := Big_map.update((s.cycleHighestVotedProposalId, Tezos.get_sender()), Some(voteType), s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1112,7 +1114,7 @@ block {
                             
                             // Save new vote
                             s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            _proposal.voters    := Set.add(Tezos.get_sender(), _proposal.voters);
+                            s.proposalVoters    := Big_map.add((s.cycleHighestVotedProposalId, Tezos.get_sender()), voteType, s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1190,8 +1192,9 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update proposal and set "executed" boolean to True
-                proposal.executed            := True;
-                s.proposalLedger[proposalId] := proposal;
+                proposal.executed               := True;
+                proposal.executedDateTime       := Some(Tezos.get_now());
+                s.proposalLedger[proposalId]    := proposal;
 
                 // ------------------------------------------------------------------
                 // Process Metadata Loop
@@ -1420,10 +1423,13 @@ block {
                 if proposal.proposalDataExecutionCounter >= Map.size(proposal.proposalData) then {
                     
                     // Set proposal "executed" boolean to True
-                    proposal.executed := True;
+                    proposal.executed           := True;
+                    
+                    // Update the execution datetime
+                    proposal.executedDateTime   := Some(Tezos.get_now());
 
                     // Send reward to proposer
-                    operations := sendRewardToProposer(s) # operations;
+                    operations                  := sendRewardToProposer(s) # operations;
 
                 } else skip;
 
@@ -1461,7 +1467,7 @@ block {
                         Some (_record) -> block{
 
                             // Verify that satellite voted on the proposal
-                            verifySatelliteHasVotedForProposal(satelliteAddress, _record);
+                            verifySatelliteHasVotedForProposal(satelliteAddress, proposalId, s);
 
                             // Verify that satellite has not claimed its reward for given proposal
                             verifyRewardNotClaimed(satelliteAddress, proposalId, s);
@@ -1474,7 +1480,8 @@ block {
                             s.proposalRewards[satelliteRewardProposalKey] := unit;
 
                             // Calculate the reward
-                            const satelliteReward: nat = _record.totalVotersReward / Set.cardinal(_record.voters);
+                            const globalVoteCount : nat = _record.yayVoteCount + _record.nayVoteCount + _record.passVoteCount;
+                            const satelliteReward : nat = _record.totalVotersReward / globalVoteCount;
 
                             // Create distribute reward operation
                             const distributeRewardOperation : operation = distributeRewardOperation(claimSatellite, satelliteReward, s);

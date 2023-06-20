@@ -49,7 +49,7 @@ describe('Delegation', async () => {
             delegationStorage.governanceAddress = contractDeployments.governance.address
             delegationStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
             delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                doorman: contractDeployments.doorman.address,
+                [contractDeployments.doorman.address]: null,
             })
             delegation = await GeneralContract.originate(utils.tezos, "delegation", delegationStorage);
             await saveContractAddress('delegationAddress', delegation.contract.address)

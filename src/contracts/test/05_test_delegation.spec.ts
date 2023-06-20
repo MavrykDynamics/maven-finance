@@ -1639,19 +1639,19 @@ describe("Test: Delegation Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(delegationInstance, contractMapKey, eve.pkh, 'update');
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(delegationInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 delegationStorage = await delegationInstance.storage()
                 updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.strictEqual(updatedContractMapValue, eve.pkh,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.dir(e, {depth: 5})
@@ -1662,18 +1662,18 @@ describe("Test: Delegation Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "eve";
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(delegationInstance, contractMapKey, eve.pkh, 'remove');
+                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(delegationInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 delegationStorage = await delegationInstance.storage()
                 updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, eve.pkh, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
@@ -1981,12 +1981,12 @@ describe("Test: Delegation Contract", async () => {
             try {
 
                 // init values
-                contractMapKey  = "mallory";
+                contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(contractMapKey, alice.pkh, 'update')
+                updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 delegationStorage       = await delegationInstance.storage()
@@ -2126,11 +2126,11 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // calling onStakeChange on herself
-                var onStakeChangeOperation = delegationInstance.methods.onStakeChange(mallory.pkh); 
+                var onStakeChangeOperation = delegationInstance.methods.onStakeChange([mallory.pkh]);
                 await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
 
                 // calling onStakeChange on satellite (eve)
-                onStakeChangeOperation = delegationInstance.methods.onStakeChange(eve.pkh); 
+                onStakeChangeOperation = delegationInstance.methods.onStakeChange([eve.pkh]);
                 await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
 
             } catch(e) {

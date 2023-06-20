@@ -349,7 +349,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
     
-                    assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
+                    assert.equal(mockFa12LoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(mockFa12LoanToken.mTokenAddress , mTokenContractAddress);
     
                     assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
@@ -448,7 +448,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
-                    assert.equal(mockFa2LoanToken.mTokensTotal          , 0);
+                    assert.equal(mockFa2LoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(mockFa2LoanToken.mTokenAddress , mTokenContractAddress);
 
                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
@@ -548,7 +548,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                     assert.equal(tezLoanToken.tokenName              , tokenName);
                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
-                    assert.equal(tezLoanToken.mTokensTotal          , 0);
+                    assert.equal(tezLoanToken.rawMTokensTotalSupply          , 0);
                     assert.equal(tezLoanToken.mTokenAddress , mTokenContractAddress);
     
                     assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
@@ -1388,7 +1388,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // repay operation
@@ -1435,7 +1435,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -1655,7 +1655,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -1706,7 +1706,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -1925,7 +1925,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -1976,7 +1976,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -2194,7 +2194,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -2245,7 +2245,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -2468,7 +2468,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -2519,7 +2519,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -2739,7 +2739,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -2790,7 +2790,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -3010,7 +3010,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -3061,7 +3061,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -3280,7 +3280,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -3331,7 +3331,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -3541,7 +3541,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -3592,7 +3592,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -3799,7 +3799,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -3850,7 +3850,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -4058,7 +4058,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -4109,7 +4109,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 
@@ -4316,7 +4316,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
-            initialTokenRewardIndex = loanTokenRecordView.accumulatedRewardsPerShare;
+            initialTokenRewardIndex = loanTokenRecordView.tokenRewardIndex;
             initialTokenPoolTotal   = loanTokenRecordView.tokenPoolTotal;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
@@ -4367,7 +4367,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const interestRewards                         = totalInterestPaid - interestTreasuryShare;
 
             // calculate new reward index
-            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.accumulatedRewardsPerShare;
+            updatedTokenRewardIndex                       = updatedLoanTokenRecordView.tokenRewardIndex;
             const calculatedTokenRewardIndex              = lendingHelper.calculateNewRewardIndex(interestRewards, initialTokenPoolTotal, initialTokenRewardIndex);
             assert.equal(helperFunctions.almostEqual(updatedTokenRewardIndex.toNumber(), calculatedTokenRewardIndex, 0.00001), true);
 

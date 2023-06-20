@@ -35,7 +35,7 @@ block {
 function verifySenderIsRegisteredOracle(const s : aggregatorStorageType) : unit is
 block {
 
-    if Map.mem(Tezos.get_sender(), s.oracleLedger) 
+    if Big_map.mem(Tezos.get_sender(), s.oracleLedger) 
     then skip 
     else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
@@ -47,7 +47,7 @@ block {
 function verifySatelliteIsRegisteredOracle(const satellite : address; const s : aggregatorStorageType) : unit is
 block {
 
-    if Map.mem(satellite, s.oracleLedger) 
+    if Big_map.mem(satellite, s.oracleLedger) 
     then skip 
     else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
@@ -59,7 +59,7 @@ block {
 function verifySatelliteIsNotRegisteredOracle(const satellite : address; const s : aggregatorStorageType) : unit is
 block {
 
-    if Map.mem(satellite, s.oracleLedger) 
+    if Big_map.mem(satellite, s.oracleLedger) 
     then failwith(error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR);
 
 } with unit
@@ -232,10 +232,7 @@ function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contract
 function distributeRewardXtzOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
 block {
 
-    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-    ];
+    const factoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
     
     const distributeRewardXtzParams : distributeRewardXtzType = record [
         recipient = oracleAddress;
@@ -256,10 +253,7 @@ block {
 function distributeRewardStakedMvkOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
 block {
 
-    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-    ];
+    const factoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
     
     const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
         eligibleSatellites     = set[oracleAddress];
@@ -402,7 +396,7 @@ function verifyEqualMapSizes(const leaderReponse : updateDataType; const s : agg
 
     // Byzantine faults check
     // see: https://research.chain.link/ocr.pdf
-    const f: int                = ((Map.size(s.oracleLedger) - 1)) / 3n;
+    const f: int                = ((s.oracleLedgerSize - 1)) / 3n;
     const signaturesSize: int   = int(Map.size(leaderReponse.signatures));
     const observationsSize: int = int(Map.size(leaderReponse.oracleObservations));
     if (signaturesSize < f)

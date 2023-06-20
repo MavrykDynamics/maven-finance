@@ -10,11 +10,13 @@ export type councilStorageType = {
 
     config                  : {};
     councilMembers          : MichelsonMap<MichelsonMapKey, unknown>;
+    councilSize             : BigNumber;
 
     whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
     generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
     councilActionsLedger    : MichelsonMap<MichelsonMapKey, unknown>;
+    councilActionsSigners   : MichelsonMap<MichelsonMapKey, unknown>;
 
     actionCounter           : BigNumber;
 

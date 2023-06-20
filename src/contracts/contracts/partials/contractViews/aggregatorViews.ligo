@@ -33,32 +33,32 @@
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : aggregatorStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : aggregatorStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : aggregatorStorageType) : generalContractsType is
-    s.generalContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : aggregatorStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
 (* View: get oracle ledger *)
-[@view] function getOracleLedger(const _ : unit; const s : aggregatorStorageType) : oracleLedgerType is
-    s.oracleLedger
+[@view] function getOracleOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(oracleInformationType) is
+    Big_map.find_opt(oracleAddress, s.oracleLedger)
 
 
-(* View: get oracle reward staked MVK *)
-[@view] function getOracleRewardStakedMvk(const _ : unit; const s : aggregatorStorageType) : oracleRewardStakedMvkType is
-    s.oracleRewardStakedMvk
+(* View: get oracle reward staked MVK opt *)
+[@view] function getOracleRewardStakedMvkOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
+    Big_map.find_opt(oracleAddress, s.oracleRewardStakedMvk)
 
 
 
-(* View: get oracle reward xtz *)
-[@view] function getOracleRewardXtz(const _ : unit; const s : aggregatorStorageType) : oracleRewardXtzType is
-    s.oracleRewardXtz
+(* View: get oracle reward xtz opt *)
+[@view] function getOracleRewardXtzOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
+    Big_map.find_opt(oracleAddress, s.oracleRewardXtz)
 
 
 
@@ -88,13 +88,7 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName: string; const s : aggregatorStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : aggregatorStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

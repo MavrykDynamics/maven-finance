@@ -72,16 +72,16 @@ block {
     const governanceProxyAddress : address = getGovernanceProxyAddress(s);
 
     // Add TreasuryFactory Address and Governance Proxy Address to whitelistContracts of created treasury
-    const treasuryWhitelistContracts : whitelistContractsType = map[
-        ("treasuryFactory") -> (Tezos.get_self_address() : address);
-        ("governanceProxy") -> (governanceProxyAddress);
+    const treasuryWhitelistContracts : whitelistContractsType = big_map[
+        (Tezos.get_self_address())  -> unit;
+        (governanceProxyAddress)    -> unit;
     ];
 
     // Add whitelisted tokens (on Treasury Factory) to created treasury 
     const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
     // Init empty General Contracts map (local contract scope, to be used if necessary)
-    const treasuryGeneralContracts : generalContractsType = map[];
+    const treasuryGeneralContracts : generalContractsType = big_map[];
 
     // Init break glass config
     const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[

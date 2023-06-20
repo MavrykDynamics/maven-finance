@@ -1,5 +1,6 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
+
 import { bob } from '../scripts/sandbox/accounts'
 import { MVK } from "../test/helpers/Utils"
 import { emergencyGovernanceStorageType } from './storageTypes/emergencyGovernanceStorageType'
@@ -42,6 +43,8 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
     generalContracts                    : MichelsonMap.fromLiteral({}),
 
     emergencyGovernanceLedger           : MichelsonMap.fromLiteral({}),
+    emergencyGovernanceVoters           : MichelsonMap.fromLiteral({}),
+
     currentEmergencyGovernanceId        : new BigNumber(0),
     nextEmergencyGovernanceId           : new BigNumber(1),
 

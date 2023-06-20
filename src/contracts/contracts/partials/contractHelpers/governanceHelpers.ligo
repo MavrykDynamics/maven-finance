@@ -327,10 +327,10 @@ block {
 
 
 // helper function to verify that satellite has voted on the proposal
-function verifySatelliteHasVotedForProposal(const satelliteAddress : address; const proposalRecord : proposalRecordType) : unit is
+function verifySatelliteHasVotedForProposal(const satelliteAddress : address; const proposalId : actionIdType; const s : governanceStorageType) : unit is
 block {
     
-    if Set.mem(satelliteAddress, proposalRecord.voters) 
+    if Big_map.mem((proposalId, satelliteAddress), s.proposalVoters) 
     then skip 
     else failwith(error_VOTE_NOT_FOUND);
 
@@ -774,7 +774,6 @@ block {
     validateStringLength(newProposal.sourceCode     , s.config.proposalSourceCodeMaxLength      , error_WRONG_INPUT_PROVIDED);
 
     // init new proposal params
-    const emptyVotersSet  : set(address)                         = set [];
     const proposalData    : map(nat, option(proposalDataType))   = map [];
     const paymentData     : map(nat, option(paymentDataType))    = map [];
 
@@ -812,7 +811,6 @@ block {
         nayVoteStakedMvkTotal               = 0n;                                           // voting round: nay MVK total 
         passVoteCount                       = 0n;                                           // voting round: pass count
         passVoteStakedMvkTotal              = 0n;                                           // voting round: pass MVK total 
-        voters                              = emptyVotersSet;                               // voting round ledger
 
         minQuorumPercentage                 = s.config.minQuorumPercentage;                 // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
         minQuorumStakedMvkTotal             = s.currentCycleInfo.minQuorumStakedMvkTotal;   // log of min quorum in MVK
@@ -820,6 +818,7 @@ block {
         quorumCount                         = 0n;                                           // log of turnout for voting round - number of satellites who voted
         quorumStakedMvkTotal                = 0n;                                           // log of total positive votes in MVK  
         startDateTime                       = Tezos.get_now();                              // log of when the proposal was proposed
+        executedDateTime                    = None;                                         // log of when the proposal was executed
 
         cycle                               = s.cycleId;
         currentCycleStartLevel              = s.currentCycleInfo.roundStartLevel;           // log current round/cycle start level
@@ -957,7 +956,7 @@ block {
 
 
 // helper function to update a satellite snapshot 
-function updateSatelliteSnapshotRecord (const updateSatelliteSnapshotParams : updateSatelliteSnapshotType; var s : governanceStorageType) : governanceStorageType is
+function updateSatellitesSnapshotRecord (const updateSatelliteSnapshotParams : updateSatelliteSingleSnapshotType; var s : governanceStorageType) : governanceStorageType is
 block {
 
     // Get variables from parameter
@@ -1016,7 +1015,7 @@ block {
         const delegationRatio : nat = getDelegationRatio(s);
 
         // Prepare the record to create the snapshot
-        const satelliteSnapshotParams : updateSatelliteSnapshotType = record[
+        const satelliteSnapshotParams : updateSatelliteSingleSnapshotType = record[
             satelliteAddress            = satelliteAddress;
             totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
             totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
@@ -1026,7 +1025,7 @@ block {
         ];
 
         // Save the snapshot
-        s := updateSatelliteSnapshotRecord(satelliteSnapshotParams, s);
+        s := updateSatellitesSnapshotRecord(satelliteSnapshotParams, s);
 
     } else skip;
 

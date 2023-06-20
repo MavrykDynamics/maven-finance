@@ -11,11 +11,13 @@ export type breakGlassStorageType = {
     config              : {};
     glassBroken         : boolean;
     councilMembers      : MichelsonMap<MichelsonMapKey, unknown>;
+    councilSize         : BigNumber;
 
     whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;
     generalContracts    : MichelsonMap<MichelsonMapKey, unknown>;
 
     actionsLedger       : MichelsonMap<MichelsonMapKey, unknown>;
+    actionsSigners      : MichelsonMap<MichelsonMapKey, unknown>;
     actionCounter       : BigNumber;
 
     lambdaLedger        : MichelsonMap<MichelsonMapKey, unknown>;
