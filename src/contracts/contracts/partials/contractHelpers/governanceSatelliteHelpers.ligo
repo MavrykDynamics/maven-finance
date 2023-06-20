@@ -444,7 +444,7 @@ block {
 
         startDateTime                      = Tezos.get_now();
         expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.satelliteActionDurationInDays);
-        executedDateTime                   = Tezos.get_now();
+        executedDateTime                   = None;
         
     ];
 
@@ -945,7 +945,7 @@ block {
     if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then operations         := triggerFixMistakenTransferSatelliteAction(actionRecord, operations);
 
     actionRecord.executed                       := True;
-    actionRecord.executedDateTime               := Tezos.get_now();
+    actionRecord.executedDateTime               := Some(Tezos.get_now());
     s.governanceSatelliteActionLedger[actionId] := actionRecord;
 
     // Remove the executed action from the satellite's set

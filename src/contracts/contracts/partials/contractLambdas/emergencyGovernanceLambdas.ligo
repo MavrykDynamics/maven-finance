@@ -312,8 +312,8 @@ block {
 
                     // Update emergency governance record
                     _emergencyGovernance.executed            := True;
-                    _emergencyGovernance.executedDateTime    := Tezos.get_now();
-                    _emergencyGovernance.executedLevel       := Tezos.get_level();
+                    _emergencyGovernance.executedDateTime    := Some(Tezos.get_now());
+                    _emergencyGovernance.executedLevel       := Some(Tezos.get_level());
                     
                     // Save emergency governance record
                     s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
@@ -363,7 +363,7 @@ block {
                 verifySenderIsProposer(emergencyGovernance);
 
                 // Update Emergency Governance Record dropped boolean to true and update storage
-                emergencyGovernance.dropped := True; 
+                emergencyGovernance.dropped := True;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := emergencyGovernance;
 
                 // Reset currentEmergencyGovernanceId to 0

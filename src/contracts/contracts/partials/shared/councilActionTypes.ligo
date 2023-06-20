@@ -40,9 +40,9 @@ type councilActionRecordType is [@layout:comb] record [
     dataMap                         : dataMapType;
 
     startDateTime                   : timestamp;        // timestamp of when action was initiated
-    startLevel                      : nat;              // block level of when action was initiated           
-    executedDateTime                : timestamp;        // will follow startDateTime and be updated when executed
-    executedLevel                   : nat;              // will follow startLevel and be updated when executed
+    startLevel                      : nat;              // block level of when action was initiated
+    executedDateTime                : option(timestamp);// timestamp of when action was executed
+    executedLevel                   : option(nat);      // block level of when action was executed
     expirationDateTime              : timestamp;        // timestamp of when action will expire
 ]
 

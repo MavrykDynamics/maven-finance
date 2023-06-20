@@ -1193,7 +1193,7 @@ block {
 
                 // Update proposal and set "executed" boolean to True
                 proposal.executed               := True;
-                proposal.executedDateTime       := Tezos.get_now();
+                proposal.executedDateTime       := Some(Tezos.get_now());
                 s.proposalLedger[proposalId]    := proposal;
 
                 // ------------------------------------------------------------------
@@ -1426,7 +1426,7 @@ block {
                     proposal.executed           := True;
                     
                     // Update the execution datetime
-                    proposal.executedDateTime   := Tezos.get_now();
+                    proposal.executedDateTime   := Some(Tezos.get_now());
 
                     // Send reward to proposer
                     operations                  := sendRewardToProposer(s) # operations;
