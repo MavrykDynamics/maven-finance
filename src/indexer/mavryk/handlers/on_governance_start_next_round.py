@@ -27,6 +27,7 @@ async def on_governance_start_next_round(
         cycle_id                            = int(start_next_round.storage.cycleId)
         highest_voted_proposal              = int(start_next_round.storage.cycleHighestVotedProposalId)
         timelock_proposal                   = int(start_next_round.storage.timelockProposalId)
+        smvk_snapshots                      = start_next_round.storage.stakedMvkSnapshotLedger
     
         # Current round
         current_round_type = models.GovernanceRoundType.PROPOSAL
@@ -86,6 +87,16 @@ async def on_governance_start_next_round(
             if not voter in current_round_votes:
                 vote_record.current_round_vote  = False
                 await vote_record.save()
+
+        # Update SMVK Snapshot ledger
+        for cycle in smvk_snapshots:
+            smvk_snapshot               = float(smvk_snapshots[cycle])
+            governance_smvk_snapshot, _ = await models.GovernanceSMVKSnapshot.get_or_create(
+                governance          = governance,
+                cycle               = int(cycle),
+                smvk_total_supply   = smvk_snapshot
+            )
+            await governance_smvk_snapshot.save()
 
     except BaseException as e:
          await save_error_report(e)

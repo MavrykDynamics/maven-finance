@@ -31,6 +31,8 @@ async def on_delegation_distribute_reward(
             satellite_rewards.paid                                      = float(rewards_record.paid)
             satellite_rewards.participation_rewards_per_share           = float(rewards_record.participationRewardsPerShare)
             satellite_rewards.satellite_accumulated_reward_per_share    = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+            satellite_rewards.reference_governance_cycle_id             = int(rewards_record.referenceGovernanceCycleId)
+            satellite_rewards.tracked                                   = rewards_record.tracked
             await satellite_rewards.save()
     
         # Create a stake record

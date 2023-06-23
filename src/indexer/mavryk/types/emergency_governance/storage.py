@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Extra
 
@@ -36,8 +36,8 @@ class EmergencyGovernanceLedger(BaseModel):
     stakedMvkRequiredForBreakGlass: str
     startDateTime: str
     startLevel: str
-    executedDateTime: str
-    executedLevel: str
+    executedDateTime: Optional[str]
+    executedLevel: Optional[str]
     expirationDateTime: str
 
 

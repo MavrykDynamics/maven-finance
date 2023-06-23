@@ -33,6 +33,7 @@ class DelegationLambda(ContractLambda, Model):
 
 class DelegationGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.Delegation', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'delegation_general_contract'
@@ -52,6 +53,8 @@ class SatelliteRewards(Model):
     paid                                    = fields.FloatField(default=0)
     participation_rewards_per_share         = fields.FloatField(default=0)
     satellite_accumulated_reward_per_share  = fields.FloatField(default=0)
+    reference_governance_cycle_id           = fields.BigIntField(default=0, index=True)
+    tracked                                 = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'satellite_rewards'

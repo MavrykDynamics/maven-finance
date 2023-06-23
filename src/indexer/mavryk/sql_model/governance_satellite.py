@@ -8,8 +8,8 @@ from mavryk.sql_model.enums import GovernanceVoteType, GovernanceActionStatus
 
 class GovernanceSatellite(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellites')
-    gov_sat_approval_percentage             = fields.SmallIntField(default=0)
-    gov_sat_duration_in_days                = fields.SmallIntField(default=0)
+    approval_percentage                     = fields.SmallIntField(default=0)
+    sat_action_duration_in_days             = fields.SmallIntField(default=0)
     gov_purpose_max_length                  = fields.SmallIntField(default=0)
     max_actions_per_satellite               = fields.SmallIntField(default=0)
     governance_satellite_counter            = fields.BigIntField(default=0)
@@ -18,19 +18,20 @@ class GovernanceSatellite(MavrykContract, Model):
         table = 'governance_satellite'
 
 class GovernanceSatelliteLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.GovernanceSatellite', related_name='lambdas')
+    contract                                = fields.ForeignKeyField('models.GovernanceSatellite', related_name='lambdas')
 
     class Meta:
         table = 'governance_satellite_lambda'
 
 class GovernanceSatelliteGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.GovernanceSatellite', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.GovernanceSatellite', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'governance_satellite_general_contract'
 
 class GovernanceSatelliteWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.GovernanceSatellite', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.GovernanceSatellite', related_name='whitelist_contracts')
 
     class Meta:
         table = 'governance_satellite_whitelist_contract'
@@ -50,9 +51,10 @@ class GovernanceSatelliteAction(Model):
     snapshot_smvk_total_supply              = fields.FloatField(default=0.0)
     smvk_percentage_for_approval            = fields.SmallIntField(default=0)
     smvk_required_for_approval              = fields.FloatField(default=0.0)
-    execution_datetime                      = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(index=True, null=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
     start_datetime                          = fields.DatetimeField(index=True)
+    governance_cycle_id                     = fields.BigIntField(default=0, index=True)
 
     class Meta:
         table = 'governance_satellite_action'

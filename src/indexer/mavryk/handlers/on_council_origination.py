@@ -24,6 +24,7 @@ async def on_council_origination(
         request_token_name_max_length       = int(council_origination.storage.config.requestTokenNameMaxLength)
         action_counter                      = int(council_origination.storage.actionCounter)
         council_members                     = council_origination.storage.councilMembers
+        council_size                        = int(council_origination.storage.councilSize)
         timestamp                           = council_origination.data.timestamp
     
         # Get contract metadata
@@ -46,6 +47,7 @@ async def on_council_origination(
             threshold                           = threshold,
             action_expiry_days                  = action_expiry_days,
             action_counter                      = action_counter,
+            council_size                        = council_size,
             council_member_name_max_length      = council_member_name_max_length,
             council_member_website_max_length   = council_member_website_max_length,
             council_member_image_max_length     = council_member_image_max_length,

@@ -41,7 +41,7 @@ class FinancialRequestLedger(BaseModel):
     stakedMvkRequiredForApproval: str
     requestedDateTime: str
     expiryDateTime: str
-    executedDateTime: str
+    executedDateTime: Optional[str]
 
 
 class Key(BaseModel):
