@@ -123,7 +123,7 @@ class LendingControllerLoanToken(Model):
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_loan_token_oracles', index=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_tokens', index=True)
     loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
-    raw_m_tokens_total_supply    = fields.FloatField(default=0.0)
+    raw_m_tokens_total_supply               = fields.FloatField(default=0.0)
     reserve_ratio                           = fields.SmallIntField(default=0)
     token_pool_total                        = fields.FloatField(default=0.0)
     total_borrowed                          = fields.FloatField(default=0.0)
