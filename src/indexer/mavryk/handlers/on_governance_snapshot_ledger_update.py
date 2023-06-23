@@ -20,27 +20,27 @@ async def on_governance_snapshot_ledger_update(
         # Create snapshot record
         if key and value:
             # Get the data
-            governance_cycle        = int(key.nat)
-            satellite_address       = key.address
-            ready                   = value.ready
-            total_smvk_balance      = float(value.totalStakedMvkBalance)
-            total_delegated_amount  = float(value.totalDelegatedAmount)
-            total_voting_power      = float(value.totalVotingPower)
+            governance_cycle                = int(key.nat)
+            satellite_address               = key.address
+            ready                           = value.ready
+            total_smvk_balance              = float(value.totalStakedMvkBalance)
+            total_delegated_amount          = float(value.totalDelegatedAmount)
+            total_voting_power              = float(value.totalVotingPower)
+            accumulated_rewards_per_share   = float(value.accumulatedRewardsPerShare)
     
             # Get governance record
             governance                  = await models.Governance.get(network = ctx.datasource.network)
-            
             user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
-    
             snapshot_record, _      = await models.GovernanceSatelliteSnapshot.get_or_create(
                 governance              = governance,
                 user                    = user,
                 cycle                   = governance_cycle
             )
-            snapshot_record.ready                   = ready
-            snapshot_record.total_smvk_balance      = total_smvk_balance
-            snapshot_record.total_delegated_amount  = total_delegated_amount
-            snapshot_record.total_voting_power      = total_voting_power
+            snapshot_record.ready                           = ready
+            snapshot_record.total_smvk_balance              = total_smvk_balance
+            snapshot_record.total_delegated_amount          = total_delegated_amount
+            snapshot_record.total_voting_power              = total_voting_power
+            snapshot_record.accumulated_rewards_per_share   = accumulated_rewards_per_share
             await snapshot_record.save()
 
     except BaseException as e:

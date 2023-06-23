@@ -19,6 +19,7 @@ class MVKToken(MavrykContract, Model):
 
 class MVKTokenGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.MVKToken', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'mvk_token_general_contract'

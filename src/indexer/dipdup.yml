@@ -489,6 +489,10 @@ templates:
       pattern:
       - destination: <mvk_token_contract>
         entrypoint: mint
+    - callback: on_mvk_burn
+      pattern:
+      - destination: <mvk_token_contract>
+        entrypoint: burn
     - callback: on_mvk_update_inflation_rate
       pattern:
       - destination: <mvk_token_contract>
@@ -1008,18 +1012,18 @@ templates:
       pattern:
       - destination: <break_glass_contract>
         entrypoint: updateCouncilMemberInfo
-    - callback: on_break_glass_add_council_member
+    - callback: on_break_glass_council_action_add_member
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: addCouncilMember
-    - callback: on_break_glass_remove_council_member
+        entrypoint: councilActionAddMember
+    - callback: on_break_glass_council_action_remove_member
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: removeCouncilMember
-    - callback: on_break_glass_change_council_member
+        entrypoint: councilActionRemoveMember
+    - callback: on_break_glass_council_action_change_member
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: changeCouncilMember
+        entrypoint: councilActionChangeMember
     - callback: on_break_glass_propagate_break_glass
       pattern:
       - destination: <break_glass_contract>

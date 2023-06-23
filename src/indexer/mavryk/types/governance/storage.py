@@ -121,7 +121,7 @@ class ProposalLedger(BaseModel):
     quorumCount: str
     quorumStakedMvkTotal: str
     startDateTime: str
-    executedDateTime: str
+    executedDateTime: Optional[str]
     cycle: str
     currentCycleStartLevel: str
     currentCycleEndLevel: str

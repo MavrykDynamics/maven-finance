@@ -51,6 +51,7 @@ class LendingControllerLambda(ContractLambda, Model):
 
 class LendingControllerGeneralContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.LendingController', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'lending_controller_general_contract'
@@ -122,7 +123,7 @@ class LendingControllerLoanToken(Model):
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_loan_token_oracles', index=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_tokens', index=True)
     loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
-    m_tokens_total                          = fields.FloatField(default=0.0)
+    raw_m_tokens_total_supply    = fields.FloatField(default=0.0)
     reserve_ratio                           = fields.SmallIntField(default=0)
     token_pool_total                        = fields.FloatField(default=0.0)
     total_borrowed                          = fields.FloatField(default=0.0)
@@ -135,7 +136,7 @@ class LendingControllerLoanToken(Model):
     interest_rate_above_optimal_utilisation = fields.FloatField(default=0)
     current_interest_rate                   = fields.FloatField(default=0)
     last_updated_block_level                = fields.BigIntField(default=0)
-    accumulated_rewards_per_share           = fields.FloatField(default=0.0)
+    token_reward_index                      = fields.FloatField(default=0.0)
     borrow_index                            = fields.FloatField(default=0)
     min_repayment_amount                    = fields.FloatField(default=0.0)
     paused                                  = fields.BooleanField(default=False, index=True)

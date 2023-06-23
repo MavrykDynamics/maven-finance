@@ -13,19 +13,20 @@ class Vesting(MavrykContract, Model):
         table = 'vesting'
 
 class VestingLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.Vesting', related_name='lambdas')
+    contract                                = fields.ForeignKeyField('models.Vesting', related_name='lambdas')
 
     class Meta:
         table = 'vesting_lambda'
 
 class VestingGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Vesting', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.Vesting', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'vesting_general_contract'
 
 class VestingWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Vesting', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.Vesting', related_name='whitelist_contracts')
 
     class Meta:
         table = 'vesting_whitelist_contract'
