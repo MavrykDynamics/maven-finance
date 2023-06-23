@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Extra, Field
 
@@ -37,7 +37,7 @@ class GovernanceSatelliteActionLedger(BaseModel):
     stakedMvkRequiredForApproval: str
     startDateTime: str
     expiryDateTime: str
-    executedDateTime: str
+    executedDateTime: Optional[str]
 
 
 class Key(BaseModel):

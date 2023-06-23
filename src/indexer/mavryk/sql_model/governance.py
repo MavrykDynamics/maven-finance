@@ -41,19 +41,20 @@ class Governance(MavrykContract, Model):
         table = 'governance'
 
 class GovernanceLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.Governance', related_name='lambdas')
+    contract                                = fields.ForeignKeyField('models.Governance', related_name='lambdas')
 
     class Meta:
         table = 'governance_lambda'
 
 class GovernanceGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Governance', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.Governance', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'governance_general_contract'
 
 class GovernanceWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Governance', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.Governance', related_name='whitelist_contracts')
 
     class Meta:
         table = 'governance_whitelist_contract'
@@ -99,7 +100,7 @@ class GovernanceProposal(Model):
     quorum_count                            = fields.BigIntField(default=0)
     quorum_smvk_total                       = fields.FloatField(default=0)
     start_datetime                          = fields.DatetimeField(index=True)
-    execution_datetime                      = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(index=True, null=True)
     cycle                                   = fields.BigIntField(default=0, index=True)
     current_cycle_start_level               = fields.BigIntField(default=0, index=True)
     current_cycle_end_level                 = fields.BigIntField(default=0, index=True)
@@ -150,6 +151,7 @@ class GovernanceSatelliteSnapshot(Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='satellite_snapshots')
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshots', index=True)
     ready                                   = fields.BooleanField(default=True, index=True)
+    accumulated_rewards_per_share           = fields.FloatField(default=0.0)
     total_smvk_balance                      = fields.FloatField(default=0.0)
     total_delegated_amount                  = fields.FloatField(default=0.0)
     total_voting_power                      = fields.FloatField(default=0.0)
@@ -157,3 +159,12 @@ class GovernanceSatelliteSnapshot(Model):
 
     class Meta:
         table = 'governance_satellite_snapshot'
+
+class GovernanceSMVKSnapshot(Model):
+    id                                      = fields.BigIntField(pk=True)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='smvk_snapshots')
+    smvk_total_supply                       = fields.FloatField(default=0.0)
+    cycle                                   = fields.BigIntField(default=0, index=True)
+
+    class Meta:
+        table = 'governance_smvk_snapshot'

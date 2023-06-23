@@ -5,13 +5,14 @@ from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from mavryk.types.governance_financial.parameter.vote_for_request import VoteForRequestParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
 import mavryk.models as models
+from dateutil import parser
 
 async def on_governance_financial_vote_for_request(
     ctx: HandlerContext,
     vote_for_request: Transaction[VoteForRequestParameter, GovernanceFinancialStorage],
 ) -> None:
 
-    try:    
+    try:
         # Get operation info
         financial_address   = vote_for_request.data.target_address
         governance_address  = vote_for_request.storage.governanceAddress
@@ -23,6 +24,9 @@ async def on_governance_financial_vote_for_request(
         yay_smvk_total      = float(request_storage.yayVoteStakedMvkTotal)
         nay_smvk_total      = float(request_storage.nayVoteStakedMvkTotal)
         pass_smvk_total     = float(request_storage.nayVoteStakedMvkTotal)
+        execution_datetime  = request_storage.executedDateTime
+        if execution_datetime:
+            execution_datetime  = parser.parse(request_storage.executedDateTime)
         executed            = request_storage.executed
     
         # Process vote
@@ -49,7 +53,7 @@ async def on_governance_financial_vote_for_request(
                 governance_financial    = governance_financial,
                 internal_id             = request_id
             ).update(
-                execution_datetime    = timestamp
+                execution_datetime    = execution_datetime
             )
     
         voter                   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=voter_address)
@@ -65,14 +69,29 @@ async def on_governance_financial_vote_for_request(
             governance_financial    = governance_financial,
             internal_id             = request_id
         )
-        await models.GovernanceFinancialRequestVote.filter(
+        vote_record_exists      = await models.GovernanceFinancialRequestVote.filter(
             governance_financial_request    = financial_request,
+            satellite_snapshot              = satellite_snapshot,
             voter                           = voter
-        ).update(
-            timestamp           = timestamp,
-            satellite_snapshot  = satellite_snapshot,
-            vote                = vote_type
-        )
+        ).exists()
+        if vote_record_exists:
+            await models.GovernanceFinancialRequestVote.filter(
+                governance_financial_request    = financial_request,
+                satellite_snapshot              = satellite_snapshot,
+                voter                           = voter
+            ).update(
+                timestamp           = timestamp,
+                vote                = vote_type
+            )
+        else:
+            vote_record         = models.GovernanceFinancialRequestVote(
+                governance_financial_request    = financial_request,
+                satellite_snapshot              = satellite_snapshot,
+                voter                           = voter,
+                timestamp                       = timestamp,
+                vote                            = vote_type
+            )
+            await vote_record.save()
 
     except BaseException as e:
          await save_error_report(e)

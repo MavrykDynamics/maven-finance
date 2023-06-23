@@ -5,6 +5,7 @@ from dipdup.context import HandlerContext
 from mavryk.types.governance.storage import GovernanceStorage
 from dipdup.models import Transaction
 import mavryk.models as models
+from dateutil import parser
 
 async def on_governance_process_proposal_single_data(
     ctx: HandlerContext,
@@ -18,7 +19,9 @@ async def on_governance_process_proposal_single_data(
         storage_proposal    = process_proposal_single_data.storage.proposalLedger[process_proposal_single_data.storage.timelockProposalId]
         execution_counter   = int(storage_proposal.proposalDataExecutionCounter)
         executed            = storage_proposal.executed
-        timestamp           = process_proposal_single_data.data.timestamp
+        execution_datetime  = storage_proposal.executedDateTime
+        if execution_datetime:
+            execution_datetime  = parser.parse(storage_proposal.executedDateTime)
     
         # Update record
         governance          = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
@@ -34,7 +37,7 @@ async def on_governance_process_proposal_single_data(
                 governance          = governance,
                 internal_id         = proposal_id
             ).update(
-                execution_datetime  = timestamp
+                execution_datetime  = execution_datetime
             )
 
     except BaseException as e:
