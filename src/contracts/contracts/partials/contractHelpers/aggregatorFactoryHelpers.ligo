@@ -224,14 +224,7 @@ block {
     const aggregatorMetadata: metadataType = Big_map.literal (list [
         ("", ("74657a6f732d73746f726167653a64617461" : bytes));
         ("data", createAggregatorParams.metadata);
-    ]); 
-
-    // Prepare oracle ledger
-    var oracleLedgerSize : nat              := Map.size(createAggregatorParams.oracleLedger);
-    var oracleLedger : oracleLedgerType     := Big_map.empty;
-    function oracleLedgerFold(const oracleLedger: oracleLedgerType; const oracle: address * oracleInformationType) : oracleLedgerType is
-        Big_map.add(oracle.0, oracle.1, oracleLedger);
-    oracleLedger                            := Map.fold(oracleLedgerFold, createAggregatorParams.oracleLedger, oracleLedger);
+    ]);
 
     // Validate name input does not exceed max length
     const aggregatorName : string = createAggregatorParams.name;
@@ -252,8 +245,7 @@ block {
         whitelistContracts        = aggregatorWhitelistContracts;      
         generalContracts          = aggregatorGeneralContracts;
 
-        oracleLedger              = oracleLedger;
-        oracleLedgerSize          = oracleLedgerSize;
+        oracleLedger              = createAggregatorParams.oracleLedger;
         
         lastCompletedData         = lastCompletedData;
                             
