@@ -52,6 +52,10 @@ templates:
       pattern:
       - destination: <m_token_contract>
         entrypoint: mintOrBurn
+    - callback: on_m_token_compound
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: compound
 
 indexes:
   treasury_token_transfer_receiver:

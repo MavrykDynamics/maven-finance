@@ -5554,6 +5554,16 @@ describe("Testnet interactions helper", async () => {
                 console.dir(e, {depth: 5})
             }
         });
+
+        it('Admin compounds', async () => {
+            try{
+                // Operation
+                const operation = await mTokenEurlInstance.methods.compound([bob.pkh]).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
     });
 
     describe("VAULT FACTORY", async () => {

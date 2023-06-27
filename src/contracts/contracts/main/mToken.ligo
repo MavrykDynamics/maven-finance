@@ -42,6 +42,7 @@ type action is
 
         // Additional Entrypoints 
     |   MintOrBurn                of mintOrBurnType
+    |   Compound                  of compoundType
 
 
 type return is list (operation) * mTokenStorageType
@@ -695,6 +696,46 @@ block {
 
 } with (noOperations, s)
 
+
+
+(* Compound Entrypoint *)
+function compound(const compoundParams : compoundType; var s : mTokenStorageType) : return is
+block {
+
+    // get loan token record from Lending Controller through on-chain views
+    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
+    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+
+    var newTotalSupply    : nat := s.totalSupply;
+
+    for userAddress in set compoundParams block {
+
+        // get token balance and reward index for user
+        var userTokenBalance      : tokenBalanceType := getRawBalance(userAddress, s);
+        const userRewardIndex     : nat               = getUserRewardIndex(userAddress, tokenRewardIndex, s);
+
+        // reflect token updated balance
+        if(userRewardIndex = tokenRewardIndex) then skip     // no change to token balance
+        else {
+
+            // increment token balance with calculated additional rewards 
+            const additionalRewards : nat = calculateAdditionalRewards(userRewardIndex, tokenRewardIndex, userTokenBalance);
+            userTokenBalance  := userTokenBalance + additionalRewards;
+            newTotalSupply    := newTotalSupply + additionalRewards;
+
+        };
+
+        // Update user balance
+        s := updateUserBalanceAndRewardIndex(userAddress, userTokenBalance, tokenRewardIndex, s);
+
+    };
+
+    // update token reward index
+    s.tokenRewardIndex  := tokenRewardIndex;
+    s.totalSupply       := newTotalSupply;
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Additional Entrypoints End 
 // ------------------------------------------------------------------------------
@@ -729,6 +770,7 @@ block{
 
             // Additional Entrypoints
         |   MintOrBurn (parameters)                 -> mintOrBurn(parameters, s)
+        |   Compound (parameters)                   -> compound(parameters, s)
 
     ]
 
