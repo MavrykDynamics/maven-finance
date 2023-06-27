@@ -19,10 +19,11 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve, mallory, david, oscar, susie, trudy } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, david, oscar, susie, trudy, isaac, ivan } from "../scripts/sandbox/accounts";
 import { 
     signerFactory
 } from './helpers/helperFunctions'
+import { mockSatelliteData } from "./helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -154,6 +155,11 @@ describe('Aggregator Tests', async () => {
             await addOracleOperation.confirmation();
         }
 
+        if(await aggregatorStorage.oracleLedger.get(satelliteFive) === undefined){
+            addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteFive).send();
+            await addOracleOperation.confirmation();
+        }
+
         // ------------------------------------------------------------------
         // Setup rounds and epoch
         // ------------------------------------------------------------------
@@ -197,7 +203,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should not be able to add an already existing oracle', async () => {
             try {
                 // Initial values
-                const oracleAddress     = bob.pkh;
+                const oracleAddress     = alice.pkh;
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.addOracle(oracleAddress).send()).to.be.rejected;
@@ -210,8 +216,7 @@ describe('Aggregator Tests', async () => {
             try {
                 // Initial values
                 aggregatorStorage       = await aggregatorInstance.storage();
-                const oracleAddress     = susie.pkh;
-                const oracleLedgerSize  = aggregatorStorage.oracleLedgerSize;
+                const oracleAddress     = oscar.pkh;
     
                 // Operation
                 const operation         = await aggregatorInstance.methods.addOracle(oracleAddress).send();
@@ -219,11 +224,9 @@ describe('Aggregator Tests', async () => {
                 
                 // Final values
                 aggregatorStorage           = await aggregatorInstance.storage();
-                const finalOracleLedgerSize = aggregatorStorage.oracleLedgerSize;
                 
                 // Assertions
                 assert.notStrictEqual(await aggregatorStorage.oracleLedger.get(oracleAddress),undefined);
-                assert.deepEqual(finalOracleLedgerSize, oracleLedgerSize.plus(1));
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -242,7 +245,7 @@ describe('Aggregator Tests', async () => {
                 // Initial values
                 const oracleAddress     = susie.pkh;
 
-                const newPublicKey      = mallory.pk;
+                const newPublicKey      = oscar.pk;
                 const newPeerId         = "newPeerId";
     
                 // Operation
@@ -300,7 +303,7 @@ describe('Aggregator Tests', async () => {
         it('Admin should not be able to call this entrypoint if the oracle does not exists', async () => {
             try {
                 // Initial values
-                const oracleAddress = trudy.pkh;
+                const oracleAddress = ivan.pkh;
 
                 // Operation
                 await chai.expect(aggregatorInstance.methods.removeOracle(oracleAddress).send()).to.be.rejected;
@@ -314,7 +317,6 @@ describe('Aggregator Tests', async () => {
                 // Initial values
                 aggregatorStorage       = await aggregatorInstance.storage();
                 const oracleAddress     = susie.pkh;
-                const oracleLedgerSize  = aggregatorStorage.oracleLedgerSize;
 
                 // Operation
                 const operation     = await aggregatorInstance.methods.removeOracle(oracleAddress).send();
@@ -322,11 +324,9 @@ describe('Aggregator Tests', async () => {
     
                 // Final values
                 aggregatorStorage           = await aggregatorInstance.storage();
-                const finalOracleLedgerSize = aggregatorStorage.oracleLedgerSize;
 
                 // Assertion
                 assert.strictEqual(await aggregatorStorage.oracleLedger.get(susie.pkh), undefined);
-                assert.deepEqual(finalOracleLedgerSize, oracleLedgerSize.minus(1));
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -338,7 +338,7 @@ describe('Aggregator Tests', async () => {
         // Constant variables
         const observations = [
             {
-                "oracle": bob.pkh,
+                "oracle": oscar.pkh,
                 "data": new BigNumber(10142857143)
             },
             {
@@ -346,8 +346,12 @@ describe('Aggregator Tests', async () => {
                 "data": new BigNumber(10142853322)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": alice.pkh,
                 "data": new BigNumber(10142857900)
+            },
+            {
+                "oracle": trudy.pkh,
+                "data": new BigNumber(10142857901)
             }
         ];
 
@@ -366,15 +370,17 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
         
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
         
                 // Operation
-                await signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, ivan.sk);
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -406,19 +412,23 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                const startMallorySMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
-                const startMalloryXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
+                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                startOscarSMvkRewards                   = startOscarSMvkRewards ? startOscarSMvkRewards.toNumber() : 0;
+                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                startOscarXtzRewards                    = startOscarXtzRewards ? startOscarXtzRewards.toNumber() : 0;
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-                const rewardRatio                       = oracleVotingPowers.get(mallory.pkh) / totalVotingPower;
+                const rewardRatio                       = oracleVotingPowers.get(oscar.pkh) / totalVotingPower;
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
@@ -426,19 +436,18 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endMallorySMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
-                const endMalloryXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
-                const expectedMaintainerSMvkReward      = Math.trunc(rewardRatio * smvkReward);
+                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const expectedMaintainerSMvkReward      = Math.trunc(rewardRatio * smvkReward) + startOscarSMvkRewards;
+                const expectedMaintainerXtzReward      = xtzReward + startOscarXtzRewards;
 
                 // Assertions
-                assert.strictEqual(startMallorySMvkRewards, undefined);
-                assert.strictEqual(startMalloryXtzRewards, undefined);
-                assert.equal(endMallorySMvkRewards.toNumber(), expectedMaintainerSMvkReward);
-                assert.equal(endMalloryXtzRewards.toNumber(), xtzReward);
+                assert.equal(endOscarSMvkRewards.toNumber(), expectedMaintainerSMvkReward);
+                assert.equal(endOscarXtzRewards.toNumber(), expectedMaintainerXtzReward);
                 assert.deepEqual(aggregatorStorage.lastCompletedData.round,new BigNumber(round));
                 assert.deepEqual(aggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-                assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857143));
-                assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(3));
+                assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857521));
+                assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
                 round++;
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -449,18 +458,18 @@ describe('Aggregator Tests', async () => {
             try {
                 // Pre-operations
                 // Increase oracle maintainer stake
-                await signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, oscar.sk);
                 const additionalStakeAmount             = MVK(10);
                 var stakeOperation                      = await doormanInstance.methods.stake(additionalStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // Add a delegate to another oracle
-                await signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, isaac.sk);
                 var updateOperators = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
-                            owner: trudy.pkh,
+                            owner: isaac.pkh,
                             operator: doormanAddress,
                             token_id: 0,
                         },
@@ -470,7 +479,7 @@ describe('Aggregator Tests', async () => {
                 await updateOperators.confirmation();  
                 stakeOperation                          = await doormanInstance.methods.stake(additionalStakeAmount).send();
                 await stakeOperation.confirmation();
-                const delegateOperation                 = await delegationInstance.methods.delegateToSatellite(trudy.pkh, bob.pkh).send()
+                const delegateOperation                 = await delegationInstance.methods.delegateToSatellite(isaac.pkh, alice.pkh).send()
                 await delegateOperation.confirmation();
 
                 // Initial values
@@ -496,19 +505,21 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                const startMallorySMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
-                const startMalloryXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
+                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-                const rewardRatio                       = oracleVotingPowers.get(mallory.pkh) / totalVotingPower;
+                const rewardRatio                       = oracleVotingPowers.get(oscar.pkh) / totalVotingPower;
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
@@ -516,20 +527,20 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endMallorySMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
-                const endMalloryXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
-                const expectedMaintainerSMvkReward      = Math.trunc(startMallorySMvkRewards.toNumber() + rewardRatio * smvkReward);
-                const expectedMaintainerXtzReward       = startMalloryXtzRewards.toNumber() + xtzReward;
+                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const expectedMaintainerSMvkReward      = Math.trunc(startOscarSMvkRewards.toNumber() + rewardRatio * smvkReward);
+                const expectedMaintainerXtzReward       = startOscarXtzRewards.toNumber() + xtzReward;
 
                 // Assertions
-                assert.notStrictEqual(startMallorySMvkRewards, undefined);
-                assert.notStrictEqual(startMalloryXtzRewards, undefined);
-                assert.equal(endMallorySMvkRewards.toNumber(), expectedMaintainerSMvkReward);
-                assert.equal(endMalloryXtzRewards.toNumber(), expectedMaintainerXtzReward);
+                assert.notStrictEqual(startOscarSMvkRewards, undefined);
+                assert.notStrictEqual(startOscarXtzRewards, undefined);
+                assert.equal(endOscarSMvkRewards.toNumber(), expectedMaintainerSMvkReward);
+                assert.equal(endOscarXtzRewards.toNumber(), expectedMaintainerXtzReward);
                 assert.deepEqual(aggregatorStorage.lastCompletedData.round,new BigNumber(round));
                 assert.deepEqual(aggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-                assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857143));
-                assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(3));
+                assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857521));
+                assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
                 round++;
 
             } catch(e) {
@@ -541,14 +552,14 @@ describe('Aggregator Tests', async () => {
             try {
                 // Pre-operations
                 // Increase oracle maintainer stake
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, oscar.sk);
                 const unstakeAmount                     = MVK(10);
                 const unstakeOperation                  = await doormanInstance.methods.unstake(unstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // Add a delegate to another oracle
-                await signerFactory(tezos, trudy.sk);
-                const undelegateOperation               = await delegationInstance.methods.undelegateFromSatellite(trudy.pkh).send()
+                await signerFactory(tezos, isaac.sk);
+                const undelegateOperation               = await delegationInstance.methods.undelegateFromSatellite(isaac.pkh).send()
                 await undelegateOperation.confirmation();
 
                 // Initial values
@@ -574,41 +585,41 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                const startMallorySMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
-                const startMalloryXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(bob.pkh);
+                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-                const rewardRatio                       = oracleVotingPowers.get(bob.pkh) / totalVotingPower;
+                const rewardRatio                       = oracleVotingPowers.get(oscar.pkh) / totalVotingPower;
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, oscar.sk);
                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
                 await operation.confirmation();
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endMallorySMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
-                const endMalloryXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(bob.pkh);
-                const expectedMaintainerSMvkReward      = Math.trunc(startMallorySMvkRewards.toNumber() + rewardRatio * smvkReward);
-                const expectedMaintainerXtzReward       = xtzReward;
+                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const expectedMaintainerSMvkReward      = Math.trunc(startOscarSMvkRewards.toNumber() + rewardRatio * smvkReward);
+                const expectedMaintainerXtzReward       = xtzReward + startOscarXtzRewards.toNumber();
 
                 // Assertions
-                assert.notStrictEqual(startMallorySMvkRewards, undefined);
-                assert.strictEqual(startMalloryXtzRewards, undefined);
-                assert.equal(endMallorySMvkRewards.toNumber(), expectedMaintainerSMvkReward);
-                assert.equal(endMalloryXtzRewards.toNumber(), expectedMaintainerXtzReward);
+                assert.equal(endOscarXtzRewards.toNumber(), expectedMaintainerXtzReward);
+                assert.equal(endOscarSMvkRewards.toNumber(), expectedMaintainerSMvkReward);
                 assert.deepEqual(aggregatorStorage.lastCompletedData.round,new BigNumber(round));
                 assert.deepEqual(aggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-                assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857143));
-                assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(3));
+                assert.deepEqual(aggregatorStorage.lastCompletedData.data,new BigNumber(10142857521));
+                assert.deepEqual(aggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
                 round++;
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -628,12 +639,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -679,12 +692,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
                 
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -698,7 +713,7 @@ describe('Aggregator Tests', async () => {
                 // Initial values
                 const observations_bad = [
                     {
-                       "oracle": bob.pkh,
+                       "oracle": alice.pkh,
                        "data": new BigNumber(10142857143)
                     },
                     {
@@ -706,11 +721,11 @@ describe('Aggregator Tests', async () => {
                         "data": new BigNumber(10142853322)
                     },
                     {
-                        "oracle": mallory.pkh,
+                        "oracle": oscar.pkh,
                         "data": new BigNumber(10142857900)
                     },
                     {
-                        "oracle": trudy.pkh,
+                        "oracle": isaac.pkh,
                         "data": new BigNumber(10144537815)
                     },
                 ];
@@ -726,12 +741,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -745,7 +762,7 @@ describe('Aggregator Tests', async () => {
                 // Initial values
                 const observations_bad = [
                     {
-                       "oracle": bob.pkh,
+                       "oracle": alice.pkh,
                        "data": new BigNumber(10142857143),
                        "epoch": 1
                     },
@@ -755,12 +772,12 @@ describe('Aggregator Tests', async () => {
                         "epoch": 1
                     },
                     {
-                        "oracle": mallory.pkh,
+                        "oracle": oscar.pkh,
                         "data": new BigNumber(10142857900),
                         "epoch": 1
                     },
                     {
-                        "oracle": trudy.pkh,
+                        "oracle": isaac.pkh,
                         "data": new BigNumber(10144537815),
                         "epoch": 2
                     },
@@ -777,12 +794,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -796,7 +815,7 @@ describe('Aggregator Tests', async () => {
                 // Initial values
                 const observations_bad = [
                     {
-                       "oracle": bob.pkh,
+                       "oracle": alice.pkh,
                        "data": new BigNumber(10142857143),
                        "round": 2
                     },
@@ -806,12 +825,12 @@ describe('Aggregator Tests', async () => {
                         "round": 2
                     },
                     {
-                        "oracle": mallory.pkh,
+                        "oracle": oscar.pkh,
                         "data": new BigNumber(10142857900),
                         "round": 2
                     },
                     {
-                        "oracle": trudy.pkh,
+                        "oracle": isaac.pkh,
                         "data": new BigNumber(10144537815),
                         "round": 3
                     },
@@ -828,12 +847,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
       
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
       
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -857,12 +878,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
    
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -886,12 +909,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, isaac.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -904,7 +929,7 @@ describe('Aggregator Tests', async () => {
     describe('%withdrawRewardStakedMvk', () => {
 
         beforeEach("Set signer to oracle", async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, alice.sk)
         });
 
         it('Oracle should be able to withdraw SMVK rewards', async () => {
@@ -915,7 +940,7 @@ describe('Aggregator Tests', async () => {
                 const oracleVotingPowers                    = new Map<string, number>();
                 const observations                          = [
                     {
-                        "oracle": bob.pkh,
+                        "oracle": alice.pkh,
                         "data": new BigNumber(10142857143)
                     },
                     {
@@ -923,8 +948,12 @@ describe('Aggregator Tests', async () => {
                         "data": new BigNumber(10142853322)
                     },
                     {
-                        "oracle": mallory.pkh,
+                        "oracle": oscar.pkh,
                         "data": new BigNumber(10142857900)
+                    },
+                    {
+                        "oracle": trudy.pkh,
+                        "data": new BigNumber(10142857901)
                     }
                 ];
                 var totalVotingPower                        = 0;
@@ -935,48 +964,50 @@ describe('Aggregator Tests', async () => {
                     totalVotingPower                    += votingPower;
                     oracleVotingPowers.set(oracle, votingPower)
                 };
-                const satelliteFee                          = 1000; // set when bob, eve, mallory registered as satellites in before setup
-                const bobStakedMvk                          = oracleVotingPowers.get(bob.pkh);
+                const aliceSatelliteFee                          = mockSatelliteData.alice.satelliteFee; // set when alice, eve, oscar registered as satellites in before setup
+                const eveSatelliteFee                          = mockSatelliteData.eve.satelliteFee; // set when alice, eve, oscar registered as satellites in before setup
+                const oscarSatelliteFee                          = mockSatelliteData.oscar.satelliteFee; // set when alice, eve, oscar registered as satellites in before setup
+                const aliceStakedMvk                          = oracleVotingPowers.get(alice.pkh);
                 const eveStakedMvk                          = oracleVotingPowers.get(eve.pkh);
-                const malloryStakedMvk                      = oracleVotingPowers.get(mallory.pkh);
+                const oscarStakedMvk                      = oracleVotingPowers.get(oscar.pkh);
                 const rewardAmountStakedMvk                 = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
-                const bobSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
+                const aliceSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(alice.pkh);
                 const eveSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(eve.pkh);
-                const mallorySMvkRewards                    = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
-                const beforeBobRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(bob.pkh);
+                const oscarSMvkRewards                    = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const beforeAliceRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(alice.pkh);
                 const beforeEveRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                const beforeMalloryRewardsLedger            = await delegationStorage.satelliteRewardsLedger.get(mallory.pkh);
+                const beforeOscarRewardsLedger            = await delegationStorage.satelliteRewardsLedger.get(oscar.pkh);
     
                 // Operation
-                const bobWithdrawRewardStakedMvkOp          = await aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send();
-                await bobWithdrawRewardStakedMvkOp.confirmation();
+                const aliceWithdrawRewardStakedMvkOp          = await aggregatorInstance.methods.withdrawRewardStakedMvk(alice.pkh).send();
+                await aliceWithdrawRewardStakedMvkOp.confirmation();
     
                 const eveWithdrawRewardStakedMvkOp          = await aggregatorInstance.methods.withdrawRewardStakedMvk(eve.pkh).send();
                 await eveWithdrawRewardStakedMvkOp.confirmation();
     
-                const malloryWithdrawRewardStakedMvkOp      = await aggregatorInstance.methods.withdrawRewardStakedMvk(mallory.pkh).send();
-                await malloryWithdrawRewardStakedMvkOp.confirmation();
+                const oscarWithdrawRewardStakedMvkOp      = await aggregatorInstance.methods.withdrawRewardStakedMvk(oscar.pkh).send();
+                await oscarWithdrawRewardStakedMvkOp.confirmation();
     
                 // Final values
                 aggregatorStorage                           = await aggregatorInstance.storage();
                 delegationStorage                           = await delegationInstance.storage();
-                const bobRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(bob.pkh);
+                const aliceRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(alice.pkh);
                 const eveRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                const malloryRewardsLedger                  = await delegationStorage.satelliteRewardsLedger.get(mallory.pkh);
-                const resetBobRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(bob.pkh);
+                const oscarRewardsLedger                  = await delegationStorage.satelliteRewardsLedger.get(oscar.pkh);
+                const resetAliceRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(alice.pkh);
                 const resetEveRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(eve.pkh);
-                const resetMalloryRewardStakedMvk           = await aggregatorStorage.oracleRewardStakedMvk.get(mallory.pkh);
-                const finalBobStakedMvkRewardsAfterFees     = satelliteFee * bobSMvkRewards / 10000;
-                const finalEveStakedMvkRewardsAfterFees     = satelliteFee * eveSMvkRewards / 10000;
-                const finalMalloryStakedMvkRewardsAfterFees = satelliteFee * mallorySMvkRewards / 10000;
+                const resetOscarRewardStakedMvk           = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const finalAliceStakedMvkRewardsAfterFees     = aliceSatelliteFee * aliceSMvkRewards / 10000;
+                const finalEveStakedMvkRewardsAfterFees     = eveSatelliteFee * eveSMvkRewards / 10000;
+                const finalOscarStakedMvkRewardsAfterFees = oscarSatelliteFee * oscarSMvkRewards / 10000;
     
                 // Assertions
-                assert.equal(resetBobRewardStakedMvk, 0);
+                assert.equal(resetAliceRewardStakedMvk, 0);
                 assert.equal(resetEveRewardStakedMvk, 0);
-                assert.equal(resetMalloryRewardStakedMvk, 0);
-                assert.equal(bobRewardsLedger.unpaid.toNumber(), beforeBobRewardsLedger.unpaid.toNumber() + Math.trunc(finalBobStakedMvkRewardsAfterFees));
+                assert.equal(resetOscarRewardStakedMvk, 0);
+                assert.equal(aliceRewardsLedger.unpaid.toNumber(), beforeAliceRewardsLedger.unpaid.toNumber() + Math.trunc(finalAliceStakedMvkRewardsAfterFees));
                 assert.equal(eveRewardsLedger.unpaid.toNumber(), beforeEveRewardsLedger.unpaid.toNumber() + Math.trunc(finalEveStakedMvkRewardsAfterFees));
-                assert.equal(malloryRewardsLedger.unpaid.toNumber(), beforeMalloryRewardsLedger.unpaid.toNumber() + Math.trunc(finalMalloryStakedMvkRewardsAfterFees));
+                assert.equal(oscarRewardsLedger.unpaid.toNumber(), beforeOscarRewardsLedger.unpaid.toNumber() + Math.trunc(finalOscarStakedMvkRewardsAfterFees));
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -986,38 +1017,38 @@ describe('Aggregator Tests', async () => {
     describe('%withdrawRewardXtz', () => {
 
         beforeEach("Set signer to oracle", async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, alice.sk)
         });
 
         it('Oracle should be able to withdraw XTZ rewards', async () => {
             try {
                 // Initial values
                 aggregatorStorage                           = await aggregatorInstance.storage();
-                const oraclePendingRewards                  = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
-                const beforeMalloryTezBalance               = await utils.tezos.tz.getBalance(mallory.pkh);
+                const oraclePendingRewards                  = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const beforeOscarTezBalance               = await utils.tezos.tz.getBalance(oscar.pkh);
                 const beforeEveTezBalance                   = await utils.tezos.tz.getBalance(eve.pkh);
     
                 // Operation
                 // use alice to withdraw reward to the oracles and pay the gas cost for easier testing
                 await signerFactory(tezos, alice.sk);
                 
-                const malloryWithdrawRewardXtzOp            = await aggregatorInstance.methods.withdrawRewardXtz(mallory.pkh).send();
-                await malloryWithdrawRewardXtzOp.confirmation();
+                const oscarWithdrawRewardXtzOp            = await aggregatorInstance.methods.withdrawRewardXtz(oscar.pkh).send();
+                await oscarWithdrawRewardXtzOp.confirmation();
                 
                 const eveWithdrawRewardXtzOp                = await aggregatorInstance.methods.withdrawRewardXtz(eve.pkh).send();
                 await eveWithdrawRewardXtzOp.confirmation();
     
                 // Final values
                 aggregatorStorage                           = await aggregatorInstance.storage();
-                const resetMalloryRewardXtz                 = await aggregatorStorage.oracleRewardXtz.get(mallory.pkh);
+                const resetOscarRewardXtz                 = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
                 const resetEveRewardXtz                     = await aggregatorStorage.oracleRewardXtz.get(eve.pkh);
-                const malloryTezBalance                     = await utils.tezos.tz.getBalance(mallory.pkh);
+                const oscarTezBalance                     = await utils.tezos.tz.getBalance(oscar.pkh);
                 const eveTezBalance                         = await utils.tezos.tz.getBalance(eve.pkh);
     
                 // Assertions
-                assert.equal(resetMalloryRewardXtz, 0);
+                assert.equal(resetOscarRewardXtz, 0);
                 assert.equal(resetEveRewardXtz, undefined);
-                assert.equal(malloryTezBalance.toNumber(), beforeMalloryTezBalance.plus(oraclePendingRewards).toNumber());
+                assert.equal(oscarTezBalance.toNumber(), beforeOscarTezBalance.plus(oraclePendingRewards).toNumber());
                 assert.equal(eveTezBalance.toNumber(), beforeEveTezBalance.toNumber());  
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1043,7 +1074,7 @@ describe('Aggregator Tests', async () => {
         const rewardAmountXtz               : BigNumber = new BigNumber(100);
         const rewardAmountStakedMvk         : BigNumber = new BigNumber(100);
 
-        beforeEach("Set signer to oracle", async () => {
+        beforeEach("Set signer to admin", async () => {
             await signerFactory(tezos, bob.sk)
         });
 
@@ -1403,7 +1434,7 @@ describe('Aggregator Tests', async () => {
                 const pause                 = true;
                 const observations          = [
                     {
-                        "oracle": bob.pkh,
+                        "oracle": alice.pkh,
                         "data": new BigNumber(10142857143)
                     },
                     {
@@ -1411,8 +1442,12 @@ describe('Aggregator Tests', async () => {
                         "data": new BigNumber(10142853322)
                     },
                     {
-                        "oracle": mallory.pkh,
+                        "oracle": oscar.pkh,
                         "data": new BigNumber(10142857900)
+                    },
+                    {
+                        "oracle": trudy.pkh,
+                        "data": new BigNumber(10142857901)
                     }
                 ];
 
@@ -1430,12 +1465,14 @@ describe('Aggregator Tests', async () => {
                 const signatures            = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, bob.sk);
-                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
                 await signerFactory(tezos, eve.sk);
                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, mallory.sk);
-                signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await signerFactory(tezos, bob.sk)

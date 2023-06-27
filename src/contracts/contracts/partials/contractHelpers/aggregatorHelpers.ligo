@@ -35,7 +35,7 @@ block {
 function verifySenderIsRegisteredOracle(const s : aggregatorStorageType) : unit is
 block {
 
-    if Big_map.mem(Tezos.get_sender(), s.oracleLedger) 
+    if Map.mem(Tezos.get_sender(), s.oracleLedger) 
     then skip 
     else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
@@ -47,7 +47,7 @@ block {
 function verifySatelliteIsRegisteredOracle(const satellite : address; const s : aggregatorStorageType) : unit is
 block {
 
-    if Big_map.mem(satellite, s.oracleLedger) 
+    if Map.mem(satellite, s.oracleLedger) 
     then skip 
     else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
@@ -59,7 +59,7 @@ block {
 function verifySatelliteIsNotRegisteredOracle(const satellite : address; const s : aggregatorStorageType) : unit is
 block {
 
-    if Big_map.mem(satellite, s.oracleLedger) 
+    if Map.mem(satellite, s.oracleLedger) 
     then failwith(error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR);
 
 } with unit
@@ -132,6 +132,35 @@ block {
     checkSatelliteStatus(satelliteAddress, delegationAddress, True, True);
 
 } with unit
+
+
+
+// refresh the oracle ledger
+function refreshOracleLedger(var s : aggregatorStorageType) : aggregatorStorageType is
+block {
+
+    // parse parameters
+    const satelliteAddress : address    = Tezos.get_sender();
+
+    // verify the sender is still an oracle
+    verifySenderIsRegisteredOracle(s);
+
+    // verify the sender is still a satellite and that it's not banned or suspended
+    const delegationAddress : address                               = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+    const satelliteOptView : option (option(satelliteRecordType))   = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const senderIsValidSatellite : bool                             = case satelliteOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRecord)      -> if _satelliteRecord.status = "SUSPENDED" then False else if _satelliteRecord.status = "BANNED" then False else True
+                |   None                        -> False
+            ]
+        |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+    // refresh the ledger
+    if not senderIsValidSatellite then 
+        s.oracleLedger  := Map.remove(satelliteAddress, s.oracleLedger);
+
+} with (s)
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -396,7 +425,7 @@ function verifyEqualMapSizes(const leaderReponse : updateDataType; const s : agg
 
     // Byzantine faults check
     // see: https://research.chain.link/ocr.pdf
-    const f: int                = ((s.oracleLedgerSize - 1)) / 3n;
+    const f: int                = ((Map.size(s.oracleLedger) - 1)) / 3n;
     const signaturesSize: int   = int(Map.size(leaderReponse.signatures));
     const observationsSize: int = int(Map.size(leaderReponse.oracleObservations));
     if (signaturesSize < f)
