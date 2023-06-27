@@ -351,6 +351,10 @@ templates:
       pattern:
       - destination: <m_token_contract>
         entrypoint: mintOrBurn
+    - callback: on_m_token_compound
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: compound
   # Governance satellite snapshot template
   # Index the snapshot ledger bigmap of the governance contract
   governance_satellite_snapshot_template:
