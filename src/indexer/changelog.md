@@ -167,6 +167,9 @@
 - LendingController
   - Column LiquidationMaxDuration added
 
+- Satellite
+  - Column TotalDelegatedAmount added
+
 ### Breaking changes
 
 - AggregatorFactory
