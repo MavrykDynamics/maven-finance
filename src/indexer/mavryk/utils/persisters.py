@@ -189,13 +189,13 @@ async def persist_financial_request(ctx, action):
     governanceFinancial.fin_req_counter = request_counter
     await governanceFinancial.save()
 
-    for requestID in request_ledger:
+    for request_id in request_ledger:
         request_exists                      = await models.GovernanceFinancialRequest.filter(
             governance_financial    = governanceFinancial,
-            internal_id             = int(requestID)
+            internal_id             = int(request_id)
         ).exists()
         if not request_exists:
-            request_record_storage          = request_ledger[requestID]
+            request_record_storage          = request_ledger[request_id]
             treasuryAddress                 = request_record_storage.treasuryAddress
             requesterAddress                = request_record_storage.requesterAddress
             request_type                    = request_record_storage.requestType
@@ -263,7 +263,7 @@ async def persist_financial_request(ctx, action):
 
             requester               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=requesterAddress)
             requestRecord           = models.GovernanceFinancialRequest(
-                internal_id                     = int(requestID),
+                internal_id                     = int(request_id),
                 governance_financial            = governanceFinancial,
                 treasury                        = treasury,
                 requester                       = requester,
@@ -381,7 +381,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
     contract_name           = ""
     update                  = hasattr(update_linked_contracts.parameter.updateType, "update")
     entrypoint_name         = update_linked_contracts.data.entrypoint
-    #TODO: review and optimize this section
+
     if entrypoint_name == "updateGeneralContracts":
         contract_address        = update_linked_contracts.parameter.generalContractAddress
         contract_name           = update_linked_contracts.parameter.generalContractName
