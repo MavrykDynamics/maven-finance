@@ -15,16 +15,17 @@ async def on_delegation_on_stake_change(
         # Get operation info
         delegation_address      = on_stake_change.data.target_address
         user_addresses          = on_stake_change.parameter.__root__
+        satellite_ledger        = on_stake_change.storage.satelliteLedger
+        delegation              = await models.Delegation.get(
+            network = ctx.datasource.network,
+            address = delegation_address
+        )
 
         for user_address in user_addresses:
             # Get and update records
             if user_address in on_stake_change.storage.satelliteRewardsLedger:
                 rewards_record          = on_stake_change.storage.satelliteRewardsLedger[user_address]
                 user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
-                delegation              = await models.Delegation.get(
-                    network = ctx.datasource.network,
-                    address = delegation_address
-                )
                 satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
                     user        = user,
                     delegation  = delegation
@@ -36,6 +37,17 @@ async def on_delegation_on_stake_change(
                 satellite_rewards.reference_governance_cycle_id             = int(rewards_record.referenceGovernanceCycleId)
                 satellite_rewards.tracked                                   = rewards_record.tracked
                 await satellite_rewards.save()
+
+        # Update satellites total delegated amount
+        for satellite_address in satellite_ledger:
+            satellite_storage                       = satellite_ledger[satellite_address]
+            satellite                               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
+            satellite_record                        = await models.Satellite.get(
+                user        = satellite,
+                delegation  = delegation
+            )
+            satellite_record.total_delegated_amount = float(satellite_storage.totalDelegatedAmount)
+            await satellite_record.save()
 
     except BaseException as e:
          await save_error_report(e)
