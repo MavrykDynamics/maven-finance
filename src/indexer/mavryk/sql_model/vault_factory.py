@@ -26,13 +26,14 @@ class VaultFactoryVaultLambda(ContractLambda, Model):
         table = 'vault_factory_vault_lambda'
 
 class VaultFactoryGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.VaultFactory', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.VaultFactory', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'vault_factory_general_contract'
 
 class VaultFactoryWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.VaultFactory', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.VaultFactory', related_name='whitelist_contracts')
 
     class Meta:
         table = 'vault_factory_whitelist_contract'

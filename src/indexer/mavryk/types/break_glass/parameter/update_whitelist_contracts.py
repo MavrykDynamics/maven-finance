@@ -26,6 +26,5 @@ class UpdateWhitelistContractsParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    whitelistContractName: str
     whitelistContractAddress: str
     updateType: Union[UpdateTypeItem, UpdateTypeItem1]

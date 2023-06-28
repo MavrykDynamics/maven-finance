@@ -25,6 +25,7 @@ class Aggregator(MavrykContract, Model):
     last_completed_data                     = fields.FloatField(default=0.0)
     last_completed_data_pct_oracle_resp     = fields.SmallIntField(default=0)
     last_completed_data_last_updated_at     = fields.DatetimeField(index=True)
+    oracle_ledger_size                      = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'aggregator'
@@ -69,6 +70,7 @@ class AggregatorLambda(ContractLambda, Model):
 
 class AggregatorGeneralContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.Aggregator', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'aggregator_general_contract'

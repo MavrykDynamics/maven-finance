@@ -14,12 +14,7 @@ async def on_farm_claim(
     try:
         # Get operation info
         farm_address                    = claim.data.target_address
-        depositor_address               = claim.data.sender_address
-        depositor_storage               = claim.storage.depositorLedger[depositor_address]
-        balance                         = int(depositor_storage.balance)
-        participation_rewards_per_share = float(depositor_storage.participationRewardsPerShare )
-        claimed_rewards                 = float(depositor_storage.claimedRewards)
-        unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
+        depositor_addresses             = claim.parameter.__root__
         lp_token_balance                = int(claim.storage.config.lpToken.tokenBalance)
         last_block_update               = int(claim.storage.lastBlockUpdate)
         open                            = claim.storage.open
@@ -30,8 +25,8 @@ async def on_farm_claim(
         current_reward_per_block        = float(claim.storage.config.plannedRewards.currentRewardPerBlock)
         total_blocks                    = int(claim.storage.config.plannedRewards.totalBlocks)
         min_block_time_snapshot         = int(claim.storage.minBlockTimeSnapshot)
-        
-        # Create and update records
+
+        # Update farm
         farm                            = await models.Farm.get(
             network = ctx.datasource.network,
             address = farm_address
@@ -47,18 +42,26 @@ async def on_farm_claim(
         farm.unpaid_rewards             = unpaid_rewards
         farm.paid_rewards               = paid_rewards
         await farm.save()
-    
-        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
-    
-        farm_account, _                 = await models.FarmAccount.get_or_create(
-            user = user,
-            farm = farm
-        )
-        farm_account.deposited_amount               = balance
-        farm_account.participation_rewards_per_share     = participation_rewards_per_share 
-        farm_account.unclaimed_rewards              = unclaimed_rewards
-        farm_account.claimed_rewards                = claimed_rewards
-        await farm_account.save()
+
+        # Update records
+        for depositor_address in depositor_addresses:
+            depositor_storage               = claim.storage.depositorLedger[depositor_address]
+            balance                         = int(depositor_storage.balance)
+            participation_rewards_per_share = float(depositor_storage.participationRewardsPerShare )
+            claimed_rewards                 = float(depositor_storage.claimedRewards)
+            unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
+        
+            user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
+        
+            farm_account, _                 = await models.FarmAccount.get_or_create(
+                user = user,
+                farm = farm
+            )
+            farm_account.deposited_amount                   = balance
+            farm_account.participation_rewards_per_share    = participation_rewards_per_share 
+            farm_account.unclaimed_rewards                  = unclaimed_rewards
+            farm_account.claimed_rewards                    = claimed_rewards
+            await farm_account.save()
 
     except BaseException as e:
          await save_error_report(e)

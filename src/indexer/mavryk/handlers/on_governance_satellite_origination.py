@@ -15,8 +15,8 @@ async def on_governance_satellite_origination(
         # Get operation info
         address                     = governance_satellite_origination.data.originated_contract_address
         admin                       = governance_satellite_origination.storage.admin
-        gov_sat_approval_pct        = int(governance_satellite_origination.storage.config.governanceSatelliteApprovalPercentage)
-        gov_sat_duration_in_days    = int(governance_satellite_origination.storage.config.governanceSatelliteDurationInDays)
+        approval_pct                = int(governance_satellite_origination.storage.config.approvalPercentage)
+        sat_action_duration_in_days = int(governance_satellite_origination.storage.config.satelliteActionDurationInDays)
         gov_purpose_max_length      = int(governance_satellite_origination.storage.config.governancePurposeMaxLength)
         max_actions_per_satellite   = int(governance_satellite_origination.storage.config.maxActionsPerSatellite)
         gov_sat_counter             = int(governance_satellite_origination.storage.governanceSatelliteCounter)
@@ -39,8 +39,8 @@ async def on_governance_satellite_origination(
             admin                           = admin,
             last_updated_at                 = timestamp,
             governance                      = governance,
-            gov_sat_approval_percentage     = gov_sat_approval_pct,
-            gov_sat_duration_in_days        = gov_sat_duration_in_days,
+            approval_percentage             = approval_pct,
+            sat_action_duration_in_days     = sat_action_duration_in_days,
             gov_purpose_max_length          = gov_purpose_max_length,
             max_actions_per_satellite       = max_actions_per_satellite,
             governance_satellite_counter    = gov_sat_counter

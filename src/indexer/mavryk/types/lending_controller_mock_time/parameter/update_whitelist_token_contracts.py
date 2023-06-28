@@ -3,23 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
-
 from pydantic import BaseModel, Extra
-
-
-class UpdateTypeItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    remove: Dict[str, Any]
-
-
-class UpdateTypeItem1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    update: Dict[str, Any]
 
 
 class UpdateWhitelistTokenContractsParameter(BaseModel):
@@ -28,4 +12,3 @@ class UpdateWhitelistTokenContractsParameter(BaseModel):
 
     tokenContractName: str
     tokenContractAddress: str
-    updateType: Union[UpdateTypeItem, UpdateTypeItem1]

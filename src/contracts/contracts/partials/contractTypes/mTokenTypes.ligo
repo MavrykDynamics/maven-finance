@@ -23,6 +23,9 @@ type mintOrBurnType is [@layout:comb] record [
     quantity  : int;
 ]
 
+(* Compound entrypoint inputs *)
+type compoundType is set(address)
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
