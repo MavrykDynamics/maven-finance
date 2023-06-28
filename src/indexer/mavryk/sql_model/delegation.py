@@ -70,6 +70,7 @@ class Satellite(Model):
     website                                 = fields.TextField(default="")
     registration_timestamp                  = fields.DatetimeField(auto_now=True)
     currently_registered                    = fields.BooleanField(default=True, index=True)
+    total_delegated_amount                  = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'satellite'
