@@ -26,6 +26,7 @@ async def on_delegation_register_as_satellite(
         rewards_record          = register_as_satellite.storage.satelliteRewardsLedger[satellite_address]
         satellite_storage       = register_as_satellite.storage.satelliteLedger[satellite_address]
         registration_timestamp  = parser.parse(satellite_storage.registeredDateTime)
+        total_delegated_amount  = float(satellite_storage.totalDelegatedAmount)
     
         # Create and/or update record
         user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
@@ -37,15 +38,16 @@ async def on_delegation_register_as_satellite(
             user                    = user,
             delegation              = delegation,
         )
-        satellite_record.registration_timestamp          = registration_timestamp
-        satellite_record.public_key                      = public_key
-        satellite_record.peer_id                         = peer_id
-        satellite_record.fee                             = fee
-        satellite_record.name                            = name
-        satellite_record.description                     = description
-        satellite_record.image                           = image
-        satellite_record.website                         = website
-        satellite_record.currently_registered            = True
+        satellite_record.registration_timestamp         = registration_timestamp
+        satellite_record.public_key                     = public_key
+        satellite_record.peer_id                        = peer_id
+        satellite_record.fee                            = fee
+        satellite_record.name                           = name
+        satellite_record.description                    = description
+        satellite_record.image                          = image
+        satellite_record.website                        = website
+        satellite_record.currently_registered           = True
+        satellite_record.total_delegated_amount         = total_delegated_amount
     
         satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(
             user        = user,
