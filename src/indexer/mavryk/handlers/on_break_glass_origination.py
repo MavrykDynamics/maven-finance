@@ -24,6 +24,7 @@ async def on_break_glass_origination(
         glass_broken                        = break_glass_origination.storage.glassBroken
         action_counter                      = break_glass_origination.storage.actionCounter
         council_members                     = break_glass_origination.storage.councilMembers
+        council_size                        = int(break_glass_origination.storage.councilSize)
         timestamp                           = break_glass_origination.data.timestamp
     
         # Get contract metadata
@@ -34,7 +35,6 @@ async def on_break_glass_origination(
     
         # Get governance record
         governance                  = await models.Governance.get(network = ctx.datasource.network)
-    
     
         # Create record
         break_glass  = models.BreakGlass(
@@ -49,6 +49,7 @@ async def on_break_glass_origination(
             council_member_name_max_length      = council_member_name_max_length,
             council_member_website_max_length   = council_member_website_max_length,
             council_member_image_max_length     = council_member_image_max_length,
+            council_size                        = council_size,
             glass_broken                        = glass_broken,
             action_counter                      = action_counter,
         )

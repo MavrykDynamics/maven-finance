@@ -9,194 +9,218 @@ import mavryk.models as models
 ###
 async def persist_council_action(ctx, action):
     # Get operation values
-    councilAddress                  = action.data.target_address
-    councilActionRecordDiff         = action.data.diffs[-1]['content']['value']
-    councilActionType               = councilActionRecordDiff['actionType']
-    councilActionInitiator          = councilActionRecordDiff['initiator']
-    councilActionStartDate          = parser.parse(councilActionRecordDiff['startDateTime'])
-    councilActionExecutedDate       = parser.parse(councilActionRecordDiff['executedDateTime'])
-    councilActionExpirationDate     = parser.parse(councilActionRecordDiff['expirationDateTime'])
-    councilActionStatus             = councilActionRecordDiff['status']
-    councilActionExecuted           = councilActionRecordDiff['executed']
-    councilActionSigners            = councilActionRecordDiff['signers']
-    councilActionData               = councilActionRecordDiff['dataMap']
-    councilActionCounter            = int(action.storage.actionCounter)
+    council_address                 = action.data.target_address
+    council_action_ledger           = action.storage.councilActionsLedger
+    council_action_counter          = int(action.storage.actionCounter)
+    council_action_signers          = action.storage.councilActionsSigners
 
-    # Create and update records
-    recordStatus    = models.ActionStatus.PENDING
-    if councilActionStatus == 'FLUSHED':
-        recordStatus    = models.ActionStatus.FLUSHED
-    elif councilActionStatus == 'EXECUTED':
-        recordStatus    = models.ActionStatus.EXECUTED
-    elif councilActionStatus == 'EXPIRED':
-        recordStatus    = models.ActionStatus.EXPIRED
-
-    council = await models.Council.get(
+    # Update record
+    council                         = await models.Council.get(
         network = ctx.datasource.network,
-        address = councilAddress
+        address = council_address
     )
-    council.action_counter      = councilActionCounter
-    actionID                    = councilActionCounter - 1
+    council.action_counter          = council_action_counter
     await council.save()
 
-    initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=councilActionInitiator)
+    # Save council action
+    for council_action_id in council_action_ledger:
+        council_action_record           = council_action_ledger[council_action_id]
+        council_action_type             = council_action_record.actionType
+        council_action_initiator        = council_action_record.initiator
+        council_action_start_date       = parser.parse(council_action_record.startDateTime)
+        council_action_executed_date    = None 
+        if council_action_record.executedDateTime:
+            council_action_executed_date    = parser.parse(council_action_record.executedDateTime)
+        council_action_expiration_date  = parser.parse(council_action_record.expirationDateTime)
+        council_action_status           = council_action_record.status
+        council_action_executed         = council_action_record.executed
+        council_action_data             = council_action_record.dataMap
 
-    action_exists   = await models.CouncilAction.filter(
-        council     = council,
-        internal_id = actionID
-    ).exists()
-    if not action_exists:
-        council_size        = len(await models.CouncilCouncilMember.filter(council=council).all())
-        councilActionRecord = models.CouncilAction(
-            internal_id                     = actionID,
-            council                         = council,
-            initiator                       = initiator,
-            start_datetime                  = councilActionStartDate,
-            execution_datetime              = councilActionExecutedDate,
-            expiration_datetime             = councilActionExpirationDate,
-            action_type                     = councilActionType,
-            status                          = recordStatus,
-            executed                        = councilActionExecuted,
-            council_size_snapshot           = council_size
-        )
-        await councilActionRecord.save()
+        # Create and update records
+        record_status                   = models.ActionStatus.PENDING
+        if council_action_status == 'FLUSHED':
+            record_status    = models.ActionStatus.FLUSHED
+        elif council_action_status == 'EXECUTED':
+            record_status    = models.ActionStatus.EXECUTED
+        elif council_action_status == 'EXPIRED':
+            record_status    = models.ActionStatus.EXPIRED
 
-        # Parameters
-        for key in councilActionData:
-            value                           = councilActionData[key]
-            councilActionRecordParameter    = models.CouncilActionParameter(
-                council_action          = councilActionRecord,
-                name                    = key,
-                value                   = value
+        initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=council_action_initiator)
+
+        action_exists                   = await models.CouncilAction.filter(
+            council     = council,
+            internal_id = int(council_action_id)
+        ).exists()
+        if not action_exists:
+            council_size            = council.council_size
+            council_action_record   = models.CouncilAction(
+                internal_id                     = int(council_action_id),
+                council                         = council,
+                initiator                       = initiator,
+                start_datetime                  = council_action_start_date,
+                execution_datetime              = council_action_executed_date,
+                expiration_datetime             = council_action_expiration_date,
+                action_type                     = council_action_type,
+                status                          = record_status,
+                executed                        = council_action_executed,
+                council_size_snapshot           = council_size
             )
-            await councilActionRecordParameter.save()
+            await council_action_record.save()
 
-        # Signers
-        for signer in councilActionSigners:
-            user    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer)
-            councilActionRecordSigner = models.CouncilActionSigner(
-                signer                  = user,
-                council_action          = councilActionRecord
-            )
-            await councilActionRecordSigner.save()
+            # Parameters
+            for key in council_action_data:
+                value                           = council_action_data[key]
+                council_action_record_parameter = models.CouncilActionParameter(
+                    council_action          = council_action_record,
+                    name                    = key,
+                    value                   = value
+                )
+                await council_action_record_parameter.save()
+        
+            # Save actions signers
+            for council_action_signer in council_action_signers:
+                action_id       = council_action_signer.key.nat
+                action_signer   = council_action_signer.key.address
+
+                if action_id == council_action_id:
+                    # Signers
+                    user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=action_signer)
+                    council_action_record_signer    = models.CouncilActionSigner(
+                        signer                  = user,
+                        council_action          = council_action_record
+                    )
+                    await council_action_record_signer.save()
 
 async def persist_break_glass_action(ctx, action):
     # Get operation values
-    breakGlassAddress                  = action.data.target_address
-    breakGlassActionRecordDiff         = action.data.diffs[-1]['content']['value']
-    breakGlassActionType               = breakGlassActionRecordDiff['actionType']
-    breakGlassActionInitiator          = breakGlassActionRecordDiff['initiator']
-    breakGlassActionStartDate          = parser.parse(breakGlassActionRecordDiff['startDateTime'])
-    breakGlassActionExecutedDate       = parser.parse(breakGlassActionRecordDiff['executedDateTime'])
-    breakGlassActionExpirationDate     = parser.parse(breakGlassActionRecordDiff['expirationDateTime'])
-    breakGlassActionStatus             = breakGlassActionRecordDiff['status']
-    breakGlassActionExecuted           = breakGlassActionRecordDiff['executed']
-    breakGlassActionSigners            = breakGlassActionRecordDiff['signers']
-    breakGlassActionData               = breakGlassActionRecordDiff['dataMap']
-    breakGlassActionCounter            = int(action.storage.actionCounter)
+    break_glass_address                 = action.data.target_address
+    break_glass_action_ledger           = action.storage.actionsLedger
+    break_glass_action_counter          = int(action.storage.actionCounter)
+    break_glass_action_signers          = action.storage.actionsSigners
 
-    # Create and update records
-    recordStatus    = models.ActionStatus.PENDING
-    if breakGlassActionStatus == 'FLUSHED':
-        recordStatus    = models.ActionStatus.FLUSHED
-    elif breakGlassActionStatus == 'EXECUTED':
-        recordStatus    = models.ActionStatus.EXECUTED
-    elif breakGlassActionStatus == 'EXPIRED':
-        recordStatus    = models.ActionStatus.EXPIRED
-
-    breakGlass = await models.BreakGlass.get(
+    # Update record
+    break_glass                         = await models.BreakGlass.get(
         network         = ctx.datasource.network,
-        address         = breakGlassAddress
+        address         = break_glass_address
     )
-    breakGlass.action_counter   = breakGlassActionCounter
-    actionID                    = breakGlassActionCounter - 1
-    await breakGlass.save()
+    break_glass.action_counter          = break_glass_action_counter
+    await break_glass.save()
 
-    initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=breakGlassActionInitiator)
+    # Save break glass action
+    for break_glass_action_id in break_glass_action_ledger:
+        break_glass_action_record           = break_glass_action_ledger[break_glass_action_id]
+        break_glass_action_type             = break_glass_action_record.actionType
+        break_glass_action_initiator        = break_glass_action_record.initiator
+        break_glass_action_start_date       = parser.parse(break_glass_action_record.startDateTime)
+        break_glass_action_executed_date    = break_glass_action_record.executedDateTime
+        if break_glass_action_executed_date:
+            break_glass_action_executed_date    = parser.parse(break_glass_action_record.executedDateTime)
+        break_glass_action_expiration_date  = parser.parse(break_glass_action_record.expirationDateTime)
+        break_glass_action_status           = break_glass_action_record.status
+        break_glass_action_executed         = break_glass_action_record.executed
+        break_glass_action_data             = break_glass_action_record.dataMap
 
-    action_exists   = await models.BreakGlassAction.filter(
-        break_glass = breakGlass,
-        internal_id = actionID
-    ).exists()
-    if not action_exists:
-        council_size            = len(await models.BreakGlassCouncilMember.filter(break_glass=breakGlass).all())
-        breakGlassActionRecord  = models.BreakGlassAction(
-            internal_id                     = actionID,
-            break_glass                     = breakGlass,
-            initiator                       = initiator,
-            start_datetime                  = breakGlassActionStartDate,
-            execution_datetime              = breakGlassActionExecutedDate,
-            expiration_datetime             = breakGlassActionExpirationDate,
-            action_type                     = breakGlassActionType,
-            status                          = recordStatus,
-            executed                        = breakGlassActionExecuted,
-            council_size_snapshot           = council_size
-        )
-        await breakGlassActionRecord.save()
+        # Create and update records
+        record_status       = models.ActionStatus.PENDING
+        if break_glass_action_status == 'FLUSHED':
+            record_status   = models.ActionStatus.FLUSHED
+        elif break_glass_action_status == 'EXECUTED':
+            record_status   = models.ActionStatus.EXECUTED
+        elif break_glass_action_status == 'EXPIRED':
+            record_status   = models.ActionStatus.EXPIRED
 
-        # Parameters
-        for key in breakGlassActionData:
-            value                               = breakGlassActionData[key]
-            breakGlassActionRecordParameter     = models.BreakGlassActionParameter(
-                break_glass_action          = breakGlassActionRecord,
-                name                        = key,
-                value                       = value
+        initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=break_glass_action_initiator)
+
+        action_exists   = await models.BreakGlassAction.filter(
+            break_glass = break_glass,
+            internal_id = int(break_glass_action_id)
+        ).exists()
+        if not action_exists:
+            council_size                = break_glass.council_size
+            break_glass_action_record   = models.BreakGlassAction(
+                internal_id                     = break_glass_action_id,
+                break_glass                     = break_glass,
+                initiator                       = initiator,
+                start_datetime                  = break_glass_action_start_date,
+                execution_datetime              = break_glass_action_executed_date,
+                expiration_datetime             = break_glass_action_expiration_date,
+                action_type                     = break_glass_action_type,
+                status                          = record_status,
+                executed                        = break_glass_action_executed,
+                council_size_snapshot           = council_size
             )
-            await breakGlassActionRecordParameter.save()
+            await break_glass_action_record.save()
 
-        # Signers
-        for signer in breakGlassActionSigners:
-            user    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer)
+            # Parameters
+            for key in break_glass_action_data:
+                value                               = break_glass_action_data[key]
+                break_glass_action_record_parameter = models.BreakGlassActionParameter(
+                    break_glass_action          = break_glass_action_record,
+                    name                        = key,
+                    value                       = value
+                )
+                await break_glass_action_record_parameter.save()
 
-            breakGlassActionRecordSigner = models.BreakGlassActionSigner(
-                signer                      = user,
-                break_glass_action          = breakGlassActionRecord
-            )
-            await breakGlassActionRecordSigner.save()
+            # Save actions signers
+            for break_glass_action_signer in break_glass_action_signers:
+                action_id       = break_glass_action_signer.key.nat
+                action_signer   = break_glass_action_signer.key.address
+                
+                if action_id == break_glass_action_id:
+                    # Signers
+                    user                                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=action_signer)
+                    break_glass_action_record_signer    = models.BreakGlassActionSigner(
+                        signer                      = user,
+                        break_glass_action          = break_glass_action_record
+                    )
+                    await break_glass_action_record_signer.save()
 
 async def persist_financial_request(ctx, action):
     # Get operation values
-    financialAddress        = action.data.target_address
-    requestLedger           = action.storage.financialRequestLedger
-    requestCounter          = int(action.storage.financialRequestCounter)
+    financial_address       = action.data.target_address
+    request_ledger          = action.storage.financialRequestLedger
+    request_counter         = int(action.storage.financialRequestCounter)
 
     # Create record
     governanceFinancial     = await models.GovernanceFinancial.get(
         network         = ctx.datasource.network,
-        address         = financialAddress
+        address         = financial_address
     )
-    governanceFinancial.fin_req_counter = requestCounter
+    governanceFinancial.fin_req_counter = request_counter
     await governanceFinancial.save()
 
-    for requestID in requestLedger:
+    for requestID in request_ledger:
         request_exists                      = await models.GovernanceFinancialRequest.filter(
             governance_financial    = governanceFinancial,
             internal_id             = int(requestID)
         ).exists()
         if not request_exists:
-            requestRecordStorage            = requestLedger[requestID]
-            treasuryAddress                 = requestRecordStorage.treasuryAddress
-            requesterAddress                = requestRecordStorage.requesterAddress
-            request_type                    = requestRecordStorage.requestType
-            status                          = requestRecordStorage.status
+            request_record_storage          = request_ledger[requestID]
+            treasuryAddress                 = request_record_storage.treasuryAddress
+            requesterAddress                = request_record_storage.requesterAddress
+            request_type                    = request_record_storage.requestType
+            status                          = request_record_storage.status
             statusType                      = models.GovernanceActionStatus.ACTIVE
             if not status:
                 statusType  = models.GovernanceActionStatus.DROPPED
-            executed                        = requestRecordStorage.executed
-            token_contract_address          = requestRecordStorage.tokenContractAddress
-            token_amount                    = float(requestRecordStorage.tokenAmount)
-            token_id                        = int(requestRecordStorage.tokenId)
-            key_hash                        = requestRecordStorage.keyHash
-            request_purpose                 = requestRecordStorage.requestPurpose
-            yay_vote_smvk_total             = float(requestRecordStorage.yayVoteStakedMvkTotal)
-            nay_vote_smvk_total             = float(requestRecordStorage.nayVoteStakedMvkTotal)
-            pass_vote_smvk_total            = float(requestRecordStorage.passVoteStakedMvkTotal)
-            smvk_percentage_for_approval    = int(requestRecordStorage.stakedMvkPercentageForApproval)
-            snapshot_smvk_total_supply      = float(requestRecordStorage.snapshotStakedMvkTotalSupply)
-            smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
-            execution_datetime              = parser.parse(requestRecordStorage.requestedDateTime) # TODO: refactor when implemented in the contracts
-            expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
-            requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
+            executed                        = request_record_storage.executed
+            token_contract_address          = request_record_storage.tokenContractAddress
+            token_amount                    = float(request_record_storage.tokenAmount)
+            token_id                        = int(request_record_storage.tokenId)
+            key_hash                        = request_record_storage.keyHash
+            request_purpose                 = request_record_storage.requestPurpose
+            yay_vote_smvk_total             = float(request_record_storage.yayVoteStakedMvkTotal)
+            nay_vote_smvk_total             = float(request_record_storage.nayVoteStakedMvkTotal)
+            pass_vote_smvk_total            = float(request_record_storage.passVoteStakedMvkTotal)
+            smvk_percentage_for_approval    = int(request_record_storage.stakedMvkPercentageForApproval)
+            snapshot_smvk_total_supply      = float(request_record_storage.snapshotStakedMvkTotalSupply)
+            smvk_required_for_approval      = float(request_record_storage.stakedMvkRequiredForApproval)
+            execution_datetime              = None
+            if request_record_storage.executedDateTime:
+                execution_datetime  = parser.parse(request_record_storage.executedDateTime)
+            expiration_datetime             = parser.parse(request_record_storage.expiryDateTime)
+            requested_datetime              = parser.parse(request_record_storage.requestedDateTime)
+            governance_cycle_id             = int(request_record_storage.governanceCycleId)
 
             # Check if treasury exists
             treasury                        = await models.Treasury.get_or_none(
@@ -258,7 +282,8 @@ async def persist_financial_request(ctx, action):
                 smvk_required_for_approval      = smvk_required_for_approval,
                 execution_datetime              = execution_datetime,
                 expiration_datetime             = expiration_datetime,
-                requested_datetime              = requested_datetime
+                requested_datetime              = requested_datetime,
+                governance_cycle_id             = governance_cycle_id
             )
             await requestRecord.save()
 
@@ -297,9 +322,12 @@ async def persist_governance_satellite_action(ctx, action):
             snapshot_smvk_total_supply      = float(action_record_storage.snapshotStakedMvkTotalSupply)
             smvk_pct_for_approval           = int(action_record_storage.stakedMvkPercentageForApproval)
             smvk_required_for_approval      = float(action_record_storage.stakedMvkRequiredForApproval)
-            execution_datetime              = parser.parse(action_record_storage.startDateTime) # TODO: refactor when implemented in the contracts
+            execution_datetime              = None
+            if action_record_storage.executedDateTime:
+                execution_datetime  = parser.parse(action_record_storage.executedDateTime)
             expiration_datetime             = parser.parse(action_record_storage.expiryDateTime)
             start_datetime                  = parser.parse(action_record_storage.startDateTime)
+            governance_cycle_id             = int(action_record_storage.governanceCycleId)
             data                            = action_record_storage.dataMap
 
             initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=initiator_address)
@@ -319,7 +347,8 @@ async def persist_governance_satellite_action(ctx, action):
                 smvk_required_for_approval      = smvk_required_for_approval,
                 execution_datetime              = execution_datetime,
                 expiration_datetime             = expiration_datetime,
-                start_datetime                  = start_datetime
+                start_datetime                  = start_datetime,
+                governance_cycle_id             = governance_cycle_id
             )
             await action_record.save()
 
@@ -352,26 +381,47 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
     contract_name           = ""
     update                  = hasattr(update_linked_contracts.parameter.updateType, "update")
     entrypoint_name         = update_linked_contracts.data.entrypoint
+    #TODO: review and optimize this section
     if entrypoint_name == "updateGeneralContracts":
         contract_address        = update_linked_contracts.parameter.generalContractAddress
         contract_name           = update_linked_contracts.parameter.generalContractName
+
+        # Delete the record
+        await linked_contract_class.filter(contract = contract, contract_name = contract_name).delete()
+
+        if update:
+            # Update general contracts record
+            linked_contract, _  = await linked_contract_class.get_or_create(
+                contract        = contract,
+                contract_name   = contract_name,
+            )
+            linked_contract.contract_address    = contract_address
+            await linked_contract.save()
+
     elif entrypoint_name == "updateWhitelistContracts":
         contract_address        = update_linked_contracts.parameter.whitelistContractAddress
-        contract_name           = update_linked_contracts.parameter.whitelistContractName
+
+        # Delete the record
+        await linked_contract_class.filter(contract = contract, contract_address = contract_address).delete()
+
+        if update:
+            # Update general contracts record
+            linked_contract, _  = await linked_contract_class.get_or_create(
+                contract        = contract,
+            )
+            linked_contract.contract_address    = contract_address
+            await linked_contract.save()
+
     elif entrypoint_name == "updateWhitelistTokenContracts":
         contract_address        = update_linked_contracts.parameter.tokenContractAddress
-        contract_name           = update_linked_contracts.parameter.tokenContractName
         if ctx:
             token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=contract_address,
             )
 
-    # Delete the record
-    await linked_contract_class.filter(contract = contract, contract_name = contract_name).delete()
-
-    # Save the whitelist token
-    if entrypoint_name == "updateWhitelistTokenContracts":
+        # Delete the record
+        await linked_contract_class.filter(contract = contract, contract_address = contract_address).delete()
 
         # Get the token standard
         standard = await get_token_standard(
@@ -393,17 +443,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
             # Update general contracts record
             linked_contract, _  = await linked_contract_class.get_or_create(
                 contract        = contract,
-                contract_name   = contract_name,
                 token           = token
-            )
-            linked_contract.contract_address    = contract_address
-            await linked_contract.save()
-    else:
-        if update:
-            # Update general contracts record
-            linked_contract, _  = await linked_contract_class.get_or_create(
-                contract        = contract,
-                contract_name   = contract_name,
             )
             linked_contract.contract_address    = contract_address
             await linked_contract.save()

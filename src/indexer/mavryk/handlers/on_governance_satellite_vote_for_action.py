@@ -22,6 +22,9 @@ async def on_governance_satellite_vote_for_action(
         yay_vote_smvk_total             = float(action_storage.yayVoteStakedMvkTotal)
         nay_vote_smvk_total             = float(action_storage.nayVoteStakedMvkTotal)
         pass_vote_smvk_total            = float(action_storage.passVoteStakedMvkTotal)
+        execution_datetime              = action_storage.executedDateTime
+        if execution_datetime:
+            execution_datetime          = parser.parse(action_storage.executedDateTime)
         executed                        = action_storage.executed
         action_id                       = int(vote_for_action.parameter.actionId)
         vote                            = vote_for_action.parameter.vote
@@ -46,7 +49,7 @@ async def on_governance_satellite_vote_for_action(
         action_record.pass_vote_smvk_total  = pass_vote_smvk_total
         action_record.executed              = executed
         if executed:
-            action_record.execution_datetime    = timestamp
+            action_record.execution_datetime    = execution_datetime
         await action_record.save()
     
         voter                   = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=voter_address)

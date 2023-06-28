@@ -17,9 +17,144 @@
 
 ### What's new
 
-- Doorman exit
-- MVK Burn
-- contracts map update
+- Aggregator
+  - Column OracleLedgerSize added
+
+- BreakGlass
+  - Column CouncilSize added
+
+- Council
+  - Column CouncilSize added
+
+- SatelliteRewards
+  - Column ReferenceGovernanceCycleId added
+  - Column Tracked added
+
+- Doorman
+  - Column ExitPaused added
+
+- GovernanceSatelliteSnapshot
+  - Column AccumulatedRewardsPerShare added
+
+- GovernanceSMVKSnapshot
+  - Table added
+
+- GovernanceFinancialRequest
+  - Column GovernanceCycleId added
+
+- GovernanceSatelliteAction
+  - Column GovernanceCycleId added
+
+### Breaking changes
+
+- AggregatorFactoryWhitelistContract
+  - Column ContractName removed
+
+- AggregatorWhitelistContract
+  - Column ContractName removed
+
+- BreakGlassWhitelistContract
+  - Column ContractName removed
+
+- CouncilWhitelistContract
+  - Column ContractName removed
+
+- DelegationWhitelistContract
+  - Column ContractName removed
+
+- DoormanWhitelistContract
+  - Column ContractName removed
+
+- EmergencyGovernanceWhitelistContract
+  - Column ContractName removed
+
+- FarmFactoryWhitelistContract
+  - Column ContractName removed
+
+- FarmWhitelistContract
+  - Column ContractName removed
+
+- GovernanceFinancialWhitelistContract
+  - Column ContractName removed
+
+- GovernanceFinancialWhitelistTokenContract
+  - Column ContractName removed
+
+- GovernanceSatelliteWhitelistContract
+  - Column ContractName removed
+
+- GovernanceWhitelistContract
+  - Column ContractName removed
+
+- LendingControllerWhitelistContract
+  - Column ContractName removed
+
+- LendingControllerWhitelistTokenContract
+  - Column ContractName removed
+
+- MTokenWhitelistContract
+  - Column ContractName removed
+
+- MVKTokenWhitelistContract
+  - Column ContractName removed
+
+- TreasuryFactoryWhitelistContract
+  - Column ContractName removed
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column ContractName removed
+
+- TreasuryWhitelistContract
+  - Column ContractName removed
+
+- TreasuryWhitelistTokenContract
+  - Column ContractName removed
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column ContractName removed
+
+- VaultFactoryWhitelistContract
+  - Column ContractName removed
+
+- VestingWhitelistContract
+  - Column ContractName removed
+
+- BreakGlassAction
+  - Column ExecutionDatetime is now nullable
+  - Column ExecutionLevel is now nullable
+
+- CouncilAction
+  - Column ExecutionDatetime is now nullable
+  - Column ExecutionLevel is now nullable
+
+- EmergencyGovernanceRecord
+  - Column ExecutionDatetime is now nullable
+  - Column ExecutionLevel is now nullable
+
+- GovernanceProposal
+  - Column ExecutionDatetime is now nullable
+
+- GovernanceFinancial
+  - Column FinReqApprovalPercentage renamed to ApprovalPercentage
+
+- GovernanceFinancialRequest
+  - Column ExecutionDatetime is now nullable
+
+- GovernanceSatellite
+  - Column GovSatApprovalPercentage renamed to ApprovalPercentage
+  - Column GovSatDurationInDays renamed to SatActionDurationInDays
+
+- GovernanceSatelliteAction
+  - Column ExecutionDatetime is now nullable
+
+- LendingControllerLoanToken
+  - Column MTokensTotal renamed to RawMTokensTotalSupply
+  - Column AccumulatedRewardsPerShare renamed to TokenRewardIndex
+
+- MVKTokenMintHistoryData
+  - Table renamed to MVKTokenMintOrBurnHistoryData
+  - Column MintedAmount renamed to Amount
+  - Column Type added
 
 <details><summary>Previous versions</summary>
 
