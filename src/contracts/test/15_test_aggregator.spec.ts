@@ -1,7 +1,7 @@
 import assert from "assert";
-import { MVK, TEZ, Utils } from "./helpers/Utils";
-
 import BigNumber from 'bignumber.js';
+
+import { MVK, TEZ, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 import { MichelsonMap } from "@taquito/taquito";
@@ -24,6 +24,7 @@ import {
     signerFactory
 } from './helpers/helperFunctions'
 import { mockSatelliteData } from "./helpers/mockSampleData";
+import { before } from "mocha";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -76,6 +77,8 @@ describe('Aggregator Tests', async () => {
 
     let updateOperatorsOperation 
     let addOracleOperation
+    let registerAsSatelliteOperation
+    let unregisterAsSatelliteOperation
 
     let epoch: number = 1;
     let round: number = 1;
@@ -924,9 +927,104 @@ describe('Aggregator Tests', async () => {
                 console.dir(e, {depth: 5})
             }
         });
+
+        it('Calling this entrypoint as a user defined as an oracle without being a satellite should update the ledger without updating the data', async () => {
+            try {
+                // Initial values
+                aggregatorStorage                       = await aggregatorInstance.storage();
+                delegationStorage                       = await delegationInstance.storage();
+                const oracleObservations                = new MichelsonMap<string, IOracleObservationType>();
+                const oracleVotingPowers : any          = new Map<string, number>();
+                var totalVotingPower                    = 0;
+                for (const { oracle, data } of observations) {
+                    // Get oracle voting power
+                    const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+                    const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
+                    totalVotingPower                    += votingPower;
+                    oracleVotingPowers.set(oracle, votingPower)
+
+                    // Set observation
+                    oracleObservations.set(oracle, {
+                        data,
+                        epoch,
+                        round,
+                        aggregatorAddress: contractDeployments.aggregator.address
+                    });
+
+                };
+                const signatures                        = new MichelsonMap<string, string>();
+                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                startOscarSMvkRewards                   = startOscarSMvkRewards ? startOscarSMvkRewards.toNumber() : 0;
+                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                startOscarXtzRewards                    = startOscarXtzRewards ? startOscarXtzRewards.toNumber() : 0;
+                const startLastCompletedData            = aggregatorStorage.lastCompletedData;
+                const startOracleInLedger               = await aggregatorStorage.oracleLedger.get(oscar.pkh);
+    
+                // Sign observations
+                await signerFactory(tezos, alice.sk);
+                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, eve.sk);
+                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, trudy.sk);
+                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, oscar.sk);
+                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+
+                // User unregisters
+                unregisterAsSatelliteOperation          = await delegationInstance.methods.unregisterAsSatellite(oscar.pkh).send();
+                await unregisterAsSatelliteOperation.confirmation();
+    
+                // Operation
+                const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
+                await operation.confirmation();
+
+                // Final values
+                aggregatorStorage                       = await aggregatorInstance.storage();
+                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const endLastCompletedData              = aggregatorStorage.lastCompletedData;
+                const endOracleInLedger                 = await aggregatorStorage.oracleLedger.get(oscar.pkh);
+
+                // Assertions
+                assert.notStrictEqual(startOracleInLedger, undefined);
+                assert.strictEqual(endOracleInLedger, undefined);
+                assert.equal(endOscarSMvkRewards.toNumber(), startOscarSMvkRewards);
+                assert.equal(endOscarXtzRewards.toNumber(), startOscarXtzRewards);
+                assert.deepEqual(endLastCompletedData.round,startLastCompletedData.round);
+                assert.deepEqual(endLastCompletedData.epoch,startLastCompletedData.epoch);
+                assert.deepEqual(endLastCompletedData.data,startLastCompletedData.data);
+                assert.deepEqual(endLastCompletedData.percentOracleResponse,startLastCompletedData.percentOracleResponse);
+                round++;
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        });
     });
 
     describe('%withdrawRewardStakedMvk', () => {
+
+        before("Add the previously removed oracle", async () => {
+            await signerFactory(tezos, oscar.sk)
+            
+            // Registers as satellite
+            registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+                mockSatelliteData.oscar.name, 
+                mockSatelliteData.oscar.desc, 
+                mockSatelliteData.oscar.image, 
+                mockSatelliteData.oscar.website,
+                mockSatelliteData.oscar.satelliteFee,
+                mockSatelliteData.oscar.oraclePublicKey,
+                mockSatelliteData.oscar.oraclePeerId
+            ).send();
+            await registerAsSatelliteOperation.confirmation();
+
+            // Add oracle
+            await signerFactory(tezos, bob.sk)
+            addOracleOperation          = await aggregatorInstance.methods.addOracle(oscar.pkh).send();
+            await addOracleOperation.confirmation();
+
+            await signerFactory(tezos, alice.sk)
+        });
 
         beforeEach("Set signer to oracle", async () => {
             await signerFactory(tezos, alice.sk)
