@@ -139,6 +139,8 @@ describe("Testnet interactions helper", async () => {
     const oneMonthLevelBlocks = 129600
     const oneYearLevelBlocks = 1576800
 
+    let generalContractsSet;
+
     before("setup", async () => {
         try{
             utils = new Utils();
@@ -218,6 +220,21 @@ describe("Testnet interactions helper", async () => {
             console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
             console.log('Mavryk FA12 Token Contract deployed at:'               , contractDeployments.mavrykFa12Token.address);
 
+            generalContractsSet             = [
+                contractDeployments.aggregatorFactory.address,
+                contractDeployments.breakGlass.address,
+                contractDeployments.council.address,
+                contractDeployments.delegation.address,
+                contractDeployments.doorman.address,
+                contractDeployments.emergencyGovernance.address,
+                contractDeployments.farmFactory.address,
+                contractDeployments.vesting.address,
+                contractDeployments.treasuryFactory.address,
+                contractDeployments.lendingController.address,
+                contractDeployments.vaultFactory.address,
+                contractDeployments.governance.address
+            ]
+
         } catch(e){
             console.log(e)
         }
@@ -285,9 +302,9 @@ describe("Testnet interactions helper", async () => {
                         from_: bob.pkh,
                         txs: [
                         {
-                            to_: bob.pkh,
+                            to_: contractDeployments.treasury.address,
                             token_id: 0,
-                            amount: MVK(1),
+                            amount: MVK(5000),
                         },
                         {
                             to_: eve.pkh,
@@ -417,7 +434,11 @@ describe("Testnet interactions helper", async () => {
         it('Admin exits', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.exit().send();
+                var operation   = await doormanInstance.methods.exit().send();
+                await operation.confirmation();
+
+                // Admin restake
+                operation       = await doormanInstance.methods.stake(MVK(100)).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1009,9 +1030,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates council member info', async () => {
+        it('Council member updates council member info', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.updateCouncilMemberInfo("Bob", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
                 await operation.confirmation();
             } catch(e){
@@ -1019,39 +1041,43 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin adds a council member', async () => {
+        it('Council member adds a council member', async () => {
             try{
                 // Operation
-                const operation = await councilInstance.methods.councilActionAddMember(trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await councilInstance.methods.councilActionAddMember(bob.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin removes a council member', async () => {
+        it('Council member removes a council member', async () => {
             try{
                 // Operation
-                const operation = await councilInstance.methods.councilActionRemoveMember(bob.pkh).send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await councilInstance.methods.councilActionRemoveMember(alice.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin changes a council member', async () => {
+        it('Council member changes a council member', async () => {
             try{
                 // Operation
-                const operation = await councilInstance.methods.councilActionChangeMember(alice.pkh, trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await councilInstance.methods.councilActionChangeMember(alice.pkh, bob.pkh, "Trudy", "Bob Image", "Bob website").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin sets a baker', async () => {
+        it('Council member sets a baker', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionSetBaker().send();
                 await operation.confirmation();
             } catch(e){
@@ -1059,9 +1085,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin adds a new vestee', async () => {
+        it('Council member adds a new vestee', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 councilStorage  = await councilInstance.storage();
                 const actionId  = councilStorage.actionCounter;
                 var operation   = await councilInstance.methods.councilActionAddVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
@@ -1076,9 +1103,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates a vestee', async () => {
+        it('Council member updates a vestee', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionUpdateVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
                 await operation.confirmation();
             } catch(e){
@@ -1086,9 +1114,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin locks a vestee', async () => {
+        it('Council member locks a vestee', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionToggleVesteeLock(bob.pkh).send()
                 await operation.confirmation();
             } catch(e){
@@ -1096,9 +1125,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin removes a vestee', async () => {
+        it('Council member removes a vestee', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 councilStorage  = await councilInstance.storage();
                 const actionId  = councilStorage.actionCounter;
                 var operation   = await councilInstance.methods.councilActionRemoveVestee(bob.pkh).send()
@@ -1112,9 +1142,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin transfers token', async () => {
+        it('Council member transfers token', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionTransfer(
                     bob.pkh,
                     contractDeployments.mvkToken.address,
@@ -1129,9 +1160,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin requests token', async () => {
+        it('Council member requests token', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
                     contractDeployments.mvkToken.address,
@@ -1147,9 +1179,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin requests mint', async () => {
+        it('Council member requests mint', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionRequestMint(
                     contractDeployments.treasury.address,
                     MVK(20),
@@ -1161,9 +1194,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin sets another contract baker', async () => {
+        it('Council member sets another contract baker', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionSetContractBaker(contractDeployments.treasury.address).send()
                 await operation.confirmation();
             } catch(e){
@@ -1171,9 +1205,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin flushes an action', async () => {
+        it('Council member flushes an action', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.flushAction(1).send()
                 await operation.confirmation();
             } catch(e){
@@ -1181,9 +1216,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin signs an action', async () => {
+        it('Council member signs an action', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 councilStorage  = await councilInstance.storage();
                 const actionId  = councilStorage.actionCounter;
                 var operation = await councilInstance.methods.councilActionRequestTokens(
@@ -1205,9 +1241,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin drops financial request', async () => {
+        it('Council member drops financial request', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 const actionId              = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
                 const operation             = await councilInstance.methods.councilActionDropFinancialReq(actionId).send()
@@ -1343,7 +1380,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates the request approval percentage', async () => {
             try{
                 // Operation
-                const operation = await governanceFinancialInstance.methods.updateConfig(10, "configFinancialReqApprovalPct").send();
+                const operation = await governanceFinancialInstance.methods.updateConfig(10, "configApprovalPercentage").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1380,9 +1417,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin requests tokens', async () => {
+        it('Council member requests tokens', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 councilStorage          = await councilInstance.storage()
                 const actionCounter     = councilStorage.actionCounter
                 var operation           = await councilInstance.methods.councilActionRequestTokens(
@@ -1403,9 +1441,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin requests mint', async () => {
+        it('Council member requests mint', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 councilStorage          = await councilInstance.storage()
                 const actionCounter     = councilStorage.actionCounter
                 var operation = await councilInstance.methods.councilActionRequestMint(
@@ -1422,9 +1461,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin drops financial request', async () => {
+        it('Council member drops financial request', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 councilStorage              = await councilInstance.storage()
                 governanceFinancialStorage  = await governanceFinancialInstance.storage()
                 const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
@@ -3182,7 +3222,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates satellite duration in days', async () => {
             try{
                 // Operation
-                const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configSatelliteDurationInDays").send();
+                const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configActionDurationInDays").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3467,7 +3507,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates minimum SMVK to trigger', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForTrigger").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkToTrigger").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3524,19 +3564,19 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        // it('Admin votes for emergency governance', async () => {
-        //     try{
-        //         // Operation
-        //         var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
-        //         await operation.confirmation();
+        it('Admin votes for emergency governance', async () => {
+            try{
+                // Operation
+                var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
+                await operation.confirmation();
 
-        //         // Operation
-        //         operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-        //         await operation.confirmation();
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     }
-        // });
+                // Operation
+                operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
     })
 
     describe("BREAK GLASS", async () => {
@@ -3634,99 +3674,109 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates its council member info', async () => {
+        it('Council member updates its council member info', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.updateCouncilMemberInfo("Bob", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.updateCouncilMemberInfo("Eve", "Eve Image", "Eve Website").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin adds a new council member', async () => {
+        it('Council member adds a new council member', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.addCouncilMember(trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.councilActionAddMember(bob.pkh, "Bob", "Bob Image", "Bob Website").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin removes a council member', async () => {
+        it('Council member removes a council member', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.removeCouncilMember(alice.pkh).send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.councilActionRemoveMember(alice.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin changes a council member', async () => {
+        it('Council member changes a council member', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.changeCouncilMember(alice.pkh, trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.councilActionChangeMember(alice.pkh, bob.pkh, "Bob", "Bob Image", "Bob Website").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin propagate break glass', async () => {
+        it('Council member propagate break glass', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.propagateBreakGlass().send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.propagateBreakGlass(generalContractsSet).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin sets contracts admin', async () => {
+        it('Council member sets contracts admin', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.setContractsAdmin(bob.pkh).send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.setContractsAdmin(generalContractsSet, bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin pauses all entrypoint', async () => {
+        it('Council member pauses all entrypoint', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.pauseAllEntrypoints(generalContractsSet).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin unpauses all entrypoint', async () => {
+        it('Council member unpauses all entrypoint', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.unpauseAllEntrypoints(generalContractsSet).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin removes break glass control', async () => {
+        it('Council member removes break glass control', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.removeBreakGlassControl().send();
+                await helperFunctions.signerFactory(tezos, eve.sk)
+                const operation = await breakGlassInstance.methods.removeBreakGlassControl(generalContractsSet).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin flushes an action', async () => {
+        it('Council member flushes an action', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await breakGlassInstance.methods.flushAction(1).send();
                 await operation.confirmation();
             } catch(e){
@@ -3734,9 +3784,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin signs an action', async () => {
+        it('Council member signs an action', async () => {
             try{
                 // Operation
+                await helperFunctions.signerFactory(tezos, eve.sk)
                 breakGlassStorage   = await breakGlassInstance.storage();
                 const recordId      = breakGlassStorage.actionCounter
                 var operation = await breakGlassInstance.methods.flushAction(1).send();
@@ -5498,6 +5549,16 @@ describe("Testnet interactions helper", async () => {
                     },
                     ])
                     .send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin compounds', async () => {
+            try{
+                // Operation
+                const operation = await mTokenEurlInstance.methods.compound([bob.pkh]).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

@@ -35,9 +35,9 @@ async def on_lending_controller_mock_time_repay(
         loan_token_name                         = loan_token.loan_token_name
         loan_token_storage                      = repay.storage.loanTokenLedger[loan_token_name]
         loan_token_token_pool_total             = float(loan_token_storage.tokenPoolTotal)
-        loan_token_m_tokens_total               = float(loan_token_storage.mTokensTotal)
+        loan_token_m_tokens_total               = float(loan_token_storage.rawMTokensTotalSupply)
         loan_token_total_borrowed               = float(loan_token_storage.totalBorrowed)
-        loan_token_token_reward_index           = float(loan_token_storage.accumulatedRewardsPerShare) 
+        loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex) 
         loan_token_total_remaining              = float(loan_token_storage.totalRemaining)
         loan_token_last_updated_block_level     = int(loan_token_storage.lastUpdatedBlockLevel)
         loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
@@ -50,7 +50,7 @@ async def on_lending_controller_mock_time_repay(
             m_token.token_reward_index          = loan_token_token_reward_index
             await m_token.save()
         loan_token.token_pool_total             = loan_token_token_pool_total
-        loan_token.m_tokens_total               = loan_token_m_tokens_total
+        loan_token.raw_m_tokens_total_supply    = loan_token_m_tokens_total
         loan_token.total_borrowed               = loan_token_total_borrowed
         loan_token.total_remaining              = loan_token_total_remaining
         loan_token.last_updated_block_level     = loan_token_last_updated_block_level

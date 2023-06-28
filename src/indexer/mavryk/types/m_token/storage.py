@@ -44,7 +44,7 @@ class MTokenStorage(BaseModel):
     tokenRewardIndex: str
     rewardIndexLedger: Dict[str, str]
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     token_metadata: Dict[str, TokenMetadata]
     totalSupply: str
     ledger: Dict[str, str]

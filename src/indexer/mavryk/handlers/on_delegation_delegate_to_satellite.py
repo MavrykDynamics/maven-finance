@@ -48,6 +48,8 @@ async def on_delegation_delegate_to_satellite(
             satellite_reward_record.paid                                        = float(rewards_record.paid)
             satellite_reward_record.participation_rewards_per_share             = float(rewards_record.participationRewardsPerShare)
             satellite_reward_record.satellite_accumulated_reward_per_share      = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+            satellite_reward_record.reference_governance_cycle_id               = int(rewards_record.referenceGovernanceCycleId)
+            satellite_reward_record.tracked                                     = rewards_record.tracked
             delegation_record, _                                                = await models.DelegationRecord.get_or_create(
                 user        = user,
                 delegation  = delegation,

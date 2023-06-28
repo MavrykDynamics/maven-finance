@@ -12,7 +12,6 @@ class ContractLambda():
 
 class LinkedContract():
     id                                      = fields.BigIntField(pk=True)
-    contract_name                           = fields.CharField(max_length=36, default="")
     contract_address                        = fields.CharField(max_length=36, default="")
 
 class MavrykContract():

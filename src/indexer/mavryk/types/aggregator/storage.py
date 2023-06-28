@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
@@ -59,9 +59,10 @@ class AggregatorStorage(BaseModel):
     breakGlassConfig: BreakGlassConfig
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     oracleLedger: Dict[str, OracleLedger]
+    oracleLedgerSize: str
     lastCompletedData: LastCompletedData
     oracleRewardStakedMvk: Dict[str, str]
     oracleRewardXtz: Dict[str, str]

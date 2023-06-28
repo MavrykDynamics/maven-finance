@@ -12,14 +12,14 @@ class UpdateConfigActionItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinStakedMvkForTrigger: Dict[str, Any]
+    configMinStakedMvkForVoting: Dict[str, Any]
 
 
 class UpdateConfigActionItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinStakedMvkForVoting: Dict[str, Any]
+    configMinStakedMvkToTrigger: Dict[str, Any]
 
 
 class UpdateConfigActionItem2(BaseModel):

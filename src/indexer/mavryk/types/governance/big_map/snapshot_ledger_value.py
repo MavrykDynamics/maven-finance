@@ -13,4 +13,5 @@ class SnapshotLedgerValue(BaseModel):
     totalStakedMvkBalance: str
     totalDelegatedAmount: str
     totalVotingPower: str
+    accumulatedRewardsPerShare: str
     ready: bool
