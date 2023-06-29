@@ -171,30 +171,30 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             'tokenDecimals': 9
         })
 
-        console.log('-- -- -- -- -- Lending Controller (Mock Time) Tests -- -- -- --')
-        console.log('Doorman Contract deployed at:'             , doormanInstance.address);
-        console.log('Delegation Contract deployed at:'          , delegationInstance.address);
-        console.log('MVK Token Contract deployed at:'           , mvkTokenInstance.address);
-        console.log('Lending Treasury Contract deployed at:'    , treasuryInstance.address);
+        // console.log('-- -- -- -- -- Lending Controller (Mock Time) Tests -- -- -- --')
+        // console.log('Doorman Contract deployed at:'             , doormanInstance.address);
+        // console.log('Delegation Contract deployed at:'          , delegationInstance.address);
+        // console.log('MVK Token Contract deployed at:'           , mvkTokenInstance.address);
+        // console.log('Lending Treasury Contract deployed at:'    , treasuryInstance.address);
 
-        console.log('Mock FA12 Token Contract deployed at:'     , mockFa12TokenInstance.address);
-        console.log('Mock FA2 Token Contract deployed at:'      , mockFa2TokenInstance.address);
-        console.log('Governance Contract deployed at:'          , governanceInstance.address);
-        console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
+        // console.log('Mock FA12 Token Contract deployed at:'     , mockFa12TokenInstance.address);
+        // console.log('Mock FA2 Token Contract deployed at:'      , mockFa2TokenInstance.address);
+        // console.log('Governance Contract deployed at:'          , governanceInstance.address);
+        // console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
 
-        console.log('mTokenUsdt - deployed at:'    , mTokenUsdtInstance.address);
-        console.log('mTokenEurl - deployed at:'     , mTokenEurlInstance.address);
-        console.log('mTokenXtz - deployed at:'                , mTokenXtzInstance.address);
+        // console.log('mTokenUsdt - deployed at:'    , mTokenUsdtInstance.address);
+        // console.log('mTokenEurl - deployed at:'     , mTokenEurlInstance.address);
+        // console.log('mTokenXtz - deployed at:'                , mTokenXtzInstance.address);
 
-        console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / XTZ - deployed at:'                , mockUsdXtzAggregatorInstance.address);
+        // console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
+        // console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
+        // console.log('Mock Aggregator - USD / XTZ - deployed at:'                , mockUsdXtzAggregatorInstance.address);
 
-        console.log('Lending Controller Mock Time Contract deployed at:'        , lendingControllerInstance.address);
+        // console.log('Lending Controller Mock Time Contract deployed at:'        , lendingControllerInstance.address);
 
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Bob address: '   + bob.pkh);
-        console.log('Eve address: '   + eve.pkh);
+        // console.log('Alice address: ' + alice.pkh);
+        // console.log('Bob address: '   + bob.pkh);
+        // console.log('Eve address: '   + eve.pkh);
 
         // ------------------------------------------------------------------
         //

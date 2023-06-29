@@ -373,8 +373,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         // Sign observations
         await helperFunctions.signerFactory(tezos, bob.sk);
         signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+        
         await helperFunctions.signerFactory(tezos, eve.sk);
         signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
+        
         await helperFunctions.signerFactory(tezos, mallory.sk);
         signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
 
@@ -450,33 +452,33 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         mockUsdMvkAggregatorStorage             = await mockUsdMvkAggregatorInstance.storage();
 
 
-        console.log('-- -- -- -- -- Lending Controller (Mock Time) Tests -- -- -- --')
-        console.log('Doorman Contract deployed at:'             , doormanInstance.address);
-        console.log('Delegation Contract deployed at:'          , delegationInstance.address);
-        console.log('MVK Token Contract deployed at:'           , mvkTokenInstance.address);
-        console.log('Lending Treasury Contract deployed at:'    , treasuryInstance.address);
+        // console.log('-- -- -- -- -- Lending Controller (Mock Time) Tests -- -- -- --')
+        // console.log('Doorman Contract deployed at:'             , doormanInstance.address);
+        // console.log('Delegation Contract deployed at:'          , delegationInstance.address);
+        // console.log('MVK Token Contract deployed at:'           , mvkTokenInstance.address);
+        // console.log('Lending Treasury Contract deployed at:'    , treasuryInstance.address);
 
-        console.log('Mock FA12 Token Contract deployed at:'     , usdtTokenInstance.address);
-        console.log('Mock FA2 Token Contract deployed at:'      , eurlTokenInstance.address);
-        console.log('Governance Contract deployed at:'          , governanceInstance.address);
-        console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
+        // console.log('Mock FA12 Token Contract deployed at:'     , usdtTokenInstance.address);
+        // console.log('Mock FA2 Token Contract deployed at:'      , eurlTokenInstance.address);
+        // console.log('Governance Contract deployed at:'          , governanceInstance.address);
+        // console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
 
-        console.log('mUsdt Token - deployed at:'    , mUsdtTokenInstance.address);
-        console.log('mEurl Token - deployed at:'     , mEurlTokenInstance.address);
-        console.log('mToken Pool - XTZ - deployed at:'                , mXtzTokenInstance.address);
+        // console.log('mUsdt Token - deployed at:'    , mUsdtTokenInstance.address);
+        // console.log('mEurl Token - deployed at:'     , mEurlTokenInstance.address);
+        // console.log('mToken Pool - XTZ - deployed at:'                , mXtzTokenInstance.address);
 
-        console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / XTZ - deployed at:'                , mockUsdXtzAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / MVK - deployed at:'                , mockUsdMvkAggregatorInstance.address);
+        // console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
+        // console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
+        // console.log('Mock Aggregator - USD / XTZ - deployed at:'                , mockUsdXtzAggregatorInstance.address);
+        // console.log('Mock Aggregator - USD / MVK - deployed at:'                , mockUsdMvkAggregatorInstance.address);
 
-        console.log('Lending Controller Mock Time Contract deployed at:'        , lendingControllerInstance.address);
+        // console.log('Lending Controller Mock Time Contract deployed at:'        , lendingControllerInstance.address);
 
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Bob address: '   + bob.pkh);
-        console.log('Eve address: '   + eve.pkh);
-        console.log('Mallory address: ' + mallory.pkh);
-        console.log('Trudy address: ' + trudy.pkh);
+        // console.log('Alice address: ' + alice.pkh);
+        // console.log('Bob address: '   + bob.pkh);
+        // console.log('Eve address: '   + eve.pkh);
+        // console.log('Mallory address: ' + mallory.pkh);
+        // console.log('Trudy address: ' + trudy.pkh);
 
         // ------------------------------------------------------------------
         //
