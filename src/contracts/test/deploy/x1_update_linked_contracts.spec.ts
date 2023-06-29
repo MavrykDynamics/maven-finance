@@ -105,6 +105,7 @@ describe('Linked contracts updates for Tests', async () => {
             const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
             await aggregatorContractsBatchOperation.confirmation();
             
+            console.log('Aggregator Contract - set whitelist contract addresses [aggregatorFactory, governanceSatellite]')
 
             // MVK Token Contract - set governance contract address
             // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
@@ -226,18 +227,18 @@ describe('Linked contracts updates for Tests', async () => {
             .batch()
         
             // whitelist contracts
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address,         'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address,     'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address,         'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address,                         'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.delegation.address,                   'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceFinancial.address, 'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governance.address,                   'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address,        'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address,      'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address,        'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address,                'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.delegation.address,             'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceFinancial.address,    'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governance.address,             'update'))
         
             // whitelist token contracts
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address,                        'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address,                       'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvkToken.address,                              'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address,    'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address,   'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvkToken.address,          'update'))
         
             const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
             await treasuryContractsBatchOperation.confirmation();
@@ -246,7 +247,7 @@ describe('Linked contracts updates for Tests', async () => {
             console.log('Treasury Contract - set whitelist token contract addresses map [MavrykFA12, MavrykFA2, MVK]')
         
             // Vesting Contract - set whitelist contract addresses map [council]
-            const setCouncilContractAddressInVesting = (await vestingInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()) as TransactionOperation
+            const setCouncilContractAddressInVesting = await vestingInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()
             await setCouncilContractAddressInVesting.confirmation();
         
             console.log('Vesting Contract - set whitelist contract addresses map [council]')

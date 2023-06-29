@@ -306,87 +306,87 @@ describe("Governance Satellite tests", async () => {
             var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
             await startNextRoundOperation.confirmation();
             
-            // ----------------------------------------------
-            // Aggregator Setup
-            // ----------------------------------------------
+            // // ----------------------------------------------
+            // // Aggregator Setup
+            // // ----------------------------------------------
 
-            // Setup Oracles
-            await signerFactory(tezos, adminSk);
+            // // Setup Oracles
+            // await signerFactory(tezos, adminSk);
 
-            const aggregatorLedger = await governanceSatelliteStorage.aggregatorLedger.get('USD/BTC');
-            if(aggregatorLedger == undefined){
+            // const aggregatorLedger = await governanceSatelliteStorage.aggregatorLedger.get('USD/BTC');
+            // if(aggregatorLedger == undefined){
 
-                const oracleMap = MichelsonMap.fromLiteral({});
+            //     const oracleMap = MichelsonMap.fromLiteral({});
 
-                const aggregatorMetadataBase = Buffer.from(
-                    JSON.stringify({
-                        name: 'MAVRYK Aggregator Contract',
-                        icon: 'https://logo.chainbit.xyz/xtz',
-                        version: 'v1.0.0',
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-                    }),
-                    'ascii',
-                    ).toString('hex')
+            //     const aggregatorMetadataBase = Buffer.from(
+            //         JSON.stringify({
+            //             name: 'MAVRYK Aggregator Contract',
+            //             icon: 'https://logo.chainbit.xyz/xtz',
+            //             version: 'v1.0.0',
+            //             authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            //         }),
+            //         'ascii',
+            //         ).toString('hex')
 
-                // Setup Aggregators
-                const createAggregatorsBatch = await utils.tezos.wallet
-                .batch()
-                .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                    'USD/BTC',
-                    true,
+            //     // Setup Aggregators
+            //     const createAggregatorsBatch = await utils.tezos.wallet
+            //     .batch()
+            //     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+            //         'USD/BTC',
+            //         true,
 
-                    oracleMap,
+            //         oracleMap,
 
-                    new BigNumber(8),             // decimals
-                    new BigNumber(2),             // alphaPercentPerThousand
+            //         new BigNumber(8),             // decimals
+            //         new BigNumber(2),             // alphaPercentPerThousand
 
-                    new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+            //         new BigNumber(60),            // percentOracleThreshold
+            //         new BigNumber(30),            // heartBeatSeconds
 
-                    new BigNumber(10000000),      // rewardAmountStakedMvk
-                    new BigNumber(1300),          // rewardAmountXtz
+            //         new BigNumber(10000000),      // rewardAmountStakedMvk
+            //         new BigNumber(1300),          // rewardAmountXtz
                     
-                    aggregatorMetadataBase        // metadata bytes
-                ))
-                .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                    'USD/XTZ',
-                    true,
+            //         aggregatorMetadataBase        // metadata bytes
+            //     ))
+            //     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+            //         'USD/XTZ',
+            //         true,
 
-                    oracleMap,
+            //         oracleMap,
 
-                    new BigNumber(6),             // decimals
-                    new BigNumber(2),             // alphaPercentPerThousand
+            //         new BigNumber(6),             // decimals
+            //         new BigNumber(2),             // alphaPercentPerThousand
 
-                    new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+            //         new BigNumber(60),            // percentOracleThreshold
+            //         new BigNumber(30),            // heartBeatSeconds
 
-                    new BigNumber(10000000),      // rewardAmountStakedMvk
-                    new BigNumber(1300),          // rewardAmountXtz
+            //         new BigNumber(10000000),      // rewardAmountStakedMvk
+            //         new BigNumber(1300),          // rewardAmountXtz
                     
-                    aggregatorMetadataBase        // metadata bytes
-                ))
-                .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                    'USD/DOGE',
-                    true,
+            //         aggregatorMetadataBase        // metadata bytes
+            //     ))
+            //     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+            //         'USD/DOGE',
+            //         true,
 
-                    oracleMap,
+            //         oracleMap,
 
-                    new BigNumber(8),             // decimals
-                    new BigNumber(2),             // alphaPercentPerThousand
+            //         new BigNumber(8),             // decimals
+            //         new BigNumber(2),             // alphaPercentPerThousand
 
-                    new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+            //         new BigNumber(60),            // percentOracleThreshold
+            //         new BigNumber(30),            // heartBeatSeconds
 
-                    new BigNumber(10000000),      // rewardAmountStakedMvk
-                    new BigNumber(1300),          // rewardAmountXtz
+            //         new BigNumber(10000000),      // rewardAmountStakedMvk
+            //         new BigNumber(1300),          // rewardAmountXtz
                     
-                    aggregatorMetadataBase        // metadata bytes
-                ))
+            //         aggregatorMetadataBase        // metadata bytes
+            //     ))
 
-                const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
-                await createAggregatorsBatchOperation.confirmation()
+            //     const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+            //     await createAggregatorsBatchOperation.confirmation()
 
-            }
+            // }
 
             // -------------------
             // generate sample mock proposal data
