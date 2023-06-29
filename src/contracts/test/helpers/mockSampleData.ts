@@ -309,7 +309,17 @@ export const mockMetadata = {
 
 export const aggregatorMockData = {
 
-    
+    'mockAggregator': {
+        metadata : Buffer.from(
+            JSON.stringify({
+                name: 'MAVRYK Aggregator Contract',
+                icon: 'https://logo.chainbit.xyz/xtz',
+                version: 'v1.0.0',
+                authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            }),
+            'ascii',
+        ).toString('hex')
+    }
 
 }
 
