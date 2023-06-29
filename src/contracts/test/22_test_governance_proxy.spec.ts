@@ -155,36 +155,8 @@ describe('Governance proxy lambdas tests', async () => {
             mavrykFa12TokenStorage          = await mavrykFa12TokenInstance.storage();
             mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
 
-            // console.log('-- -- -- -- -- Governance Proxy Tests -- -- -- --')
-            // console.log('Governance Proxy Contract deployed at:'        , governanceProxyInstance.address);
-            // console.log('MVK Token Contract deployed at:'               , mvkTokenInstance.address);
-            // console.log('Vesting Contract deployed at:'                 , vestingInstance.address);
-            // console.log('Farm Contract deployed at:'                    , farmInstance.address);
-            // console.log('Farm Factory Contract deployed at:'            , farmFactoryInstance.address);
-            // console.log('Treasury Contract deployed at:'                , treasuryInstance.address);
-            // console.log('Treasury Factory Contract deployed at:'        , treasuryFactoryInstance.address);
-            // console.log('Governance Contract deployed at:'              , governanceInstance.address);
-            // console.log('Doorman Contract deployed at:'                 , doormanInstance.address);
-            // console.log('Aggregator Contract deployed at:'              , aggregatorInstance.address);
-            // console.log('Aggregator Factory Contract deployed at:'      , aggregatorFactoryInstance.address);
-            // console.log('Break Glass Contract deployed at:'             , breakGlassInstance.address);
-            // console.log('Council Contract deployed at:'                 , councilInstance.address);
-            // console.log('Delegation Contract deployed at:'              , delegationInstance.address);
-            // console.log('Emergency Governance Contract deployed at:'    , emergencyGovernanceInstance.address);
-            // console.log('Governance Financial Contract deployed at:'    , governanceFinancialInstance.address);
-            // console.log('Governance Satellite Contract deployed at:'    , governanceSatelliteInstance.address);
-            // console.log('Lending Controller Contract deployed at:'      , lendingControllerInstance.address);
-            // console.log('Vault Factory Contract deployed at:'           , vaultFactoryInstance.address);
-            // console.log('Mavryk FA12 Contract deployed at:'             , mavrykFa12TokenInstance.address);
-            // console.log('Mavryk FA2 Contract deployed at:'              , mavrykFa2TokenInstance.address);
-
-            // console.log('Bob address: '         + bob.pkh);
-            // console.log('Alice address: '       + alice.pkh);
-            // console.log('Eve address: '         + eve.pkh);
-            // console.log('Mallory address: '     + mallory.pkh);
-            // console.log('Oscar address: '       + oscar.pkh);
-            // console.log('-- -- -- -- -- -- -- -- --')
-
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+            
         } catch(e){
             console.dir(e, {depth:5})
         }
