@@ -302,7 +302,7 @@ describe("Test: Break Glass Contract", async () => {
             }
         });
 
-        it('%councilActionRemoveMember      - council member (eve) should be able to create a new action to remove a council member (alice)', async () => {
+        it('%councilActionRemoveMember      - council member (eve) should be able to create a new action to remove a council member (susie)', async () => {
             try{
 
                 breakGlassStorage       = await breakGlassInstance.storage();
@@ -343,7 +343,7 @@ describe("Test: Break Glass Contract", async () => {
                 breakGlassStorage       = await breakGlassInstance.storage();
                 const oldThreshold      = breakGlassStorage.config.threshold;
                 const newThreshold      = breakGlassStorage.councilSize;
-                
+
                 // set signer as admin and update config
                 await helperFunctions.signerFactory(tezos, adminSk);
                 updateConfigOperation   = await breakGlassInstance.methods.updateConfig(newThreshold, "configThreshold").send();
@@ -2480,6 +2480,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(action.status, "EXECUTED");
                 assert.equal(breakGlassStorage.glassBroken, false);
 
+
+                // ---------------------------------------
+                // Reset test - reset contracts' admin back to bob 
+                // ---------------------------------------
+
                 // Check the contracts admin
                 for (let entry of generalContractsSet){
                     
@@ -2491,7 +2496,7 @@ describe("Test: Break Glass Contract", async () => {
                         
                         // console.log(`contract: ${entry} | admin: ${storage.admin}`);
 
-                        // if admin is the governance proxy contract
+                        // check if admin is the governance proxy contract
                         // - prevents duplicates (e.g. farmTreasury, aggregatorTreasury)
                         if(storage.admin == governanceProxyAddress){
 
@@ -2519,28 +2524,6 @@ describe("Test: Break Glass Contract", async () => {
                             
                         }
                     }
-                }
-
-                // check admin for governance contract
-                if(governanceStorage.hasOwnProperty('admin')){
-                    assert.equal(governanceStorage.admin, governanceProxyAddress);
-
-                    // Set Admin Lambda
-                    const setAdminLambdaFunction = await createLambdaBytes(
-                        tezos.rpc.url,             // network
-                        governanceProxyAddress,    // governance proxy address
-                        
-                        'setAdmin',                // entrypoint name
-                        [
-                            contractDeployments.governance.address,      // contract address
-                            admin                  // bob
-                        ]
-                    );
-
-                    await helperFunctions.signerFactory(tezos, adminSk)
-                    setAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(setAdminLambdaFunction).send();
-                    await setAdminOperation.confirmation();
-                    governanceStorage = await governanceInstance.storage();
                 }
 
             } catch(e){

@@ -1,6 +1,7 @@
 import assert from "assert";
 import { Utils, MVK } from "./helpers/Utils";
 import { MichelsonMap } from '@taquito/michelson-encoder'
+import { BigNumber } from 'bignumber.js'
 const saveContractAddress = require("./helpers/saveContractAddress")
 
 const chai = require("chai");
@@ -452,6 +453,9 @@ describe("Emergency Governance tests", async () => {
                 userSk = oscar.sk;
                 await helperFunctions.signerFactory(tezos, userSk);
 
+                const compoundOperation   = await doormanInstance.methods.compound([user]).send();
+                await compoundOperation.confirmation();
+
                 // Initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage()
                 doormanStorage              = await doormanInstance.storage()
@@ -461,9 +465,9 @@ describe("Emergency Governance tests", async () => {
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user staked balance does not exceed staked MVK required to vote
-                if(initialUserStakedBalance > sMvkRequiredToVote){
+                if(initialUserStakedBalance >= sMvkRequiredToVote){
                     // set unstake amount so that user's final staked balance will be below sMvkRequiredToVote
-                    unstakeAmount    = Math.abs(sMvkRequiredToVote - initialUserStakedBalance) + 1;
+                    unstakeAmount    = Math.abs(sMvkRequiredToVote - initialUserStakedBalance) + 500000000;
                     unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount).send();
                     await unstakeOperation.confirmation();
                 } 
@@ -760,7 +764,7 @@ describe("Emergency Governance tests", async () => {
                 // updated storage
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 breakGlassStorage           = await breakGlassInstance.storage();
-                const actionID            = breakGlassStorage.actionCounter;
+                const actionID              = breakGlassStorage.actionCounter;
                 governanceStorage           = await governanceInstance.storage();
 
                 // updated emergency proposal
@@ -798,12 +802,7 @@ describe("Emergency Governance tests", async () => {
                 // reset break glass storage
                 resetBreakGlassStorage.governanceAddress = contractDeployments.governance.address
                 resetBreakGlassStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
-            
-                resetBreakGlassStorage.councilMembers.set(trudy.pkh, {
-                    name: "Trudy",
-                    image: "Trudy image",
-                    website: "Trudy website"
-                })
+                            
                 resetBreakGlassStorage.councilMembers.set(alice.pkh, {
                     name: "Alice",
                     image: "Alice image",
@@ -814,6 +813,17 @@ describe("Emergency Governance tests", async () => {
                     image: "Eve image",
                     website: "Eve website"
                 })
+                resetBreakGlassStorage.councilMembers.set(susie.pkh, {
+                    name: "Susie",
+                    image: "Susie image",
+                    website: "Susie website"
+                })
+                resetBreakGlassStorage.councilMembers.set(trudy.pkh, {
+                    name: "Trudy",
+                    image: "Trudy image",
+                    website: "Trudy website"
+                })
+                resetBreakGlassStorage.councilSize = new BigNumber(4)
 
                 resetBreakGlassStorage.whitelistContracts = MichelsonMap.fromLiteral({
                     [contractDeployments.emergencyGovernance.address]: null
@@ -824,13 +834,10 @@ describe("Emergency Governance tests", async () => {
                 await saveContractAddress('breakGlassAddress', resetBreakGlassContract.contract.address, false)
                 await setGeneralContractLambdas(tezos, "breakGlass", resetBreakGlassContract.contract, false);
 
-                // console.log(governanceStorage.generalContracts);
-
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", resetBreakGlassContract.contract.address, 'update').send();
                 await updateGeneralContractsOperation.confirmation();
 
                 governanceStorage = await governanceInstance.storage();
-                // console.log(governanceStorage.generalContracts);
 
             } catch(e){
                 console.dir(e, {depth: 5});

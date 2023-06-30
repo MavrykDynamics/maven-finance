@@ -70,7 +70,7 @@ describe('Break Glass', async () => {
                 image: "Trudy image",
                 website: "Trudy website"
             })
-            breakGlassStorage.councilSize       = new BigNumber(4),
+            breakGlassStorage.councilSize = new BigNumber(4)
             
             breakGlass = await GeneralContract.originate(utils.tezos, "breakGlass", breakGlassStorage);
             await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
