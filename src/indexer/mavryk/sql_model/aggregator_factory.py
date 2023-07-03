@@ -31,6 +31,7 @@ class AggregatorFactoryAggregatorLambda(ContractLambda, Model):
 
 class AggregatorFactoryGeneralContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.AggregatorFactory', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'aggregator_factory_general_contract'

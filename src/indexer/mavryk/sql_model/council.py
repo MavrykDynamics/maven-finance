@@ -16,6 +16,7 @@ class Council(MavrykContract, Model):
     council_member_image_max_length         = fields.SmallIntField(default=0)
     request_purpose_max_length              = fields.SmallIntField(default=0)
     request_token_name_max_length           = fields.SmallIntField(default=0)
+    council_size                            = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'council'
@@ -28,6 +29,7 @@ class CouncilLambda(ContractLambda, Model):
 
 class CouncilGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.Council', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'council_general_contract'
@@ -55,8 +57,8 @@ class CouncilAction(Model):
     council                                 = fields.ForeignKeyField('models.Council', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator', index=True)
     start_datetime                          = fields.DatetimeField(index=True)
-    execution_datetime                      = fields.DatetimeField(index=True)
-    execution_level                         = fields.BigIntField(default=0, index=True)
+    execution_datetime                      = fields.DatetimeField(index=True, null=True)
+    execution_level                         = fields.BigIntField(default=0, index=True, null=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
     action_type                             = fields.CharField(max_length=48)
     status                                  = fields.IntEnumField(enum_type=ActionStatus, index=True)

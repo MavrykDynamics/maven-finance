@@ -23,15 +23,16 @@ async def on_delegation_unregister_as_satellite(
             network = ctx.datasource.network,
             address = delegation_address
         )
-        satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
+        satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(
             user        = user,
             delegation  = delegation
         )
-        satelliteRewardRecord.unpaid                                        = float(rewards_record.unpaid)
-        satelliteRewardRecord.paid                                          = float(rewards_record.paid)
-        satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
-        satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
-    
+        satellite_reward_record.unpaid                                  = float(rewards_record.unpaid)
+        satellite_reward_record.paid                                    = float(rewards_record.paid)
+        satellite_reward_record.participation_rewards_per_share         = float(rewards_record.participationRewardsPerShare)
+        satellite_reward_record.satellite_accumulated_reward_per_share  = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+        satellite_reward_record.reference_governance_cycle_id           = int(rewards_record.referenceGovernanceCycleId)
+        satellite_reward_record.tracked                                 = rewards_record.tracked
         await models.Satellite.filter(
             delegation  = delegation,
             user        = user

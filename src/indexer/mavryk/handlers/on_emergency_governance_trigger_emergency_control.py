@@ -29,7 +29,11 @@ async def on_emergency_governance_trigger_emergency_control(
         start_timestamp             = emergency_storage.startDateTime
         start_level                 = int(emergency_storage.startLevel)
         execution_datetime          = emergency_storage.executedDateTime
-        executedLevel               = int(emergency_storage.executedLevel)
+        if execution_datetime:
+            execution_datetime  = parser.parse(emergency_storage.executedDateTime)
+        execution_level             = emergency_storage.executedLevel
+        if execution_level:
+            execution_level     = int(emergency_storage.executedLevel)
         expiration_timestamp        = emergency_storage.expirationDateTime
         
         # Create record
@@ -58,7 +62,7 @@ async def on_emergency_governance_trigger_emergency_control(
             execution_datetime              = execution_datetime,
             expiration_timestamp            = expiration_timestamp,
             start_level                     = start_level,
-            execution_level                 = executedLevel
+            execution_level                 = execution_level
         )
         await emergency_record.save()
         

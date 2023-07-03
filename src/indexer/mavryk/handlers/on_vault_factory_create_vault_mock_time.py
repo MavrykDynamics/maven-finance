@@ -132,41 +132,9 @@ async def on_vault_factory_create_vault_mock_time(
                 vault_marked_for_liquidation_level      = int(vault_storage.value.markedForLiquidationLevel)
                 vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
                 vault_internal_id                       = int(vault_storage.key.id)
-                loan_token_storage                      = register_vault_creation.storage.loanTokenLedger[vault_loan_token_name]
-                loan_token_type_storage                 = loan_token_storage.tokenType
-                loan_token_address                      = None
-                loan_token_id                           = 0
-
-                # Get loan token address
-                if type(loan_token_type_storage) == fa12:
-                    loan_token_address          = loan_token_type_storage.fa12
-                elif type(loan_token_type_storage) == fa2:
-                    loan_token_address          = loan_token_type_storage.fa2.tokenContractAddress
-                    loan_token_id               = int(loan_token_type_storage.fa2.tokenId)
-                elif type(loan_token_type_storage) == tez:
-                    loan_token_address          = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
-
-                token                                   = None
-                if loan_token_address:
-
-                    # Get the token standard
-                    standard = await get_token_standard(
-                        ctx,
-                        loan_token_address
-                    )
-
-                    # Get the related token
-                    token, _                                = await models.Token.get_or_create(
-                        token_address       = loan_token_address,
-                        network             = ctx.datasource.network,
-                        token_id            = loan_token_id
-                    )
-                    token.token_standard    = standard
-                    await token.save()
         
                 lending_controller_loan_token               = await models.LendingControllerLoanToken.get(
                     lending_controller  = lending_controller,
-                    token               = token,
                     loan_token_name     = vault_loan_token_name
                 )
 
