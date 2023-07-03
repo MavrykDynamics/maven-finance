@@ -191,7 +191,6 @@ block {
                         ConfigSuccessReward (_v)                          -> s.config.successReward                           := updateConfigNewValue
                     |   ConfigCycleVotersReward (_v)                      -> s.config.cycleVotersReward                       := updateConfigNewValue
                     |   ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minProposalRoundVotePercentage := updateConfigNewValue
-                    |   ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
                     |   ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minQuorumPercentage            := updateConfigNewValue
                     |   ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage           := updateConfigNewValue
                     |   ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
