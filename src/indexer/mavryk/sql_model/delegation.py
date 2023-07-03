@@ -71,6 +71,9 @@ class Satellite(Model):
     registration_timestamp                  = fields.DatetimeField(auto_now=True)
     currently_registered                    = fields.BooleanField(default=True, index=True)
     total_delegated_amount                  = fields.FloatField(default=0.0)
+    satellite_action_counter                = fields.BigIntField(default=0)
+    financial_request_counter               = fields.BigIntField(default=0)
+    governance_proposal_counter             = fields.BigIntField(default=0)
 
     class Meta:
         table = 'satellite'
