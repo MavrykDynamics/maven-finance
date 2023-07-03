@@ -44,6 +44,7 @@ class FarmLambda(ContractLambda, Model):
 
 class FarmGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.Farm', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'farm_general_contract'

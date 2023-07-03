@@ -8,7 +8,7 @@ from mavryk.sql_model.enums import GovernanceActionStatus, GovernanceVoteType
 
 class GovernanceFinancial(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_financials')
-    fin_req_approval_percentage             = fields.SmallIntField(default=0)
+    approval_percentage                     = fields.SmallIntField(default=0)
     fin_req_duration_in_days                = fields.SmallIntField(default=0)
     fin_req_counter                         = fields.BigIntField(default=0)
 
@@ -23,6 +23,7 @@ class GovernanceFinancialLambda(ContractLambda, Model):
 
 class GovernanceFinancialGeneralContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'governance_financial_general_contract'
@@ -58,9 +59,10 @@ class GovernanceFinancialRequest(Model):
     smvk_percentage_for_approval            = fields.SmallIntField(default=0)
     snapshot_smvk_total_supply              = fields.FloatField(default=0.0)
     smvk_required_for_approval              = fields.FloatField(default=0.0)
-    execution_datetime                      = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(index=True, null=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
     requested_datetime                      = fields.DatetimeField(index=True)
+    governance_cycle_id                     = fields.BigIntField(default=0, index=True)
 
     class Meta:
         table = 'governance_financial_request'

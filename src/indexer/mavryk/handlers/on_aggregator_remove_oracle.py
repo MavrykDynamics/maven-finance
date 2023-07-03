@@ -13,13 +13,16 @@ async def on_aggregator_remove_oracle(
 
     try:
         # Get operation info
-        aggregator_address      = remove_oracle.data.target_address
-        oracle_address          = remove_oracle.parameter.__root__
+        aggregator_address              = remove_oracle.data.target_address
+        oracle_address                  = remove_oracle.parameter.__root__
+        oracle_ledger_size              = int(remove_oracle.storage.oracleLedgerSize)
     
         # Remove records
-        oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
-        aggregator              = await models.Aggregator.get(network=ctx.datasource.network, address= aggregator_address)
-        aggregator_oracle       = await models.AggregatorOracle.get(
+        oracle                          = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+        aggregator                      = await models.Aggregator.get(network=ctx.datasource.network, address= aggregator_address)
+        aggregator.oracle_ledger_size   = oracle_ledger_size
+        await aggregator.save()
+        aggregator_oracle               = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = oracle
         )
