@@ -115,6 +115,9 @@ async def on_governance_propose(
             governance_snapshot.total_voting_power      = float(satellite_snapshot.totalVotingPower)
             await governance_snapshot.save()
 
+        # Increment satellite counter
+        await ctx.execute_sql('update_governance_proposal_counter')
+
     except BaseException as e:
          await save_error_report(e)
 
