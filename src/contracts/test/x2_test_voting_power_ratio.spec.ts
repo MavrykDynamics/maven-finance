@@ -236,27 +236,6 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             }
         });
 
-        it('Admin should be able to call the entrypoint and configure the min proposal round votes required', async () => {
-            try{
-                // Initial Values
-                governanceStorage = await governanceInstance.storage();
-                const newConfigValue = 1;
-
-                // Operation
-                const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinProposalRoundVotesReq").send();
-                await updateConfigOperation.confirmation();
-
-                // Final values
-                governanceStorage = await governanceInstance.storage();
-                const updateConfigValue = governanceStorage.config.minProposalRoundVotesRequired;
-
-                // Assertions
-                assert.equal(updateConfigValue, newConfigValue);
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin should be able to call the entrypoint and configure the min proposal round vote percentage required', async () => {
             try{
                 // Initial Values
@@ -488,7 +467,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
                 const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
                 const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
                 const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
-                const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
+                // const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
                 const cycleId = governanceStorage.cycleId
                 const finalNextProposalId = governanceStorage.nextProposalId;
                 const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
@@ -515,7 +494,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
                 assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
                 assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
                 assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
-                assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
+                // assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
                 assert.equal(newProposal.yayVoteCount.toNumber(), 0);
                 assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
                 assert.equal(newProposal.nayVoteCount.toNumber(), 0);
