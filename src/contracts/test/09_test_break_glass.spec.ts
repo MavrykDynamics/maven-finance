@@ -668,23 +668,35 @@ describe("Test: Break Glass Contract", async () => {
                 await voteOperation.confirmation();
 
                 // user (alice) vote for emergency control
-                await helperFunctions.signerFactory(tezos, alice.sk)
-                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
+                breakGlassStorage   = await breakGlassInstance.storage();
+                var glassBroken     = breakGlassStorage.glassBroken;
+                if(glassBroken = false){
+                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                    await voteOperation.confirmation();
+                }
 
                 // user (mallory) vote for emergency control
-                await helperFunctions.signerFactory(tezos, mallory.sk)
-                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
+                breakGlassStorage   = await breakGlassInstance.storage();
+                glassBroken         = breakGlassStorage.glassBroken;
+                if(glassBroken = false){
+                    await helperFunctions.signerFactory(tezos, mallory.sk)
+                    voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                    await voteOperation.confirmation();
+                }
 
                 // user (trudy) vote for emergency control
-                await helperFunctions.signerFactory(tezos, trudy.sk)
-                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
+                breakGlassStorage   = await breakGlassInstance.storage();
+                glassBroken         = breakGlassStorage.glassBroken;
+                if(glassBroken = false){
+                    await helperFunctions.signerFactory(tezos, trudy.sk)
+                    voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                    await voteOperation.confirmation();
+                }
 
                 // Check if glass was broken
-                breakGlassStorage       = await breakGlassInstance.storage();
-                const glassBroken       = breakGlassStorage.glassBroken;
+                breakGlassStorage   = await breakGlassInstance.storage();
+                glassBroken         = breakGlassStorage.glassBroken;
                 assert.equal(glassBroken, true);
 
             } catch(e){

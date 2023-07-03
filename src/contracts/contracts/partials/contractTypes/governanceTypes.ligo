@@ -86,7 +86,7 @@ type proposalRecordType is [@layout:comb] record [
     proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
     proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
   
-    minProposalRoundVotePercentage    : nat;                     // min vote percentage of total MVK supply required to pass proposal round
+    minProposalRoundVotePercentage    : nat;                     // min vote percentage of total staked MVK supply required to pass proposal round
     minProposalRoundVotesRequired     : nat;                     // min staked MVK votes required for proposal round to pass
   
     yayVoteCount                      : nat;                     // voting round: yay count - number of satellites
@@ -134,7 +134,6 @@ type governanceConfigType is [@layout:comb] record [
     cycleVotersReward                   : nat;  // Reward sent then split to all voters at the end of a voting round
 
     minProposalRoundVotePercentage      : nat;  // percentage of staked MVK votes required to pass proposal round
-    minProposalRoundVotesRequired       : nat;  // amount of staked MVK votes required to pass proposal round
 
     minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in SMVK)
     minYayVotePercentage                : nat;  // minimum yay percentage to be achieved from the quorum SMVK
@@ -166,7 +165,6 @@ type governanceUpdateConfigActionType is
         ConfigSuccessReward               of unit
     |   ConfigCycleVotersReward           of unit
     |   ConfigMinProposalRoundVotePct     of unit
-    |   ConfigMinProposalRoundVotesReq    of unit
     |   ConfigMinQuorumPercentage         of unit
     |   ConfigMinYayVotePercentage        of unit
     |   ConfigProposeFeeMutez             of unit
