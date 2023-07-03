@@ -777,6 +777,20 @@ block {
     const proposalData    : map(nat, option(proposalDataType))   = map [];
     const paymentData     : map(nat, option(paymentDataType))    = map [];
 
+    // ------------------------------------------------------------------
+    // Calculate minProposalRoundVotesRequired
+    // ------------------------------------------------------------------
+
+    const stakedMvkTotalSupply : nat = case s.stakedMvkSnapshotLedger[s.cycleId] of [
+            Some(_v) -> _v
+        |   None     -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
+    ];
+
+    // Calculate minimum required staked MVK for proposal round votes
+    const minProposalRoundVotesRequired : nat  = (stakedMvkTotalSupply * s.config.minProposalRoundVotePercentage) / 10000n ;
+
+    // ------------------------------------------------------------------
+
     // create new proposal record
     const newProposalRecord : proposalRecordType = record [
 
@@ -803,7 +817,7 @@ block {
         proposalVoteStakedMvkTotal          = 0n;                                           // proposal round pass vote total mvk from satellites who voted pass
 
         minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;      // min vote percentage of total MVK supply required to pass proposal round
-        minProposalRoundVotesRequired       = s.config.minProposalRoundVotesRequired;       // min staked MVK votes required for proposal round to pass
+        minProposalRoundVotesRequired       = minProposalRoundVotesRequired;                // min staked MVK votes required for proposal round to pass
 
         yayVoteCount                        = 0n;                                           // voting round: yay count
         yayVoteStakedMvkTotal               = 0n;                                           // voting round: yay MVK total 
