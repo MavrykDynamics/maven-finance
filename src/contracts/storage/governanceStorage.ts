@@ -10,7 +10,6 @@ const config = {
     cycleVotersReward                   : MVK(100),
 
     minProposalRoundVotePercentage      : 1000,
-    minProposalRoundVotesRequired       : 10000,
 
     minQuorumPercentage                 : 1000,
     minYayVotePercentage                : 5100,
