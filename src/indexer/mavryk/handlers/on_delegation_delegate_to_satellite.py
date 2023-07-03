@@ -23,6 +23,8 @@ async def on_delegation_delegate_to_satellite(
         if user_address in delegate_to_satellite.storage.delegateLedger:
             rewards_record          = delegate_to_satellite.storage.satelliteRewardsLedger[user_address]
             delegate_storage        = delegate_to_satellite.storage.delegateLedger[user_address]
+            satellite_storage       = delegate_to_satellite.storage.satelliteLedger[satellite_address]
+            total_delegated_amount  = float(satellite_storage.totalDelegatedAmount)
     
             # Create and/or update record
             user                                                                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
@@ -35,6 +37,7 @@ async def on_delegation_delegate_to_satellite(
                 user        = satellite,
                 delegation  = delegation
             )
+            satellite_record.total_delegated_amount                             = total_delegated_amount
             satellite_reward_reference_record, _                                = await models.SatelliteRewards.get_or_create(
                 user        = satellite,
                 delegation  = delegation
@@ -48,6 +51,8 @@ async def on_delegation_delegate_to_satellite(
             satellite_reward_record.paid                                        = float(rewards_record.paid)
             satellite_reward_record.participation_rewards_per_share             = float(rewards_record.participationRewardsPerShare)
             satellite_reward_record.satellite_accumulated_reward_per_share      = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+            satellite_reward_record.reference_governance_cycle_id               = int(rewards_record.referenceGovernanceCycleId)
+            satellite_reward_record.tracked                                     = rewards_record.tracked
             delegation_record, _                                                = await models.DelegationRecord.get_or_create(
                 user        = user,
                 delegation  = delegation,

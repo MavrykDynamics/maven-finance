@@ -31,6 +31,7 @@ class DoormanLambda(ContractLambda, Model):
 
 class DoormanGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.Doorman', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'doorman_general_contract'

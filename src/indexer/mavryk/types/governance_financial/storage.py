@@ -12,7 +12,7 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    financialRequestApprovalPercentage: str
+    approvalPercentage: str
     financialRequestDurationInDays: str
 
 
@@ -31,16 +31,17 @@ class FinancialRequestLedger(BaseModel):
     tokenType: str
     tokenId: str
     requestPurpose: str
-    voters: List[str]
     keyHash: Optional[str]
     yayVoteStakedMvkTotal: str
     nayVoteStakedMvkTotal: str
     passVoteStakedMvkTotal: str
+    governanceCycleId: str
     snapshotStakedMvkTotalSupply: str
     stakedMvkPercentageForApproval: str
     stakedMvkRequiredForApproval: str
     requestedDateTime: str
     expiryDateTime: str
+    executedDateTime: Optional[str]
 
 
 class Key(BaseModel):
@@ -89,8 +90,8 @@ class GovernanceFinancialStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistTokenContracts: Dict[str, str]
-    whitelistContracts: Dict[str, str]
+    whitelistTokenContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     financialRequestLedger: Dict[str, FinancialRequestLedger]
     financialRequestCounter: str

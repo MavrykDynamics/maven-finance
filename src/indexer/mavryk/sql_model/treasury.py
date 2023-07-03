@@ -27,6 +27,7 @@ class TreasuryLambda(ContractLambda, Model):
 
 class TreasuryGeneralContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.Treasury', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'treasury_general_contract'
