@@ -262,6 +262,9 @@ async def persist_financial_request(ctx, action):
             )
             await requestRecord.save()
 
+    # Increment satellite counter
+    await ctx.execute_sql('update_financial_request_counter')
+
 async def persist_governance_satellite_action(ctx, action):
     # Get operation values
     governance_satellite_address        = action.data.target_address
@@ -332,6 +335,9 @@ async def persist_governance_satellite_action(ctx, action):
                     value                           = value
                 )
                 await governance_satellite_action_record_parameter.save()
+
+    # Increment satellite counter
+    await ctx.execute_sql('update_satellite_action_counter')
                 
             
 
