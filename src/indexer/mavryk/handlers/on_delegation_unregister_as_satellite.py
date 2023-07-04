@@ -13,24 +13,24 @@ async def on_delegation_unregister_as_satellite(
 
     try:
         # Get operation values
-        delegation_address      = unregister_as_satellite.data.target_address
-        satellite_address       = unregister_as_satellite.data.sender_address
-        rewards_record          = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
+        delegation_address          = unregister_as_satellite.data.target_address
+        satellite_address           = unregister_as_satellite.data.sender_address
+        rewards_record              = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
     
         # Delete records
-        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
+        user                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
         delegation = await models.Delegation.get(
             network = ctx.datasource.network,
             address = delegation_address
         )
-        satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
+        satellite_reward_record, _  = await models.SatelliteRewards.get_or_create(
             user        = user,
             delegation  = delegation
         )
-        satelliteRewardRecord.unpaid                                        = float(rewards_record.unpaid)
-        satelliteRewardRecord.paid                                          = float(rewards_record.paid)
-        satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
-        satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+        satellite_reward_record.unpaid                                = float(rewards_record.unpaid)
+        satellite_reward_record.paid                                  = float(rewards_record.paid)
+        satellite_reward_record.participation_rewards_per_share       = float(rewards_record.participationRewardsPerShare)
+        satellite_reward_record.satellite_accumulated_reward_per_share= float(rewards_record.satelliteAccumulatedRewardsPerShare)
     
         await models.Satellite.filter(
             delegation  = delegation,
