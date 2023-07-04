@@ -17,9 +17,6 @@
 
 ### What's new
 
-- Aggregator
-  - Column OracleLedgerSize added
-
 - BreakGlass
   - Column CouncilSize added
 
