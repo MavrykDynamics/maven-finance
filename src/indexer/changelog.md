@@ -22,6 +22,9 @@
 
 - Satellite
   - Column TotalDelegatedAmount added
+  - Column SatelliteActionCounter added
+  - Column FinancialRequestCounter added
+  - Column GovernanceProposalCounter added
 
 ### Breaking changes
 
