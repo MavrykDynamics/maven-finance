@@ -53,24 +53,24 @@ type lastCompletedDataReturnType is  [@layout:comb] record [
     lastUpdatedAt               : timestamp;  
 ];
 
-type oracleObservationType is [@layout:comb] record [
+type oracleObservationSingleType is [@layout:comb] record [
     data                 : nat;
     epoch                : nat;
     round                : nat;
     aggregatorAddress    : address;
 ];
 
+type oracleObservationsType is map (address, oracleObservationSingleType)
+
 type updateDataType is   [@layout:comb] record [
-  oracleObservations: map (address, oracleObservationType);
-  signatures: map (address, signature);
+    oracleObservations: oracleObservationsType;
+    signatures: map (address, signature);
 ];
 
 type withdrawRewardXtzType            is address;
 type withdrawRewardStakedMvkType      is address;
 
-type addOracleType is   [@layout:comb] record [
-    oracleAddress       : address;
-];
+type addOracleType                    is address;
 
 type removeOracleType                 is address;
 
