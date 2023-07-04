@@ -69,7 +69,7 @@
 
 
 (* View: get last completed data *)
-[@view] function getlastCompletedData (const _ : unit ; const s : aggregatorStorageType) : lastCompletedDataReturnType is block {
+[@view] function getLastCompletedData (const _ : unit ; const s : aggregatorStorageType) : lastCompletedDataReturnType is block {
     const withDecimal : lastCompletedDataReturnType = record [
         data                  = s.lastCompletedData.data;
         percentOracleResponse = s.lastCompletedData.percentOracleResponse;
