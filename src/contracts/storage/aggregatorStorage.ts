@@ -59,7 +59,6 @@ export const aggregatorStorage: aggregatorStorageType = {
     generalContracts          : MichelsonMap.fromLiteral({}),
 
     oracleLedger              : oracleLedger,
-    oracleLedgerSize          : new BigNumber(0),
     
     lastCompletedData         : lastCompletedData,
 

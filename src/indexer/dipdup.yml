@@ -1530,56 +1530,56 @@ templates:
         entrypoint: setLambda
 
 indexes:
-  liquidity_baking:
-    kind: operation
-    datasource: tzkt_mainnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - liquidity_baking
-    - sirius
-    handlers:
-    # Liquidity baking handlers
-    - callback: on_liquidity_baking_add_liquidity
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: addLiquidity
-      - destination: tzbtc
-        entrypoint: transfer
-      - destination: sirius
-        entrypoint: mintOrBurn
-    - callback: on_liquidity_baking_remove_liquidity
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: removeLiquidity
-      - destination: sirius
-        entrypoint: mintOrBurn
-      - destination: tzbtc
-        entrypoint: transfer
-      - source: liquidity_baking
-        type: transaction
-    - callback: on_liquidity_baking_token_to_xtz
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: tokenToXtz
-      - destination: tzbtc
-        entrypoint: transfer
-      - source: liquidity_baking
-        type: transaction
-      - source: liquidity_baking
-        type: transaction
-    - callback: on_liquidity_baking_xtz_to_token
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: xtzToToken
-      - destination: tzbtc
-        entrypoint: transfer
-    # Sirius handlers
-    - callback: on_sirius_transfer
-      pattern:
-      - destination: sirius
-        entrypoint: transfer
+  # liquidity_baking:
+  #   kind: operation
+  #   datasource: tzkt_mainnet
+  #   types:
+  #   - origination
+  #   - transaction
+  #   contracts:
+  #   - liquidity_baking
+  #   - sirius
+  #   handlers:
+  #   # Liquidity baking handlers
+  #   - callback: on_liquidity_baking_add_liquidity
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: addLiquidity
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #     - destination: sirius
+  #       entrypoint: mintOrBurn
+  #   - callback: on_liquidity_baking_remove_liquidity
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: removeLiquidity
+  #     - destination: sirius
+  #       entrypoint: mintOrBurn
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #     - source: liquidity_baking
+  #       type: transaction
+  #   - callback: on_liquidity_baking_token_to_xtz
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: tokenToXtz
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #     - source: liquidity_baking
+  #       type: transaction
+  #     - source: liquidity_baking
+  #       type: transaction
+  #   - callback: on_liquidity_baking_xtz_to_token
+  #     pattern:
+  #     - destination: liquidity_baking
+  #       entrypoint: xtzToToken
+  #     - destination: tzbtc
+  #       entrypoint: transfer
+  #   # Sirius handlers
+  #   - callback: on_sirius_transfer
+  #     pattern:
+  #     - destination: sirius
+  #       entrypoint: transfer
   mavryk_finance_ghostnet_init:
     kind: operation
     datasource: tzkt_ghostnet
