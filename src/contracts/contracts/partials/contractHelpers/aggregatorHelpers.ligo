@@ -545,11 +545,8 @@ function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) 
 // ------------------------------------------------------------------------------
 
 // helper function to get delegation ratio from the delegation contract
-function getDelegationRatio(const s : aggregatorStorageType) : nat is 
+function getDelegationRatio(const delegationAddress : address) : nat is 
 block {
-
-    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Get the delegation ratio
     const configView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
@@ -563,22 +560,15 @@ block {
 
 
 // helper function to calculate voting power
-function calculateSatelliteVotingPower(const satelliteAddress : address; const s : aggregatorStorageType) : nat is
+function calculateSatelliteVotingPower(const satelliteRecord : satelliteRecordType; const delegationRatio : nat) : nat is
 block {
 
-    const delegationRatio   : nat                 = getDelegationRatio(s);
-    const satelliteRecord   : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
-
     var oracleVotingPower : nat := 0n;
-    if (satelliteRecord.status = "ACTIVE") then {
-        
-        oracleVotingPower := voteHelperCalculateVotingPower(
-            delegationRatio,                        // delegation ratio
-            satelliteRecord.stakedMvkBalance,       // staked MVK balance
-            satelliteRecord.totalDelegatedAmount    // total delegated amount
-        );
-
-    } else skip;
+    oracleVotingPower := voteHelperCalculateVotingPower(
+        delegationRatio,                        // delegation ratio
+        satelliteRecord.stakedMvkBalance,       // staked MVK balance
+        satelliteRecord.totalDelegatedAmount    // total delegated amount
+    );
 
 } with oracleVotingPower
 
@@ -665,22 +655,32 @@ block {
     verifySenderIsRegisteredOracle(s);
 
     // verify the sender is still a satellite and that it's not banned or suspended
-    const delegationAddress : address                               = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+    const delegationAddress : address                   = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    // get the delegation ratio from the 
+    const delegationRatio   : nat                       = getDelegationRatio(delegationAddress);
 
     // Check if the sender is valid
     var satelliteOptView : option (option(satelliteRecordType))     := Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-    const senderIsValidSatellite : bool                             = case satelliteOptView of [
-            Some (optionView) -> case optionView of [
-                    Some(_satelliteRecord)      -> if _satelliteRecord.status = "SUSPENDED" then False else if _satelliteRecord.status = "BANNED" then False else True
-                |   None                        -> False
-            ]
+    const satelliteRecordOpt : option(satelliteRecordType)          = case satelliteOptView of [
+            Some (optionView) -> optionView
         |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+    const senderIsValidSatellite : bool                             = case satelliteRecordOpt of [
+            Some(_satelliteRecord)      -> if _satelliteRecord.status = "SUSPENDED" or _satelliteRecord.status = "BANNED" then False else True
+        |   None                        -> False
     ];
 
     // refresh the ledger
     if senderIsValidSatellite then {
+        // get satellite record
+        const satelliteRecord : satelliteRecordType = case satelliteRecordOpt of [
+                Some(_satelliteRecord)      -> _satelliteRecord
+            |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
+        ];
+
         // oracleVotingPower calculation
-        const oracleVotingPower : nat               = calculateSatelliteVotingPower(satelliteAddress, s);
+        const oracleVotingPower : nat               = calculateSatelliteVotingPower(satelliteRecord, delegationRatio);
 
         // totalVotingPower storage + total updated
         tempOracleVotingPowerMap[satelliteAddress]  := oracleVotingPower;
@@ -700,28 +700,35 @@ block {
         if oracleAddress = satelliteAddress then skip
         else{
             // Check oracle is valid
-            satelliteOptView                        := Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
-            const oracleIsValidSatellite : bool     = case satelliteOptView of [
-                    Some (optionView) -> case optionView of [
-                            Some(_satelliteRecord)      -> if _satelliteRecord.status = "SUSPENDED" then False else if _satelliteRecord.status = "BANNED" then False else True
-                        |   None                        -> False
-                    ]
+            satelliteOptView                                        := Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
+            const satelliteRecordOpt : option(satelliteRecordType)  = case satelliteOptView of [
+                    Some (optionView) -> optionView
                 |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+            ];
+            const oracleIsValidSatellite : bool                     = case satelliteRecordOpt of [
+                    Some(_satelliteRecord)      -> if _satelliteRecord.status = "SUSPENDED" or _satelliteRecord.status = "BANNED" then False else True
+                |   None                        -> False
             ];
 
             // refresh the ledger and the observations
             if oracleIsValidSatellite then{
+                // get satellite record
+                const satelliteRecord : satelliteRecordType = case satelliteRecordOpt of [
+                        Some(_satelliteRecord)      -> _satelliteRecord
+                    |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
+                ];
+
                 // oracleVotingPower calculation
-                const oracleVotingPower : nat           = calculateSatelliteVotingPower(oracleAddress, s);
+                const oracleVotingPower : nat               = calculateSatelliteVotingPower(satelliteRecord, delegationRatio);
 
                 // totalVotingPower storage + total updated
-                tempOracleVotingPowerMap[oracleAddress] := oracleVotingPower;
-                totalVotingPower                        := totalVotingPower + oracleVotingPower;
+                tempOracleVotingPowerMap[oracleAddress]     := oracleVotingPower;
+                totalVotingPower                            := totalVotingPower + oracleVotingPower;
             }
             else {
-                s.oracleLedger                          := Map.remove(oracleAddress, s.oracleLedger);
-                updateDataParams.oracleObservations     := Map.remove(oracleAddress, updateDataParams.oracleObservations);
-                updateDataParams.signatures             := Map.remove(oracleAddress, updateDataParams.signatures);
+                s.oracleLedger                              := Map.remove(oracleAddress, s.oracleLedger);
+                updateDataParams.oracleObservations         := Map.remove(oracleAddress, updateDataParams.oracleObservations);
+                updateDataParams.signatures                 := Map.remove(oracleAddress, updateDataParams.signatures);
             }
         };
     };
