@@ -986,10 +986,14 @@ describe('Aggregator Tests', async () => {
                 const endOracleInLedger                 = await aggregatorStorage.oracleLedger.get(oscar.pkh);
 
                 // Assertions
-                assert.notStrictEqual(startOracleInLedger, undefined);
-                assert.strictEqual(endOracleInLedger, undefined);
                 assert.equal(endOscarSMvkRewards.toNumber(), startOscarSMvkRewards);
                 assert.equal(endOscarXtzRewards.toNumber(), startOscarXtzRewards);
+                
+                // The user should be removed from the oracleLedger if it's not a satellite anymore
+                assert.notStrictEqual(startOracleInLedger, undefined);
+                assert.strictEqual(endOracleInLedger, undefined);
+
+                // Since the user is not a satellite anymore, the data shouldn't be updated
                 assert.deepEqual(endLastCompletedData.round,startLastCompletedData.round);
                 assert.deepEqual(endLastCompletedData.epoch,startLastCompletedData.epoch);
                 assert.deepEqual(endLastCompletedData.data,startLastCompletedData.data);

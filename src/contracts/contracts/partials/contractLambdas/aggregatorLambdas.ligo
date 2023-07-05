@@ -231,9 +231,7 @@ block {
     verifySenderIsAdminOrGovernanceSatelliteContract(s);  
 
     case aggregatorLambdaAction of [
-        |   LambdaAddOracle(addOracleParams) -> {
-                
-                const oracleAddress : address = addOracleParams.oracleAddress;
+        |   LambdaAddOracle(oracleAddress) -> {
 
                 // Verify that satellite is not already a registered oracle on this aggregator
                 verifySatelliteIsNotRegisteredOracle(oracleAddress, s);
