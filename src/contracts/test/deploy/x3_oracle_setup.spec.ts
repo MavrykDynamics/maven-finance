@@ -1,6 +1,7 @@
-import { Utils } from "../helpers/Utils"
-import { BigNumber } from "bignumber.js"
 import { MichelsonMap } from '@taquito/michelson-encoder'
+import { BigNumber } from "bignumber.js"
+
+import { Utils } from "../helpers/Utils"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -17,7 +18,7 @@ import contractDeployments from '../contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import {bob, eve, mallory} from '../../scripts/sandbox/accounts'
+import {alice, bob, eve, mallory, oscar, susie, trudy} from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -49,18 +50,26 @@ describe('Oracle Setup', async () => {
                 console.log("Setup Oracles")
 
                 const oracleMap = MichelsonMap.fromLiteral({
-                    [bob.pkh]              : {
-                                                oraclePublicKey: bob.pk,
-                                                oraclePeerId: bob.peerId
+                    [alice.pkh]             : {
+                                                oraclePublicKey: alice.pk,
+                                                oraclePeerId: alice.peerId
                                             },
-                    [eve.pkh]              : {
+                    [eve.pkh]               : {
                                                 oraclePublicKey: eve.pk,
                                                 oraclePeerId: eve.peerId
                                             },
-                    [mallory.pkh]          : {
-                                                oraclePublicKey: mallory.pk,
-                                                oraclePeerId: eve.peerId
-                                            }
+                    [susie.pkh]             : {
+                                                oraclePublicKey: susie.pk,
+                                                oraclePeerId: susie.peerId
+                                            },
+                    [oscar.pkh]             : {
+                                                oraclePublicKey: oscar.pk,
+                                                oraclePeerId: oscar.peerId
+                                            },
+                    [trudy.pkh]             : {
+                                                oraclePublicKey: trudy.pk,
+                                                oraclePeerId: trudy.peerId
+                                            },
                 });
 
                 const btcUsdMetadata = Buffer.from(

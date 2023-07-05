@@ -38,7 +38,6 @@ async def on_aggregator_factory_create_aggregator(
         last_completed_data_pct_oracle_resp         = int(aggregator_origination.storage.lastCompletedData.percentOracleResponse)
         last_completed_data_last_updated_at         = parser.parse(aggregator_origination.storage.lastCompletedData.lastUpdatedAt)
         oracles                                     = aggregator_origination.storage.oracleLedger
-        oracle_ledger_size                          = int(aggregator_origination.storage.oracleLedgerSize)
     
         # Check aggregator does not already exists
         aggregator_exists                           = await models.Aggregator.filter(
@@ -101,8 +100,7 @@ async def on_aggregator_factory_create_aggregator(
                 last_completed_data_epoch                   = last_completed_data_epoch,
                 last_completed_data                         = last_completed_data,
                 last_completed_data_pct_oracle_resp         = last_completed_data_pct_oracle_resp,
-                last_completed_data_last_updated_at         = last_completed_data_last_updated_at,
-                oracle_ledger_size                          = oracle_ledger_size
+                last_completed_data_last_updated_at         = last_completed_data_last_updated_at
             )
             await aggregator.save()
     
