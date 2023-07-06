@@ -13,12 +13,12 @@ async def on_delegation_unregister_as_satellite(
 
     try:
         # Get operation values
-        delegation_address      = unregister_as_satellite.data.target_address
-        satellite_address       = unregister_as_satellite.data.sender_address
-        rewards_record          = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
+        delegation_address          = unregister_as_satellite.data.target_address
+        satellite_address           = unregister_as_satellite.data.sender_address
+        rewards_record              = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
     
         # Delete records
-        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
+        user                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
         delegation = await models.Delegation.get(
             network = ctx.datasource.network,
             address = delegation_address

@@ -17,9 +17,6 @@
 
 ### What's new
 
-- Aggregator
-  - Column OracleLedgerSize added
-
 - BreakGlass
   - Column CouncilSize added
 
@@ -169,6 +166,9 @@
 
 - Satellite
   - Column TotalDelegatedAmount added
+  - Column SatelliteActionCounter added
+  - Column FinancialRequestCounter added
+  - Column GovernanceProposalCounter added
 
 ### Breaking changes
 
