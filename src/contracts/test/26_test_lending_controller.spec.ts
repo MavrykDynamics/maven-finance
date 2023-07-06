@@ -3949,6 +3949,9 @@ describe("Lending Controller tests", async () => {
 
             // get initial balance for Eve and Vault
             const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+
+            const compoundOperation   = await doormanInstance.methods.compound([eve.pkh]).send();
+            await compoundOperation.confirmation();
                 
             const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
@@ -4065,6 +4068,9 @@ describe("Lending Controller tests", async () => {
             // get initial balance for Eve and Vault                
             const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
 
+            const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
+            await compoundOperation.confirmation();
+
             const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
@@ -4163,6 +4169,9 @@ describe("Lending Controller tests", async () => {
             // get initial balance for Eve and Vault                
             const eveMVKBalance       = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
             const initiatorMVKBalance = (await mvkTokenStorage.ledger.get(initiator)).toNumber();
+
+            const compoundOperation = await doormanInstance.methods.compound([eve.pkh, initiator]).send();
+            await compoundOperation.confirmation();
 
             const eveStakeLedger      = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const eveStakeBalance     = eveStakeLedger === undefined ? 0 : eveStakeLedger.balance.toNumber();
@@ -4301,6 +4310,9 @@ describe("Lending Controller tests", async () => {
             // get initial balance for Eve and Vault
             const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
                 
+            const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
+            await compoundOperation.confirmation();
+
             const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
@@ -4373,6 +4385,9 @@ describe("Lending Controller tests", async () => {
 
             // get initial balance for Eve and Vault                
             const userMVKBalance    = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+
+            const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
+            await compoundOperation.confirmation();
 
             const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
@@ -4450,6 +4465,9 @@ describe("Lending Controller tests", async () => {
 
             // get initial balance for Eve and Vault                
             const userMVKBalance    = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+
+            const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
+            await compoundOperation.confirmation();
 
             const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();

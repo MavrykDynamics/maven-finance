@@ -2964,6 +2964,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lendingControllerStorage = await lendingControllerInstance.storage();
             doormanStorage           = await doormanInstance.storage();
 
+            const compoundOperation = await doormanInstance.methods.compound([vaultOwner, vaultAddress, liquidator, contractDeployments.treasury.address]).send();
+            await compoundOperation.confirmation();
+
             // Vault Owner
             vaultOwnerMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(vaultOwner);            
             vaultOwnerMockFa2TokenAccount           = await eurlTokenStorage.ledger.get(vaultOwner);            
@@ -3745,6 +3748,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             eurlTokenStorage                     = await eurlTokenInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             doormanStorage                          = await doormanInstance.storage();
+
+            const compoundOperation = await doormanInstance.methods.compound([vaultOwner, vaultAddress]).send();
+            await compoundOperation.confirmation();
 
             // vault record
             vaultRecord                             = await lendingControllerStorage.vaults.get(vaultHandle);
