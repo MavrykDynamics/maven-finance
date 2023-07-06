@@ -57,7 +57,7 @@ describe('Setup and deploy funds for relevant contracts', async () => {
             if (utils.production !== "true"){
 
                 const sender         = bob.pkh;
-                const mvkTokenAmount = MVK(200);
+                const mvkTokenAmount = MVK(1000);
                 const tezAmount      = 100;
                 const tokenAmount    = 30000000; 
 

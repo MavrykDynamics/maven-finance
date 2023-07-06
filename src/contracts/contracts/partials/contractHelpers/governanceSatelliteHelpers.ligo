@@ -127,9 +127,7 @@ function getUnpauseAllInAggregatorEntrypoint(const contractAddress : address) : 
 function addOracleToAggregatorOperation(const oracleAddress : address; const aggregatorAddress : address) : operation is 
 block {
 
-    const addOracleToAggregatorParams : addOracleType = record[
-        oracleAddress = oracleAddress;
-    ];
+    const addOracleToAggregatorParams : addOracleType = oracleAddress;
     
     const addOracleToAggregatorOperation : operation = Tezos.transaction(
         addOracleToAggregatorParams,
