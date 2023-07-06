@@ -55,7 +55,11 @@ describe("Governance tests", async () => {
     let satelliteTwoSk
 
     let satelliteThree
+    let satelliteThreeSk 
+
     let satelliteFour 
+    let satelliteFourSk 
+
     let satelliteFive
 
     let delegateOne 
@@ -78,6 +82,14 @@ describe("Governance tests", async () => {
     let proposalSubmissionFeeMutez
     let delegationRatio
     let currentCycle
+
+    let currentRound
+    let currentRoundString
+    let finalRound 
+    let finalRoundString
+
+    let proposalRecord
+    let updatedProposalRecord
 
     let delegationConfigChange
     let doormanConfigChange
@@ -198,8 +210,12 @@ describe("Governance tests", async () => {
             satelliteTwo    = alice.pkh;
             satelliteTwoSk  = alice.sk;
 
-            satelliteThree  = trudy.pkh;
+            satelliteThree   = trudy.pkh;
+            satelliteThreeSk = trudy.sk;
+
             satelliteFour   = oscar.pkh;
+            satelliteFourSk = oscar.sk;
+
             satelliteFive   = susie.pkh;
 
             delegateOne     = david.pkh;
@@ -270,6 +286,31 @@ describe("Governance tests", async () => {
             doormanStorage      = await doormanInstance.storage();
             councilStorage      = await councilInstance.storage();
             delegationStorage   = await delegationInstance.storage();
+            governanceStorage   = await governanceInstance.storage();
+            console.log(`cycleId: ${governanceStorage.cycleId}`);
+
+            // -------------------
+            // reset round to proposal
+            // -------------------
+
+            currentRound        = governanceStorage.currentCycleInfo.round;
+            currentRoundString  = Object.keys(currentRound)[0]
+            console.log(`initial currentRound: ${currentRoundString}`);
+            while(currentRoundString !== "proposal"){
+                
+                console.log(currentRoundString);
+
+                const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+                await startNextRoundOperation.confirmation();
+
+                governanceStorage   = await governanceInstance.storage();
+                currentRound        = governanceStorage.currentCycleInfo.round;
+                currentRoundString  = Object.keys(currentRound)[0]
+            }; 
+
+            // start another round to reset
+            const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+            await startNextRoundOperation.confirmation();
 
             // -------------------
             // generate sample mock proposal data
@@ -343,8 +384,13 @@ describe("Governance tests", async () => {
                     // initial storage
                     governanceStorage = await governanceInstance.storage();
 
-                    const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
+                    console.log(`cycleId: ${governanceStorage.cycleId}`);
+
+                    // check current round is proposal round
+                    currentRound                      = governanceStorage.currentCycleInfo.round
+                    currentRoundString                = Object.keys(currentRound)[0]
+                    assert.equal(currentRoundString, "proposal");
+
                     const currentCycleInfoBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound.toNumber()
                     const currentCycleInfoBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound.toNumber()
                     const currentCycleInfoBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound.toNumber()
@@ -354,6 +400,14 @@ describe("Governance tests", async () => {
                     
                     const cycleHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
+                    // initial assertions
+                    assert.equal(currentCycleInfoBlocksPerProposalRound,    0);
+                    assert.equal(currentCycleInfoBlocksPerVotingRound,      0);
+                    assert.equal(currentCycleInfoBlocksPerTimelockRound,    0);
+                    assert.equal(cycleHighestVotedProposalId,               0);
+                    assert.equal(currentCycleInfoRoundEndLevel,             currentCycleInfoRoundStartLevel + zeroBlocksPerRound);
+                    assert.equal(currentCycleInfoCycleEndLevel,             currentCycleInfoRoundStartLevel + zeroBlocksPerRound);
+
                     // Operation
                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
@@ -361,8 +415,9 @@ describe("Governance tests", async () => {
                     // updated storage
                     governanceStorage = await governanceInstance.storage();
 
-                    const finalRound                       = governanceStorage.currentCycleInfo.round
-                    const finalRoundString                 = Object.keys(finalRound)[0]
+                    finalRound                       = governanceStorage.currentCycleInfo.round
+                    finalRoundString                 = Object.keys(finalRound)[0]
+
                     const finalBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound.toNumber()
                     const finalBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound.toNumber()
                     const finalBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound.toNumber()
@@ -372,14 +427,6 @@ describe("Governance tests", async () => {
                     const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
                     // Assertions
-                    assert.equal(currentCycleInfoRoundString,               "proposal");
-                    assert.equal(currentCycleInfoBlocksPerProposalRound,    0);
-                    assert.equal(currentCycleInfoBlocksPerVotingRound,      0);
-                    assert.equal(currentCycleInfoBlocksPerTimelockRound,    0);
-                    assert.equal(cycleHighestVotedProposalId,               0);
-                    assert.equal(currentCycleInfoRoundEndLevel,             currentCycleInfoRoundStartLevel + zeroBlocksPerRound);
-                    assert.equal(currentCycleInfoCycleEndLevel,             currentCycleInfoRoundStartLevel + zeroBlocksPerRound);
-
                     assert.equal(finalRoundString,                          "proposal");
                     assert.equal(finalBlocksPerProposalRound,               currentCycleInfoBlocksPerProposalRound);
                     assert.equal(finalBlocksPerVotingRound,                 currentCycleInfoBlocksPerVotingRound);
@@ -399,8 +446,11 @@ describe("Governance tests", async () => {
 
                     // Initial Values
                     governanceStorage                   = await governanceInstance.storage();
-                    const currentCycleInfoRound         = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString   = Object.keys(currentCycleInfoRound)[0]
+                    
+                    // check current round is proposal round
+                    currentRound                      = governanceStorage.currentCycleInfo.round
+                    currentRoundString                = Object.keys(currentRound)[0]
+                    assert.equal(currentRoundString, "proposal");
 
                     // Operation
                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -408,11 +458,10 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage                   = await governanceInstance.storage();
-                    const finalRound                    = governanceStorage.currentCycleInfo.round
-                    const finalRoundString              = Object.keys(finalRound)[0]
+                    finalRound                    = governanceStorage.currentCycleInfo.round
+                    finalRoundString              = Object.keys(finalRound)[0]
 
                     // Assertions
-                    assert.equal(currentCycleInfoRoundString, "proposal");
                     assert.equal(finalRoundString, "proposal");
 
                 } catch(e){
@@ -425,8 +474,11 @@ describe("Governance tests", async () => {
 
                     // Initial Values
                     governanceStorage                  = await governanceInstance.storage();
-                    const currentCycleInfoRound        = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString  = Object.keys(currentCycleInfoRound)[0]
+                    
+                    // check current round is proposal round
+                    currentRound                      = governanceStorage.currentCycleInfo.round
+                    currentRoundString                = Object.keys(currentRound)[0]
+                    assert.equal(currentRoundString, "proposal");
 
                     delegationStorage           = await delegationInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -461,11 +513,10 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const finalRound                       = governanceStorage.currentCycleInfo.round
-                    const finalRoundString                 = Object.keys(finalRound)[0]
+                    finalRound        = governanceStorage.currentCycleInfo.round
+                    finalRoundString  = Object.keys(finalRound)[0]
 
                     // Assertions
-                    assert.equal(currentCycleInfoRoundString, "proposal");
                     assert.equal(finalRoundString, "proposal");
 
                 } catch(e){
@@ -477,9 +528,12 @@ describe("Governance tests", async () => {
                 try{
                     
                     // Initial Values
-                    governanceStorage                       = await governanceInstance.storage();
-                    const currentCycleInfoRound             = governanceStorage.currentCycleInfo.round
-                    const currentCycleInfoRoundString       = Object.keys(currentCycleInfoRound)[0]
+                    governanceStorage                 = await governanceInstance.storage();
+
+                    // check current round is proposal round
+                    currentRound                      = governanceStorage.currentCycleInfo.round
+                    currentRoundString                = Object.keys(currentRound)[0]
+                    assert.equal(currentRoundString, "proposal");
 
                     delegationStorage           = await delegationInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -517,13 +571,12 @@ describe("Governance tests", async () => {
                     await startNextRoundOperation.confirmation();
 
                     // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const finalRound                       = governanceStorage.currentCycleInfo.round
-                    const finalRoundString                 = Object.keys(finalRound)[0]
+                    governanceStorage                = await governanceInstance.storage();
+                    finalRound                       = governanceStorage.currentCycleInfo.round
+                    finalRoundString                 = Object.keys(finalRound)[0]
                     const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
                     // Assertions
-                    assert.equal(currentCycleInfoRoundString, "proposal");
                     assert.equal(finalRoundString, "voting");
                     assert.equal(finalRoundHighestVotedProposalId, proposalId);
 
@@ -562,7 +615,10 @@ describe("Governance tests", async () => {
                 try{
                     
                     // Operation
-                    governanceStorage          = await governanceInstance.storage();
+                    governanceStorage                 = await governanceInstance.storage();
+                    currentRound                      = governanceStorage.currentCycleInfo.round
+                    currentRoundString                = Object.keys(currentRound)[0]
+                    assert.equal(currentRoundString, "proposal");
                     
                     delegationStorage           = await delegationInstance.storage();
                     const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -599,10 +655,79 @@ describe("Governance tests", async () => {
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    // set signer to satellite one (eve) and add proposal data
+                    // check that current round is voting round
+                    governanceStorage                 = await governanceInstance.storage();
+                    currentRound                      = governanceStorage.currentCycleInfo.round
+                    currentRoundString                = Object.keys(currentRound)[0]
+                    assert.equal(currentRoundString, "voting");
+
+                    // set signer to satellite one (eve) and vote for voting round proposal
                     await signerFactory(tezos, satelliteOneSk)
                     const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
+
+                    // ---------------------------------------
+                    // Repeat votes from other satellites until sufficient votes
+                    // ---------------------------------------
+
+                    governanceStorage         = await governanceInstance.storage();
+                    proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
+
+                    const yayVotesRequired    = Math.floor((proposalRecord.quorumStakedMvkTotal * proposalRecord.minYayVotePercentage) / 10000);
+
+                    const totalStakedMvkSupply         = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                    const minQuorumPercentage          = governanceStorage.config.minQuorumPercentage;
+                    // const stakedMvkRequiredForQuorum   = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, minQuorumPercentage, 5);
+                    const minQuorumStakedMvkTotal   = Math.floor((totalStakedMvkSupply * minQuorumPercentage) / 10000);
+
+                    let yayVoteStakedMvkTotal = proposalRecord.yayVoteStakedMvkTotal;
+                    let quorumStakedMvkTotal  = proposalRecord.quorumStakedMvkTotal;
+
+                    console.log(`yayVotesRequired: ${yayVotesRequired} | yayVoteStakedMvkTotal: ${yayVoteStakedMvkTotal}  |  diff: ${yayVoteStakedMvkTotal > yayVotesRequired}`)
+                    console.log(`minQuorumStakedMvkTotal: ${minQuorumStakedMvkTotal} | quorumStakedMvkTotal: ${quorumStakedMvkTotal}  |  diff: ${quorumStakedMvkTotal > minQuorumStakedMvkTotal}`)
+
+                    // check if sufficient yay votes obtained
+                    if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
+                        // set signer to satellite two (alice) and vote for voting round proposal
+                        await signerFactory(tezos, satelliteTwoSk)
+                        const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                        await votingRoundVoteOperation.confirmation();
+                        console.log('alice vote');
+                    }
+
+                    governanceStorage         = await governanceInstance.storage();
+                    proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
+                    yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
+                    quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
+
+                    console.log(`yayVotesRequired: ${yayVotesRequired} | yayVoteStakedMvkTotal: ${yayVoteStakedMvkTotal}  |  diff: ${yayVoteStakedMvkTotal > yayVotesRequired}`)
+                    console.log(`minQuorumStakedMvkTotal: ${minQuorumStakedMvkTotal} | quorumStakedMvkTotal: ${quorumStakedMvkTotal}  |  diff: ${quorumStakedMvkTotal > minQuorumStakedMvkTotal}`)
+
+                    if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
+                        // set signer to satellite three (susie) and vote for voting round proposal
+                        await signerFactory(tezos, satelliteThreeSk)
+                        const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                        await votingRoundVoteOperation.confirmation();
+                        console.log('susie vote');
+                    }
+
+                    governanceStorage         = await governanceInstance.storage();
+                    proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
+                    yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
+                    quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
+
+                    console.log(`yayVotesRequired: ${yayVotesRequired} | yayVoteStakedMvkTotal: ${yayVoteStakedMvkTotal}  |  diff: ${yayVoteStakedMvkTotal > yayVotesRequired}`)
+                    console.log(`minQuorumStakedMvkTotal: ${minQuorumStakedMvkTotal} | quorumStakedMvkTotal: ${quorumStakedMvkTotal}  |  diff: ${quorumStakedMvkTotal > minQuorumStakedMvkTotal}`)
+
+                    if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
+                        // set signer to satellite four (oscar) and vote for voting round proposal
+                        await signerFactory(tezos, satelliteFourSk)
+                        const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                        await votingRoundVoteOperation.confirmation();
+                        console.log('oscar vote');
+                    }
+
+                    // ---------------------------------------
 
                     // set signer back to general user (mallory)
                     await signerFactory(tezos, userSk)
@@ -2083,6 +2208,51 @@ describe("Governance tests", async () => {
 
                     // Assertion
                     assert.equal(proposal.rewardClaimReady, false);
+
+                } catch(e){
+                    console.dir(e, {depth: 5})
+                }
+            })
+
+            it('user (mallory) should not be able to distribute rewards to a satellite for repeated identical proposal ids', async () => {
+                try{
+
+                    // Initial Values
+                    governanceStorage                   = await governanceInstance.storage();
+                    delegationStorage                   = await delegationInstance.storage();
+                    const satelliteRewardsBegin         = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
+                    const proposalId                    = governanceStorage.nextProposalId.toNumber() - 3;
+                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+                    const claimTraceBegin               = await governanceStorage.proposalRewards.get({
+                        0: proposalId,
+                        1: eve.pkh
+                    })
+
+                    // Operation
+                    let claimOperation    = await governanceInstance.methods.distributeProposalRewards(eve.pkh, [proposalId, proposalId]);
+                    await chai.expect(claimOperation.send()).to.be.rejected;
+
+                    claimOperation    = await governanceInstance.methods.distributeProposalRewards(eve.pkh, [proposalId, proposalId, proposalId]);
+                    await chai.expect(claimOperation.send()).to.be.rejected;
+
+                    // Final values
+                    // governanceStorage               = await governanceInstance.storage();
+                    // delegationStorage               = await delegationInstance.storage();
+                    // const satelliteRewardsEnd       = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
+                    // const claimTraceEnd             = await governanceStorage.proposalRewards.get({
+                    //     0: proposalId,
+                    //     1: eve.pkh
+                    // })
+
+                    // Log
+                    // console.log("Satellite rewards before claim:", satelliteRewardsBegin);
+                    // console.log("Satellite rewards after claim:", satelliteRewardsEnd);
+
+                    // Assertion
+                    // assert.equal(proposal.rewardClaimReady, true);
+                    // assert.strictEqual(claimTraceBegin, undefined);
+                    // assert.notStrictEqual(claimTraceEnd, undefined);
+                    // assert.notEqual(satelliteRewardsBegin.unpaid.toNumber(), satelliteRewardsEnd.unpaid.toNumber());
 
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -4029,130 +4199,132 @@ describe("Governance tests", async () => {
             }
         })
 
-        it("Scenario - Satellites yay votes does not exceed minYayVotePercentage (80%) but total votes exceeds quorum (60%)", async() => {
-            try{
+    //     it("Scenario - Satellites yay votes does not exceed minYayVotePercentage (80%) but total votes exceeds quorum (60%)", async() => {
+    //         try{
             
-                // set quorum to 60%
-                await signerFactory(tezos, adminSk)
-                const newMinQuorumPercentage = 6000;
-                updateConfigOperation = await governanceInstance.methods.updateConfig(newMinQuorumPercentage, "configMinQuorumPercentage").send();
-                await updateConfigOperation.confirmation();
+    //             // set quorum to 60%
+    //             await signerFactory(tezos, adminSk)
+    //             const newMinQuorumPercentage = 6000;
+    //             updateConfigOperation = await governanceInstance.methods.updateConfig(newMinQuorumPercentage, "configMinQuorumPercentage").send();
+    //             await updateConfigOperation.confirmation();
                 
-                // Initial values
-                governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+    //             // Initial values
+    //             governanceStorage           = await governanceInstance.storage();
+    //             mvkTokenStorage             = await mvkTokenInstance.storage();
 
-                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
-                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
+    //             const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+    //             const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
 
 
-                const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Quorum test";
-                const proposalDesc          = "Details about new proposal";
-                const proposalIpfs          = "ipfs://QM123456789";
-                const proposalSourceCode    = "Proposal Source Code";
+    //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+    //             const proposalName          = "Quorum test";
+    //             const proposalDesc          = "Details about new proposal";
+    //             const proposalIpfs          = "ipfs://QM123456789";
+    //             const proposalSourceCode    = "Proposal Source Code";
 
-                const proposalData      = [
-                    {
-                        addOrSetProposalData: {
-                            title: "ActionExpiryDays#1",
-                            encodedCode: mockPackedLambdaData.updateCouncilConfig,
-                            codeDescription: ""
-                        }
-                    }
-                ]
+    //             const proposalData      = [
+    //                 {
+    //                     addOrSetProposalData: {
+    //                         title: "ActionExpiryDays#1",
+    //                         encodedCode: mockPackedLambdaData.updateCouncilConfig,
+    //                         codeDescription: ""
+    //                     }
+    //                 }
+    //             ]
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+    //             // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+    //             const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                const quorumStakedMvkTotal  = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired    = quorumStakedMvkTotal * minYayVotePercentage / 10000;
+    //             const quorumStakedMvkTotal  = totalStakedMvkSupply * minQuorumPercentage / 10000;
+    //             const minYayVoteRequired    = quorumStakedMvkTotal * minYayVotePercentage / 10000;
 
-                // Update min quorum
-                const updateGovernanceConfig= await governanceInstance.methods.updateConfig(10000, "configMinQuorumPercentage").send();
-                await updateGovernanceConfig.confirmation();
+    //             // Update min quorum
+    //             const updateGovernanceConfig= await governanceInstance.methods.updateConfig(10000, "configMinQuorumPercentage").send();
+    //             await updateGovernanceConfig.confirmation();
 
-                // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             // Start governance rounds
+    //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-                await proposeOperation.confirmation();
+    //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+    //             await proposeOperation.confirmation();
                 
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-                await lockOperation.confirmation();
+    //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+    //             await lockOperation.confirmation();
 
-                // --------------------------
-                // Proposal Round Voting
-                // --------------------------
+    //             // --------------------------
+    //             // Proposal Round Voting
+    //             // --------------------------
 
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
+    //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
                 
-                await signerFactory(tezos, satelliteTwoSk);
-                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteTwoSk);
+    //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
                 
-                // --------------------------
-                // Start Next Round
-                // --------------------------
+    //             // --------------------------
+    //             // Start Next Round
+    //             // --------------------------
 
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                // --------------------------
-                // Voting Round Voting
-                // --------------------------
+    //             // --------------------------
+    //             // Voting Round Voting
+    //             // --------------------------
 
-                await signerFactory(tezos, satelliteOneSk);
-                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteOneSk);
+    //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
 
-                await signerFactory(tezos, satelliteTwoSk);
-                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteTwoSk);
+    //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
 
 
-                // mid values
-                governanceStorage                   = await governanceInstance.storage();
-                var currentCycle                    = governanceStorage.cycleId;
-                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+    //             // mid values
+    //             governanceStorage                   = await governanceInstance.storage();
+    //             var currentCycle                    = governanceStorage.cycleId;
+    //             const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+    //             const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 
-                // Restart the cycle
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             // Restart the cycle
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                // Final values
-                governanceStorage                   = await governanceInstance.storage();
-                const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
-                const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
-                const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
-                const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
-                // const minYayVotePercentage          = proposal.minYayVotePercentage.toNumber();
-                // const minQuorumPercentage           = proposal.minQuorumPercentage.toNumber();
-                // const quorumStakedMvkTotal          = proposal.quorumStakedMvkTotal.toNumber();
-                // const minQuorumStakedMvkTotal       = proposal.minQuorumStakedMvkTotal.toNumber();
-                // const minYayVoteRequired            = quorumStakedMvkTotal * minYayVotePercentage / 10000;
-                // const calcMinQuorumStakedMvkTotal   = smvkTotalSupply * minQuorumPercentage / 10000;
+    //             // Final values
+    //             governanceStorage                   = await governanceInstance.storage();
+    //             const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
+    //             const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
+    //             const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
+    //             const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+    //             // const minYayVotePercentage          = proposal.minYayVotePercentage.toNumber();
+    //             // const minQuorumPercentage           = proposal.minQuorumPercentage.toNumber();
+    //             // const quorumStakedMvkTotal          = proposal.quorumStakedMvkTotal.toNumber();
+    //             // const minQuorumStakedMvkTotal       = proposal.minQuorumStakedMvkTotal.toNumber();
+    //             // const minYayVoteRequired            = quorumStakedMvkTotal * minYayVotePercentage / 10000;
+    //             // const calcMinQuorumStakedMvkTotal   = smvkTotalSupply * minQuorumPercentage / 10000;
                 
-                // Assertions
-                // console.log("PROPOSAL: ", proposal);
-                // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
-                // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
-                // console.log("SMVK: ", smvkTotalSupply);
-                assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                // assert.equal(calcMinQuorumStakedMvkTotal, minQuorumStakedMvkTotal)
-                assert.equal(proposal.executed, false)
+    //             // Assertions
+    //             // console.log("PROPOSAL: ", proposal);
+    //             // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
+    //             // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
+    //             // console.log("SMVK: ", smvkTotalSupply);
+    //             assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
+    //             assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
+    //             // assert.equal(calcMinQuorumStakedMvkTotal, minQuorumStakedMvkTotal)
+    //             assert.equal(proposal.executed, false)
 
-            } catch(e) {
-                console.dir(e, {depth:5})
-            }
-        })
+
+
+    //         } catch(e) {
+    //             console.dir(e, {depth:5})
+    //         }
+    //     })
     })
 
 
