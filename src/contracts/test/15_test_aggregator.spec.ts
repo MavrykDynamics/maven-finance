@@ -167,7 +167,7 @@ describe('Aggregator Tests', async () => {
         // Setup rounds and epoch
         // ------------------------------------------------------------------
 
-        const lastCompletedData = await aggregatorInstance.contractViews.getlastCompletedData().executeView({ viewCaller : admin});
+        const lastCompletedData = await aggregatorInstance.contractViews.getLastCompletedData().executeView({ viewCaller : admin});
 
         epoch = lastCompletedData.epoch.toNumber() == 1 ? 1 : lastCompletedData.epoch.toNumber() + 1;
         round = lastCompletedData.round.toNumber() == 1 ? 1 : lastCompletedData.round.toNumber() + 1;
