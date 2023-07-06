@@ -43,6 +43,7 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             ;;
         mvkFaucet)
             echo "Deploying mvkFaucet"
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/00_deploy_mvk.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/24_deploy_faucet.spec.ts --bail --timeout 9000000")
             ;;
         delegationTest)
