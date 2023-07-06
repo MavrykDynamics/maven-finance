@@ -785,7 +785,7 @@ function getTokenLastCompletedDataFromAggregator(const aggregatorAddress : addre
 block {
 
     // get last completed round price of token from Oracle view
-    const getTokenLastCompletedDataView : option (lastCompletedDataReturnType) = Tezos.call_view ("getlastCompletedData", unit, aggregatorAddress);
+    const getTokenLastCompletedDataView : option (lastCompletedDataReturnType) = Tezos.call_view ("getLastCompletedData", unit, aggregatorAddress);
     const tokenLastCompletedData : lastCompletedDataReturnType = case getTokenLastCompletedDataView of [
             Some (_value) -> _value
         |   None          -> failwith (error_GET_LAST_COMPLETED_DATA_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
