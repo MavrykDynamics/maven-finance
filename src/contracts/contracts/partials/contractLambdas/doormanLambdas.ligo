@@ -327,21 +327,22 @@ block {
                 );
 
                 // -------------------------------------------
-                // Update Delegation contract since user staked MVK balance has changed
-                // -------------------------------------------
-
-                // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);                                
-                operations := list [transferOperation; delegationOnStakeChangeOperation];
-
-                // -------------------------------------------
                 // Update Storage
                 // -------------------------------------------
 
                 var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(userAddress, s);
-                userStakeBalanceRecord.balance  := userStakeBalanceRecord.balance + stakeAmount; 
+                const userInitBalance : nat     = userStakeBalanceRecord.balance;
+                userStakeBalanceRecord.balance  := userInitBalance + stakeAmount; 
 
                 s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
+
+                // -------------------------------------------
+                // Update Delegation contract since user staked MVK balance has changed
+                // -------------------------------------------
+
+                // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[(userAddress, userInitBalance)], s);                                
+                operations := list [transferOperation; delegationOnStakeChangeOperation];
                 
             }
         |   _ -> skip
@@ -422,12 +423,13 @@ block {
 
                 // Get user's stake balance record
                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
+                const userInitBalance : nat     = userStakeBalanceRecord.balance;
                 
                 // Verify that unstake amount is not greater than user's staked MVK balance
                 verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
 
                 // Update user's stake balance record
-                userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
+                userStakeBalanceRecord.balance := abs(userInitBalance - unstakeAmount); 
 
                 // -------------------------------------------
                 // Transfer MVK Operation
@@ -472,7 +474,7 @@ block {
                 // -------------------------------------------
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[(userAddress, userInitBalance)], s);
 
                 // Execute operations list
                 operations := list[transferOperation; delegationOnStakeChangeOperation]
@@ -529,6 +531,7 @@ block {
 
                 // Get user's stake balance record
                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
+                const userInitBalance : nat     = userStakeBalanceRecord.balance;
                 
                 // -------------------------------------------
                 // Calculate Exit Fee and Transfer Everything out
@@ -536,10 +539,10 @@ block {
 
                 // Compound only the exit fee rewards
                 // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
-                if userStakeBalanceRecord.balance > 0n then {
+                if userInitBalance > 0n then {
 
                     // Update user's stake balance record
-                    const unstakeAmount : nat = userStakeBalanceRecord.balance;
+                    const unstakeAmount : nat = userInitBalance;
                     userStakeBalanceRecord.balance := 0n;
 
                     // -------------------------------------------
@@ -589,7 +592,7 @@ block {
                     // -------------------------------------------
 
                     // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                    const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
+                    const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[(userAddress, userInitBalance)], s);
 
                     // Execute operations list
                     operations := list[transferOperation; delegationOnStakeChangeOperation]
@@ -620,14 +623,25 @@ block{
 
     case doormanLambdaAction of [
         |   LambdaCompound(userAddresses) -> {
+
+                // Initialize variable
+                var onStakeChangeParam : onStakeChangeType  := set[];
                 
                 // Compound rewards
                 for userAddress in set userAddresses block {
+                    // Save user init balance
+                    const userStakeBalanceRecord : userStakeBalanceRecordType   = case s.userStakeBalanceLedger[userAddress] of [
+                            Some(_v) -> _v
+                        |   None     -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                    ];
+                    onStakeChangeParam  := Set.add((userAddress, userStakeBalanceRecord.balance), onStakeChangeParam);
+
+                    // Compound user rewards
                     s := compoundUserRewards(userAddress, s);
                 };
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation  = delegationOnStakeChangeOperation(userAddresses, s);
+                const delegationOnStakeChangeOperation : operation  = delegationOnStakeChangeOperation(onStakeChangeParam, s);
                 operations                                          := list [delegationOnStakeChangeOperation]
             }
         |   _ -> skip
@@ -698,9 +712,10 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
                     // Get user's staked balance record
                     var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(delegator, s);
+                    const userInitBalance : nat = userStakeBalanceRecord.balance;
 
                     // Update user's stake balance record
-                    userStakeBalanceRecord.balance                 := userStakeBalanceRecord.balance + claimAmount; 
+                    userStakeBalanceRecord.balance                 := userInitBalance + claimAmount; 
                     userStakeBalanceRecord.totalFarmRewardsClaimed := userStakeBalanceRecord.totalFarmRewardsClaimed + claimAmount;
                     s.userStakeBalanceLedger[delegator] := userStakeBalanceRecord;
 
@@ -747,7 +762,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                     } else skip;
 
                     // Add the user for the future onStakeChange
-                    onStakeChangeUsers  := Set.add(delegator, onStakeChangeUsers);
+                    onStakeChangeUsers  := Set.add((delegator, userInitBalance), onStakeChangeUsers);
 
                 };
 
@@ -818,11 +833,11 @@ block{
                         Some(_v) -> _v
                     |   None     -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
                 ];
+                const userInitBalance : nat = userBalanceInStakeBalanceLedger.balance;
 
                 // calculate new user staked balance
-                const userStakedBalance : nat = userBalanceInStakeBalanceLedger.balance; 
-                if depositAmount > userStakedBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
-                const newUserStakedBalance : nat = abs(userStakedBalance - depositAmount);
+                if depositAmount > userInitBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
+                const newUserStakedBalance : nat = abs(userInitBalance - depositAmount);
 
                 // find or create vault record in stake balance ledger
                 var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
@@ -835,9 +850,10 @@ block{
                             participationFeesPerShare      = s.accumulatedFeesPerShare;
                         ]
                 ];
+                const vaultInitBalance : nat              = vaultStakeBalanceRecord.balance;
 
                 // update vault stake balance in stake balance ledger
-                vaultStakeBalanceRecord.balance           := vaultStakeBalanceRecord.balance + depositAmount; 
+                vaultStakeBalanceRecord.balance           := vaultInitBalance + depositAmount; 
                 s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update user stake balance in stake balance ledger
@@ -845,7 +861,7 @@ block{
                 s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const onStakeChangeOperation : operation    = Tezos.transaction(set[vaultAddress; vaultOwner]  , 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Tezos.transaction(set[(vaultAddress, vaultInitBalance); (vaultOwner, userInitBalance)]  , 0tez, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [onStakeChangeOperation];
             }
@@ -887,28 +903,29 @@ block{
                         Some(_record) -> _record
                     |   None          -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
                 ];
+                const userInitBalance : nat = userBalanceInStakeBalanceLedger.balance;
 
                 // find vault record in stake balance ledger
                 var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
                 ];
+                const vaultInitBalance : nat    = vaultStakeBalanceRecord.balance;
 
                 // calculate new vault staked balance (check if vault has enough staked MVK to be withdrawn)
-                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
-                if withdrawAmount > vaultStakedBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
-                const newVaultStakedBalance : nat = abs(vaultStakedBalance - withdrawAmount);
+                if withdrawAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
+                const newVaultStakedBalance : nat = abs(vaultInitBalance - withdrawAmount);
 
                 // update vault stake balance in stake balance ledger
                 vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
                 s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update user stake balance in stake balance ledger
-                userBalanceInStakeBalanceLedger.balance   := userBalanceInStakeBalanceLedger.balance + withdrawAmount;
+                userBalanceInStakeBalanceLedger.balance   := userInitBalance + withdrawAmount;
                 s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const onStakeChangeOperation : operation    = Tezos.transaction(set[vaultAddress; vaultOwner]  , 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Tezos.transaction(set[(vaultAddress, vaultInitBalance); (vaultOwner, userInitBalance)]  , 0tez, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [onStakeChangeOperation]
             }
@@ -950,6 +967,7 @@ block{
                         Some(_val)  -> _val
                     |   None        -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
                 ];
+                const vaultInitBalance : nat = vaultStakeBalanceRecord.balance;
 
                 // find or create liquidator record in stake balance ledger 
                 var liquidatorStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
@@ -962,22 +980,22 @@ block{
                             participationFeesPerShare      = s.accumulatedFeesPerShare;
                         ]
                 ];
+                const userInitBalance : nat = liquidatorStakeBalanceRecord.balance;
 
                 // calculate new vault staked balance (check if vault has enough staked MVK to be liquidated)
-                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
-                if liquidatedAmount > vaultStakedBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
-                const newVaultStakedBalance : nat = abs(vaultStakedBalance - liquidatedAmount);
+                if liquidatedAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
+                const newVaultStakedBalance : nat = abs(vaultInitBalance - liquidatedAmount);
 
                 // update vault stake balance in stake balance ledger
                 vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
                 s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update liquidator stake balance in stake balance ledger
-                liquidatorStakeBalanceRecord.balance      := liquidatorStakeBalanceRecord.balance + liquidatedAmount;
+                liquidatorStakeBalanceRecord.balance      := userInitBalance + liquidatedAmount;
                 s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const onStakeChangeOperation : operation    = Tezos.transaction(set[vaultAddress; liquidator]  , 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Tezos.transaction(set[(vaultAddress, vaultInitBalance); (liquidator, userInitBalance)]  , 0tez, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [onStakeChangeOperation]
             }
@@ -1054,12 +1072,13 @@ block {
                 );
 
                 // update user's staked balance in staked balance ledger
-                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
-                
+                var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
+                const userInitBalance : nat = userStakeBalanceRecord.balance;
+
                 // Verify that unstake amount is not greater than user's staked MVK balance
                 verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
 
-                userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
+                userStakeBalanceRecord.balance := abs(userInitBalance - unstakeAmount); 
 
                 const transferOperation : operation = transferFa2Token(
                     Tezos.get_self_address(),   // from_
@@ -1091,7 +1110,7 @@ block {
                 s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
 
                 // update satellite balance if user is delegated to a satellite
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[userAddress], s);
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(set[(userAddress, userInitBalance)], s);
 
                 // fill a list of operations
                 operations := list[transferOperation; delegationOnStakeChangeOperation]

@@ -743,7 +743,7 @@ block {
     var operations: list(operation) := nil;
 
     case delegationLambdaAction of [
-        |   LambdaOnStakeChange(userAddresses) -> {
+        |   LambdaOnStakeChange(userAddressAndBalances) -> {
 
                 // Verify that sender is the Doorman Contract
                 verifySenderIsDoormanContract(s);
@@ -751,7 +751,11 @@ block {
                 // Update the satellite snapshot
                 var satellitesToUpdate : list(address)  := list[];
 
-                for userAddress in set userAddresses block {
+                for userAddressAndBalance in set userAddressAndBalances block {
+
+                    // Parse parameters
+                    const userAddress : address = userAddressAndBalance.0;
+                    const userBalance : nat     = userAddressAndBalance.1;
 
                     // Add the user to update
                     satellitesToUpdate  := userAddress # satellitesToUpdate;
@@ -765,6 +769,11 @@ block {
                         // Get satellite's rewards record (that user is delegated to)
                         const satelliteReferenceAddress : address = satelliteRewardsRecord.satelliteReferenceAddress;
                         var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
+
+                        // Calculate increment rewards based on difference between satellite's accumulated rewards per share and user's participations rewards per share
+                        const rewardsRatio      : nat   = abs(_satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
+                        const incrementRewards  : nat   = userBalance * rewardsRatio;
+                        satelliteRewardsRecord.unpaid   := satelliteRewardsRecord.unpaid + (incrementRewards / fixedPointAccuracy);
 
                         // Update user's satellite rewards record - empty pending rewards
                         // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare

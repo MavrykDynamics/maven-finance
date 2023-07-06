@@ -144,7 +144,7 @@ type delegationTogglePauseEntrypointType is [@layout:comb] record [
     empty             : unit
 ];
 
-type onStakeChangeType is set(address)
+type onStakeChangeType is set((address * nat)) // 0: user address, 1: reference smvk balance
 
 
 // ------------------------------------------------------------------------------
