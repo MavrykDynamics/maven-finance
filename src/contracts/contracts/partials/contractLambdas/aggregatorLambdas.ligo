@@ -231,9 +231,7 @@ block {
     verifySenderIsAdminOrGovernanceSatelliteContract(s);  
 
     case aggregatorLambdaAction of [
-        |   LambdaAddOracle(addOracleParams) -> {
-                
-                const oracleAddress : address = addOracleParams.oracleAddress;
+        |   LambdaAddOracle(oracleAddress) -> {
 
                 // Verify that satellite is not already a registered oracle on this aggregator
                 verifySatelliteIsNotRegisteredOracle(oracleAddress, s);
@@ -243,7 +241,6 @@ block {
                 
                 // update storage
                 s.oracleLedger[oracleAddress]   := oracleInformation;
-                s.oracleLedgerSize              := s.oracleLedgerSize + 1n;
 
             }
         |   _ -> skip
@@ -291,8 +288,7 @@ block {
                 verifySatelliteIsRegisteredOracle(oracleAddress, s);
 
                 // Remove oracle from oracle addresses
-                s.oracleLedger      := Big_map.remove(oracleAddress, s.oracleLedger);
-                s.oracleLedgerSize  := abs(s.oracleLedgerSize - 1n);
+                s.oracleLedger      := Map.remove(oracleAddress, s.oracleLedger);
 
             }
         |   _ -> skip
@@ -406,58 +402,48 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaUpdateData(params) -> {
 
-                // Verify that sender is an oracle registered on the aggregator
-                verifySenderIsRegisteredOracle(s);
+                // refresh the oracle ledger and check if the people who made observations can still provide data
+                var refreshedLedgerAndObservations : (updateDataType * aggregatorStorageType)   := refreshStorage(params, s);
+                const updatedUpdateDataParams : updateDataType                                  = refreshedLedgerAndObservations.0;
+                s                                                                               := refreshedLedgerAndObservations.1;
 
-                // Verify that satellite is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                // if the sender isn't an oracle anymore, skip the call
+                if Map.mem(Tezos.get_sender(), s.oracleLedger) then{
 
-                // verify obervations and signatures have the same size
-                verifyEqualMapSizes(params, s);
+                    // verify obervations and signatures have the same size
+                    verifyEqualMapSizes(updatedUpdateDataParams, s);
 
-                // verify for each observations -> epoch and round are the same + different from previous
-                var epochAndRound: nat*nat := verifyInfosFromObservations(params.oracleObservations, s);
+                    // verify for each observations -> epoch and round are the same + different from previous
+                    var epochAndRound: nat*nat := verifyInfosFromObservations(updatedUpdateDataParams.oracleObservations, s);
 
-                // verify oracles signatures
-                for key -> value in map params.signatures block {
-                    verifyAllResponsesSignature(key, value, params.oracleObservations, s)
-                };
+                    // verify oracles signatures
+                    for key -> value in map updatedUpdateDataParams.signatures block {
+                        verifyAllResponsesSignature(key, value, updatedUpdateDataParams.oracleObservations, s)
+                    };
 
-                // get median
-                const median: nat = getMedianFromMap(pivotObservationMap(params.oracleObservations), Map.size (params.oracleObservations));
+                    // get median
+                    const median: nat = getMedianFromMap(pivotObservationMap(updatedUpdateDataParams.oracleObservations), Map.size (updatedUpdateDataParams.oracleObservations));
 
-                // calculate percent oracle response
-                const percentOracleResponse: nat    = Map.size (params.oracleObservations) * 100_00n / s.oracleLedgerSize;
+                    // calculate percent oracle response
+                    const percentOracleResponse: nat    = Map.size (updatedUpdateDataParams.oracleObservations) * 100_00n / Map.size(s.oracleLedger);
 
-                var newlastCompletedData := record [
-                    round                   = epochAndRound.1;
-                    epoch                   = epochAndRound.0;
-                    data                    = median;
-                    percentOracleResponse   = percentOracleResponse;
-                    lastUpdatedAt           = Tezos.get_now();
-                ];
+                    var newlastCompletedData := record [
+                        round                   = epochAndRound.1;
+                        epoch                   = epochAndRound.0;
+                        data                    = median;
+                        percentOracleResponse   = percentOracleResponse;
+                        lastUpdatedAt           = Tezos.get_now();
+                    ];
 
-                // -----------------------------------------
-                // Set rewards for oracle
-                // -----------------------------------------
+                    // -----------------------------------------
+                    // Update last completed data
+                    // -----------------------------------------
 
-                // Set staked MVK reward for oracle
-                s := updateRewardsStakedMvk(params.oracleObservations, s);
+                    // Update storage with lastCompletedData
+                    s.lastCompletedData   := newlastCompletedData;
 
-                // Set XTZ reward for oracle
-                const rewardAmountXtz : nat  = s.config.rewardAmountXtz;
-                if rewardAmountXtz > 0n then {
-
-                    // get current oracle xtz rewards
-                    const currentOracleXtzRewards : nat = getOracleXtzRewards(Tezos.get_sender(), s);
-
-                    // increment oracle rewards in storage
-                    s.oracleRewardXtz[Tezos.get_sender()] := currentOracleXtzRewards + rewardAmountXtz;
-
-                } else skip;
-
-                // Update storage with lastCompletedData
-                s.lastCompletedData   := newlastCompletedData;
+                }
+                else skip;
             }
         |   _ -> skip
     ];

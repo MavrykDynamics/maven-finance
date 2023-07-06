@@ -16,7 +16,6 @@ async def on_aggregator_add_oracle(
         aggregator_address              = add_oracle.data.target_address
         oracle_address                  = add_oracle.parameter.__root__
         oracle_storage                  = add_oracle.storage.oracleLedger[oracle_address]
-        oracle_ledger_size              = int(add_oracle.storage.oracleLedgerSize)
         oracle_pk                       = oracle_storage.oraclePublicKey
         oracle_peer_id                  = oracle_storage.oraclePeerId
         init_round                      = int(add_oracle.storage.lastCompletedData.round)
@@ -25,8 +24,6 @@ async def on_aggregator_add_oracle(
         # Create record
         oracle                          = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
         aggregator                      = await models.Aggregator.get(network=ctx.datasource.network,address=aggregator_address)
-        aggregator.oracle_ledger_size   = oracle_ledger_size
-        await aggregator.save()
         aggregator_oracle               = models.AggregatorOracle(
             aggregator  = aggregator,
             user        = oracle,

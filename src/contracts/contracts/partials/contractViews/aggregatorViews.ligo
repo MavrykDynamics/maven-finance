@@ -46,8 +46,14 @@
 
 
 (* View: get oracle ledger *)
+[@view] function getOracleLedger(const _ : unit; const s : aggregatorStorageType) : oracleLedgerType is
+    s.oracleLedger
+
+
+
+(* View: get oracle record opt *)
 [@view] function getOracleOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(oracleInformationType) is
-    Big_map.find_opt(oracleAddress, s.oracleLedger)
+    Map.find_opt(oracleAddress, s.oracleLedger)
 
 
 (* View: get oracle reward staked MVK opt *)
@@ -63,7 +69,7 @@
 
 
 (* View: get last completed data *)
-[@view] function getlastCompletedData (const _ : unit ; const s : aggregatorStorageType) : lastCompletedDataReturnType is block {
+[@view] function getLastCompletedData (const _ : unit ; const s : aggregatorStorageType) : lastCompletedDataReturnType is block {
     const withDecimal : lastCompletedDataReturnType = record [
         data                  = s.lastCompletedData.data;
         percentOracleResponse = s.lastCompletedData.percentOracleResponse;
