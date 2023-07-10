@@ -4432,7 +4432,7 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(zeroTestValue, "configBlocksPerTimelockRound").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalDatTitleMaxLength").send();
+                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configDataTitleMaxLength").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalTitleMaxLength").send();
@@ -4503,7 +4503,7 @@ describe("Governance tests", async () => {
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.blocksPerTimelockRound, "configBlocksPerTimelockRound").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalDataTitleMaxLength, "configProposalDatTitleMaxLength").send();
+                resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalDataTitleMaxLength, "configDataTitleMaxLength").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalTitleMaxLength, "configProposalTitleMaxLength").send();
@@ -4857,7 +4857,7 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(zeroTestValue, "configBlocksPerTimelockRound");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalDatTitleMaxLength");
+                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configDataTitleMaxLength");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalTitleMaxLength");
