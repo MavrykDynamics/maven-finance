@@ -1935,7 +1935,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const decimals                      = 6;
                     const alphaPercentPerThousand       = 10;
                     const percentOracleThreshold        = 10;
-                    const heartBeatSeconds              = 5;
+                    const heartbeatSeconds              = 5;
                     const rewardAmountStakedMvk         = 100;
                     const rewardAmountXtz               = 100;
                     const metadata                      = Buffer.from(
@@ -1964,7 +1964,7 @@ describe('Governance proxy lambdas tests', async () => {
                             decimals,
                             alphaPercentPerThousand,
                             percentOracleThreshold,
-                            heartBeatSeconds,
+                            heartbeatSeconds,
                             rewardAmountStakedMvk,
                             rewardAmountXtz,
                             metadata
@@ -1991,7 +1991,7 @@ describe('Governance proxy lambdas tests', async () => {
                     assert.strictEqual(createdAggregatorStorage.config.decimals.toNumber(), decimals);
                     assert.strictEqual(createdAggregatorStorage.config.alphaPercentPerThousand.toNumber(), alphaPercentPerThousand);
                     assert.strictEqual(createdAggregatorStorage.config.percentOracleThreshold.toNumber(), percentOracleThreshold);
-                    assert.strictEqual(createdAggregatorStorage.config.heartBeatSeconds.toNumber(), heartBeatSeconds);
+                    assert.strictEqual(createdAggregatorStorage.config.heartbeatSeconds.toNumber(), heartbeatSeconds);
                     assert.strictEqual(createdAggregatorStorage.config.rewardAmountStakedMvk.toNumber(), rewardAmountStakedMvk);
                     assert.strictEqual(createdAggregatorStorage.config.rewardAmountXtz.toNumber(), rewardAmountXtz);
 

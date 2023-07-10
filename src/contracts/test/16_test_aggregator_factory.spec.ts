@@ -425,7 +425,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // alphaPercentPerThousand
         
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
         
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
@@ -521,7 +521,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // numberBlocksDelay
             
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
@@ -615,7 +615,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // alphaPercentPerThousand
             
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
             
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
@@ -945,7 +945,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // alphaPercentPerThousand
         
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
         
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez

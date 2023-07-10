@@ -163,6 +163,13 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Running tests for stressTest"
             COMMANDS+=("yarn ts-mocha --paths test/23_test_stress_test.spec.ts --bail --timeout 9000000")
             ;;
+        lendingControllerTest)
+            echo "Running tests for lendingController"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/17_setup_aggregators.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/26_test_lending_controller.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/27_test_lending_controller_pause.spec.ts --bail --timeout 9000000")
+            ;;
         lendingController)
             echo "Running tests for lendingController"
             COMMANDS+=("yarn ts-mocha --paths test/26_test_lending_controller.spec.ts --bail --timeout 9000000")

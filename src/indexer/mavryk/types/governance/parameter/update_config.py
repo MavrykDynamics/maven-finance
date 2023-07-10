@@ -82,7 +82,7 @@ class UpdateConfigActionItem10(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalDatTitleMaxLength: Dict[str, Any]
+    configDataTitleMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem11(BaseModel):
