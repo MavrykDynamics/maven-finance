@@ -26,7 +26,7 @@ async def on_aggregator_factory_create_aggregator(
         decimals                                    = int(aggregator_origination.storage.config.decimals)
         alpha_pct_per_thousand                      = int(aggregator_origination.storage.config.alphaPercentPerThousand)
         pct_oracle_threshold                        = int(aggregator_origination.storage.config.percentOracleThreshold)
-        heart_beat_seconds                          = int(aggregator_origination.storage.config.heartBeatSeconds)
+        heart_beat_seconds                          = int(aggregator_origination.storage.config.heartbeatSeconds)
         reward_amount_smvk                          = float(aggregator_origination.storage.config.rewardAmountStakedMvk)
         reward_amount_xtz                           = int(aggregator_origination.storage.config.rewardAmountXtz)
         update_data_paused                          = aggregator_origination.storage.breakGlassConfig.updateDataIsPaused

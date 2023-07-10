@@ -25,7 +25,7 @@ async def on_aggregator_update_config(
             decimals = update_config.storage.config.decimals,
             alpha_pct_per_thousand = update_config.storage.config.alphaPercentPerThousand,
             pct_oracle_threshold = update_config.storage.config.percentOracleThreshold,
-            heart_beat_seconds = update_config.storage.config.heartBeatSeconds,
+            heart_beat_seconds = update_config.storage.config.heartbeatSeconds,
             reward_amount_smvk = update_config.storage.config.rewardAmountStakedMvk,
             reward_amount_xtz = update_config.storage.config.rewardAmountXtz,
         )

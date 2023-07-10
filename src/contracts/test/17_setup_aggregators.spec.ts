@@ -99,7 +99,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(30),            // heartBeatSeconds
+                        new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
@@ -135,7 +135,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(30),            // heartBeatSeconds
+                        new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
@@ -171,7 +171,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(30),            // heartBeatSeconds
+                        new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
@@ -207,7 +207,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(30),            // heartBeatSeconds
+                        new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
