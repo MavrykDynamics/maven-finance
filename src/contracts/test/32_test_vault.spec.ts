@@ -34,7 +34,7 @@ describe("Vault tests", async () => {
     //  - bob: vault with collateral deposit
     //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
     //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
-    var aliceVaultSet : Array<Number>     = []
+    var aliceVaultSet : Array<Number>   = []
     var bobVaultSet : Array<Number>     = []
     var eveVaultSet : Array<Number>     = []
     var malloryVaultSet : Array<Number> = [] 
