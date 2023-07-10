@@ -1167,7 +1167,7 @@ describe('Aggregator Tests', async () => {
         const devTriggerBanDuration         : BigNumber = new BigNumber(100);
         const perThousandDeviationTrigger   : BigNumber = new BigNumber(100);
         const percentOracleThreshold        : BigNumber = new BigNumber(100);
-        const heartBeatSeconds              : BigNumber = new BigNumber(100);
+        const heartbeatSeconds              : BigNumber = new BigNumber(100);
 
         const requestRateDevDepositFee      : BigNumber = new BigNumber(100);
         
@@ -1211,10 +1211,10 @@ describe('Aggregator Tests', async () => {
                 ).send();
                 await testUpdateConfigPercentOracleThresholdOp.confirmation();
     
-                const testUpdateConfigHeartBeatSecondsOp        = await aggregatorInstance.methods.updateConfig(
-                heartBeatSeconds, "configHeartBeatSeconds"
+                const testUpdateConfigHeartbeatSecondsOp        = await aggregatorInstance.methods.updateConfig(
+                heartbeatSeconds, "configHeartbeatSeconds"
                 ).send();
-                await testUpdateConfigHeartBeatSecondsOp.confirmation();
+                await testUpdateConfigHeartbeatSecondsOp.confirmation();
     
     
                 const testUpdateConfigRewardAmountXtzOp         = await aggregatorInstance.methods.updateConfig(
@@ -1233,7 +1233,7 @@ describe('Aggregator Tests', async () => {
                 assert.deepEqual(aggregatorStorage.config.alphaPercentPerThousand,         alphaPercentPerThousand);
     
                 assert.deepEqual(aggregatorStorage.config.percentOracleThreshold,          percentOracleThreshold);
-                assert.deepEqual(aggregatorStorage.config.heartBeatSeconds,                heartBeatSeconds);
+                assert.deepEqual(aggregatorStorage.config.heartbeatSeconds,                heartbeatSeconds);
     
                 assert.deepEqual(aggregatorStorage.config.rewardAmountXtz,                 rewardAmountXtz);
                 assert.deepEqual(aggregatorStorage.config.rewardAmountStakedMvk,           rewardAmountStakedMvk);

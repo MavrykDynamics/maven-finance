@@ -129,7 +129,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
                         
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(300),            // heartBeatSeconds
+                        new BigNumber(300),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
@@ -148,7 +148,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
                         
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(300),           // heartBeatSeconds
+                        new BigNumber(300),           // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
@@ -167,7 +167,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
                         
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(300),           // heartBeatSeconds
+                        new BigNumber(300),           // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
@@ -186,7 +186,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(2),             // alphaPercentPerThousand
                         
                         new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(300),           // heartBeatSeconds
+                        new BigNumber(300),           // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
