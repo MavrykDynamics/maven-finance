@@ -172,7 +172,7 @@ type governanceUpdateConfigActionType is
     |   ConfigBlocksPerProposalRound      of unit
     |   ConfigBlocksPerVotingRound        of unit
     |   ConfigBlocksPerTimelockRound      of unit
-    |   ConfigProposalDatTitleMaxLength   of unit
+    |   ConfigDataTitleMaxLength          of unit
     |   ConfigProposalTitleMaxLength      of unit
     |   ConfigProposalDescMaxLength       of unit
     |   ConfigProposalInvoiceMaxLength    of unit
