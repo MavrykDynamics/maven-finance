@@ -143,7 +143,7 @@ block{
                     |   ConfigAlphaPercentPerThousand (_v)   -> s.config.alphaPercentPerThousand              := updateConfigNewValue
 
                     |   ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
-                    |   ConfigHeartBeatSeconds (_v)          -> s.config.heartBeatSeconds                     := updateConfigNewValue
+                    |   ConfigHeartbeatSeconds (_v)          -> s.config.heartbeatSeconds                     := updateConfigNewValue
                     
                     |   ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
                     |   ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue

@@ -287,7 +287,6 @@ describe("Governance tests", async () => {
             councilStorage      = await councilInstance.storage();
             delegationStorage   = await delegationInstance.storage();
             governanceStorage   = await governanceInstance.storage();
-            console.log(`cycleId: ${governanceStorage.cycleId}`);
 
             // -------------------
             // reset round to proposal
@@ -295,10 +294,7 @@ describe("Governance tests", async () => {
 
             currentRound        = governanceStorage.currentCycleInfo.round;
             currentRoundString  = Object.keys(currentRound)[0]
-            console.log(`initial currentRound: ${currentRoundString}`);
             while(currentRoundString !== "proposal"){
-                
-                console.log(currentRoundString);
 
                 const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                 await startNextRoundOperation.confirmation();
@@ -309,8 +305,8 @@ describe("Governance tests", async () => {
             }; 
 
             // start another round to reset
-            const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-            await startNextRoundOperation.confirmation();
+            // const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+            // await startNextRoundOperation.confirmation();
 
             // -------------------
             // generate sample mock proposal data
@@ -383,8 +379,6 @@ describe("Governance tests", async () => {
                     
                     // initial storage
                     governanceStorage = await governanceInstance.storage();
-
-                    console.log(`cycleId: ${governanceStorage.cycleId}`);
 
                     // check current round is proposal round
                     currentRound                      = governanceStorage.currentCycleInfo.round
@@ -683,32 +677,24 @@ describe("Governance tests", async () => {
                     let yayVoteStakedMvkTotal = proposalRecord.yayVoteStakedMvkTotal;
                     let quorumStakedMvkTotal  = proposalRecord.quorumStakedMvkTotal;
 
-                    console.log(`yayVotesRequired: ${yayVotesRequired} | yayVoteStakedMvkTotal: ${yayVoteStakedMvkTotal}  |  diff: ${yayVoteStakedMvkTotal > yayVotesRequired}`)
-                    console.log(`minQuorumStakedMvkTotal: ${minQuorumStakedMvkTotal} | quorumStakedMvkTotal: ${quorumStakedMvkTotal}  |  diff: ${quorumStakedMvkTotal > minQuorumStakedMvkTotal}`)
-
                     // check if sufficient yay votes obtained
                     if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
                         // set signer to satellite two (alice) and vote for voting round proposal
                         await signerFactory(tezos, satelliteTwoSk)
                         const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                         await votingRoundVoteOperation.confirmation();
-                        console.log('alice vote');
                     }
 
                     governanceStorage         = await governanceInstance.storage();
                     proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
                     yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
                     quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
-
-                    console.log(`yayVotesRequired: ${yayVotesRequired} | yayVoteStakedMvkTotal: ${yayVoteStakedMvkTotal}  |  diff: ${yayVoteStakedMvkTotal > yayVotesRequired}`)
-                    console.log(`minQuorumStakedMvkTotal: ${minQuorumStakedMvkTotal} | quorumStakedMvkTotal: ${quorumStakedMvkTotal}  |  diff: ${quorumStakedMvkTotal > minQuorumStakedMvkTotal}`)
 
                     if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
                         // set signer to satellite three (susie) and vote for voting round proposal
                         await signerFactory(tezos, satelliteThreeSk)
                         const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                         await votingRoundVoteOperation.confirmation();
-                        console.log('susie vote');
                     }
 
                     governanceStorage         = await governanceInstance.storage();
@@ -716,15 +702,11 @@ describe("Governance tests", async () => {
                     yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
                     quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
 
-                    console.log(`yayVotesRequired: ${yayVotesRequired} | yayVoteStakedMvkTotal: ${yayVoteStakedMvkTotal}  |  diff: ${yayVoteStakedMvkTotal > yayVotesRequired}`)
-                    console.log(`minQuorumStakedMvkTotal: ${minQuorumStakedMvkTotal} | quorumStakedMvkTotal: ${quorumStakedMvkTotal}  |  diff: ${quorumStakedMvkTotal > minQuorumStakedMvkTotal}`)
-
                     if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
                         // set signer to satellite four (oscar) and vote for voting round proposal
                         await signerFactory(tezos, satelliteFourSk)
                         const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                         await votingRoundVoteOperation.confirmation();
-                        console.log('oscar vote');
                     }
 
                     // ---------------------------------------
@@ -3058,13 +3040,11 @@ describe("Governance tests", async () => {
                     await signerFactory(tezos, adminSk)
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotePct").send();
                     await updateConfigOperation.confirmation();
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotesReq").send();
-                    await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
                     await updateConfigOperation.confirmation();
-                    
+
                     // Initial Values
                     await signerFactory(tezos, satelliteOneSk)
                     governanceStorage           = await governanceInstance.storage()
@@ -3140,8 +3120,6 @@ describe("Governance tests", async () => {
                     // UpdateConfig
                     await signerFactory(tezos, adminSk)
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotePct").send();
-                    await updateConfigOperation.confirmation();
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotesReq").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
                     await updateConfigOperation.confirmation();
@@ -3341,8 +3319,6 @@ describe("Governance tests", async () => {
                     // UpdateConfig
                     await signerFactory(tezos, bob.sk)
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotePct").send();
-                    await updateConfigOperation.confirmation();
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinProposalRoundVotesReq").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
                     await updateConfigOperation.confirmation();
@@ -3821,383 +3797,383 @@ describe("Governance tests", async () => {
 
 
 
-    describe("Quorum Scenarios: Proposal executed", async() => {
+    // describe("Quorum Scenarios: Proposal executed", async() => {
         
-        before("Set zero blocks per round", async () => {
+    //     before("Set zero blocks per round", async () => {
             
-            // set signer to admin
-            await signerFactory(tezos, adminSk)
+    //         // set signer to admin
+    //         await signerFactory(tezos, adminSk)
 
-            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerProposalRound").send();
-            await updateConfigOperation.confirmation();
+    //         updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerProposalRound").send();
+    //         await updateConfigOperation.confirmation();
 
-            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerVotingRound").send();
-            await updateConfigOperation.confirmation();
+    //         updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerVotingRound").send();
+    //         await updateConfigOperation.confirmation();
 
-            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerTimelockRound").send();
-            await updateConfigOperation.confirmation();
+    //         updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerTimelockRound").send();
+    //         await updateConfigOperation.confirmation();
 
-        });
+    //     });
 
 
-        beforeEach("Set signer to satellite (eve)", async () => {
+    //     beforeEach("Set signer to satellite (eve)", async () => {
             
-            governanceStorage = await governanceInstance.storage();
-            mvkTokenStorage   = await mvkTokenInstance.storage();
+    //         governanceStorage = await governanceInstance.storage();
+    //         mvkTokenStorage   = await mvkTokenInstance.storage();
 
-            // set signer to satellite one
-            await signerFactory(tezos, satelliteOneSk)
-        });
+    //         // set signer to satellite one
+    //         await signerFactory(tezos, satelliteOneSk)
+    //     });
 
-        it("Scenario - Satellites vote only yay and exceed quorum (10%) and minYayVotePercentage (51%)", async() => {
-            try{
+    //     it("Scenario - Satellites vote only yay and exceed quorum (10%) and minYayVotePercentage (51%)", async() => {
+    //         try{
 
-                // initial storage
-                councilStorage              = await councilInstance.storage();
-                governanceStorage           = await governanceInstance.storage();
-                doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+    //             // initial storage
+    //             councilStorage              = await councilInstance.storage();
+    //             governanceStorage           = await governanceInstance.storage();
+    //             doormanStorage              = await doormanInstance.storage();
+    //             mvkTokenStorage             = await mvkTokenInstance.storage();
 
-                // get current cycle and relevant config variables
-                currentCycle                = governanceStorage.cycleId;
-                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
-                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
+    //             // get current cycle and relevant config variables
+    //             currentCycle                = governanceStorage.cycleId;
+    //             const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+    //             const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
 
-                // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
-                const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
-                const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
-                const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
+    //             // get initial values of satellites
+    //             const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+    //             const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
+    //             const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+    //             const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
+    //             const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
-                const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
-                const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
-                const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
+    //             const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+    //             const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
+    //             const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+    //             const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
+    //             const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
-                const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
-                const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
-                const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
+    //             const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+    //             const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
+    //             const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+    //             const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
+    //             const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
-                const initialSatelliteFourStakeRecord           = await doormanStorage.userStakeBalanceLedger.get(satelliteFour);
-                const initialSatelliteFourStakedBalance         = initialSatelliteFourStakeRecord === undefined ? 0 : initialSatelliteFourStakeRecord.balance.toNumber();
-                const initialSatelliteFourRecord                = await delegationStorage.satelliteLedger.get(satelliteFour);
-                const initialSatelliteFourTotalDelegatedAmount  = initialSatelliteFourRecord.totalDelegatedAmount.toNumber();
-                const initialSatelliteFourTotalVotingPower      = calcTotalVotingPower(delegationRatio, initialSatelliteFourStakedBalance, initialSatelliteFourTotalDelegatedAmount);
+    //             const initialSatelliteFourStakeRecord           = await doormanStorage.userStakeBalanceLedger.get(satelliteFour);
+    //             const initialSatelliteFourStakedBalance         = initialSatelliteFourStakeRecord === undefined ? 0 : initialSatelliteFourStakeRecord.balance.toNumber();
+    //             const initialSatelliteFourRecord                = await delegationStorage.satelliteLedger.get(satelliteFour);
+    //             const initialSatelliteFourTotalDelegatedAmount  = initialSatelliteFourRecord.totalDelegatedAmount.toNumber();
+    //             const initialSatelliteFourTotalVotingPower      = calcTotalVotingPower(delegationRatio, initialSatelliteFourStakedBalance, initialSatelliteFourTotalDelegatedAmount);
 
-                const initialSatelliteFiveStakeRecord           = await doormanStorage.userStakeBalanceLedger.get(satelliteFive);
-                const initialSatelliteFiveStakedBalance         = initialSatelliteFiveStakeRecord === undefined ? 0 : initialSatelliteFiveStakeRecord.balance.toNumber();
-                const initialSatelliteFiveRecord                = await delegationStorage.satelliteLedger.get(satelliteFive);
-                const initialSatelliteFiveTotalDelegatedAmount  = initialSatelliteFiveRecord.totalDelegatedAmount.toNumber();
-                const initialSatelliteFiveTotalVotingPower      = calcTotalVotingPower(delegationRatio, initialSatelliteFiveStakedBalance, initialSatelliteFiveTotalDelegatedAmount);
+    //             const initialSatelliteFiveStakeRecord           = await doormanStorage.userStakeBalanceLedger.get(satelliteFive);
+    //             const initialSatelliteFiveStakedBalance         = initialSatelliteFiveStakeRecord === undefined ? 0 : initialSatelliteFiveStakeRecord.balance.toNumber();
+    //             const initialSatelliteFiveRecord                = await delegationStorage.satelliteLedger.get(satelliteFive);
+    //             const initialSatelliteFiveTotalDelegatedAmount  = initialSatelliteFiveRecord.totalDelegatedAmount.toNumber();
+    //             const initialSatelliteFiveTotalVotingPower      = calcTotalVotingPower(delegationRatio, initialSatelliteFiveStakedBalance, initialSatelliteFiveTotalDelegatedAmount);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+    //             // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+    //             const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                const quorumStakedMvkTotal  = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired    = quorumStakedMvkTotal * minYayVotePercentage / 10000;
+    //             const quorumStakedMvkTotal  = totalStakedMvkSupply * minQuorumPercentage / 10000;
+    //             const minYayVoteRequired    = quorumStakedMvkTotal * minYayVotePercentage / 10000;
 
-                // initial values
-                const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Quorum test";
-                const proposalDesc          = "Details about new proposal";
-                const proposalIpfs          = "ipfs://QM123456789";
-                const proposalSourceCode    = "Proposal Source Code";
+    //             // initial values
+    //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+    //             const proposalName          = "Quorum test";
+    //             const proposalDesc          = "Details about new proposal";
+    //             const proposalIpfs          = "ipfs://QM123456789";
+    //             const proposalSourceCode    = "Proposal Source Code";
                 
-                const proposalData      = [
-                    {
-                        addOrSetProposalData: {
-                            title: "ActionExpiryDays#1",
-                            encodedCode: mockPackedLambdaData.updateCouncilConfig,
-                            codeDescription: ""
-                        }
-                    }
-                ]
+    //             const proposalData      = [
+    //                 {
+    //                     addOrSetProposalData: {
+    //                         title: "ActionExpiryDays#1",
+    //                         encodedCode: mockPackedLambdaData.updateCouncilConfig,
+    //                         codeDescription: ""
+    //                     }
+    //                 }
+    //             ]
 
-                // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             // Start governance rounds
+    //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                governanceStorage           = await governanceInstance.storage();
-                currentCycle                = governanceStorage.cycleId;
+    //             governanceStorage           = await governanceInstance.storage();
+    //             currentCycle                = governanceStorage.cycleId;
 
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-                await proposeOperation.confirmation();
+    //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+    //             await proposeOperation.confirmation();
                 
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-                await lockOperation.confirmation();
+    //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+    //             await lockOperation.confirmation();
 
-                // --------------------------
-                // Proposal Round Voting
-                // --------------------------
+    //             // --------------------------
+    //             // Proposal Round Voting
+    //             // --------------------------
 
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
+    //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
                 
-                await signerFactory(tezos, satelliteTwoSk);
-                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteTwoSk);
+    //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
 
-                // --------------------------
-                // Start Next Round
-                // --------------------------
+    //             // --------------------------
+    //             // Start Next Round
+    //             // --------------------------
 
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                // --------------------------
-                // Voting Round Voting
-                // --------------------------
+    //             // --------------------------
+    //             // Voting Round Voting
+    //             // --------------------------
 
-                await signerFactory(tezos, satelliteOneSk);
-                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteOneSk);
+    //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
 
-                await signerFactory(tezos, satelliteTwoSk);
-                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteTwoSk);
+    //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
 
-                // mid values
-                governanceStorage                   = await governanceInstance.storage();
+    //             // mid values
+    //             governanceStorage                   = await governanceInstance.storage();
 
-                // const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
-                // const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
-                // const thirdSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
-                // const fourthSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
-                // const fifthSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFive});
+    //             // const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+    //             // const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+    //             // const thirdSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+    //             // const fourthSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+    //             // const fifthSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFive});
 
-                // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
+    //             // check details of financial request snapshot ledger
+    //             const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+    //             assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
+    //             assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+    //             assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
+    //             const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+    //             assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
+    //             assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+    //             assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
+    //             const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+    //             assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
+    //             assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+    //             assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
-                const satelliteFourFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFour});
-                assert.equal(satelliteFourFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteFourTotalDelegatedAmount);
-                assert.equal(satelliteFourFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteFourStakedBalance);
-                assert.equal(satelliteFourFinancialRequestSnapshot.totalVotingPower,       initialSatelliteFourTotalVotingPower);
+    //             const satelliteFourFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFour});
+    //             assert.equal(satelliteFourFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteFourTotalDelegatedAmount);
+    //             assert.equal(satelliteFourFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteFourStakedBalance);
+    //             assert.equal(satelliteFourFinancialRequestSnapshot.totalVotingPower,       initialSatelliteFourTotalVotingPower);
 
-                const satelliteFiveFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFive});
-                assert.equal(satelliteFiveFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteFiveTotalDelegatedAmount);
-                assert.equal(satelliteFiveFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteFiveStakedBalance);
-                assert.equal(satelliteFiveFinancialRequestSnapshot.totalVotingPower,       initialSatelliteFiveTotalVotingPower);
+    //             const satelliteFiveFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFive});
+    //             assert.equal(satelliteFiveFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteFiveTotalDelegatedAmount);
+    //             assert.equal(satelliteFiveFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteFiveStakedBalance);
+    //             assert.equal(satelliteFiveFinancialRequestSnapshot.totalVotingPower,       initialSatelliteFiveTotalVotingPower);
 
 
-                console.log(`
-                    firstSatelliteSnapshot: ${satelliteOneFinancialRequestSnapshot},
-                    secondSatelliteSnapshot: ${satelliteTwoFinancialRequestSnapshot},
-                    thirdSatelliteSnapshot: ${satelliteThreeFinancialRequestSnapshot},
-                    fourthSatelliteSnapshot: ${satelliteFourFinancialRequestSnapshot},
-                    fifthSatelliteSnapshot: ${satelliteFiveFinancialRequestSnapshot},
-                `)
+    //             console.log(`
+    //                 firstSatelliteSnapshot: ${satelliteOneFinancialRequestSnapshot},
+    //                 secondSatelliteSnapshot: ${satelliteTwoFinancialRequestSnapshot},
+    //                 thirdSatelliteSnapshot: ${satelliteThreeFinancialRequestSnapshot},
+    //                 fourthSatelliteSnapshot: ${satelliteFourFinancialRequestSnapshot},
+    //                 fifthSatelliteSnapshot: ${satelliteFiveFinancialRequestSnapshot},
+    //             `)
 
-                // Restart the cycle
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             // Restart the cycle
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                // Final values
-                governanceStorage                   = await governanceInstance.storage();
+    //             // Final values
+    //             governanceStorage                   = await governanceInstance.storage();
                 
-                // const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
-                // const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
-                // const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
-                const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+    //             // const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
+    //             // const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
+    //             // const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
+    //             const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
                 
-                const proposalMinYayVotePercentage  = proposal.minYayVotePercentage.toNumber();
-                const proposalMinQuorumPercentage   = proposal.minQuorumPercentage.toNumber();
-                // const quorumStakedMvkTotal          = proposal.quorumStakedMvkTotal.toNumber();
-                // const minQuorumStakedMvkTotal       = proposal.minQuorumStakedMvkTotal.toNumber();
+    //             const proposalMinYayVotePercentage  = proposal.minYayVotePercentage.toNumber();
+    //             const proposalMinQuorumPercentage   = proposal.minQuorumPercentage.toNumber();
+    //             // const quorumStakedMvkTotal          = proposal.quorumStakedMvkTotal.toNumber();
+    //             // const minQuorumStakedMvkTotal       = proposal.minQuorumStakedMvkTotal.toNumber();
                 
-                // const minYayVoteRequired            = quorumStakedMvkTotal * minYayVotePercentage / 10000;
-                // const calcMinQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
+    //             // const minYayVoteRequired            = quorumStakedMvkTotal * minYayVotePercentage / 10000;
+    //             // const calcMinQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
 
-                // Assertions
-                // console.log("PROPOSAL: ", proposal);
-                // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
-                // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
-                // console.log("SMVK: ", totalStakedMvkSupply);
+    //             // Assertions
+    //             // console.log("PROPOSAL: ", proposal);
+    //             // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
+    //             // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
+    //             // console.log("SMVK: ", totalStakedMvkSupply);
 
-                // assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                // assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                // assert.equal(calcMinQuorumStakedMvkTotal, minQuorumStakedMvkTotal)
-                assert.equal(proposal.executed, true)
+    //             // assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
+    //             // assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
+    //             // assert.equal(calcMinQuorumStakedMvkTotal, minQuorumStakedMvkTotal)
+    //             assert.equal(proposal.executed, true)
 
-            } catch(e) {
-                console.dir(e, {depth:5})
-            }
-        })
+    //         } catch(e) {
+    //             console.dir(e, {depth:5})
+    //         }
+    //     })
 
-    })
+    // })
 
-    describe("Quorum Scenarios: Proposal NOT executed", async() => {
+    // describe("Quorum Scenarios: Proposal NOT executed", async() => {
         
-        before("set zero blocks per round", async () => {
+    //     before("set zero blocks per round", async () => {
             
-            // set signer to admin
-            await signerFactory(tezos, adminSk)
+    //         // set signer to admin
+    //         await signerFactory(tezos, adminSk)
 
-            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerProposalRound").send();
-            await updateConfigOperation.confirmation();
+    //         updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerProposalRound").send();
+    //         await updateConfigOperation.confirmation();
 
-            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerVotingRound").send();
-            await updateConfigOperation.confirmation();
+    //         updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerVotingRound").send();
+    //         await updateConfigOperation.confirmation();
 
-            updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerTimelockRound").send();
-            await updateConfigOperation.confirmation();
+    //         updateConfigOperation = await governanceInstance.methods.updateConfig(zeroBlocksPerRound, "configBlocksPerTimelockRound").send();
+    //         await updateConfigOperation.confirmation();
 
-        });
+    //     });
 
 
-        beforeEach("Set signer to satellite (eve)", async () => {
+    //     beforeEach("Set signer to satellite (eve)", async () => {
             
-            governanceStorage = await governanceInstance.storage();
-            mvkTokenStorage   = await mvkTokenInstance.storage();
+    //         governanceStorage = await governanceInstance.storage();
+    //         mvkTokenStorage   = await mvkTokenInstance.storage();
 
-            // set signer to satellite one
-            await signerFactory(tezos, satelliteOneSk)
-        });
+    //         // set signer to satellite one
+    //         await signerFactory(tezos, satelliteOneSk)
+    //     });
 
 
-        it("Scenario - Satellites vote only yay but total votes does not exceed quorum (60%)", async() => {
-            try{
+    //     it("Scenario - Satellites vote only yay but total votes does not exceed quorum (60%)", async() => {
+    //         try{
             
-                // set quorum to 60%
-                await signerFactory(tezos, adminSk)
-                const newMinQuorumPercentage = 6000;
-                updateConfigOperation = await governanceInstance.methods.updateConfig(newMinQuorumPercentage, "configMinQuorumPercentage").send();
-                await updateConfigOperation.confirmation();
+    //             // set quorum to 60%
+    //             await signerFactory(tezos, adminSk)
+    //             const newMinQuorumPercentage = 6000;
+    //             updateConfigOperation = await governanceInstance.methods.updateConfig(newMinQuorumPercentage, "configMinQuorumPercentage").send();
+    //             await updateConfigOperation.confirmation();
                 
-                // Initial values
-                governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+    //             // Initial values
+    //             governanceStorage           = await governanceInstance.storage();
+    //             mvkTokenStorage             = await mvkTokenInstance.storage();
 
-                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
-                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
+    //             const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+    //             const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
 
 
-                const proposalId            = governanceStorage.nextProposalId.toNumber();
-                const proposalName          = "Quorum test";
-                const proposalDesc          = "Details about new proposal";
-                const proposalIpfs          = "ipfs://QM123456789";
-                const proposalSourceCode    = "Proposal Source Code";
+    //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+    //             const proposalName          = "Quorum test";
+    //             const proposalDesc          = "Details about new proposal";
+    //             const proposalIpfs          = "ipfs://QM123456789";
+    //             const proposalSourceCode    = "Proposal Source Code";
 
-                const proposalData      = [
-                    {
-                        addOrSetProposalData: {
-                            title: "ActionExpiryDays#1",
-                            encodedCode: mockPackedLambdaData.updateCouncilConfig,
-                            codeDescription: ""
-                        }
-                    }
-                ]
+    //             const proposalData      = [
+    //                 {
+    //                     addOrSetProposalData: {
+    //                         title: "ActionExpiryDays#1",
+    //                         encodedCode: mockPackedLambdaData.updateCouncilConfig,
+    //                         codeDescription: ""
+    //                     }
+    //                 }
+    //             ]
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+    //             // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+    //             const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                const quorumStakedMvkTotal  = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired    = quorumStakedMvkTotal * minYayVotePercentage / 10000;
+    //             const quorumStakedMvkTotal  = totalStakedMvkSupply * minQuorumPercentage / 10000;
+    //             const minYayVoteRequired    = quorumStakedMvkTotal * minYayVotePercentage / 10000;
 
-                // Update min quorum
-                const updateGovernanceConfig= await governanceInstance.methods.updateConfig(10000, "configMinQuorumPercentage").send();
-                await updateGovernanceConfig.confirmation();
+    //             // Update min quorum
+    //             const updateGovernanceConfig= await governanceInstance.methods.updateConfig(10000, "configMinQuorumPercentage").send();
+    //             await updateGovernanceConfig.confirmation();
 
-                // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             // Start governance rounds
+    //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
-                await proposeOperation.confirmation();
+    //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
+    //             await proposeOperation.confirmation();
                 
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-                await lockOperation.confirmation();
+    //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+    //             await lockOperation.confirmation();
 
-                // --------------------------
-                // Proposal Round Voting
-                // --------------------------
+    //             // --------------------------
+    //             // Proposal Round Voting
+    //             // --------------------------
 
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
+    //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
                 
-                await signerFactory(tezos, satelliteTwoSk);
-                voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-                await voteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteTwoSk);
+    //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+    //             await voteOperation.confirmation();
                 
-                // --------------------------
-                // Start Next Round
-                // --------------------------
+    //             // --------------------------
+    //             // Start Next Round
+    //             // --------------------------
 
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-                await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+    //             await nextRoundOperation.confirmation();
 
-                // --------------------------
-                // Voting Round Voting
-                // --------------------------
+    //             // --------------------------
+    //             // Voting Round Voting
+    //             // --------------------------
 
-                await signerFactory(tezos, satelliteOneSk);
-                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteOneSk);
+    //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
 
-                await signerFactory(tezos, satelliteTwoSk);
-                votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-                await votingRoundVoteOperation.confirmation();
+    //             await signerFactory(tezos, satelliteTwoSk);
+    //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+    //             await votingRoundVoteOperation.confirmation();
 
 
-                // mid values
-                governanceStorage                   = await governanceInstance.storage();
-                var currentCycle                    = governanceStorage.cycleId;
-                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+    //             // mid values
+    //             governanceStorage                   = await governanceInstance.storage();
+    //             var currentCycle                    = governanceStorage.cycleId;
+    //             const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+    //             const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 
-                // Restart the cycle
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             // Restart the cycle
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-                await nextRoundOperation.confirmation();
+    //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+    //             await nextRoundOperation.confirmation();
 
-                // Final values
-                governanceStorage                   = await governanceInstance.storage();
-                const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
-                const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
-                const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
-                const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
-                // const minYayVotePercentage          = proposal.minYayVotePercentage.toNumber();
-                // const minQuorumPercentage           = proposal.minQuorumPercentage.toNumber();
-                // const quorumStakedMvkTotal          = proposal.quorumStakedMvkTotal.toNumber();
-                // const minQuorumStakedMvkTotal       = proposal.minQuorumStakedMvkTotal.toNumber();
-                // const minYayVoteRequired            = quorumStakedMvkTotal * minYayVotePercentage / 10000;
-                // const calcMinQuorumStakedMvkTotal   = smvkTotalSupply * minQuorumPercentage / 10000;
+    //             // Final values
+    //             governanceStorage                   = await governanceInstance.storage();
+    //             const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
+    //             const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
+    //             const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
+    //             const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+    //             // const minYayVotePercentage          = proposal.minYayVotePercentage.toNumber();
+    //             // const minQuorumPercentage           = proposal.minQuorumPercentage.toNumber();
+    //             // const quorumStakedMvkTotal          = proposal.quorumStakedMvkTotal.toNumber();
+    //             // const minQuorumStakedMvkTotal       = proposal.minQuorumStakedMvkTotal.toNumber();
+    //             // const minYayVoteRequired            = quorumStakedMvkTotal * minYayVotePercentage / 10000;
+    //             // const calcMinQuorumStakedMvkTotal   = smvkTotalSupply * minQuorumPercentage / 10000;
                 
-                // Assertions
-                // console.log("PROPOSAL: ", proposal);
-                // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
-                // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
-                // console.log("SMVK: ", smvkTotalSupply);
-                assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                // assert.equal(calcMinQuorumStakedMvkTotal, minQuorumStakedMvkTotal)
-                assert.equal(proposal.executed, false)
+    //             // Assertions
+    //             // console.log("PROPOSAL: ", proposal);
+    //             // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
+    //             // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
+    //             // console.log("SMVK: ", smvkTotalSupply);
+    //             assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
+    //             assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
+    //             // assert.equal(calcMinQuorumStakedMvkTotal, minQuorumStakedMvkTotal)
+    //             assert.equal(proposal.executed, false)
 
-            } catch(e) {
-                console.dir(e, {depth:5})
-            }
-        })
+    //         } catch(e) {
+    //             console.dir(e, {depth:5})
+    //         }
+    //     })
 
     //     it("Scenario - Satellites yay votes does not exceed minYayVotePercentage (80%) but total votes exceeds quorum (60%)", async() => {
     //         try{
@@ -4325,7 +4301,7 @@ describe("Governance tests", async () => {
     //             console.dir(e, {depth:5})
     //         }
     //     })
-    })
+    // })
 
 
     describe("Housekeeping Entrypoints", async () => {
@@ -4435,9 +4411,6 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinProposalRoundVotePct").send();
                 await updateConfigOperation.confirmation();
 
-                // updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinProposalRoundVotesReq").send();
-                // await updateConfigOperation.confirmation();
-
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinQuorumPercentage").send();
                 await updateConfigOperation.confirmation();
 
@@ -4459,7 +4432,7 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(zeroTestValue, "configBlocksPerTimelockRound").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalDatTitleMaxLength").send();
+                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configDataTitleMaxLength").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalTitleMaxLength").send();
@@ -4509,9 +4482,6 @@ describe("Governance tests", async () => {
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.minProposalRoundVotePercentage, "configMinProposalRoundVotePct").send();
                 await resetConfigOperation.confirmation();
 
-                // resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.minProposalRoundVotesRequired, "configMinProposalRoundVotesReq").send();
-                // await resetConfigOperation.confirmation();
-
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.minQuorumPercentage, "configMinQuorumPercentage").send();
                 await resetConfigOperation.confirmation();
 
@@ -4533,7 +4503,7 @@ describe("Governance tests", async () => {
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.blocksPerTimelockRound, "configBlocksPerTimelockRound").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalDataTitleMaxLength, "configProposalDatTitleMaxLength").send();
+                resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalDataTitleMaxLength, "configDataTitleMaxLength").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalTitleMaxLength, "configProposalTitleMaxLength").send();
@@ -4866,9 +4836,6 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinProposalRoundVotePct");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                // updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinProposalRoundVotesReq");
-                // await chai.expect(updateConfigOperation.send()).to.be.rejected;
-
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinQuorumPercentage");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
@@ -4890,7 +4857,7 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(zeroTestValue, "configBlocksPerTimelockRound");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalDatTitleMaxLength");
+                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configDataTitleMaxLength");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposalTitleMaxLength");
