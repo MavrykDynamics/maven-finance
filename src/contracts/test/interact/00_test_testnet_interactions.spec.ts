@@ -2290,7 +2290,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(2),             // alphaPercentPerThousand
                     
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
@@ -2321,7 +2321,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(2),             // alphaPercentPerThousand
                     
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
@@ -2352,7 +2352,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(2),             // alphaPercentPerThousand
                     
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
@@ -2606,7 +2606,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates heart beat seconds', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(15, "configHeartBeatSeconds").send();
+                var operation = await aggregatorInstance.methods.updateConfig(15, "configHeartbeatSeconds").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2799,7 +2799,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates proposal data title max length', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(500, "configProposalDatTitleMaxLength").send();
+                const operation = await governanceInstance.methods.updateConfig(500, "configDataTitleMaxLength").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
