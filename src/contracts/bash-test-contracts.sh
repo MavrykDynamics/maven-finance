@@ -181,6 +181,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         lendingControllerMockTimeLiquidation)
             echo "Running tests for lendingControllerMockTime - Liquidation"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/30_test_lending_controller_mock_time_liquidation.spec.ts --bail --timeout 9000000")
             ;;
         mToken)
