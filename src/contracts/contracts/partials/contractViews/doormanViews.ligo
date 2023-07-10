@@ -10,9 +10,21 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : doormanStorageType) : address is
+    s.governanceAddress
+
+
+
 (*  View: get config *)
 [@view] function getConfig(const _ : unit; const s : doormanStorageType) : doormanConfigType is
     s.config
+
+
+
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _ : unit; const s : doormanStorageType) : doormanBreakGlassConfigType is
+    s.breakGlassConfig
 
 
 
@@ -25,12 +37,6 @@
 (* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : doormanStorageType) : option(address) is
     Big_map.find_opt(contractName, s.generalContracts)
-
-
-
-(*  View: get break glass config *)
-[@view] function getBreakGlassConfig(const _ : unit; const s : doormanStorageType) : doormanBreakGlassConfigType is
-    s.breakGlassConfig
 
 
 
