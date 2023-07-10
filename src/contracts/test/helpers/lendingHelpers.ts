@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { alice, bob, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
+import { alice, eve, susie } from "../../scripts/sandbox/accounts";
 
 // ------------------------------------------------------------------
 //
@@ -350,7 +350,7 @@ export const defaultPriceObservations = [
         "medianPrice": 1500000, // 1,500,000 -> $1.50
         "observations" : [ 
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(1499995)
             },
             {
@@ -358,7 +358,7 @@ export const defaultPriceObservations = [
                 "data" :new BigNumber(1500000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(1500000)
             }
         ]
@@ -369,7 +369,7 @@ export const defaultPriceObservations = [
         "medianPrice": 3500000, // 3,500,000 -> $3.50
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(3499995)
             },
             {
@@ -377,7 +377,7 @@ export const defaultPriceObservations = [
                 "data" :new BigNumber(3500000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(3500000)
             }
         ]
@@ -388,7 +388,7 @@ export const defaultPriceObservations = [
         "medianPrice": 1800000, // 1,800,000 -> $1.80
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(1799995)
             },
             {
@@ -396,7 +396,7 @@ export const defaultPriceObservations = [
                 "data" :new BigNumber(1800000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(1800000)
             }
         ]
@@ -408,7 +408,7 @@ export const defaultPriceObservations = [
         "medianPrice": 1000000000, // 1,000,000,000 -> $1
         "observations" : [ 
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(999999995)
             },
             {
@@ -416,7 +416,7 @@ export const defaultPriceObservations = [
                 "data" :new BigNumber(1000000000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(1000000000)
             }
         ]
@@ -433,7 +433,7 @@ export const priceDecreaseObservations = [
         "medianPrice": 500000, // 500,000 -> $0.50
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(499995)
             },
             {
@@ -441,7 +441,7 @@ export const priceDecreaseObservations = [
                 "data" :new BigNumber(500000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(500000)
             }
         ]
@@ -452,7 +452,7 @@ export const priceDecreaseObservations = [
         "medianPrice": 1166666, // 1,166,666 -> $1.16
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(1166660)
             },
             {
@@ -460,7 +460,7 @@ export const priceDecreaseObservations = [
                 "data" :new BigNumber(1166666)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(1166666)
             }
         ]
@@ -471,7 +471,7 @@ export const priceDecreaseObservations = [
         "medianPrice": 600000, // 600,000 -> $0.60
         "observations" : [ 
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(599995)
             },
             {
@@ -479,7 +479,7 @@ export const priceDecreaseObservations = [
                 "data" :new BigNumber(600000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(600000)
             }
         ]
@@ -490,7 +490,7 @@ export const priceDecreaseObservations = [
         "medianPrice": 333333333, // 333,333,333 -> $0.33
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(333333328)
             },
             {
@@ -498,7 +498,7 @@ export const priceDecreaseObservations = [
                 "data" :new BigNumber(333333333)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(333333333)
             }
         ]
@@ -516,7 +516,7 @@ export const priceIncreaseObservations = [
         "medianPrice": 2500000, // 2,500,000 -> $2.50
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(2499995)
             },
             {
@@ -524,7 +524,7 @@ export const priceIncreaseObservations = [
                 "data" :new BigNumber(2500000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(2500000)
             }
         ]
@@ -535,7 +535,7 @@ export const priceIncreaseObservations = [
         "medianPrice": 5833333, // 5,833,333 -> $5.83
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(5833328)
             },
             {
@@ -543,7 +543,7 @@ export const priceIncreaseObservations = [
                 "data" :new BigNumber(5833333)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(5833333)
             }
         ]
@@ -554,7 +554,7 @@ export const priceIncreaseObservations = [
         "medianPrice": 3000000, // 3,000,000 -> $3.00
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(2999995)
             },
             {
@@ -562,7 +562,7 @@ export const priceIncreaseObservations = [
                 "data" :new BigNumber(3000000)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(3000000)
             }
         ]
@@ -573,7 +573,7 @@ export const priceIncreaseObservations = [
         "medianPrice": 1666666666, // 1,666,666,666 -> $1.66
         "observations" : [
             {
-                "oracle": bob.pkh,
+                "oracle": alice.pkh,
                 "data" :new BigNumber(1666666661)
             },
             {
@@ -581,7 +581,7 @@ export const priceIncreaseObservations = [
                 "data" :new BigNumber(1666666666)
             },
             {
-                "oracle": mallory.pkh,
+                "oracle": susie.pkh,
                 "data" :new BigNumber(1666666666)
             }
         ]

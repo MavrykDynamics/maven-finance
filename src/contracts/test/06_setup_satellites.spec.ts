@@ -141,7 +141,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(1000);
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -217,7 +217,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(1000);
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -293,7 +293,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(1000);
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -369,7 +369,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(1000);
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -444,7 +444,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(1000);
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);

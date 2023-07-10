@@ -19,7 +19,7 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
-import { bob, eve, mallory } from '../../scripts/sandbox/accounts'
+import { alice, bob, eve, susie } from '../../scripts/sandbox/accounts'
 import { mTokenMockData } from "../helpers/mockSampleData"
 
 // ------------------------------------------------------------------------------
@@ -104,17 +104,17 @@ describe('Lending Controller Supporting Contracts', async () => {
             // Mock Oracles
             //----------------------------
             const oracleMap = MichelsonMap.fromLiteral({
-                [bob.pkh]              : {
-                    oraclePublicKey : bob.pk,
-                    oraclePeerId : bob.peerId
+                [alice.pkh]              : {
+                    oraclePublicKey : alice.pk,
+                    oraclePeerId : alice.peerId
                 },
                 [eve.pkh]              : {
                     oraclePublicKey : eve.pk,
                     oraclePeerId : eve.peerId
                 },
-                [mallory.pkh]          : {
-                    oraclePublicKey : mallory.pk,
-                    oraclePeerId : mallory.peerId
+                [susie.pkh]          : {
+                    oraclePublicKey : susie.pk,
+                    oraclePeerId : susie.peerId
                 }
             });
 
