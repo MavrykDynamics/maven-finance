@@ -10,6 +10,12 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : farmStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: get name variable *)
 [@view] function getName(const _ : unit; const s : farmStorageType) : string is
     s.name
@@ -22,6 +28,12 @@
 
 
 
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _ : unit; const s: farmStorageType) : farmBreakGlassConfigType is
+    s.breakGlassConfig
+
+
+
 (* View: get whitelist contracts opt *)
 [@view] function getWhitelistContractOpt(const contractAddress : address; const s : farmStorageType) : option(unit) is 
     Big_map.find_opt(contractAddress, s.whitelistContracts)
@@ -31,12 +43,6 @@
 (* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : farmStorageType) : option(address) is
     Big_map.find_opt(contractName, s.generalContracts)
-
-
-
-(*  View: get break glass config *)
-[@view] function getBreakGlassConfig(const _ : unit; const s: farmStorageType) : farmBreakGlassConfigType is
-    s.breakGlassConfig
 
 
 

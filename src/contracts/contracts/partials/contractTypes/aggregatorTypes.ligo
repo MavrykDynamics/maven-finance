@@ -16,7 +16,7 @@ type aggregatorConfigType is [@layout:comb] record [
     alphaPercentPerThousand             : nat;
 
     percentOracleThreshold              : nat;
-    heartBeatSeconds                    : nat;
+    heartbeatSeconds                    : nat;
 
     rewardAmountStakedMvk               : nat;
     rewardAmountXtz                     : nat;
@@ -81,7 +81,7 @@ type aggregatorUpdateConfigActionType is
     |   ConfigAlphaPercentPerThousand       of unit
 
     |   ConfigPercentOracleThreshold        of unit
-    |   ConfigHeartBeatSeconds              of unit
+    |   ConfigHeartbeatSeconds              of unit
 
     |   ConfigRewardAmountStakedMvk         of unit
     |   ConfigRewardAmountXtz               of unit
