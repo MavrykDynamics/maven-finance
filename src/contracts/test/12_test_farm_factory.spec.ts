@@ -18,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve } from "../scripts/sandbox/accounts";
-import { mockMetadata, mockSatelliteData } from "./helpers/mockSampleData"
+import { mockMetadata } from "./helpers/mockSampleData"
 import { 
     signerFactory
 } from './helpers/helperFunctions'
@@ -620,7 +620,7 @@ describe("FarmFactory", async () => {
                     // Create a transaction for initiating a farm
                     await chai.expect(farmFactoryInstance.methods.untrackFarm(alice.pkh).send()).to.be.rejected;
                 }catch(e){
-                    console.log(e)
+                    console.dir(e, {depth: 5})
                 }
             })
         });
@@ -686,10 +686,10 @@ describe("FarmFactory", async () => {
                     await createFarmOperation.confirmation()
 
                     // Created farms
-                    farmFactoryStorage    = await farmFactoryInstance.storage();
+                    farmFactoryStorage                      = await farmFactoryInstance.storage();
 
                     // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
+                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
                     farmStorage                             = await farmInstance.storage();
 
@@ -761,7 +761,7 @@ describe("FarmFactory", async () => {
                     await new Promise(resolve => setTimeout(resolve, 6000));
                     await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
                 }catch(e){
-                    console.log(e)
+                    console.dir(e, {depth: 5})
                 }
             })
         });

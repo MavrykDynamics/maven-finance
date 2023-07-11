@@ -17,7 +17,17 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import {
+    signerFactory,
+    wait,
+    getStorageMapValue,
+    fa2Transfer,
+    mistakenTransferFa2Token,
+    updateWhitelistContracts,
+    updateGeneralContracts,
+    fa12Transfer,
+    mistakenTransferFa12Token
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -28,8 +38,17 @@ describe("Test: Farm Contract", async () => {
     var utils: Utils;
     let tezos
 
-    let user 
-    let userSk
+    let userOne 
+    let userOneSk
+
+    let userTwo 
+    let userTwoSk
+
+    let userThree 
+    let userThreeSk
+
+    let admin 
+    let adminSk
     let tokenId = 0
 
     let mavrykFa2TokenAddress
@@ -88,6 +107,18 @@ describe("Test: Farm Contract", async () => {
         await utils.init(bob.sk);
         tezos = utils.tezos
 
+        admin   = bob.pkh
+        adminSk = bob.sk
+
+        userOne    = eve.pkh
+        userOneSk  = eve.sk
+
+        userTwo    = alice.pkh
+        userTwoSk  = alice.sk
+
+        userThree  = mallory.pkh
+        userThreeSk= mallory.sk
+
         farmAddress             = contractDeployments.farm.address;
         farmFactoryAddress      = contractDeployments.farmFactory.address;
         mvkTokenAddress         = contractDeployments.mvkToken.address;
@@ -121,26 +152,25 @@ describe("Test: Farm Contract", async () => {
         }
     });
 
-    beforeEach("storage", async () => {
-        farmStorage = await farmInstance.storage();
-        farmFactoryStorage = await farmFactoryInstance.storage();
-        mvkTokenStorage = await mvkTokenInstance.storage();
-        lpTokenStorage = await lpTokenInstance.storage();
-
-        await helperFunctions.signerFactory(tezos, bob.sk)
-    })
-
     describe("Non-initialized farm", function() {
 
+        beforeEach("Set signer to userOne (eve)", async () => {
+            farmStorage = await farmInstance.storage();
+            farmFactoryStorage = await farmFactoryInstance.storage();
+            mvkTokenStorage = await mvkTokenInstance.storage();
+            lpTokenStorage = await lpTokenInstance.storage();
+            await signerFactory(tezos, userOneSk);
+        });
+
         describe("%deposit", function() {
-            it('User should not be able to deposit in a farm that has not been initialized yet', async () => {
+            it('user (eve) should not be able to deposit in a farm that has not been initialized yet', async () => {
                 try{
                     // Initial values
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
 
                     const farmInit          = farmStorage.init;
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
                     const amountToDeposit   = 6;
     
@@ -163,7 +193,7 @@ describe("Test: Farm Contract", async () => {
         })
 
         describe("%withdraw", function() {
-            it('User should not be able to withdraw from a farm that has not been initialized yet', async () => {
+            it('user (eve) should not be able to withdraw from a farm that has not been initialized yet', async () => {
                 try{
                     // Initial values
                     lpTokenStorage          = await lpTokenInstance.storage();
@@ -183,7 +213,7 @@ describe("Test: Farm Contract", async () => {
         })
 
         describe("%claim", function() {
-            it('User should not be able to claim in a farm that has not been initialized yet', async () => {
+            it('user (eve) should not be able to claim in a farm that has not been initialized yet', async () => {
                 try{
                     // Initial values
                     lpTokenStorage          = await lpTokenInstance.storage();
@@ -204,55 +234,21 @@ describe("Test: Farm Contract", async () => {
     })
 
     describe("Initialized farm", function() {
-        describe('%setAdmin', function() {
-            it('Admin should be able to set a new admin', async() => {
-                try{
-                    // Initial values
-                    const previousAdmin = farmStorage.admin;
-
-                    // Create a transaction for initiating a farm
-                    const operation = await farmInstance.methods.setAdmin(alice.pkh).send();
-                    await operation.confirmation();
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-
-                    // Assertion
-                    assert.strictEqual(farmStorage.admin,alice.pkh);
-                    assert.strictEqual(previousAdmin,bob.pkh);
-
-                    // Reset admin
-                    await helperFunctions.signerFactory(tezos, alice.sk);
-                    const resetOperation = await farmInstance.methods.setAdmin(bob.pkh).send();
-                    await resetOperation.confirmation();
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Non-admin should not be able to set a new admin', async() => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await helperFunctions.signerFactory(tezos, eve.sk)
-                    const operation = farmInstance.methods.setAdmin(bob.pkh);
-                    await chai.expect(operation.send()).to.be.rejected;
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-
-                    // Assertion
-                    assert.strictEqual(farmStorage.admin,bob.pkh)
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-        })
 
         describe('%initFarm', function() {
-            it('User should not be able to initialize a farm', async () => {
+
+            beforeEach("Set signer to admin (bob)", async () => {
+                farmStorage = await farmInstance.storage();
+                farmFactoryStorage = await farmFactoryInstance.storage();
+                mvkTokenStorage = await mvkTokenInstance.storage();
+                lpTokenStorage = await lpTokenInstance.storage();
+                await signerFactory(tezos, adminSk);
+            });
+
+            it('user (eve) should not be able to initialize a farm', async () => {
                 try{
                     // Switch signer to Alice
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, userOneSk);
 
                     // Operation
                     await chai.expect(farmInstance.methods.initFarm(
@@ -267,7 +263,7 @@ describe("Test: Farm Contract", async () => {
                 }
             })
 
-            it('Admin should not be able to initialize without a proper duration', async () => {
+            it('admin (bob) should not be able to initialize without a proper duration', async () => {
                 try{
                     // Operation
                     await chai.expect(farmInstance.methods.initFarm(
@@ -282,7 +278,7 @@ describe("Test: Farm Contract", async () => {
                 }
             })
 
-            it('Admin should be able to initialize a farm', async () => {
+            it('admin (bob) should be able to initialize a farm', async () => {
                 try{
                     // Operation
                     const operation = await farmInstance.methods.initFarm(
@@ -309,7 +305,7 @@ describe("Test: Farm Contract", async () => {
                 }
             })
 
-            it('Admin should not be able to initialize the same farm twice', async () => {
+            it('admin (bob) should not be able to initialize the same farm twice', async () => {
                 try{
                     // Operation
                     await chai.expect(farmInstance.methods.initFarm(
@@ -325,16 +321,23 @@ describe("Test: Farm Contract", async () => {
         });
 
         describe('%deposit', function() {
-            it('User should be able to deposit LP Tokens into a farm', async () => {
+
+            beforeEach("Set signer to admin (eve)", async () => {
+                farmStorage = await farmInstance.storage();
+                farmFactoryStorage = await farmFactoryInstance.storage();
+                mvkTokenStorage = await mvkTokenInstance.storage();
+                lpTokenStorage = await lpTokenInstance.storage();
+                await signerFactory(tezos, userOneSk);
+            });
+
+            it('user (eve) should be able to deposit LP Tokens into a farm', async () => {
                 try{
                     // Initial values
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
                     const lpBalance         = lpLedgerStart.balance.toNumber();
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
                     
-                    const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositRecord     = await farmStorage.depositorLedger.get(userOne);
                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
                     
                     const amountToDeposit   = 6;
@@ -355,9 +358,9 @@ describe("Test: Farm Contract", async () => {
                     farmStorage             = await farmInstance.storage();
                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
                     // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
-                    const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositRecordEnd  = await farmStorage.depositorLedger.get(userOne);
                     const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
-                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(userOne);
                     const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
 
                     // Assertions
@@ -368,12 +371,10 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('User should not be able to able to deposit more LP Tokens than it has', async () => {
+            it('user (eve) should not be able to able to deposit more LP Tokens than it has', async () => {
                 try{
                     // Initial values
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
                     const lpBalance         = lpLedgerStart===undefined ? 0 : lpLedgerStart.balance.toNumber();
                     const amountToDeposit   = lpBalance + 1;
@@ -392,72 +393,59 @@ describe("Test: Farm Contract", async () => {
                 } 
             })
 
-            it('Multiple users should be able to deposit in a farm', async () => {
+            it('multiple users (eve/alice) should be able to deposit in a farm', async () => {
                 try{
                     // Initial values
                     lpTokenStorage                  = await lpTokenInstance.storage();
                     farmStorage                     = await farmInstance.storage();
                     
-                    const firstLpLedgerStart        = await lpTokenStorage.ledger.get(bob.pkh);
+                    const firstLpLedgerStart        = await lpTokenStorage.ledger.get(userOne);
                     const firstLpBalance            = firstLpLedgerStart.balance.toNumber();
-                    const firstLpAllowances         = await firstLpLedgerStart.allowances.get(farmAddress);
                     
-                    const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
+                    const firstDepositRecord        = await farmStorage.depositorLedger.get(userOne);
                     const firstDepositBalance       = firstDepositRecord===undefined ? 0 : firstDepositRecord.balance.toNumber();
                     
-                    const firstAmountToDeposit      = 10;
+                    const firstAmountToDeposit      = 50;
                     
-                    const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
+                    const secondLpLedgerStart       = await lpTokenStorage.ledger.get(userTwo);
                     const secondLpBalance           = secondLpLedgerStart.balance.toNumber();
-                    const secondLpAllowances        = await secondLpLedgerStart.allowances.get(farmAddress);
                     
-                    const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
+                    const secondDepositRecord       = await farmStorage.depositorLedger.get(userTwo);
                     const secondDepositBalance      = secondDepositRecord===undefined ? 0 : secondDepositRecord.balance.toNumber();
                     
-                    const secondAmountToDeposit     = 8;
+                    const secondAmountToDeposit     = 40;
 
                     // Approval operations
-                    if(firstLpAllowances===undefined || firstLpAllowances.toNumber()<=0){
-                        await helperFunctions.signerFactory(tezos, bob.sk)
-                        const approvals         = firstLpAllowances===undefined ? firstAmountToDeposit : Math.abs(firstLpAllowances.toNumber() - firstAmountToDeposit);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                    }
-                    if(secondLpAllowances===undefined || secondLpAllowances.toNumber()<=0){
-                        await helperFunctions.signerFactory(tezos, alice.sk)
-                        const approvals         = secondLpAllowances===undefined ? secondAmountToDeposit : Math.abs(secondLpAllowances.toNumber() - secondAmountToDeposit);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                    }
+                    let approveOperation            = await lpTokenInstance.methods.approve(farmAddress,0).send();
+                    await approveOperation.confirmation()
+                    approveOperation                = await lpTokenInstance.methods.approve(farmAddress,firstAmountToDeposit).send();
+                    await approveOperation.confirmation();
 
-                    // const bobDepositParam        = await farmInstance.methods.deposit(firstAmountToDeposit).toTransferParams();
-                    // const bobEstimate            = await utils.tezos.estimate.transfer(bobDepositParam);
-                    // console.log("BOB FARM DEPOSIT ESTIMATION: ", bobEstimate);
-
-                    // await helperFunctions.signerFactory(tezos, alice.sk)
-                    // const aliceDepositParam        = await farmInstance.methods.deposit(secondAmountToDeposit).toTransferParams();
-                    // const aliceEstimate            = await utils.tezos.estimate.transfer(aliceDepositParam);
-                    // console.log("ALICE FARM DEPOSIT ESTIMATION: ", aliceEstimate);
+                    await signerFactory(tezos, userTwoSk)
+                    approveOperation                = await lpTokenInstance.methods.approve(farmAddress,0).send();
+                    await approveOperation.confirmation()
+                    approveOperation                = await lpTokenInstance.methods.approve(farmAddress,secondAmountToDeposit).send();
+                    await approveOperation.confirmation();
 
 
                     // Operations
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, userOneSk)
                     var depositOperation        = await farmInstance.methods.deposit(firstAmountToDeposit).send();
                     await depositOperation.confirmation();
                     
-                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    await signerFactory(tezos, userTwoSk)
                     var depositOperation        = await farmInstance.methods.deposit(secondAmountToDeposit).send();
                     await depositOperation.confirmation();
 
                     // Final values
                     farmStorage = await farmInstance.storage();
-                    const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(userOne);
                     const firstDepositBalanceEnd    = firstDepositRecordEnd===undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
-                    const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(bob.pkh);
+                    const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(userOne);
                     const firstLpBalanceEnd         = firstLpLedgerEnd.balance.toNumber();
-                    const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
+                    const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(userTwo);
                     const secondDepositBalanceEnd   = secondDepositRecordEnd===undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
-                    const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(alice.pkh);
+                    const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(userTwo);
                     const secondLpBalanceEnd        = secondLpLedgerEnd.balance.toNumber();
 
                     // Assertions
@@ -472,20 +460,23 @@ describe("Test: Farm Contract", async () => {
         })
 
         describe('%withdraw', function() {
-            it('User should be able to withdraw LP Tokens from a farm', async () => {
+
+            beforeEach("Set signer to admin (eve)", async () => {
+                farmStorage = await farmInstance.storage();
+                farmFactoryStorage = await farmFactoryInstance.storage();
+                mvkTokenStorage = await mvkTokenInstance.storage();
+                lpTokenStorage = await lpTokenInstance.storage();
+                await signerFactory(tezos, userOneSk);
+            });
+
+            it('user (eve) should be able to withdraw LP Tokens from a farm', async () => {
                 try{
                     // Initial values
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
                     const lpBalance         = lpLedgerStart.balance.toNumber();
-                    const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositRecord     = await farmStorage.depositorLedger.get(userOne);
                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
                     const amountToWithdraw  = 1;
-
-                    // const bobWithdrawParam        = await farmInstance.methods.withdraw(amountToWithdraw).toTransferParams();
-                    // const bobEstimate            = await utils.tezos.estimate.transfer(bobWithdrawParam);
-                    // console.log("BOB Withdraw Farm ESTIMATION: ", bobEstimate);
 
                     // Operation
                     const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
@@ -494,9 +485,9 @@ describe("Test: Farm Contract", async () => {
                     // Final values
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
-                    const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositRecordEnd  = await farmStorage.depositorLedger.get(userOne);
                     const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
-                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(userOne);
                     const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
 
                     // Assertions
@@ -508,12 +499,10 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('User should not be able to withdraw LP Tokens from a farm if it never deposited into it', async () => {
+            it('user (mallory) should not be able to withdraw LP Tokens from a farm if it never deposited into it', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, eve.sk);
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
+                    await signerFactory(tezos, userThreeSk);
                     const amountToWithdraw  = 1;
 
                     // Operation
@@ -523,17 +512,13 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('User should not be able to withdraw more LP Tokens than it deposited', async () => {
+            it('user (eve) should not be able to withdraw more LP Tokens than it deposited', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
                     const lpBalance         = lpLedgerStart.balance.toNumber();
 
-                    const depositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositRecord     = await farmStorage.depositorLedger.get(userOne);
                     const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
                     
                     const excessAmount      = 100;
@@ -546,10 +531,10 @@ describe("Test: Farm Contract", async () => {
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
-                    const depositRecordEnd  = await farmStorage.depositorLedger.get(bob.pkh);
+                    const depositRecordEnd  = await farmStorage.depositorLedger.get(userOne);
                     const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
                     
-                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(userOne);
                     const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
 
                     // Assertions
@@ -561,21 +546,14 @@ describe("Test: Farm Contract", async () => {
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
-                    const lpLedger          = await lpTokenStorage.ledger.get(bob.pkh);
-                    // const resetLpBalance    = lpLedger.balance.toNumber();
-                    const lpAllowances      = await lpLedger.allowances.get(farmAddress);
-                    
-                    // const resetDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-                    // const resetDepositBalance    = resetDepositRecord===undefined ? 0 : resetDepositRecord.balance.toNumber();
-                    
+                    const lpLedger          = await lpTokenStorage.ledger.get(userOne);
                     const amountToDeposit   = 10;
 
                     // Approval operation
-                    if(lpAllowances === undefined || lpAllowances.toNumber() <= amountToDeposit){
-                        const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                    }
+                    let approveOperation            = await lpTokenInstance.methods.approve(farmAddress,0).send();
+                    await approveOperation.confirmation()
+                    approveOperation                = await lpTokenInstance.methods.approve(farmAddress,amountToDeposit).send();
+                    await approveOperation.confirmation();
 
                     // Operation
                     const depositOperation          = await farmInstance.methods.deposit(amountToDeposit).send();
@@ -586,51 +564,48 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('Multiple users should be able to withdraw tokens', async () => {
+            it('multiple users (eve/alice) should be able to withdraw tokens', async () => {
                 try{
                     // Initial values
-                    lpTokenStorage                  = await lpTokenInstance.storage();
-                    farmStorage                     = await farmInstance.storage();
-                    
-                    const firstLpLedgerStart        = await lpTokenStorage.ledger.get(bob.pkh);
+                    const firstLpLedgerStart        = await lpTokenStorage.ledger.get(userOne);
                     const firstLpBalance            = firstLpLedgerStart.balance.toNumber();
                     
-                    const firstDepositRecord        = await farmStorage.depositorLedger.get(bob.pkh);
+                    const firstDepositRecord        = await farmStorage.depositorLedger.get(userOne);
                     const firstDepositBalance       = firstDepositRecord === undefined ? 0 : firstDepositRecord.balance.toNumber();
                     
                     const firstAmountToWithdraw     = 2;
                     
-                    const secondLpLedgerStart       = await lpTokenStorage.ledger.get(alice.pkh);
+                    const secondLpLedgerStart       = await lpTokenStorage.ledger.get(userTwo);
                     const secondLpBalance           = secondLpLedgerStart.balance.toNumber();
                     
-                    const secondDepositRecord       = await farmStorage.depositorLedger.get(alice.pkh);
+                    const secondDepositRecord       = await farmStorage.depositorLedger.get(userTwo);
                     const secondDepositBalance      = secondDepositRecord===undefined ? 0 : secondDepositRecord.balance.toNumber();
                     
                     const secondAmountToWithdraw    = 4;
 
                     // Operations
-                    await helperFunctions.signerFactory(tezos, alice.sk)
-                    var withdrawOperation            = await farmInstance.methods.withdraw(secondAmountToWithdraw).send();
+                    await signerFactory(tezos, userOneSk)
+                    var withdrawOperation            = await farmInstance.methods.withdraw(firstAmountToWithdraw).send();
                     await withdrawOperation.confirmation();
 
-                    await helperFunctions.signerFactory(tezos, bob.sk)
-                    var withdrawOperation            = await farmInstance.methods.withdraw(firstAmountToWithdraw).send();
+                    await signerFactory(tezos, userTwoSk)
+                    var withdrawOperation            = await farmInstance.methods.withdraw(secondAmountToWithdraw).send();
                     await withdrawOperation.confirmation();
 
                     // Final values
                     farmStorage                     = await farmInstance.storage();
                     lpTokenStorage                  = await lpTokenInstance.storage();
                     
-                    const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const firstDepositRecordEnd     = await farmStorage.depositorLedger.get(userOne);
                     const firstDepositBalanceEnd    = firstDepositRecordEnd===undefined ? 0 : firstDepositRecordEnd.balance.toNumber();
                     
-                    const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(bob.pkh);
+                    const firstLpLedgerEnd          = await lpTokenStorage.ledger.get(userOne);
                     const firstLpBalanceEnd         = firstLpLedgerEnd.balance.toNumber();
                     
-                    const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
+                    const secondDepositRecordEnd    = await farmStorage.depositorLedger.get(userTwo);
                     const secondDepositBalanceEnd   = secondDepositRecordEnd===undefined ? 0 : secondDepositRecordEnd.balance.toNumber();
                     
-                    const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(alice.pkh);
+                    const secondLpLedgerEnd         = await lpTokenStorage.ledger.get(userTwo);
                     const secondLpBalanceEnd        = secondLpLedgerEnd.balance.toNumber();
 
                     // Assertions
@@ -648,58 +623,46 @@ describe("Test: Farm Contract", async () => {
 
 
         describe('%claim', function() {
-            it('User should not be able to claim in a farm if it never deposited into it', async () => {
+
+            beforeEach("Set signer to admin (eve)", async () => {
+                farmStorage = await farmInstance.storage();
+                farmFactoryStorage = await farmFactoryInstance.storage();
+                mvkTokenStorage = await mvkTokenInstance.storage();
+                lpTokenStorage = await lpTokenInstance.storage();
+                await signerFactory(tezos, userOneSk);
+            });
+
+            it('user (mallory) should not be able to claim in a farm if it never deposited into it', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, eve.sk);
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
+                    await signerFactory(tezos, userThreeSk);
 
                     // Operation
-                    await chai.expect(farmInstance.methods.claim([eve.pkh]).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.claim([userThree]).send()).to.be.rejected;
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
             })
 
-            it('User should not be able to claim in a farm if it has no rewards to claim', async () => {
+            it('user (eve) should be able to claim rewards from a farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, mallory.sk);
-                    lpTokenStorage              = await lpTokenInstance.storage();
-                    farmStorage                 = await farmInstance.storage();
-                    const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
-
-                    // Operations
-                    await helperFunctions.wait(4 * blockTime * 1000);
-                    // const firstClaimOperation   = await farmInstance.methods.claim([mallory.pkh]).send();
-                    // await firstClaimOperation.confirmation();
-                    await chai.expect(farmInstance.methods.claim([mallory.pkh]).send()).to.be.rejected;
-
-                } catch(e) {
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('User should be able to claim rewards from a farm', async () => {
-                try{
-                    // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, userOneSk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await helperFunctions.wait(10 * blockTime * 1000);
-                    const firstClaimOperation   = await farmInstance.methods.claim([bob.pkh]).send();
+                    await wait(10 * blockTime * 1000);
+                    const firstClaimOperation   = await farmInstance.methods.claim([userOne]).send();
                     await firstClaimOperation.confirmation();
 
                     // Final values
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
 
                     // Assertions
@@ -710,21 +673,21 @@ describe("Test: Farm Contract", async () => {
                 }
             })
 
-            it('User should be able to withdraw all its LP Tokens then claim the remaining rewards', async () => {
+            it('user (alice) should be able to withdraw all its LP Tokens then claim the remaining rewards', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, userTwoSk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
                     
-                    const userLpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const userLpLedgerStart     = await lpTokenStorage.ledger.get(userTwo);
                     const userLpBalance         = userLpLedgerStart.balance.toNumber();
                     
-                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userTwo);
                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
 
-                    const userDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const userDepositRecord     = await farmStorage.depositorLedger.get(userTwo);
                     const userDepositBalance    = userDepositRecord === undefined ? 0 : userDepositRecord.balance.toNumber();
 
                     console.log(userDepositRecord);
@@ -733,29 +696,29 @@ describe("Test: Farm Contract", async () => {
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await helperFunctions.wait(10 * blockTime * 1000);
+                    await wait(10 * blockTime * 1000);
                     const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalance).send();
                     await withdrawOperation.confirmation();
 
-                    const firstClaimOperation   = await farmInstance.methods.claim([bob.pkh]).send();
+                    const firstClaimOperation   = await farmInstance.methods.claim([userTwo]).send();
                     await firstClaimOperation.confirmation();
 
                     // Final values
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, adminSk)
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
 
-                    const userDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
+                    const userDepositRecordEnd     = await farmStorage.depositorLedger.get(userTwo);
                     const userDepositBalanceEnd    = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
 
                     console.log(userDepositRecordEnd);
                     console.log(`userDepositBalanceEnd: ${userDepositBalanceEnd}`);
                     
-                    const userLpLedgerEnd       = await lpTokenStorage.ledger.get(bob.pkh);
+                    const userLpLedgerEnd       = await lpTokenStorage.ledger.get(userTwo);
                     const userLpBalanceEnd      = userLpLedgerEnd.balance.toNumber();
                     
-                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userTwo);
                     const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
 
                     // Assertions
@@ -768,159 +731,9 @@ describe("Test: Farm Contract", async () => {
             })
         })
 
-        describe("%togglePauseEntrypoint", async () => {
-            
-            beforeEach("Set signer to admin", async () => {
-                await helperFunctions.signerFactory(tezos, bob.sk)
-            });
-
-            it('Admin should be able to call the entrypoint and pause/unpause the deposit entrypoint', async () => {
-                try{
-                    // Initial Values
-                    farmStorage         = await farmInstance.storage();
-                    const initState     = farmStorage.breakGlassConfig.depositIsPaused;
-
-                    // Operation
-                    var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("deposit", true).send();
-                    await pauseOperation.confirmation();
-
-                    // Mid values
-                    farmStorage         = await farmInstance.storage();
-                    const midState      = farmStorage.breakGlassConfig.depositIsPaused;
-                    const lpLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
-                    const lpAllowances  = await lpLedgerStart.allowances.get(farmAddress);
-                    const testAmount    = 1;
-
-                    // Test operation
-                    if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-                        const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                    }
-                    await chai.expect(farmInstance.methods.deposit(testAmount).send()).to.be.rejected;
-
-                    // Operation
-                    var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("deposit", false).send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmStorage         = await farmInstance.storage();
-                    const endState      = farmStorage.breakGlassConfig.depositIsPaused;
-
-                    // Test operation
-                    if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-                        const approvals         = lpAllowances===undefined ? testAmount : Math.abs(lpAllowances.toNumber() - testAmount);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                    }
-                    const testOperation = await farmInstance.methods.deposit(testAmount).send();
-                    await testOperation.confirmation();
-
-                    // Assertions
-                    assert.equal(initState, false)
-                    assert.equal(midState, true)
-                    assert.equal(endState, false)
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-
-            it('Admin should be able to call the entrypoint and pause/unpause the withdraw entrypoint', async () => {
-                try{
-                    // Initial Values
-                    farmStorage         = await farmInstance.storage();
-                    const initState     = farmStorage.breakGlassConfig.withdrawIsPaused;
-
-                    // Operation
-                    var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("withdraw", true).send();
-                    await pauseOperation.confirmation();
-
-                    // Mid values
-                    farmStorage         = await farmInstance.storage();
-                    const midState      = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const testAmount    = 1;
-
-                    // Test operation
-                    await chai.expect(farmInstance.methods.withdraw(testAmount).send()).to.be.rejected;
-
-                    // Operation
-                    var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("withdraw", false).send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmStorage         = await farmInstance.storage();
-                    const endState      = farmStorage.breakGlassConfig.withdrawIsPaused;
-
-                    // Test operation
-                    const testOperation = await farmInstance.methods.withdraw(testAmount).send();
-                    await testOperation.confirmation();
-
-                    // Assertions
-                    assert.equal(initState, false)
-                    assert.equal(midState, true)
-                    assert.equal(endState, false)
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-
-            it('Admin should be able to call the entrypoint and pause/unpause the claim entrypoint', async () => {
-                try{
-                    // Initial Values
-                    farmStorage         = await farmInstance.storage();
-                    const initState     = farmStorage.breakGlassConfig.claimIsPaused;
-                    const blockTime     = farmStorage.minBlockTimeSnapshot.toNumber();
-
-                    // Operation
-                    var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("claim", true).send();
-                    await pauseOperation.confirmation();
-
-                    // Mid values
-                    farmStorage         = await farmInstance.storage();
-                    const midState      = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Test operation
-                    await helperFunctions.wait(4 * blockTime * 1000);
-                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
-
-                    // Operation
-                    var pauseOperation  = await farmInstance.methods.togglePauseEntrypoint("claim", false).send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmStorage         = await farmInstance.storage();
-                    const endState      = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Test operation
-                    await helperFunctions.wait(4 * blockTime * 1000);
-                    const testOperation = await farmInstance.methods.claim([bob.pkh]).send();
-                    await testOperation.confirmation();
-
-                    // Assertions
-                    assert.equal(initState, false)
-                    assert.equal(midState, true)
-                    assert.equal(endState, false)
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-
-            it('Non-admin should not be able to call the entrypoint', async () => {
-                try{
-                    await helperFunctions.signerFactory(tezos, alice.sk);
-                    await chai.expect(farmInstance.methods.togglePauseEntrypoint("deposit", true).send()).to.be.rejected;
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-        })
-
         describe('%updateConfig', function() {
 
-            it('Admin should be able to force the rewards to come from transfers instead of minting', async () => {
+            it('admin (bob) should be able to force the rewards to come from transfers instead of minting', async () => {
                 try{
                     // Initial values
                     lpTokenStorage          = await lpTokenInstance.storage();
@@ -929,12 +742,8 @@ describe("Test: Farm Contract", async () => {
                     
                     const mvkTotalSupply    = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupply   = await mvkTokenStorage.ledger.get(doormanAddress);
-                    
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
-                    const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
 
-                    const userDepositRecord     = await farmStorage.depositorLedger.get(bob.pkh);
-                    const userDepositBalance    = userDepositRecord===undefined ? 0 : userDepositRecord.balance.toNumber();
+                    const userDepositRecord     = await farmStorage.depositorLedger.get(admin);
                     console.log(userDepositRecord);
                     
                     const toggleTransfer    = farmStorage.config.forceRewardFromTransfer;
@@ -942,84 +751,68 @@ describe("Test: Farm Contract", async () => {
                     const amountToDeposit   = 10;
 
                     // Approval operation
-                    await helperFunctions.signerFactory(tezos, bob.sk);
-                    if(lpAllowances === undefined || lpAllowances.toNumber()<=0){
-                        const approvals         = lpAllowances === undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                        console.log(`approval amount: ${approvals}`);
-                    }
+                    await signerFactory(tezos, adminSk);
+                    let approveOperation            = await lpTokenInstance.methods.approve(farmAddress,0).send();
+                    await approveOperation.confirmation()
+                    approveOperation                = await lpTokenInstance.methods.approve(farmAddress,amountToDeposit).send();
+                    await approveOperation.confirmation();
 
-                    // Operation - deposit amount so user balance will be greater than zero
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    // Operation - deposit amount so boob balance will be greater than zero
                     const depositOperation  = await farmInstance.methods.deposit(amountToDeposit).send();
                     await depositOperation.confirmation();
 
                     // Wait at least one block before claiming rewards
-                    await helperFunctions.wait(12 * blockTime * 1000);
+                    await wait(12 * blockTime * 1000);
 
                     farmStorage                    = await farmInstance.storage();
-                    const userDepositRecordMid     = await farmStorage.depositorLedger.get(bob.pkh);
-                    const userDepositBalanceMid    = userDepositRecordMid === undefined ? 0 : userDepositRecordMid.balance.toNumber();
-                    console.log(userDepositRecordMid);
 
                     // First claim operation - sMVK rewards should be minted (hence increase in sMVK total supply)
-                    var claimOperation  = await farmInstance.methods.claim([bob.pkh]).send();
+                    var claimOperation  = await farmInstance.methods.claim([admin]).send();
                     await claimOperation.confirmation();
 
-                    await helperFunctions.signerFactory(tezos, bob.sk);
                     farmStorage                    = await farmInstance.storage();
-                    const userDepositRecordEnd     = await farmStorage.depositorLedger.get(bob.pkh);
-                    const userDepositBalanceEnd    = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
-                    console.log(userDepositRecordEnd);
 
                     // Updated values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, adminSk);
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
                     const mvkTotalSupplyFirstUpdate     = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupplyFirstUpdate    = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber();
-                    const treasuryFirstUpdate           = (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber();
 
                     // Operation - set forceRewardFromTransfer to TRUE
                     const firstToggleOperation      = await farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send();
                     await firstToggleOperation.confirmation();
 
                     // Updated values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
                     farmStorage                     = await farmInstance.storage();
                     const toggleTransferFirstUpdate = farmStorage.config.forceRewardFromTransfer;
 
                     // Do another claim - sMVK rewards should be transferred from Farm Treasury
-                    await helperFunctions.wait(12 * blockTime * 1000);
-                    claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
+                    await wait(12 * blockTime * 1000);
+                    claimOperation = await farmInstance.methods.claim([admin]).send();
                     await claimOperation.confirmation();
 
                     // Updated values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
                     const mvkTotalSupplySecondUpdate    = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupplySecondUpdate   = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber();
-                    const treasurySecondUpdate          = (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber();
 
                     // Toggle back to mint  
                     const secondToggleOperation = await farmInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
                     await secondToggleOperation.confirmation();
 
                     // Updated values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
                     farmStorage = await farmInstance.storage();
                     const toggleTransferSecondUpdate = farmStorage.config.forceRewardFromTransfer;
 
                     //Do another claim
-                    await helperFunctions.wait(12 * blockTime * 1000);
-                    claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
+                    await wait(12 * blockTime * 1000);
+                    claimOperation = await farmInstance.methods.claim([admin]).send();
                     await claimOperation.confirmation();
 
                     // Updated values
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
                     const mvkTotalSupplyThirdUpdate     = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupplyThirdUpdate    = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber();
-                    const treasuryThirdUpdate           = (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber();
 
                     // Assertions
                     assert.notEqual(mvkTotalSupply,mvkTotalSupplyFirstUpdate);
@@ -1034,103 +827,6 @@ describe("Test: Farm Contract", async () => {
                     assert.notEqual(smvkTotalSupplyFirstUpdate,smvkTotalSupplySecondUpdate);
                     assert.notEqual(smvkTotalSupplySecondUpdate,smvkTotalSupplyThirdUpdate);
 
-                    console.log("MVK total supply at beginning: ",mvkTotalSupply)
-                    console.log("MVK total supply after first mint: ",mvkTotalSupplyFirstUpdate)
-                    console.log("MVK total supply after transfer: ",mvkTotalSupplySecondUpdate)
-                    console.log("MVK total supply after second mint: ",mvkTotalSupplyThirdUpdate)
-                    console.log("Transfer forced after first toggling: ",toggleTransferFirstUpdate)
-                    console.log("Transfer forced after second toggling: ",toggleTransferSecondUpdate)
-                    console.log("SMVK total supply after first mint: ", smvkTotalSupplyFirstUpdate)
-                    console.log("SMVK total supply after transfer: ", smvkTotalSupplySecondUpdate)
-                    console.log("SMVK total supply after second mint: ", smvkTotalSupplyThirdUpdate)
-                    console.log("Treasury after first mint: ",treasuryFirstUpdate)
-                    console.log("Treasury after transfer: ",treasurySecondUpdate)
-                    console.log("Treasury after second mint: ",treasuryThirdUpdate)
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                } 
-            });
-
-            it('Admin should be able to increase the rewards of a farm', async () => {
-                try{
-                    // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
-                    farmStorage                     = await farmInstance.storage();
-                    const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
-                    const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
-                    const newRewards                = 150;
-
-                    // Operation
-                    const operation = await farmInstance.methods.updateConfig(newRewards, "configRewardPerBlock").send();
-                    await operation.confirmation()
-
-                    // Final values
-                    farmStorage                     = await farmInstance.storage();
-                    const updatedTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
-                    const updatedRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
-
-                    // Assertions
-                    assert.equal(updatedRewardsPerBlock, newRewards);
-                    assert.equal(updatedRewardsPerBlock > currentRewardsPerBlock, true);
-                    assert.notEqual(currentRewardsPerBlock, updatedRewardsPerBlock);
-                    assert.notEqual(currentTotalRewards, updatedTotalRewards);
-
-                    // Logs
-                    // console.log("Initial :")
-                    // console.log("  Total rewards:", currentTotalRewards)
-                    // console.log("  Rewards per block:", currentRewardsPerBlock)
-                    // console.log("Updated :")
-                    // console.log("  Total rewards:", updatedTotalRewards)
-                    // console.log("  Rewards per block:", updatedRewardsPerBlock)
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                } 
-            });
-
-            it('Admin should be able to decrease the rewards of a farm', async () => {
-                try{
-                    // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
-                    farmStorage                     = await farmInstance.storage();
-                    const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
-                    const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
-                    const newRewards                = 120;
-
-                    // Operation
-                    const operation = await farmInstance.methods.updateConfig(newRewards, "configRewardPerBlock").send();
-                    await operation.confirmation()
-
-                    // Final values
-                    farmStorage                     = await farmInstance.storage();
-                    const updatedTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
-                    const updatedRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
-
-                    // Assertions
-                    assert.equal(updatedRewardsPerBlock, newRewards);
-                    assert.equal(updatedRewardsPerBlock > currentRewardsPerBlock, false);
-                    assert.notEqual(currentRewardsPerBlock, updatedRewardsPerBlock);
-                    assert.notEqual(currentTotalRewards, updatedTotalRewards);
-
-                    // Logs
-                    // console.log("Initial :")
-                    // console.log("  Total rewards:", currentTotalRewards)
-                    // console.log("  Rewards per block:", currentRewardsPerBlock)
-                    // console.log("Updated :")
-                    // console.log("  Total rewards:", updatedTotalRewards)
-                    // console.log("  Rewards per block:", updatedRewardsPerBlock)
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                } 
-            });
-
-            it('Non-admin should not be able to force the rewards to come from transfers instead of minting', async () => {
-                try{
-                    // Toggle to transfer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
-                    await chai.expect(farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5});
                 } 
@@ -1139,20 +835,20 @@ describe("Test: Farm Contract", async () => {
 
         describe('%closeFarm', function() {
 
-            it('Non-admin should not be able to close a farm', async () => {
+            it('non-admin (eve) should not be able to close a farm', async () => {
                 try{
                     // Toggle to transfer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, userOneSk);
                     await chai.expect(farmInstance.methods.closeFarm().send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5});
                 } 
             });
 
-            it('Admin should be able to close a farm', async () => {
+            it('admin (bob) should be able to close a farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, adminSk);
                     farmStorage             = await farmInstance.storage();
                     const farmOpen          = farmStorage.open;
                     
@@ -1173,14 +869,14 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('User should not be able to deposit in a closed farm', async () => {
+            it('user (eve) should not be able to deposit in a closed farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, adminSk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     const farmOpen          = farmStorage.open;
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(bob.pkh);
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
                     const amountToDeposit   = 1;
 
@@ -1202,25 +898,25 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('User should be able to claim in a closed farm', async () => {
+            it('user (alice) should be able to claim in a closed farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, eve.sk);
+                    await signerFactory(tezos, userOneSk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
                     const farmOpen              = farmStorage.open;
                     
                     // Operation
-                    await helperFunctions.wait(4 * blockTime * 1000);
-                    const claimOperation        = await farmInstance.methods.claim([bob.pkh]).send();
+                    await wait(4 * blockTime * 1000);
+                    const claimOperation        = await farmInstance.methods.claim([userOne]).send();
                     await claimOperation.confirmation();
 
                     // Final values
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
 
                     // Assertions
@@ -1232,14 +928,14 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('User should not see any increase in rewards even if it still has LP Token deposited in the farm', async () => {
+            it('user (eve) should not see any increase in rewards even if it still has LP Token deposited in the farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, userOneSk);
                     farmStorage                 = await farmInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
                     
-                    const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
+                    const lpLedgerStart         = await lpTokenStorage.ledger.get(userOne);
                     const lpBalance             = lpLedgerStart.balance.toNumber();
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
@@ -1247,8 +943,8 @@ describe("Test: Farm Contract", async () => {
                     const initialAccRewardsPerShare = farmStorage.accumulatedRewardsPerShare;
                     
                     // Operation - let alice claim her eligible rewards 
-                    await helperFunctions.wait(4 * blockTime * 1000);
-                    const claimOperation = await farmInstance.methods.claim([alice.pkh]).send();
+                    await wait(4 * blockTime * 1000);
+                    const claimOperation = await farmInstance.methods.claim([userOne]).send();
                     await claimOperation.confirmation();
 
                     // Update storage
@@ -1257,30 +953,30 @@ describe("Test: Farm Contract", async () => {
 
                     var updatedAccRewardsPerShare = farmStorage.accumulatedRewardsPerShare; 
 
-                    const userSMVKLedger          = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                    const userSMVKLedger          = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const userSMVKBalance         = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber();
 
-                    var userDepositRecord     = await farmStorage.depositorLedger.get(alice.pkh);
+                    var userDepositRecord     = await farmStorage.depositorLedger.get(userOne);
 
                     // Assertions - there should be no increase in accumulated rewards per share for the farm
                     assert.equal(farmOpen, false);
                     assert.equal(initialAccRewardsPerShare.toNumber(), updatedAccRewardsPerShare.toNumber());
 
                     // Second operation to check no change in sMVK balance
-                    await helperFunctions.wait(4 * blockTime * 1000);
-                    const secondClaimOperation = await farmInstance.methods.claim([alice.pkh]).send();
+                    await wait(4 * blockTime * 1000);
+                    const secondClaimOperation = await farmInstance.methods.claim([userOne]).send();
                     await secondClaimOperation.confirmation();
 
                     // Update storage
                     doormanStorage                = await doormanInstance.storage();
                     farmStorage                   = await farmInstance.storage();
 
-                    const userDepositRecordEnd    = await farmStorage.depositorLedger.get(alice.pkh);
+                    const userDepositRecordEnd    = await farmStorage.depositorLedger.get(userOne);
 
-                    const userSMVKLedgerEnd       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                    const userSMVKLedgerEnd       = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const userSMVKBalanceEnd      = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
 
-                    // Assertions - user should have no change in unclaimed rewards, claimed rewards and participation rewards per share
+                    // Assertions - userOne should have no change in unclaimed rewards, claimed rewards and participation rewards per share
                     assert.equal(farmOpen, false);
                     assert.equal(userSMVKBalanceEnd, userSMVKBalance);
                     
@@ -1295,13 +991,13 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('User should be able to withdraw in a closed farm', async () => {
+            it('user (eve) should be able to withdraw in a closed farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, userOneSk);
                     farmStorage                 = await farmInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
-                    const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
+                    const lpLedgerStart         = await lpTokenStorage.ledger.get(userOne);
                     const lpBalance             = lpLedgerStart.balance.toNumber();
                     const amountToWithdraw      = 1;
                     const farmOpen              = farmStorage.open;
@@ -1312,7 +1008,7 @@ describe("Test: Farm Contract", async () => {
 
                     // Final values
                     lpTokenStorage              = await lpTokenInstance.storage();
-                    const lpLedgerStartEnd      = await lpTokenStorage.ledger.get(alice.pkh);
+                    const lpLedgerStartEnd      = await lpTokenStorage.ledger.get(userOne);
                     const lpBalanceEnd          = lpLedgerStartEnd.balance.toNumber();
 
                     // Assertions
@@ -1327,10 +1023,401 @@ describe("Test: Farm Contract", async () => {
     })
 
 
+    describe("Housekeeping Entrypoints", async () => {
+
+        beforeEach("Set signer to admin (bob)", async () => {
+            farmStorage        = await farmInstance.storage();
+            await signerFactory(tezos, adminSk);
+        });
+
+        it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
+            try{
+                
+                // Initial Values
+                farmStorage     = await farmInstance.storage();
+                const currentAdmin = farmStorage.admin;
+                assert.strictEqual(currentAdmin, admin);
+
+                // Operation
+                setAdminOperation = await farmInstance.methods.setAdmin(userOne).send();
+                await setAdminOperation.confirmation();
+
+                // Final values
+                farmStorage   = await farmInstance.storage();
+                const newAdmin = farmStorage.admin;
+
+                // Assertions
+                assert.notStrictEqual(newAdmin, currentAdmin);
+                assert.strictEqual(newAdmin, userOne);
+                
+                // reset admin
+                await signerFactory(tezos, userOneSk);
+                resetAdminOperation = await farmInstance.methods.setAdmin(admin).send();
+                await resetAdminOperation.confirmation();
+
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('%setGovernance            - admin (bob) should be able to update the contract governance address', async () => {
+            try{
+                
+                // Initial Values
+                farmStorage       = await farmInstance.storage();
+                const currentGovernance = farmStorage.governanceAddress;
+
+                // Operation
+                setGovernanceOperation = await farmInstance.methods.setGovernance(userOne).send();
+                await setGovernanceOperation.confirmation();
+
+                // Final values
+                farmStorage   = await farmInstance.storage();
+                const updatedGovernance = farmStorage.governanceAddress;
+
+                // reset governance
+                setGovernanceOperation = await farmInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                await setGovernanceOperation.confirmation();
+
+                // Assertions
+                assert.notStrictEqual(updatedGovernance, currentGovernance);
+                assert.strictEqual(updatedGovernance, userOne);
+                assert.strictEqual(currentGovernance, contractDeployments.governance.address);
+
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('%updateMetadata           - admin (bob) should be able to update the contract metadata', async () => {
+            try{
+                // Initial values
+                const key   = ''
+                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+
+                // Operation
+                const updateOperation = await farmInstance.methods.updateMetadata(key, hash).send();
+                await updateOperation.confirmation();
+
+                // Final values
+                farmStorage          = await farmInstance.storage();            
+
+                const updatedData       = await farmStorage.metadata.get(key);
+                assert.equal(hash, updatedData);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - admin (bob) should be able to force the rewards to come from transfers instead of minting', async () => {
+            try{
+
+                // Initial values
+                const currentConfigVariable     = farmStorage.config.forceRewardFromTransfer;
+                const newConfigVariable         = currentConfigVariable ? 0 : 1;
+
+                // Operation
+                const operation = await farmInstance.methods.updateConfig(newConfigVariable, "configForceRewardFromTransfer").send();
+                await operation.confirmation()
+
+                // Final values
+                farmStorage                     = await farmInstance.storage();
+                const updatedConfigVariable     = farmStorage.config.forceRewardFromTransfer;
+
+                // Assertions
+                assert.notEqual(currentConfigVariable, newConfigVariable);
+                assert.equal(updatedConfigVariable, newConfigVariable);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - admin (bob) should be able to increase the rewards of a farm', async () => {
+            try{
+                // Initial values
+                const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+                const newRewards                = 150;
+
+                // Operation
+                const operation = await farmInstance.methods.updateConfig(newRewards, "configRewardPerBlock").send();
+                await operation.confirmation()
+
+                // Final values
+                farmStorage                     = await farmInstance.storage();
+                const updatedTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                const updatedRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+
+                // Assertions
+                assert.equal(updatedRewardsPerBlock, newRewards);
+                assert.equal(updatedRewardsPerBlock > currentRewardsPerBlock, true);
+                assert.notEqual(currentRewardsPerBlock, updatedRewardsPerBlock);
+                assert.notEqual(currentTotalRewards, updatedTotalRewards);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - admin (bob) should be able to decrease the rewards of a farm', async () => {
+            try{
+                // Initial values
+                const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+                const newRewards                = 120;
+
+                // Operation
+                const operation = await farmInstance.methods.updateConfig(newRewards, "configRewardPerBlock").send();
+                await operation.confirmation()
+
+                // Final values
+                farmStorage                     = await farmInstance.storage();
+                const updatedTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                const updatedRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+
+                // Assertions
+                assert.equal(updatedRewardsPerBlock, newRewards);
+                assert.equal(updatedRewardsPerBlock > currentRewardsPerBlock, false);
+                assert.notEqual(currentRewardsPerBlock, updatedRewardsPerBlock);
+                assert.notEqual(currentTotalRewards, updatedTotalRewards);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateWhitelistContracts - admin (bob) should be able to add userOne (eve) to the Whitelisted Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = eve.pkh;
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue           = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await updateWhitelistContracts(farmInstance, contractMapKey, 'update');
+                await updateWhitelistContractsOperation.confirmation()
+
+                farmStorage = await farmInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateWhitelistContracts - admin (bob) should be able to remove userOne (eve) from the Whitelisted Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = eve.pkh;
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await updateWhitelistContracts(farmInstance, contractMapKey, 'remove');
+                await updateWhitelistContractsOperation.confirmation()
+
+                farmStorage = await farmInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to add userOne (eve) to the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(farmInstance, contractMapKey, eve.pkh, 'update');
+                await updateGeneralContractsOperation.confirmation()
+
+                farmStorage = await farmInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to remove userOne (eve) from the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(farmInstance, contractMapKey, eve.pkh, 'remove');
+                await updateGeneralContractsOperation.confirmation()
+
+                farmStorage = await farmInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint for mock FA2 tokens', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+                userOne              = mallory.pkh;
+                userOneSk            = mallory.sk;
+
+                // Mistaken Operation - userOne (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                await signerFactory(tezos, userOneSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmAddress, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+                
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber()
+
+                await signerFactory(tezos, adminSk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await mistakenTransferOperation.confirmation();
+
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber();
+
+                // increase in updated balance
+                assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%mistakenTransfer         - admin (bob) should not be able to call this entrypoint to transfer LP tokens (protected for farm contract)', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+                userOne              = mallory.pkh;
+                userOneSk            = mallory.sk;
+
+                // Mistaken Operation - userOne (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                await signerFactory(tezos, userOneSk);
+                transferOperation = await fa12Transfer(lpTokenInstance, userOne, farmAddress, tokenAmount);
+                await transferOperation.confirmation();
+                
+                lpTokenStorage              = await lpTokenInstance.storage();
+                const initialUserBalance    = (await lpTokenStorage.ledger.get(userOne)).balance.toNumber()
+
+                await signerFactory(tezos, adminSk);
+                mistakenTransferOperation = await mistakenTransferFa12Token(farmInstance, userOne, lpTokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
+                
+                lpTokenStorage              = await lpTokenInstance.storage();
+                const updatedUserBalance    = (await lpTokenStorage.ledger.get(userOne)).balance.toNumber()
+
+                // no change in balance
+                assert.equal(updatedUserBalance, initialUserBalance);
+
+            } catch (e) {
+                console.log(e)
+            }
+        })     
+
+
+        it("%pauseAll                 - admin (bob) should be able to call this entrypoint", async() => {
+            try{
+
+                pauseAllOperation = await farmInstance.methods.pauseAll().send(); 
+                await pauseAllOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%unpauseAll               - admin (bob) should be able to call this entrypoint", async() => {
+            try{
+
+                unpauseAllOperation = await farmInstance.methods.unpauseAll().send(); 
+                await unpauseAllOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%togglePauseEntrypoint    - admin (bob) should be able to call this entrypoint", async() => {
+            try{
+                
+                // pause operations
+
+                pauseOperation = await farmInstance.methods.togglePauseEntrypoint("deposit", true).send(); 
+                await pauseOperation.confirmation();
+                
+                pauseOperation = await farmInstance.methods.togglePauseEntrypoint("withdraw", true).send(); 
+                await pauseOperation.confirmation();
+
+                pauseOperation = await farmInstance.methods.togglePauseEntrypoint("claim", true).send();
+                await pauseOperation.confirmation();
+
+                // update storage
+                farmStorage = await farmInstance.storage();
+
+                // check that entrypoints are paused
+                assert.equal(farmStorage.breakGlassConfig.depositIsPaused                , true)
+                assert.equal(farmStorage.breakGlassConfig.withdrawIsPaused               , true)
+                assert.equal(farmStorage.breakGlassConfig.claimIsPaused                  , true)
+
+                // unpause operations
+
+                unpauseOperation = await farmInstance.methods.togglePauseEntrypoint("deposit", false).send();
+                await unpauseOperation.confirmation();
+                
+                unpauseOperation = await farmInstance.methods.togglePauseEntrypoint("withdraw", false).send();
+                await unpauseOperation.confirmation();
+
+                unpauseOperation = await farmInstance.methods.togglePauseEntrypoint("claim", false).send();
+                await unpauseOperation.confirmation();
+
+                // update storage
+                farmStorage = await farmInstance.storage();
+
+                // check that entrypoints are unpaused
+                assert.equal(farmStorage.breakGlassConfig.depositIsPaused                , false)
+                assert.equal(farmStorage.breakGlassConfig.withdrawIsPaused               , false)
+                assert.equal(farmStorage.breakGlassConfig.claimIsPaused                  , false)
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+    });
+
+
     describe('Access Control Checks', function () {
 
         beforeEach("Set signer to non-admin (mallory)", async () => {
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
         });
 
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
@@ -1435,13 +1522,13 @@ describe("Test: Farm Contract", async () => {
                 contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(farmStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
 
                 updateWhitelistContractsOperation = await farmInstance.methods.updateWhitelistContracts(contractMapKey, "update")
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 farmStorage = await farmInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(farmStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
@@ -1457,13 +1544,13 @@ describe("Test: Farm Contract", async () => {
                 contractMapKey  = "mallory";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(farmStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await farmInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh)
+                updateGeneralContractsOperation = await farmInstance.methods.updateGeneralContracts(contractMapKey, userOne)
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 farmStorage          = await farmInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(farmStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(farmStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
@@ -1476,15 +1563,15 @@ describe("Test: Farm Contract", async () => {
             try {
 
                 // Initial values
-                user = mallory.pkh;
+                userOne = mallory.pkh;
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(farmInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
