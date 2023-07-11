@@ -17,7 +17,11 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import {
+    signerFactory,
+    updateOperators,
+    wait
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -118,7 +122,7 @@ describe("Farm mToken", async () => {
         mvkTokenStorage     = await mvkTokenInstance.storage();
         lpTokenStorage      = await lpTokenInstance.storage();
 
-        await helperFunctions.signerFactory(tezos, bob.sk);
+        await signerFactory(tezos, bob.sk);
     })
 
 
@@ -129,7 +133,7 @@ describe("Farm mToken", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
 
@@ -227,7 +231,7 @@ describe("Farm mToken", async () => {
             try{
 
             // init variables
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
             const loanTokenName   = "usdt";
             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
 
@@ -306,7 +310,7 @@ describe("Farm mToken", async () => {
             try{
 
             // init variables
-            await helperFunctions.signerFactory(tezos, alice.sk);
+            await signerFactory(tezos, alice.sk);
             const loanTokenName   = "usdt";
             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
 
@@ -383,7 +387,7 @@ describe("Farm mToken", async () => {
         it('user (eve) can add liquidity for mock FA12 (usdt) token into Lending Controller token pool (30 MockFA12 Tokens) and receive mUSDT tokens', async () => {
     
             // init variables
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             const loanTokenName = "usdt";
             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
 
@@ -472,7 +476,7 @@ describe("Farm mToken", async () => {
                     if(farmInit == false){
 
                         // Update operators for farm
-                        updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                        updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
         
                         // Operation
@@ -556,7 +560,7 @@ describe("Farm mToken", async () => {
                     assert.strictEqual(previousAdmin,bob.pkh);
 
                     // Reset admin
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     const resetOperation = await farmInstance.methods.setAdmin(bob.pkh).send();
                     await resetOperation.confirmation();
 
@@ -569,7 +573,7 @@ describe("Farm mToken", async () => {
                 try{
                     
                     // Create a transaction for initiating a farm
-                    await helperFunctions.signerFactory(tezos, eve.sk)
+                    await signerFactory(tezos, eve.sk)
                     const operation = farmInstance.methods.setAdmin(bob.pkh);
                     await chai.expect(operation.send()).to.be.rejected;
 
@@ -589,7 +593,7 @@ describe("Farm mToken", async () => {
             it('User should not be able to initialize a farm', async () => {
                 try{
                     // Switch signer to Alice
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Operation
                     await chai.expect(farmInstance.methods.initFarm(
@@ -682,7 +686,7 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -712,7 +716,7 @@ describe("Farm mToken", async () => {
             it('User (alice) should be able to deposit LP Tokens into a farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    await signerFactory(tezos, alice.sk)
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     lendingControllerStorage = await lendingControllerInstance.storage();
@@ -724,7 +728,7 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, alice.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, alice.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -755,7 +759,7 @@ describe("Farm mToken", async () => {
                 try{
 
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     lendingControllerStorage = await lendingControllerInstance.storage();
@@ -767,7 +771,7 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -789,7 +793,7 @@ describe("Farm mToken", async () => {
                     assert.equal(depositBalanceEnd, depositBalance + amountToDeposit);
                     assert.equal(lpBalanceEnd, lpBalanceStart - amountToDeposit);
 
-                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    await signerFactory(tezos, alice.sk)
                     lpTokenStorage           = await lpTokenInstance.storage();
                     farmStorage              = await farmInstance.storage();
                     lendingControllerStorage = await lendingControllerInstance.storage();
@@ -801,7 +805,7 @@ describe("Farm mToken", async () => {
                     const aliceAmountToDeposit   = 1000000;
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, alice.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, alice.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -838,7 +842,7 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = lpBalanceStart + 1000000;
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
@@ -900,7 +904,7 @@ describe("Farm mToken", async () => {
                 try{
 
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
@@ -939,7 +943,7 @@ describe("Farm mToken", async () => {
                 try{
 
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, eve.sk);
+                    await signerFactory(tezos, eve.sk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     const amountToWithdraw  = 1;
@@ -975,12 +979,12 @@ describe("Farm mToken", async () => {
                     
                     const secondAmountToWithdraw    = 4;
 
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, bob.sk)
                     var withdrawOperation            = await farmInstance.methods.withdraw(firstAmountToWithdraw).send();
                     await withdrawOperation.confirmation();
 
                     // Final values
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, bob.sk)
                     farmStorage                     = await farmInstance.storage();
                     lpTokenStorage                  = await lpTokenInstance.storage();
                     
@@ -991,11 +995,11 @@ describe("Farm mToken", async () => {
                     const firstLpBalanceEnd         = firstLpLedgerEnd.toNumber();
 
                     // Operations
-                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    await signerFactory(tezos, alice.sk)
                     var withdrawOperation            = await farmInstance.methods.withdraw(secondAmountToWithdraw).send();
                     await withdrawOperation.confirmation();
 
-                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    await signerFactory(tezos, alice.sk)
                     farmStorage                     = await farmInstance.storage();
                     lpTokenStorage                  = await lpTokenInstance.storage();
 
@@ -1021,7 +1025,7 @@ describe("Farm mToken", async () => {
                 try{
 
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
@@ -1070,7 +1074,7 @@ describe("Farm mToken", async () => {
                     
                     const amountToDeposit   = 10000;
 
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     const updateBobOperatorsOperation = await lpTokenInstance.methods.update_operators([
                     {
                         add_operator: {
@@ -1098,7 +1102,7 @@ describe("Farm mToken", async () => {
             it('User should not be able to claim in a farm if it never deposited into it', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, eve.sk);
+                    await signerFactory(tezos, eve.sk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
 
@@ -1112,13 +1116,13 @@ describe("Farm mToken", async () => {
             it('User should not be able to claim in a farm if it has no rewards to claim', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, mallory.sk);
+                    await signerFactory(tezos, mallory.sk);
                     lpTokenStorage              = await lpTokenInstance.storage();
                     farmStorage                 = await farmInstance.storage();
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await helperFunctions.wait(2 * blockTime * 1000);
+                    await wait(2 * blockTime * 1000);
                     // const firstClaimOperation   = await farmInstance.methods.claim([mallory.pkh]).send();
                     // await firstClaimOperation.confirmation();
                     await chai.expect(farmInstance.methods.claim([mallory.pkh]).send()).to.be.rejected;
@@ -1131,7 +1135,7 @@ describe("Farm mToken", async () => {
             it('User should be able to claim rewards from a farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
@@ -1139,7 +1143,7 @@ describe("Farm mToken", async () => {
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await helperFunctions.wait(2 * blockTime * 1000);
+                    await wait(2 * blockTime * 1000);
                     const firstClaimOperation   = await farmInstance.methods.claim([bob.pkh]).send();
                     await firstClaimOperation.confirmation();
 
@@ -1163,7 +1167,7 @@ describe("Farm mToken", async () => {
             it('User should be able to withdraw all its LP Tokens then claim the remaining rewards', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
@@ -1179,7 +1183,7 @@ describe("Farm mToken", async () => {
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await helperFunctions.wait(12 * blockTime * 1000);
+                    await wait(12 * blockTime * 1000);
                     const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalanceEnd).send();
                     await withdrawOperation.confirmation();
                     
@@ -1215,7 +1219,7 @@ describe("Farm mToken", async () => {
         describe("%pauseAll", async () => {
 
             beforeEach("Set signer to admin", async () => {
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
             });
 
             it('Admin should be able to call the entrypoint and pause all entrypoints in the contract', async () => {
@@ -1241,7 +1245,7 @@ describe("Farm mToken", async () => {
             });
             it('Non-admin should not be able to call the entrypoint', async () => {
                 try{
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     await chai.expect(farmInstance.methods.pauseAll().send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1252,7 +1256,7 @@ describe("Farm mToken", async () => {
         describe("%unpauseAll", async () => {
 
             beforeEach("Set signer to admin", async () => {
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
             });
 
             it('Admin should be able to call the entrypoint and unpause all entrypoints in the contract', async () => {
@@ -1278,7 +1282,7 @@ describe("Farm mToken", async () => {
             });
             it('Non-admin should not be able to call the entrypoint', async () => {
                 try{
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     await chai.expect(farmInstance.methods.unpauseAll().send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1289,7 +1293,7 @@ describe("Farm mToken", async () => {
         describe("%togglePauseEntrypoint", async () => {
             
             beforeEach("Set signer to admin", async () => {
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
             });
 
             it('Admin should be able to call the entrypoint and pause/unpause the deposit entrypoint', async () => {
@@ -1309,8 +1313,8 @@ describe("Farm mToken", async () => {
                     const testAmount    = 1;
 
                     // Update operators for farm
-                    await helperFunctions.signerFactory(tezos, bob.sk);
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    await signerFactory(tezos, bob.sk);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     await chai.expect(farmInstance.methods.deposit(testAmount).send()).to.be.rejected;
@@ -1392,7 +1396,7 @@ describe("Farm mToken", async () => {
                     const midState      = farmStorage.breakGlassConfig.claimIsPaused;
 
                     // Test operation
-                    await helperFunctions.wait(2 * blockTime * 1000);
+                    await wait(2 * blockTime * 1000);
                     await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
 
                     // Operation
@@ -1404,7 +1408,7 @@ describe("Farm mToken", async () => {
                     const endState      = farmStorage.breakGlassConfig.claimIsPaused;
 
                     // Test operation
-                    await helperFunctions.wait(2 * blockTime * 1000);
+                    await wait(2 * blockTime * 1000);
                     const testOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await testOperation.confirmation();
 
@@ -1420,7 +1424,7 @@ describe("Farm mToken", async () => {
 
             it('Non-admin should not be able to call the entrypoint', async () => {
                 try{
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     await chai.expect(farmInstance.methods.togglePauseEntrypoint("deposit", true).send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1444,8 +1448,8 @@ describe("Farm mToken", async () => {
                     const amountToDeposit   = 10000;
 
                     // Approval operation
-                    await helperFunctions.signerFactory(tezos, bob.sk);
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    await signerFactory(tezos, bob.sk);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation - deposit amount so user balance will be greater than zero
@@ -1453,7 +1457,7 @@ describe("Farm mToken", async () => {
                     await depositOperation.confirmation();
 
                     // Wait at least one block before claiming rewards
-                    await helperFunctions.wait(12 * blockTime * 1000);
+                    await wait(12 * blockTime * 1000);
 
                     farmStorage                    = await farmInstance.storage();
                     const userDepositRecordMid     = await farmStorage.depositorLedger.get(bob.pkh);
@@ -1478,7 +1482,7 @@ describe("Farm mToken", async () => {
                     const toggleTransferFirstUpdate = farmStorage.config.forceRewardFromTransfer;
 
                     // Do another claim - sMVK rewards should be transferred from Farm Treasury
-                    await helperFunctions.wait(12 * blockTime * 1000);
+                    await wait(12 * blockTime * 1000);
                     claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
@@ -1497,7 +1501,7 @@ describe("Farm mToken", async () => {
                     const toggleTransferSecondUpdate = farmStorage.config.forceRewardFromTransfer;
 
                     //Do another claim
-                    await helperFunctions.wait(12 * blockTime * 1000);
+                    await wait(12 * blockTime * 1000);
                     claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
@@ -1541,7 +1545,7 @@ describe("Farm mToken", async () => {
             it('Admin should be able to increase the rewards of a farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     farmStorage                     = await farmInstance.storage();
                     const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
                     const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
@@ -1578,7 +1582,7 @@ describe("Farm mToken", async () => {
             it('Admin should be able to decrease the rewards of a farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     farmStorage                     = await farmInstance.storage();
                     const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
                     const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
@@ -1615,7 +1619,7 @@ describe("Farm mToken", async () => {
             it('Non-admin should not be able to force the rewards to come from transfers instead of minting', async () => {
                 try{
                     // Toggle to transfer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     await chai.expect(farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1628,7 +1632,7 @@ describe("Farm mToken", async () => {
             it('Non-admin should not be able to close a farm', async () => {
                 try{
                     // Toggle to transfer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     await chai.expect(farmInstance.methods.closeFarm().send()).to.be.rejected;
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1638,7 +1642,7 @@ describe("Farm mToken", async () => {
             it('Admin should be able to close a farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     farmStorage             = await farmInstance.storage();
                     const farmOpen          = farmStorage.open;
                     
@@ -1662,15 +1666,15 @@ describe("Farm mToken", async () => {
             it('User should not be able to deposit in a closed farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk);
+                    await signerFactory(tezos, bob.sk);
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     const farmOpen          = farmStorage.open;
                     const amountToDeposit   = 1;
 
                     // Approval operation
-                    await helperFunctions.signerFactory(tezos, bob.sk);
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    await signerFactory(tezos, bob.sk);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
                     
                     // Operation
@@ -1687,7 +1691,7 @@ describe("Farm mToken", async () => {
             it('User should be able to claim in a closed farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, eve.sk);
+                    await signerFactory(tezos, eve.sk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
                     const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
@@ -1696,7 +1700,7 @@ describe("Farm mToken", async () => {
                     const farmOpen              = farmStorage.open;
                     
                     // Operation
-                    await helperFunctions.wait(10 * blockTime * 1000);
+                    await wait(10 * blockTime * 1000);
                     const claimOperation        = await farmInstance.methods.claim([bob.pkh]).send();
                     await claimOperation.confirmation();
 
@@ -1717,7 +1721,7 @@ describe("Farm mToken", async () => {
             it('User should not see any increase in rewards even if it still has LP Token deposited in the farm', async () => {
                 try{
 
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     farmStorage                 = await farmInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
                     
@@ -1729,7 +1733,7 @@ describe("Farm mToken", async () => {
                     const initialAccRewardsPerShare = farmStorage.accumulatedRewardsPerShare;
                     
                     // Operation - let alice claim her eligible rewards 
-                    await helperFunctions.wait(4 * blockTime * 1000);
+                    await wait(4 * blockTime * 1000);
                     const claimOperation = await farmInstance.methods.claim([alice.pkh]).send();
                     await claimOperation.confirmation();
 
@@ -1749,7 +1753,7 @@ describe("Farm mToken", async () => {
                     assert.equal(initialAccRewardsPerShare.toNumber(), updatedAccRewardsPerShare.toNumber());
 
                     // Second operation to check no change in sMVK balance
-                    await helperFunctions.wait(4 * blockTime * 1000);
+                    await wait(4 * blockTime * 1000);
                     const secondClaimOperation = await farmInstance.methods.claim([alice.pkh]).send();
                     await secondClaimOperation.confirmation();
 
@@ -1781,7 +1785,7 @@ describe("Farm mToken", async () => {
             it('User should be able to withdraw in a closed farm', async () => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     farmStorage                 = await farmInstance.storage();
                     lpTokenStorage              = await lpTokenInstance.storage();
                     const lpLedgerStart         = await lpTokenStorage.ledger.get(alice.pkh);
