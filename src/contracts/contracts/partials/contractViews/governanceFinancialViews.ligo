@@ -10,21 +10,21 @@
 
 
 
-(* View: get config *)
-[@view] function getConfig(const _ : unit; const s : governanceFinancialStorageType) : governanceFinancialConfigType is
-    s.config
-
-
-
 (* View: get Governance address *)
 [@view] function getGovernanceAddress(const _ : unit; const s : governanceFinancialStorageType) : address is
     s.governanceAddress
 
 
 
-(* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContractOpt(const contractAddress : address; const s : governanceFinancialStorageType) : option(unit) is
-    Big_map.find_opt(contractAddress, s.whitelistTokenContracts)
+(* View: get config *)
+[@view] function getConfig(const _ : unit; const s : governanceFinancialStorageType) : governanceFinancialConfigType is
+    s.config
+
+
+
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : governanceFinancialStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
@@ -34,9 +34,9 @@
 
 
 
-(* View: get whitelist contracts opt *)
-[@view] function getWhitelistContractOpt(const contractAddress : address; const s : governanceFinancialStorageType) : option(unit) is 
-    Big_map.find_opt(contractAddress, s.whitelistContracts)
+(* View: get whitelist token contracts *)
+[@view] function getWhitelistTokenContractOpt(const contractAddress : address; const s : governanceFinancialStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, s.whitelistTokenContracts)
 
 
 

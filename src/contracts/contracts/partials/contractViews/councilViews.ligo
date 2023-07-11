@@ -10,15 +10,15 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : councilStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _ : unit; const s : councilStorageType) : councilConfigType is
     s.config
-
-
-
-(* View: get council member opt *)
-[@view] function getCouncilMemberOpt(const councilMemberAddress : address; const s : councilStorageType) : option(councilMemberInfoType) is
-    Big_map.find_opt(councilMemberAddress, s.councilMembers)
 
 
 
@@ -31,6 +31,12 @@
 (* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : councilStorageType) : option(address) is
     Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: get council member opt *)
+[@view] function getCouncilMemberOpt(const councilMemberAddress : address; const s : councilStorageType) : option(councilMemberInfoType) is
+    Big_map.find_opt(councilMemberAddress, s.councilMembers)
 
 
 
