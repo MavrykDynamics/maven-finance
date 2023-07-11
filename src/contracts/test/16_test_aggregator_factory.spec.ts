@@ -23,7 +23,6 @@ import { mockMetadata, mockSatelliteData } from "./helpers/mockSampleData"
 import { 
     signerFactory, 
     getStorageMapValue,
-    fa12Transfer,
     fa2Transfer,
     mistakenTransferFa2Token,
     updateWhitelistContracts,
@@ -158,6 +157,12 @@ describe('AggregatorFactory', () => {
                                         oraclePeerId: mockSatelliteData.trudy.oraclePeerId
                                     }
         });
+
+        // Untrack aggregator if it's already tracked
+        if(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorInstance.address)){
+            const untrackOperation  = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorFactoryInstance.address).send();
+            await untrackOperation.confirmation();
+        }
     
     });
 

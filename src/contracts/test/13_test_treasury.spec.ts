@@ -18,7 +18,9 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, oscar, trudy, isaac, david, baker } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import {
+    signerFactory
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -98,7 +100,7 @@ describe("Treasury tests", async () => {
         it('Non-admin should not be able to call this entrypoint', async () => {
             try{        
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 await chai.expect(treasuryInstance.methods.setAdmin(eve.pkh).send()).to.be.eventually.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -108,7 +110,7 @@ describe("Treasury tests", async () => {
         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
             try{        
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const setAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh).send();
                 await setAdminOperation.confirmation();
 
@@ -116,7 +118,7 @@ describe("Treasury tests", async () => {
                 assert.equal(updatedTreasuryStorage.admin, eve.pkh);
 
                 // reset treasury admin to bob
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
                 await resetAdminOperation.confirmation();
 
@@ -139,7 +141,7 @@ describe("Treasury tests", async () => {
                 const depositAmountMutez        = 80000000;
                 const initTreasuryTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
                 
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: depositAmount});
                 await aliceTransferTezToTreasuryOperation.confirmation();
 
@@ -160,7 +162,7 @@ describe("Treasury tests", async () => {
                 var initTreasuryMavrykFa12TokenBalance      = await mavrykFa12TokenStorage.ledger.get(treasuryAddress);
                 initTreasuryMavrykFa12TokenBalance          = initTreasuryMavrykFa12TokenBalance ? initTreasuryMavrykFa12TokenBalance.balance : new BigNumber(0);
         
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 const aliceTransferMavrykFa12ToTreasuryOperation = await mavrykFa12TokenInstance.methods.transfer(
                     alice.pkh, 
                     treasuryAddress, 
@@ -187,7 +189,7 @@ describe("Treasury tests", async () => {
                 var initTreasuryMavrykFa2TokenBalance       = await mavrykFa2TokenStorage.ledger.get(treasuryAddress);
                 initTreasuryMavrykFa2TokenBalance           = initTreasuryMavrykFa2TokenBalance ? initTreasuryMavrykFa2TokenBalance : new BigNumber(0);
         
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 const aliceTransferMavrykFa2ToTreasuryOperation = await mavrykFa2TokenInstance.methods.transfer([
                         {
                             from_: alice.pkh,
@@ -222,7 +224,7 @@ describe("Treasury tests", async () => {
                 var initTreasuryMvkTokenBalance         = await mvkTokenStorage.ledger.get(treasuryAddress);
                 initTreasuryMvkTokenBalance             = initTreasuryMvkTokenBalance ? initTreasuryMvkTokenBalance : new BigNumber(0);
 
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 const aliceTransferMavrykFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
                         {
                             from_: alice.pkh,
@@ -252,7 +254,7 @@ describe("Treasury tests", async () => {
     describe('%transfer', function() {
 
         before("Set Bob as whitelist", async() => {
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
             const adminUpdateWhitelistContractsOperation = await treasuryInstance.methods.updateWhitelistContracts(
                 bob.pkh,
                 "update"
@@ -270,7 +272,7 @@ describe("Treasury tests", async () => {
                 const tokenType  = "tez";
                 const amount     = 10000000;
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const initTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
 
                 const adminTransferTezOperation = await treasuryInstance.methods.transfer(
@@ -304,7 +306,7 @@ describe("Treasury tests", async () => {
                 var initMavrykFa12TokenBalance          = await mavrykFa12TokenStorage.ledger.get(treasuryAddress);
                 initMavrykFa12TokenBalance              = initMavrykFa12TokenBalance ? initMavrykFa12TokenBalance.balance : new BigNumber(0);
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminTransferMavrykFa12TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
@@ -339,7 +341,7 @@ describe("Treasury tests", async () => {
                 var initMavrykFa2TokenBalance   = await mavrykFa2TokenStorage.ledger.get(treasuryAddress);
                 initMavrykFa2TokenBalance       = initMavrykFa2TokenBalance ? initMavrykFa2TokenBalance : new BigNumber(0);
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
@@ -377,7 +379,7 @@ describe("Treasury tests", async () => {
                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress);
                 const initUserMvkTokenBalance       = await mvkTokenStorage.ledger.get(to_);
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
@@ -413,7 +415,7 @@ describe("Treasury tests", async () => {
                 const amount     = 10000000;
                 const tokenType  = "tez"
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 const failTransferTezOperation = await treasuryInstance.methods.transfer(
                     [
                         {
@@ -450,7 +452,7 @@ describe("Treasury tests", async () => {
                 const initialRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
                 const initialRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
                 [
                     {
@@ -516,7 +518,7 @@ describe("Treasury tests", async () => {
                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.balance.toNumber();
                 const initialRecipientThreeBalance   = initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.balance.toNumber();
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
                 [
                     {
@@ -583,7 +585,7 @@ describe("Treasury tests", async () => {
                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.toNumber();
                 const initialRecipientThreeBalance   = initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.toNumber();
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
                 [
                     {
@@ -659,7 +661,7 @@ describe("Treasury tests", async () => {
                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.toNumber();
                 const initialRecipientThreeBalance   = initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.toNumber();
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
                 [
                     {
@@ -749,7 +751,7 @@ describe("Treasury tests", async () => {
                 const initialRecipientThreeBalance   = initialRecipientThreeAccount  === undefined ? 0 : initialRecipientThreeAccount.toNumber();
                 const initialRecipientFourBalance    = initialRecipientFourAccount   === undefined ? 0 : initialRecipientFourAccount.toNumber();
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
                 [
                     {
@@ -815,7 +817,7 @@ describe("Treasury tests", async () => {
                 const amount                = 10000000;
                 const tokenContractAddress  = mavrykFa12TokenAddress;
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 const failTransferMavrykFa12TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
@@ -841,7 +843,7 @@ describe("Treasury tests", async () => {
                 const tokenContractAddress      = mavrykFa12TokenAddress;
                 const tokenId    = 0;
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 const failTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
@@ -870,7 +872,7 @@ describe("Treasury tests", async () => {
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenId               = 0;
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
@@ -897,7 +899,7 @@ describe("Treasury tests", async () => {
         it('Admin should be able to call this entrypoint and stake MVK', async () => {
             try{        
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 doormanStorage                      = await doormanInstance.storage();
                 mvkTokenStorage                     = await mvkTokenInstance.storage();
                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress);
@@ -932,7 +934,7 @@ describe("Treasury tests", async () => {
                 const stakeAmount     = MVK(10);
 
                 // Operations
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.stakeTokens(
                     contractDeployments.mvkToken.address,
                     stakeAmount
@@ -948,19 +950,19 @@ describe("Treasury tests", async () => {
                 const stakeAmount     = MVK(10);
 
                 // Update config
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send();
                 await updateGeneralContractOperation.confirmation();
 
                 // Operations
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.stakeTokens(
                     contractDeployments.mvkToken.address,
                     stakeAmount
                 ).send()).to.be.eventually.rejected;
 
                 // Reset config
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
@@ -974,7 +976,7 @@ describe("Treasury tests", async () => {
         it('Admin should be able to call this entrypoint and unstake MVK', async () => {
             try{        
                 // Initial values
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 doormanStorage                      = await doormanInstance.storage();
                 mvkTokenStorage                     = await mvkTokenInstance.storage();
                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress);
@@ -1007,7 +1009,7 @@ describe("Treasury tests", async () => {
                 const unstakeAmount     = MVK(2);
 
                 // Operations
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.unstakeTokens(
                     contractDeployments.mvkToken.address,
                     unstakeAmount
@@ -1023,19 +1025,19 @@ describe("Treasury tests", async () => {
                 const unstakeAmount     = MVK(2);
 
                 // Update config
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send();
                 await updateGeneralContractOperation.confirmation();
 
                 // Operations
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.unstakeTokens(
                     contractDeployments.mvkToken.address,
                     unstakeAmount
                 ).send()).to.be.eventually.rejected;
 
                 // Reset config
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
@@ -1056,7 +1058,7 @@ describe("Treasury tests", async () => {
                 const initialBobMvkTokenBalance = await mvkTokenStorage.ledger.get(bob.pkh);
 
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const mintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
                      to_,
                      amount,
@@ -1079,7 +1081,7 @@ describe("Treasury tests", async () => {
                 const to_        = alice.pkh;
                 const amount     = 10000000;
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
                      to_,
                      amount,
@@ -1094,7 +1096,7 @@ describe("Treasury tests", async () => {
 
     describe('%togglePauseEntrypoint', function() {
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
         it('Admin should be able to call this entrypoint', async () => {
             try{
@@ -1241,7 +1243,7 @@ describe("Treasury tests", async () => {
 
         it('Non-admin should not be able to call the entrypoint', async () => {
             try{
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", true).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -1251,7 +1253,7 @@ describe("Treasury tests", async () => {
 
     describe("%pauseAll", async () => {
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Admin should be able to call the entrypoint and pause all entrypoints in the contract', async () => {
@@ -1277,7 +1279,7 @@ describe("Treasury tests", async () => {
         });
         it('Non-admin should not be able to call the entrypoint', async () => {
             try{
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.pauseAll().send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -1287,7 +1289,7 @@ describe("Treasury tests", async () => {
 
     describe("%unpauseAll", async () => {
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Admin should be able to call the entrypoint and unpause all entrypoints in the contract', async () => {
@@ -1313,7 +1315,7 @@ describe("Treasury tests", async () => {
         });
         it('Non-admin should not be able to call the entrypoint', async () => {
             try{
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.unpauseAll().send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -1323,7 +1325,7 @@ describe("Treasury tests", async () => {
 
     describe("%setBaker", async () => {
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Admin should be able to call the entrypoint delegate to a baker', async () => {
@@ -1343,7 +1345,7 @@ describe("Treasury tests", async () => {
         });
         it('Non-admin should not be able to call the entrypoint', async () => {
             try{
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.setBaker().send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
