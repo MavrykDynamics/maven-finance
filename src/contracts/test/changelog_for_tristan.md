@@ -6,3 +6,7 @@
 2. Aggregator Contract
 - spelling error: rename "HeartBeatSeconds" to HeartbeatSeconds": Heartbeat is one word
 - duplicate view: remove getContractName view as getName view already exists and is consistent with the getName view in the treasury and farm contracts
+
+3. Break Glass Contract
+- rename views to be consistent with Council Contract
+- getActionOpt to getCouncilActionOpt, and getActionSignerOpt to getCouncilActionSignerOpt

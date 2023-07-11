@@ -10,15 +10,15 @@
 
 
 
-(* View: get config *)
-[@view] function getConfig(const _ : unit; const s : governanceSatelliteStorageType) : governanceSatelliteConfigType is
-    s.config
-
-
-
 (* View: get Governance address *)
 [@view] function getGovernanceAddress(const _ : unit; const s : governanceSatelliteStorageType) : address is
     s.governanceAddress
+
+
+
+(* View: get config *)
+[@view] function getConfig(const _ : unit; const s : governanceSatelliteStorageType) : governanceSatelliteConfigType is
+    s.config
 
 
 
@@ -34,15 +34,15 @@
 
 
 
-(* View: get a governance satellite action *)
-[@view] function getGovernanceSatelliteActionOpt(const actionId : nat; const s : governanceSatelliteStorageType) : option(governanceSatelliteActionRecordType) is
-    Big_map.find_opt(actionId, s.governanceSatelliteActionLedger)
-
-
-
 (* View: get governance satellite counter *)
 [@view] function getGovernanceSatelliteCounter(const _ : unit; const s : governanceSatelliteStorageType) : nat is
     s.governanceSatelliteCounter
+
+
+
+(* View: get a governance satellite action *)
+[@view] function getGovernanceSatelliteActionOpt(const actionId : nat; const s : governanceSatelliteStorageType) : option(governanceSatelliteActionRecordType) is
+    Big_map.find_opt(actionId, s.governanceSatelliteActionLedger)
 
 
 
