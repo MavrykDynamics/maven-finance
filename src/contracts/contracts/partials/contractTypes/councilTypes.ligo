@@ -49,6 +49,7 @@ type councilUpdateConfigParamsType is [@layout:comb] record [
 
 type councilActionRequestTokensType is [@layout:comb] record [
     treasuryAddress             : address;       // treasury address
+    receiverAddress             : address;       // address of receiver
     tokenContractAddress        : address;       // token contract address
     tokenName                   : string;        // token name 
     tokenAmount                 : nat;           // token amount requested
@@ -59,6 +60,7 @@ type councilActionRequestTokensType is [@layout:comb] record [
 
 type councilActionRequestMintType is [@layout:comb] record [
     treasuryAddress             : address;       // treasury address
+    receiverAddress             : address;       // address of receiver
     tokenAmount                 : nat;           // MVK token amount requested
     purpose                     : string;        // financial request purpose
 ]

@@ -202,6 +202,7 @@ block {
                 s := createGovernanceFinancialRequest(
                     "TRANSFER",                                 // requestType
                     requestTokensParams.treasuryAddress,        // treasuryAddress
+                    requestTokensParams.receiverAddress,        // receiverAddress
                     requestTokensParams.tokenContractAddress,   // tokenContractAddress
                     requestTokensParams.tokenAmount,            // tokenAmount
                     requestTokensParams.tokenName,              // tokenName
@@ -243,6 +244,7 @@ block {
                 s := createGovernanceFinancialRequest(
                     "MINT",                                 // requestType
                     requestMintParams.treasuryAddress,      // treasuryAddress
+                    requestMintParams.receiverAddress,      // receiverAddress
                     s.mvkTokenAddress,                      // tokenContractAddress
                     requestMintParams.tokenAmount,          // tokenAmount
                     "MVK",                                  // tokenName
@@ -284,6 +286,7 @@ block {
                 s := createGovernanceFinancialRequest(
                     "SET_CONTRACT_BAKER",                           // requestType
                     setContractBakerParams.targetContractAddress,   // treasury address
+                    zeroAddress,                                    // no receiver address
                     s.mvkTokenAddress,                              // tokenContractAddress
                     0n,                                             // tokenAmount
                     "NIL",                                          // tokenName
