@@ -776,7 +776,7 @@ block {
                 }; // end loop for withdraw operations of tez/tokens in vault collateral 
 
 
-                // remove vault from stroage
+                // remove vault from storage
                 var ownerVaultSet : ownerVaultSetType := getOwnerVaultSet(vaultOwner, s);
                 s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
                 remove vaultHandle from map s.vaults;
