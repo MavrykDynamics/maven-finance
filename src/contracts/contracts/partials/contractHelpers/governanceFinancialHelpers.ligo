@@ -173,6 +173,7 @@ block {
 function createGovernanceFinancialRequest(
     const requestType           : string; 
     const treasuryAddress       : address; 
+    const receiverAddress       : address; 
     const tokenContractAddress  : address; 
     const tokenAmount           : tokenBalanceType; 
     const tokenName             : string; 
@@ -224,6 +225,7 @@ block{
         executed                            = False;
 
         treasuryAddress                     = treasuryAddress;
+        receiverAddress                     = receiverAddress;
         tokenContractAddress                = tokenContractAddress;
         tokenAmount                         = tokenAmount;
         tokenName                           = tokenName; 
@@ -301,14 +303,12 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to transfer from treasury to council
-function transferFromTreasuryToCouncilOperation(const financialRequestRecord : financialRequestRecordType; const s : governanceFinancialStorageType) : operation is 
+function transferFromTreasuryToCouncilOperation(const financialRequestRecord : financialRequestRecordType) : operation is 
 block {
 
-    // Get Treasury Contract from params
+    // Get Addresses from params
     const treasuryAddress : address = financialRequestRecord.treasuryAddress;
-
-    // Get Council Contract address from the General Contracts Map on the Governance Contract
-    const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
+    const receiverAddress : address = financialRequestRecord.receiverAddress;
 
     // Format token type
     const tokenTransferType : tokenType = formatTokenTransferType(financialRequestRecord);
@@ -316,7 +316,7 @@ block {
     // Create transfer params and operation
     const transferParams : transferActionType = list [
         record [
-            to_        = councilAddress;
+            to_        = receiverAddress;
             token      = tokenTransferType;
             amount     = financialRequestRecord.tokenAmount;
         ]
@@ -333,18 +333,16 @@ block {
 
 
 // helper function to mint MVK from treasury and transfer operation
-function mintMvkAndTransferOperation(const financialRequestRecord : financialRequestRecordType; const s : governanceFinancialStorageType) : operation is
+function mintMvkAndTransferOperation(const financialRequestRecord : financialRequestRecordType) : operation is
 block {
 
-    // Get Treasury Contract from params
+    // Get Addresses from params
     const treasuryAddress : address = financialRequestRecord.treasuryAddress;
-
-    // Get Council Contract address from the General Contracts Map on the Governance Contract
-    const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
+    const receiverAddress : address = financialRequestRecord.receiverAddress;
 
     // Create mint operation
     const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-        to_  = councilAddress;
+        to_  = receiverAddress;
         amt  = financialRequestRecord.tokenAmount;
     ];
 
@@ -457,9 +455,9 @@ block {
     // If token is specified, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
     validateWhitelistedToken(financialRequestRecord.tokenType, financialRequestRecord.tokenContractAddress, s);
 
-    if financialRequestRecord.requestType = "TRANSFER"           then operations := transferFromTreasuryToCouncilOperation(financialRequestRecord, s) # operations; 
+    if financialRequestRecord.requestType = "TRANSFER"           then operations := transferFromTreasuryToCouncilOperation(financialRequestRecord) # operations; 
 
-    if financialRequestRecord.requestType = "MINT"               then operations := mintMvkAndTransferOperation(financialRequestRecord, s) # operations;
+    if financialRequestRecord.requestType = "MINT"               then operations := mintMvkAndTransferOperation(financialRequestRecord) # operations;
 
     if financialRequestRecord.requestType = "SET_CONTRACT_BAKER" then operations := setContractBakerOperation(financialRequestRecord) # operations;
 
