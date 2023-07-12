@@ -36,31 +36,31 @@ import {
 describe("Test: Farm Contract", async () => {
 
     var utils: Utils;
-    let tezos
+    let tezos;
 
-    let userOne 
-    let userOneSk
+    let userOne;
+    let userOneSk;
 
-    let userTwo 
-    let userTwoSk
+    let userTwo;
+    let userTwoSk;
 
-    let userThree 
-    let userThreeSk
+    let userThree;
+    let userThreeSk;
 
-    let admin 
-    let adminSk
-    let tokenId = 0
+    let admin;
+    let adminSk;
+    let tokenId = 0;
 
-    let mavrykFa2TokenAddress
-    let mavrykFa2TokenInstance
-    let mavrykFa2TokenStorage
+    let mavrykFa2TokenAddress;
+    let mavrykFa2TokenInstance;
+    let mavrykFa2TokenStorage;
 
-    let farmAddress
-    let farmFactoryAddress
-    let mvkTokenAddress
-    let lpTokenAddress 
-    let doormanAddress
-    let treasuryAddress
+    let farmAddress;
+    let farmFactoryAddress;
+    let mvkTokenAddress;
+    let lpTokenAddress ;
+    let doormanAddress;
+    let treasuryAddress;
 
     let farmInstance;
     let farmStorage;
@@ -80,26 +80,24 @@ describe("Test: Farm Contract", async () => {
     let doormanInstance;
     let doormanStorage;
 
+    // housekeeping operations
+    let setAdminOperation;
+    let setGovernanceOperation;
+    let resetAdminOperation;
+    let updateWhitelistContractsOperation;
+    let updateGeneralContractsOperation;
+    let mistakenTransferOperation;
+    let pauseOperation;
+    let pauseAllOperation;
+    let unpauseOperation;
+    let unpauseAllOperation;
     let transferOperation
 
-    // housekeeping operations
-    let setAdminOperation
-    let setGovernanceOperation
-    let resetAdminOperation
-    let updateWhitelistContractsOperation
-    let updateGeneralContractsOperation
-    let mistakenTransferOperation
-    let pauseOperation
-    let pauseAllOperation
-    let unpauseOperation
-    let unpauseAllOperation
-    let migrateOperation
-
     // contract map value
-    let storageMap
-    let contractMapKey
-    let initialContractMapValue
-    let updatedContractMapValue
+    let storageMap;
+    let contractMapKey;
+    let initialContractMapValue;
+    let updatedContractMapValue;
 
     before("setup", async () => {
         
