@@ -638,6 +638,7 @@ block {
 
                 const dataMap : dataMapType = map [
                     ("treasuryAddress"       : string) -> Bytes.pack(councilActionRequestTokensParams.treasuryAddress);
+                    ("receiverAddress"       : string) -> Bytes.pack(councilActionRequestTokensParams.receiverAddress);
                     ("tokenContractAddress"  : string) -> Bytes.pack(councilActionRequestTokensParams.tokenContractAddress);
                     ("tokenName"             : string) -> Bytes.pack(councilActionRequestTokensParams.tokenName);
                     ("purpose"               : string) -> Bytes.pack(councilActionRequestTokensParams.purpose);
@@ -687,6 +688,7 @@ block {
 
                 const dataMap : dataMapType = map [
                     ("treasuryAddress"       : string) -> Bytes.pack(councilActionRequestMintParams.treasuryAddress);
+                    ("receiverAddress"       : string) -> Bytes.pack(councilActionRequestMintParams.receiverAddress);
                     ("purpose"               : string) -> Bytes.pack(councilActionRequestMintParams.purpose);
                     ("tokenAmount"           : string) -> Bytes.pack(councilActionRequestMintParams.tokenAmount);
                 ];
