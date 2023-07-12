@@ -61,6 +61,7 @@ class GovernanceFinancialRequest(Model):
     execution_datetime                      = fields.DatetimeField(index=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
     requested_datetime                      = fields.DatetimeField(index=True)
+    dropped_datetime                        = fields.DatetimeField(index=True, null=True)
 
     class Meta:
         table = 'governance_financial_request'
