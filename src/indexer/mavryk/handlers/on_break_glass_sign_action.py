@@ -16,6 +16,7 @@ async def on_break_glass_sign_action(
         # Get operation info
         break_glass_address     = sign_action.data.target_address
         signer_address          = sign_action.data.sender_address
+        timestamp               = sign_action.data.timestamp
         action_id               = int(sign_action.parameter.__root__)
         action_record_storage   = sign_action.storage.actionsLedger[sign_action.parameter.__root__]
         signer_count            = int(action_record_storage.signersCount)
@@ -45,10 +46,13 @@ async def on_break_glass_sign_action(
         )
         action_record.council_size_snapshot = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all())
         action_record.status                = status_type
+        if action_record.status == models.ActionStatus.FLUSHED:
+            action_record.flushed_datetime  = timestamp
         action_record.signers_count         = signer_count
         action_record.executed              = executed
         action_record.execution_datetime    = parser.parse(execution_datetime)
         action_record.execution_level       = execution_level
+        
         await action_record.save()
     
         # Update the status if there are multiple records (flush)
