@@ -11,15 +11,15 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : emergencyGovernanceStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: config *)
 [@view] function getConfig (const _ : unit; const s : emergencyGovernanceStorageType) : emergencyConfigType is
     s.config
-
-
-
-(* get: general contracts opt *)
-[@view] function getGeneralContractOpt(const contractName : string; const s : emergencyGovernanceStorageType) : option(address) is
-    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
@@ -29,9 +29,15 @@
 
 
 
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : emergencyGovernanceStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
+
+
+
 (* View: get emergency governance record opt *)
-[@view] function getEmergencyGovernanceOpt (const recordId : nat; const s : emergencyGovernanceStorageType) : option(emergencyGovernanceRecordType) is
-    Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
+[@view] function getEmergencyGovernanceOpt (const emergencyGovernanceId : nat; const s : emergencyGovernanceStorageType) : option(emergencyGovernanceRecordType) is
+    Big_map.find_opt(emergencyGovernanceId, s.emergencyGovernanceLedger)
 
 
 
