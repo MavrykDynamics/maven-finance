@@ -42,8 +42,6 @@ import governanceFinancialAddress from '../../deployments/governanceFinancialAdd
 import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json';
 import farmAddress from '../../deployments/farmAddress.json';
 import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
-import aggregatorAddress from '../../deployments/aggregatorAddress.json';
-import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
 import tokenSaleAddress from '../../deployments/tokenSaleAddress.json';
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
@@ -128,8 +126,7 @@ describe("Testnet setup helper", async () => {
             farmInstance                            = await utils.tezos.contract.at(farmAddress.address);
             lpTokenInstance                         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(governanceSatelliteAddress.address);
-            aggregatorInstance                      = await utils.tezos.contract.at(aggregatorAddress.address);
-            aggregatorFactoryInstance               = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+            aggregatorFactoryInstance               = await utils.tezos.contract.at("KT18oMzNd8brk5b92TqeNWZC4EigjF8TnKkv");
             tokenSaleInstance                       = await utils.tezos.contract.at(tokenSaleAddress.address);
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
@@ -152,7 +149,6 @@ describe("Testnet setup helper", async () => {
             farmStorage                             = await farmInstance.storage();
             lpTokenStorage                          = await lpTokenInstance.storage();
             governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-            aggregatorStorage                       = await aggregatorInstance.storage();
             aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
             tokenSaleStorage                        = await tokenSaleInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
@@ -173,7 +169,6 @@ describe("Testnet setup helper", async () => {
             console.log('Farm Contract deployed at:', farmInstance.address);
             console.log('LP Token Contract deployed at:', lpTokenInstance.address);
             console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
-            console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
             console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
             console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
@@ -236,7 +231,7 @@ describe("Testnet setup helper", async () => {
                     var storage:any     = await contract.storage();
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
+                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!=="KT1Buw3qCBc89fmUpCEAEtT3dudyTvoZUGNg"){
                         var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
                         await setAdminOperation.confirmation()
                     }
@@ -297,31 +292,31 @@ describe("Testnet setup helper", async () => {
                 }
 
                 // Set aggregator contracts admin
-                aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
-                var trackedAggregators          = aggregatorFactoryStorage.trackedAggregators.entries();
-                for (let entry of trackedAggregators){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+                // aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+                // var trackedAggregators          = aggregatorFactoryStorage.trackedAggregators.entries();
+                // for (let entry of trackedAggregators){
+                //     // Get contract storage
+                //     var contract        = await utils.tezos.contract.at(entry[1]);
+                //     var storage:any     = await contract.storage();
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
-                        await setAdminOperation.confirmation()
-                    }
+                //     // Check admin
+                //     if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
+                //         var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
+                //         await setAdminOperation.confirmation()
+                //     }
 
-                    // Check whitelist [Gov satellite, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get("governanceSatellite") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatelliteAddress.address).send()
-                            await operation.confirmation()
-                        }
-                        if(storage.whitelistContracts.get("aggregatorFactory") === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactoryAddress.address).send()
-                            await operation.confirmation()
-                        }
-                    }
-                }
+                //     // Check whitelist [Gov satellite, Factory]
+                //     if(storage.hasOwnProperty('whitelistContracts')){
+                //         if(storage.whitelistContracts.get("governanceSatellite") === undefined){
+                //             var operation   = await contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatelliteAddress.address).send()
+                //             await operation.confirmation()
+                //         }
+                //         if(storage.whitelistContracts.get("aggregatorFactory") === undefined){
+                //             var operation   = await contract.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactoryAddress.address).send()
+                //             await operation.confirmation()
+                //         }
+                //     }
+                // }
 
                 // Set governance proxy admin, governance admin and mvkToken admin
                 setAdminOperation   = await governanceProxyInstance.methods.setAdmin(governanceProxyAddress.address).send();

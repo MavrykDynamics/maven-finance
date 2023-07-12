@@ -39,8 +39,6 @@ import governanceFinancialAddress from '../../deployments/governanceFinancialAdd
 import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json';
 import farmAddress from '../../deployments/farmAddress.json';
 import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
-import aggregatorAddress from '../../deployments/aggregatorAddress.json';
-import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
 import tokenSaleAddress from '../../deployments/tokenSaleAddress.json';
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
@@ -68,7 +66,6 @@ describe("Testnet setup helper", async () => {
     let farmInstance;
     let lpTokenInstance;
     let governanceSatelliteInstance;
-    let aggregatorInstance;
     let aggregatorFactoryInstance;
     let tokenSaleInstance;
     let lendingControllerInstance;
@@ -133,8 +130,7 @@ describe("Testnet setup helper", async () => {
             farmInstance                            = await utils.tezos.contract.at(farmAddress.address);
             lpTokenInstance                         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(governanceSatelliteAddress.address);
-            aggregatorInstance                      = await utils.tezos.contract.at(aggregatorAddress.address);
-            aggregatorFactoryInstance               = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+            aggregatorFactoryInstance               = await utils.tezos.contract.at("KT18oMzNd8brk5b92TqeNWZC4EigjF8TnKkv");
             tokenSaleInstance                       = await utils.tezos.contract.at(tokenSaleAddress.address);
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
@@ -157,7 +153,6 @@ describe("Testnet setup helper", async () => {
             farmStorage                             = await farmInstance.storage();
             lpTokenStorage                          = await lpTokenInstance.storage();
             governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-            aggregatorStorage                       = await aggregatorInstance.storage();
             aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
             tokenSaleStorage                        = await tokenSaleInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
@@ -178,8 +173,7 @@ describe("Testnet setup helper", async () => {
             console.log('Farm Contract deployed at:', farmInstance.address);
             console.log('LP Token Contract deployed at:', lpTokenInstance.address);
             console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
-            console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
-            console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
+            console.log('Aggregator Factory Contract deployed at:', "KT18oMzNd8brk5b92TqeNWZC4EigjF8TnKkv");
             console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
@@ -227,119 +221,119 @@ describe("Testnet setup helper", async () => {
         it('Creation of 5 Satellites', async () => {
             try{
                 // Init var
-                const stakeAmount   = MVK(200000);
+                const stakeAmount   = MVK(2000);
 
                 // Bob Satellite
-                await signerFactory(bob.sk);
-                var updateOperatorsOperation    = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: bob.pkh,
-                            operator: doormanAddress.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperatorsOperation.confirmation();
-                var stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
-                await stakeOperation.confirmation();
-                var registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Mavryk Dynamics", 
-                    "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
-                    "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
-                    "https://mavryk.finance/", 
-                    500,
-                    bob.pk,
-                    bob.peerId
-                ).send();
-                await registerOperation.confirmation();
+                // await signerFactory(bob.sk);
+                // var updateOperatorsOperation    = await mvkTokenInstance.methods
+                //     .update_operators([
+                //     {
+                //         add_operator: {
+                //             owner: bob.pkh,
+                //             operator: doormanAddress.address,
+                //             token_id: 0,
+                //         },
+                //     },
+                //     ])
+                //     .send()
+                // await updateOperatorsOperation.confirmation();
+                // var stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
+                // await stakeOperation.confirmation();
+                // var registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                //     "Mavryk Dynamics", 
+                //     "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
+                //     "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+                //     "https://mavryk.finance/", 
+                //     500,
+                //     bob.pk,
+                //     bob.peerId
+                // ).send();
+                // await registerOperation.confirmation();
 
-                // Eve Satellite
-                await signerFactory(eve.sk);
-                updateOperatorsOperation    = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: eve.pkh,
-                            operator: doormanAddress.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
-                await stakeOperation.confirmation();
-                registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Buzz Lightyear", 
-                    "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger. While Buzz Lightyear's sole mission used to be defeating the evil Emperor Zurg, what he now cares about most is keeping Andy's toy family together. After he feature-film Lightyear starring Chris Evans, Buzz has decided to operate a satellite of the Mavryk Finance network and sign oracle price feeds to further grow and secure the future of financial independence.", 
-                    "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ", 
-                    "https://toystory.disney.com/buzz-lightyear", 
-                    350,
-                    eve.pk,
-                    eve.peerId
-                ).send();
-                await registerOperation.confirmation();
+                // // Eve Satellite
+                // await signerFactory(eve.sk);
+                // updateOperatorsOperation    = await mvkTokenInstance.methods
+                //     .update_operators([
+                //     {
+                //         add_operator: {
+                //             owner: eve.pkh,
+                //             operator: doormanAddress.address,
+                //             token_id: 0,
+                //         },
+                //     },
+                //     ])
+                //     .send()
+                // await updateOperatorsOperation.confirmation();
+                // stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
+                // await stakeOperation.confirmation();
+                // registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                //     "Buzz Lightyear", 
+                //     "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger. While Buzz Lightyear's sole mission used to be defeating the evil Emperor Zurg, what he now cares about most is keeping Andy's toy family together. After he feature-film Lightyear starring Chris Evans, Buzz has decided to operate a satellite of the Mavryk Finance network and sign oracle price feeds to further grow and secure the future of financial independence.", 
+                //     "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ", 
+                //     "https://toystory.disney.com/buzz-lightyear", 
+                //     350,
+                //     eve.pk,
+                //     eve.peerId
+                // ).send();
+                // await registerOperation.confirmation();
 
-                // Mallory Satellite
-                await signerFactory(mallory.sk);
-                updateOperatorsOperation    = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: mallory.pkh,
-                            operator: doormanAddress.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
-                await stakeOperation.confirmation();
-                registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Captain Kirk", 
-                    "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history. The highly decorated Kirk served as the commanding officer of the Constitution-class starships USS Enterprise and USS Enterprise-A, where he served Federation interests as an explorer, soldier, diplomat, and time traveler. He currently spends his time as a Mavryk Satellite and signs Oracle price feeds for the Mavryk Finance network.", 
-                    "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn", 
-                    "https://intl.startrek.com/",
-                    700,
-                    mallory.pk,
-                    mallory.peerId
-                ).send();
-                await registerOperation.confirmation();
+                // // Mallory Satellite
+                // await signerFactory(mallory.sk);
+                // updateOperatorsOperation    = await mvkTokenInstance.methods
+                //     .update_operators([
+                //     {
+                //         add_operator: {
+                //             owner: mallory.pkh,
+                //             operator: doormanAddress.address,
+                //             token_id: 0,
+                //         },
+                //     },
+                //     ])
+                //     .send()
+                // await updateOperatorsOperation.confirmation();
+                // stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
+                // await stakeOperation.confirmation();
+                // registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                //     "Captain Kirk", 
+                //     "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history. The highly decorated Kirk served as the commanding officer of the Constitution-class starships USS Enterprise and USS Enterprise-A, where he served Federation interests as an explorer, soldier, diplomat, and time traveler. He currently spends his time as a Mavryk Satellite and signs Oracle price feeds for the Mavryk Finance network.", 
+                //     "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn", 
+                //     "https://intl.startrek.com/",
+                //     700,
+                //     mallory.pk,
+                //     mallory.peerId
+                // ).send();
+                // await registerOperation.confirmation();
 
-                // Alice Satellite
-                await signerFactory(alice.sk);
-                updateOperatorsOperation    = await mvkTokenInstance.methods
-                    .update_operators([
-                    {
-                        add_operator: {
-                            owner: alice.pkh,
-                            operator: doormanAddress.address,
-                            token_id: 0,
-                        },
-                    },
-                    ])
-                    .send()
-                await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
-                await stakeOperation.confirmation();
-                registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Bender Bending Rodriguez", 
-                    "Bender Bending Rodriguez, the rebellious robot with a heart of gold, has found a new passion in the decentralized finance (DeFi) ecosystem. With his sharp wit and cunning, Bender has become a maverick in the blockchain and crypto space, always on the lookout for the latest trends and opportunities.\n\nNow, Bender uses his unique skills to navigate the DeFi world, taking risks and reaping the rewards. With his sharp mind and quick reflexes, Bender is a force to be reckoned with in the crypto space.\n\nBender frequently shouts \"Bite my shiny metal node!\" but don't be startled, despite his rough exterior, Bender has a soft spot for his fellow robots and Mavryks, he is fiercely loyal to the Mavryk Ecosystem.\n\nIn DeFi, Bender is a true original, pushing the boundaries and exploring new frontiers. With his wit, charm, and unyielding determination, Bender is a force to be reckoned with in the crypto world.", 
-                    "https://cloudflare-ipfs.com/ipfs/QmNyw2PJEovUs9WgWHbZcKzzjxJdWL2qqAfEnZv1WkfGst", 
-                    "https://mavryk.finance/", 
-                    810,
-                    alice.pk,
-                    alice.peerId
-                ).send();
-                await registerOperation.confirmation();
+                // // Alice Satellite
+                // await signerFactory(alice.sk);
+                // updateOperatorsOperation    = await mvkTokenInstance.methods
+                //     .update_operators([
+                //     {
+                //         add_operator: {
+                //             owner: alice.pkh,
+                //             operator: doormanAddress.address,
+                //             token_id: 0,
+                //         },
+                //     },
+                //     ])
+                //     .send()
+                // await updateOperatorsOperation.confirmation();
+                // stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
+                // await stakeOperation.confirmation();
+                // registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                //     "Bender Bending Rodriguez", 
+                //     "Bender Bending Rodriguez, the rebellious robot with a heart of gold, has found a new passion in the decentralized finance (DeFi) ecosystem. With his sharp wit and cunning, Bender has become a maverick in the blockchain and crypto space, always on the lookout for the latest trends and opportunities.\n\nNow, Bender uses his unique skills to navigate the DeFi world, taking risks and reaping the rewards. With his sharp mind and quick reflexes, Bender is a force to be reckoned with in the crypto space.\n\nBender frequently shouts \"Bite my shiny metal node!\" but don't be startled, despite his rough exterior, Bender has a soft spot for his fellow robots and Mavryks, he is fiercely loyal to the Mavryk Ecosystem.\n\nIn DeFi, Bender is a true original, pushing the boundaries and exploring new frontiers. With his wit, charm, and unyielding determination, Bender is a force to be reckoned with in the crypto world.", 
+                //     "https://cloudflare-ipfs.com/ipfs/QmNyw2PJEovUs9WgWHbZcKzzjxJdWL2qqAfEnZv1WkfGst", 
+                //     "https://mavryk.finance/", 
+                //     810,
+                //     alice.pk,
+                //     alice.peerId
+                // ).send();
+                // await registerOperation.confirmation();
 
                 // Oscar Satellite
                 await signerFactory(oscar.sk);
-                updateOperatorsOperation    = await mvkTokenInstance.methods
+                var updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
@@ -351,9 +345,9 @@ describe("Testnet setup helper", async () => {
                     ])
                     .send()
                 await updateOperatorsOperation.confirmation();
-                stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
+                var stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
-                registerOperation           = await delegationInstance.methods.registerAsSatellite(
+                var registerOperation           = await delegationInstance.methods.registerAsSatellite(
                     "R2-D2", 
                     "R2-D2 run's his Mavryk Satellite with unparalleled technical expertise and has a talent for solving complex problems. As an astromech droid, he's uniquely equipped to navigate the challenging terrain of DeFi and identify new opportunities for growth. R2-D2 is a natural leader with a deep sense of loyalty and compassion, always willing to lend a helping hand to his fellow maintainers and platform users. His adaptability and innovative spirit make him an invaluable asset to the DeFi ecosystem, and he's thrilled to be contributing to the future of finance through his work on the platform. In short, R2-D2 is a DeFi pioneer, leading the charge towards a more decentralized and equitable financial future.", 
                     "https://cloudflare-ipfs.com/ipfs/Qmf5UC3iLco9y3CUQpWXmzDdZwDCtZLFS8WL9oe85fKX9k", 
@@ -368,90 +362,90 @@ describe("Testnet setup helper", async () => {
             }
         });
 
-        it('Creation of 3 loan tokens', async () => {
-            try{
+        // it('Creation of 3 loan tokens', async () => {
+        //     try{
 
-                // Get aggregators addresses
-                aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
-                const interestRateDecimals                  = 27;
+        //         // Get aggregators addresses
+        //         aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
+        //         const interestRateDecimals                  = 27;
 
-                // EURL
-                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
-                    "createLoanToken",
+        //         // EURL
+        //         var setLoanTokenOperation = await lendingControllerMockTimeInstance.methods.setLoanToken(
+        //             "createLoanToken",
 
-                    "eurl",
-                    6,
+        //             "eurl",
+        //             6,
 
-                    eurlAggregator,
+        //             eurlAggregator,
 
-                    mTokenEurlAddress.address,
+        //             mTokenEurlAddress.address,
                     
-                    3000,
-                    30 * 10 ** (interestRateDecimals - 2),
-                    5 * 10 ** (interestRateDecimals - 2),
-                    25 * 10 ** (interestRateDecimals - 2),
-                    10 * 10 ** (interestRateDecimals - 2),
-                    20 * 10 ** (interestRateDecimals - 2),
-                    10000,
+        //             3000,
+        //             30 * 10 ** (interestRateDecimals - 2),
+        //             5 * 10 ** (interestRateDecimals - 2),
+        //             25 * 10 ** (interestRateDecimals - 2),
+        //             10 * 10 ** (interestRateDecimals - 2),
+        //             20 * 10 ** (interestRateDecimals - 2),
+        //             10000,
 
-                    "fa2",
-                    "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5",
-                    0
-                ).send();
-                await setLoanTokenOperation.confirmation();
+        //             "fa2",
+        //             "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5",
+        //             0
+        //         ).send();
+        //         await setLoanTokenOperation.confirmation();
 
-                // XTZ
-                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
-                    "createLoanToken",
+        //         // XTZ
+        //         var setLoanTokenOperation = await lendingControllerMockTimeInstance.methods.setLoanToken(
+        //             "createLoanToken",
 
-                    "tez",
-                    6,
+        //             "tez",
+        //             6,
 
-                    xtzAggregator,
+        //             xtzAggregator,
 
-                    mTokenXtzAddress.address,
+        //             mTokenXtzAddress.address,
                     
-                    3000,
-                    30 * 10 ** (interestRateDecimals - 2),
-                    5 * 10 ** (interestRateDecimals - 2),
-                    25 * 10 ** (interestRateDecimals - 2),
-                    10 * 10 ** (interestRateDecimals - 2),
-                    20 * 10 ** (interestRateDecimals - 2),
-                    10000,
+        //             3000,
+        //             30 * 10 ** (interestRateDecimals - 2),
+        //             5 * 10 ** (interestRateDecimals - 2),
+        //             25 * 10 ** (interestRateDecimals - 2),
+        //             10 * 10 ** (interestRateDecimals - 2),
+        //             20 * 10 ** (interestRateDecimals - 2),
+        //             10000,
 
-                    "tez",
-                ).send();
-                await setLoanTokenOperation.confirmation();
+        //             "tez",
+        //         ).send();
+        //         await setLoanTokenOperation.confirmation();
 
-                // USDT
-                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
-                    "createLoanToken",
+        //         // USDT
+        //         var setLoanTokenOperation = await lendingControllerMockTimeInstance.methods.setLoanToken(
+        //             "createLoanToken",
 
-                    "usdt",
-                    6,
+        //             "usdt",
+        //             6,
 
-                    usdtAggregator,
+        //             usdtAggregator,
 
-                    mTokenUsdtAddress.address,
+        //             mTokenUsdtAddress.address,
                     
-                    3000,
-                    30 * 10 ** (interestRateDecimals - 2),
-                    5 * 10 ** (interestRateDecimals - 2),
-                    25 * 10 ** (interestRateDecimals - 2),
-                    10 * 10 ** (interestRateDecimals - 2),
-                    20 * 10 ** (interestRateDecimals - 2),
-                    10000,
+        //             3000,
+        //             30 * 10 ** (interestRateDecimals - 2),
+        //             5 * 10 ** (interestRateDecimals - 2),
+        //             25 * 10 ** (interestRateDecimals - 2),
+        //             10 * 10 ** (interestRateDecimals - 2),
+        //             20 * 10 ** (interestRateDecimals - 2),
+        //             10000,
 
-                    "fa2",
-                    "KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm",
-                    0
-                ).send();
-                await setLoanTokenOperation.confirmation();
+        //             "fa2",
+        //             "KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm",
+        //             0
+        //         ).send();
+        //         await setLoanTokenOperation.confirmation();
 
-            } catch(e) {
-                console.dir(e, {depth: 5});
-            }
-        });
+        //     } catch(e) {
+        //         console.dir(e, {depth: 5});
+        //     }
+        // });
 
         it('Creation of 4 collateral tokens', async () => {
             try{
@@ -460,50 +454,50 @@ describe("Testnet setup helper", async () => {
                 aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
 
                 // Eurl
-                var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+                // var setCollateralTokenOperation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
+                //     "createCollateralToken",
 
-                    "eurl",
-                    'KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5',
-                    6,
+                //     "eurl",
+                //     'KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5',
+                //     6,
 
-                    eurlAggregator,
-                    false,
-                    false,
-                    false,
-                    null,
-                    null, // Max deposit amount
+                //     eurlAggregator,
+                //     false,
+                //     false,
+                //     false,
+                //     null,
+                //     null, // Max deposit amount
 
-                    // fa12 token type - token contract address
-                    "fa2",
-                    "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5",
-                    0
+                //     // fa12 token type - token contract address
+                //     "fa2",
+                //     "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5",
+                //     0
 
-                ).send();
-                await setCollateralTokenOperation.confirmation();
+                // ).send();
+                // await setCollateralTokenOperation.confirmation();
 
-                // XTZ
-                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+                // // XTZ
+                // setCollateralTokenOperation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
+                //     "createCollateralToken",
 
-                    "tez",
-                    'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg',
-                    6,
+                //     "tez",
+                //     'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg',
+                //     6,
 
-                    xtzAggregator,
-                    false,
-                    false,
-                    false,
-                    null,
-                    null, // Max deposit amount
+                //     xtzAggregator,
+                //     false,
+                //     false,
+                //     false,
+                //     null,
+                //     null, // Max deposit amount
 
-                    "tez"
+                //     "tez"
 
-                ).send();
-                await setCollateralTokenOperation.confirmation();
+                // ).send();
+                // await setCollateralTokenOperation.confirmation();
                 
                 // tzbtc
-                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                var setCollateralTokenOperation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
                     "tzbtc",
@@ -523,7 +517,7 @@ describe("Testnet setup helper", async () => {
                 await setCollateralTokenOperation.confirmation();
                 
                 // usdt
-                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                setCollateralTokenOperation = await lendingControllerMockTimeInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
                     "usdt",
@@ -684,11 +678,11 @@ describe("Testnet setup helper", async () => {
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("meurl", mTokenEurlAddress.address))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("mxtz", mTokenXtzAddress.address))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("musdt", mTokenUsdtAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactoryAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", delegationAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", doormanAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governance", governanceAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governanceFinancial", governanceFinancialAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactoryInstance.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", delegationInstance.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", doormanInstance.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governance", governanceInstance.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governanceFinancial", governanceFinancialInstance.address))
     
                     const treasuryBatchOperation = await treasuryBatch.send()
                     await treasuryBatchOperation.confirmation();
