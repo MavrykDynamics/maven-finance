@@ -10,3 +10,10 @@
 3. Break Glass Contract
 - rename views to be consistent with Council Contract
 - getActionOpt to getCouncilActionOpt, and getActionSignerOpt to getCouncilActionSignerOpt
+
+Changes for Receiver Address in Requesting Tokens and Mint from Council to Governance Financial
+4. Governance Financial Contract
+- add receiverAddress in financialRequestRecordType
+
+5. Council Contract
+- add receiverAddress to councilActionRequestTokensType and councilActionRequestMintType

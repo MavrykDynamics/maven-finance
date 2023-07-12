@@ -267,8 +267,7 @@ describe("Test: Governance Financial Contract", async () => {
 
     describe("Financial Governance Entrypoints", async () => {
 
-        beforeEach("Set signer to council member (eve)", async () => {
-            
+        beforeEach("Set signer to council member (eve)", async () => {            
             councilMember   = councilMemberOne;
             councilStorage  = await councilInstance.storage();
             await signerFactory(tezos, councilMemberOneSk)
@@ -286,16 +285,18 @@ describe("Test: Governance Financial Contract", async () => {
                 // request tokens params
                 const tokenAmount                   = 5000000; // 5 Mavryk FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
+                const receiverAddress               = councilAddress;
                 let tokenContractAddress            = mavrykFa12TokenInstance.address; 
                 const tokenName                     = "MAVRYKFA12";
                 const tokenType                     = "FA12";
                 const tokenId                       = 0;
-                let purpose                         = "Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
+                let purpose                         = "Should Fail: Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
 
                 // satellite tries to create a financial request for tokens
                 await signerFactory(tezos, satelliteOneSk)
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestTokens(
                     treasury, 
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName, 
                     tokenAmount, 
@@ -347,17 +348,19 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
-                const tokenAmount                   = 5000000; // 5 Mavryk FA12 Tokens
-                const treasury                      = contractDeployments.treasury.address;
-                const mavrykFa12TokenContractAddress  = mavrykFa12TokenInstance.address; 
-                const tokenName                     = "MAVRYKFA12";
-                const tokenType                     = "FA12";
-                const tokenId                       = 0;
-                const purpose                       = "Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
+                const tokenAmount                       = 5000000; // 5 Mavryk FA12 Tokens
+                const treasury                          = contractDeployments.treasury.address;
+                const receiverAddress                   = councilAddress;
+                const mavrykFa12TokenContractAddress    = mavrykFa12TokenInstance.address; 
+                const tokenName                         = "MAVRYKFA12";
+                const tokenType                         = "FA12";
+                const tokenId                           = 0;
+                const purpose                           = "Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
 
                 // Council member (eve) requests for mavryk FA12 token to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
+                        receiverAddress,
                         mavrykFa12TokenContractAddress,
                         tokenName, 
                         tokenAmount, 
@@ -376,6 +379,7 @@ describe("Test: Governance Financial Contract", async () => {
                 })
                 const dataMap                       = councilActionRequestTokens.dataMap
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavrykFa12TokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -391,6 +395,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,                  undefined);
                 
                 assert.equal(dataMap.get("treasuryAddress"),                packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),                packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),           packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),                    packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                        packedTokenId);
@@ -431,6 +436,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           mavrykFa12TokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      tokenName);
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);
@@ -532,6 +538,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // request tokens params
                 const tokenAmount                   = 5000000; // 5 Mavryk FA2 Tokens
                 const treasury                      = contractDeployments.treasury.address;
+                const receiverAddress               = councilAddress;
                 const mavrykFa2TokenContractAddress = mavrykFa2TokenInstance.address; 
                 const tokenName                     = "MAVRYKFA2";
                 const tokenType                     = "FA2";
@@ -541,6 +548,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // Council member (eve) requests for mavryk FA2 token to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
+                        receiverAddress,
                         mavrykFa2TokenContractAddress,
                         tokenName, 
                         tokenAmount, 
@@ -559,6 +567,7 @@ describe("Test: Governance Financial Contract", async () => {
                 })
                 const dataMap                       = councilActionRequestTokens.dataMap
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavrykFa2TokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -574,6 +583,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,                  undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),                packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),                packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),           packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),                    packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                        packedTokenId);
@@ -614,6 +624,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           mavrykFa2TokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      tokenName);
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);
@@ -715,6 +726,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const tokenAmount                   = 5000000; // 5 XTZ
                 const zeroAddress                   = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
                 const treasury                      = contractDeployments.treasury.address;
+                const receiverAddress               = councilAddress;
                 const tokenContractAddress          = zeroAddress;
                 const tokenName                     = "XTZ";
                 const tokenType                     = "TEZ";
@@ -724,6 +736,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // Council member (eve) requests for MVK to be minted
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
+                        receiverAddress,
                         tokenContractAddress,
                         tokenName, 
                         tokenAmount, 
@@ -742,6 +755,7 @@ describe("Test: Governance Financial Contract", async () => {
                 })
                 const dataMap                       = councilActionRequestTokens.dataMap
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: zeroAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -757,6 +771,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,                  undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),                packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),                packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),           packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),                    packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                        packedTokenId);
@@ -797,6 +812,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      tokenName);
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);
@@ -870,13 +886,15 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenAmount           = MVK(100);
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const purpose               = "Should Fail: Test Council Request Mint 100 MVK";            
 
                 // satellite tries to create a financial request for minting MVK
                 await signerFactory(tezos, satelliteOneSk)
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestMint(
                     treasury, 
+                    receiverAddress,
                     tokenAmount,
                     purpose
                 );
@@ -927,6 +945,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = contractDeployments.mvkToken.address; 
                 const tokenAmount           = MVK(100); // 100 MVK
                 const purpose               = "Test Council Request Mint 100 MVK";            
@@ -934,6 +953,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // Council member (eve) requests for MVK to be minted and transferred from the Treasury
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        receiverAddress,
                         tokenAmount,
                         purpose
                     ).send();
@@ -948,6 +968,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                   = councilActionRequestMint.dataMap
                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress     = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
@@ -959,6 +980,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,             undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),            packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),            packedReceiverAddress);
                 assert.equal(dataMap.get("tokenAmount"),                packedTokenAmount);
                 assert.equal(dataMap.get("purpose"),                    packedPurpose);
                 
@@ -994,6 +1016,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
@@ -1095,6 +1118,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const mvkMaximumSupply      = mvkTokenStorage.maximumSupply.toNumber();
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = contractDeployments.mvkToken.address; 
                 const tokenAmount           = mvkMaximumSupply;
                 const purpose               = "Test Council Request Mint MVK Max Supply";            
@@ -1102,6 +1126,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // Council member (eve) requests for MVK to be minted and transferred from the Treasury
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        receiverAddress,
                         tokenAmount,
                         purpose
                     ).send();
@@ -1116,6 +1141,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                   = councilActionRequestMint.dataMap
                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress     = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
@@ -1127,6 +1153,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,             undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),            packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),            packedReceiverAddress);
                 assert.equal(dataMap.get("tokenAmount"),                packedTokenAmount);
                 assert.equal(dataMap.get("purpose"),                    packedPurpose);
                 
@@ -1162,6 +1189,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
@@ -1287,7 +1315,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // params
                 const targetContractAddress    = treasuryAddress;
-                const contractBaker             = baker.pkh;
+                const contractBaker            = baker.pkh;
 
                 // Council member (eve) requests to set contract baker for the treasury address
                 councilActionOperation = await councilInstance.methods.councilActionSetContractBaker(
@@ -1328,8 +1356,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const councilActionRequestMintSigned    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const councilActionSetContractBakerSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
+                const governanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -1337,9 +1365,11 @@ describe("Test: Governance Financial Contract", async () => {
                 const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
-                assert.equal(councilActionRequestMintSigned.signersCount,  3);
-                assert.equal(councilActionRequestMintSigned.executed,      true);
-                assert.equal(councilActionRequestMintSigned.status,        "EXECUTED");
+                assert.equal(councilActionSetContractBakerSigned.signersCount,  3);
+                assert.equal(councilActionSetContractBakerSigned.executed,      true);
+                assert.equal(councilActionSetContractBakerSigned.status,        "EXECUTED");
+
+                const zeroAddress = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequest.requesterAddress,               councilAddress);
@@ -1347,6 +1377,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasuryAddress);
+                assert.equal(governanceFinancialRequest.receiverAddress,                zeroAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "NIL");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    0);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "NIL");
@@ -1481,8 +1512,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const councilActionRequestMintSigned    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const councilActionSetContractBakerSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
+                const governanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -1490,9 +1521,11 @@ describe("Test: Governance Financial Contract", async () => {
                 const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
-                assert.equal(councilActionRequestMintSigned.signersCount,  3);
-                assert.equal(councilActionRequestMintSigned.executed,      true);
-                assert.equal(councilActionRequestMintSigned.status,        "EXECUTED");
+                assert.equal(councilActionSetContractBakerSigned.signersCount,  3);
+                assert.equal(councilActionSetContractBakerSigned.executed,      true);
+                assert.equal(councilActionSetContractBakerSigned.status,        "EXECUTED");
+
+                const zeroAddress = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequest.requesterAddress,               councilAddress);
@@ -1500,6 +1533,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasuryAddress);
+                assert.equal(governanceFinancialRequest.receiverAddress,                zeroAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "NIL");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    0);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "NIL");
@@ -1597,6 +1631,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // request tokens params
                 const tokenAmount              = MVK(10); // 10 MVK
                 const treasury                 = contractDeployments.treasury.address;
+                const receiverAddress          = councilAddress;
                 const tokenContractAddress     = contractDeployments.mvkToken.address; 
                 const tokenName                = "MVK";
                 const tokenType                = "FA2";
@@ -1606,6 +1641,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // Council member (eve) requests for MVK to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
+                        receiverAddress,
                         tokenContractAddress,
                         tokenName, 
                         tokenAmount, 
@@ -1624,6 +1660,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                       = councilActionRequestTokens.dataMap
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -1639,6 +1676,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,                  undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),                packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),                packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),           packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),                    packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                        packedTokenId);
@@ -1742,6 +1780,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury                  = contractDeployments.treasury.address;
+                const receiverAddress           = councilAddress;
                 const tokenContractAddress      = contractDeployments.mvkToken.address; 
                 const tokenAmount               = MVK(100); // 100 MVK
                 const purpose                   = "Test Council Request Mint 100 MVK";            
@@ -1750,6 +1789,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                     treasury, 
+                    receiverAddress,
                     tokenAmount,
                     purpose
                 ).send();
@@ -1764,6 +1804,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                   = councilActionRequestMint.dataMap
                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress     = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
@@ -1775,6 +1816,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,              undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),             packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),             packedReceiverAddress);
                 assert.equal(dataMap.get("tokenAmount"),                 packedTokenAmount);
                 assert.equal(dataMap.get("purpose"),                     packedPurpose);
 
@@ -1810,6 +1852,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
@@ -1912,6 +1955,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = contractDeployments.mvkToken.address; 
                 const tokenAmount           = MVK(100); // 100 MVK
                 const purpose               = "Test Council Request Mint 100 MVK";            
@@ -1920,6 +1964,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        receiverAddress,
                         tokenAmount,
                         purpose
                     ).send();
@@ -1934,6 +1979,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                   = councilActionRequestMint.dataMap
                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress     = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
@@ -1945,6 +1991,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,             undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),            packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),            packedReceiverAddress);
                 assert.equal(dataMap.get("tokenAmount"),                packedTokenAmount);
                 assert.equal(dataMap.get("purpose"),                    packedPurpose);
 
@@ -1980,6 +2027,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
@@ -2072,6 +2120,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = contractDeployments.mvkToken.address; 
                 const tokenAmount           = MVK(100); // 100 MVK
                 const purpose               = "Test Council Request Mint 100 MVK";            
@@ -2080,6 +2129,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        receiverAddress,
                         tokenAmount,
                         purpose
                     ).send();
@@ -2094,6 +2144,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                   = councilActionRequestMint.dataMap
                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress     = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
@@ -2105,6 +2156,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,             undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),            packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),            packedReceiverAddress);
                 assert.equal(dataMap.get("tokenAmount"),                packedTokenAmount);
                 assert.equal(dataMap.get("purpose"),                    packedPurpose);
 
@@ -2140,6 +2192,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
@@ -2188,6 +2241,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenName             = "MVK";
                 const tokenType             = "FA2";
@@ -2199,6 +2253,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // council operation
                 councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
@@ -2218,6 +2273,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -2232,6 +2288,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,          undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),        packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),        packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),   packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),            packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                packedTokenId);
@@ -2298,6 +2355,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenName             = "MVK";
                 const tokenType             = "FA2";
@@ -2309,6 +2367,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // council operation
                 councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
@@ -2328,6 +2387,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -2342,6 +2402,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,          undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),        packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),        packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),   packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),            packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                packedTokenId);
@@ -2455,6 +2516,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = contractDeployments.mvkToken.address; 
                 const tokenAmount           = MVK(100); // 100 MVK
                 const purpose               = "Test Council Request Mint 100 MVK";            
@@ -2463,6 +2525,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        receiverAddress,
                         tokenAmount,
                         purpose
                     ).send();
@@ -2477,6 +2540,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                   = councilActionRequestMint.dataMap
                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress     = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
@@ -2488,6 +2552,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,              undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),             packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),             packedReceiverAddress);
                 assert.equal(dataMap.get("tokenAmount"),                 packedTokenAmount);
                 assert.equal(dataMap.get("purpose"),                     packedPurpose);
 
@@ -2642,6 +2707,7 @@ describe("Test: Governance Financial Contract", async () => {
                 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = contractDeployments.mvkToken.address; 
                 const tokenAmount           = MVK(100); // 100 MVK
                 const purpose               = "Test Council Request Mint 100 MVK";            
@@ -2650,6 +2716,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        receiverAddress,
                         tokenAmount,
                         purpose
                     ).send();
@@ -2664,6 +2731,7 @@ describe("Test: Governance Financial Contract", async () => {
                 });
                 const dataMap                   = councilActionRequestMint.dataMap
                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress     = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
@@ -2675,6 +2743,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,             undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),            packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),            packedReceiverAddress);
                 assert.equal(dataMap.get("tokenAmount"),                packedTokenAmount);
                 assert.equal(dataMap.get("purpose"),                    packedPurpose);
 
@@ -2710,6 +2779,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.status,                         true);
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
+                assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
@@ -3102,6 +3172,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // request tokens params
                 const tokenAmount                   = 10000000; // 10 Mavryk FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
+                const receiverAddress               = councilAddress;
                 let tokenContractAddress            = mavrykFa12TokenInstance.address; 
                 const tokenName                     = "MAVRYKFA12";
                 const tokenType                     = "FA12";
@@ -3111,6 +3182,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // admin tries to create a financial request for tokens
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestTokens(
                     treasury, 
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName, 
                     tokenAmount, 
@@ -3130,12 +3202,14 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenAmount           = MVK(100);
                 const purpose               = "Test Council Request Mint 100 MVK";            
 
                 // admin tries to create a financial request for minting MVK
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestMint(
                     treasury, 
+                    receiverAddress,
                     tokenAmount,
                     purpose
                 );
@@ -3181,6 +3255,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenName             = "MVK";
                 const tokenType             = "FA2";
@@ -3192,6 +3267,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
@@ -3211,6 +3287,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -3225,6 +3302,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,          undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),        packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),        packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),   packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),            packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                packedTokenId);
@@ -3286,6 +3364,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenName             = "MVK";
                 const tokenType             = "FA2";
@@ -3297,6 +3376,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
@@ -3316,6 +3396,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -3330,6 +3411,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,          undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),        packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),        packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),   packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),            packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                packedTokenId);
@@ -3385,7 +3467,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // random lambda for testing
                 const lambdaName            = "lambdaSetGovernance";
-                const initialLambdaBytes    = governanceFinancialStorage.lambdaLedger.get(lambdaName);
+                const initialLambdaBytes    = await governanceFinancialStorage.lambdaLedger.get(lambdaName);
                 const randomLambdaBytes     = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
 
                 // set lambda operation
@@ -3407,7 +3489,7 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage = await governanceFinancialInstance.storage();
 
                 // check that lambda is reset
-                const updatedLambda = governanceFinancialStorage.lambdaLedger.get(lambdaName);
+                const updatedLambda = await governanceFinancialStorage.lambdaLedger.get(lambdaName);
                 assert.equal(updatedLambda, initialLambdaBytes);
 
             } catch(e) {
@@ -3620,6 +3702,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // request tokens params
                 const tokenAmount                   = 10000000; // 10 Mavryk FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
+                const receiverAddress               = councilAddress;
                 let tokenContractAddress            = mavrykFa12TokenInstance.address; 
                 const tokenName                     = "MAVRYKFA12";
                 const tokenType                     = "FA12";
@@ -3629,6 +3712,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // user (mallory) tries to create a financial request for tokens
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestTokens(
                     treasury, 
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName, 
                     tokenAmount, 
@@ -3648,12 +3732,14 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
+                const receiverAddress       = councilAddress;
                 const tokenAmount           = MVK(100);
                 const purpose               = "Test Council Request Mint 100 MVK";            
 
                 // user (mallory) tries to create a financial request for minting MVK
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestMint(
                     treasury, 
+                    receiverAddress,
                     tokenAmount,
                     purpose
                 );
@@ -3699,6 +3785,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenName             = "MVK";
                 const tokenType             = "FA2";
@@ -3710,6 +3797,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
@@ -3729,6 +3817,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -3743,6 +3832,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,          undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),        packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),        packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),   packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),            packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                packedTokenId);
@@ -3804,6 +3894,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
+                const receiverAddress       = councilAddress;
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenName             = "MVK";
                 const tokenType             = "FA2";
@@ -3815,6 +3906,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await councilInstance.methods.councilActionRequestTokens(
                     fromTreasury,
+                    receiverAddress,
                     tokenContractAddress,
                     tokenName,
                     tokenAmount,
@@ -3834,6 +3926,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
+                const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
@@ -3848,6 +3941,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.notStrictEqual(councilActionSigner,          undefined);
 
                 assert.equal(dataMap.get("treasuryAddress"),        packedTreasuryAddress);
+                assert.equal(dataMap.get("receiverAddress"),        packedReceiverAddress);
                 assert.equal(dataMap.get("tokenContractAddress"),   packedTokenContractAddress);
                 assert.equal(dataMap.get("tokenAmount"),            packedTokenAmount);
                 assert.equal(dataMap.get("tokenId"),                packedTokenId);
