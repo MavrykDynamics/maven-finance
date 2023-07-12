@@ -12,8 +12,8 @@ async def on_governance_drop_proposal(
 
     try:
         # Get operation values
-        governance_address  = drop_proposal.data.target_address
         proposal_id         = int(drop_proposal.parameter.__root__)
+        timestamp           = drop_proposal.data.timestamp
     
         # Update record
         governance  = await models.Governance.get(
@@ -23,7 +23,8 @@ async def on_governance_drop_proposal(
             governance  = governance,
             internal_id = proposal_id
         ).update(
-            status      = models.GovernanceActionStatus.DROPPED
+            status              = models.GovernanceActionStatus.DROPPED,
+            dropped_datetime    = timestamp
         )
 
     except BaseException as e:

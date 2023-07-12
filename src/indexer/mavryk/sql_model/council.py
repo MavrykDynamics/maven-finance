@@ -58,6 +58,7 @@ class CouncilAction(Model):
     execution_datetime                      = fields.DatetimeField(index=True)
     execution_level                         = fields.BigIntField(default=0, index=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
+    flushed_datetime                        = fields.DatetimeField(index=True, null=True)
     action_type                             = fields.CharField(max_length=48)
     status                                  = fields.IntEnumField(enum_type=ActionStatus, index=True)
     executed                                = fields.BooleanField(default=False, index=True)

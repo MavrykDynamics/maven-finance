@@ -18,8 +18,10 @@ async def on_governance_satellite_drop_action(
         action_id                       = int(drop_action.parameter.__root__)
         status                          = action_storage.status
         status_type                     = models.GovernanceActionStatus.ACTIVE
+        status_timestamp                = None
         if not status:
-            status_type = models.GovernanceActionStatus.DROPPED
+            status_type         = models.GovernanceActionStatus.DROPPED
+            status_timestamp    = drop_action.data.timestamp
     
         # Create or update record
         governance_satellite            = await models.GovernanceSatellite.get(network=ctx.datasource.network, address= governance_satellite_address)
@@ -27,7 +29,8 @@ async def on_governance_satellite_drop_action(
             internal_id             = action_id,
             governance_satellite    = governance_satellite
         ).update(
-            status    = status_type
+            status              = status_type,
+            dropped_datetime    = status_timestamp
         )
 
     except BaseException as e:
