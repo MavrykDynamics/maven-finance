@@ -9,6 +9,9 @@
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
+// Constants
+#include "../partials/shared/constants.ligo"
+
 // Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
