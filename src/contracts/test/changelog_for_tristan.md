@@ -10,3 +10,9 @@
 3. Break Glass Contract
 - rename views to be consistent with Council Contract
 - getActionOpt to getCouncilActionOpt, and getActionSignerOpt to getCouncilActionSignerOpt
+
+
+Lending Controller (and mock time) changelog
+- both: remove storage: whitelistContracts, generalContracts, and whitelistTokenContracts
+- both: remove entrypoint updateWhitelistTokenContracts 
+- both: remove tempMap
