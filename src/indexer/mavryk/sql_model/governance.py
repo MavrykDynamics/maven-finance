@@ -101,6 +101,7 @@ class GovernanceProposal(Model):
     start_datetime                          = fields.DatetimeField(index=True)
     execution_datetime                      = fields.DatetimeField(index=True)
     dropped_datetime                        = fields.DatetimeField(index=True, null=True)
+    defeated_datetime                       = fields.DatetimeField(index=True, null=True)
     cycle                                   = fields.BigIntField(default=0, index=True)
     current_cycle_start_level               = fields.BigIntField(default=0, index=True)
     current_cycle_end_level                 = fields.BigIntField(default=0, index=True)
