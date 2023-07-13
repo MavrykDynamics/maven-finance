@@ -3,7 +3,6 @@
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateConfig",
-    "lambdaUpdateWhitelistTokenContracts",
 
     "lambdaPauseAll",
     "lambdaUnpauseAll",
@@ -31,7 +30,6 @@
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateConfig",
-    "lambdaUpdateWhitelistTokenContracts",
 
     "lambdaPauseAll",
     "lambdaUnpauseAll",

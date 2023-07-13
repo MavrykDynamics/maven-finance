@@ -209,9 +209,9 @@ block{
 
 
 
-(* get: general contracts opt *)
-[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
-    Big_map.find_opt(contractName, store.generalContracts)
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const store : mvkTokenStorageType) : address is
+    store.governanceAddress
 
 
 
@@ -221,15 +221,9 @@ block{
 
 
 
-(* get: inflation rate *)
-[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
-    store.inflationRate
-
-
-
-(* get: next inflation timestamp *)
-[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
-    store.nextInflationTimestamp
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
+    Big_map.find_opt(contractName, store.generalContracts)
 
 
 
@@ -239,11 +233,6 @@ block{
 
 
 
-(* maximumSupply View *)
-[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
-    store.maximumSupply
-
-
 
 (* get: balance View *)
 [@view] function get_balance(const userAndId : ownerType * nat; const store : mvkTokenStorageType) : tokenBalanceType is
@@ -251,12 +240,6 @@ block{
             Some (_v) -> _v
         |   None      -> 0n
     ]
-
-
-
-(* total_supply View *)
-[@view] function total_supply(const _tokenId : nat; const _store : mvkTokenStorageType) : tokenBalanceType is
-    _store.totalSupply
 
 
 
@@ -281,6 +264,30 @@ block{
                 token_info  = map[]
             ]
     ]
+
+
+
+(* maximumSupply View *)
+[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
+    store.maximumSupply
+
+    
+
+(* total_supply View *)
+[@view] function total_supply(const _tokenId : nat; const _store : mvkTokenStorageType) : tokenBalanceType is
+    _store.totalSupply
+
+
+
+(* get: inflation rate *)
+[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
+    store.inflationRate
+
+
+
+(* get: next inflation timestamp *)
+[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
+    store.nextInflationTimestamp
 
 // ------------------------------------------------------------------------------
 //

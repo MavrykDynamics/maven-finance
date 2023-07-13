@@ -395,9 +395,7 @@ type lendingControllerLambdaActionType is
         // Housekeeping Entrypoints
     |   LambdaSetAdmin                        of (address)
     |   LambdaSetGovernance                   of (address)
-    |   LambdaUpdateMetadata                  of updateMetadataType
     |   LambdaUpdateConfig                    of lendingControllerUpdateConfigParamsType
-    |   LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
 
         // Pause / Break Glass Lambdas
     |   LambdaPauseAll                        of (unit)
@@ -442,10 +440,6 @@ type lendingControllerStorageType is [@layout:comb] record [
     mvkTokenAddress             : address;
     governanceAddress           : address;
     
-    whitelistContracts          : whitelistContractsType;       // can be used for vaults whitelist contracts as well
-    generalContracts            : generalContractsType;
-    whitelistTokenContracts     : whitelistTokenContractsType;      
-
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
     ownerLedger                 : ownerLedgerType;              // for some convenience in checking vaults owned by user
@@ -456,8 +450,5 @@ type lendingControllerStorageType is [@layout:comb] record [
 
     // lambdas
     lambdaLedger                : lambdaLedgerType;
-
-    // temp
-    tempMap                     : map(string, nat);
 
 ]
