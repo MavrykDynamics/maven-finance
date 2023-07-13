@@ -10,6 +10,12 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerConfigType is
     s.config
@@ -19,24 +25,6 @@
 (* View: get break glass config *)
 [@view] function getBreakGlassConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerBreakGlassConfigType is
     s.breakGlassConfig
-
-
-
-(* View: get Governance address *)
-[@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
-    s.governanceAddress
-
-
-
-(* View: get whitelist contracts opt *)
-[@view] function getWhitelistContractOpt(const contractAddress : address; const s : lendingControllerStorageType) : option(unit) is 
-    Big_map.find_opt(contractAddress, s.whitelistContracts)
-
-
-
-(* get: general contracts opt *)
-[@view] function getGeneralContractOpt(const contractName : string; const s : lendingControllerStorageType) : option(address) is
-    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
