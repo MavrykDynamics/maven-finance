@@ -19,6 +19,7 @@ type financialRequestRecordType is [@layout:comb] record [
     executed                            : bool;     // false on creation; set to true when financial request is executed successfully
     
     treasuryAddress                     : address;
+    receiverAddress                     : address;
     tokenContractAddress                : address; 
     tokenAmount                         : nat;
     tokenName                           : string; 
