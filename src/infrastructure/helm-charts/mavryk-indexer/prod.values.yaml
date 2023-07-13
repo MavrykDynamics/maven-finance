@@ -65,7 +65,7 @@ instances:
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.23.0
+        tag: v2.29.1
       hpa:
         enabled: false
       resources:
@@ -176,7 +176,7 @@ instances:
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.23.0
+        tag: v2.29.1
       hpa:
         enabled: true
       resources:
@@ -287,7 +287,7 @@ instances:
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.23.0
+        tag: v2.29.1
       hpa:
         enabled: true
       resources:
@@ -398,7 +398,7 @@ instances:
       image:
         registry: docker.io
         repository: hasura/graphql-engine
-        tag: v2.23.0
+        tag: v2.29.1
       hpa:
         enabled: true
       resources:
