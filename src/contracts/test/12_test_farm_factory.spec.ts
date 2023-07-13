@@ -17,7 +17,7 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve } from "../scripts/sandbox/accounts";
+import { bob, eve } from "../scripts/sandbox/accounts";
 import { mockMetadata } from "./helpers/mockSampleData"
 import { 
     fa2Transfer,
@@ -225,7 +225,7 @@ describe("FarmFactory", async () => {
 
                 // Initial values
                 const currentConfigVariable     = farmFactoryStorage.config.farmNameMaxLength;
-                const newConfigVariable         = 10;
+                const newConfigVariable         = currentConfigVariable == 10 ? 20 : 10;
 
                 // Operation
                 const operation = await farmFactoryInstance.methods.updateConfig(newConfigVariable, "configFarmNameMaxLength").send();
@@ -647,9 +647,9 @@ describe("FarmFactory", async () => {
             try{
                 
                 // Initial Values
-                farmFactoryStorage       = await farmFactoryInstance.storage();
-                const initialConfigValue = farmFactoryStorage.config.farmNameMaxLength;
-                const newConfigValue     = 20;
+                farmFactoryStorage          = await farmFactoryInstance.storage();
+                const initialConfigValue    = farmFactoryStorage.config.farmNameMaxLength;
+                const newConfigValue        = initialConfigValue == 10 ? 20 : 10;
 
                 // Operation
                 const updateConfigOperation = await farmFactoryInstance.methods.updateConfig(newConfigValue, "configFarmNameMaxLength");
