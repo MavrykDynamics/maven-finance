@@ -227,13 +227,6 @@ block{
 
 
 
-(* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const store : mvkTokenStorageType) : option(unit) is
-    Big_map.find_opt(operator, store.operators)
-
-
-
-
 (* get: balance View *)
 [@view] function get_balance(const userAndId : ownerType * nat; const store : mvkTokenStorageType) : tokenBalanceType is
     case Big_map.find_opt(userAndId.0, store.ledger) of [
@@ -259,23 +252,20 @@ block{
 [@view] function token_metadata(const tokenId : nat; const store : mvkTokenStorageType) : tokenMetadataInfoType is
     case Big_map.find_opt(tokenId, store.token_metadata) of [
             Some (_metadata)  -> _metadata
-        |   None -> record[
-                token_id    = tokenId;
-                token_info  = map[]
-            ]
+        |   None              -> (None : option(tokenMetadataInfoType))
     ]
+
+    
+
+(* total_supply View *)
+[@view] function total_supply(const _tokenId : nat; const store : mvkTokenStorageType) : tokenBalanceType is
+    store.totalSupply
 
 
 
 (* maximumSupply View *)
 [@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
     store.maximumSupply
-
-    
-
-(* total_supply View *)
-[@view] function total_supply(const _tokenId : nat; const _store : mvkTokenStorageType) : tokenBalanceType is
-    _store.totalSupply
 
 
 
