@@ -214,10 +214,7 @@ block{
 [@view] function token_metadata(const tokenId : nat; const store : mavrykFa2TokenStorageType) : tokenMetadataInfoType is
     case Big_map.find_opt(tokenId, store.token_metadata) of [
             Some (_metadata)  -> _metadata
-        |   None -> record[
-                token_id    = tokenId;
-                token_info  = map[]
-            ]
+        |   None              -> (None : option(tokenMetadataInfoType))
     ]
 
 // ------------------------------------------------------------------------------
