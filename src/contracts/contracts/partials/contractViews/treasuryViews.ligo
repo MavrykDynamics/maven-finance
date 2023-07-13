@@ -10,6 +10,12 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : treasuryStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: get name variable *)
 [@view] function getName(const _ : unit; const s : treasuryStorageType) : string is
     s.name
@@ -28,15 +34,15 @@
 
 
 
-(* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContractOpt(const contractAddress : address; const s : treasuryStorageType) : option(unit) is
-    Big_map.find_opt(contractAddress, s.whitelistTokenContracts)
-
-
-
 (* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : treasuryStorageType) : option(address) is
     Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: get whitelist token contracts *)
+[@view] function getWhitelistTokenContractOpt(const contractAddress : address; const s : treasuryStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, s.whitelistTokenContracts)
 
 
 
