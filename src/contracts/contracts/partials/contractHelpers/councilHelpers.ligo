@@ -472,7 +472,7 @@ block {
 
 
 // helper function for requestTokens
-function requestTokensOperation(const treasuryAddress : address; const tokenContractAddress : address; const tokenName : string; const tokenAmount : nat; const tokenType : string; const tokenId : nat; const purpose : string; const s : councilStorageType) : operation is 
+function requestTokensOperation(const treasuryAddress : address; const receiverAddress : address; const tokenContractAddress : address; const tokenName : string; const tokenAmount : nat; const tokenType : string; const tokenId : nat; const purpose : string; const s : councilStorageType) : operation is 
 block {
 
     // Get Governance Financial Address from the General Contracts Map on the Governance Contract
@@ -484,6 +484,7 @@ block {
 
     const requestTokensParams : councilActionRequestTokensType = record[
         treasuryAddress       = treasuryAddress;
+        receiverAddress       = receiverAddress;
         tokenContractAddress  = tokenContractAddress;
         tokenName             = tokenName;
         tokenAmount           = tokenAmount;
@@ -503,7 +504,7 @@ block {
 
 
 // helper function for requestMint
-function requestMintOperation(const treasuryAddress : address; const tokenAmount : nat; const purpose : string; const s : councilStorageType) : operation is 
+function requestMintOperation(const treasuryAddress : address; const receiverAddress : address; const tokenAmount : nat; const purpose : string; const s : councilStorageType) : operation is 
 block {
 
     // Get Governance Financial Address from the General Contracts Map on the Governance Contract
@@ -513,8 +514,9 @@ block {
     validateStringLength(purpose, s.config.requestPurposeMaxLength, error_WRONG_INPUT_PROVIDED);
 
     const requestMintParams : councilActionRequestMintType = record[
-        tokenAmount      = tokenAmount;
         treasuryAddress  = treasuryAddress;
+        receiverAddress  = receiverAddress;
+        tokenAmount      = tokenAmount;
         purpose          = purpose;
     ];
 
@@ -896,6 +898,7 @@ block {
 
     // fetch params begin ---
     const treasuryAddress       : address   = unpackAddress(actionRecord, "treasuryAddress");
+    const receiverAddress       : address   = unpackAddress(actionRecord, "receiverAddress");
     const tokenContractAddress  : address   = unpackAddress(actionRecord, "tokenContractAddress");
 
     const tokenType             : string    = unpackString(actionRecord, "tokenType");
@@ -909,6 +912,7 @@ block {
     // create requestTokensOperation
     const requestTokensOperation : operation = requestTokensOperation(
         treasuryAddress,
+        receiverAddress,
         tokenContractAddress,
         tokenName,
         tokenAmount, 
@@ -930,6 +934,7 @@ block {
 
     // fetch params begin ---
     const treasuryAddress       : address   = unpackAddress(actionRecord, "treasuryAddress");
+    const receiverAddress       : address   = unpackAddress(actionRecord, "receiverAddress");
     const purpose               : string    = unpackString(actionRecord, "purpose");
     const tokenAmount           : nat       = unpackNat(actionRecord, "tokenAmount");
     // fetch params end ---
@@ -937,6 +942,7 @@ block {
     // create requestMintOperation
     const requestMintOperation : operation = requestMintOperation(
         treasuryAddress,
+        receiverAddress,
         tokenAmount,
         purpose,
         s 
