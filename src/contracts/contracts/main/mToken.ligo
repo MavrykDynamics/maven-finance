@@ -355,10 +355,10 @@ block {
 
 
 (* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const s : mTokenStorageType) : tokenMetadataInfoType is
+[@view] function token_metadata(const tokenId : nat; const s : mTokenStorageType) : option(tokenMetadataInfoType) is
     case Big_map.find_opt(tokenId, s.token_metadata) of [
-            Some (_metadata)  -> _metadata
-        |   None -> (None : option(tokenMetadataInfoType))
+            Some (_metadata)  -> Some(_metadata)
+        |   None              -> (None : option(tokenMetadataInfoType))
     ]
 
 // ------------------------------------------------------------------------------
