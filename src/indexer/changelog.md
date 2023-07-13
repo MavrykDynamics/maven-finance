@@ -30,6 +30,7 @@
   - Column DroppedDatetime added
 
 - GovernanceProposal
+  - Column DefeatedDatetime added
   - Column DroppedDatetime added
 
 <details><summary>Previous versions</summary>

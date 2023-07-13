@@ -13,6 +13,7 @@ async def on_governance_start_next_round(
 
     try:
         # Get operation values
+        timestamp                           = start_next_round.data.timestamp
         governance_address                  = start_next_round.data.target_address
         current_round                       = start_next_round.storage.currentCycleInfo.round
         current_blocks_proposal_round       = int(start_next_round.storage.currentCycleInfo.blocksPerProposalRound)
@@ -86,6 +87,16 @@ async def on_governance_start_next_round(
             if not voter in current_round_votes:
                 vote_record.current_round_vote  = False
                 await vote_record.save()
+
+        # Defeat all other cycle proposals
+        if current_round_type == models.GovernanceRoundType.VOTING:
+            await models.GovernanceProposal.filter(
+                governance              = governance,
+                current_round_proposal  = True,
+                internal_id__not        = highest_voted_proposal
+            ).update(
+                defeated_datetime       = timestamp
+            )
 
     except BaseException as e:
          await save_error_report(e)
