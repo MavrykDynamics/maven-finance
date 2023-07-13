@@ -209,9 +209,9 @@ block{
 
 
 
-(* get: general contracts opt *)
-[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
-    Big_map.find_opt(contractName, store.generalContracts)
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const store : mvkTokenStorageType) : address is
+    store.governanceAddress
 
 
 
@@ -221,27 +221,9 @@ block{
 
 
 
-(* get: inflation rate *)
-[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
-    store.inflationRate
-
-
-
-(* get: next inflation timestamp *)
-[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
-    store.nextInflationTimestamp
-
-
-
-(* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const store : mvkTokenStorageType) : option(unit) is
-    Big_map.find_opt(operator, store.operators)
-
-
-
-(* maximumSupply View *)
-[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
-    store.maximumSupply
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
+    Big_map.find_opt(contractName, store.generalContracts)
 
 
 
@@ -251,12 +233,6 @@ block{
             Some (_v) -> _v
         |   None      -> 0n
     ]
-
-
-
-(* total_supply View *)
-[@view] function total_supply(const _tokenId : nat; const _store : mvkTokenStorageType) : tokenBalanceType is
-    _store.totalSupply
 
 
 
@@ -276,11 +252,32 @@ block{
 [@view] function token_metadata(const tokenId : nat; const store : mvkTokenStorageType) : tokenMetadataInfoType is
     case Big_map.find_opt(tokenId, store.token_metadata) of [
             Some (_metadata)  -> _metadata
-        |   None -> record[
-                token_id    = tokenId;
-                token_info  = map[]
-            ]
+        |   None              -> (None : option(tokenMetadataInfoType))
     ]
+
+    
+
+(* total_supply View *)
+[@view] function total_supply(const _tokenId : nat; const store : mvkTokenStorageType) : tokenBalanceType is
+    store.totalSupply
+
+
+
+(* maximumSupply View *)
+[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
+    store.maximumSupply
+
+
+
+(* get: inflation rate *)
+[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
+    store.inflationRate
+
+
+
+(* get: next inflation timestamp *)
+[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
+    store.nextInflationTimestamp
 
 // ------------------------------------------------------------------------------
 //

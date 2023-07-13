@@ -75,23 +75,6 @@ block {
   
 } with (noOperations, s)
 
-
-
-(* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
-
-    case lendingControllerLambdaAction of [
-        |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
-                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------

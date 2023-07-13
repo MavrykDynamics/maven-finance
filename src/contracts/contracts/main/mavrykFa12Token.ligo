@@ -165,10 +165,7 @@ function getAllowance (const ownerAccount : accountType; const spender : address
 [@view] function token_metadata(const tokenId: tokenIdType; const s: mavrykFa12TokenStorageType) : tokenMetadataInfoType is
     case Big_map.find_opt(tokenId, s.token_metadata) of [
             Some (_metadata)  -> _metadata
-        |   None              -> record[
-            token_id    = tokenId;
-            token_info  = map[]
-        ]
+        |   None              -> (None : option(tokenMetadataInfoType))
     ]
 
 // ------------------------------------------------------------------------------
