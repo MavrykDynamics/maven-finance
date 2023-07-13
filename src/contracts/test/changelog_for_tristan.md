@@ -11,8 +11,14 @@
 - rename views to be consistent with Council Contract
 - getActionOpt to getCouncilActionOpt, and getActionSignerOpt to getCouncilActionSignerOpt
 
+Changes for Receiver Address in Requesting Tokens and Mint from Council to Governance Financial
+4. Governance Financial Contract
+- add receiverAddress in financialRequestRecordType
 
-Lending Controller (and mock time) changelog
+5. Council Contract
+- add receiverAddress to councilActionRequestTokensType and councilActionRequestMintType
+
+6. Lending Controller Contractand Lending Controller Mock Time Contract
 - both: remove storage: whitelistContracts, generalContracts, and whitelistTokenContracts
 - both: remove entrypoint updateWhitelistTokenContracts 
 - both: remove tempMap
