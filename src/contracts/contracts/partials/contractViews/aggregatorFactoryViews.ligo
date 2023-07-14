@@ -9,6 +9,11 @@
     s.admin
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : aggregatorFactoryStorageType) : address is
+    s.governanceAddress
+
+
 
 (* View: get config *)
 [@view] function getConfig(const _ : unit; const s : aggregatorFactoryStorageType) : aggregatorFactoryConfigType is
@@ -16,9 +21,9 @@
 
 
 
-(* View: get Governance address *)
-[@view] function getGovernanceAddress(const _ : unit; const s : aggregatorFactoryStorageType) : address is
-    s.governanceAddress
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig (const _ : unit; const s : aggregatorFactoryStorageType) : aggregatorFactoryBreakGlassConfigType is 
+    s.breakGlassConfig
 
 
 
@@ -31,6 +36,12 @@
 (* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : aggregatorFactoryStorageType) : option(address) is
     Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: checkAggregatorExists *)
+[@view] function checkAggregatorExists (const aggregatorContract : address; const s : aggregatorFactoryStorageType) : bool is 
+    Set.mem(aggregatorContract, s.trackedAggregators)
 
 
 
