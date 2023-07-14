@@ -892,7 +892,7 @@ describe("Treasury tests", async () => {
         });
     })
 
-    describe('%stakeMvk', function() {
+    describe('%stakeTokens', function() {
 
         it('Admin should be able to call this entrypoint and stake MVK', async () => {
             try{        
@@ -905,7 +905,10 @@ describe("Treasury tests", async () => {
                 const stakeAmount                   = MVK(10);
 
                 // Operations
-                const stakeOperation                = await treasuryInstance.methods.stakeMvk(stakeAmount).send();
+                const stakeOperation                = await treasuryInstance.methods.stakeTokens(
+                    contractDeployments.mvkToken.address,
+                    stakeAmount
+                ).send();
                 await stakeOperation.confirmation();
 
                 // Final values
@@ -930,7 +933,10 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                await chai.expect(treasuryInstance.methods.stakeMvk(stakeAmount).send()).to.be.eventually.rejected;
+                await chai.expect(treasuryInstance.methods.stakeTokens(
+                    contractDeployments.mvkToken.address,
+                    stakeAmount
+                ).send()).to.be.eventually.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
@@ -948,7 +954,10 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                await chai.expect(treasuryInstance.methods.stakeMvk(stakeAmount).send()).to.be.eventually.rejected;
+                await chai.expect(treasuryInstance.methods.stakeTokens(
+                    contractDeployments.mvkToken.address,
+                    stakeAmount
+                ).send()).to.be.eventually.rejected;
 
                 // Reset config
                 await helperFunctions.signerFactory(tezos, bob.sk);
@@ -960,7 +969,7 @@ describe("Treasury tests", async () => {
         });
     });
 
-    describe('%unstakeMvk', function() {
+    describe('%unstakeTokens', function() {
 
         it('Admin should be able to call this entrypoint and unstake MVK', async () => {
             try{        
@@ -973,7 +982,10 @@ describe("Treasury tests", async () => {
                 const unstakeAmount                 = MVK(5);
 
                 // Operations
-                const stakeOperation = await treasuryInstance.methods.unstakeMvk(unstakeAmount).send();
+                const stakeOperation = await treasuryInstance.methods.unstakeTokens(
+                    contractDeployments.mvkToken.address,
+                    unstakeAmount
+                ).send();
                 await stakeOperation.confirmation();
 
                 // Final values
@@ -996,7 +1008,10 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                await chai.expect(treasuryInstance.methods.unstakeMvk(unstakeAmount).send()).to.be.eventually.rejected;
+                await chai.expect(treasuryInstance.methods.unstakeTokens(
+                    contractDeployments.mvkToken.address,
+                    unstakeAmount
+                ).send()).to.be.eventually.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
@@ -1014,7 +1029,10 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                await chai.expect(treasuryInstance.methods.unstakeMvk(unstakeAmount).send()).to.be.eventually.rejected;
+                await chai.expect(treasuryInstance.methods.unstakeTokens(
+                    contractDeployments.mvkToken.address,
+                    unstakeAmount
+                ).send()).to.be.eventually.rejected;
 
                 // Reset config
                 await helperFunctions.signerFactory(tezos, bob.sk);
@@ -1161,23 +1179,24 @@ describe("Treasury tests", async () => {
             try{
                 // Initial Values
                 treasuryStorage                 = await treasuryInstance.storage();
-                const isPausedStart             = treasuryStorage.breakGlassConfig.stakeMvkIsPaused
+                const isPausedStart             = treasuryStorage.breakGlassConfig.stakeTokensIsPaused
                 const amount                    = MVK(10); // 10 MVK
 
                 // Operation
-                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", true).send();
+                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", true).send();
                 await togglePauseOperation.confirmation();
 
                 // Final values
-                treasuryStorage       = await treasuryInstance.storage();
-                const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeMvkIsPaused
+                treasuryStorage         = await treasuryInstance.storage();
+                const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeTokensIsPaused
 
-                await chai.expect(treasuryInstance.methods.stakeMvk(
+                await chai.expect(treasuryInstance.methods.stakeTokens(
+                    contractDeployments.mvkToken.address,
                     amount,
                 ).send()).to.be.rejected;
 
                 // Reset admin
-                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", false).send();
+                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", false).send();
                 await togglePauseOperation.confirmation();
 
                 // Assertions
@@ -1192,23 +1211,24 @@ describe("Treasury tests", async () => {
             try{
                 // Initial Values
                 treasuryStorage                 = await treasuryInstance.storage();
-                const isPausedStart             = treasuryStorage.breakGlassConfig.unstakeMvkIsPaused
+                const isPausedStart             = treasuryStorage.breakGlassConfig.unstakeTokensIsPaused
                 const amount                    = MVK(10); // 10 MVK
 
                 // Operation
-                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send();
+                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", true).send();
                 await togglePauseOperation.confirmation();
 
                 // Final values
-                treasuryStorage       = await treasuryInstance.storage();
-                const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeMvkIsPaused
+                treasuryStorage         = await treasuryInstance.storage();
+                const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeTokensIsPaused
 
-                await chai.expect(treasuryInstance.methods.unstakeMvk(
+                await chai.expect(treasuryInstance.methods.unstakeTokens(
+                    contractDeployments.mvkToken.address,
                     amount,
                 ).send()).to.be.rejected;
 
                 // Reset admin
-                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", false).send();
+                var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", false).send();
                 await togglePauseOperation.confirmation();
 
                 // Assertions
@@ -1222,7 +1242,7 @@ describe("Treasury tests", async () => {
         it('Non-admin should not be able to call the entrypoint', async () => {
             try{
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                await chai.expect(treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send()).to.be.rejected;
+                await chai.expect(treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", true).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
             }

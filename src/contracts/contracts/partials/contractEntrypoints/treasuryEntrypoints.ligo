@@ -247,15 +247,15 @@ block {
 
 
 
-(* updateMvkOperators entrypoint *)
-function updateMvkOperators(const updateOperatorsParams : updateOperatorsType ; var s : treasuryStorageType) : return is 
+(* updateTokenOperators entrypoint *)
+function updateTokenOperators(const updateTokenOperatorsParams : updateTokenOperatorsType ; var s : treasuryStorageType) : return is 
 block {
     
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMvkOperators", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateTokenOperators", s.lambdaLedger);
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateMvkOperators(updateOperatorsParams);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateTokenOperators(updateTokenOperatorsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -264,15 +264,15 @@ block {
 
 
 
-(* stakeMvk entrypoint *)
-function stakeMvk(const stakeAmount : nat ; var s : treasuryStorageType) : return is 
+(* stakeTokens entrypoint *)
+function stakeTokens(const stakeTokensParams : stakeTokensType ; var s : treasuryStorageType) : return is 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaStakeMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaStakeTokens", s.lambdaLedger);
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaStakeMvk(stakeAmount);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaStakeTokens(stakeTokensParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -281,15 +281,15 @@ block {
 
 
 
-(* unstakeMvk entrypoint *)
-function unstakeMvk(const unstakeAmount : nat ; var s : treasuryStorageType) : return is 
+(* unstakeTokens entrypoint *)
+function unstakeTokens(const unstakeTokensParams : unstakeTokensType ; var s : treasuryStorageType) : return is 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstakeMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstakeTokens", s.lambdaLedger);
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstakeMvk(unstakeAmount);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstakeTokens(unstakeTokensParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
