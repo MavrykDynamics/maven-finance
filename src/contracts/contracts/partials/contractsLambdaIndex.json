@@ -391,9 +391,10 @@
 
     "lambdaTransfer",
     "lambdaMintMvkAndTransfer",
-    "lambdaUpdateMvkOperators",
-    "lambdaStakeMvk",
-    "lambdaUnstakeMvk"
+    
+    "lambdaUpdateTokenOperators",
+    "lambdaStakeTokens",
+    "lambdaUnstakeTokens"
   ],
   "vesting": [
     "lambdaSetAdmin",
