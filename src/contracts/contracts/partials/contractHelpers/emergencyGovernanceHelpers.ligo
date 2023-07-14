@@ -78,11 +78,31 @@ block {
 
 
 
+// helper function to get emergency governance
+function getCurrentEmergencyGovernance(const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
+block {
+
+    const emergencyGovernanceRecord : emergencyGovernanceRecordType = case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
+            None          -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
+        |   Some(_record) -> _record
+    ];
+
+} with emergencyGovernanceRecord
+
+
+
 // helper function to verify there is no active emergency governance ongoing
 function verifyNoActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyIsZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
+    if s.currentEmergencyGovernanceId = 0n then skip 
+    else {
+        const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
+        
+        if Tezos.get_now() < emergencyGovernance.expirationDateTime 
+        then failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS) 
+        else skip;
+    };
 
 } with unit
 
@@ -91,8 +111,15 @@ block {
 // helper function to verify there is an active emergency governance ongoing
 function verifyOngoingActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
+
+    if s.currentEmergencyGovernanceId =/= 0n then  {
+        const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
+        
+        if Tezos.get_now() > emergencyGovernance.expirationDateTime 
+        then failwith(error_EMERGENCY_GOVERNANCE_EXPIRED) 
+        else skip;
     
-    verifyIsNotZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS);
+    } else failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
 
 } with unit
 
@@ -170,19 +197,6 @@ block {
     if not Big_map.mem((emergencyGovernanceRecordId, userAddress), s.emergencyGovernanceVoters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
 } with unit
-
-
-
-// helper function to get emergency governance
-function getCurrentEmergencyGovernance(const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
-block {
-
-    const emergencyGovernanceRecord : emergencyGovernanceRecordType = case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
-            None          -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
-        |   Some(_record) -> _record
-    ];
-
-} with emergencyGovernanceRecord
 
 
 
