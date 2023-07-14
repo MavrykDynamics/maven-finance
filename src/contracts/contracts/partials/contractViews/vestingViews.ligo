@@ -10,6 +10,12 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : vestingStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: get whitelist contracts opt *)
 [@view] function getWhitelistContractOpt(const contractAddress : address; const s : vestingStorageType) : option(unit) is 
     Big_map.find_opt(contractAddress, s.whitelistContracts)
