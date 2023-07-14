@@ -10,21 +10,15 @@
 
 
 
-(* View: checkTreasuryExists *)
-[@view] function checkTreasuryExists (const treasuryContract : address; const s : treasuryFactoryStorageType) : bool is 
-    Set.mem(treasuryContract, s.trackedTreasuries)
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : treasuryFactoryStorageType) : address is
+    s.governanceAddress
 
 
 
 (* View: get config *)
 [@view] function getConfig (const _ : unit; const s : treasuryFactoryStorageType) : treasuryFactoryConfigType is 
     s.config
-
-
-
-(* View: get tracked treasuries *)
-[@view] function getTrackedTreasuries (const _ : unit; const s : treasuryFactoryStorageType) : set(address) is 
-    s.trackedTreasuries
 
 
 
@@ -49,6 +43,18 @@
 (* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : treasuryFactoryStorageType) : option(address) is
     Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: checkTreasuryExists *)
+[@view] function checkTreasuryExists (const treasuryContract : address; const s : treasuryFactoryStorageType) : bool is 
+    Set.mem(treasuryContract, s.trackedTreasuries)
+
+
+
+(* View: get tracked treasuries *)
+[@view] function getTrackedTreasuries (const _ : unit; const s : treasuryFactoryStorageType) : set(address) is 
+    s.trackedTreasuries
 
 
 

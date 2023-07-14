@@ -54,9 +54,9 @@ type treasuryAction is
     |   MintMvkAndTransfer             of mintMvkAndTransferType
 
         // Staking Entrypoints
-    |   UpdateMvkOperators             of updateOperatorsType
-    |   StakeMvk                       of (nat)
-    |   UnstakeMvk                     of (nat)
+    |   UpdateTokenOperators           of updateTokenOperatorsType
+    |   StakeTokens                    of stakeTokensType
+    |   UnstakeTokens                  of unstakeTokensType
 
         // Lambda Entrypoints
     |   SetLambda                      of setLambdaType
@@ -127,9 +127,9 @@ function main (const action : treasuryAction; const s : treasuryStorageType) : r
         |   MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
 
             // Staking Entrypoints
-        |   UpdateMvkOperators(parameters)                -> updateMvkOperators(parameters, s)
-        |   StakeMvk(parameters)                          -> stakeMvk(parameters, s)
-        |   UnstakeMvk(parameters)                        -> unstakeMvk(parameters, s)
+        |   UpdateTokenOperators(parameters)              -> updateTokenOperators(parameters, s)
+        |   StakeTokens(parameters)                       -> stakeTokens(parameters, s)
+        |   UnstakeTokens(parameters)                     -> unstakeTokens(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)
