@@ -92,6 +92,4 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
-
-    tempMap                         : MichelsonMap.fromLiteral({}),
 }

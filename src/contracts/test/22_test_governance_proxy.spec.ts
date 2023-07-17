@@ -1227,7 +1227,7 @@ describe('Governance proxy lambdas tests', async () => {
                 }
             });
 
-            it('%stakeMvk', async () => {
+            it('%stakeTokens', async () => {
                 try{
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1241,9 +1241,10 @@ describe('Governance proxy lambdas tests', async () => {
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
-                        'stakeMvk',
+                        'stakeTokens',
                         [
                             contractDeployments.treasury.address,
+                            contractDeployments.mvkToken.address,
                             stakedAmount
                         ]
                     );
@@ -1264,7 +1265,7 @@ describe('Governance proxy lambdas tests', async () => {
                 }
             });
 
-            it('%unstakeMvk', async () => {
+            it('%unstakeTokens', async () => {
                 try{
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1278,9 +1279,10 @@ describe('Governance proxy lambdas tests', async () => {
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
-                        'unstakeMvk',
+                        'unstakeTokens',
                         [
                             contractDeployments.treasury.address,
+                            contractDeployments.mvkToken.address,
                             unstakedAmount
                         ]
                     );
@@ -2433,10 +2435,10 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     emergencyGovernanceStorage          = await emergencyGovernanceInstance.storage();
-                    const updateConfigAction            = "ConfigVoteExpiryDays";
+                    const updateConfigAction            = "ConfigDurationInMinutes";
                     const targetContractType            = "emergencyGovernance";
                     const updateConfigNewValue          = 1010;
-                    const initConfigValue               = emergencyGovernanceStorage.config.voteExpiryDays.toNumber();
+                    const initConfigValue               = emergencyGovernanceStorage.config.durationInMinutes.toNumber();
                     
                     // Operation
                     const lambdaFunction                = await createLambdaBytes(
@@ -2456,7 +2458,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     emergencyGovernanceStorage          = await emergencyGovernanceInstance.storage();
-                    const finalConfigValue              = emergencyGovernanceStorage.config.voteExpiryDays.toNumber();
+                    const finalConfigValue              = emergencyGovernanceStorage.config.durationInMinutes.toNumber();
 
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
