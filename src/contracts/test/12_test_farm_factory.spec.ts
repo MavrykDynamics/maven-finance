@@ -444,6 +444,10 @@ describe("FarmFactory", async () => {
 
         it('%createFarm               - admin (bob) should be able to create a new farm', async () => {
             try{
+                // Initial values
+                farmFactoryStorage                      = await farmFactoryInstance.storage();
+                const initTrackedFarms                  = farmFactoryStorage.trackedFarms;
+
                 // Create a transaction for initiating a farm
                 const operation = await farmFactoryInstance.methods.createFarm(
                     "testFarm",
@@ -460,10 +464,13 @@ describe("FarmFactory", async () => {
                 await operation.confirmation()
 
                 // Created farms
-                farmFactoryStorage    = await farmFactoryInstance.storage();
+                farmFactoryStorage                      = await farmFactoryInstance.storage();
+                const finalTrackedFarms                 = farmFactoryStorage.trackedFarms;
+                const newFarmAddresses                  = finalTrackedFarms.filter(item => initTrackedFarms.indexOf(item) < 0);
+                const newFarmAddress                    = newFarmAddresses[0];
 
                 // Get the new farm
-                farmInstance                            = await utils.tezos.contract.at(farmFactoryStorage.trackedFarms[0]);
+                farmInstance                            = await utils.tezos.contract.at(newFarmAddress);
                 farmStorage                             = await farmInstance.storage();
 
                 assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress);
@@ -487,30 +494,14 @@ describe("FarmFactory", async () => {
                     false,
                     false,
                     false,
-                    12000,
+                    0,
                     100,
                     mockMetadata.farm,
                     lpTokenAddress,
                     0,
                     "fa12"
-                ).send();
-                await operation.confirmation()
-
-                // Created farms
-                farmFactoryStorage    = await farmFactoryInstance.storage();
-
-                // Get the new farm
-                farmInstance                            = await utils.tezos.contract.at(farmFactoryStorage.trackedFarms[0]);
-                farmStorage                         = await farmInstance.storage();
-
-                assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress);
-                assert.equal(farmStorage.config.lpToken.tokenId, 0);
-                assert.equal(farmStorage.config.lpToken.tokenBalance.toNumber(), 0);
-                assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa12");
-                assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
-                assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
-                assert.equal(farmStorage.open, true);
-                assert.equal(farmStorage.init, true);
+                )
+                await chai.expect(operation.send()).to.be.rejected;
             }catch(e){
                 console.dir(e, {depth: 5});
             }
