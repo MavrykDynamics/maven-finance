@@ -1,6 +1,8 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from "bignumber.js"
+
 import { Utils } from "../helpers/Utils"
+
 const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
