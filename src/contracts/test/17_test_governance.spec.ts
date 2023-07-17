@@ -798,7 +798,6 @@ describe("Governance tests", async () => {
                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
                     const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
-                    // const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
                     const cycleId = governanceStorage.cycleId
                     const finalNextProposalId = governanceStorage.nextProposalId;
                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId);
@@ -820,7 +819,6 @@ describe("Governance tests", async () => {
                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
                     assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
-                    // assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
                     assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
@@ -890,7 +888,6 @@ describe("Governance tests", async () => {
                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
                     const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
-                    // const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
                     const cycleId = governanceStorage.cycleId
                     const finalNextProposalId = governanceStorage.nextProposalId;
                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
@@ -920,7 +917,6 @@ describe("Governance tests", async () => {
                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
                     assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
-                    // assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
                     assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
@@ -4455,7 +4451,6 @@ describe("Governance tests", async () => {
                 assert.equal(updatedConfig.successReward                        , lowTestValue);
                 assert.equal(updatedConfig.cycleVotersReward                    , lowTestValue);
                 assert.equal(updatedConfig.minProposalRoundVotePercentage       , lowTestValue);
-                // assert.equal(updatedConfig.minProposalRoundVotesRequired        , lowTestValue);
                 assert.equal(updatedConfig.minQuorumPercentage                  , lowTestValue);
                 assert.equal(updatedConfig.minYayVotePercentage                 , lowTestValue);
                 assert.equal(updatedConfig.proposalSubmissionFeeMutez           , lowTestValue);
@@ -4525,7 +4520,6 @@ describe("Governance tests", async () => {
                 assert.equal(resetConfig.successReward.toNumber(),                      initialConfig.successReward.toNumber());
                 assert.equal(resetConfig.cycleVotersReward.toNumber(),                  initialConfig.cycleVotersReward.toNumber());
                 assert.equal(resetConfig.minProposalRoundVotePercentage.toNumber(),     initialConfig.minProposalRoundVotePercentage.toNumber());
-                // assert.equal(resetConfig.minProposalRoundVotesRequired.toNumber(),      initialConfig.minProposalRoundVotesRequired.toNumber());
                 assert.equal(resetConfig.minQuorumPercentage.toNumber(),                initialConfig.minQuorumPercentage.toNumber());
                 assert.equal(resetConfig.minYayVotePercentage.toNumber(),               initialConfig.minYayVotePercentage.toNumber());
                 assert.equal(resetConfig.proposalSubmissionFeeMutez.toNumber(),         initialConfig.proposalSubmissionFeeMutez.toNumber());
@@ -4879,7 +4873,6 @@ describe("Governance tests", async () => {
                 assert.equal(updatedConfig.successReward.toNumber(),                      initialConfig.successReward.toNumber());
                 assert.equal(updatedConfig.cycleVotersReward.toNumber(),                  initialConfig.cycleVotersReward.toNumber());
                 assert.equal(updatedConfig.minProposalRoundVotePercentage.toNumber(),     initialConfig.minProposalRoundVotePercentage.toNumber());
-                // assert.equal(updatedConfig.minProposalRoundVotesRequired.toNumber(),      initialConfig.minProposalRoundVotesRequired.toNumber());
                 assert.equal(updatedConfig.minQuorumPercentage.toNumber(),                initialConfig.minQuorumPercentage.toNumber());
                 assert.equal(updatedConfig.minYayVotePercentage.toNumber(),               initialConfig.minYayVotePercentage.toNumber());
                 assert.equal(updatedConfig.proposalSubmissionFeeMutez.toNumber(),         initialConfig.proposalSubmissionFeeMutez.toNumber());

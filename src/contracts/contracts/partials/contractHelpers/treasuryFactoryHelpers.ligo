@@ -85,10 +85,11 @@ block {
 
     // Init break glass config
     const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
-        transferIsPaused           = False;
-        mintMvkAndTransferIsPaused = False;
-        stakeMvkIsPaused           = False;
-        unstakeMvkIsPaused         = False;
+        transferIsPaused                = False;
+        mintMvkAndTransferIsPaused      = False;
+        stakeTokensIsPaused             = False;
+        unstakeTokensIsPaused           = False;
+        updateTokenOperatorsIsPaused    = False;
     ];
 
     // Prepare Treasury Metadata
