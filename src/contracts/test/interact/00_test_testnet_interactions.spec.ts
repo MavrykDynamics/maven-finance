@@ -1166,6 +1166,7 @@ describe("Testnet interactions helper", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
@@ -1185,6 +1186,7 @@ describe("Testnet interactions helper", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionRequestMint(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     MVK(20),
                     "For testing purposes"
                 ).send()
@@ -1224,6 +1226,7 @@ describe("Testnet interactions helper", async () => {
                 const actionId  = councilStorage.actionCounter;
                 var operation = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
@@ -1425,6 +1428,7 @@ describe("Testnet interactions helper", async () => {
                 const actionCounter     = councilStorage.actionCounter
                 var operation           = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
@@ -1449,6 +1453,7 @@ describe("Testnet interactions helper", async () => {
                 const actionCounter     = councilStorage.actionCounter
                 var operation = await councilInstance.methods.councilActionRequestMint(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     MVK(20),
                     "For testing purposes"
                 ).send()
@@ -1733,20 +1738,20 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin pauses stake MVK entrypoint', async () => {
+        it('Admin pauses stake tokens entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", true).send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
         
-        it('Admin pauses unstake MVK entrypoint', async () => {
+        it('Admin pauses unstake tokens entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2716,16 +2721,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates min proposal round vote req', async () => {
-            try{
-                // Operation
-                const operation = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin updates min quorum pct', async () => {
             try{
                 // Operation
@@ -3467,7 +3462,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates vote expiry days', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(1, "configVoteExpiryDays").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1, "configDurationInMinutes").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3548,16 +3543,6 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin drops emergency governance', async () => {
-            try{
-                // Operation
-                const operation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3821,16 +3806,6 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await lendingControllerInstance.methods.setGovernance(contractDeployments.governance.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin updates whitelist token contracts', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateWhitelistTokenContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

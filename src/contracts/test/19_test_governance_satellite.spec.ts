@@ -2392,6 +2392,7 @@ describe("Governance Satellite tests", async () => {
                     // Operation
                     const councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                         fromTreasury,
+                        contractDeployments.council.address,
                         tokenAmount,
                         purpose
                     ).send();
@@ -3323,6 +3324,7 @@ describe("Governance Satellite tests", async () => {
                     // Operation
                     const councilActionOperation = await councilInstance.methods.councilActionRequestMint(
                         fromTreasury,
+                        contractDeployments.council.address,
                         tokenAmount,
                         purpose
                     ).send();

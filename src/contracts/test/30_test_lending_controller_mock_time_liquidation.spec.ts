@@ -88,9 +88,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let tezIndex
     let mvkIndex
 
-    // if required to check temp variables from internal smart contract computations
-    let tempMap 
-
     // ------------------------------------------------
     //  Contract Instances
     // ------------------------------------------------
@@ -1835,7 +1832,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lendingControllerStorage                = await lendingControllerInstance.storage();
             vaultRecord                             = await lendingControllerStorage.vaults.get(vaultHandle);
             currentMockLevel                        = lendingControllerStorage.config.mockLevel.toNumber();            
-            tempMap                                 = lendingControllerStorage.tempMap;
 
             const expectedMarkedForLiquidationLevel = currentMockLevel;
             const expectedLiquidationEndLevel       = currentMockLevel + (liquidationMaxDuration * oneMinuteLevelBlocks);
@@ -2395,7 +2391,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lendingControllerStorage   = await lendingControllerInstance.storage();
             vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
             currentMockLevel           = lendingControllerStorage.config.mockLevel.toNumber();            
-            tempMap                    = lendingControllerStorage.tempMap;
 
             const expectedMarkedForLiquidationLevel = currentMockLevel;
             const expectedLiquidationEndLevel       = currentMockLevel + (liquidationMaxDuration * oneMinuteLevelBlocks);
@@ -3085,7 +3080,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lendingControllerStorage   = await lendingControllerInstance.storage();
             vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
             currentMockLevel           = lendingControllerStorage.config.mockLevel.toNumber();            
-            tempMap                    = lendingControllerStorage.tempMap;
     
             const expectedMarkedForLiquidationLevel = currentMockLevel;
             const expectedLiquidationEndLevel       = currentMockLevel + (liquidationMaxDuration * oneMinuteLevelBlocks);
@@ -3837,8 +3831,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             eurlTokenStorage      = await eurlTokenInstance.storage();
             lendingControllerStorage = await lendingControllerInstance.storage();
             doormanStorage           = await doormanInstance.storage();
-            tempMap                  = lendingControllerStorage.tempMap;
-
 
             // vault record
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
