@@ -144,8 +144,6 @@ describe("Governance quorum tests", async () => {
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
                 await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-                await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(5100, "configMinYayVotePercentage").send();

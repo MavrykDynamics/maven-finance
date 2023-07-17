@@ -467,7 +467,6 @@ describe("Governance - Voting Power Ratio - tests", async () => {
                 const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
                 const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
                 const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
-                // const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
                 const cycleId = governanceStorage.cycleId
                 const finalNextProposalId = governanceStorage.nextProposalId;
                 const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
@@ -494,7 +493,6 @@ describe("Governance - Voting Power Ratio - tests", async () => {
                 assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
                 assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
                 assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
-                // assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
                 assert.equal(newProposal.yayVoteCount.toNumber(), 0);
                 assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
                 assert.equal(newProposal.nayVoteCount.toNumber(), 0);
