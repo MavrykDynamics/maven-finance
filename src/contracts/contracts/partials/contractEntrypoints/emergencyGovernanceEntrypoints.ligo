@@ -167,23 +167,6 @@ block {
 
 } with response
 
-
-
- (* dropEmergencyGovernance entrypoint  *)
-function dropEmergencyGovernance(var s : emergencyGovernanceStorageType) : return is 
-block {
-
-    // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDropEmergencyGovernance", s.lambdaLedger);
-
-    // init emergencyGovernance lambda action
-    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaDropEmergencyGovernance(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
-
-} with response
-
 // ------------------------------------------------------------------------------
 // Emergency Governance Entrypoints End
 // ------------------------------------------------------------------------------
