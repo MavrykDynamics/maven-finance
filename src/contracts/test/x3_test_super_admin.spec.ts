@@ -141,8 +141,6 @@ describe("Break Glass Super Admin tests", async () => {
                 //         await updateGovernanceConfig.confirmation();
                 //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
                 //         await updateGovernanceConfig.confirmation();
-                //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-                //         await updateGovernanceConfig.confirmation();
                 //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
                 //         await updateGovernanceConfig.confirmation();
                 //         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();

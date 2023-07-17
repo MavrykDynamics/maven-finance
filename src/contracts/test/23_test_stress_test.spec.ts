@@ -386,8 +386,6 @@ describe("Stress tests", async () => {
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
                 await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-                await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
@@ -497,6 +495,7 @@ describe("Stress tests", async () => {
                 await helperFunctions.signerFactory(tezos, bob.sk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        contractDeployments.council.address,
                         tokenAmount,
                         purpose
                     ).send();
