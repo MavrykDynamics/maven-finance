@@ -136,17 +136,6 @@ block {
 
 
 
-// helper function to verify emergency governance has not been dropped
-function verifyEmergencyGovernanceNotDropped(const emergencyGovernanceRecord : emergencyGovernanceRecordType) : unit is
-block {
-
-    if emergencyGovernanceRecord.dropped = True then failwith(error_EMERGENCY_GOVERNANCE_DROPPED)
-    else skip; 
-
-} with unit
-
-
-
 // helper function to verify sender is proposal of emergency governance
 function verifySenderIsProposer(const emergencyGovernanceRecord : emergencyGovernanceRecordType) : unit is
 block {
@@ -208,7 +197,6 @@ block {
     const newEmergencyGovernanceRecord : emergencyGovernanceRecordType = record [
         proposerAddress                  = userAddress;
         executed                         = False;
-        dropped                          = False;
 
         title                            = title;
         description                      = description; 
@@ -220,7 +208,7 @@ block {
         startLevel                       = Tezos.get_level();             
         executedDateTime                 = None;
         executedLevel                    = None;
-        expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
+        expirationDateTime               = Tezos.get_now() + (60 * s.config.durationInMinutes);
     ];
 
 } with newEmergencyGovernanceRecord

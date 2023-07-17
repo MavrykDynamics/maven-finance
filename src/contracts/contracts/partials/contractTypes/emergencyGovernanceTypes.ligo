@@ -15,7 +15,6 @@
 type emergencyGovernanceRecordType is [@layout:comb] record [
     proposerAddress                  : address;
     executed                         : bool;
-    dropped                          : bool;
 
     title                            : string;
     description                      : string;   
@@ -35,7 +34,7 @@ type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType
 
 type emergencyConfigType is record [
     decimals                          : nat;        // decimals used for percentages
-    voteExpiryDays                    : nat;        // track time by tezos blocks - e.g. 2 days 
+    durationInMinutes                 : nat;        // duration of emergency governance before expiry
     requiredFeeMutez                  : tez;        // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
     stakedMvkPercentageRequired       : nat;        // minimum staked MVK percentage amount required to activate break glass 
     minStakedMvkRequiredToVote        : nat;        // minimum staked MVK balance of user required to vote for emergency governance
@@ -53,7 +52,7 @@ type emergencyConfigType is record [
 
 type emergencyUpdateConfigNewValueType is nat
 type emergencyUpdateConfigActionType is 
-        ConfigVoteExpiryDays            of unit
+        ConfigDurationInMinutes         of unit
     |   ConfigRequiredFeeMutez          of unit
     |   ConfigStakedMvkPercentRequired  of unit
     |   ConfigMinStakedMvkForVoting     of unit
@@ -91,7 +90,6 @@ type emergencyGovernanceLambdaActionType is
         // Emergency Governance Entrypoints
     |   LambdaTriggerEmergencyControl   of triggerEmergencyControlType
     |   LambdaVoteForEmergencyControl   of (unit)
-    |   LambdaDropEmergencyGovernance   of (unit)
 
 
 // ------------------------------------------------------------------------------
