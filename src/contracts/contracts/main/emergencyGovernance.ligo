@@ -41,7 +41,6 @@ type emergencyGovernanceAction is
         // Emergency Governance Entrypoints
     |   TriggerEmergencyControl   of triggerEmergencyControlType
     |   VoteForEmergencyControl   of (unit)
-    |   DropEmergencyGovernance   of (unit)
 
         // Lambda Entrypoints
     |   SetLambda                 of setLambdaType
@@ -101,7 +100,6 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
             // Emergency Governance Entrypoints
         |   TriggerEmergencyControl(parameters)   -> triggerEmergencyControl(parameters, s)
         |   VoteForEmergencyControl(_parameters)  -> voteForEmergencyControl(s)
-        |   DropEmergencyGovernance(_parameters)  -> dropEmergencyGovernance(s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
