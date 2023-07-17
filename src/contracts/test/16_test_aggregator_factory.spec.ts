@@ -160,7 +160,7 @@ describe('AggregatorFactory', () => {
 
         // Untrack aggregator if it's already tracked
         if(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorInstance.address)){
-            const untrackOperation  = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorFactoryInstance.address).send();
+            const untrackOperation  = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
             await untrackOperation.confirmation();
         }
     
@@ -478,14 +478,18 @@ describe('AggregatorFactory', () => {
             try {
 
                 // Operation
-                const operation             = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
-                await operation.confirmation();
+                const untrackOperation      = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
+                await untrackOperation.confirmation();
     
                 // Final values
                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
     
                 // Assertion
                 assert.equal(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorFactoryInstance.address), false);
+
+                // Reset tracking
+                const trackOperation        = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send();
+                await trackOperation.confirmation();
 
             } catch(e) {
                 console.dir(e, {depth: 5})
