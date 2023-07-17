@@ -31,3 +31,8 @@ Changes for Receiver Address in Requesting Tokens and Mint from Council to Gover
 - Rename corresponding break glass entrypoints (e.g. stakeMvkIsPaused to stakeTokenIsPaused) 
 - Rename corresponding treasuryTogglePauseEntrypointType (stakeMvk to stakeToken)
 - Add updateTokenOperatorsIsPaused to break glass config and treasuryTogglePauseEntrypointType
+
+8. Emergency Governance Contract
+- remove dropEmergencyGovernance entrypoint
+- remove dropped boolean in emergencyGovernanceRecord
+- voteExpiryDays changed to durationInMinutes
