@@ -1167,7 +1167,7 @@ describe('Governance proxy lambdas tests', async () => {
                 }
             });
 
-            it('%updateMvkOperators', async () => {
+            it('%updateTokenOperators', async () => {
                 try{
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1199,9 +1199,10 @@ describe('Governance proxy lambdas tests', async () => {
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
-                        'updateMvkOperators',
+                        'updateTokenOperators',
                         [
                             contractDeployments.treasury.address,
+                            contractDeployments.mvkToken.address,
                             operators
                         ]
                     );
