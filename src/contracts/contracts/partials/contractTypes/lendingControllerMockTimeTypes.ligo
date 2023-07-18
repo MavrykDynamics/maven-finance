@@ -44,13 +44,13 @@ type lendingControllerBreakGlassConfigType is record [
     // Lending Controller Admin Entrypoints
     setLoanTokenIsPaused                : bool;
     setCollateralTokenIsPaused          : bool;
-    registerVaultCreationIsPaused       : bool; 
 
     // Lending Controller Token Pool Entrypoints
     addLiquidityIsPaused                : bool;
     removeLiquidityIsPaused             : bool;
 
     // Lending Controller Vault Entrypoints
+    registerVaultCreationIsPaused       : bool; 
     closeVaultIsPaused                  : bool;
     registerDepositIsPaused             : bool;
     registerWithdrawalIsPaused          : bool;
