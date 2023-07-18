@@ -20,7 +20,13 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { alice, baker, bob, david, eve, ivan, mallory, susie } from "../scripts/sandbox/accounts";
-import { almostEqual, signerFactory, updateOperators } from './helpers/helperFunctions'
+import { 
+    signerFactory, 
+    almostEqual,
+    fa2Transfer,
+    updateOperators,
+} from './helpers/helperFunctions'
+
 
 // ------------------------------------------------------------------------------
 // Contract Tests

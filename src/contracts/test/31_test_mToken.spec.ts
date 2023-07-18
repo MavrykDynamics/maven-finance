@@ -18,7 +18,12 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { alice, baker, bob, eve, mallory } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import { 
+    signerFactory, 
+    almostEqual,
+    updateOperators,
+} from './helpers/helperFunctions'
+
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -414,7 +419,7 @@ describe("Lending Controller (mToken) tests", async () => {
         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
         //
         // ------------------------------------------------------------------
-        await helperFunctions.signerFactory(tezos, bob.sk);
+        await signerFactory(tezos, bob.sk);
 
         const usdtLoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
         const eurlLoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurl"); 
@@ -479,7 +484,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
 
@@ -578,7 +583,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
 
@@ -679,7 +684,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
 
@@ -777,7 +782,7 @@ describe("Lending Controller (mToken) tests", async () => {
         it('non-admin should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 lendingControllerStorage = await lendingControllerInstance.storage();
                 const currentAdmin = lendingControllerStorage.admin;
 
@@ -855,7 +860,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "usdt";
@@ -923,7 +928,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "eurl";
@@ -991,7 +996,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "tez";
@@ -1060,7 +1065,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mTokenMockFa12";
@@ -1129,7 +1134,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mTokenMockFa2";
@@ -1198,7 +1203,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mTokenTez";
@@ -1266,7 +1271,7 @@ describe("Lending Controller (mToken) tests", async () => {
         it('non-admin should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 lendingControllerStorage = await lendingControllerInstance.storage();
                 const currentAdmin = lendingControllerStorage.admin;
 
@@ -1334,7 +1339,7 @@ describe("Lending Controller (mToken) tests", async () => {
         it('admin can set admin', async () => {
             try{        
         
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const previousAdmin = lendingControllerStorage.admin;
                 
                 if(previousAdmin == bob.pkh){
@@ -1359,7 +1364,7 @@ describe("Lending Controller (mToken) tests", async () => {
         it('non-admin cannot set admin', async () => {
             try{        
         
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
         
                     const failSetNewAdminOperation = await lendingControllerInstance.methods.setAdmin(contractDeployments.governanceProxy.address);
                     await chai.expect(failSetNewAdminOperation.send()).to.be.rejected;    
@@ -1388,7 +1393,7 @@ describe("Lending Controller (mToken) tests", async () => {
             try{
 
                 // init variables
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 const loanTokenName = "usdt";
                 const liquidityAmount = 100000000; // 100 Mock FA12 Tokens
 
@@ -1466,7 +1471,7 @@ describe("Lending Controller (mToken) tests", async () => {
         it('user (eve) can add liquidity for mock FA2 token into Lending Controller token pool (100 MockFA2 Tokens)', async () => {
     
             // init variables
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             const loanTokenName = "eurl";
             const liquidityAmount = 100000000; // 100 Mock FA2 Tokens
 
@@ -1493,7 +1498,7 @@ describe("Lending Controller (mToken) tests", async () => {
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
-            updateOperatorsOperation = await helperFunctions.updateOperators(eurlTokenInstance, eve.pkh, contractDeployments.lendingControllerMockTime.address, tokenId);
+            updateOperatorsOperation = await updateOperators(eurlTokenInstance, eve.pkh, contractDeployments.lendingControllerMockTime.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA12 tokens into lending controller token pool
@@ -1531,7 +1536,7 @@ describe("Lending Controller (mToken) tests", async () => {
         it('user (eve) can add liquidity for tez into Lending Controller token pool (100 XTZ)', async () => {
     
             // init variables
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             const loanTokenName = "tez";
             const liquidityAmount = 100000000; // 100 XTZ
 
@@ -1581,7 +1586,7 @@ describe("Lending Controller (mToken) tests", async () => {
 
             // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
             const eveXtzBalance = await utils.tezos.tz.getBalance(eve.pkh);
-            assert.equal(helperFunctions.almostEqual(eveXtzBalance, eveInitialXtzBalance - liquidityAmount, 0.0001), true)
+            assert.equal(almostEqual(eveXtzBalance, eveInitialXtzBalance - liquidityAmount, 0.0001), true)
 
         });
     
@@ -1615,7 +1620,7 @@ describe("Lending Controller (mToken) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
 
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = vaultCounter.toNumber();
@@ -1738,7 +1743,7 @@ describe("Lending Controller (mToken) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
 
-            await helperFunctions.signerFactory(tezos, bob.sk); // temporarily set to tester to increase block levels
+            await signerFactory(tezos, bob.sk); // temporarily set to tester to increase block levels
 
             lendingControllerStorage    = await lendingControllerInstance.storage();
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
@@ -1764,7 +1769,7 @@ describe("Lending Controller (mToken) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
 
-            await helperFunctions.signerFactory(tezos, mallory.sk); // mallory as liquidator
+            await signerFactory(tezos, mallory.sk); // mallory as liquidator
 
             const markVaultForLiquidationOperation = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner).send();
             await markVaultForLiquidationOperation.confirmation();
@@ -1796,7 +1801,7 @@ describe("Lending Controller (mToken) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
 
-            await helperFunctions.signerFactory(tezos, bob.sk); // temporarily set to tester to increase block levels
+            await signerFactory(tezos, bob.sk); // temporarily set to tester to increase block levels
 
             lendingControllerStorage    = await lendingControllerInstance.storage();
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
@@ -1831,7 +1836,7 @@ describe("Lending Controller (mToken) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
 
-            await helperFunctions.signerFactory(tezos, bob.sk); // temporarily set to tester to increase block levels
+            await signerFactory(tezos, bob.sk); // temporarily set to tester to increase block levels
 
             lendingControllerStorage    = await lendingControllerInstance.storage();
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
@@ -1857,7 +1862,7 @@ describe("Lending Controller (mToken) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
 
-            await helperFunctions.signerFactory(tezos, mallory.sk); 
+            await signerFactory(tezos, mallory.sk); 
             const liquidationAmount = 100;
 
             // mallory resets mock FA12 tokens allowance then set new allowance to liquidate amount
@@ -1905,8 +1910,8 @@ describe("Lending Controller (mToken) tests", async () => {
 
 
             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
-            assert.equal(helperFunctions.almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest - liquidationAmount, 0.0001), true);
-            assert.equal(helperFunctions.almostEqual(vaultLoanInterestTotal, totalInterest - liquidationAmount, 0.0001), true);
+            assert.equal(almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest - liquidationAmount, 0.0001), true);
+            assert.equal(almostEqual(vaultLoanInterestTotal, totalInterest - liquidationAmount, 0.0001), true);
 
 
             // liquidation calculations
