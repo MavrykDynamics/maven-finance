@@ -1029,7 +1029,8 @@ block{
     const totalBorrowed             : nat    = loanTokenRecord.totalBorrowed;              // 1e6
     const optimalUtilisationRate    : nat    = loanTokenRecord.optimalUtilisationRate;     // 1e27
     const lastUpdatedBlockLevel     : nat    = loanTokenRecord.lastUpdatedBlockLevel;
-
+    const maxInterestRate           : nat    = loanTokenRecord.maxInterestRate;
+    
     const baseInterestRate                      : nat = loanTokenRecord.baseInterestRate;                    // r0 - 1e27
     const interestRateBelowOptimalUtilisation   : nat = loanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
     const interestRateAboveOptimalUtilisation   : nat = loanTokenRecord.interestRateAboveOptimalUtilisation; // r2 - 1e27
@@ -1076,7 +1077,9 @@ block{
             };
 
         } else skip;
-        
+
+        // check if max interest rate is exceeded
+        if currentInterestRate > maxInterestRate then currentInterestRate := maxInterestRate else skip;
 
         if mockLevel > lastUpdatedBlockLevel or Tezos.get_level() > lastUpdatedBlockLevel then {
 
