@@ -99,7 +99,7 @@ describe("Test: Delegation Contract", async () => {
     let unregisterAsSatelliteOperation
     let delegateOperation
     let undelegateOperation
-    let redelegateOperation
+    let redelegateOperation 
 
     // housekeeping operations
     let setAdminOperation
