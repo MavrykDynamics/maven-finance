@@ -485,17 +485,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
         // ------------------------------------------------------------------
         //
-        //  Set Lending Controller Mock Time address in Governance General Contracts
-        //
-        // ------------------------------------------------------------------
-
-        
-        const updateGeneralContractsOperation = await updateGeneralContracts(governanceInstance, 'lendingController', lendingControllerAddress, 'update');
-        await updateGeneralContractsOperation.confirmation();
-
-
-        // ------------------------------------------------------------------
-        //
         // Setup Satellites
         //
         // ----------------------
