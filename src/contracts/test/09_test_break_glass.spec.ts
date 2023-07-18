@@ -288,7 +288,7 @@ describe("Test: Break Glass Contract", async () => {
                 
                 // Initial Values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                const newMember         = alice.pkh;
+                const newMember         = councilMemberTwo;
                 const newMemberName     = "Alice";
                 const newMemberImage    = "Alice Image";
                 const newMemberWebsite  = "Alice Website";
@@ -385,7 +385,7 @@ describe("Test: Break Glass Contract", async () => {
         });
 
 
-        it('%councilActionChangeMember      - council member (eve) should be able to create a new council action to replace a council member (alice) by another (mallory)', async () => {
+        it('%councilActionChangeMember      - council member (eve) should be able to create a new council action to replace a council member (susie) by another (mallory)', async () => {
             try{
                 // Initial Values
                 breakGlassStorage       = await breakGlassInstance.storage();
