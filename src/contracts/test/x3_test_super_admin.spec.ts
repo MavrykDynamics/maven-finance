@@ -93,9 +93,6 @@ describe("Break Glass Super Admin tests", async () => {
 
     });
 
-    describe("Glass not broken", async () => {
-
-    });
 
     describe("Glass broken", async() => {
         describe("Break Glass Contract", async () => {
