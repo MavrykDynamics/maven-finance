@@ -20,7 +20,11 @@ import contractDeployments from './contractDeployments.json'
 
 import { alice, baker, bob, eve, mallory, oscar } from "../scripts/sandbox/accounts";
 import { depositorsType, vaultStorageType } from "../storage/storageTypes/vaultStorageType"
-import * as helperFunctions from './helpers/helperFunctions'
+import { 
+    signerFactory, 
+    updateOperators,
+} from './helpers/helperFunctions'
+
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -154,8 +158,8 @@ describe("Vault tests", async () => {
         if(bobSatellite === undefined){
 
             // Bob stakes 100 MVK tokens and registers as a satellite
-            await helperFunctions.signerFactory(tezos, bob.sk);
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, contractDeployments.doorman.address, tokenId);
+            await signerFactory(tezos, bob.sk);
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, bob.pkh, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             const bobStakeAmount                  = MVK(100);
@@ -170,8 +174,8 @@ describe("Vault tests", async () => {
         if(oscarSatellite === undefined){
 
             // Oscar stakes 100 MVK tokens and registers as a satellite 
-            await helperFunctions.signerFactory(tezos, oscar.sk);
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, oscar.pkh, contractDeployments.doorman.address, tokenId);
+            await signerFactory(tezos, oscar.sk);
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, oscar.pkh, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             const oscarStakeAmount                  = MVK(100);
@@ -189,7 +193,7 @@ describe("Vault tests", async () => {
         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
         //
         // ------------------------------------------------------------------
-        await helperFunctions.signerFactory(tezos, bob.sk);
+        await signerFactory(tezos, bob.sk);
 
         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurl"); 
@@ -254,7 +258,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "usdt";
@@ -352,7 +356,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "eurl";
@@ -451,7 +455,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "tez";
@@ -556,7 +560,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "mockFa12";
@@ -623,7 +627,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mockFa2";
@@ -693,7 +697,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "tez";
@@ -764,7 +768,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "smvk";
@@ -840,7 +844,7 @@ describe("Vault tests", async () => {
         it('admin can set admin for lending controller', async () => {
             try{        
         
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const previousAdmin = lendingControllerStorage.admin;
                 
                 if(previousAdmin == bob.pkh){
@@ -865,7 +869,7 @@ describe("Vault tests", async () => {
         it('admin can set admin for vault factory', async () => {
             try{        
         
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const previousAdmin = vaultFactoryStorage.admin;
                 
                 if(previousAdmin == bob.pkh){
@@ -901,14 +905,14 @@ describe("Vault tests", async () => {
             lendingControllerStorage   = await lendingControllerInstance.storage()
             vaultFactoryStorage        = await vaultFactoryInstance.storage()
     
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it('user (alice) can create a new vault (depositors: any) with collateral deposit tez - LOAN TOKEN: MockFA12', async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -967,7 +971,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1002,7 +1006,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1039,7 +1043,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1065,7 +1069,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
+                updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1124,7 +1128,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1151,7 +1155,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
+                updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1216,7 +1220,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1243,7 +1247,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
+                updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1279,7 +1283,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1307,7 +1311,7 @@ describe("Vault tests", async () => {
                 await setNewTokenAllowanceForDeposit.confirmation();
 
                 // update operators for vault
-                updateOperatorsOperation = await helperFunctions.updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
+                updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, bob.pkh, contractDeployments.vaultFactory.address, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -1343,7 +1347,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = eve.pkh;
                 const loanTokenName         = "usdt";
@@ -1391,7 +1395,7 @@ describe("Vault tests", async () => {
             try{        
 
                 // init variables
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner                = mallory.pkh;
@@ -1471,7 +1475,7 @@ describe("Vault tests", async () => {
         it('user (mallory) can deposit tez into user (eve)\'s vault (depositors: any)', async () => {
             
             // init variables
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
@@ -1510,7 +1514,7 @@ describe("Vault tests", async () => {
         it('user (eve) update depositors to whitelist set only (with alice address)', async () => {
             
             // init variables
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
@@ -1559,7 +1563,7 @@ describe("Vault tests", async () => {
         it('user (alice) can deposit tez into user (eve)\'s vault (depositors: whitelist) but mallory cannot', async () => {
             
             // init variables
-            await helperFunctions.signerFactory(tezos, alice.sk);
+            await signerFactory(tezos, alice.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
@@ -1593,7 +1597,7 @@ describe("Vault tests", async () => {
             assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMutez);
 
             // check that mallory is not able to deposit into the vault now
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",              // vault action
                 depositAmountMutez,     // amt
@@ -1614,7 +1618,7 @@ describe("Vault tests", async () => {
         it('user (alice) can deposit mock FA12 tokens into mallory\'s vault (depositors: whitelist set), but user (eve) cannot', async () => {
     
             // init variables
-            await helperFunctions.signerFactory(tezos, alice.sk);
+            await signerFactory(tezos, alice.sk);
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
 
@@ -1688,7 +1692,7 @@ describe("Vault tests", async () => {
             assert.equal(vaultMockFa12Account.balance, vaultInitialMockFa12TokenBalance + depositAmount);
 
             // check that eve is not able to deposit into the vault now
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             
             // reset token allowance
             const eveResetTokenAllowance = await mockFa12TokenInstance.methods.approve(
@@ -1717,7 +1721,7 @@ describe("Vault tests", async () => {
         it('user (mallory) update depositors type from Whitelist to Any', async () => {
             
             // init variables
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
 
@@ -1762,7 +1766,7 @@ describe("Vault tests", async () => {
         it('both user (eve) and user (alice) can now deposit mock FA12 tokens into mallory\'s vault (depositors: any)', async () => {
     
             // init variables
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
 
@@ -1845,7 +1849,7 @@ describe("Vault tests", async () => {
         it('user (eve) delegates MVK to oscar\'s satellite', async () => {
             
             // init variables
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
@@ -1889,7 +1893,7 @@ describe("Vault tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             // Operator set
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // Operation
@@ -1972,7 +1976,7 @@ describe("Vault tests", async () => {
         it('user (eve) can redelegate to bob\'s satellite', async () => {
 
             // init variables
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
