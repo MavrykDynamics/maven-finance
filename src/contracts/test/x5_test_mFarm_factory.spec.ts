@@ -224,7 +224,7 @@ describe("FarmFactory for Farm mToken", async () => {
     //             }
 
     //         } catch(e){
-    //             console.log(e);
+    //             console.dir(e, {depth: 5});
     //         } 
     //     });
     // })
