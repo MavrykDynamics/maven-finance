@@ -944,7 +944,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // init variables
             await signerFactory(tezos, eve.sk);
             const loanTokenName = "usdt";
-            const liquidityAmount = 100000000; // 100 Mock FA12 Tokens
+            const liquidityAmount = 10000000; // 10 Mock FA12 Tokens
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
@@ -1011,6 +1011,10 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // check Eve's mUsdt Token Token balance
             const updatedEveMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(eve.pkh);            
+            console.log(`eveInitialMUsdtTokenTokenBalance: ${eveInitialMUsdtTokenTokenBalance}`);
+            console.log(`liquidityAmount: ${liquidityAmount}`);
+            console.log(`updatedEveMUsdtTokenLedger: ${updatedEveMUsdtTokenLedger}`);
+            console.log(`eveInitialMUsdtTokenTokenBalance + liquidityAmount: ${eveInitialMUsdtTokenTokenBalance + liquidityAmount}`);
             assert.equal(updatedEveMUsdtTokenLedger, eveInitialMUsdtTokenTokenBalance + liquidityAmount);        
 
         });
@@ -1020,7 +1024,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // init variables
             await signerFactory(tezos, eve.sk);
             const loanTokenName = "eurl";
-            const liquidityAmount = 100000000; // 100 Mock FA2 Tokens
+            const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
@@ -1087,7 +1091,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // init variables
             await signerFactory(tezos, eve.sk);
             const loanTokenName = "tez";
-            const liquidityAmount = 100000000; // 100 XTZ
+            const liquidityAmount = 10000000; // 10 XTZ
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
