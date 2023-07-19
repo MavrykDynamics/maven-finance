@@ -49,7 +49,7 @@ async def on_governance_propose(
         quorum_count            = int(storage_record.quorumCount)
         quorum_smvk             = float(storage_record.quorumStakedMvkTotal)
         start_datetime          = parser.parse(storage_record.startDateTime)
-        execution_datetime      = parser.parse(storage_record.startDateTime) # TODO: refactor when implemented in the contracts
+        execution_datetime      = None # parser.parse(storage_record.executedDateTime)
         cycle                   = int(storage_record.cycle)
         current_cycle_start     = int(storage_record.currentCycleStartLevel)
         current_cycle_end       = int(storage_record.currentCycleEndLevel)

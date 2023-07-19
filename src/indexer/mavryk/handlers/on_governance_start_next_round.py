@@ -2,7 +2,7 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
-from dipdup.models import Transaction
+from dipdup.models import Transaction, Q
 from mavryk.types.governance.parameter.start_next_round import StartNextRoundParameter
 import mavryk.models as models
 
@@ -91,9 +91,23 @@ async def on_governance_start_next_round(
         # Defeat all other cycle proposals
         if current_round_type == models.GovernanceRoundType.VOTING:
             await models.GovernanceProposal.filter(
-                governance              = governance,
-                current_round_proposal  = True,
-                internal_id__not        = highest_voted_proposal
+                Q(governance = governance),
+                Q(current_round_proposal = True),
+                Q(defeated_datetime = None),
+                Q(execution_datetime = None),
+                Q(dropped_datetime = None),
+                Q(executed = False),
+                ~Q(internal_id = highest_voted_proposal)
+            ).update(
+                defeated_datetime       = timestamp
+            )
+        elif current_round_type == models.GovernanceRoundType.PROPOSAL:
+            await models.GovernanceProposal.filter(
+                Q(governance = governance),
+                Q(defeated_datetime = None),
+                Q(dropped_datetime = None),
+                Q(execution_ready = False),
+                Q(cycle__lt = cycle_id)
             ).update(
                 defeated_datetime       = timestamp
             )
