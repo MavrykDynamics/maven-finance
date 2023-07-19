@@ -117,7 +117,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
         // ------------------------------------------------------------------
         //
-        // Update mTokens (i.e. mTokens) tokenRewardIndex by transferring 0
+        // Update mTokens (i.e. mTokens) tokenRewardIndex by compounding
         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
         //
         // ------------------------------------------------------------------
@@ -128,20 +128,17 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
 
         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
-            // zero transfer to update token reward index
-            updateTokenRewardIndexOperation = await fa2Transfer(mTokenUsdtInstance, bob.pkh, eve.pkh, 0, 0);
+            updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
-            // zero transfer to update token reward index
-            updateTokenRewardIndexOperation = await fa2Transfer(mTokenEurlInstance, bob.pkh, eve.pkh, 0, 0);
+            updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            // zero transfer to update token reward index
-            updateTokenRewardIndexOperation = await fa2Transfer(mTokenXtzInstance, bob.pkh, eve.pkh, 0, 0);
+            updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
