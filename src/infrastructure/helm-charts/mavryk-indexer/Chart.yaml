@@ -2,8 +2,3 @@ name: mavryk-indexer
 version: 0.0.1
 apiVersion: v2
 appVersion: 0.0.1
-dependencies:
-  - name: pgadmin4
-    version: 1.11.0
-    condition: pgadmin4.enabled
-    repository: https://helm.runix.net
