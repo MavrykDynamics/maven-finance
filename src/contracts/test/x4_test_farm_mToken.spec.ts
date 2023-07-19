@@ -70,6 +70,7 @@ describe("Farm mToken", async () => {
     let mTokenUsdtInstance
 
     let depositOperation
+    let compoundOperation
     let updateOperatorsOperation
 
     before("setup", async () => {
@@ -126,101 +127,101 @@ describe("Farm mToken", async () => {
     })
 
 
-    describe('%setLoanToken - setup and test lending controller %setLoanToken entrypoint', function () {
+    // describe('%setLoanToken - setup and test lending controller %setLoanToken entrypoint', function () {
 
-        it('admin can set mock FA12 as a loan token', async () => {
+    //     it('admin can set mock FA12 as a loan token', async () => {
 
-            try{        
+    //         try{        
                 
-                // init variables
-                await signerFactory(tezos, bob.sk);
+    //             // init variables
+    //             await signerFactory(tezos, bob.sk);
 
-                const setLoanTokenActionType                = "createLoanToken";
+    //             const setLoanTokenActionType                = "createLoanToken";
 
-                const tokenName                             = "usdt";
-                const tokenContractAddress                  = mockFa12TokenAddress;
-                const tokenType                             = "fa12";
-                const tokenDecimals                         = 6;
+    //             const tokenName                             = "usdt";
+    //             const tokenContractAddress                  = mockFa12TokenAddress;
+    //             const tokenType                             = "fa12";
+    //             const tokenDecimals                         = 6;
 
-                const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
+    //             const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
 
-                const mTokenContractAddress                = mTokenUsdtAddress;
+    //             const mTokenContractAddress                = mTokenUsdtAddress;
 
-                const interestRateDecimals                  = 27;
-                const reserveRatio                          = 1000; // 10% reserves (4 decimals)
-                const optimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
-                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
-                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
-                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
-                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+    //             const interestRateDecimals                  = 27;
+    //             const reserveRatio                          = 1000; // 10% reserves (4 decimals)
+    //             const optimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+    //             const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+    //             const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+    //             const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+    //             const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
-                const minRepaymentAmount                    = 10000;
+    //             const minRepaymentAmount                    = 10000;
 
-                // check if loan token exists
-                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+    //             // check if loan token exists
+    //             const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-                if(checkLoanTokenExists === undefined){
+    //             if(checkLoanTokenExists === undefined){
 
-                    const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+    //                 const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
-                        setLoanTokenActionType,
+    //                     setLoanTokenActionType,
 
-                        tokenName,
-                        tokenDecimals,
+    //                     tokenName,
+    //                     tokenDecimals,
 
-                        oracleAddress,
+    //                     oracleAddress,
 
-                        mTokenContractAddress,
+    //                     mTokenContractAddress,
                         
-                        reserveRatio,
-                        optimalUtilisationRate,
-                        baseInterestRate,
-                        maxInterestRate,
-                        interestRateBelowOptimalUtilisation,
-                        interestRateAboveOptimalUtilisation,
+    //                     reserveRatio,
+    //                     optimalUtilisationRate,
+    //                     baseInterestRate,
+    //                     maxInterestRate,
+    //                     interestRateBelowOptimalUtilisation,
+    //                     interestRateAboveOptimalUtilisation,
 
-                        minRepaymentAmount,
+    //                     minRepaymentAmount,
 
-                        // fa12 token type - token contract address
-                        tokenType,
-                        tokenContractAddress,
+    //                     // fa12 token type - token contract address
+    //                     tokenType,
+    //                     tokenContractAddress,
 
-                    ).send();
-                    await adminSetMockFa12LoanTokenOperation.confirmation();
+    //                 ).send();
+    //                 await adminSetMockFa12LoanTokenOperation.confirmation();
 
-                    lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+    //                 lendingControllerStorage  = await lendingControllerInstance.storage();
+    //                 const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
     
-                    assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
-                    assert.equal(mockFa12LoanToken.mTokenAddress         , mTokenContractAddress);
+    //                 assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
+    //                 assert.equal(mockFa12LoanToken.mTokenAddress         , mTokenContractAddress);
     
-                    assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
-                    assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
-                    assert.equal(mockFa12LoanToken.totalBorrowed          , 0);
-                    assert.equal(mockFa12LoanToken.totalRemaining         , 0);
+    //                 assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
+    //                 assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
+    //                 assert.equal(mockFa12LoanToken.totalBorrowed          , 0);
+    //                 assert.equal(mockFa12LoanToken.totalRemaining         , 0);
     
-                    assert.equal(mockFa12LoanToken.optimalUtilisationRate , optimalUtilisationRate);
-                    assert.equal(mockFa12LoanToken.baseInterestRate       , baseInterestRate);
-                    assert.equal(mockFa12LoanToken.maxInterestRate        , maxInterestRate);
+    //                 assert.equal(mockFa12LoanToken.optimalUtilisationRate , optimalUtilisationRate);
+    //                 assert.equal(mockFa12LoanToken.baseInterestRate       , baseInterestRate);
+    //                 assert.equal(mockFa12LoanToken.maxInterestRate        , maxInterestRate);
                     
-                    assert.equal(mockFa12LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
-                    assert.equal(mockFa12LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+    //                 assert.equal(mockFa12LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+    //                 assert.equal(mockFa12LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
     
-                } else {
+    //             } else {
 
-                    lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+    //                 lendingControllerStorage  = await lendingControllerInstance.storage();
+    //                 const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
-                    // other variables will be affected by repeated tests
-                    assert.equal(mockFa12LoanToken.tokenName              , tokenName);
+    //                 // other variables will be affected by repeated tests
+    //                 assert.equal(mockFa12LoanToken.tokenName              , tokenName);
 
-                }
+    //             }
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
-    })
+    //         } catch(e){
+    //             console.log(e);
+    //         } 
+    //     });
+    // })
 
     // 
     // Test: Add Liquidity into Lending Pool
@@ -245,7 +246,9 @@ describe("Farm mToken", async () => {
             const bobMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMockFa12TokenBalance      = bobMockFa12Ledger == undefined ? 0 : bobMockFa12Ledger.balance.toNumber();
 
-            // get initial bob's mEurl Token - Mock FA12 Token - balance
+            // get initial bob's mToken - Mock FA12 Token (USDT) - balance
+            compoundOperation                         = await mTokenUsdtInstance.methods.compound([bob.pkh]).send();
+            await compoundOperation.confirmation();
             const bobMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMUsdtTokenTokenBalance    = bobMUsdtTokenLedger == undefined ? 0 : bobMUsdtTokenLedger.toNumber();
 
@@ -324,7 +327,9 @@ describe("Farm mToken", async () => {
             const aliceMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(alice.pkh);            
             const aliceInitialMockFa12TokenBalance      = aliceMockFa12Ledger == undefined ? 0 : aliceMockFa12Ledger.balance.toNumber();
 
-            // get initial alice's mEurl Token - Mock FA12 Token - balance
+            // get initial alice's mToken - Mock FA12 Token (USDT) - balance
+            compoundOperation                           = await mTokenUsdtInstance.methods.compound([alice.pkh]).send();
+            await compoundOperation.confirmation();
             const aliceMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(alice.pkh);            
             const aliceInitialMUsdtTokenTokenBalance    = aliceMUsdtTokenLedger == undefined ? 0 : aliceMUsdtTokenLedger.toNumber();
 
@@ -401,7 +406,9 @@ describe("Farm mToken", async () => {
             const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
-            // get initial eve's mEurl Token - Mock FA12 Token - balance
+            // get initial eve's mToken - Mock FA12 Token (USDT) - balance
+            compoundOperation                         = await mTokenUsdtInstance.methods.compound([eve.pkh]).send();
+            await compoundOperation.confirmation();
             const eveMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMUsdtTokenTokenBalance    = eveMUsdtTokenLedger == undefined ? 0 : eveMUsdtTokenLedger.toNumber();
 

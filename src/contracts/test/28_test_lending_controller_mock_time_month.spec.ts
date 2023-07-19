@@ -23,6 +23,7 @@ import {
     almostEqual,
     fa2Transfer,
     updateOperators,
+    updateGeneralContracts
 } from './helpers/helperFunctions'
 
 
@@ -51,6 +52,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
     const secondsInYears = 31536000
     const fixedPointAccuracy = 10**27
+
+    let lendingControllerAddress
     
     let doormanInstance
     let delegationInstance
@@ -124,7 +127,10 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos
-        
+
+        // use MOCK TIME version to set block levels 
+        lendingControllerAddress                = contractDeployments.lendingControllerMockTime.address;
+
         doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
         mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
@@ -144,7 +150,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
         mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvkAggregator.address);
 
-        lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
+        lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
         vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
 
         doormanStorage                          = await doormanInstance.storage();
@@ -155,9 +161,26 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
         mockFa12TokenStorage                    = await mockFa12TokenInstance.storage();
         mockFa2TokenStorage                     = await mockFa2TokenInstance.storage();
         governanceStorage                       = await governanceInstance.storage();
-        governanceProxyStorage                  = await governanceInstance.storage();
+        governanceProxyStorage                  = await governanceProxyInstance.storage();
         lendingControllerStorage                = await lendingControllerInstance.storage();
         vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+
+        // ------------------------------------------------------------------
+        //
+        //  Set Lending Controller Mock Time address in Governance General Contracts
+        //
+        // ------------------------------------------------------------------
+
+        const updateGeneralContractsOperation = await updateGeneralContracts(governanceInstance, 'lendingController', lendingControllerAddress, 'update');
+        await updateGeneralContractsOperation.confirmation();
+
+
+        // ------------------------------------------------------------------
+        //
+        //  Set up token oracles
+        //
+        // ------------------------------------------------------------------
+
 
         // set up token oracles for testing
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
@@ -193,35 +216,10 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             'tokenDecimals': 9
         })
 
-        // console.log('-- -- -- -- -- Lending Controller (Mock Time) Tests -- -- -- --')
-        // console.log('Doorman Contract deployed at:'             , doormanInstance.address);
-        // console.log('Delegation Contract deployed at:'          , delegationInstance.address);
-        // console.log('MVK Token Contract deployed at:'           , mvkTokenInstance.address);
-        // console.log('Lending Treasury Contract deployed at:'    , treasuryInstance.address);
-
-        // console.log('Mock FA12 Token Contract deployed at:'     , mockFa12TokenInstance.address);
-        // console.log('Mock FA2 Token Contract deployed at:'      , mockFa2TokenInstance.address);
-        // console.log('Governance Contract deployed at:'          , governanceInstance.address);
-        // console.log('Governance Proxy Contract deployed at:'    , governanceProxyInstance.address);
-
-        // console.log('mTokenUsdt - deployed at:'                 , mTokenUsdtInstance.address);
-        // console.log('mTokenEurl - deployed at:'                 , mTokenEurlInstance.address);
-        // console.log('mTokenXtz - deployed at:'                  , mTokenXtzInstance.address);
-
-        // console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
-        // console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
-        // console.log('Mock Aggregator - USD / XTZ - deployed at:'                , mockUsdXtzAggregatorInstance.address);
-
-        // // console.log('Lending Controller Contract deployed at:'                  , lendingControllerAddress.address);
-        // console.log('Lending Controller Mock Time Contract deployed at:'        , lendingControllerInstance.address);
-
-        // console.log('Alice address: ' + alice.pkh);
-        // console.log('Bob address: '   + bob.pkh);
-        // console.log('Eve address: '   + eve.pkh);
 
         // ------------------------------------------------------------------
         //
-        // Update mTokens (i.e. mTokens) tokenRewardIndex by transferring 0
+        // Update mTokens (i.e. mTokens) tokenRewardIndex by compounding
         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
         //
         // ------------------------------------------------------------------
@@ -232,20 +230,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
         const tezLoanToken      = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("tez").executeView({ viewCaller : bob.pkh});
         
         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
-            // zero transfer to update token reward index
-            updateTokenRewardIndexOperation = await fa2Transfer(mTokenUsdtInstance, bob.pkh, eve.pkh, 0, 0);
+            updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
-            // zero transfer to update token reward index
-            updateTokenRewardIndexOperation = await fa2Transfer(mTokenEurlInstance, bob.pkh, eve.pkh, 0, 0);
+            updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            // zero transfer to update token reward index
-            updateTokenRewardIndexOperation = await fa2Transfer(mTokenXtzInstance, bob.pkh, eve.pkh, 0, 0);
+            updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -274,7 +269,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
 
-                const mTokenContractAddress                = contractDeployments.mTokenUsdt.address;
+                const mTokenContractAddress                 = contractDeployments.mTokenUsdt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -373,7 +368,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
 
-                const mTokenContractAddress                = contractDeployments.mTokenEurl.address;
+                const mTokenContractAddress                 = contractDeployments.mTokenEurl.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -473,7 +468,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
 
-                const mTokenContractAddress                = contractDeployments.mTokenXtz.address;
+                const mTokenContractAddress                 = contractDeployments.mTokenXtz.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -983,7 +978,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const eveInitialMUsdtTokenTokenBalance    = eveMUsdtTokenLedger == undefined ? 0 : eveMUsdtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(contractDeployments.lendingControllerMockTime.address);            
+            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
@@ -993,14 +988,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 liquidityAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -1026,7 +1021,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(contractDeployments.lendingControllerMockTime.address);            
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check Eve's mUsdt Token Token balance
@@ -1057,7 +1052,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA2 Token balance
-            const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(contractDeployments.lendingControllerMockTime.address);            
+            const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
             // get initial lending controller token pool total
@@ -1065,7 +1060,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
-            updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, eve.pkh, contractDeployments.lendingControllerMockTime.address, tokenId);
+            updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, eve.pkh, lendingControllerAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA12 tokens into lending controller token pool
@@ -1090,7 +1085,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA2 Token Balance
-            const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(contractDeployments.lendingControllerMockTime.address);            
+            const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance + liquidityAmount);
 
             // check Eve's mEurl Token Token balance
@@ -1121,7 +1116,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const eveInitialMXtzTokenBalance    = eveMXtzTokenLedger == undefined ? 0 : eveMXtzTokenLedger.toNumber();
             
             // get initial lending controller's XTZ balance
-            const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(contractDeployments.lendingControllerMockTime.address);
+            const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress);
             const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
 
             // get initial lending controller token pool total
@@ -1144,7 +1139,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check Lending Controller's XTZ Balance
-            const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(contractDeployments.lendingControllerMockTime.address);
+            const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerAddress);
             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance + liquidityAmount);
 
             // check Eve's mTokenXtz balance
@@ -1342,14 +1337,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -1610,14 +1605,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -1880,14 +1875,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -2149,14 +2144,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -2423,14 +2418,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -2694,14 +2689,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -2965,14 +2960,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
@@ -3235,14 +3230,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
             const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 0
             ).send();
             await resetTokenAllowance.confirmation();
 
             // set new token allowance
             const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                contractDeployments.lendingControllerMockTime.address,
+                lendingControllerAddress,
                 repayAmount
             ).send();
             await setNewTokenAllowance.confirmation();
