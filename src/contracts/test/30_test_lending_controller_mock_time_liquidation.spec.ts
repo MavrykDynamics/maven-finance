@@ -663,17 +663,17 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
         if(!(usdtLoanToken == undefined || usdtLoanToken == null)){
-            updateTokenRewardIndexOperation = await mUsdtTokenInstance.methods.compound([admin, satelliteOne, satelliteTwo, satelliteThree]).send();
+            updateTokenRewardIndexOperation = await mUsdtTokenInstance.methods.compound([admin, eve.pkh, satelliteOne, satelliteTwo, satelliteThree]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(eurlLoanToken == undefined || eurlLoanToken == null)){
-            updateTokenRewardIndexOperation = await mEurlTokenInstance.methods.compound([admin, satelliteOne, satelliteTwo, satelliteThree]).send();
+            updateTokenRewardIndexOperation = await mEurlTokenInstance.methods.compound([admin, eve.pkh, satelliteOne, satelliteTwo, satelliteThree]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            updateTokenRewardIndexOperation = await mXtzTokenInstance.methods.compound([admin, satelliteOne, satelliteTwo, satelliteThree]).send();
+            updateTokenRewardIndexOperation = await mXtzTokenInstance.methods.compound([admin, eve.pkh, satelliteOne, satelliteTwo, satelliteThree]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -702,7 +702,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
 
-                const mTokenAddress                = contractDeployments.mTokenUsdt.address;
+                const mTokenAddress                         = contractDeployments.mTokenUsdt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
