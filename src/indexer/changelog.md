@@ -33,6 +33,11 @@
   - Column DefeatedDatetime added
   - Column DroppedDatetime added
 
+### Breaking changes
+
+- GovernanceProposal
+  - Column ExecutionDatetime is now nullable
+
 <details><summary>Previous versions</summary>
 
 <details><summary>0.44</summary>
