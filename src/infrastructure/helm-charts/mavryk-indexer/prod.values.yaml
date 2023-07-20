@@ -48,6 +48,8 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+          value: "False"
         - name: TELEGRAM_ENABLE_REPORTING
           value: "True"
         - name: TELEGRAM_BOT_API_TOKEN
@@ -159,6 +161,8 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+          value: "True"
         - name: TELEGRAM_ENABLE_REPORTING
           value: "True"
         - name: TELEGRAM_BOT_API_TOKEN
@@ -270,6 +274,8 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+          value: "True"
         - name: TELEGRAM_ENABLE_REPORTING
           value: "True"
         - name: TELEGRAM_BOT_API_TOKEN
@@ -354,6 +360,8 @@ instances:
           value: https://api.ghostnet.tzkt.io
         - name: TZKT_MAINNET_URL
           value: https://api.tzkt.io
+        - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+          value: "False"
         - name: TELEGRAM_ENABLE_REPORTING
           value: "True"
         - name: TELEGRAM_BOT_API_TOKEN
