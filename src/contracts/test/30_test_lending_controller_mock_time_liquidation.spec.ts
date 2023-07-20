@@ -486,17 +486,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
         // ------------------------------------------------------------------
         //
-        //  Set Lending Controller Mock Time address in Governance General Contracts
-        //
-        // ------------------------------------------------------------------
-
-        
-        const updateGeneralContractsOperation = await updateGeneralContracts(governanceInstance, 'lendingController', lendingControllerAddress, 'update');
-        await updateGeneralContractsOperation.confirmation();
-
-
-        // ------------------------------------------------------------------
-        //
         // Setup Satellites
         //
         // ----------------------
@@ -662,17 +651,17 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
         if(!(usdtLoanToken == undefined || usdtLoanToken == null)){
-            updateTokenRewardIndexOperation = await mUsdtTokenInstance.methods.compound([admin, eve.pkh, satelliteOne, satelliteTwo, satelliteThree]).send();
+            updateTokenRewardIndexOperation = await mUsdtTokenInstance.methods.compound([admin, eve.pkh, satelliteTwo, satelliteThree]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(eurlLoanToken == undefined || eurlLoanToken == null)){
-            updateTokenRewardIndexOperation = await mEurlTokenInstance.methods.compound([admin, eve.pkh, satelliteOne, satelliteTwo, satelliteThree]).send();
+            updateTokenRewardIndexOperation = await mEurlTokenInstance.methods.compound([admin, eve.pkh, satelliteTwo, satelliteThree]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            updateTokenRewardIndexOperation = await mXtzTokenInstance.methods.compound([admin, eve.pkh, satelliteOne, satelliteTwo, satelliteThree]).send();
+            updateTokenRewardIndexOperation = await mXtzTokenInstance.methods.compound([admin, eve.pkh, satelliteTwo, satelliteThree]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -2379,7 +2368,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data,  new BigNumber(newMedianPrice));
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
-            // console.log('   - Mock FA12 Token price change from ' + currentPrice + ' to ' + newMedianPrice);
+            console.log('   - Mock FA12 Token price change from ' + currentPrice + ' to ' + newMedianPrice);
 
 
             // ----------------------------------------------------------------------------------------------
