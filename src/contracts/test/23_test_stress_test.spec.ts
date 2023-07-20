@@ -20,7 +20,10 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
-import * as helperFunctions from './helpers/helperFunctions'
+
+import { 
+    signerFactory
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -93,26 +96,6 @@ describe("Stress tests", async () => {
             farmFactoryStorage              = await farmFactoryInstance.storage();
             farmStorage                     = await farmInstance.storage();
             lpTokenStorage                  = await lpTokenInstance.storage();
-            
-            console.log('-- -- -- -- -- Stress Tests -- -- -- --')
-            console.log('Doorman Contract deployed at:'                 , doormanInstance.address);
-            console.log('Delegation Contract deployed at:'              , delegationInstance.address);
-            console.log('MVK Token Contract deployed at:'               , mvkTokenInstance.address);
-            console.log('Governance Contract deployed at:'              , governanceInstance.address);
-            console.log('Governance Satellite Contract deployed at:'    , governanceSatelliteInstance.address);
-            console.log('Governance Financial Contract deployed at:'    , governanceFinancialInstance.address);
-            console.log('Aggregator Contract deployed at:'              , aggregatorInstance.address);
-            console.log('Council Contract deployed at:'                 , councilInstance.address);
-            console.log('Aggregator Factory Contract deployed at:'      , aggregatorFactoryInstance.address);
-            console.log('Governance Proxy Contract deployed at:'        , governanceProxyInstance.address);
-            console.log('Farm Factory Contract deployed at:'            , farmFactoryInstance.address);
-            console.log('Farm Contract deployed at:'                    , farmInstance.address);
-            console.log('LP Token Contract deployed at:'                , lpTokenInstance.address);
-            
-            console.log('Bob address: '     + bob.pkh);
-            console.log('Alice address: '   + alice.pkh);
-            console.log('Eve address: '     + eve.pkh);
-            console.log('Mallory address: ' + mallory.pkh);
 
             // Send all MVK to a single address
             mvkTokenStorage             = await mvkTokenInstance.storage();
@@ -122,7 +105,7 @@ describe("Stress tests", async () => {
             const fourthUserMVKBalance  = await mvkTokenStorage.ledger.get(oscar.pkh);
             const fifthUserMVKBalance   = await mvkTokenStorage.ledger.get(trudy.pkh);
 
-            await helperFunctions.signerFactory(tezos, alice.sk);
+            await signerFactory(tezos, alice.sk);
             var transferOperation = await mvkTokenInstance.methods.transfer([
                 {
                     from_: alice.pkh,
@@ -135,7 +118,7 @@ describe("Stress tests", async () => {
             ]).send()
             await transferOperation.confirmation()
 
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
             transferOperation = await mvkTokenInstance.methods.transfer([
                 {
                     from_: eve.pkh,
@@ -148,7 +131,7 @@ describe("Stress tests", async () => {
             ]).send()
             await transferOperation.confirmation()
 
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
             transferOperation = await mvkTokenInstance.methods.transfer([
                 {
                     from_: mallory.pkh,
@@ -161,7 +144,7 @@ describe("Stress tests", async () => {
             ]).send()
             await transferOperation.confirmation()
 
-            await helperFunctions.signerFactory(tezos, oscar.sk);
+            await signerFactory(tezos, oscar.sk);
             transferOperation = await mvkTokenInstance.methods.transfer([
                 {
                     from_: oscar.pkh,
@@ -175,7 +158,7 @@ describe("Stress tests", async () => {
             await transferOperation.confirmation()
 
 
-            await helperFunctions.signerFactory(tezos, trudy.sk);
+            await signerFactory(tezos, trudy.sk);
             transferOperation = await mvkTokenInstance.methods.transfer([
                 {
                     from_: trudy.pkh,
@@ -189,7 +172,7 @@ describe("Stress tests", async () => {
             await transferOperation.confirmation()
 
             // Transfer TEZ and MVK for each user
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
             mvkTokenStorage             = await mvkTokenInstance.storage();
             const mainUserMVKBalance    = await mvkTokenStorage.ledger.get(bob.pkh);
             const batchSize             = 50
@@ -215,7 +198,7 @@ describe("Stress tests", async () => {
                             token_id: 0,
                             amount: MVK(mvkAmount),
                         })
-                        // Transfer only if receiver as less than 1XTZ
+                        // Transfer only if receiver has less than 1XTZ
                         const userBalance   = await utils.tezos.tz.getBalance(account.pkh);
                         if(userBalance.toNumber() < 1){
                             batch.withTransfer({ to: account.pkh, amount: tezAmount })
@@ -279,7 +262,7 @@ describe("Stress tests", async () => {
                     const satellitePublicKey    = account.pk
                     const satellitePeerId       = account.peerId
                     const stakeAmount           = MVK(Math.trunc(15 * Math.random())) + accessAmount + 1;
-                    await helperFunctions.signerFactory(tezos, account.sk);
+                    await signerFactory(tezos, account.sk);
 
                     if(satelliteRecord===undefined){
 
@@ -383,7 +366,7 @@ describe("Stress tests", async () => {
         before("setup", async() => {
             try{
                 // Update config for shorter rounds
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
@@ -404,7 +387,7 @@ describe("Stress tests", async () => {
         it('%startNextRound', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, randomUserAccounts[0].sk);
+                await signerFactory(tezos, randomUserAccounts[0].sk);
                 governanceStorage           = await governanceInstance.storage();
 
                 // Operation
@@ -435,7 +418,7 @@ describe("Stress tests", async () => {
         it('%suspendSatellite', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, randomUserAccounts[0].sk);
+                await signerFactory(tezos, randomUserAccounts[0].sk);
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
                 const satelliteToSuspend    = randomUserAccounts[1].pkh;
                 const purpose               = "Stress test"
@@ -472,7 +455,7 @@ describe("Stress tests", async () => {
         describe("setup", async() => {
             try{
                 // Update config to simplify council votes
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
                 var updateConfigOperation   = await delegationInstance.methods.updateConfig(10,"configDelegationRatio").send();
                 await updateConfigOperation.confirmation();
                 updateConfigOperation       = await governanceFinancialInstance.methods.updateConfig(10,"configFinancialReqApprovalPct").send();
@@ -498,7 +481,7 @@ describe("Stress tests", async () => {
                 const purpose                   = "Test Council Request Mint 1000 MVK";            
 
                 // Council member (bob) requests for MVK to be minted and transferred from the Treasury
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
                         contractDeployments.council.address,
@@ -508,7 +491,7 @@ describe("Stress tests", async () => {
                 await councilRequestsMintOperation.confirmation();
 
                 // council members sign action, and action is executed once threshold of 3 signers is reached
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 const firstVoteParams                       = await councilInstance.methods.signAction(councilActionId).toTransferParams({})
                 const firstVoteEstimation                   = await utils.tezos.estimate.transfer(firstVoteParams);
 
@@ -523,7 +506,7 @@ describe("Stress tests", async () => {
                 const aliceSignsRequestMintActionOperation  = await councilInstance.methods.signAction(councilActionId).send();
                 await aliceSignsRequestMintActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 const secondVoteParams                       = await councilInstance.methods.signAction(councilActionId).toTransferParams({})
                 const secondVoteEstimation                   = await utils.tezos.estimate.transfer(secondVoteParams);
 
@@ -552,7 +535,7 @@ describe("Stress tests", async () => {
 
         before("Add Admin to delegation whitelist contracts", async () => {
             try{
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
                 const updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(bob.pkh, 'update').send()
                 await updateWhitelistContractsOperation.confirmation();
             } catch(e) {
@@ -592,7 +575,7 @@ describe("Stress tests", async () => {
 
         before("Set farm factory admin to proxy contract", async () => {
             try{
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
                 const setAdminOperation = await farmFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation();
             } catch(e) {
@@ -603,7 +586,7 @@ describe("Stress tests", async () => {
         it('Council contract should be able to call this entrypoint and mint MVK', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, randomUserAccounts[0].sk);
+                await signerFactory(tezos, randomUserAccounts[0].sk);
                 governanceStorage           = await governanceInstance.storage();
                 farmFactoryStorage          = await farmFactoryInstance.storage();
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -676,7 +659,7 @@ describe("Stress tests", async () => {
 
                 for (const index in randomUserAccounts){
                     const account: any  = randomUserAccounts[index];
-                    await helperFunctions.signerFactory(tezos, account.sk);
+                    await signerFactory(tezos, account.sk);
 
                     const proposalVoteParams        = await governanceInstance.methods.proposalRoundVote(proposalId).toTransferParams({})
                     const proposalVoteEstimation    = await utils.tezos.estimate.transfer(proposalVoteParams);
@@ -697,7 +680,7 @@ describe("Stress tests", async () => {
                 // Votes operation -> all satellites vote
                 for (const index in randomUserAccounts){
                     const account: any  = randomUserAccounts[index];
-                    await helperFunctions.signerFactory(tezos, account.sk);
+                    await signerFactory(tezos, account.sk);
 
                     const votingVoteParams          = await governanceInstance.methods.votingRoundVote("yay").toTransferParams({})
                     const votingVoteEstimation      = await utils.tezos.estimate.transfer(votingVoteParams);
@@ -749,7 +732,7 @@ describe("Stress tests", async () => {
 
         before("Admin transfers farm LP Token to each user and initialize the farm", async () => {
             try{
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
 
                 // Transfer Farm LP to each users
                 lpTokenStorage          = await lpTokenInstance.storage();
@@ -822,7 +805,7 @@ describe("Stress tests", async () => {
                     var approvals               = 0;
 
                     // Approval operation
-                    await helperFunctions.signerFactory(tezos, account.sk)
+                    await signerFactory(tezos, account.sk)
                     if(acccountLPAllowances===undefined || acccountLPAllowances.toNumber()<=0){
                         approvals               = acccountLPAllowances===undefined ? amountToDeposit : Math.abs(acccountLPAllowances.toNumber() - amountToDeposit);
                         depositBatch.withContractCall(lpTokenInstance.methods.approve(contractDeployments.farm.address, approvals))
@@ -886,7 +869,7 @@ describe("Stress tests", async () => {
                     if(depositorBalance > 0){
 
                         // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
+                        await signerFactory(tezos, account.sk)
                         const withdrawParams    = await farmInstance.methods.withdraw(amountToWithdraw).toTransferParams({})
                         const withdrawEstimate  = await utils.tezos.estimate.transfer(withdrawParams);
         
@@ -932,7 +915,7 @@ describe("Stress tests", async () => {
                     if(depositorBalance > 0){
 
                         // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
+                        await signerFactory(tezos, account.sk)
                         const claimParams       = await farmInstance.methods.claim([account.pkh]).toTransferParams({})
                         const claimEstimate     = await utils.tezos.estimate.transfer(claimParams);
         
@@ -984,7 +967,7 @@ describe("Stress tests", async () => {
                     if(amountToStake > 0){
 
                         // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
+                        await signerFactory(tezos, account.sk)
                         const updateOperatorsParams = await mvkTokenInstance.methods.update_operators([{
                             add_operator: {
                                 owner: account.pkh,
@@ -1058,7 +1041,7 @@ describe("Stress tests", async () => {
                     if(amountToUnstake > 0){
 
                         // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
+                        await signerFactory(tezos, account.sk)
                         const unstakeParams     = await doormanInstance.methods.unstake(amountToUnstake).toTransferParams({})
                         const unstakeEstimate   = await utils.tezos.estimate.transfer(unstakeParams);
         
