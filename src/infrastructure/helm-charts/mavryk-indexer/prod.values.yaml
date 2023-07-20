@@ -97,7 +97,7 @@ instances:
           namespace: kube-prometheus-stack
       database:
         backup:
-          enabled: true
+          enabled: false
           env:
             - name: POSTGRES_DB
               value: dipdup
@@ -208,7 +208,7 @@ instances:
           namespace: kube-prometheus-stack
       database:
         backup:
-          enabled: true
+          enabled: false
           env:
             - name: POSTGRES_DB
               value: dipdup
