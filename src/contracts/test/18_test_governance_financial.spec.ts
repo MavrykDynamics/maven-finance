@@ -3511,7 +3511,7 @@ describe("Test: Governance Financial Contract", async () => {
             try{
                 // Initial Values
                 governanceFinancialStorage        = await governanceFinancialInstance.storage();
-                const currentAdmin  = doormanStorage.admin;
+                const currentAdmin  = governanceFinancialStorage.admin;
 
                 // Operation
                 setAdminOperation = await governanceFinancialInstance.methods.setAdmin(mallory.pkh);
