@@ -5,6 +5,7 @@ from mavryk.types.governance.storage import GovernanceStorage, RoundItem as prop
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
 import mavryk.models as models
+import os
 
 async def on_governance_origination(
     ctx: HandlerContext,
@@ -174,6 +175,19 @@ async def on_governance_origination(
                 lending_controller_mock_time_contract="lending_controller_mock_time"
             )
         )
+
+        # Start Liquidity Baking indexer
+        liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
+        if liquidity_baking_enable_indexer.upper() == "TRUE":
+            await ctx.add_index(
+                name="liquidity_baking",
+                template="liquidity_baking_template",
+                values=dict(
+                    liquidity_baking_contract="liquidity_baking",
+                    sirius_contract="sirius",
+                    tzbtc_contract="tzbtc"
+                )
+            )
 
     except BaseException as e:
          await save_error_report(e)
