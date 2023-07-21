@@ -184,9 +184,8 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Running tests for lendingController"
             COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/17_setup_aggregators.spec.ts --bail --timeout 9000000")
-            
-            # COMMANDS+=("yarn ts-mocha --paths test/deploy/21_deploy_lending_controller_supporting_contracts.spec.ts --bail --timeout 9000000")
-
+            # Lending Controller Tests
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/21_deploy_lending_controller_supporting_contracts.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/26_test_lending_controller.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/27_test_lending_controller_pause.spec.ts --bail --timeout 9000000")
             # Deploy Lending Controller Mock Time 
@@ -195,6 +194,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/28_test_lending_controller_mock_time_month.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/29_test_lending_controller_mock_time_year.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/30_test_lending_controller_mock_time_liquidation.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/31_test_mToken.spec.ts --bail --timeout 9000000")
             ;;
         lendingController)
             echo "Running tests for lendingController"
