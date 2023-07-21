@@ -2368,7 +2368,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data,  new BigNumber(newMedianPrice));
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
-            console.log('   - Mock FA12 Token price change from ' + currentPrice + ' to ' + newMedianPrice);
+            // console.log('   - Mock FA12 Token price change from ' + currentPrice + ' to ' + newMedianPrice);
 
 
             // ----------------------------------------------------------------------------------------------
