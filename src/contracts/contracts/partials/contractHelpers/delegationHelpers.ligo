@@ -300,7 +300,7 @@ block {
             Some (_snapshot)    -> _snapshot
         |   None                -> {
                 
-                const satelliteLastSnapshotCycleId : nat = getSatelliteLastSnapshot(satelliteAddress, s);
+                // Case: Satellite snapshot for governance cycle id immediately after reference id is not found
                 
                 // get snapshot of current governance cycle 
                 snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (currentGovernanceCycleId, satelliteAddress), s.governanceAddress);
@@ -316,6 +316,7 @@ block {
 
                 // get next snapshot id from current cycle satellite snapshot
                 // use satelliteLastSnapshotCycleId as final backup id
+                const satelliteLastSnapshotCycleId : nat = getSatelliteLastSnapshot(satelliteAddress, s);
                 const nextSnapshotId : nat = case currentCycleSatelliteSnapshot.nextSnapshotId of [
                         Some(_v) -> _v
                     |   None -> satelliteLastSnapshotCycleId
