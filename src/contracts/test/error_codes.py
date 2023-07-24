@@ -682,8 +682,8 @@ error_UNSTAKE_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                            
 error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                   = 494
 error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                      = 495
 error_UPDATE_TOKEN_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                     = 496
-error_STAKE_TOKEN_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                = 497
-error_UNSTAKE_TOKEN_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                              = 498
+error_STAKE_TOKENS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                               = 497
+error_UNSTAKE_TOKENS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                             = 498
 
 
 error_SET_ADMIN_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                               = 499
