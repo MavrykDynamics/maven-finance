@@ -22,6 +22,7 @@ import {
     signerFactory, 
     almostEqual,
     fa2Transfer,
+    updateGeneralContracts,
     updateOperators,
 } from './helpers/helperFunctions'
 
@@ -154,6 +155,24 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
         mockUsdXtzAggregatorStorage             = await mockUsdXtzAggregatorInstance.storage();
         mockUsdMvkAggregatorStorage             = await mockUsdMvkAggregatorInstance.storage();
+
+        // ------------------------------------------------------------------
+        //
+        //  Set Lending Controller Mock Time address in Governance General Contracts
+        //
+        // ------------------------------------------------------------------
+
+
+        const updateGeneralContractsOperation = await updateGeneralContracts(governanceInstance, 'lendingController', lendingControllerAddress, 'update');
+        await updateGeneralContractsOperation.confirmation();
+
+
+        // ------------------------------------------------------------------
+        //
+        //  Set up token oracles
+        //
+        // ------------------------------------------------------------------
+
 
         tokenOracles.push({
             'name': 'usdt', 
