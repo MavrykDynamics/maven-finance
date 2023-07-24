@@ -287,10 +287,10 @@ block {
 
 
 // helper function to get satellite snapshot
-function getSatelliteSnapshot(const currentCycle : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
+function getSatelliteSnapshot(const governanceCycleIdAfterReference : nat; const currentGovernanceCycleId : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
 block {
 
-    var snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) := Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    var snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) := Tezos.call_view ("getSnapshotOpt", (governanceCycleIdAfterReference, satelliteAddress), s.governanceAddress);
     var satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) := case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -302,19 +302,39 @@ block {
                 
                 const satelliteLastSnapshotCycleId : nat = getSatelliteLastSnapshot(satelliteAddress, s);
                 
-                // get snapshot of last cycle 
-                snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (satelliteLastSnapshotCycleId, satelliteAddress), s.governanceAddress);
+                // get snapshot of current governance cycle 
+                snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (currentGovernanceCycleId, satelliteAddress), s.governanceAddress);
                 satelliteSnapshotOpt    := case snapshotOptView of [
                         Some (_snapshotOpt) -> _snapshotOpt
                     |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const lastSatelliteSnapshot = case satelliteSnapshotOpt of [
+                const previousSatelliteSnapshot = case satelliteSnapshotOpt of [
                         Some (_snapshot)    -> _snapshot
                     |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
                 ];
 
-            } with lastSatelliteSnapshot
+                // use satelliteLastSnapshotCycleId as final backup id
+                const nextSnapshotId : nat = case previousSatelliteSnapshot.nextSnapshotId of [
+                        Some(_v) -> _v
+                    |   None -> satelliteLastSnapshotCycleId
+                ];
+
+                // get next snapshot following the current governance cycle id 
+                // - N.B. this implementation accounts for any potential gaps between 
+                //   governance cycles where the satellite snapshot was not created
+                snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (nextSnapshotId, satelliteAddress), s.governanceAddress);
+                satelliteSnapshotOpt    := case snapshotOptView of [
+                        Some (_snapshotOpt) -> _snapshotOpt
+                    |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                const nextSatelliteSnapshot = case satelliteSnapshotOpt of [
+                        Some (_snapshot)    -> _snapshot
+                    |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
+                ];
+
+            } with nextSatelliteSnapshot
     ];
 
 } with satelliteSnapshot
@@ -769,7 +789,7 @@ block{
 
                     // get satellite snapshot of next governance cycle after reference 
                     const governanceCycleIdAfterReference : nat = referenceGovernanceCycleId + 1n;
-                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getSatelliteSnapshot(governanceCycleIdAfterReference, satelliteReferenceAddress, s);
+                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getSatelliteSnapshot(governanceCycleIdAfterReference, currentGovernanceCycleId, satelliteReferenceAddress, s);
                     
                     // get satellite's accumulated rewards per share at this instance, which will be equivalent to user's participation rewards per share
                     const initialParticipationRewardsPerShare : nat = satelliteSnapshot.accumulatedRewardsPerShare;
