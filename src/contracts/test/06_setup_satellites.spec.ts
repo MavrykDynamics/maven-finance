@@ -57,6 +57,7 @@ describe("Setup: Mock Satellites", async () => {
     let tokenId = 0
 
     let stakeAmount
+    let stakeBonusAmount = MVK(700)
 
     // contract instances
     let doormanInstance
@@ -91,7 +92,6 @@ describe("Setup: Mock Satellites", async () => {
     let stakeOperation
     let delegateOperation
     let registerAsSatelliteOperation
-
 
     before("setup", async () => {
 
@@ -139,9 +139,9 @@ describe("Setup: Mock Satellites", async () => {
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + stakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(2000);
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + stakeBonusAmount;
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -215,9 +215,9 @@ describe("Setup: Mock Satellites", async () => {
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + stakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(1500);
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + stakeBonusAmount;
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -291,9 +291,9 @@ describe("Setup: Mock Satellites", async () => {
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + stakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(700);
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + stakeBonusAmount;
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -367,9 +367,9 @@ describe("Setup: Mock Satellites", async () => {
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + stakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(700);
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + stakeBonusAmount;
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -442,9 +442,9 @@ describe("Setup: Mock Satellites", async () => {
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + stakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + MVK(700);
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + stakeBonusAmount;
 
                     // update operators operation for user
                     updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
