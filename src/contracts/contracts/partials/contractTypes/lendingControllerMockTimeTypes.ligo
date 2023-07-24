@@ -329,12 +329,6 @@ type repayActionType is [@layout:comb] record [
 ]
 
 
-type updateRewardsActionType is [@layout:comb] record [
-    tokenName       : string;
-    amount          : nat;
-]
-
-
 type vaultDepositStakedTokenActionType is [@layout:comb] record [
     tokenName       : string;
     vaultId         : nat;

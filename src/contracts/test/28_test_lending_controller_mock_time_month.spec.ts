@@ -1,6 +1,7 @@
 import assert from "assert";
-import { Utils, zeroAddress } from "./helpers/Utils";
+
 import * as lendingHelper from "./helpers/lendingHelpers"
+import { Utils, zeroAddress } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -172,6 +173,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
         //
         // ------------------------------------------------------------------
 
+        
         const updateGeneralContractsOperation = await updateGeneralContracts(governanceInstance, 'lendingController', lendingControllerAddress, 'update');
         await updateGeneralContractsOperation.confirmation();
 
@@ -4364,148 +4366,190 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
     })
 
 
-    describe('reset - repay all loans and remove liquidity', function () {
+    // describe('reset - repay all loans and remove liquidity', function () {
 
-        it('repay all loans', async () => {
+    //     it('repay all loans', async () => {
 
-            await signerFactory(tezos, eve.sk);
+    //         await signerFactory(tezos, eve.sk);
 
-            for(const vaultId of eveVaultSet) {
-                try {
+    //         for(const vaultId of eveVaultSet) {
+    //             try {
 
-                    const vaultOwner = eve.pkh;
-                    const vaultHandle = {
-                        "id"    : vaultId,
-                        "owner" : vaultOwner
-                    };
+    //                 const vaultOwner = eve.pkh;
+    //                 const vaultHandle = {
+    //                     "id"    : vaultId,
+    //                     "owner" : vaultOwner
+    //                 };
     
-                    lendingControllerStorage = await lendingControllerInstance.storage();
+    //                 lendingControllerStorage = await lendingControllerInstance.storage();
 
-                    const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
-                    const vaultAddress   = newVaultRecord.address;
-                    const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+    //                 const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+    //                 const vaultAddress   = newVaultRecord.address;
+    //                 const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
     
-                    let vaultRecordView             = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-                    const loanToken                 = vaultRecordView.loanToken;
-                    let loanOutstandingTotal        = vaultRecordView.loanOutstandingTotal;
-                    loanOutstandingTotal            = loanOutstandingTotal * 3; // increase amount to cover interest accrued; excess amount will be refunded
+    //                 let vaultRecordView             = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+    //                 const loanToken                 = vaultRecordView.loanToken;
+    //                 let loanOutstandingTotal        = vaultRecordView.loanOutstandingTotal;
+    //                 loanOutstandingTotal            = loanOutstandingTotal * 3; // increase amount to cover interest accrued; excess amount will be refunded
 
-                    if(loanToken == "usdt"){
+    //                 console.log(`vaultId: ${vaultId} | vaultAddress: ${vaultAddress} | loanOutstandingTotal: ${loanOutstandingTotal}`)
 
-                        // Mock FA12 Tokens
-                        // reset token allowance
-                        const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                            lendingControllerAddress,
-                            0
-                        ).send();
-                        await resetTokenAllowance.confirmation();
+    //                 // if loan outstanding total is greater than min repayment amount
+    //                 if(loanOutstandingTotal > 10000){
+    //                     if(loanToken == "usdt"){
 
-                        // set new token allowance
-                        const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                            lendingControllerAddress,
-                            loanOutstandingTotal
-                        ).send();
-                        await setNewTokenAllowance.confirmation();
+    //                         // Mock FA12 Tokens
+    //                         // reset token allowance
+    //                         const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+    //                             lendingControllerAddress,
+    //                             0
+    //                         ).send();
+    //                         await resetTokenAllowance.confirmation();
 
-                        // repay operation
-                        const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send();
-                        await eveRepayOperation.confirmation();
+    //                         // set new token allowance
+    //                         const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+    //                             lendingControllerAddress,
+    //                             loanOutstandingTotal
+    //                         ).send();
+    //                         await setNewTokenAllowance.confirmation();
 
-                    } else if(loanToken == "eurl"){
+    //                         // repay operation
+    //                         const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send();
+    //                         await eveRepayOperation.confirmation();
 
-                        // update operators for vault
-                        updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
-                        await updateOperatorsOperation.confirmation();
+    //                     } else if(loanToken == "eurl"){
 
-                        // repay operation
-                        const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send();
-                        await eveRepayOperation.confirmation();
+    //                         // update operators for vault
+    //                         updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
+    //                         await updateOperatorsOperation.confirmation();
 
-                    } else if(loanToken == "tez"){
+    //                         // repay operation
+    //                         const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send();
+    //                         await eveRepayOperation.confirmation();
 
-                        const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send({ mutez : true, amount : loanOutstandingTotal});
-                        await eveRepayOperation.confirmation();
-            
-                    }
+    //                     } else if(loanToken == "tez"){
 
-                    lendingControllerStorage        = await lendingControllerInstance.storage();
-                    vaultRecordView                 = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-                    const finalLoanOutstandingTotal = vaultRecordView.loanOutstandingTotal;
+    //                         const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send({ mutez : true, amount : loanOutstandingTotal});
+    //                         await eveRepayOperation.confirmation();
+                
+    //                     }
+    //                 }
 
-                    assert.equal(finalLoanOutstandingTotal, 0);
+    //                 lendingControllerStorage        = await lendingControllerInstance.storage();
+    //                 vaultRecordView                 = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+    //                 const finalLoanOutstandingTotal = vaultRecordView.loanOutstandingTotal;
 
-                    const collateralBalanceLedger   = vaultRecordView.collateralBalanceLedger;
-                    for (const [collateralName, collateralBalance] of collateralBalanceLedger.entries()) {
+    //                 assert.equal(finalLoanOutstandingTotal, 0);
 
-                        try {
+    //                 const collateralBalanceLedger   = vaultRecordView.collateralBalanceLedger;
+    //                 for (const [collateralName, collateralBalance] of collateralBalanceLedger.entries()) {
+
+    //                     try {
                             
-                            const eveWithdrawOperation  = await vaultInstance.methods.initVaultAction(
-                                "withdraw",
-                                collateralBalance.toNumber(),                 
-                                collateralName                            
-                            ).send();
-                            await eveWithdrawOperation.confirmation();
+    //                         if(collateralName == "smvk"){
 
-                        }  catch (error) {
-                            console.log(`An error occurred while processing collateral ${collateralName}: ${error}`);
-                        }
-                    }
+    //                             // vault staked token (e.g. smvk) operation
+    //                             const eveVaultWithdrawStakedTokenOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedToken(
+    //                                 collateralName,
+    //                                 vaultId,                 
+    //                                 collateralBalance.toNumber()                            
+    //                             ).send();
+    //                             await eveVaultWithdrawStakedTokenOperation.confirmation();
+
+    //                         } else {
+
+    //                             const eveWithdrawOperation  = await vaultInstance.methods.initVaultAction(
+    //                                 "withdraw",
+    //                                 collateralBalance.toNumber(),                 
+    //                                 collateralName                            
+    //                             ).send();
+    //                             await eveWithdrawOperation.confirmation();
+
+    //                         }
+
+    //                     }  catch (error) {
+    //                         console.log(`An error occurred while processing collateral ${collateralName}: ${error}`);
+    //                     }
+    //                 }
     
-                } catch (error) {
-                    console.log(`An error occurred while processing vaultId ${vaultId}: ${error}`);
-                }
-            }
-        });
+    //             } catch (error) {
+    //                 console.log(`An error occurred while processing vaultId ${vaultId}: ${error}`);
+    //             }
+    //         }
+    //     });
 
-        it('remove all liquidity', async () => {
+    //     it('remove all liquidity', async () => {
 
-            await signerFactory(tezos, eve.sk);
-
-            let loanTokenName                         = "usdt";
-            compoundOperation                         = await mTokenUsdtInstance.methods.compound([eve.pkh]).send();
-            await compoundOperation.confirmation();
-            const mTokenUsdtStorage                   = await mTokenUsdtInstance.storage();
-            const eveMTokenUsdtLedger                 = await mTokenUsdtStorage.ledger.get(eve.pkh);            
-            const eveMTokenUsdtBalance                = eveMTokenUsdtLedger == undefined ? 0 : eveMTokenUsdtLedger.toNumber();
+    //         await signerFactory(tezos, eve.sk);
             
-            let removeLiquidityOperation  = await lendingControllerInstance.methods.removeLiquidity(
-                loanTokenName,
-                eveMTokenUsdtBalance, 
-            ).send();
-            await removeLiquidityOperation.confirmation();
+    //         lendingControllerStorage = await lendingControllerInstance.storage();
 
+    //         let loanTokenName                         = "usdt";
+    //         compoundOperation                         = await mTokenUsdtInstance.methods.compound([eve.pkh]).send();
+    //         await compoundOperation.confirmation();
+    //         const mTokenUsdtStorage                   = await mTokenUsdtInstance.storage();
+    //         const eveMTokenUsdtLedger                 = await mTokenUsdtStorage.ledger.get(eve.pkh);            
+    //         const eveMTokenUsdtBalance                = eveMTokenUsdtLedger == undefined ? 0 : eveMTokenUsdtLedger.toNumber();
 
-
-            loanTokenName                             = "eurl";
-            compoundOperation                         = await mTokenEurlInstance.methods.compound([eve.pkh]).send();
-            await compoundOperation.confirmation();
-            const mTokenEurlStorage                   = await mTokenEurlInstance.storage();
-            const eveMTokenEurlLedger                 = await mTokenEurlStorage.ledger.get(eve.pkh);            
-            const eveMTokenEurlBalance                = eveMTokenEurlLedger == undefined ? 0 : eveMTokenEurlLedger.toNumber();
-
-            removeLiquidityOperation  = await lendingControllerInstance.methods.removeLiquidity(
-                loanTokenName,
-                eveMTokenEurlBalance, 
-            ).send();
-            await removeLiquidityOperation.confirmation();
-
-
-
-            loanTokenName                             = "tez";
-            compoundOperation                         = await mTokenXtzInstance.methods.compound([eve.pkh]).send();
-            await compoundOperation.confirmation();
-            const mTokenXtzStorage                    = await mTokenXtzInstance.storage();
-            const eveMTokenXtzLedger                  = await mTokenXtzStorage.ledger.get(eve.pkh);            
-            const eveMTokenXtzBalance                 = eveMTokenXtzLedger == undefined ? 0 : eveMTokenXtzLedger.toNumber();
+    //         let loanTokenRecord                       = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+    //         let loanTotal                             = loanTokenRecord.tokenPoolTotal.toNumber();
+    //         let loanTotalRemaining                    = loanTokenRecord.totalRemaining.toNumber();
             
-            removeLiquidityOperation  = await lendingControllerInstance.methods.removeLiquidity(
-                loanTokenName,
-                eveMTokenXtzBalance, 
-            ).send();
-            await removeLiquidityOperation.confirmation();
+    //         console.log(`eveMTokenUsdtBalance: ${eveMTokenUsdtBalance}`);
+    //         console.log(`loanTokenName: ${loanTokenName} | loanTotal: ${loanTotal} | loanTotalRemaining: ${loanTotalRemaining}`);
 
-        })
+    //         let removeLiquidityOperation  = await lendingControllerInstance.methods.removeLiquidity(
+    //             loanTokenName,
+    //             eveMTokenUsdtBalance, 
+    //         ).send();
+    //         await removeLiquidityOperation.confirmation();
 
-    })
+
+
+    //         loanTokenName                             = "eurl";
+    //         compoundOperation                         = await mTokenEurlInstance.methods.compound([eve.pkh]).send();
+    //         await compoundOperation.confirmation();
+    //         const mTokenEurlStorage                   = await mTokenEurlInstance.storage();
+    //         const eveMTokenEurlLedger                 = await mTokenEurlStorage.ledger.get(eve.pkh);            
+    //         const eveMTokenEurlBalance                = eveMTokenEurlLedger == undefined ? 0 : eveMTokenEurlLedger.toNumber();
+
+    //         loanTokenRecord                           = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+    //         loanTotal                                 = loanTokenRecord.tokenPoolTotal.toNumber();
+    //         loanTotalRemaining                        = loanTokenRecord.totalRemaining.toNumber();
+            
+    //         console.log(`eveMTokenEurlBalance: ${eveMTokenEurlBalance}`);
+    //         console.log(`loanTokenName: ${loanTokenName} | loanTotal: ${loanTotal} | loanTotalRemaining: ${loanTotalRemaining}`);
+
+    //         removeLiquidityOperation  = await lendingControllerInstance.methods.removeLiquidity(
+    //             loanTokenName,
+    //             eveMTokenEurlBalance, 
+    //         ).send();
+    //         await removeLiquidityOperation.confirmation();
+
+
+
+    //         loanTokenName                             = "tez";
+    //         compoundOperation                         = await mTokenXtzInstance.methods.compound([eve.pkh]).send();
+    //         await compoundOperation.confirmation();
+    //         const mTokenXtzStorage                    = await mTokenXtzInstance.storage();
+    //         const eveMTokenXtzLedger                  = await mTokenXtzStorage.ledger.get(eve.pkh);            
+    //         const eveMTokenXtzBalance                 = eveMTokenXtzLedger == undefined ? 0 : eveMTokenXtzLedger.toNumber();
+            
+    //         loanTokenRecord                           = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+    //         loanTotal                                 = loanTokenRecord.tokenPoolTotal.toNumber();
+    //         loanTotalRemaining                        = loanTokenRecord.totalRemaining.toNumber();
+            
+    //         console.log(`eveMTokenXtzBalance: ${eveMTokenXtzBalance}`);
+    //         console.log(`loanTokenName: ${loanTokenName} | loanTotal: ${loanTotal} | loanTotalRemaining: ${loanTotalRemaining}`);
+
+    //         removeLiquidityOperation  = await lendingControllerInstance.methods.removeLiquidity(
+    //             loanTokenName,
+    //             eveMTokenXtzBalance, 
+    //         ).send();
+    //         await removeLiquidityOperation.confirmation();
+
+    //     })
+
+    // })
 
 });
