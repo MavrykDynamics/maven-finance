@@ -1852,7 +1852,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(vaultLiquidationEndLevel, expectedLiquidationEndLevel);
 
             // test vault cannot be marked for liquidation if it has already been marked
-            console.log(`fail mark for liquidation second time`)
             const failMarkVaultForLiquidation = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
             await chai.expect(failMarkVaultForLiquidation.send()).to.be.rejected;
 
@@ -1883,13 +1882,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // console.log('   - time set to middle of vault liquidation delay: ' + markedForLiquidationLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
             // test vault cannot be marked for liquidation if it has already been marked
-            console.log(`fail mark for liquidation second time`)
             const failMarkVaultForLiquidationAgain = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
             await chai.expect(failMarkVaultForLiquidationAgain.send()).to.be.rejected;
 
             // test vault cannot be liquidated if delay has not been passed
             const failTestLiquidationAmount = 10;
-            console.log(`fail liquidation delay not passed`)
             failLiquidateVaultOperation = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, failTestLiquidationAmount);
             await chai.expect(failLiquidateVaultOperation.send()).to.be.rejected;
 
@@ -2174,7 +2171,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(vaultLoanOutstandingTotal, initialVaultLoanOutstandingTotal - vaultMaxLiquidationAmount);
 
             // test vault cannot be liquidated again 
-            console.log(`fail cannot liquidate again`)
             failLiquidateVaultOperation = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, failTestLiquidationAmount);
             await chai.expect(failLiquidateVaultOperation.send()).to.be.rejected;
 
