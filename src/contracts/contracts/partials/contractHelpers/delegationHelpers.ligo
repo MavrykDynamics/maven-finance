@@ -272,7 +272,7 @@ function getSatelliteLastSnapshot(const satelliteAddress : address; const s : de
 block {
 
     const lastSnapshotOptView : option (option(nat)) = Tezos.call_view ("getSatelliteLastSnapshotOpt", satelliteAddress, s.governanceAddress);
-    const satelliteLastSnapshotOpt: option(nat) = case snapshotOptView of [
+    const satelliteLastSnapshotOpt: option(nat) = case lastSnapshotOptView of [
             Some (_cycleId) -> _cycleId
         |   None             -> failwith (error_GET_SATELLITE_LAST_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
@@ -290,15 +290,31 @@ block {
 function getSatelliteSnapshot(const currentCycle : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
-    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
+    var snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) := Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    var satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) := case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
     const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case satelliteSnapshotOpt of [
             Some (_snapshot)    -> _snapshot
-        |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
+        |   None                -> {
+                
+                const satelliteLastSnapshotCycleId : nat = getSatelliteLastSnapshot(satelliteAddress, s);
+                
+                // get snapshot of last cycle 
+                snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (satelliteLastSnapshotCycleId, satelliteAddress), s.governanceAddress);
+                satelliteSnapshotOpt    := case snapshotOptView of [
+                        Some (_snapshotOpt) -> _snapshotOpt
+                    |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                const lastSatelliteSnapshot = case satelliteSnapshotOpt of [
+                        Some (_snapshot)    -> _snapshot
+                    |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
+                ];
+
+            } with lastSatelliteSnapshot
     ];
 
 } with satelliteSnapshot
