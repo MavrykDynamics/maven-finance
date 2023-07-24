@@ -630,11 +630,11 @@ block{
                 // Compound rewards
                 for userAddress in set userAddresses block {
                     // Save user init balance
-                    const userStakeBalanceRecord : userStakeBalanceRecordType   = case s.userStakeBalanceLedger[userAddress] of [
-                            Some(_v) -> _v
-                        |   None     -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                    const userStakeBalance : nat    = case s.userStakeBalanceLedger[userAddress] of [
+                            Some(_v) -> _v.balance
+                        |   None     -> 0n
                     ];
-                    onStakeChangeParam  := Set.add((userAddress, userStakeBalanceRecord.balance), onStakeChangeParam);
+                    onStakeChangeParam              := Set.add((userAddress, userStakeBalance), onStakeChangeParam);
 
                     // Compound user rewards
                     s := compoundUserRewards(userAddress, s);
