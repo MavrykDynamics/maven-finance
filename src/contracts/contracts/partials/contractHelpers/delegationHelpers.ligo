@@ -267,6 +267,25 @@ block {
 
 
 
+// helper function to get satellite last snapshot
+function getSatelliteLastSnapshot(const satelliteAddress : address; const s : delegationStorageType) : nat is 
+block {
+
+    const lastSnapshotOptView : option (option(nat)) = Tezos.call_view ("getSatelliteLastSnapshotOpt", satelliteAddress, s.governanceAddress);
+    const satelliteLastSnapshotOpt: option(nat) = case snapshotOptView of [
+            Some (_cycleId) -> _cycleId
+        |   None             -> failwith (error_GET_SATELLITE_LAST_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    const satelliteLastSnapshot : nat = case satelliteLastSnapshotOpt of [
+            Some (_cycleId)    -> _cycleId
+        |   None               -> failwith(error_SATELLITE_LAST_SNAPSHOT_NOT_FOUND)
+    ];
+
+} with satelliteLastSnapshot
+
+
+
 // helper function to get satellite snapshot
 function getSatelliteSnapshot(const currentCycle : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
 block {
@@ -283,6 +302,7 @@ block {
     ];
 
 } with satelliteSnapshot
+
 
 
 

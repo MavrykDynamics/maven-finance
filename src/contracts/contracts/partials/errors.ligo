@@ -518,6 +518,7 @@
 [@inline] const error_ONLY_ACCESSIBLE_DURING_TIMELOCK_ROUND                                                             = 369n;
 [@inline] const error_SNAPSHOT_NOT_READY                                                                                = 370n;
 [@inline] const error_SNAPSHOT_NOT_FOUND                                                                                = 371n;
+[@inline] const error_SATELLITE_LAST_SNAPSHOT_NOT_FOUND                                                                 = 372n;
 [@inline] const error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND                                                                  = 372n;
 [@inline] const error_PROPOSAL_NOT_FOUND                                                                                = 373n;
 [@inline] const error_PROPOSAL_LOCKED                                                                                   = 374n;
@@ -583,6 +584,7 @@
 [@inline] const error_GET_PROPOSAL_VOTER_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                      = 430n;
 [@inline] const error_GET_PROPOSAL_REWARD_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                     = 431n;
 [@inline] const error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                            = 432n;
+[@inline] const error_GET_SATELLITE_LAST_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                             = 433n;
 [@inline] const error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                 = 433n;
 [@inline] const error_GET_CURRENT_CYCLE_INFO_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                      = 434n;
 [@inline] const error_GET_CYCLE_PROPOSALS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                         = 435n;
@@ -594,6 +596,8 @@
 [@inline] const error_GET_TIMELOCK_PROPOSAL_ID_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                    = 441n;
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                              = 442n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                           = 443n;
+
+
 
 // ------------------------------------------------------------------------------
 //
