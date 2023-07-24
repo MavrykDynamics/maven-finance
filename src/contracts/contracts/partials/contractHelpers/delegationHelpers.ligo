@@ -302,6 +302,9 @@ block {
                 
                 // Case: Satellite snapshot for governance cycle id immediately after reference id is not found
                 
+                // Potential issue: snapshot may not exist for current governance cycle id as well
+                // - add a delegated cycle id to delegateRecord to use as reference here
+
                 // get snapshot of current governance cycle 
                 snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (currentGovernanceCycleId, satelliteAddress), s.governanceAddress);
                 satelliteSnapshotOpt    := case snapshotOptView of [
