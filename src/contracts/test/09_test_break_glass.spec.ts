@@ -614,22 +614,9 @@ describe("Test: Break Glass Contract", async () => {
                 doormanStorage                  = await doormanInstance.storage();
 
                 const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
-                const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
 
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
-
-                // ensure that user has enough staked MVK to trigger emergency governance
-                if(initialUserStakedBalance < sMvkRequiredToTrigger){
-                    
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
-                    await updateOperatorsOperation.confirmation();
-
-                    // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
-                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToTrigger) + 1;
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
-                    await stakeOperation.confirmation();
-                }
 
                 // ---------------------------------------------------------------
                 // Set all contracts admin to governance address if it is not
@@ -661,6 +648,24 @@ describe("Test: Break Glass Contract", async () => {
                     emergencyTitle, emergencyDesc
                 ).send({amount: requiredFeeMutez, mutez: true});
                 await emergencyControlOperation.confirmation();
+
+                // update storage
+                emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
+                doormanStorage                  = await doormanInstance.storage();
+
+                // ensure that user has enough staked MVK to trigger emergency governance
+                const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
+                const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
+                if(initialUserStakedBalance < sMvkRequired){
+                    
+                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    // set stake amount so that user's final staked balance will be above sMvkRequired
+                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
+                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+                }
 
                 // user (eve) vote for emergency control
                 await helperFunctions.signerFactory(tezos, userSk)

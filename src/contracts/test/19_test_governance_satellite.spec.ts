@@ -2262,7 +2262,9 @@ describe("Governance Satellite tests", async () => {
                         updatedDescription,
                         updatedImage,
                         updatedWebsite,
-                        updatedFee
+                        updatedFee,
+                        mockSatelliteData.oscar.oraclePublicKey,
+                        mockSatelliteData.oscar.oraclePeerId
                     ).send();
                     await updateSatelliteRecordOperation.confirmation()
 
@@ -2314,13 +2316,16 @@ describe("Governance Satellite tests", async () => {
                     await signerFactory(tezos, adminSk)
                     aggregatorStorage   = await aggregatorInstance.storage()
     
-                    // Operation
-                    var addOracleOperation          = await aggregatorInstance.methods.addOracle(
-                        suspendedSatellite, 
-                        mockSatelliteData.trudy.oraclePublicKey, 
-                        mockSatelliteData.trudy.oraclePeerId
-                    ).send();
-                    await addOracleOperation.confirmation();
+                    // Add the latest aggregator if the aggregator contract doesn't have it
+                    const existingOracle    = await aggregatorStorage.oracleLedger.get(suspendedSatellite);
+                    if(existingOracle===undefined){
+                        var addOracleOperation          = await aggregatorInstance.methods.addOracle(
+                            suspendedSatellite, 
+                            mockSatelliteData.trudy.oraclePublicKey, 
+                            mockSatelliteData.trudy.oraclePeerId
+                        ).send();
+                        await addOracleOperation.confirmation();
+                    }
     
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -3227,7 +3232,9 @@ describe("Governance Satellite tests", async () => {
                         updatedDescription,
                         updatedImage,
                         updatedWebsite,
-                        updatedFee
+                        updatedFee,
+                        mockSatelliteData.oscar.oraclePublicKey,
+                        mockSatelliteData.oscar.oraclePeerId
                     );
                     await chai.expect(updateSatelliteRecordOperation.send()).to.be.rejected;
 

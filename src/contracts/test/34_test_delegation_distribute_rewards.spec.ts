@@ -414,7 +414,9 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                         mockSatelliteData.eve.desc, 
                         mockSatelliteData.eve.image,
                         mockSatelliteData.eve.website, 
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.eve.satelliteFee,
+                        mockSatelliteData.eve.oraclePublicKey, 
+                        mockSatelliteData.eve.oraclePeerId
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
             } catch(e){

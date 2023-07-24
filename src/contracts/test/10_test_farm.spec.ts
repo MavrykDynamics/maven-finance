@@ -742,7 +742,6 @@ describe("Test: Farm Contract", async () => {
                     const smvkTotalSupply   = await mvkTokenStorage.ledger.get(doormanAddress);
 
                     const userDepositRecord     = await farmStorage.depositorLedger.get(admin);
-                    console.log(userDepositRecord);
                     
                     const toggleTransfer    = farmStorage.config.forceRewardFromTransfer;
                     const blockTime         = farmStorage.minBlockTimeSnapshot.toNumber();
