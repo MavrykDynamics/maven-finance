@@ -23,6 +23,7 @@ import contractDeployments from '../contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
+import { mockSatelliteData } from "../helpers/mockSampleData"
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -799,13 +800,13 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 const operation = await delegationInstance.methods
                 .registerAsSatellite(
-                    "Astronaut Satellite", 
-                    "This is the description", 
-                    "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                    "https://mavryk.finance/", 
-                    1000,
-                    bob.pk,
-                    bob.peerId
+                    mockSatelliteData.bob.name, 
+                    mockSatelliteData.bob.desc, 
+                    mockSatelliteData.bob.image,
+                    mockSatelliteData.bob.website, 
+                    mockSatelliteData.bob.satelliteFee,
+                    mockSatelliteData.bob.oraclePublicKey, 
+                    mockSatelliteData.bob.oraclePeerId
                 ).send();
                 await operation.confirmation();
 
@@ -857,13 +858,13 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 const operation = await delegationInstance.methods
                 .registerAsSatellite(
-                    "Astronaut Satellite", 
-                    "This is the description", 
-                    "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                    "https://mavryk.finance/", 
-                    1000,
-                    bob.pk,
-                    bob.peerId
+                    mockSatelliteData.bob.name, 
+                    mockSatelliteData.bob.desc, 
+                    mockSatelliteData.bob.image,
+                    mockSatelliteData.bob.website, 
+                    mockSatelliteData.bob.satelliteFee,
+                    mockSatelliteData.bob.oraclePublicKey, 
+                    mockSatelliteData.bob.oraclePeerId
                 ).send();
                 await operation.confirmation();
 
@@ -3168,13 +3169,13 @@ describe("Testnet interactions helper", async () => {
             await helperFunctions.signerFactory(tezos, alice.sk);
             const operation = await delegationInstance.methods
             .registerAsSatellite(
-                "Alice Satellite", 
-                "This is the description", 
-                "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                "https://mavryk.finance/", 
-                1000,
-                alice.pk,
-                alice.peerId
+                mockSatelliteData.alice.name, 
+                mockSatelliteData.alice.desc, 
+                mockSatelliteData.alice.image,
+                mockSatelliteData.alice.website, 
+                mockSatelliteData.alice.satelliteFee,
+                mockSatelliteData.alice.oraclePublicKey, 
+                mockSatelliteData.alice.oraclePeerId
             ).send();
             await operation.confirmation();
             await helperFunctions.signerFactory(tezos, bob.sk);
