@@ -1,5 +1,7 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-import { alice, bob, eve, mallory, oscar, ivan, trudy, susie } from "../../scripts/sandbox/accounts";
+
+import { alice, bob, eve, ivan, mallory, oscar, susie, trudy } from "../../scripts/sandbox/accounts";
+
 export const mvkTokenDecimals = 9
 
 // ------------------------------------------------------------------------------
@@ -118,7 +120,7 @@ export const mTokenMockData = {
 
     "mTokenEurl": {
 
-        "loanToken": "usdt",
+        "loanToken": "eurl",
         "metadata": MichelsonMap.fromLiteral({
             '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
