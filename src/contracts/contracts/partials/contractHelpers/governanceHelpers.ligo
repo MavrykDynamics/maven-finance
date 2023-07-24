@@ -994,6 +994,8 @@ block {
 
     s.snapshotLedger[(s.cycleId,satelliteAddress)]  := satelliteSnapshotRecord;
 
+    s.satelliteLastSnapshotLedger[satelliteAddress] := s.cycleId;
+
 } with s
 
 
