@@ -749,7 +749,6 @@ block{
 
                     // user can start to earn rewards, and will accrue rewards from the start of the next governance cycle after he delegated
 
-<<<<<<< HEAD
                     // get satellite snapshot of when the satellite delegated
                     const satelliteSnapshot : governanceSatelliteSnapshotRecordType     = getSatelliteSnapshot(referenceGovernanceCycleId, satelliteReferenceAddress, s);
 
@@ -758,11 +757,6 @@ block{
                             Some (_snapshotCycleId) -> getSatelliteSnapshot(_snapshotCycleId, satelliteReferenceAddress, s)
                         |   None                    -> failwith(error_SATELLITE_DID_NOT_CREATE_SNAPSHOT_FOR_THIS_CYCLE)
                     ];
-=======
-                    // get satellite snapshot of next governance cycle after reference 
-                    const governanceCycleIdAfterReference : nat = referenceGovernanceCycleId + 1n;
-                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getSatelliteSnapshot(governanceCycleIdAfterReference, currentGovernanceCycleId, satelliteReferenceAddress, s);
->>>>>>> d0bd2813 (Delegation helpers: Fix getSatelliteSnapshot to return nextSatelliteSnapshot instead of lastSatelliteSnapshot)
                     
                     // get satellite's accumulated rewards per share at this instance, which will be equivalent to user's participation rewards per share
                     const initialParticipationRewardsPerShare : nat = satelliteSnapshotNext.accumulatedRewardsPerShare;
