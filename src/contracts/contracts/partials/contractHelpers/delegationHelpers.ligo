@@ -309,13 +309,14 @@ block {
                     |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const previousSatelliteSnapshot = case satelliteSnapshotOpt of [
+                const currentCycleSatelliteSnapshot = case satelliteSnapshotOpt of [
                         Some (_snapshot)    -> _snapshot
                     |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
                 ];
 
+                // get next snapshot id from current cycle satellite snapshot
                 // use satelliteLastSnapshotCycleId as final backup id
-                const nextSnapshotId : nat = case previousSatelliteSnapshot.nextSnapshotId of [
+                const nextSnapshotId : nat = case currentCycleSatelliteSnapshot.nextSnapshotId of [
                         Some(_v) -> _v
                     |   None -> satelliteLastSnapshotCycleId
                 ];
