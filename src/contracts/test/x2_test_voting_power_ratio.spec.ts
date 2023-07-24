@@ -20,6 +20,7 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
+import { mockSatelliteData } from "./helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -110,11 +111,13 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             await stakeOperation.confirmation();
             var registerAsSatellite = await delegationInstance.methods
             .registerAsSatellite(
-                "Alice Satellite", 
-                "Test description", 
-                "Test image", 
-                "Test website", 
-                700
+                mockSatelliteData.alice.name, 
+                mockSatelliteData.alice.desc, 
+                mockSatelliteData.alice.image,
+                mockSatelliteData.alice.website, 
+                mockSatelliteData.alice.satelliteFee,
+                mockSatelliteData.alice.oraclePublicKey, 
+                mockSatelliteData.alice.oraclePeerId
             ).send();
             await registerAsSatellite.confirmation();
 
@@ -152,11 +155,13 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             await stakeOperation.confirmation();
             registerAsSatellite = await delegationInstance.methods
             .registerAsSatellite(
-                "Eve Satellite", 
-                "Test description", 
-                "Test image", 
-                "Test website", 
-                700
+                mockSatelliteData.eve.name, 
+                mockSatelliteData.eve.desc, 
+                mockSatelliteData.eve.image,
+                mockSatelliteData.eve.website, 
+                mockSatelliteData.eve.satelliteFee,
+                mockSatelliteData.eve.oraclePublicKey, 
+                mockSatelliteData.eve.oraclePeerId
             ).send();
             await registerAsSatellite.confirmation();
 

@@ -122,6 +122,12 @@ describe("FarmFactory", async () => {
         doormanStorage          = await doormanInstance.storage();
         lpTokenStorage          = await lpTokenInstance.storage();
         mvkTokenStorage         = await mvkTokenInstance.storage();
+
+        // reset the farm tracking
+        if(farmFactoryStorage.trackedFarms.includes(farmAddress)){
+            const untrackOperation  = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
+            await untrackOperation.confirmation()
+        }
         
     });
 

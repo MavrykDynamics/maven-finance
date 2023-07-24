@@ -843,7 +843,7 @@ describe("Treasury tests", async () => {
 
     describe('%stakeTokens', function() {
 
-        it('%stakeTokens                - admin (bob) should be able to call this entrypoint and stake MVK', async () => {
+        it('%stakeTokens              - admin (bob) should be able to call this entrypoint and stake MVK', async () => {
             try{        
                 // Initial values
                 await signerFactory(tezos, adminSk);
@@ -856,7 +856,7 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 const stakeOperation                = await treasuryInstance.methods.stakeTokens(
-                    contractDeployments.mvkToken.address,
+                    contractDeployments.doorman.address,
                     stakeAmount
                 ).send();
                 await stakeOperation.confirmation();
@@ -888,7 +888,7 @@ describe("Treasury tests", async () => {
                 // Operations
                 await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.stakeTokens(
-                    contractDeployments.mvkToken.address,
+                    contractDeployments.doorman.address,
                     stakeAmount
                 ).send()).to.be.eventually.rejected;
 
@@ -916,7 +916,7 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 const stakeOperation = await treasuryInstance.methods.unstakeTokens(
-                    contractDeployments.mvkToken.address,
+                    contractDeployments.doorman.address,
                     unstakeAmount
                 ).send();
                 await stakeOperation.confirmation();
@@ -947,7 +947,7 @@ describe("Treasury tests", async () => {
                 // Operations
                 await signerFactory(tezos, alice.sk);
                 await chai.expect(treasuryInstance.methods.unstakeTokens(
-                    contractDeployments.mvkToken.address,
+                    contractDeployments.doorman.address,
                     unstakeAmount
                 ).send()).to.be.eventually.rejected;
 
@@ -1272,6 +1272,9 @@ describe("Treasury tests", async () => {
                 pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", true).send(); 
                 await pauseOperation.confirmation();
 
+                pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("updateTokenOperators", true).send(); 
+                await pauseOperation.confirmation();
+
                 // update storage
                 treasuryStorage              = await treasuryInstance.storage();
 
@@ -1292,6 +1295,9 @@ describe("Treasury tests", async () => {
                 await pauseOperation.confirmation();
 
                 pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", false).send(); 
+                await pauseOperation.confirmation();
+
+                pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("updateTokenOperators", false).send(); 
                 await pauseOperation.confirmation();
 
                 // update storage
@@ -1651,7 +1657,7 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 await chai.expect(treasuryInstance.methods.stakeTokens(
-                    contractDeployments.mvkToken.address,
+                    contractDeployments.doorman.address,
                     stakeAmount
                 ).send()).to.be.eventually.rejected;
             } catch(e){
@@ -1666,7 +1672,7 @@ describe("Treasury tests", async () => {
 
                 // Operations
                 await chai.expect(treasuryInstance.methods.unstakeTokens(
-                    contractDeployments.mvkToken.address,
+                    contractDeployments.doorman.address,
                     unstakeAmount
                 ).send()).to.be.eventually.rejected;
             } catch(e){

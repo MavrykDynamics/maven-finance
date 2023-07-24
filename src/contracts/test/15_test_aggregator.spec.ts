@@ -983,7 +983,17 @@ describe('Aggregator Tests', async () => {
 
                 // Reset satellite
                 // Registers as satellite
-                registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+                delegationStorage               = await delegationInstance.storage();
+                doormanStorage                  = await doormanInstance.storage();
+                const minimumRequired           = delegationStorage.config.minimumStakedMvkBalance.toNumber();
+                const smvkBalanceRecord         = await doormanStorage.userStakeBalanceLedger.get(satelliteFour);
+                const smvkBalance               = smvkBalanceRecord.balance.toNumber();
+                if(smvkBalance < minimumRequired){
+                    const stakeAmount       = minimumRequired - smvkBalance + MVK();
+                    const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+                }
+                registerAsSatelliteOperation    = await delegationInstance.methods.registerAsSatellite(
                     mockSatelliteData.oscar.name, 
                     mockSatelliteData.oscar.desc, 
                     mockSatelliteData.oscar.image, 
