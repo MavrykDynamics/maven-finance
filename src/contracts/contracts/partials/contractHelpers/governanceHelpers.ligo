@@ -1013,6 +1013,9 @@ block {
         // link previous snapshot to current snapshot
         previousSatelliteSnapshotRecord.nextSnapshotId := Some(s.cycleId);
 
+        // save previous snapshot
+        s.snapshotLedger[(lastSatelliteSnapshotCycleId, satelliteAddress)] := previousSatelliteSnapshotRecord;
+
     } else skip;
 
     // update satellite last snapshot to current id
