@@ -276,6 +276,8 @@ describe("Stress tests", async () => {
                     const satelliteImage        = "https://placeholder.com/300";
                     const satelliteWebsite      = "https://placeholder.com/300";
                     const satelliteFee          = Math.trunc(Math.random() * 1000);
+                    const satellitePublicKey    = account.pk
+                    const satellitePeerId       = account.peerId
                     const stakeAmount           = MVK(Math.trunc(15 * Math.random())) + accessAmount + 1;
                     await helperFunctions.signerFactory(tezos, account.sk);
 
@@ -296,7 +298,9 @@ describe("Stress tests", async () => {
                             satelliteDescription, 
                             satelliteImage, 
                             satelliteWebsite,
-                            satelliteFee
+                            satelliteFee,
+                            satellitePublicKey,
+                            satellitePeerId
                         ).toTransferParams({})
                         const batchOpEstimate = await utils.tezos.estimate
                         .batch([
@@ -321,7 +325,9 @@ describe("Stress tests", async () => {
                             satelliteDescription, 
                             satelliteImage, 
                             satelliteWebsite,
-                            satelliteFee
+                            satelliteFee,
+                            satellitePublicKey,
+                            satellitePeerId
                         ));
 
                         // Send the batch

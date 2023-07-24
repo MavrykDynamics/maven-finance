@@ -269,12 +269,12 @@ describe("Emergency Governance tests", async () => {
             }
         });
 
-        it('user (oscar) should not be able to trigger emergency control if he does not have enough staked MVK', async () => {
+        it('user (bob) should not be able to trigger emergency control if he does not have enough staked MVK', async () => {
             try{
                 
                 // set signer
-                user   = oscar.pkh;
-                userSk = oscar.sk;
+                user   = bob.pkh;
+                userSk = bob.sk;
                 await signerFactory(tezos, userSk);
 
                 // Operation
@@ -793,21 +793,21 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez          = emergencyGovernanceStorage.config.requiredFeeMutez;
-                const sMvkRequiredToVote        = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
+                const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
+                const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
 
                 // get user staked balance
                 initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user has enough staked MVK to vote for emergency governance
-                if(initialUserStakedBalance < sMvkRequiredToVote){
+                if(initialUserStakedBalance < sMvkRequired){
                     
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // set stake amount so that user's final staked balance will be above sMvkRequiredToVote
-                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToVote) + 1;
+                    // set stake amount so that user's final staked balance will be above sMvkRequired
+                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
                     stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
                     await stakeOperation.confirmation();
                 }
@@ -827,12 +827,12 @@ describe("Emergency Governance tests", async () => {
             }
         });
 
-        it('proposer (eve) should be able to vote for the current proposal and trigger break glass automatically with sufficient votes', async () => {
+        it('proposer (oscar) should be able to vote for the current proposal and trigger break glass automatically with sufficient votes', async () => {
             try{
                 
                 // set signer
-                user   = eve.pkh;
-                userSk = eve.sk;
+                user   = oscar.pkh;
+                userSk = oscar.sk;
 
                 // Initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
