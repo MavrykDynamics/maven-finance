@@ -195,11 +195,13 @@ describe("Test: Delegation Contract", async () => {
 
                     // user registers as a satellite
                     registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                        mockSatelliteData.eve.name, 
-                        mockSatelliteData.eve.desc, 
-                        mockSatelliteData.eve.image, 
-                        mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.alice.name, 
+                        mockSatelliteData.alice.desc, 
+                        mockSatelliteData.alice.image, 
+                        mockSatelliteData.alice.website,
+                        mockSatelliteData.alice.satelliteFee,
+                        mockSatelliteData.alice.oraclePublicKey,
+                        mockSatelliteData.alice.oraclePeerId
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -210,11 +212,11 @@ describe("Test: Delegation Contract", async () => {
                     updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
-                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
-                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
-                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
+                    assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.alice.name);
+                    assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.alice.desc);
+                    assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.alice.website);
                     assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
-                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
+                    assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.alice.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
 
@@ -275,7 +277,9 @@ describe("Test: Delegation Contract", async () => {
                         mockSatelliteData.eve.desc, 
                         mockSatelliteData.eve.image, 
                         mockSatelliteData.eve.website,
-                        mockSatelliteData.eve.satelliteFee
+                        mockSatelliteData.eve.satelliteFee,
+                        mockSatelliteData.eve.oraclePublicKey,
+                        mockSatelliteData.eve.oraclePeerId
                     ).send();
                     await registerAsSatelliteOperation.confirmation();
 
@@ -340,7 +344,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.eve.desc, 
                     mockSatelliteData.eve.image, 
                     mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -407,7 +413,9 @@ describe("Test: Delegation Contract", async () => {
                         mockSatelliteData.trudy.desc, 
                         mockSatelliteData.trudy.image, 
                         mockSatelliteData.trudy.website,
-                        mockSatelliteData.trudy.satelliteFee
+                        mockSatelliteData.trudy.satelliteFee,
+                        mockSatelliteData.trudy.oraclePublicKey,
+                        mockSatelliteData.trudy.oraclePeerId
                     );
                     await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -453,11 +461,13 @@ describe("Test: Delegation Contract", async () => {
                 isPausedEnd         = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
 
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    mockSatelliteData.eve.name, 
-                    mockSatelliteData.eve.desc, 
-                    mockSatelliteData.eve.image, 
-                    mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.trudy.name, 
+                    mockSatelliteData.trudy.desc, 
+                    mockSatelliteData.trudy.image, 
+                    mockSatelliteData.trudy.website,
+                    mockSatelliteData.trudy.satelliteFee,
+                    mockSatelliteData.trudy.oraclePublicKey,
+                    mockSatelliteData.trudy.oraclePeerId
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -520,7 +530,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.trudy.desc, 
                     mockSatelliteData.trudy.image, 
                     mockSatelliteData.trudy.website,
-                    mockSatelliteData.trudy.satelliteFee
+                    mockSatelliteData.trudy.satelliteFee,
+                    mockSatelliteData.trudy.oraclePublicKey,
+                    mockSatelliteData.trudy.oraclePeerId
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -570,11 +582,13 @@ describe("Test: Delegation Contract", async () => {
 
                 // User registers as a satellite again
                 registerAsSatelliteOperation = delegationInstance.methods.registerAsSatellite(
-                    mockSatelliteData.eve.name, 
-                    mockSatelliteData.eve.desc, 
-                    mockSatelliteData.eve.image, 
-                    mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.trudy.name, 
+                    mockSatelliteData.trudy.desc, 
+                    mockSatelliteData.trudy.image, 
+                    mockSatelliteData.trudy.website,
+                    mockSatelliteData.trudy.satelliteFee,
+                    mockSatelliteData.trudy.oraclePublicKey,
+                    mockSatelliteData.trudy.oraclePeerId
                 );
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
@@ -656,7 +670,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.eve.desc, 
                     mockSatelliteData.eve.image, 
                     mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 ).send();
                 await registerAsSatelliteOperation.confirmation();
 
@@ -770,7 +786,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.alice.desc, 
                     mockSatelliteData.alice.image, 
                     mockSatelliteData.alice.website,
-                    mockSatelliteData.alice.satelliteFee
+                    mockSatelliteData.alice.satelliteFee,
+                    mockSatelliteData.alice.oraclePublicKey,
+                    mockSatelliteData.alice.oraclePeerId
                 ).send();
                 await updateSatelliteRecordOperation.confirmation();
 
@@ -798,7 +816,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.eve.desc, 
                     mockSatelliteData.eve.image, 
                     mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 ).send();
                 await updateSatelliteRecordOperation.confirmation();
 
@@ -834,7 +854,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.eve.desc, 
                     mockSatelliteData.eve.image, 
                     mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 );
                 await chai.expect(updateSatelliteRecordOperation.send()).to.be.rejected;
 
@@ -871,7 +893,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.eve.desc, 
                     mockSatelliteData.eve.image, 
                     mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 ).send()
                 ).to.be.rejected;
 
@@ -1390,7 +1414,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.eve.desc, 
                     mockSatelliteData.eve.image,
                     mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 ).send();
                 await registerAsSatelliteOperation.confirmation();
                 
@@ -1470,7 +1496,9 @@ describe("Test: Delegation Contract", async () => {
                     mockSatelliteData.eve.desc, 
                     mockSatelliteData.eve.image,
                     mockSatelliteData.eve.website,
-                    mockSatelliteData.eve.satelliteFee
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 ).send();
                 await registerAsSatelliteOperation.confirmation();
                 
@@ -2126,11 +2154,17 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // calling onStakeChange on herself
-                var onStakeChangeOperation = delegationInstance.methods.onStakeChange([mallory.pkh]);
+                var onStakeChangeOperation = delegationInstance.methods.onStakeChange([{
+                    0: mallory.pkh,
+                    1: 10
+                }]);
                 await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
 
                 // calling onStakeChange on satellite (eve)
-                onStakeChangeOperation = delegationInstance.methods.onStakeChange([eve.pkh]);
+                onStakeChangeOperation = delegationInstance.methods.onStakeChange([{
+                    0: eve.pkh,
+                    1: 10
+                }]);
                 await chai.expect(onStakeChangeOperation.send()).to.be.rejected;
 
             } catch(e) {

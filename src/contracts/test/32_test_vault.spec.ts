@@ -24,6 +24,7 @@ import {
     signerFactory, 
     updateOperators,
 } from './helpers/helperFunctions'
+import { mockSatelliteData } from "./helpers/mockSampleData";
 
 
 // ------------------------------------------------------------------------------
@@ -165,7 +166,15 @@ describe("Vault tests", async () => {
             const bobStakeAmount                  = MVK(100);
             const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
             await bobStakeAmountOperation.confirmation();                        
-            const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "1000").send();
+            const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+                mockSatelliteData.bob.name,
+                mockSatelliteData.bob.desc,
+                mockSatelliteData.bob.image,
+                mockSatelliteData.bob.website,
+                mockSatelliteData.bob.satelliteFee,
+                mockSatelliteData.bob.oraclePublicKey,
+                mockSatelliteData.bob.oraclePeerId
+            ).send();
             await bobRegisterAsSatelliteOperation.confirmation();
 
         }
@@ -181,7 +190,14 @@ describe("Vault tests", async () => {
             const oscarStakeAmount                  = MVK(100);
             const oscarStakeAmountOperation         = await doormanInstance.methods.stake(oscarStakeAmount).send();
             await oscarStakeAmountOperation.confirmation();                        
-            const oscarRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Oscar", "New Satellite Description - Oscar", "https://image.url", "https://image.url", "1000").send();
+            const oscarRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(mockSatelliteData.bob.name,
+                mockSatelliteData.oscar.desc,
+                mockSatelliteData.oscar.image,
+                mockSatelliteData.oscar.website,
+                mockSatelliteData.oscar.satelliteFee,
+                mockSatelliteData.oscar.oraclePublicKey,
+                mockSatelliteData.oscar.oraclePeerId
+            ).send();
             await oscarRegisterAsSatelliteOperation.confirmation();
         }
 

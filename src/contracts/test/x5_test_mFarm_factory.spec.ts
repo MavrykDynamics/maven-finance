@@ -18,7 +18,10 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import {
+    signerFactory,
+    updateOperators
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -127,7 +130,7 @@ describe("FarmFactory for Farm mToken", async () => {
         lendingControllerStorage    = await lendingControllerInstance.storage();
         doormanStorage    = await doormanInstance.storage();
         mvkTokenStorage    = await mvkTokenInstance.storage();
-        await helperFunctions.signerFactory(tezos, bob.sk)
+        await signerFactory(tezos, bob.sk)
     })
 
     // describe('%setLoanToken - setup and test lending controller %setLoanToken entrypoint', function () {
@@ -137,7 +140,7 @@ describe("FarmFactory for Farm mToken", async () => {
     //         try{        
                 
     //             // init variables
-    //             await helperFunctions.signerFactory(tezos, bob.sk);
+    //             await signerFactory(tezos, bob.sk);
 
     //             const setLoanTokenActionType                = "createLoanToken";
 
@@ -221,7 +224,7 @@ describe("FarmFactory for Farm mToken", async () => {
     //             }
 
     //         } catch(e){
-    //             console.log(e);
+    //             console.dir(e, {depth: 5});
     //         } 
     //     });
     // })
@@ -235,7 +238,7 @@ describe("FarmFactory for Farm mToken", async () => {
             try{
 
             // init variables
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
             const loanTokenName   = "usdt";
             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
 
@@ -314,7 +317,7 @@ describe("FarmFactory for Farm mToken", async () => {
             try{
 
             // init variables
-            await helperFunctions.signerFactory(tezos, alice.sk);
+            await signerFactory(tezos, alice.sk);
             const loanTokenName   = "usdt";
             const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
 
@@ -436,7 +439,7 @@ describe("FarmFactory for Farm mToken", async () => {
 
             it('Create a farm without being the admin', async () => {
                 try{
-                    await helperFunctions.signerFactory(tezos, alice.sk)
+                    await signerFactory(tezos, alice.sk)
                     // Create a transaction for initiating a farm
                     await chai.expect(farmFactoryInstance.methods.createFarmMToken(
                         "testFarm",
@@ -516,7 +519,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     assert.strictEqual(previousAdmin,bob.pkh);
 
                     // Reset admin
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     const resetOperation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
                     await resetOperation.confirmation();
                 }catch(e){
@@ -527,7 +530,7 @@ describe("FarmFactory for Farm mToken", async () => {
             it('Non-admin should not be able to set a new admin', async() => {
                 try{
                     // Create a transaction for initiating a farm
-                    await helperFunctions.signerFactory(tezos, eve.sk)
+                    await signerFactory(tezos, eve.sk)
                     const operation = farmFactoryInstance.methods.setAdmin(bob.pkh);
                     await chai.expect(operation.send()).to.be.rejected;
 
@@ -545,7 +548,7 @@ describe("FarmFactory for Farm mToken", async () => {
         describe('%pauseAll', function() {
             it('Admin should be able to pause all entrypoints on the factory and the tracked farms', async() => {
                 try{
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, bob.sk)
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
@@ -607,7 +610,7 @@ describe("FarmFactory for Farm mToken", async () => {
             it('Non-admin should not be able to pause all entrypoints', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
@@ -641,7 +644,7 @@ describe("FarmFactory for Farm mToken", async () => {
             it('Admin should be able to unpause all entrypoints and all tracked farms', async() => {
                 try{
                     // Initial values
-                    await helperFunctions.signerFactory(tezos, bob.sk)
+                    await signerFactory(tezos, bob.sk)
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
@@ -690,7 +693,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     await trackFarmOperation.confirmation();
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     const depositOperation = await farmInstance.methods.deposit(2).send();
@@ -718,7 +721,7 @@ describe("FarmFactory for Farm mToken", async () => {
             it('Non-admin should not be able to unpause all entrypoints', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
@@ -749,7 +752,7 @@ describe("FarmFactory for Farm mToken", async () => {
             it('Non-admin should not be able to unpause all entrypoints on all tracked farms', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const trackedFarms = await farmFactoryStorage.trackedFarms;
@@ -893,7 +896,7 @@ describe("FarmFactory for Farm mToken", async () => {
             it('Non-admin should not be able to pause and unpause the trackFarm entrypoint', async() => {
                 try{
                     // Change signer
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
 
                     // Initial values
                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
@@ -934,7 +937,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     // Create a transaction for initiating a farm
                     await chai.expect(farmFactoryInstance.methods.untrackFarm(alice.pkh).send()).to.be.rejected;
                 }catch(e){
-                    console.log(e)
+                    console.dir(e, {depth: 5})
                 }
             })
         });
@@ -967,7 +970,7 @@ describe("FarmFactory for Farm mToken", async () => {
             it('Non-admin should not be able to track a farm', async () => {
                 try{
                     // Create a transaction for initiating a farm
-                    await helperFunctions.signerFactory(tezos, alice.sk);
+                    await signerFactory(tezos, alice.sk);
                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
                 }catch(e){
                     console.dir(e, {depth: 5})
@@ -1004,7 +1007,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     farmFactoryStorage    = await farmFactoryInstance.storage();
 
                     // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
+                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
                     farmStorage                             = await farmInstance.storage();
 
@@ -1012,7 +1015,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Deposit operation
@@ -1059,7 +1062,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
 
                     // Update operators for farm
-                    updateOperatorsOperation = await helperFunctions.updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
                     
                     // Deposit operation
@@ -1070,7 +1073,7 @@ describe("FarmFactory for Farm mToken", async () => {
                     await new Promise(resolve => setTimeout(resolve, 6000));
                     await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
                 }catch(e){
-                    console.log(e)
+                    console.dir(e, {depth: 5})
                 }
             })
         });

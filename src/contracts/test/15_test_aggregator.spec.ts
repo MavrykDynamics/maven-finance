@@ -21,7 +21,10 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, david, oscar, susie, trudy, isaac, ivan } from "../scripts/sandbox/accounts";
 import { 
-    signerFactory
+    getStorageMapValue,
+    signerFactory,
+    updateGeneralContracts,
+    updateWhitelistContracts
 } from './helpers/helperFunctions'
 import { mockSatelliteData } from "./helpers/mockSampleData";
 import { before } from "mocha";
@@ -56,6 +59,9 @@ describe('Aggregator Tests', async () => {
     let admin
     let adminSk
 
+    let user
+    let userSk
+
     let satelliteOne
     let satelliteOneSk 
     let satelliteTwo
@@ -66,6 +72,9 @@ describe('Aggregator Tests', async () => {
     let satelliteFourSk 
     let satelliteFive
     let satelliteFiveSk 
+
+    let delegateOne
+    let delegateOneSk 
 
     let aggregatorStorage;
     let doormanStorage;
@@ -79,6 +88,30 @@ describe('Aggregator Tests', async () => {
     let addOracleOperation
     let registerAsSatelliteOperation
     let unregisterAsSatelliteOperation
+    let updateOracleOperation
+    let withdrawRewardOperation
+
+    // housekeeping operations
+    let setAdminOperation
+    let setGovernanceOperation
+    let setBakerOperation
+    let resetAdminOperation
+    let updateWhitelistContractsOperation
+    let updateWhitelistTokenContractsOperation
+    let updateGeneralContractsOperation
+    let mistakenTransferOperation
+    let pauseOperation
+    let pauseAllOperation
+    let unpauseOperation
+    let unpauseAllOperation
+
+    // contract map value
+    let storageMap
+    let contractMapKey
+    let initialContractMapValue
+    let updatedContractMapValue
+
+    let observations
 
     let epoch: number = 1;
     let round: number = 1;
@@ -91,6 +124,9 @@ describe('Aggregator Tests', async () => {
 
         admin               = bob.pkh;
         adminSk             = bob.sk;
+
+        user                = mallory.pkh;
+        userSk              = mallory.sk;
 
         satelliteOne        = alice.pkh;
         satelliteOneSk      = alice.sk;
@@ -106,6 +142,9 @@ describe('Aggregator Tests', async () => {
 
         satelliteFive       = trudy.pkh;
         satelliteFiveSk     = trudy.sk;
+
+        delegateOne         = isaac.pkh;
+        delegateOneSk       = isaac.sk;
 
         doormanAddress                  = contractDeployments.doorman.address;
 
@@ -153,8 +192,8 @@ describe('Aggregator Tests', async () => {
             await addOracleOperation.confirmation();
         }
 
-        if(await aggregatorStorage.oracleLedger.get(satelliteThree) === undefined){
-            addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteThree).send();
+        if(await aggregatorStorage.oracleLedger.get(satelliteFour) === undefined){
+            addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteFour).send();
             await addOracleOperation.confirmation();
         }
 
@@ -187,39 +226,14 @@ describe('Aggregator Tests', async () => {
 
     describe('%addOracle', () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         });
 
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try{
-                // Initial values
-                await signerFactory(tezos, david.sk);
-                const oracleAddress     = susie.pkh;
-    
-                // Operation
-                await chai.expect(aggregatorInstance.methods.addOracle(oracleAddress).send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin should not be able to add an already existing oracle', async () => {
-            try {
-                // Initial values
-                const oracleAddress     = alice.pkh;
-    
-                // Operation
-                await chai.expect(aggregatorInstance.methods.addOracle(oracleAddress).send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin should be able to add an oracle to the aggregator', async () => {
+        it('%addOracle                - admin (bob) should be able to add an oracle to the aggregator', async () => {
             try {
                 // Initial values
                 aggregatorStorage       = await aggregatorInstance.storage();
-                const oracleAddress     = oscar.pkh;
+                const oracleAddress     = satelliteThree;
     
                 // Operation
                 const operation         = await aggregatorInstance.methods.addOracle(oracleAddress).send();
@@ -234,19 +248,31 @@ describe('Aggregator Tests', async () => {
                 console.dir(e, {depth: 5})
             }
         });
+
+        it('%addOracle                - admin (bob) should not be able to add an already existing oracle', async () => {
+            try {
+                // Initial values
+                const oracleAddress     = satelliteOne;
+    
+                // Operation
+                await chai.expect(aggregatorInstance.methods.addOracle(oracleAddress).send()).to.be.rejected;
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
     });
 
 
     describe('%updateOracle', () => {
         beforeEach("Set signer to susie", async () => {
-            await signerFactory(tezos, susie.sk)
+            await signerFactory(tezos, satelliteThreeSk)
         });
 
-        it('satellite should be able to update their public key and peer id', async () => {
+        it('%updateOracle             - satellite (susie) should be able to update their public key and peer id', async () => {
             try {
                 
                 // Initial values
-                const oracleAddress     = susie.pkh;
+                const oracleAddress     = satelliteThree;
 
                 const newPublicKey      = oscar.pk;
                 const newPeerId         = "newPeerId";
@@ -264,7 +290,7 @@ describe('Aggregator Tests', async () => {
                 await susieUpdateSatelliteOperation.confirmation();
 
                 // Operation
-                const updateOracleOperation = await aggregatorInstance.methods.updateOracle().send();
+                updateOracleOperation = await aggregatorInstance.methods.updateOracle().send();
                 await updateOracleOperation.confirmation();
                 
                 // Final values
@@ -287,26 +313,13 @@ describe('Aggregator Tests', async () => {
 
     describe('%removeOracle', () => {
         beforeEach("Set signer to admin", async () => {
-            await signerFactory(tezos, bob.sk)
-        });
-        
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try{
-                // Initial values
-                await signerFactory(tezos, david.sk);
-                const oracleAddress = susie.pkh;
-
-                // Operation    
-                await chai.expect(aggregatorInstance.methods.removeOracle(oracleAddress).send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
+            await signerFactory(tezos, adminSk)
         });
 
-        it('Admin should not be able to call this entrypoint if the oracle does not exists', async () => {
+        it('%removeOracle             - admin should not be able to call this entrypoint if the oracle does not exists', async () => {
             try {
                 // Initial values
-                const oracleAddress = ivan.pkh;
+                const oracleAddress = user;
 
                 // Operation
                 await chai.expect(aggregatorInstance.methods.removeOracle(oracleAddress).send()).to.be.rejected;
@@ -315,11 +328,11 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Admin should be able to remove an oracle from the aggregator', async () => {
+        it('%removeOracle             - admin should be able to remove an oracle from the aggregator', async () => {
             try {
                 // Initial values
                 aggregatorStorage       = await aggregatorInstance.storage();
-                const oracleAddress     = susie.pkh;
+                const oracleAddress     = satelliteThree;
 
                 // Operation
                 const operation     = await aggregatorInstance.methods.removeOracle(oracleAddress).send();
@@ -329,7 +342,7 @@ describe('Aggregator Tests', async () => {
                 aggregatorStorage           = await aggregatorInstance.storage();
 
                 // Assertion
-                assert.strictEqual(await aggregatorStorage.oracleLedger.get(susie.pkh), undefined);
+                assert.strictEqual(await aggregatorStorage.oracleLedger.get(oracleAddress), undefined);
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -338,59 +351,28 @@ describe('Aggregator Tests', async () => {
 
     describe('%updateData', () => {
 
-        // Constant variables
-        const observations = [
-            {
-                "oracle": oscar.pkh,
-                "data": new BigNumber(10142857143)
-            },
-            {
-                "oracle": eve.pkh,
-                "data": new BigNumber(10142853322)
-            },
-            {
-                "oracle": alice.pkh,
-                "data": new BigNumber(10142857900)
-            },
-            {
-                "oracle": trudy.pkh,
-                "data": new BigNumber(10142857901)
-            }
-        ];
-
-        it('Non-oracle should not be able to call this entrypoint', async () => {
-            try {
-                // Initial values
-                const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
-                for (const { oracle, data } of observations) {
-                    oracleObservations.set(oracle, {
-                        data,
-                        epoch,
-                        round,
-                        aggregatorAddress: contractDeployments.aggregator.address
-                    });
-                };
-                const signatures = new MichelsonMap<string, string>();
-        
-                // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
-        
-                // Operation
-                await signerFactory(tezos, ivan.sk);
-                await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
+        before("Setup observations", async () => {
+            observations = [
+                {
+                    "oracle": satelliteFour,
+                    "data": new BigNumber(10142857143)
+                },
+                {
+                    "oracle": satelliteTwo,
+                    "data": new BigNumber(10142853322)
+                },
+                {
+                    "oracle": satelliteOne,
+                    "data": new BigNumber(10142857900)
+                },
+                {
+                    "oracle": satelliteFive,
+                    "data": new BigNumber(10142857901)
+                }
+            ];
         });
 
-        it('Oracle should be able to add data to the aggregator', async () => {
+        it('%updateData               - oracle (oscar) should be able to add data to the aggregator', async () => {
             try {
                 // Initial values
                 aggregatorStorage                       = await aggregatorInstance.storage();
@@ -415,23 +397,23 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
                 startOscarSMvkRewards                   = startOscarSMvkRewards ? startOscarSMvkRewards.toNumber() : 0;
-                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 startOscarXtzRewards                    = startOscarXtzRewards ? startOscarXtzRewards.toNumber() : 0;
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-                const rewardRatio                       = oracleVotingPowers.get(oscar.pkh) / totalVotingPower;
+                const rewardRatio                       = oracleVotingPowers.get(satelliteFour) / totalVotingPower;
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
@@ -439,8 +421,8 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
-                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 const expectedMaintainerSMvkReward      = Math.trunc(rewardRatio * smvkReward) + startOscarSMvkRewards;
                 const expectedMaintainerXtzReward      = xtzReward + startOscarXtzRewards;
 
@@ -457,22 +439,22 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Oracle should be able to increase its rewards when adding data to the aggregator if it stakes more or have more delegated to it', async () => {
+        it('%updateData               - oracle (oscar) should be able to increase its rewards when adding data to the aggregator if it stakes more or have more delegated to it', async () => {
             try {
                 // Pre-operations
                 // Increase oracle maintainer stake
-                await signerFactory(tezos, oscar.sk);
+                await signerFactory(tezos, satelliteFourSk);
                 const additionalStakeAmount             = MVK(10);
                 var stakeOperation                      = await doormanInstance.methods.stake(additionalStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // Add a delegate to another oracle
-                await signerFactory(tezos, isaac.sk);
+                await signerFactory(tezos, delegateOneSk);
                 var updateOperators = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
-                            owner: isaac.pkh,
+                            owner: delegateOne,
                             operator: doormanAddress,
                             token_id: 0,
                         },
@@ -482,7 +464,7 @@ describe('Aggregator Tests', async () => {
                 await updateOperators.confirmation();  
                 stakeOperation                          = await doormanInstance.methods.stake(additionalStakeAmount).send();
                 await stakeOperation.confirmation();
-                const delegateOperation                 = await delegationInstance.methods.delegateToSatellite(isaac.pkh, alice.pkh).send()
+                const delegateOperation                 = await delegationInstance.methods.delegateToSatellite(delegateOne, satelliteOne).send()
                 await delegateOperation.confirmation();
 
                 // Initial values
@@ -508,21 +490,21 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
-                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-                const rewardRatio                       = oracleVotingPowers.get(oscar.pkh) / totalVotingPower;
+                const rewardRatio                       = oracleVotingPowers.get(satelliteFour) / totalVotingPower;
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
@@ -530,8 +512,8 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
-                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 const expectedMaintainerSMvkReward      = Math.trunc(startOscarSMvkRewards.toNumber() + rewardRatio * smvkReward);
                 const expectedMaintainerXtzReward       = startOscarXtzRewards.toNumber() + xtzReward;
 
@@ -551,18 +533,18 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Oracle should be able to decrease its rewards when adding data to the aggregator if it unstakes or lose delegates', async () => {
+        it('%updateData               - oracle (oscar) should be able to decrease its rewards when adding data to the aggregator if it unstakes or lose delegates', async () => {
             try {
                 // Pre-operations
                 // Increase oracle maintainer stake
-                await signerFactory(tezos, oscar.sk);
+                await signerFactory(tezos, satelliteFourSk);
                 const unstakeAmount                     = MVK(10);
                 const unstakeOperation                  = await doormanInstance.methods.unstake(unstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // Add a delegate to another oracle
-                await signerFactory(tezos, isaac.sk);
-                const undelegateOperation               = await delegationInstance.methods.undelegateFromSatellite(isaac.pkh).send()
+                await signerFactory(tezos, delegateOneSk);
+                const undelegateOperation               = await delegationInstance.methods.undelegateFromSatellite(delegateOne).send()
                 await undelegateOperation.confirmation();
 
                 // Initial values
@@ -588,31 +570,30 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
-                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
-                const rewardRatio                       = oracleVotingPowers.get(oscar.pkh) / totalVotingPower;
+                const rewardRatio                       = oracleVotingPowers.get(satelliteFour) / totalVotingPower;
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
-                await signerFactory(tezos, oscar.sk);
                 const operation                         = await aggregatorInstance.methods.updateData(oracleObservations, signatures).send();
                 await operation.confirmation();
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
-                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 const expectedMaintainerSMvkReward      = Math.trunc(startOscarSMvkRewards.toNumber() + rewardRatio * smvkReward);
                 const expectedMaintainerXtzReward       = xtzReward + startOscarXtzRewards.toNumber();
 
@@ -629,7 +610,7 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Oracle should not be able to call this entrypoint if there too few observations in the map', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if there too few observations in the map', async () => {
             try {
                 // Initial values
                 const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
@@ -642,14 +623,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -658,7 +639,7 @@ describe('Aggregator Tests', async () => {
             }   
         });
 
-        it('Oracle should not be able to call this entrypoint if there too few signatures in the map', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if there too few signatures in the map', async () => {
             try {
                 // Initial values
                 const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
@@ -680,7 +661,7 @@ describe('Aggregator Tests', async () => {
             
         });
 
-        it('Oracle should not be able to call this entrypoint if the wrong aggregator is specified in the observations', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if the wrong aggregator is specified in the observations', async () => {
             try {
                 // Initial values
                 const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
@@ -695,14 +676,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
                 
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -711,24 +692,24 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Oracle should not be able to call this entrypoint if at least one the oracle specified in the observations is wrong', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if at least one the oracle specified in the observations is wrong', async () => {
             try {
                 // Initial values
                 const observations_bad = [
                     {
-                       "oracle": alice.pkh,
+                       "oracle": satelliteOne,
                        "data": new BigNumber(10142857143)
                     },
                     {
-                        "oracle": eve.pkh,
+                        "oracle": satelliteTwo,
                         "data": new BigNumber(10142853322)
                     },
                     {
-                        "oracle": oscar.pkh,
+                        "oracle": satelliteFour,
                         "data": new BigNumber(10142857900)
                     },
                     {
-                        "oracle": isaac.pkh,
+                        "oracle": delegateOne,
                         "data": new BigNumber(10144537815)
                     },
                 ];
@@ -744,14 +725,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -760,27 +741,27 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Oracle should not be able to call this entrypoint if the all epochs does not match in the observations', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if the all epochs does not match in the observations', async () => {
             try{
                 // Initial values
                 const observations_bad = [
                     {
-                       "oracle": alice.pkh,
+                       "oracle": satelliteOne,
                        "data": new BigNumber(10142857143),
                        "epoch": 1
                     },
                     {
-                        "oracle": eve.pkh,
+                        "oracle": satelliteTwo,
                         "data": new BigNumber(10142853322),
                         "epoch": 1
                     },
                     {
-                        "oracle": oscar.pkh,
+                        "oracle": satelliteFour,
                         "data": new BigNumber(10142857900),
                         "epoch": 1
                     },
                     {
-                        "oracle": isaac.pkh,
+                        "oracle": delegateOne,
                         "data": new BigNumber(10144537815),
                         "epoch": 2
                     },
@@ -797,14 +778,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -813,27 +794,27 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Oracle should not be able to call this entrypoint if the all rounds does not match in the observations', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if the all rounds does not match in the observations', async () => {
             try {
                 // Initial values
                 const observations_bad = [
                     {
-                       "oracle": alice.pkh,
+                       "oracle": satelliteOne,
                        "data": new BigNumber(10142857143),
                        "round": 2
                     },
                     {
-                        "oracle": eve.pkh,
+                        "oracle": satelliteTwo,
                         "data": new BigNumber(10142853322),
                         "round": 2
                     },
                     {
-                        "oracle": oscar.pkh,
+                        "oracle": satelliteFour,
                         "data": new BigNumber(10142857900),
                         "round": 2
                     },
                     {
-                        "oracle": isaac.pkh,
+                        "oracle": delegateOne,
                         "data": new BigNumber(10144537815),
                         "round": 3
                     },
@@ -850,14 +831,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
       
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
       
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -866,7 +847,7 @@ describe('Aggregator Tests', async () => {
             }   
         });
 
-        it('Oracle should not be able to call this entrypoint if the epoch mentionned in the observations is less or equal than the previous one', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if the epoch mentionned in the observations is less or equal than the previous one', async () => {
             try {
                 // Initial values
                 const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
@@ -881,14 +862,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
    
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -897,7 +878,7 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Oracle should not be able to call this entrypoint if at least one of the signatures is wrong', async () => {
+        it('%updateData               - oracle (oscar) should not be able to call this entrypoint if at least one of the signatures is wrong', async () => {
             try {
                 // Initial values
                 const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
@@ -912,14 +893,14 @@ describe('Aggregator Tests', async () => {
                 const signatures = new MichelsonMap<string, string>();
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, isaac.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, delegateOneSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
     
                 // Operation
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
@@ -928,7 +909,7 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Calling this entrypoint as a user defined as an oracle without being a satellite should update the ledger without updating the data', async () => {
+        it('%updateData               - user (oscar) defined as an oracle without being a satellite should update the ledger without updating the data if calling this entrypoint', async () => {
             try {
                 // Initial values
                 aggregatorStorage                       = await aggregatorInstance.storage();
@@ -953,25 +934,25 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
                 startOscarSMvkRewards                   = startOscarSMvkRewards ? startOscarSMvkRewards.toNumber() : 0;
-                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 startOscarXtzRewards                    = startOscarXtzRewards ? startOscarXtzRewards.toNumber() : 0;
                 const startLastCompletedData            = aggregatorStorage.lastCompletedData;
-                const startOracleInLedger               = await aggregatorStorage.oracleLedger.get(oscar.pkh);
+                const startOracleInLedger               = await aggregatorStorage.oracleLedger.get(satelliteFour);
     
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
 
                 // User unregisters
-                unregisterAsSatelliteOperation          = await delegationInstance.methods.unregisterAsSatellite(oscar.pkh).send();
+                unregisterAsSatelliteOperation          = await delegationInstance.methods.unregisterAsSatellite(satelliteFour).send();
                 await unregisterAsSatelliteOperation.confirmation();
     
                 // Operation
@@ -980,10 +961,10 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
-                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
+                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
                 const endLastCompletedData              = aggregatorStorage.lastCompletedData;
-                const endOracleInLedger                 = await aggregatorStorage.oracleLedger.get(oscar.pkh);
+                const endOracleInLedger                 = await aggregatorStorage.oracleLedger.get(satelliteFour);
 
                 // Assertions
                 assert.equal(endOscarSMvkRewards.toNumber(), startOscarSMvkRewards);
@@ -999,6 +980,34 @@ describe('Aggregator Tests', async () => {
                 assert.deepEqual(endLastCompletedData.data,startLastCompletedData.data);
                 assert.deepEqual(endLastCompletedData.percentOracleResponse,startLastCompletedData.percentOracleResponse);
                 round++;
+
+                // Reset satellite
+                // Registers as satellite
+                delegationStorage               = await delegationInstance.storage();
+                doormanStorage                  = await doormanInstance.storage();
+                const minimumRequired           = delegationStorage.config.minimumStakedMvkBalance.toNumber();
+                const smvkBalanceRecord         = await doormanStorage.userStakeBalanceLedger.get(satelliteFour);
+                const smvkBalance               = smvkBalanceRecord.balance.toNumber();
+                if(smvkBalance < minimumRequired){
+                    const stakeAmount       = minimumRequired - smvkBalance + MVK();
+                    const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+                }
+                registerAsSatelliteOperation    = await delegationInstance.methods.registerAsSatellite(
+                    mockSatelliteData.oscar.name, 
+                    mockSatelliteData.oscar.desc, 
+                    mockSatelliteData.oscar.image, 
+                    mockSatelliteData.oscar.website,
+                    mockSatelliteData.oscar.satelliteFee,
+                    mockSatelliteData.oscar.oraclePublicKey,
+                    mockSatelliteData.oscar.oraclePeerId
+                ).send();
+                await registerAsSatelliteOperation.confirmation();
+
+                // Add oracle
+                await signerFactory(tezos, adminSk)
+                addOracleOperation          = await aggregatorInstance.methods.addOracle(satelliteFour).send();
+                await addOracleOperation.confirmation();
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
@@ -1007,54 +1016,31 @@ describe('Aggregator Tests', async () => {
 
     describe('%withdrawRewardStakedMvk', () => {
 
-        before("Add the previously removed oracle", async () => {
-            await signerFactory(tezos, oscar.sk)
-            
-            // Registers as satellite
-            registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                mockSatelliteData.oscar.name, 
-                mockSatelliteData.oscar.desc, 
-                mockSatelliteData.oscar.image, 
-                mockSatelliteData.oscar.website,
-                mockSatelliteData.oscar.satelliteFee,
-                mockSatelliteData.oscar.oraclePublicKey,
-                mockSatelliteData.oscar.oraclePeerId
-            ).send();
-            await registerAsSatelliteOperation.confirmation();
-
-            // Add oracle
-            await signerFactory(tezos, bob.sk)
-            addOracleOperation          = await aggregatorInstance.methods.addOracle(oscar.pkh).send();
-            await addOracleOperation.confirmation();
-
-            await signerFactory(tezos, alice.sk)
-        });
-
         beforeEach("Set signer to oracle", async () => {
-            await signerFactory(tezos, alice.sk)
+            await signerFactory(tezos, satelliteOneSk)
         });
 
-        it('Oracle should be able to withdraw SMVK rewards', async () => {
+        it('%withdrawRewardStakedMvk  - oracle (alice) should be able to withdraw SMVK rewards', async () => {
             try {
                 // Initial values
                 aggregatorStorage                           = await aggregatorInstance.storage();
                 delegationStorage                           = await delegationInstance.storage();
                 const oracleVotingPowers                    = new Map<string, number>();
-                const observations                          = [
+                observations                                = [
                     {
-                        "oracle": alice.pkh,
+                        "oracle": satelliteOne,
                         "data": new BigNumber(10142857143)
                     },
                     {
-                        "oracle": eve.pkh,
+                        "oracle": satelliteTwo,
                         "data": new BigNumber(10142853322)
                     },
                     {
-                        "oracle": oscar.pkh,
+                        "oracle": satelliteFour,
                         "data": new BigNumber(10142857900)
                     },
                     {
-                        "oracle": trudy.pkh,
+                        "oracle": satelliteFive,
                         "data": new BigNumber(10142857901)
                     }
                 ];
@@ -1069,36 +1055,36 @@ describe('Aggregator Tests', async () => {
                 const aliceSatelliteFee                          = mockSatelliteData.alice.satelliteFee; // set when alice, eve, oscar registered as satellites in before setup
                 const eveSatelliteFee                          = mockSatelliteData.eve.satelliteFee; // set when alice, eve, oscar registered as satellites in before setup
                 const oscarSatelliteFee                          = mockSatelliteData.oscar.satelliteFee; // set when alice, eve, oscar registered as satellites in before setup
-                const aliceStakedMvk                          = oracleVotingPowers.get(alice.pkh);
-                const eveStakedMvk                          = oracleVotingPowers.get(eve.pkh);
-                const oscarStakedMvk                      = oracleVotingPowers.get(oscar.pkh);
+                const aliceStakedMvk                          = oracleVotingPowers.get(satelliteOne);
+                const eveStakedMvk                          = oracleVotingPowers.get(satelliteTwo);
+                const oscarStakedMvk                      = oracleVotingPowers.get(satelliteFour);
                 const rewardAmountStakedMvk                 = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
-                const aliceSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(alice.pkh);
-                const eveSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(eve.pkh);
-                const oscarSMvkRewards                    = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
-                const beforeAliceRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(alice.pkh);
-                const beforeEveRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                const beforeOscarRewardsLedger            = await delegationStorage.satelliteRewardsLedger.get(oscar.pkh);
+                const aliceSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteOne);
+                const eveSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteTwo);
+                const oscarSMvkRewards                    = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const beforeAliceRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(satelliteOne);
+                const beforeEveRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo);
+                const beforeOscarRewardsLedger            = await delegationStorage.satelliteRewardsLedger.get(satelliteFour);
     
                 // Operation
-                const aliceWithdrawRewardStakedMvkOp          = await aggregatorInstance.methods.withdrawRewardStakedMvk(alice.pkh).send();
-                await aliceWithdrawRewardStakedMvkOp.confirmation();
+                withdrawRewardOperation          = await aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteOne).send();
+                await withdrawRewardOperation.confirmation();
     
-                const eveWithdrawRewardStakedMvkOp          = await aggregatorInstance.methods.withdrawRewardStakedMvk(eve.pkh).send();
-                await eveWithdrawRewardStakedMvkOp.confirmation();
+                withdrawRewardOperation          = await aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteTwo).send();
+                await withdrawRewardOperation.confirmation();
     
-                const oscarWithdrawRewardStakedMvkOp      = await aggregatorInstance.methods.withdrawRewardStakedMvk(oscar.pkh).send();
-                await oscarWithdrawRewardStakedMvkOp.confirmation();
+                withdrawRewardOperation      = await aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteFour).send();
+                await withdrawRewardOperation.confirmation();
     
                 // Final values
                 aggregatorStorage                           = await aggregatorInstance.storage();
                 delegationStorage                           = await delegationInstance.storage();
-                const aliceRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(alice.pkh);
-                const eveRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                const oscarRewardsLedger                  = await delegationStorage.satelliteRewardsLedger.get(oscar.pkh);
-                const resetAliceRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(alice.pkh);
-                const resetEveRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(eve.pkh);
-                const resetOscarRewardStakedMvk           = await aggregatorStorage.oracleRewardStakedMvk.get(oscar.pkh);
+                const aliceRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(satelliteOne);
+                const eveRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo);
+                const oscarRewardsLedger                  = await delegationStorage.satelliteRewardsLedger.get(satelliteFour);
+                const resetAliceRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteOne);
+                const resetEveRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteTwo);
+                const resetOscarRewardStakedMvk           = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
                 const finalAliceStakedMvkRewardsAfterFees     = aliceSatelliteFee * aliceSMvkRewards / 10000;
                 const finalEveStakedMvkRewardsAfterFees     = eveSatelliteFee * eveSMvkRewards / 10000;
                 const finalOscarStakedMvkRewardsAfterFees = oscarSatelliteFee * oscarSMvkRewards / 10000;
@@ -1118,34 +1104,31 @@ describe('Aggregator Tests', async () => {
 
     describe('%withdrawRewardXtz', () => {
 
-        beforeEach("Set signer to oracle", async () => {
-            await signerFactory(tezos, alice.sk)
+        beforeEach("Set signer to oracle (alice)", async () => {
+            await signerFactory(tezos, satelliteOneSk)
         });
 
-        it('Oracle should be able to withdraw XTZ rewards', async () => {
+        it('%withdrawRewardXtz        - oracle (alice) should be able to withdraw XTZ rewards', async () => {
             try {
                 // Initial values
                 aggregatorStorage                           = await aggregatorInstance.storage();
-                const oraclePendingRewards                  = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
-                const beforeOscarTezBalance               = await utils.tezos.tz.getBalance(oscar.pkh);
-                const beforeEveTezBalance                   = await utils.tezos.tz.getBalance(eve.pkh);
+                const oraclePendingRewards                  = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const beforeOscarTezBalance                 = await utils.tezos.tz.getBalance(satelliteFour);
+                const beforeEveTezBalance                   = await utils.tezos.tz.getBalance(satelliteTwo);
     
                 // Operation
-                // use alice to withdraw reward to the oracles and pay the gas cost for easier testing
-                await signerFactory(tezos, alice.sk);
+                withdrawRewardOperation            = await aggregatorInstance.methods.withdrawRewardXtz(satelliteFour).send();
+                await withdrawRewardOperation.confirmation();
                 
-                const oscarWithdrawRewardXtzOp            = await aggregatorInstance.methods.withdrawRewardXtz(oscar.pkh).send();
-                await oscarWithdrawRewardXtzOp.confirmation();
-                
-                const eveWithdrawRewardXtzOp                = await aggregatorInstance.methods.withdrawRewardXtz(eve.pkh).send();
-                await eveWithdrawRewardXtzOp.confirmation();
+                withdrawRewardOperation                = await aggregatorInstance.methods.withdrawRewardXtz(satelliteTwo).send();
+                await withdrawRewardOperation.confirmation();
     
                 // Final values
                 aggregatorStorage                           = await aggregatorInstance.storage();
-                const resetOscarRewardXtz                 = await aggregatorStorage.oracleRewardXtz.get(oscar.pkh);
-                const resetEveRewardXtz                     = await aggregatorStorage.oracleRewardXtz.get(eve.pkh);
-                const oscarTezBalance                     = await utils.tezos.tz.getBalance(oscar.pkh);
-                const eveTezBalance                         = await utils.tezos.tz.getBalance(eve.pkh);
+                const resetOscarRewardXtz                 = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const resetEveRewardXtz                     = await aggregatorStorage.oracleRewardXtz.get(satelliteTwo);
+                const oscarTezBalance                     = await utils.tezos.tz.getBalance(satelliteFour);
+                const eveTezBalance                         = await utils.tezos.tz.getBalance(satelliteTwo);
     
                 // Assertions
                 assert.equal(resetOscarRewardXtz, 0);
@@ -1158,42 +1141,136 @@ describe('Aggregator Tests', async () => {
         });
     });
 
-    describe('%updateConfig', () => {
-        
-        // Constants
-        const decimals                      : BigNumber = new BigNumber(100);
-        const alphaPercentPerThousand       : BigNumber = new BigNumber(2);
+    describe("Housekeeping Entrypoints", async () => {
 
-        const devTriggerBanDuration         : BigNumber = new BigNumber(100);
-        const perThousandDeviationTrigger   : BigNumber = new BigNumber(100);
-        const percentOracleThreshold        : BigNumber = new BigNumber(100);
-        const heartbeatSeconds              : BigNumber = new BigNumber(100);
-
-        const requestRateDevDepositFee      : BigNumber = new BigNumber(100);
-        
-        const deviationRewardStakedMvk      : BigNumber = new BigNumber(100);
-        const deviationRewardAmountXtz      : BigNumber = new BigNumber(100);
-        const rewardAmountXtz               : BigNumber = new BigNumber(100);
-        const rewardAmountStakedMvk         : BigNumber = new BigNumber(100);
-
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(tezos, bob.sk)
+        beforeEach("Set signer to admin (bob)", async () => {
+            aggregatorStorage        = await aggregatorInstance.storage();
+            await signerFactory(tezos, adminSk);
         });
 
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
+        it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
+            try{
+                
+                // Initial Values
+                aggregatorStorage   = await aggregatorInstance.storage();
+                const currentAdmin  = aggregatorStorage.admin;
 
                 // Operation
-                await chai.expect(aggregatorInstance.methods.updateConfig(decimals, "configDecimals").send()).to.be.rejected;
-            } catch(e) {
+                setAdminOperation   = await aggregatorInstance.methods.setAdmin(satelliteOne).send();
+                await setAdminOperation.confirmation();
+
+                // Final values
+                aggregatorStorage   = await aggregatorInstance.storage();
+                const newAdmin      = aggregatorStorage.admin;
+
+                // Assertions
+                assert.notStrictEqual(newAdmin, currentAdmin);
+                assert.strictEqual(newAdmin, satelliteOne);
+                assert.strictEqual(currentAdmin, admin);
+
+                // reset admin
+                await signerFactory(tezos, satelliteOneSk);
+                resetAdminOperation = await aggregatorInstance.methods.setAdmin(admin).send();
+                await resetAdminOperation.confirmation();
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setGovernance            - admin (bob) should be able to update the contract governance address', async () => {
+            try{
+                
+                // Initial Values
+                aggregatorStorage       = await aggregatorInstance.storage();
+                const currentGovernance = aggregatorStorage.governanceAddress;
+
+                // Operation
+                setGovernanceOperation = await aggregatorInstance.methods.setGovernance(satelliteOne).send();
+                await setGovernanceOperation.confirmation();
+
+                // Final values
+                aggregatorStorage       = await aggregatorInstance.storage();
+                const updatedGovernance = aggregatorStorage.governanceAddress;
+
+                // reset governance
+                setGovernanceOperation = await aggregatorInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                await setGovernanceOperation.confirmation();
+
+                // Assertions
+                assert.notStrictEqual(updatedGovernance, currentGovernance);
+                assert.strictEqual(updatedGovernance, satelliteOne);
+                assert.strictEqual(currentGovernance, contractDeployments.governance.address);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setName                  - admin (bob) should be able to update the contract name', async () => {
+            try {
+                // Initial values
+                await signerFactory(tezos, adminSk);
+                governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+                aggregatorStorage               = await aggregatorInstance.storage();
+
+                const oldName                   = aggregatorStorage.name;
+                const newName                   = oldName === "name1" ? "name2" : "name1";
+                const startOldReference         = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
+                const startNewReference         = await governanceSatelliteStorage.aggregatorLedger.get(newName);
+
+                // Operation
+                const operation     = await aggregatorInstance.methods.setName(newName).send();
+                await operation.confirmation();
+    
+                // Final values
+                governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+                aggregatorStorage               = await aggregatorInstance.storage();
+                const endOldReference           = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
+                const endNewReference           = await governanceSatelliteStorage.aggregatorLedger.get(newName);
+
+                // Assertion
+                assert.strictEqual(aggregatorStorage.name, newName);
+                assert.strictEqual(startOldReference, contractDeployments.aggregator.address);
+                assert.strictEqual(startNewReference, undefined);
+                assert.strictEqual(endOldReference, undefined);
+                assert.strictEqual(endNewReference, contractDeployments.aggregator.address);
+            } catch (e) {
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin should be able to update the aggregator config', async () => {
+        it('%updateMetadata           - admin (bob) should be able to update the contract metadata', async () => {
+            try{
+                // Initial values
+                const key   = ''
+                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+
+                // Operation
+                const updateOperation = await aggregatorInstance.methods.updateMetadata(key, hash).send();
+                await updateOperation.confirmation();
+
+                // Final values
+                aggregatorStorage       = await aggregatorInstance.storage();            
+
+                const updatedData       = await aggregatorStorage.metadata.get(key);
+                assert.equal(hash, updatedData);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - admin (bob) should be able to update contract config', async () => {
             try {
+                // Initial values
+                const decimals                      : BigNumber = new BigNumber(100);
+                const alphaPercentPerThousand       : BigNumber = new BigNumber(2);
+                const percentOracleThreshold        : BigNumber = new BigNumber(100);
+                const heartbeatSeconds              : BigNumber = new BigNumber(100);
+                const rewardAmountXtz               : BigNumber = new BigNumber(100);
+                const rewardAmountStakedMvk         : BigNumber = new BigNumber(100);
+
                 // Operation
                 const testUpdateConfigDecimalsOp                = await aggregatorInstance.methods.updateConfig(
                 decimals, "configDecimals"
@@ -1241,79 +1318,250 @@ describe('Aggregator Tests', async () => {
                 console.dir(e, {depth: 5})
             }
         });
-    });
 
-    describe('%setAdmin', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
+        it('%updateWhitelistContracts - admin (bob) should be able to add user (alice) to the Whitelisted Contracts map', async () => {
             try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
 
-                // Operation
-                await chai.expect(aggregatorInstance.methods.setAdmin(bob.pkh).send()).to.be.rejected;
-            } catch(e) {
-                console.dir(e, {depth: 5})
-            }
-        });
+                // init values
+                contractMapKey  = satelliteTwo;
+                storageMap      = "whitelistContracts";
 
-        it('Admin should be able to update the aggregator admin', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, bob.sk);
+                initialContractMapValue           = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
 
-                // Operation
-                const operation     = await aggregatorInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-    
-                // Final values
-                aggregatorStorage   = await aggregatorInstance.storage();
+                updateWhitelistContractsOperation = await updateWhitelistContracts(aggregatorInstance, contractMapKey, 'update');
+                await updateWhitelistContractsOperation.confirmation()
 
-                // Assertion
-                assert.deepEqual(aggregatorStorage.admin,bob.pkh);
+                aggregatorStorage = await aggregatorInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+
             } catch (e) {
                 console.dir(e, {depth: 5})
             }
-        });
-    });
+        })
 
-    describe('%setGovernance', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
+        it('%updateWhitelistContracts - admin (bob) should be able to remove user (alice) from the Whitelisted Contracts map', async () => {
             try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
 
-                // Operation
-                await chai.expect(aggregatorInstance.methods.setGovernance(david.pkh).send()).to.be.rejected;
-            } catch(e) {
-                console.dir(e, {depth: 5})
-            }
-        });
+                // init values
+                contractMapKey  = satelliteTwo;
+                storageMap      = "whitelistContracts";
 
-        it('Admin should be able to update the governance address', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, bob.sk);
+                initialContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
 
-                // Operation
-                const operation     = await aggregatorInstance.methods.setGovernance(contractDeployments.governance.address).send();
-                await operation.confirmation();
-    
-                // Final values
-                aggregatorStorage   = await aggregatorInstance.storage();
+                updateWhitelistContractsOperation = await updateWhitelistContracts(aggregatorInstance, contractMapKey, 'remove');
+                await updateWhitelistContractsOperation.confirmation()
 
-                // Assertion
-                assert.deepEqual(aggregatorStorage.governanceAddress,contractDeployments.governance.address);
+                aggregatorStorage = await aggregatorInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                assert.notStrictEqual(initialContractMapValue, undefined, 'alice (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'alice (key) should not be in the Whitelist Contracts map after adding her to it');
+
             } catch (e) {
                 console.dir(e, {depth: 5})
             }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to add user (alice) to the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "alice";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(aggregatorInstance, contractMapKey, satelliteTwo, 'update');
+                await updateGeneralContractsOperation.confirmation()
+
+                aggregatorStorage = await aggregatorInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'alice (key) should not be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, satelliteTwo, 'alice (key) should be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to remove user (alice) from the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "alice";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(aggregatorInstance, contractMapKey, satelliteTwo, 'remove');
+                await updateGeneralContractsOperation.confirmation()
+
+                aggregatorStorage = await aggregatorInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, satelliteTwo, 'alice (key) should be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'alice (key) should not be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%pauseAll                 - admin (bob) should be able to pause all entrypoints in the contract', async () => {
+            try{
+                // Initial Values
+                aggregatorStorage       = await aggregatorInstance.storage();
+                for (let [key, value] of Object.entries(aggregatorStorage.breakGlassConfig)){
+                    assert.equal(value, false);
+                }
+
+                // pause all operation
+                pauseAllOperation = await aggregatorInstance.methods.pauseAll().send();
+                await pauseAllOperation.confirmation();
+
+                // Final values
+                aggregatorStorage       = await aggregatorInstance.storage();
+                for (let [key, value] of Object.entries(aggregatorStorage.breakGlassConfig)){
+                    assert.equal(value, true);
+                }
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
         });
+
+
+        it('%unpauseAll               - admin (bob) should be able to unpause all entrypoints in the contract', async () => {
+            try{
+
+                // Initial Values
+                aggregatorStorage = await aggregatorInstance.storage();
+                for (let [key, value] of Object.entries(aggregatorStorage.breakGlassConfig)){
+                    assert.equal(value, true);
+                }
+
+                // unpause all operation
+                unpauseAllOperation = await aggregatorInstance.methods.unpauseAll().send();
+                await unpauseAllOperation.confirmation();
+
+                // Final values
+                aggregatorStorage = await aggregatorInstance.storage();
+                for (let [key, value] of Object.entries(aggregatorStorage.breakGlassConfig)){
+                    assert.equal(value, false);
+                }
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+
+        it("%togglePauseEntrypoint    - admin (bob) should be able to call this entrypoint", async() => {
+            try{
+                
+                // pause operations
+
+                pauseOperation = await aggregatorInstance.methods.togglePauseEntrypoint("updateData", true).send();
+                await pauseOperation.confirmation();
+                
+                pauseOperation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardXtz", true).send();
+                await pauseOperation.confirmation();
+
+                pauseOperation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardStakedMvk", true).send(); 
+                await pauseOperation.confirmation();
+
+                // update storage
+                aggregatorStorage              = await aggregatorInstance.storage();
+
+                // check that all entrypoints are paused
+                for (let [key, value] of Object.entries(aggregatorStorage.breakGlassConfig)){
+                    assert.equal(value, true);
+                }
+
+                // unpause operations
+
+                pauseOperation = await aggregatorInstance.methods.togglePauseEntrypoint("updateData", false).send();
+                await pauseOperation.confirmation();
+                
+                pauseOperation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardXtz", false).send();
+                await pauseOperation.confirmation();
+
+                pauseOperation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardStakedMvk", false).send(); 
+                await pauseOperation.confirmation();
+
+                // update storage
+                aggregatorStorage              = await aggregatorInstance.storage();
+
+                // check that all entrypoints are unpaused
+                for (let [key, value] of Object.entries(aggregatorStorage.breakGlassConfig)){
+                    assert.equal(value, false);
+                }
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
     });
 
-    describe('%setName', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
+    describe('Access Control Checks', function () {
+
+        beforeEach("Set signer to non-admin (alice)", async () => {
+            aggregatorStorage = await aggregatorInstance.storage();
+            await signerFactory(tezos, satelliteOneSk);
+        });
+
+        it('%setAdmin                 - non-admin (alice) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                aggregatorStorage   = await aggregatorInstance.storage();
+                const currentAdmin         = aggregatorStorage.admin;
+
+                // Operation
+                setAdminOperation = await aggregatorInstance.methods.setAdmin(satelliteOne);
+                await chai.expect(setAdminOperation.send()).to.be.rejected;
+
+                // Final values
+                aggregatorStorage   = await aggregatorInstance.storage();
+                const newAdmin             = aggregatorStorage.admin;
+
+                // Assertions
+                assert.strictEqual(newAdmin, currentAdmin);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setGovernance            - non-admin (alice) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                aggregatorStorage = await aggregatorInstance.storage();
+                const currentGovernance  = aggregatorStorage.governanceAddress;
+
+                // Operation
+                setGovernanceOperation = await aggregatorInstance.methods.setGovernance(satelliteOne);
+                await chai.expect(setGovernanceOperation.send()).to.be.rejected;
+
+                // Final values
+                aggregatorStorage = await aggregatorInstance.storage();
+                const updatedGovernance  = aggregatorStorage.governanceAddress;
+
+                // Assertions
+                assert.strictEqual(updatedGovernance, currentGovernance);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setAdmin                 - non-admin (alice) should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                await signerFactory(tezos, david.sk);
                 const newName   = "testName";
 
                 // Operation
@@ -1323,239 +1571,203 @@ describe('Aggregator Tests', async () => {
             }
         });
 
-        it('Admin should be able to update the aggregator contract name and update its reference on the governanceSatellite contract', async () => {
-            try {
+        it('%updateMetadata           - non-admin (alice) should not be able to update the contract metadata', async () => {
+            try{
                 // Initial values
-                await signerFactory(tezos, bob.sk);
-                const newName                   = "newName";
-                governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
-                aggregatorStorage               = await aggregatorInstance.storage();
-
-                const oldName                   = aggregatorStorage.name;
-                const startOldReference         = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
-                const startNewReference         = await governanceSatelliteStorage.aggregatorLedger.get(newName);
-
-                // Operation
-                const operation     = await aggregatorInstance.methods.setName(newName).send();
-                await operation.confirmation();
-    
-                // Final values
-                governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
-                aggregatorStorage               = await aggregatorInstance.storage();
-                const endOldReference           = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
-                const endNewReference           = await governanceSatelliteStorage.aggregatorLedger.get(newName);
-
-                // Assertion
-                assert.strictEqual(aggregatorStorage.name, newName);
-                assert.strictEqual(startOldReference, contractDeployments.aggregator.address);
-                assert.strictEqual(startNewReference, undefined);
-                assert.strictEqual(endOldReference, undefined);
-                assert.strictEqual(endNewReference, contractDeployments.aggregator.address);
-            } catch (e) {
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
-
-    describe('%updateMetadata', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+
+                aggregatorStorage = await aggregatorInstance.storage();   
+                const initialMetadata    = await aggregatorStorage.metadata.get(key);
 
                 // Operation
-                await chai.expect(aggregatorInstance.methods.updateMetadata(key, hash).send()).to.be.rejected;
+                const updateOperation = await aggregatorInstance.methods.updateMetadata(key, hash);
+                await chai.expect(updateOperation.send()).to.be.rejected;
+
+                // Final values
+                aggregatorStorage = await aggregatorInstance.storage();            
+                const updatedData        = await aggregatorStorage.metadata.get(key);
+
+                // check that there is no change in metadata
+                assert.equal(updatedData, initialMetadata);
+                assert.notEqual(updatedData, hash);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+        
+        it('%updateConfig             - non-admin (alice) should not be able to update contract config', async () => {
+            try {
+                // Initial values
+                const decimals: BigNumber = new BigNumber(100);
+                await signerFactory(tezos, satelliteOneSk);
+
+                // Operation
+                await chai.expect(aggregatorInstance.methods.updateConfig(decimals, "configDecimals").send()).to.be.rejected;
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin should be able to update the aggregator contract metadata', async () => {
+        it('%updateWhitelistContracts - non-admin (alice) should not be able to call this entrypoint', async () => {
             try {
-                // Initial values
-                await signerFactory(tezos, bob.sk);
-                const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
 
-                // Operation
-                const operation     = await aggregatorInstance.methods.updateMetadata(key, hash).send();
-                await operation.confirmation();
-    
-                // Final values
-                aggregatorStorage   = await aggregatorInstance.storage();
-                const updatedData    = await aggregatorStorage.metadata.get(key);
+                // init values
+                contractMapKey  = satelliteTwo;
+                storageMap      = "whitelistContracts";
 
-                // Assertion
-                assert.equal(updatedData, hash);
+                initialContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await aggregatorInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
+                await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
+
+                aggregatorStorage = await aggregatorInstance.storage()
+                updatedContractMapValue  = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the Whitelist Contracts map');
+
             } catch (e) {
                 console.dir(e, {depth: 5})
             }
-        });
-    });
+        })
 
-    describe('%updateWhitelistContracts', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
+        it('%updateGeneralContracts   - non-admin (alice) should not be able to call this entrypoint', async () => {
             try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
-                const contractAddress   = bob.pkh;
 
-                // Operation
-                await chai.expect(aggregatorInstance.methods.updateWhitelistContracts(contractAddress, "update").send()).to.be.rejected;
+                // init values
+                contractMapKey  = "alice";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await aggregatorInstance.methods.updateGeneralContracts(contractMapKey, satelliteTwo, 'update')
+                await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
+
+                aggregatorStorage = await aggregatorInstance.storage()
+                updatedContractMapValue  = await getStorageMapValue(aggregatorStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map');
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%pauseAll                 - non-admin (alice) should not be able to call this entrypoint", async() => {
+            try{
+
+                pauseAllOperation = aggregatorInstance.methods.pauseAll(); 
+                await chai.expect(pauseAllOperation.send()).to.be.rejected;
+
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
-        });
+        })
 
-        it('Admin should be able to update the aggregator contract whitelist contracts', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, bob.sk);
-                const contractAddress   = bob.pkh;
+        it("%unpauseAll               - non-admin (alice) should not be able to call this entrypoint", async() => {
+            try{
 
-                // Operation
-                const operation         = await aggregatorInstance.methods.updateWhitelistContracts(contractAddress, 'update').send();
-                await operation.confirmation();
-    
-                // Final values
-                aggregatorStorage       = await aggregatorInstance.storage();
-                const contractsMapEntry = await aggregatorStorage.whitelistContracts.get(contractAddress);
+                unpauseAllOperation = aggregatorInstance.methods.unpauseAll(); 
+                await chai.expect(unpauseAllOperation.send()).to.be.rejected;
 
-                // Assertion
-                assert.notStrictEqual(contractsMapEntry, undefined);
-            } catch (e) {
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
-
-    describe('%updateGeneralContracts', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
-                const contractName      = 'testContract';
-                const contractAddress   = bob.pkh;
-
-                // Operation
-                await chai.expect(aggregatorInstance.methods.updateGeneralContracts(contractName, contractAddress).send()).to.be.rejected;
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
-        });
+        })
 
-        it('Admin should be able to update the aggregator contract general contracts', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, bob.sk);
-                const contractName      = 'testContract';
-                const contractAddress   = bob.pkh;
+        it("%togglePauseEntrypoint    - non-admin (alice) should not be able to call this entrypoint", async() => {
+            try{
+                
+                // pause operations
 
-                // Operation
-                const operation         = await aggregatorInstance.methods.updateGeneralContracts(contractName, contractAddress, 'update').send();
-                await operation.confirmation();
-    
-                // Final values
-                aggregatorStorage       = await aggregatorInstance.storage();
-                const contractsMapEntry = await aggregatorStorage.generalContracts.get(contractName);
+                pauseOperation = aggregatorInstance.methods.togglePauseEntrypoint("updateData", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+                
+                pauseOperation = aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardXtz", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
 
-                // Assertion
-                assert.deepEqual(contractsMapEntry, contractAddress);
-            } catch (e) {
+                pauseOperation = aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardStakedMvk", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+
+                // unpause operations
+
+                pauseOperation = aggregatorInstance.methods.togglePauseEntrypoint("updateData", false); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+                
+                pauseOperation = aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardXtz", false); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+
+                pauseOperation = aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardStakedMvk", false); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+
+            } catch(e) {
                 console.dir(e, {depth: 5})
             }
-        });
-    });
+        })
 
-    describe('%pauseAll', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try {
+        it('%addOracle                - non-admin (alice) should not be able to call this entrypoint', async () => {
+            try{
                 // Initial values
-                await signerFactory(tezos, david.sk);
-    
-                // Operation
-                await chai.expect(aggregatorInstance.methods.pauseAll().send()).to.be.rejected;
-            } catch (e) {
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin should be able to pause all entrypoints', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, bob.sk);
-                aggregatorStorage           = await aggregatorInstance.storage();
-                const initBreakGlassConfig  = await aggregatorStorage.breakGlassConfig;
-
-                // Operation
-                const operation             = await aggregatorInstance.methods.pauseAll().send();
-                await operation.confirmation();
-
-                // Final values
-                aggregatorStorage           = await aggregatorInstance.storage();
-                const finalBreakGlassConfig = await aggregatorStorage.breakGlassConfig;
-
-                // Assertions
-                assert.equal(finalBreakGlassConfig.updateDataIsPaused, true);
-                assert.equal(finalBreakGlassConfig.withdrawRewardXtzIsPaused, true);
-                assert.equal(finalBreakGlassConfig.withdrawRewardStakedMvkIsPaused, true);
-                assert.notEqual(finalBreakGlassConfig.updateDataIsPaused, initBreakGlassConfig.updateDataIsPaused);
-                assert.notEqual(finalBreakGlassConfig.withdrawRewardXtzIsPaused, initBreakGlassConfig.withdrawRewardXtzIsPaused);
-                assert.notEqual(finalBreakGlassConfig.withdrawRewardStakedMvkIsPaused, initBreakGlassConfig.withdrawRewardStakedMvkIsPaused);
-            } catch (e) {
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
-
-    describe('%togglePauseEntrypoint', () => {
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(tezos, bob.sk)
-        });
-
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
-                const entrypoint    = "updateData";
-                const pause         = true;
+                await signerFactory(tezos, userSk);
+                const oracleAddress     = satelliteThree;
     
                 // Operation
-                await chai.expect(aggregatorInstance.methods.togglePauseEntrypoint(entrypoint, pause).send()).to.be.rejected;
-            } catch (e) {
+                await chai.expect(aggregatorInstance.methods.addOracle(oracleAddress).send()).to.be.rejected;
+            } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin should be able to pause or unpause %updateData', async () => {
+        it('%updateOracle             - non-satellite (mallory) should not be able to call this entrypoint', async () => {
+            try {
+                
+                // Initial values
+                await signerFactory(tezos, userSk)
+
+                // Operation
+                updateOracleOperation = aggregatorInstance.methods.updateOracle();
+                await chai.expect(updateOracleOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('%removeOracle             - non-admin (alice) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial values
+                const oracleAddress = satelliteThree;
+
+                // Operation    
+                await chai.expect(aggregatorInstance.methods.removeOracle(oracleAddress).send()).to.be.rejected;
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('%updateData               - non-oracle (mallory) should not be able to call this entrypoint', async () => {
             try {
                 // Initial values
-                const entrypoint            = "updateData";
-                const pause                 = true;
-                const observations          = [
+                observations = [
                     {
-                        "oracle": alice.pkh,
+                        "oracle": satelliteFour,
                         "data": new BigNumber(10142857143)
                     },
                     {
-                        "oracle": eve.pkh,
+                        "oracle": satelliteTwo,
                         "data": new BigNumber(10142853322)
                     },
                     {
-                        "oracle": oscar.pkh,
+                        "oracle": satelliteOne,
                         "data": new BigNumber(10142857900)
                     },
                     {
-                        "oracle": trudy.pkh,
+                        "oracle": satelliteFive,
                         "data": new BigNumber(10142857901)
                     }
                 ];
-
-                let epoch: number           = 2;
-                let round: number           = 2;
-                const oracleObservations    = new MichelsonMap<string, IOracleObservationType>();
+                const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
                 for (const { oracle, data } of observations) {
                     oracleObservations.set(oracle, {
                         data,
@@ -1564,139 +1776,40 @@ describe('Aggregator Tests', async () => {
                         aggregatorAddress: contractDeployments.aggregator.address
                     });
                 };
-                const signatures            = new MichelsonMap<string, string>();
-    
+                const signatures = new MichelsonMap<string, string>();
+        
                 // Sign observations
-                await signerFactory(tezos, alice.sk);
-                signatures.set(alice.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, eve.sk);
-                signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, trudy.sk);
-                signatures.set(trudy.pkh, await utils.signOracleDataResponses(oracleObservations));
-                await signerFactory(tezos, oscar.sk);
-                signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
-    
+                await signerFactory(tezos, satelliteOneSk);
+                signatures.set(satelliteOne, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteTwoSk);
+                signatures.set(satelliteTwo, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFiveSk);
+                signatures.set(satelliteFive, await utils.signOracleDataResponses(oracleObservations));
+                await signerFactory(tezos, satelliteFourSk);
+                signatures.set(satelliteFour, await utils.signOracleDataResponses(oracleObservations));
+        
                 // Operation
-                await signerFactory(tezos, bob.sk)
-                const operation             = await aggregatorInstance.methods.togglePauseEntrypoint(entrypoint, pause).send();
-                await operation.confirmation();
-
-                // Test operation
+                await signerFactory(tezos, userSk);
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
-
-                // Final values
-                aggregatorStorage           = await aggregatorInstance.storage();
-                const entrypointPaused      = await aggregatorStorage.breakGlassConfig.updateDataIsPaused;
-
-                // Assertions
-                assert.equal(entrypointPaused, pause);
-            } catch (e) {
+            } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin should be able to pause or unpause %withdrawRewardXtz', async () => {
-            try {
-                // Initial values
-                const entrypoint            = "withdrawRewardXtz";
-                const pause                 = true;
-                
-                // Operation
-                const operation             = await aggregatorInstance.methods.togglePauseEntrypoint(entrypoint, pause).send();
-                await operation.confirmation();
+        it("%setLambda                - non-admin (alice) should not be able to call this entrypoint", async() => {
+            try{
 
-                // Test operation
-                await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send()).to.be.rejected;
+                // random lambda for testing
+                const randomLambdaName  = "randomLambdaName";
+                const randomLambdaBytes = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
 
-                // Final values
-                aggregatorStorage           = await aggregatorInstance.storage();
-                const entrypointPaused      = await aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
+                const setLambdaOperation = aggregatorInstance.methods.setLambda(randomLambdaName, randomLambdaBytes); 
+                await chai.expect(setLambdaOperation.send()).to.be.rejected;
 
-                // Assertions
-                assert.equal(entrypointPaused, pause);
-            } catch (e) {
+            } catch(e) {
                 console.dir(e, {depth: 5})
             }
-        });
+        })
 
-        it('Admin should be able to pause or unpause %withdrawRewardStakedMvk', async () => {
-            try {
-                // Initial values
-                const entrypoint            = "withdrawRewardStakedMvk";
-                const pause                 = true;
-                
-                // Operation
-                const operation             = await aggregatorInstance.methods.togglePauseEntrypoint(entrypoint, pause).send();
-                await operation.confirmation();
-
-                // Test operation
-                await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send()).to.be.rejected;
-
-                // Final values
-                aggregatorStorage           = await aggregatorInstance.storage();
-                const entrypointPaused      = await aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
-
-                // Assertions
-                assert.equal(entrypointPaused, pause);
-            } catch (e) {
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
-
-    describe('%unpauseAll', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
-    
-                // Operation
-                await chai.expect(aggregatorInstance.methods.unpauseAll().send()).to.be.rejected;
-            } catch (e) {
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin should be able to unpause all entrypoints', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, bob.sk);
-                aggregatorStorage           = await aggregatorInstance.storage();
-                const initBreakGlassConfig  = await aggregatorStorage.breakGlassConfig;
-
-                // Operation
-                const operation             = await aggregatorInstance.methods.unpauseAll().send();
-                await operation.confirmation();
-
-                // Final values
-                aggregatorStorage           = await aggregatorInstance.storage();
-                const finalBreakGlassConfig = await aggregatorStorage.breakGlassConfig;
-
-                // Assertions
-                assert.equal(finalBreakGlassConfig.updateDataIsPaused, false);
-                assert.equal(finalBreakGlassConfig.withdrawRewardXtzIsPaused, false);
-                assert.equal(finalBreakGlassConfig.withdrawRewardStakedMvkIsPaused, false);
-                assert.notEqual(finalBreakGlassConfig.updateDataIsPaused, initBreakGlassConfig.updateDataIsPaused);
-                assert.notEqual(finalBreakGlassConfig.withdrawRewardXtzIsPaused, initBreakGlassConfig.withdrawRewardXtzIsPaused);
-                assert.notEqual(finalBreakGlassConfig.withdrawRewardStakedMvkIsPaused, initBreakGlassConfig.withdrawRewardStakedMvkIsPaused);
-            } catch (e) {
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
-
-    describe('%setLambda', () => {
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try {
-                // Initial values
-                await signerFactory(tezos, david.sk);
-                const bytes  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
-    
-                // Operation
-                await chai.expect(aggregatorInstance.methods.setLambda("testSetLambda", bytes).send()).to.be.rejected;
-            } catch (e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
+    })
 });
