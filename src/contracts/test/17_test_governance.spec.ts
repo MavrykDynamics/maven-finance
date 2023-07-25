@@ -294,10 +294,6 @@ describe("Governance tests", async () => {
 
             }; 
 
-            // start another round to reset
-            // const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-            // await startNextRoundOperation.confirmation();
-
             // -------------------
             // generate sample mock proposal data
             // -------------------
