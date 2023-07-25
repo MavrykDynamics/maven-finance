@@ -17,7 +17,10 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import { 
+    signerFactory, 
+    updateOperators
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -138,13 +141,13 @@ describe("Mistaken transfers tests", async () => {
     });
 
     beforeEach('storage', async () => {
-        await helperFunctions.signerFactory(tezos, bob.sk)
+        await signerFactory(tezos, bob.sk)
     })
 
     describe("DOORMAN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the doorman by mistake", async() => {
@@ -242,7 +245,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(doormanInstance.methods.mistakenTransfer(
                 [
                     {
@@ -264,7 +267,7 @@ describe("Mistaken transfers tests", async () => {
     describe("FARM", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to a farm by mistake", async() => {
@@ -373,7 +376,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(farmInstance.methods.mistakenTransfer(
                 [
                     {
@@ -395,7 +398,7 @@ describe("Mistaken transfers tests", async () => {
     describe("DELEGATION", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the delegation by mistake", async() => {
@@ -462,7 +465,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(delegationInstance.methods.mistakenTransfer(
                 [
                     {
@@ -484,7 +487,7 @@ describe("Mistaken transfers tests", async () => {
     describe("BREAK GLASS", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the breakGlass by mistake", async() => {
@@ -551,7 +554,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(breakGlassInstance.methods.mistakenTransfer(
                 [
                     {
@@ -573,7 +576,7 @@ describe("Mistaken transfers tests", async () => {
     describe("EMERGENCY GOVERNANCE", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the emergencyGovernance by mistake", async() => {
@@ -640,7 +643,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(emergencyGovernanceInstance.methods.mistakenTransfer(
                 [
                     {
@@ -662,7 +665,7 @@ describe("Mistaken transfers tests", async () => {
     describe("FARM FACTORY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the farmFactory by mistake", async() => {
@@ -729,7 +732,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(farmFactoryInstance.methods.mistakenTransfer(
                 [
                     {
@@ -751,7 +754,7 @@ describe("Mistaken transfers tests", async () => {
     describe("GOVERNANCE", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governance by mistake", async() => {
@@ -818,7 +821,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(governanceInstance.methods.mistakenTransfer(
                 [
                     {
@@ -840,7 +843,7 @@ describe("Mistaken transfers tests", async () => {
     describe("GOVERNANCE FINANCIAL", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governanceFinancial by mistake", async() => {
@@ -907,7 +910,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(governanceFinancialInstance.methods.mistakenTransfer(
                 [
                     {
@@ -929,7 +932,7 @@ describe("Mistaken transfers tests", async () => {
     describe("GOVERNANCE PROXY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governanceProxy by mistake", async() => {
@@ -996,7 +999,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(governanceProxyInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1018,7 +1021,7 @@ describe("Mistaken transfers tests", async () => {
     describe("MVK TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the mvkToken by mistake", async() => {
@@ -1085,7 +1088,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(mvkTokenInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1107,7 +1110,7 @@ describe("Mistaken transfers tests", async () => {
     describe("TREASURY FACTORY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the treasuryFactory by mistake", async() => {
@@ -1174,7 +1177,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(treasuryFactoryInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1196,7 +1199,7 @@ describe("Mistaken transfers tests", async () => {
     describe("VESTING", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the vesting by mistake", async() => {
@@ -1263,7 +1266,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(vestingInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1285,7 +1288,7 @@ describe("Mistaken transfers tests", async () => {
     describe("AGGREGATOR", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to an aggregator by mistake", async() => {
@@ -1377,7 +1380,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(aggregatorInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1402,7 +1405,7 @@ describe("Mistaken transfers tests", async () => {
     describe("AGGREGATOR FACTORY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the aggregator factory by mistake", async() => {
@@ -1494,7 +1497,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(aggregatorFactoryInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1519,7 +1522,7 @@ describe("Mistaken transfers tests", async () => {
     describe("GOVERNANCE SATELLITE", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governance satellite by mistake", async() => {
@@ -1611,7 +1614,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(governanceSatelliteInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1636,7 +1639,7 @@ describe("Mistaken transfers tests", async () => {
     describe("MAVRYK FA12 TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to a mavryk fa12 token by mistake", async() => {
@@ -1728,7 +1731,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(mavrykFa12TokenInstance.methods.mistakenTransfer(
                 [
                     {
@@ -1753,7 +1756,7 @@ describe("Mistaken transfers tests", async () => {
     describe("MAVRYK FA2 TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to a mavryk fa12 token by mistake", async() => {
@@ -1845,7 +1848,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Treasury Transfer Operation
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 await chai.expect(mavrykFa2TokenInstance.methods.mistakenTransfer(
                 [
                     {
