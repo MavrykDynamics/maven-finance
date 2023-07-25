@@ -688,8 +688,8 @@ describe("Test: Farm Contract", async () => {
                     const userDepositRecord     = await farmStorage.depositorLedger.get(userTwo);
                     const userDepositBalance    = userDepositRecord === undefined ? 0 : userDepositRecord.balance.toNumber();
 
-                    console.log(userDepositRecord);
-                    console.log(`userDepositBalance: ${userDepositBalance}`);
+                    // console.log(userDepositRecord);
+                    // console.log(`userDepositBalance: ${userDepositBalance}`);
                     
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
@@ -710,8 +710,8 @@ describe("Test: Farm Contract", async () => {
                     const userDepositRecordEnd     = await farmStorage.depositorLedger.get(userTwo);
                     const userDepositBalanceEnd    = userDepositRecordEnd===undefined ? 0 : userDepositRecordEnd.balance.toNumber();
 
-                    console.log(userDepositRecordEnd);
-                    console.log(`userDepositBalanceEnd: ${userDepositBalanceEnd}`);
+                    // console.log(userDepositRecordEnd);
+                    // console.log(`userDepositBalanceEnd: ${userDepositBalanceEnd}`);
                     
                     const userLpLedgerEnd       = await lpTokenStorage.ledger.get(userTwo);
                     const userLpBalanceEnd      = userLpLedgerEnd.balance.toNumber();
