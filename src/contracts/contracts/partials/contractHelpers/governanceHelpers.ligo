@@ -995,28 +995,23 @@ block {
 
     s.snapshotLedger[(s.cycleId,satelliteAddress)]  := satelliteSnapshotRecord;
 
-    // get last satellite snapshot cycle id
-    const lastSatelliteSnapshotCycleId : nat = case s.satelliteLastSnapshotLedger[satelliteAddress] of [
-            Some(_cycleId) -> _cycleId
-        |   None           -> 0n
+    // link the previous snapshot to the current one if it exists
+    case s.satelliteLastSnapshotLedger[satelliteAddress] of [
+            Some(_cycleId) -> block {
+                // get previous satellite snapshot record 
+                var previousSatelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := case s.snapshotLedger[(_cycleId, satelliteAddress)] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_SNAPSHOT_NOT_FOUND)
+                ];
+
+                // link previous snapshot to current snapshot
+                previousSatelliteSnapshotRecord.nextSnapshotId := Some(s.cycleId);
+
+                // save previous snapshot
+                s.snapshotLedger[(_cycleId, satelliteAddress)] := previousSatelliteSnapshotRecord;
+            }
+        |   None           -> skip
     ];
-
-    // link previous snapshot to current snapshot if lastSatelliteSnapshotCycleId is not 0
-    if lastSatelliteSnapshotCycleId =/= 0n then block {
-
-        // get previous satellite snapshot record 
-        var previousSatelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := case s.snapshotLedger[(lastSatelliteSnapshotCycleId, satelliteAddress)] of [
-                Some(_record) -> _record
-            |   None          -> failwith(error_SNAPSHOT_NOT_FOUND)
-        ];
-
-        // link previous snapshot to current snapshot
-        previousSatelliteSnapshotRecord.nextSnapshotId := Some(s.cycleId);
-
-        // save previous snapshot
-        s.snapshotLedger[(lastSatelliteSnapshotCycleId, satelliteAddress)] := previousSatelliteSnapshotRecord;
-
-    } else skip;
 
     // update satellite last snapshot to current id
     s.satelliteLastSnapshotLedger[satelliteAddress] := s.cycleId;
