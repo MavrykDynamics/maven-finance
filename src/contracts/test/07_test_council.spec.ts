@@ -157,7 +157,7 @@ describe("Test: Council Contract", async () => {
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
-        // Operation
+        // Call start next round to save a SMVK Total Supply Snapshot for the tests
         const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
         await startNextRoundOperation.confirmation();
 

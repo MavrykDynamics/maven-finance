@@ -23,6 +23,7 @@ import {
     signerFactory, 
     updateOperators
 } from './helpers/helperFunctions'
+import { mockSatelliteData } from "./helpers/mockSampleData";
 
 
 // ------------------------------------------------------------------------------
@@ -161,11 +162,13 @@ describe("Governance quorum tests", async () => {
                 await stakeOperation.confirmation();
                 var registerAsSatelliteOperation = await delegationInstance.methods
                     .registerAsSatellite(
-                        "Bob", 
-                        "Bob description", 
-                        "Bob image", 
-                        "Bob website",
-                        1000
+                        mockSatelliteData.bob.name,
+                        mockSatelliteData.bob.desc,
+                        mockSatelliteData.bob.image,
+                        mockSatelliteData.bob.website,
+                        mockSatelliteData.bob.satelliteFee,
+                        mockSatelliteData.bob.oraclePublicKey,
+                        mockSatelliteData.bob.oraclePeerId
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
     
@@ -177,11 +180,13 @@ describe("Governance quorum tests", async () => {
                 await stakeOperation.confirmation();
                 var registerAsSatelliteOperation = await delegationInstance.methods
                     .registerAsSatellite(
-                        "Alice", 
-                        "Alice description", 
-                        "Alice image", 
-                        "Alice website",
-                        1000
+                        mockSatelliteData.alice.name,
+                        mockSatelliteData.alice.desc,
+                        mockSatelliteData.alice.image,
+                        mockSatelliteData.alice.website,
+                        mockSatelliteData.alice.satelliteFee,
+                        mockSatelliteData.alice.oraclePublicKey,
+                        mockSatelliteData.alice.oraclePeerId
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
 
