@@ -18,7 +18,10 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
+import { 
+    signerFactory, 
+    updateOperators
+} from './helpers/helperFunctions'
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { mockSatelliteData } from "./helpers/mockSampleData";
 
@@ -80,16 +83,6 @@ describe("Governance - Voting Power Ratio - tests", async () => {
         breakGlassStorage               = await breakGlassInstance.storage();
         councilStorage                  = await councilInstance.storage();
 
-        // console.log('-- -- -- -- -- Governance - Voting Power Ratio - Tests -- -- -- --')
-        // console.log('Doorman Contract deployed at:', doormanInstance.address);
-        // console.log('Delegation Contract deployed at:', delegationInstance.address);
-        // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        // console.log('Governance Contract deployed at:', governanceInstance.address);
-        // console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-        // console.log('Bob address: ' + bob.pkh);
-        // console.log('Alice address: ' + alice.pkh);
-        // console.log('Eve address: ' + eve.pkh);
-
         // Init multiple satellites with multiple delegates
         delegationStorage       = await delegationInstance.storage();
         const eveSatellite      = await delegationStorage.satelliteLedger.get(eve.pkh);
@@ -103,8 +96,8 @@ describe("Governance - Voting Power Ratio - tests", async () => {
              * Delegates:
              * Bob and Trudy
              */
-            await helperFunctions.signerFactory(tezos, alice.sk)
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
+            await signerFactory(tezos, alice.sk)
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, alice.pkh, doormanAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
@@ -121,8 +114,8 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             ).send();
             await registerAsSatellite.confirmation();
 
-            await helperFunctions.signerFactory(tezos, bob.sk)
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+            await signerFactory(tezos, bob.sk)
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
@@ -131,8 +124,8 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             var delegateOperation   = await delegationInstance.methods.delegateToSatellite(bob.pkh, alice.pkh).send()
             await delegateOperation.confirmation()
 
-            await helperFunctions.signerFactory(tezos, trudy.sk)
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, trudy.pkh, doormanAddress, tokenId);
+            await signerFactory(tezos, trudy.sk)
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, trudy.pkh, doormanAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             stakeOperation = await doormanInstance.methods.stake(MVK(1234)).send();
@@ -147,8 +140,8 @@ describe("Governance - Voting Power Ratio - tests", async () => {
              * Delegates:
              * Mallory and Oscar
              */
-            await helperFunctions.signerFactory(tezos, eve.sk)
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+            await signerFactory(tezos, eve.sk)
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             stakeOperation = await doormanInstance.methods.stake(MVK(20000)).send();
@@ -165,8 +158,8 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             ).send();
             await registerAsSatellite.confirmation();
 
-            await helperFunctions.signerFactory(tezos, mallory.sk)
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
+            await signerFactory(tezos, mallory.sk)
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             stakeOperation = await doormanInstance.methods.stake(MVK(200)).send();
@@ -174,8 +167,8 @@ describe("Governance - Voting Power Ratio - tests", async () => {
             var delegateOperation   = await delegationInstance.methods.delegateToSatellite(mallory.pkh, eve.pkh).send()
             await delegateOperation.confirmation()
 
-            await helperFunctions.signerFactory(tezos, oscar.sk)
-            updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, oscar.pkh, doormanAddress, tokenId);
+            await signerFactory(tezos, oscar.sk)
+            updateOperatorsOperation = await updateOperators(mvkTokenInstance, oscar.pkh, doormanAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             stakeOperation = await doormanInstance.methods.stake(MVK(800)).send();
@@ -185,7 +178,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
         }
 
         // Reset signer
-        await helperFunctions.signerFactory(tezos, bob.sk)
+        await signerFactory(tezos, bob.sk)
 
         // Set council contract admin to governance proxy for later tests
         const setAdminOperation = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
@@ -197,7 +190,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
         before("Configure delegation ratio on delegation contract", async () => {
             try{
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, bob.sk)
                 delegationStorage   = await delegationInstance.storage();
                 const newConfigValue = 5000;
 
@@ -217,7 +210,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
         });
 
         beforeEach("Set signer to admin", async () => {
-            await helperFunctions.signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, bob.sk)
         });
 
         it('Admin should be able to call the entrypoint and configure the min proposal round vote percentage required', async () => {
@@ -349,7 +342,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
 
     describe("Init cycle with Proposal Round", async () => {
         beforeEach("Set signer to standard user", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk)
+            await signerFactory(tezos, eve.sk)
         });
 
         it('User starts a proposal round (check that the snapshot is correct)', async () => {
@@ -421,7 +414,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
 
     describe("Propose & Vote", async () => {
         beforeEach("Set signer to satellite", async () => {
-            await helperFunctions.signerFactory(tezos, alice.sk)
+            await signerFactory(tezos, alice.sk)
         });
 
         it('Alice (satellite) proposes a proposal and locks it. Alice and Eve vote for it', async () => {
@@ -524,7 +517,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
                 var voteForProposalOperation = await governanceInstance.methods.proposalRoundVote(nextProposalId).send();
                 await voteForProposalOperation.confirmation()
 
-                await helperFunctions.signerFactory(tezos, eve.sk)
+                await signerFactory(tezos, eve.sk)
                 voteForProposalOperation = await governanceInstance.methods.proposalRoundVote(nextProposalId).send();
                 await voteForProposalOperation.confirmation()
             } catch(e){
@@ -567,7 +560,7 @@ describe("Governance - Voting Power Ratio - tests", async () => {
                 var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
 
                 votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
