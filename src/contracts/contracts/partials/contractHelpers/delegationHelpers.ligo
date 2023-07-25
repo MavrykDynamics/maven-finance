@@ -287,59 +287,16 @@ block {
 
 
 // helper function to get satellite snapshot
-function getSatelliteSnapshot(const governanceCycleIdAfterReference : nat; const currentGovernanceCycleId : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
+function getSatelliteSnapshot(const governanceCycleId : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
 block {
 
-    var snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) := Tezos.call_view ("getSnapshotOpt", (governanceCycleIdAfterReference, satelliteAddress), s.governanceAddress);
-    var satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) := case snapshotOptView of [
-            Some (_snapshotOpt) -> _snapshotOpt
+    var snapshotOptView : option (option(governanceSatelliteSnapshotRecordType))    := Tezos.call_view ("getSnapshotOpt", (governanceCycleId, satelliteAddress), s.governanceAddress);
+    var satelliteSnapshot: governanceSatelliteSnapshotRecordType                    := case snapshotOptView of [
+            Some (_snapshotOpt) -> case _snapshotOpt of [
+                    Some (_snapshot)    -> _snapshot
+                |   None                -> failwith (error_SNAPSHOT_NOT_FOUND)
+            ]
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
-    const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case satelliteSnapshotOpt of [
-            Some (_snapshot)    -> _snapshot
-        |   None                -> {
-                
-                // Case: Satellite snapshot for governance cycle id immediately after reference id is not found
-                
-                // Potential issue: snapshot may not exist for current governance cycle id as well
-                // - add a delegated cycle id to delegateRecord to use as reference here
-
-                // get snapshot of current governance cycle 
-                snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (currentGovernanceCycleId, satelliteAddress), s.governanceAddress);
-                satelliteSnapshotOpt    := case snapshotOptView of [
-                        Some (_snapshotOpt) -> _snapshotOpt
-                    |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                const currentCycleSatelliteSnapshot = case satelliteSnapshotOpt of [
-                        Some (_snapshot)    -> _snapshot
-                    |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
-                ];
-
-                // get next snapshot id from current cycle satellite snapshot
-                // use satelliteLastSnapshotCycleId as final backup id
-                const satelliteLastSnapshotCycleId : nat = getSatelliteLastSnapshot(satelliteAddress, s);
-                const nextSnapshotId : nat = case currentCycleSatelliteSnapshot.nextSnapshotId of [
-                        Some(_v) -> _v
-                    |   None -> satelliteLastSnapshotCycleId
-                ];
-
-                // get next snapshot following the current governance cycle id 
-                // - N.B. this implementation accounts for any potential gaps between 
-                //   governance cycles where the satellite snapshot was not created
-                snapshotOptView         := Tezos.call_view ("getSnapshotOpt", (nextSnapshotId, satelliteAddress), s.governanceAddress);
-                satelliteSnapshotOpt    := case snapshotOptView of [
-                        Some (_snapshotOpt) -> _snapshotOpt
-                    |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                const nextSatelliteSnapshot = case satelliteSnapshotOpt of [
-                        Some (_snapshot)    -> _snapshot
-                    |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
-                ];
-
-            } with nextSatelliteSnapshot
     ];
 
 } with satelliteSnapshot
@@ -792,12 +749,17 @@ block{
 
                     // user can start to earn rewards, and will accrue rewards from the start of the next governance cycle after he delegated
 
-                    // get satellite snapshot of next governance cycle after reference 
-                    const governanceCycleIdAfterReference : nat = referenceGovernanceCycleId + 1n;
-                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getSatelliteSnapshot(governanceCycleIdAfterReference, currentGovernanceCycleId, satelliteReferenceAddress, s);
+                    // get satellite snapshot of when the satellite delegated
+                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType     = getSatelliteSnapshot(referenceGovernanceCycleId, satelliteReferenceAddress, s);
+
+                    // get the satellite snapshot that followed
+                    const satelliteSnapshotNext : governanceSatelliteSnapshotRecordType = case satelliteSnapshot.nextSnapshotId of [
+                            Some (_snapshotCycleId) -> getSatelliteSnapshot(_snapshotCycleId, satelliteReferenceAddress, s)
+                        |   None                    -> failwith(error_SATELLITE_DID_NOT_CREATE_SNAPSHOT_FOR_THIS_CYCLE)
+                    ];
                     
                     // get satellite's accumulated rewards per share at this instance, which will be equivalent to user's participation rewards per share
-                    const initialParticipationRewardsPerShare : nat = satelliteSnapshot.accumulatedRewardsPerShare;
+                    const initialParticipationRewardsPerShare : nat = satelliteSnapshotNext.accumulatedRewardsPerShare;
 
                     // Calculate satellite unclaimed rewards
                     const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - initialParticipationRewardsPerShare);
