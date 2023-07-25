@@ -9,15 +9,16 @@ export type governanceStorageType = {
 
     config: {};
 
-    whitelistDevelopers     : Array<string>;
-    whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>
-    generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistDevelopers             : Array<string>;
+    whitelistContracts              : MichelsonMap<MichelsonMapKey, unknown>
+    generalContracts                : MichelsonMap<MichelsonMapKey, unknown>;
 
-    proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
-    proposalVoters          : MichelsonMap<MichelsonMapKey, unknown>;
-    proposalRewards         : MichelsonMap<MichelsonMapKey, unknown>;
-    stakedMvkSnapshotLedger : MichelsonMap<MichelsonMapKey, unknown>;
-    snapshotLedger          : MichelsonMap<MichelsonMapKey, unknown>;
+    proposalLedger                  : MichelsonMap<MichelsonMapKey, unknown>;
+    proposalVoters                  : MichelsonMap<MichelsonMapKey, unknown>;
+    proposalRewards                 : MichelsonMap<MichelsonMapKey, unknown>;
+    stakedMvkSnapshotLedger         : MichelsonMap<MichelsonMapKey, unknown>;
+    snapshotLedger                  : MichelsonMap<MichelsonMapKey, unknown>;
+    satelliteLastSnapshotLedger     : MichelsonMap<MichelsonMapKey, unknown>;
 
     // startLevel              : BigNumber;
     nextProposalId          : BigNumber;
