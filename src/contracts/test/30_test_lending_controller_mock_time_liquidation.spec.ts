@@ -561,7 +561,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch;
             epoch = epoch.toNumber() + 1;
-            round = 1;
+            round = 0;
 
             // default observation data for mock FA-12 token
             defaultObservations = lendingHelper.defaultPriceObservations[usdtTokenIndex].observations;
@@ -576,7 +576,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch;
             epoch = epoch.toNumber() + 1;
-            round = 1;
+            round = 0;
 
             // default observation data for mock FA-2 token
             defaultObservations = lendingHelper.defaultPriceObservations[eurlTokenIndex].observations;
@@ -591,7 +591,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
             epoch = epoch.toNumber() + 1;
-            round = 1;
+            round = 0;
 
             // default observation data for xtz
             defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
@@ -606,7 +606,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch;
             epoch = epoch.toNumber() + 1;
-            round = 1;
+            round = 0;
 
             // default observation data for mvk
             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
@@ -2686,7 +2686,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             tezIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
             mvkIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvk"));
 
-            round = 1;
+            round = 0;
 
             // ---------------------------------
             // Reset Mock FA-12 token prices to default observation data
@@ -3472,7 +3472,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             tezIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
             mvkIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvk"));
 
-            round = 1;
+            round = 0;
 
             // ---------------------------------
             // Reset Mock FA-12 token prices to default observation data
