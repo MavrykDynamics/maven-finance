@@ -55,6 +55,8 @@ describe("Governance quorum tests", async () => {
     let satelliteThreeSk
 
     let satelliteFour 
+    let satelliteFourSk 
+
     let satelliteFive
 
     let delegateOne 
@@ -171,6 +173,8 @@ describe("Governance quorum tests", async () => {
             satelliteThreeSk = trudy.sk;
 
             satelliteFour    = oscar.pkh;
+            satelliteFourSk  = oscar.sk;
+
             satelliteFive    = susie.pkh;
 
             delegateOne     = david.pkh;
@@ -211,29 +215,33 @@ describe("Governance quorum tests", async () => {
             // check governance cycles
             // -------------------
 
-            // Check if cycle already started (for retest purposes)
-            const cycleEnd  = governanceStorage.currentCycleInfo.cycleEndLevel;
-            if (cycleEnd == 0) {
+            await signerFactory(tezos, adminSk);
 
-                // Update governance config for shorter cycles
-                var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
-                await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
-                await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
-                await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
-                await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
-                await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(5100, "configMinYayVotePercentage").send();
-                await updateGovernanceConfig.confirmation();
-
-                // Update council admin for tests
+            // Update governance config for shorter cycles
+            var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+            await updateGovernanceConfig.confirmation();
+            updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+            await updateGovernanceConfig.confirmation();
+            updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+            await updateGovernanceConfig.confirmation();
+            updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
+            await updateGovernanceConfig.confirmation();
+            updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
+            await updateGovernanceConfig.confirmation();
+            updateGovernanceConfig      = await governanceInstance.methods.updateConfig(5100, "configMinYayVotePercentage").send();
+            await updateGovernanceConfig.confirmation();
+            
+            // Update council admin for tests
+            councilStorage = await councilInstance.storage();
+            if(councilStorage.admin == bob.pkh){
                 const setAdminOperation = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send()
                 await setAdminOperation.confirmation()
-                
-            } else {
+            };
+            
+            // Check if cycle already started (for retest purposes)
+            const cycleEnd  = governanceStorage.currentCycleInfo.cycleEndLevel;
+            if (cycleEnd !== 0){
+
                 // Start next round until new proposal round
                 governanceStorage                = await governanceInstance.storage()
                 var currentCycleInfoRound        = governanceStorage.currentCycleInfo.round
@@ -250,6 +258,7 @@ describe("Governance quorum tests", async () => {
                     console.log("Current round: ", currentCycleInfoRoundString)
                 }
             }
+
         } catch(e){
             console.dir(e, {depth:5})
         }
@@ -261,7 +270,7 @@ describe("Governance quorum tests", async () => {
             await signerFactory(tezos, satelliteOneSk)
         })
 
-        it("Scenario - Satellites vote only yay and exceed quorum (1%)", async() => {
+        it("Scenario - Satellites vote only yay; total votes exceed quorum (1%) and minYayVotePercentage (51%)", async() => {
             try{
 
                 // Initial values
@@ -269,7 +278,6 @@ describe("Governance quorum tests", async () => {
                 mvkTokenStorage             = await mvkTokenInstance.storage();
 
                 // get current cycle and relevant config variables
-                currentCycle                = governanceStorage.cycleId;
                 const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
                 const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
@@ -277,10 +285,11 @@ describe("Governance quorum tests", async () => {
                 const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
                 // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired        = minQuorumStakedMvkTotal * minYayVotePercentage / 10000;
-
+                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
+                
                 // proposal details
+                await signerFactory(tezos, satelliteOneSk);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -313,7 +322,6 @@ describe("Governance quorum tests", async () => {
                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
 
-                await signerFactory(tezos, satelliteOneSk);
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
 
@@ -321,13 +329,14 @@ describe("Governance quorum tests", async () => {
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
                 
-                await signerFactory(tezos, satelliteTwoSk);
+                await signerFactory(tezos, satelliteOneSk);
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
-                
+                currentCycle                        = governanceStorage.cycleId;
+
                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
@@ -349,7 +358,7 @@ describe("Governance quorum tests", async () => {
                 const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
                 const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
                 const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
-                
+
                 // Assertions
                 // console.log("PROPOSAL: ", proposal);
                 // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
@@ -367,15 +376,22 @@ describe("Governance quorum tests", async () => {
             }
         })
 
-        it("Scenario - Admin set yayVotePercentage to 20% and satellites vote yay and pass and exceed quorum (1%)", async() => {
+        it("Scenario - Satellites vote yay and pass; total votes exceed quorum (1%) and minYayVotePercentage (20%)", async() => {
             try{
                 
+                // Update min quorum
+                await signerFactory(tezos, adminSk);
+                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
+                await updateConfigOperation.confirmation(); 
+                
+                updateConfigOperation   = await governanceInstance.methods.updateConfig(2000, "configMinYayVotePercentage").send();
+                await updateConfigOperation.confirmation();
+
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 
                 // get current cycle and relevant config variables
-                currentCycle                = governanceStorage.cycleId;
                 const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
                 const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
@@ -383,8 +399,8 @@ describe("Governance quorum tests", async () => {
                 const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
                 // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired        = minQuorumStakedMvkTotal * minYayVotePercentage / 10000;
+                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
                 
                 // proposal details
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -401,15 +417,6 @@ describe("Governance quorum tests", async () => {
                         }
                     }
                 ]
-
-                // Update min quorum
-                await signerFactory(tezos, adminSk);
-                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
-                await updateConfigOperation.confirmation(); 
-                
-                updateConfigOperation   = await governanceInstance.methods.updateConfig(2000, "configMinYayVotePercentage").send();
-                await updateConfigOperation.confirmation();
-
 
                 // Start governance rounds
                 await signerFactory(tezos, satelliteOneSk);
@@ -436,13 +443,13 @@ describe("Governance quorum tests", async () => {
                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
                 
-                await signerFactory(tezos,satelliteTwoSk);
+                await signerFactory(tezos,satelliteOneSk);
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("pass").send();
                 await votingRoundVoteOperation.confirmation();
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
-                var currentCycle                    = governanceStorage.cycleId;
+                currentCycle                        = governanceStorage.cycleId;
                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
@@ -464,7 +471,7 @@ describe("Governance quorum tests", async () => {
                 const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
                 const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
                 const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
-                
+
                 // Assertions
                 assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
                 assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
@@ -477,14 +484,23 @@ describe("Governance quorum tests", async () => {
             }
         })
 
-        it("Scenario - Admin set yayVotePercentage to 51% and satellites vote yay and nay and exceed quorum", async() => {
+
+        it("Scenario - Satellites vote yay and nay; total votes exceed quorum (1%) and minYayVotePercentage (51%)", async() => {
             try{
+
+                // Update min quorum
+                await signerFactory(tezos, adminSk);
+                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
+                await updateConfigOperation.confirmation(); 
+                
+                updateConfigOperation   = await governanceInstance.methods.updateConfig(5100, "configMinYayVotePercentage").send();
+                await updateConfigOperation.confirmation();
+
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 
                 // get current cycle and relevant config variables
-                currentCycle                = governanceStorage.cycleId;
                 const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
                 const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
@@ -492,8 +508,8 @@ describe("Governance quorum tests", async () => {
                 const totalStakedMvkSupply      = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
                 // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired        = minQuorumStakedMvkTotal * minYayVotePercentage / 10000;
+                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
                 
                 // proposal details
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -510,15 +526,6 @@ describe("Governance quorum tests", async () => {
                         }
                     }
                 ]
-
-                // Update min quorum
-                await signerFactory(tezos, adminSk);
-                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
-                await updateConfigOperation.confirmation(); 
-                
-                updateConfigOperation   = await governanceInstance.methods.updateConfig(5100, "configMinYayVotePercentage").send();
-                await updateConfigOperation.confirmation();
-
 
                 // Start governance rounds
                 await signerFactory(tezos, satelliteOneSk);
@@ -549,11 +556,30 @@ describe("Governance quorum tests", async () => {
                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                 await votingRoundVoteOperation.confirmation();
 
+                governanceStorage                   = await governanceInstance.storage();
+                const proposalCheck                 = await governanceStorage.proposalLedger.get(proposalId);
+                if(proposalCheck.executed == false){
+                    await signerFactory(tezos, satelliteThreeSk);
+                    votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+                    await votingRoundVoteOperation.confirmation();
+                }
+
+                governanceStorage                   = await governanceInstance.storage();
+                const proposalCheck                 = await governanceStorage.proposalLedger.get(proposalId);
+                if(proposalCheck.executed == false){
+                    await signerFactory(tezos, satelliteFourSk);
+                    votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+                    await votingRoundVoteOperation.confirmation();
+                }
+
+
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
-                var currentCycle                    = governanceStorage.cycleId;
+                currentCycle                        = governanceStorage.cycleId;
                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const thirdSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const fourthSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFour});
 
                 // Restart the cycle
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -566,7 +592,10 @@ describe("Governance quorum tests", async () => {
                 governanceStorage                   = await governanceInstance.storage();
                 const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
-                const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
+                const thirdSatelliteVotingPower     = thirdSatelliteSnapshot.totalVotingPower.toNumber();
+                const fourthSatelliteVotingPower    = fourthSatelliteSnapshot.totalVotingPower.toNumber();
+                
+                const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower + thirdSatelliteVotingPower + fourthSatelliteVotingPower;
                 
                 const proposal                          = await governanceStorage.proposalLedger.get(proposalId);
                 const minYayVotePercentage              = proposal.minYayVotePercentage.toNumber();
@@ -593,15 +622,19 @@ describe("Governance quorum tests", async () => {
             await signerFactory(tezos, satelliteOneSk)
         })
 
-        it("Scenario - Satellites vote only yay but does not exceed quorum (100%)", async() => {
+        it("Scenario - Satellites vote yay; total votes does not exceed quorum (100%)", async() => {
             try{
+
+                // Update min quorum
+                await signerFactory(tezos, adminSk);
+                const updateGovernanceConfig= await governanceInstance.methods.updateConfig(10000, "configMinQuorumPercentage").send();
+                await updateGovernanceConfig.confirmation();
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 
                 // get current cycle and relevant config variables
-                currentCycle                = governanceStorage.cycleId;
                 const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
                 const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
 
@@ -609,10 +642,11 @@ describe("Governance quorum tests", async () => {
                 const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
                 // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired        = minQuorumStakedMvkTotal * minYayVotePercentage / 10000;
+                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
 
                 // proposal details
+                await signerFactory(tezos, satelliteOneSk);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -627,11 +661,6 @@ describe("Governance quorum tests", async () => {
                         }
                     }
                 ]
-
-                // Update min quorum
-                await signerFactory(tezos, adminSk);
-                const updateGovernanceConfig= await governanceInstance.methods.updateConfig(10000, "configMinQuorumPercentage").send();
-                await updateGovernanceConfig.confirmation();
 
                 // Start governance rounds
                 await signerFactory(tezos, satelliteOneSk);
@@ -665,7 +694,7 @@ describe("Governance quorum tests", async () => {
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
-                var currentCycle                    = governanceStorage.cycleId;
+                currentCycle                        = governanceStorage.cycleId;
                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
@@ -693,7 +722,7 @@ describe("Governance quorum tests", async () => {
                 // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
                 // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
                 // console.log("SMVK: ", smvkTotalSupply);
-                assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
+                assert.equal(minYayVoteRequired < totalSatelliteVotingPower, false)
                 assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
                 assert.equal(minQuorumStakedMvkTotal, proposalMinQuorumStakedMvkTotal)
                 
@@ -704,15 +733,22 @@ describe("Governance quorum tests", async () => {
             }
         })
 
-        it("Scenario - Admin set yayVotePercentage to 51% and satellites vote yay and nay and exceed quorum (1%)", async() => {
+        it("Scenario - Satellites vote yay and nay; total votes exceeds quorum (1%) but does not exceed minYayVotePercentage (51%)", async() => {
             try{
+
+                // Update min quorum
+                await signerFactory(tezos, adminSk);
+                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
+                await updateConfigOperation.confirmation(); 
+                
+                updateConfigOperation   = await governanceInstance.methods.updateConfig(5100, "configMinYayVotePercentage").send();
+                await updateConfigOperation.confirmation();
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                
+
                 // get current cycle and relevant config variables
-                currentCycle                = governanceStorage.cycleId;
                 const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
                 const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
@@ -720,10 +756,11 @@ describe("Governance quorum tests", async () => {
                 const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
                 // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired        = minQuorumStakedMvkTotal * minYayVotePercentage / 10000;
+                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
 
                 // proposal details
+                await signerFactory(tezos, satelliteOneSk);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -738,15 +775,6 @@ describe("Governance quorum tests", async () => {
                         }
                     }
                 ]
-
-                // Update min quorum
-                await signerFactory(tezos, adminSk);
-                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
-                await updateConfigOperation.confirmation(); 
-                
-                updateConfigOperation   = await governanceInstance.methods.updateConfig(5100, "configMinYayVotePercentage").send();
-                await updateConfigOperation.confirmation();
-
 
                 // Start governance rounds
                 await signerFactory(tezos, satelliteOneSk);
@@ -780,7 +808,7 @@ describe("Governance quorum tests", async () => {
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
-                var currentCycle                    = governanceStorage.cycleId;
+                currentCycle                        = governanceStorage.cycleId;
                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
@@ -819,15 +847,23 @@ describe("Governance quorum tests", async () => {
             }
         })
 
-        it("Scenario - Admin set yayVotePercentage to 80% and satellites vote yay and pass and exceed quorum (1%)", async() => {
+
+        it("Scenario - Satellites vote yay and pass; total votes exceeds quorum (1%) but does not exceed minYayVotePercentage (80%)", async() => {
             try{
                 
+                // Update min quorum
+                await signerFactory(tezos, adminSk);
+                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
+                await updateConfigOperation.confirmation(); 
+                
+                updateConfigOperation   = await governanceInstance.methods.updateConfig(8000, "configMinYayVotePercentage").send();
+                await updateConfigOperation.confirmation();
+
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                
+
                 // get current cycle and relevant config variables
-                currentCycle                = governanceStorage.cycleId;
                 const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
                 const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
@@ -835,10 +871,11 @@ describe("Governance quorum tests", async () => {
                 const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
                 // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = totalStakedMvkSupply * minQuorumPercentage / 10000;
-                const minYayVoteRequired        = minQuorumStakedMvkTotal * minYayVotePercentage / 10000;
+                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
                 
                 // proposal details
+                await signerFactory(tezos, satelliteOneSk);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "Quorum test";
                 const proposalDesc          = "Details about new proposal";
@@ -853,15 +890,6 @@ describe("Governance quorum tests", async () => {
                         }
                     }
                 ]
-
-                // Update min quorum
-                await signerFactory(tezos, adminSk);
-                var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
-                await updateConfigOperation.confirmation(); 
-                
-                updateConfigOperation   = await governanceInstance.methods.updateConfig(8000, "configMinYayVotePercentage").send();
-                await updateConfigOperation.confirmation();
-
 
                 // Start governance rounds
                 await signerFactory(tezos, satelliteOneSk);
@@ -895,7 +923,7 @@ describe("Governance quorum tests", async () => {
 
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
-                var currentCycle                    = governanceStorage.cycleId;
+                currentCycle                        = governanceStorage.cycleId;
                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
@@ -934,4 +962,44 @@ describe("Governance quorum tests", async () => {
             }
         })
     })
+
+    describe('reset admin for continuous retesting - Council', function () {
+    
+        it('admin can reset admin for council back to bob through governance proxy', async () => {
+            try{        
+        
+                await signerFactory(tezos, bob.sk);
+
+                // Initial values
+                const newAdmin       = bob.pkh;
+
+                // Operation
+                const lambdaFunction = await createLambdaBytes(
+                    tezos.rpc.url,
+                    contractDeployments.governanceProxy.address,
+                    
+                    'setAdmin',
+                    [
+                        contractDeployments.council.address,
+                        newAdmin
+                    ]
+                );
+                const operation = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                await operation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                const finalAdmin    = councilStorage.admin;
+
+                // Assertions
+                assert.strictEqual(finalAdmin, newAdmin);
+
+            } catch(e){
+                console.log(e);
+            } 
+
+        });   
+
+    })
+
 });
