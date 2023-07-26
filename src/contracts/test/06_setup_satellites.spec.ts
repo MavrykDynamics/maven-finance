@@ -134,10 +134,10 @@ describe("Setup: Mock Satellites", async () => {
                 doormanStorage                   = await doormanInstance.storage();
                 initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
 
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance.toNumber();
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-
+                
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + stakeBonusAmount){
 
@@ -210,7 +210,7 @@ describe("Setup: Mock Satellites", async () => {
                 doormanStorage                   = await doormanInstance.storage();
                 initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
 
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance.toNumber();;
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
@@ -286,7 +286,7 @@ describe("Setup: Mock Satellites", async () => {
                 doormanStorage                   = await doormanInstance.storage();
                 initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
 
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance.toNumber();;
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
@@ -362,7 +362,7 @@ describe("Setup: Mock Satellites", async () => {
                 doormanStorage                   = await doormanInstance.storage();
                 initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
 
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance.toNumber();;
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
@@ -437,7 +437,7 @@ describe("Setup: Mock Satellites", async () => {
                 doormanStorage                   = await doormanInstance.storage();
                 initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
 
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance.toNumber();;
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
