@@ -45,6 +45,9 @@ describe("Vault tests", async () => {
     var malloryVaultSet : Array<Number> = [] 
 
     let tokenId = 0
+
+    let admin
+    let adminSk
     
     let updateTokenRewardIndexOperation
 
@@ -53,6 +56,9 @@ describe("Vault tests", async () => {
     let doormanInstance
     let delegationInstance
     let mvkTokenInstance
+
+    // contract addresses
+    let lendingControllerAddress
     
     let mockFa12TokenInstance
     let mockFa2TokenInstance
@@ -90,6 +96,11 @@ describe("Vault tests", async () => {
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos
+
+        admin   = bob.pkh;
+        adminSk = bob.sk;
+
+        lendingControllerAddress                = contractDeployments.lendingControllerMockTime.address;
         
         doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -108,7 +119,7 @@ describe("Vault tests", async () => {
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
         mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvkAggregator.address);
 
-        lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
+        lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
         vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
 
         doormanStorage                          = await doormanInstance.storage();
@@ -121,87 +132,16 @@ describe("Vault tests", async () => {
         lendingControllerStorage                = await lendingControllerInstance.storage();
         vaultFactoryStorage                     = await vaultFactoryInstance.storage();
 
-
-        console.log('-- -- -- -- -- Vault Tests -- -- -- --')
-        console.log('Doorman Contract deployed at:',            doormanInstance.address);
-        console.log('Delegation Contract deployed at:',         delegationInstance.address);
-        console.log('MVK Token Contract deployed at:',          mvkTokenInstance.address);
-        console.log('Mock FA12 Token Contract deployed at:',    mockFa12TokenInstance.address);
-        console.log('Mock FA2 Token Contract deployed at:',     mockFa2TokenInstance.address);
-        console.log('Governance Contract deployed at:',         governanceInstance.address);
-        console.log('Governance Proxy Contract deployed at:',   governanceProxyInstance.address);
-
-        console.log('mTokenUsdt - deployed at:',   mTokenUsdtInstance.address);
-        console.log('mTokenEurl - deployed at:',    mTokenEurlInstance.address);
-        console.log('mTokenXtz - deployed at:',               mTokenXtzInstance.address);
-
-        console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:',   mockUsdMockFa12TokenAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:',    mockUsdMockFa2TokenAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / XTZ - deployed at:',               mockUsdXtzAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / MVK - deployed at:',               mockUsdMvkAggregatorInstance.address);
-
-        console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
-        console.log('Vault Factory Contract deployed at:',      vaultFactoryInstance.address);
-
-        console.log('Alice address: '   + alice.pkh);
-        console.log('Bob address: '     + bob.pkh);
-        console.log('Eve address: '     + eve.pkh);
-
         // ------------------------------------------------------------------
         //
-        // Setup governance satellites for action snapshot later 
+        //  Set Lending Controller Mock Time address in Governance General Contracts
         //
-        // ----------------------
+        // ------------------------------------------------------------------
 
-        const bobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
-        const oscarSatellite    = await delegationStorage.satelliteLedger.get(oscar.pkh);
         
-        if(bobSatellite === undefined){
-
-            // Bob stakes 100 MVK tokens and registers as a satellite
-            await signerFactory(tezos, bob.sk);
-            updateOperatorsOperation = await updateOperators(mvkTokenInstance, bob.pkh, contractDeployments.doorman.address, tokenId);
-            await updateOperatorsOperation.confirmation();
-
-            const bobStakeAmount                  = MVK(100);
-            const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
-            await bobStakeAmountOperation.confirmation();                        
-            const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-                mockSatelliteData.bob.name,
-                mockSatelliteData.bob.desc,
-                mockSatelliteData.bob.image,
-                mockSatelliteData.bob.website,
-                mockSatelliteData.bob.satelliteFee,
-                mockSatelliteData.bob.oraclePublicKey,
-                mockSatelliteData.bob.oraclePeerId
-            ).send();
-            await bobRegisterAsSatelliteOperation.confirmation();
-
-        }
-
-
-        if(oscarSatellite === undefined){
-
-            // Oscar stakes 100 MVK tokens and registers as a satellite 
-            await signerFactory(tezos, oscar.sk);
-            updateOperatorsOperation = await updateOperators(mvkTokenInstance, oscar.pkh, contractDeployments.doorman.address, tokenId);
-            await updateOperatorsOperation.confirmation();
-
-            const oscarStakeAmount                  = MVK(100);
-            const oscarStakeAmountOperation         = await doormanInstance.methods.stake(oscarStakeAmount).send();
-            await oscarStakeAmountOperation.confirmation();                        
-            const oscarRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(mockSatelliteData.bob.name,
-                mockSatelliteData.oscar.desc,
-                mockSatelliteData.oscar.image,
-                mockSatelliteData.oscar.website,
-                mockSatelliteData.oscar.satelliteFee,
-                mockSatelliteData.oscar.oraclePublicKey,
-                mockSatelliteData.oscar.oraclePeerId
-            ).send();
-            await oscarRegisterAsSatelliteOperation.confirmation();
-        }
-
-
+        const updateGeneralContractsOperation = await updateGeneralContracts(governanceInstance, 'lendingController', lendingControllerAddress, 'update');
+        await updateGeneralContractsOperation.confirmation();
+        
 
         // ------------------------------------------------------------------
         //
@@ -209,54 +149,24 @@ describe("Vault tests", async () => {
         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
         //
         // ------------------------------------------------------------------
-        await signerFactory(tezos, bob.sk);
+        await signerFactory(tezos, adminSk);
 
         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurl"); 
         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
 
         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
-            updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.transfer([
-            {
-                from_: bob.pkh,
-                txs: [
-                    {
-                        to_: eve.pkh,
-                        token_id: 0,
-                        amount: 0,
-                    },
-                ]
-            }]).send();
+            updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
-            updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.transfer([
-            {
-                from_: bob.pkh,
-                txs: [
-                    {
-                        to_: eve.pkh,
-                        token_id: 0,
-                        amount: 0,
-                    },
-                ]
-            }]).send();
+            updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.transfer([
-            {
-                from_: bob.pkh,
-                txs: [
-                    {
-                        to_: eve.pkh,
-                        token_id: 0,
-                        amount: 0,
-                    },
-                ]
-            }]).send();
+            updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -274,7 +184,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "usdt";
@@ -372,7 +282,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "eurl";
@@ -471,7 +381,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "tez";
@@ -576,7 +486,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "mockFa12";
@@ -643,7 +553,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mockFa2";
@@ -713,7 +623,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "tez";
@@ -784,7 +694,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "smvk";
@@ -860,7 +770,7 @@ describe("Vault tests", async () => {
         it('admin can set admin for lending controller', async () => {
             try{        
         
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
                 const previousAdmin = lendingControllerStorage.admin;
                 
                 if(previousAdmin == bob.pkh){
@@ -885,7 +795,7 @@ describe("Vault tests", async () => {
         it('admin can set admin for vault factory', async () => {
             try{        
         
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
                 const previousAdmin = vaultFactoryStorage.admin;
                 
                 if(previousAdmin == bob.pkh){
@@ -921,7 +831,7 @@ describe("Vault tests", async () => {
             lendingControllerStorage   = await lendingControllerInstance.storage()
             vaultFactoryStorage        = await vaultFactoryInstance.storage()
     
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it('user (alice) can create a new vault (depositors: any) with collateral deposit tez - LOAN TOKEN: MockFA12', async () => {
@@ -1059,7 +969,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1144,7 +1054,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1236,7 +1146,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -1299,7 +1209,7 @@ describe("Vault tests", async () => {
             try{        
                 
                 // init variables
-                await signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, adminSk);
                 // await utils.tezos.contract.registerDelegate({});
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
@@ -2041,5 +1951,84 @@ describe("Vault tests", async () => {
         });
 
     });
+
+
+    // 
+    // Test: Reset Admin
+    //
+    describe('reset admin for continuous retesting - Lending Controller and Vault Controller', function () {
+    
+        it('admin can reset admin for lending controller back to bob through governance proxy', async () => {
+            try{        
+        
+                await signerFactory(tezos, adminSk);
+
+                // Initial values
+                const newAdmin = admin;
+
+                // Operation
+                const lambdaFunction = await createLambdaBytes(
+                    tezos.rpc.url,
+                    contractDeployments.governanceProxy.address,
+                    
+                    'setAdmin',
+                    [
+                        lendingControllerAddress,
+                        newAdmin
+                    ]
+                );
+                const operation = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                await operation.confirmation();
+
+                // Final values
+                lendingControllerStorage = await lendingControllerInstance.storage();
+                const finalAdmin         = lendingControllerStorage.admin;
+
+                // Assertions
+                assert.strictEqual(finalAdmin, newAdmin);
+
+            } catch(e){
+                console.log(e);
+            } 
+
+        });   
+
+
+        it('admin can reset admin for vault factory back to bob through governance proxy', async () => {
+            try{        
+        
+                await signerFactory(tezos, adminSk);
+
+                // Initial values
+                const newAdmin = admin;
+
+                // Operation
+                const lambdaFunction = await createLambdaBytes(
+                    tezos.rpc.url,
+                    contractDeployments.governanceProxy.address,
+                    
+                    'setAdmin',
+                    [
+                        contractDeployments.vaultFactory.address,
+                        newAdmin
+                    ]
+                );
+                const operation = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                await operation.confirmation();
+
+                // Final values
+                vaultFactoryStorage   = await vaultFactoryInstance.storage();
+                const finalAdmin      = vaultFactoryStorage.admin;
+
+                // Assertions
+                assert.strictEqual(finalAdmin, newAdmin);
+
+            } catch(e){
+                console.log(e);
+            } 
+
+        });   
+
+    })
 
 });
