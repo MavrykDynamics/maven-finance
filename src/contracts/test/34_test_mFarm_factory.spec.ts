@@ -1,5 +1,5 @@
-import { MVK, Utils } from "./helpers/Utils";
 import { farmStorageType } from "../storage/storageTypes/farmStorageType";
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const assert = require("chai").assert;
@@ -20,8 +20,14 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve } from "../scripts/sandbox/accounts";
 import {
     signerFactory,
-    updateOperators
+    updateOperators,
+    getStorageMapValue,
+    mistakenTransferFa2Token,
+    updateGeneralContracts,
+    updateWhitelistContracts,
+    fa2Transfer
 } from './helpers/helperFunctions'
+import { mockMetadata } from "./helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -30,9 +36,19 @@ import {
 describe("FarmFactory for Farm mToken", async () => {
     
     var utils: Utils;
-    let tezos 
+    let tezos;
 
-    let tokenId = 0
+    let userOne;
+    let userOneSk;
+
+    let admin;
+    let adminSk;
+
+    let tokenId = 0; 
+
+    let mavrykFa2TokenAddress;
+    let mavrykFa2TokenInstance;
+    let mavrykFa2TokenStorage;
 
     let farmInstance;
     let farmStorage;
@@ -67,29 +83,24 @@ describe("FarmFactory for Farm mToken", async () => {
     let mTokenUsdtInstance;
     let compoundOperation
 
-    let updateOperatorsOperation
+    // housekeeping operations
+    let setAdminOperation;
+    let setGovernanceOperation;
+    let resetAdminOperation;
+    let updateWhitelistContractsOperation;
+    let updateGeneralContractsOperation;
+    let mistakenTransferOperation;
+    let pauseOperation;
+    let pauseAllOperation;
+    let unpauseOperation;
+    let unpauseAllOperation;
+    let transferOperation;
 
-    const farmMetadataBase = Buffer.from(
-      JSON.stringify({
-        name: 'MAVRYK mUSDT Farm',
-        description: 'MAVRYK Farm Contract',
-        version: 'v1.0.0',
-        liquidityPairToken: {
-          tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-          origin: ['Plenty'],
-          token0: {
-            symbol: ['PLENTY'],
-            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-          },
-          token1: {
-            symbol: ['USDtz'],
-            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-          }
-        },
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-      }),
-      'ascii',
-    ).toString('hex')
+    // contract map value
+    let storageMap;
+    let contractMapKey;
+    let initialContractMapValue;
+    let updatedContractMapValue;
 
     before("setup", async () => {
         
@@ -97,7 +108,13 @@ describe("FarmFactory for Farm mToken", async () => {
         await utils.init(bob.sk);
         tezos = utils.tezos 
 
-        farmAddress                             = contractDeployments.farm.address;
+        admin   = bob.pkh
+        adminSk = bob.sk
+
+        userOne    = eve.pkh
+        userOneSk  = eve.sk
+
+        farmAddress                             = contractDeployments.farmMToken.address;
         farmFactoryAddress                      = contractDeployments.farmFactory.address;
         mvkTokenAddress                         = contractDeployments.mvkToken.address;
         lpTokenAddress                          = contractDeployments.mTokenUsdt.address;
@@ -116,12 +133,107 @@ describe("FarmFactory for Farm mToken", async () => {
         mockFa12TokenInstance       = await utils.tezos.contract.at(mockFa12TokenAddress);
         mTokenUsdtInstance          = await utils.tezos.contract.at(mTokenUsdtAddress);
 
+        // for mistaken transfers
+        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address 
+        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
+        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+
         farmFactoryStorage          = await farmFactoryInstance.storage();
         mvkTokenStorage             = await mvkTokenInstance.storage();
         lpTokenStorage              = await lpTokenInstance.storage();
         doormanStorage              = await doormanInstance.storage();
         lendingControllerStorage    = await lendingControllerInstance.storage();
 
+        // reset the farm tracking
+        if(farmFactoryStorage.trackedFarms.includes(farmAddress)){
+            const untrackOperation  = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
+            await untrackOperation.confirmation()
+        }
+
+        // ----------------------------------------------
+        // Loan token setup
+        // ----------------------------------------------
+
+        const setLoanTokenActionType                = "createLoanToken";
+
+        const tokenName                             = "usdt";
+        const tokenContractAddress                  = mockFa12TokenAddress;
+        const tokenType                             = "fa12";
+        const tokenDecimals                         = 6;
+
+        const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
+
+        const mTokenContractAddress                 = mTokenUsdtAddress;
+
+        const interestRateDecimals                  = 27;
+        const reserveRatio                          = 1000; // 10% reserves (4 decimals)
+        const optimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+        const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+        const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+        const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+        const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+        const minRepaymentAmount                    = 10000;
+
+        // check if loan token exists
+        const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+        if(checkLoanTokenExists === undefined){
+
+            const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                
+                setLoanTokenActionType,
+
+                tokenName,
+                tokenDecimals,
+
+                oracleAddress,
+
+                mTokenContractAddress,
+                
+                reserveRatio,
+                optimalUtilisationRate,
+                baseInterestRate,
+                maxInterestRate,
+                interestRateBelowOptimalUtilisation,
+                interestRateAboveOptimalUtilisation,
+
+                minRepaymentAmount,
+
+                // fa12 token type - token contract address
+                tokenType,
+                tokenContractAddress,
+
+            ).send();
+            await adminSetMockFa12LoanTokenOperation.confirmation();
+
+            lendingControllerStorage  = await lendingControllerInstance.storage();
+            const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+            assert.equal(mockFa12LoanToken.rawMTokensTotalSupply , 0);
+            assert.equal(mockFa12LoanToken.mTokenAddress         , mTokenContractAddress);
+
+            assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
+            assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
+            assert.equal(mockFa12LoanToken.totalBorrowed          , 0);
+            assert.equal(mockFa12LoanToken.totalRemaining         , 0);
+
+            assert.equal(mockFa12LoanToken.optimalUtilisationRate , optimalUtilisationRate);
+            assert.equal(mockFa12LoanToken.baseInterestRate       , baseInterestRate);
+            assert.equal(mockFa12LoanToken.maxInterestRate        , maxInterestRate);
+            
+            assert.equal(mockFa12LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+            assert.equal(mockFa12LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+
+        } else {
+
+            lendingControllerStorage  = await lendingControllerInstance.storage();
+            const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+        
+            // other variables will be affected by repeated tests
+            assert.equal(mockFa12LoanToken.tokenName              , tokenName);
+
+        }
     });
 
     beforeEach("storage", async () => {
@@ -131,102 +243,6 @@ describe("FarmFactory for Farm mToken", async () => {
         doormanStorage    = await doormanInstance.storage();
         mvkTokenStorage    = await mvkTokenInstance.storage();
         await signerFactory(tezos, bob.sk)
-    })
-
-    describe('%setLoanToken - setup and test lending controller %setLoanToken entrypoint', function () {
-
-        it('admin can set mock FA12 as a loan token', async () => {
-
-            try{        
-                
-                // init variables
-                await signerFactory(tezos, bob.sk);
-
-                const setLoanTokenActionType                = "createLoanToken";
-
-                const tokenName                             = "usdt";
-                const tokenContractAddress                  = mockFa12TokenAddress;
-                const tokenType                             = "fa12";
-                const tokenDecimals                         = 6;
-
-                const oracleAddress                         = contractDeployments.mockUsdMockFa12TokenAggregator.address;
-
-                const mTokenContractAddress                 = mTokenUsdtAddress;
-
-                const interestRateDecimals                  = 27;
-                const reserveRatio                          = 1000; // 10% reserves (4 decimals)
-                const optimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
-                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
-                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
-                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
-                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
-
-                const minRepaymentAmount                    = 10000;
-
-                // check if loan token exists
-                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
-
-                if(checkLoanTokenExists === undefined){
-
-                    const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
-                        
-                        setLoanTokenActionType,
-
-                        tokenName,
-                        tokenDecimals,
-
-                        oracleAddress,
-
-                        mTokenContractAddress,
-                        
-                        reserveRatio,
-                        optimalUtilisationRate,
-                        baseInterestRate,
-                        maxInterestRate,
-                        interestRateBelowOptimalUtilisation,
-                        interestRateAboveOptimalUtilisation,
-
-                        minRepaymentAmount,
-
-                        // fa12 token type - token contract address
-                        tokenType,
-                        tokenContractAddress,
-
-                    ).send();
-                    await adminSetMockFa12LoanTokenOperation.confirmation();
-
-                    lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
-    
-                    assert.equal(mockFa12LoanToken.mTokensTotal          , 0);
-                    assert.equal(mockFa12LoanToken.mTokenAddress         , mTokenContractAddress);
-    
-                    assert.equal(mockFa12LoanToken.reserveRatio           , reserveRatio);
-                    assert.equal(mockFa12LoanToken.tokenPoolTotal         , 0);
-                    assert.equal(mockFa12LoanToken.totalBorrowed          , 0);
-                    assert.equal(mockFa12LoanToken.totalRemaining         , 0);
-    
-                    assert.equal(mockFa12LoanToken.optimalUtilisationRate , optimalUtilisationRate);
-                    assert.equal(mockFa12LoanToken.baseInterestRate       , baseInterestRate);
-                    assert.equal(mockFa12LoanToken.maxInterestRate        , maxInterestRate);
-                    
-                    assert.equal(mockFa12LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
-                    assert.equal(mockFa12LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
-    
-                } else {
-
-                    lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
-                
-                    // other variables will be affected by repeated tests
-                    assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-
-                }
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            } 
-        });
     })
 
     // 
@@ -394,11 +410,322 @@ describe("FarmFactory for Farm mToken", async () => {
         });
     })
 
-    describe('Farm Factory', function() {
-        describe('%createFarmMToken', function() {
-            it('Create a farm being the admin', async () => {
-                try{
-                    // Create a transaction for initiating a farm
+    describe("Housekeeping Entrypoints", async () => {
+
+        beforeEach("Set signer to admin (bob)", async () => {
+            farmFactoryStorage        = await farmFactoryInstance.storage();
+            await signerFactory(tezos, adminSk);
+        });
+
+        it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
+            try{
+                
+                // Initial Values
+                farmFactoryStorage     = await farmFactoryInstance.storage();
+                const currentAdmin = farmFactoryStorage.admin;
+                assert.strictEqual(currentAdmin, admin);
+
+                // Operation
+                setAdminOperation = await farmFactoryInstance.methods.setAdmin(userOne).send();
+                await setAdminOperation.confirmation();
+
+                // Final values
+                farmFactoryStorage   = await farmFactoryInstance.storage();
+                const newAdmin = farmFactoryStorage.admin;
+
+                // Assertions
+                assert.notStrictEqual(newAdmin, currentAdmin);
+                assert.strictEqual(newAdmin, userOne);
+                
+                // reset admin
+                await signerFactory(tezos, userOneSk);
+                resetAdminOperation = await farmFactoryInstance.methods.setAdmin(admin).send();
+                await resetAdminOperation.confirmation();
+
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('%setGovernance            - admin (bob) should be able to update the contract governance address', async () => {
+            try{
+                
+                // Initial Values
+                farmFactoryStorage       = await farmFactoryInstance.storage();
+                const currentGovernance = farmFactoryStorage.governanceAddress;
+
+                // Operation
+                setGovernanceOperation = await farmFactoryInstance.methods.setGovernance(userOne).send();
+                await setGovernanceOperation.confirmation();
+
+                // Final values
+                farmFactoryStorage   = await farmFactoryInstance.storage();
+                const updatedGovernance = farmFactoryStorage.governanceAddress;
+
+                // reset governance
+                setGovernanceOperation = await farmFactoryInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                await setGovernanceOperation.confirmation();
+
+                // Assertions
+                assert.notStrictEqual(updatedGovernance, currentGovernance);
+                assert.strictEqual(updatedGovernance, userOne);
+                assert.strictEqual(currentGovernance, contractDeployments.governance.address);
+
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('%updateMetadata           - admin (bob) should be able to update the contract metadata', async () => {
+            try{
+                // Initial values
+                const key   = ''
+                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+
+                // Operation
+                const updateOperation = await farmFactoryInstance.methods.updateMetadata(key, hash).send();
+                await updateOperation.confirmation();
+
+                // Final values
+                farmFactoryStorage          = await farmFactoryInstance.storage();            
+
+                const updatedData       = await farmFactoryStorage.metadata.get(key);
+                assert.equal(hash, updatedData);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - admin (bob) should be able to update the farm name max length', async () => {
+            try{
+
+                // Initial values
+                const currentConfigVariable     = farmFactoryStorage.config.farmNameMaxLength;
+                const newConfigVariable         = currentConfigVariable == 10 ? 20 : 10;
+
+                // Operation
+                const operation = await farmFactoryInstance.methods.updateConfig(newConfigVariable, "configFarmNameMaxLength").send();
+                await operation.confirmation()
+
+                // Final values
+                farmFactoryStorage          = await farmFactoryInstance.storage();
+                const updatedConfigVariable     = farmFactoryStorage.config.farmNameMaxLength;
+
+                // Assertions
+                assert.notEqual(currentConfigVariable, newConfigVariable);
+                assert.equal(updatedConfigVariable, newConfigVariable);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateWhitelistContracts - admin (bob) should be able to add userOne (eve) to the Whitelisted Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = eve.pkh;
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue           = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await updateWhitelistContracts(farmFactoryInstance, contractMapKey, 'update');
+                await updateWhitelistContractsOperation.confirmation()
+
+                farmFactoryStorage = await farmFactoryInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateWhitelistContracts - admin (bob) should be able to remove userOne (eve) from the Whitelisted Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = eve.pkh;
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await updateWhitelistContracts(farmFactoryInstance, contractMapKey, 'remove');
+                await updateWhitelistContractsOperation.confirmation()
+
+                farmFactoryStorage = await farmFactoryInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to add userOne (eve) to the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(farmFactoryInstance, contractMapKey, eve.pkh, 'update');
+                await updateGeneralContractsOperation.confirmation()
+
+                farmFactoryStorage = await farmFactoryInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to remove userOne (eve) from the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(farmFactoryInstance, contractMapKey, eve.pkh, 'remove');
+                await updateGeneralContractsOperation.confirmation()
+
+                farmFactoryStorage = await farmFactoryInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint for mock FA2 tokens', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+
+                // Mistaken Operation - userOne (eve) send 10 MavrykFa2Tokens to MVK Token Contract
+                await signerFactory(tezos, userOneSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+                
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber()
+
+                await signerFactory(tezos, adminSk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await mistakenTransferOperation.confirmation();
+
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber();
+
+                // increase in updated balance
+                assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it("%pauseAll                 - admin (bob) should be able to call this entrypoint", async() => {
+            try{
+
+                pauseAllOperation = await farmFactoryInstance.methods.pauseAll().send(); 
+                await pauseAllOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%unpauseAll               - admin (bob) should be able to call this entrypoint", async() => {
+            try{
+
+                unpauseAllOperation = await farmFactoryInstance.methods.unpauseAll().send(); 
+                await unpauseAllOperation.confirmation();
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%togglePauseEntrypoint    - admin (bob) should be able to call this entrypoint", async() => {
+            try{
+                
+                // pause operations
+
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", true).send(); 
+                await pauseOperation.confirmation();
+                
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", true).send(); 
+                await pauseOperation.confirmation();
+
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", true).send();
+                await pauseOperation.confirmation();
+
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send();
+                await pauseOperation.confirmation();
+
+                // update storage
+                farmFactoryStorage = await farmFactoryInstance.storage();
+
+                // check that entrypoints are paused
+                assert.equal(farmFactoryStorage.breakGlassConfig.createFarmIsPaused             , true)
+                assert.equal(farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused       , true)
+                assert.equal(farmFactoryStorage.breakGlassConfig.trackFarmIsPaused              , true)
+                assert.equal(farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused            , true)
+
+                // unpause operations
+
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", false).send(); 
+                await pauseOperation.confirmation();
+                
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", false).send(); 
+                await pauseOperation.confirmation();
+
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", false).send();
+                await pauseOperation.confirmation();
+
+                pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", false).send();
+                await pauseOperation.confirmation();
+
+                // update storage
+                farmFactoryStorage = await farmFactoryInstance.storage();
+
+                // check that entrypoints are paused
+                assert.equal(farmFactoryStorage.breakGlassConfig.createFarmIsPaused             , false)
+                assert.equal(farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused       , false)
+                assert.equal(farmFactoryStorage.breakGlassConfig.trackFarmIsPaused              , false)
+                assert.equal(farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused            , false)
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        });
+
+
+        it('%createFarm               - admin (bob) should be able to create a new farm', async () => {
+            try{
+                // Initial values
+                farmFactoryStorage                      = await farmFactoryInstance.storage();
+                const initTrackedFarms                  = farmFactoryStorage.trackedFarms;
+
+                // Create a transaction for initiating a farm
                     const operation = await farmFactoryInstance.methods.createFarmMToken(
                         "testFarm",
                         'usdt',
@@ -407,7 +734,7 @@ describe("FarmFactory for Farm mToken", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farmMToken,
                         mTokenUsdtAddress,
                         0,
                         "fa2",
@@ -415,11 +742,13 @@ describe("FarmFactory for Farm mToken", async () => {
                     await operation.confirmation()
 
                     // Created farms
-                    farmFactoryStorage    = await farmFactoryInstance.storage();
+                    farmFactoryStorage                      = await farmFactoryInstance.storage();
+                    const finalTrackedFarms                 = farmFactoryStorage.trackedFarms;
+                    const newFarmAddresses                  = finalTrackedFarms.filter(item => initTrackedFarms.indexOf(item) < 0);
+                    const newFarmAddress                    = newFarmAddresses[0];
 
                     // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
-                    farmInstance                            = await utils.tezos.contract.at(farmAddress);
+                    farmInstance                            = await utils.tezos.contract.at(newFarmAddress);
                     farmStorage                             = await farmInstance.storage();
 
                     assert.strictEqual(farmStorage.config.lpToken.tokenAddress, mTokenUsdtAddress);
@@ -432,650 +761,401 @@ describe("FarmFactory for Farm mToken", async () => {
                     assert.equal(farmStorage.open, true);
                     assert.equal(farmStorage.init, true);
                     
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-
-            it('Create a farm without being the admin', async () => {
-                try{
-                    await signerFactory(tezos, alice.sk)
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.createFarmMToken(
-                        "testFarm",
-                        "usdt",
-                        false,
-                        false,
-                        false,
-                        12000,
-                        0,
-                        farmMetadataBase,
-                        mTokenUsdtAddress,
-                        0,
-                        "fa2"
-                    ).send()).to.be.rejected;
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Create a farm being the admin but without specific duration and finite', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.createFarmMToken(
-                        "testFarm",
-                        "usdt",
-                        false,
-                        false,
-                        false,
-                        12000,
-                        100,
-                        farmMetadataBase,
-                        mTokenUsdtAddress,
-                        0,
-                        "fa2"
-                    ).send();
-                    await operation.confirmation()
-
-                    // Created farms
-                    farmFactoryStorage    = await farmFactoryInstance.storage();
-
-                    // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
-                    farmInstance                            = await utils.tezos.contract.at(farmAddress);
-                    farmStorage                             = await farmInstance.storage();
-
-                    assert.strictEqual(farmStorage.config.lpToken.tokenAddress, mTokenUsdtAddress);
-                    assert.equal(farmStorage.config.loanToken, "usdt");
-                    assert.equal(farmStorage.config.lpToken.tokenId, 0);
-                    assert.equal(farmStorage.config.lpToken.tokenBalance.toNumber(), 0);
-                    assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa2");
-                    assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
-                    assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
-                    assert.equal(farmStorage.open, true);
-                    assert.equal(farmStorage.init, true);
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-
-        });
-
-        describe('%setAdmin', function() {
-            it('Admin should be able to set a new admin', async() => {
-                try{
-                    // Initial values
-                    const previousAdmin = farmFactoryStorage.admin;
-
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.setAdmin(alice.pkh).send();
-                    await operation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-
-                    // Assertion
-                    assert.strictEqual(farmFactoryStorage.admin,alice.pkh);
-                    assert.strictEqual(previousAdmin,bob.pkh);
-
-                    // Reset admin
-                    await signerFactory(tezos, alice.sk);
-                    const resetOperation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
-                    await resetOperation.confirmation();
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Non-admin should not be able to set a new admin', async() => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await signerFactory(tezos, eve.sk)
-                    const operation = farmFactoryInstance.methods.setAdmin(bob.pkh);
-                    await chai.expect(operation.send()).to.be.rejected;
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-
-                    // Assertion
-                    assert.strictEqual(farmFactoryStorage.admin,bob.pkh)
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-        });
-
-        describe('%pauseAll', function() {
-            it('Admin should be able to pause all entrypoints on the factory and the tracked farms', async() => {
-                try{
-                    await signerFactory(tezos, bob.sk)
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-                    const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Create an operation
-                    const operation = await farmFactoryInstance.methods.pauseAll().send();
-                    await operation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    farmStorage = await farmInstance.storage();
-                    const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.createFarmMToken(
-                        "testFarm",
-                        "usdt",
-                        false,
-                        false,
-                        false,
-                        12000,
-                        100,
-                        farmMetadataBase,
-                        mTokenUsdtAddress,
-                        0,
-                        "fa2"
-                    ).send()).to.be.rejected;
-                    await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
-                    await chai.expect(farmInstance.methods.deposit(MVK(2)).send()).to.be.rejected;
-                    await chai.expect(farmInstance.methods.withdraw(MVK()).send()).to.be.rejected;
-                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
-
-                    // Assertion
-                    assert.notEqual(depositIsPaused,depositIsPausedEnd);
-                    assert.notEqual(withdrawIsPaused,withdrawIsPausedEnd);
-                    assert.notEqual(claimIsPaused,claimIsPausedEnd);
-                    assert.notEqual(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Non-admin should not be able to pause all entrypoints', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(tezos, alice.sk);
-
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.pauseAll().send()).to.be.rejected;
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Assertion
-                    assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-        });
-
-        describe('%unpauseAll', function() {
-            it('Admin should be able to unpause all entrypoints and all tracked farms', async() => {
-                try{
-                    // Initial values
-                    await signerFactory(tezos, bob.sk)
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-                    const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Create an operation
-                    const operation = await farmFactoryInstance.methods.unpauseAll().send();
-                    await operation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    farmStorage = await farmInstance.storage();
-                    const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Test calls
-                    const createFarmOperation = await farmFactoryInstance.methods.createFarmMToken(
-                        "testFarm",
-                        "usdt",
-                        false,
-                        false,
-                        false,
-                        12000,
-                        100,
-                        farmMetadataBase,
-                        mTokenUsdtAddress,
-                        0,
-                        "fa2"
-                    ).send();
-                    await createFarmOperation.confirmation();
-                    
-                    const untrackFarmOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
-                    await untrackFarmOperation.confirmation();
-                    
-                    const trackFarmOperation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
-                    await trackFarmOperation.confirmation();
-
-                    // Update operators for farm
-                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
-                    await updateOperatorsOperation.confirmation();
-
-                    const depositOperation = await farmInstance.methods.deposit(2).send();
-                    await depositOperation.confirmation();
-
-                    const withdrawOperation = await farmInstance.methods.withdraw(1).send();
-                    await withdrawOperation.confirmation();
-
-                    const claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
-                    await claimOperation.confirmation();
-
-                    // Assertion
-                    assert.notEqual(depositIsPaused,depositIsPausedEnd);
-                    assert.notEqual(withdrawIsPaused,withdrawIsPausedEnd);
-                    assert.notEqual(claimIsPaused,claimIsPausedEnd);
-                    assert.notEqual(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
-
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Non-admin should not be able to unpause all entrypoints', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(tezos, alice.sk);
-
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-                    
-                    // Assertion
-                    assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Non-admin should not be able to unpause all entrypoints on all tracked farms', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(tezos, alice.sk);
-
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-
-                    const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
-                    
-                    // Assertion
-                    assert.equal(depositIsPaused,depositIsPausedEnd);
-                    assert.equal(withdrawIsPaused,withdrawIsPausedEnd);
-                    assert.equal(claimIsPaused,claimIsPausedEnd);
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-        });
-
-        describe('%togglePauseEntrypoint', function() {
-            it('Admin should be able to pause and unpause the createFarm entrypoint', async() => {
-                try{
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", true).send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.createFarmMToken(
-                        "testFarm",
-                        "usdt",
-                        false,
-                        false,
-                        false,
-                        12000,
-                        100,
-                        farmMetadataBase,
-                        mTokenUsdtAddress,
-                        0,
-                        "fa2"
-                    ).send()).to.be.rejected;
-
-                    // Create an operation
-                    const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", false).send();
-                    await unpauseOperation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.createFarmMTokenIsPaused;
-
-                    // Assertion
-                    assert.notEqual(createFarmIsPaused,createFarmIsPausedPause);
-                    assert.equal(createFarmIsPaused,createFarmIsPausedUnpause);
-
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Admin should be able to pause and unpause the untrackFarm entrypoint', async() => {
-                try{
-                    // Initial values
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", true).send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const untrackFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
-
-                    // Create an operation
-                    const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", false).send();
-                    await unpauseOperation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const untrackFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
-
-                    // Assertion
-                    assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedPause);
-                    assert.equal(untrackFarmIsPaused,untrackFarmIsPausedUnpause);
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-            
-            it('Admin should be able to pause and unpause the trackFarm entrypoint', async() => {
-                try{
-                    // Initial values
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const trackFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
-
-                    // Create an operation
-                    const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", false).send();
-                    await unpauseOperation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const trackFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-
-                    // Assertion
-                    assert.notEqual(trackFarmIsPaused,trackFarmIsPausedPause);
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedUnpause);
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Non-admin should not be able to pause and unpause the trackFarm entrypoint', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(tezos, alice.sk);
-
-                    // Initial values
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send()).to.be.rejected;
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    
-                    // Assertion
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-        });
-
-        describe('%untrackFarm', function() {
-            it('Untrack the previously created farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
-                    await operation.confirmation();
-
-                    // Farm storage
-                    farmFactoryStorage      = await farmFactoryInstance.storage();
-                    const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
-                    assert.equal(createdFarm,false);
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-
-            it('Untrack an unexisting farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.untrackFarm(alice.pkh).send()).to.be.rejected;
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-        });
-
-        describe('%trackFarm', function() {
-            it('Admin should be able to track the previously untracked farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
-                    await operation.confirmation();
-
-                    // Farm storage
-                    farmFactoryStorage      = await farmFactoryInstance.storage();
-                    const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
-                    assert.equal(createdFarm,true);
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-
-            it('Admin should not be able to track an already tracked farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-
-            it('Non-admin should not be able to track a farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await signerFactory(tezos, alice.sk);
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
-        });
+            }catch(e){
+                console.dir(e, {depth: 5});
+            }
+        })
+
+        it('%createFarm               - admin (bob) should not be able to create a new finite farm without a specified duration', async () => {
+            try{
+                // Create a transaction for initiating a farm
+                const operation = await farmFactoryInstance.methods.createFarmMToken(
+                    "testFarm",
+                    "usdt",
+                    false,
+                    false,
+                    false,
+                    0,
+                    100,
+                    mockMetadata.farmMToken,
+                    mTokenUsdtAddress,
+                    0,
+                    "fa2"
+                )
+                await chai.expect(operation.send()).to.be.rejected;
+            }catch(e){
+                console.dir(e, {depth: 5});
+            }
+        })
+
+        it('%trackFarm                - admin (bob) should be able to track a farm', async () => {
+            try{
+                // Create a transaction for initiating a farm
+                const operation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
+                await operation.confirmation();
+
+                // Farm storage
+                farmFactoryStorage      = await farmFactoryInstance.storage();
+                const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
+                assert.equal(createdFarm,true);
+            }catch(e){
+                console.dir(e, {depth: 5});
+            }
+        })
+
+        it('%trackFarm                - admin (bob) should not be able to track a treasury if it is already tracked', async () => {
+            try{
+                // Create a transaction for initiating a farm
+                await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+            }catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%untrackFarm              - admin (bob) should be able to untrack a treasury', async () => {
+            try{
+                // Create a transaction for initiating a farm
+                const operation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
+                await operation.confirmation();
+
+                // Farm storage
+                farmFactoryStorage      = await farmFactoryInstance.storage();
+                const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
+                assert.equal(createdFarm,false);
+            }catch(e){
+                console.dir(e, {depth: 5});
+            }
+        })
+
+        it('%untrackFarm              - admin (bob) should not be able to untrack a farm if it has already been untracked', async () => {
+            try{
+                // Create a transaction for initiating a farm
+                await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
+            }catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
 
     });
 
-    describe('Newly created farm', function() {
-        describe('%claim', function() {
-            it('Create a farm, deposit and try to claim in it', async () => {
-                try{
-                    // Deposit
-                    const amountToDeposit = 2;
 
-                    // Create a transaction for initiating a farm
-                    const createFarmOperation = await farmFactoryInstance.methods.createFarmMToken(
-                        "testFarm",
-                        "usdt",
-                        false,
-                        false,
-                        false,
-                        100,
-                        12000,
-                        farmMetadataBase,
-                        mTokenUsdtAddress,
-                        0,
-                        "fa2"
-                    ).send();
-                    await createFarmOperation.confirmation()
+    describe('Access Control Checks', function () {
 
-                    // Created farms
-                    farmFactoryStorage    = await farmFactoryInstance.storage();
-
-                    // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
-                    farmInstance                            = await utils.tezos.contract.at(farmAddress);
-                    farmStorage                             = await farmInstance.storage();
-
-                     // Create a transaction for allowing farm to spend LP Token in the name of Bob
-                    const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
-
-                    // Update operators for farm
-                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
-                    await updateOperatorsOperation.confirmation();
-
-                    // Deposit operation
-                    const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
-                    await depositOperation.confirmation();
-
-                    // Claim operation after a few blocks
-                    await new Promise(resolve => setTimeout(resolve, 6000));
-                    const claimOperation = await farmInstance.methods.claim([bob.pkh]).send();
-                    await claimOperation.confirmation()
-                    
-                    farmStorage = await farmInstance.storage();
-                    doormanStorage = await doormanInstance.storage();
-
-                    // Depositor's record
-                    const depositorRecord = await farmStorage.depositorLedger.get(bob.pkh)
-                    console.log("User's deposit in Farm Contract")
-                    console.log(depositorRecord)
-
-                    // Stake's record
-                    const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
-                    console.log("User's balance in Doorman Contract")
-                    console.log(doormanRecord)
-
-                    // Doorman's balance in MVK Token Contract
-                    const doormanLedger = await mvkTokenStorage.ledger.get(doormanAddress)
-                    console.log("Doorman's ledger in MVK Token Contract")
-                    console.log(doormanLedger)
-                }catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            })
-
-            it('Create a farm, deposit and try to claim in it with a farm unknown to the farm factory', async () => {
-                try{
-                    // Deposit
-                    const amountToDeposit = 2;
-                    
-                    // Untrack the farm
-                    const untrackOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
-                    await untrackOperation.confirmation();
-
-                    // Create a transaction for allowing farm to spend LP Token in the name of Bob
-                    const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
-
-                    // Update operators for farm
-                    updateOperatorsOperation = await updateOperators(lpTokenInstance, bob.pkh, farmAddress, tokenId);
-                    await updateOperatorsOperation.confirmation();
-                    
-                    // Deposit operation
-                    const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
-                    await depositOperation.confirmation();
-
-                    // Claim operation after a few blocks
-                    await new Promise(resolve => setTimeout(resolve, 6000));
-                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
-                }catch(e){
-                    console.dir(e, {depth: 5})
-                }
-            })
+        beforeEach("Set signer to non-admin (eve)", async () => {
+            await signerFactory(tezos, eve.sk);
         });
-    });
+
+        it('%setAdmin                 - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                farmFactoryStorage        = await farmFactoryInstance.storage();
+                const currentAdmin  = farmFactoryStorage.admin;
+
+                // Operation
+                setAdminOperation = await farmFactoryInstance.methods.setAdmin(userOne);
+                await chai.expect(setAdminOperation.send()).to.be.rejected;
+
+                // Final values
+                farmFactoryStorage    = await farmFactoryInstance.storage();
+                const newAdmin  = farmFactoryStorage.admin;
+
+                // Assertions
+                assert.strictEqual(newAdmin, currentAdmin);
+
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('%setGovernance            - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                farmFactoryStorage        = await farmFactoryInstance.storage();
+                const currentGovernance  = farmFactoryStorage.governanceAddress;
+
+                // Operation
+                setGovernanceOperation = await farmFactoryInstance.methods.setGovernance(userOne);
+                await chai.expect(setGovernanceOperation.send()).to.be.rejected;
+
+                // Final values
+                farmFactoryStorage    = await farmFactoryInstance.storage();
+                const updatedGovernance  = farmFactoryStorage.governanceAddress;
+
+                // Assertions
+                assert.strictEqual(updatedGovernance, currentGovernance);
+
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('%updateMetadata           - non-admin (eve) should not be able to update the contract metadata', async () => {
+            try{
+                // Initial values
+                const key   = ''
+                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+
+                farmFactoryStorage          = await farmFactoryInstance.storage();   
+                const initialMetadata   = await farmFactoryStorage.metadata.get(key);
+
+                // Operation
+                const updateOperation = await farmFactoryInstance.methods.updateMetadata(key, hash);
+                await chai.expect(updateOperation.send()).to.be.rejected;
+
+                // Final values
+                farmFactoryStorage          = await farmFactoryInstance.storage();            
+                const updatedData       = await farmFactoryStorage.metadata.get(key);
+
+                // check that there is no change in metadata
+                assert.equal(updatedData, initialMetadata);
+                assert.notEqual(updatedData, hash);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%updateConfig             - non-admin (eve) should not be able to update contract config', async () => {
+            try{
+                
+                // Initial Values
+                farmFactoryStorage          = await farmFactoryInstance.storage();
+                const initialConfigValue    = farmFactoryStorage.config.farmNameMaxLength;
+                const newConfigValue        = initialConfigValue == 10 ? 20 : 10;
+
+                // Operation
+                const updateConfigOperation = await farmFactoryInstance.methods.updateConfig(newConfigValue, "configFarmNameMaxLength");
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                // Final values
+                farmFactoryStorage       = await farmFactoryInstance.storage();
+                const updatedConfigValue = farmFactoryStorage.config.farmNameMaxLength;
+
+                // check that there is no change in config values
+                assert.deepEqual(updatedConfigValue, initialConfigValue);
+                assert.notEqual(updatedConfigValue.toNumber(), newConfigValue);
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%updateWhitelistContracts - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try {
+
+                // init values
+                contractMapKey  = userOne;
+                storageMap      = "whitelistContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                updateWhitelistContractsOperation = await farmFactoryInstance.methods.updateWhitelistContracts(contractMapKey, "update")
+                await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
+
+                farmFactoryStorage = await farmFactoryInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the Whitelist Contracts map');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateGeneralContracts   - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await farmFactoryInstance.methods.updateGeneralContracts(contractMapKey, userOne)
+                await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
+
+                farmFactoryStorage          = await farmFactoryInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(farmFactoryStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%mistakenTransfer         - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+
+                // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+                // mistaken transfer operation
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it("%pauseAll                 - non-admin (eve) should not be able to call this entrypoint", async() => {
+            try{
+
+                pauseAllOperation = farmFactoryInstance.methods.pauseAll(); 
+                await chai.expect(pauseAllOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%unpauseAll               - non-admin (eve) should not be able to call this entrypoint", async() => {
+            try{
+
+                unpauseAllOperation = farmFactoryInstance.methods.unpauseAll(); 
+                await chai.expect(unpauseAllOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%togglePauseEntrypoint    - non-admin (eve) should not be able to call this entrypoint", async() => {
+            try{
+                
+                // pause operations
+
+                pauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+                
+                pauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+
+                pauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+
+                pauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+
+                // unpause operations
+
+                unpauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", false); 
+                await chai.expect(unpauseOperation.send()).to.be.rejected;
+                
+                unpauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("createFarmMToken", false); 
+                await chai.expect(unpauseOperation.send()).to.be.rejected;
+
+                unpauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", false); 
+                await chai.expect(unpauseOperation.send()).to.be.rejected;
+
+                unpauseOperation = farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", false); 
+                await chai.expect(unpauseOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%createFarm               - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try{
+                await signerFactory(tezos, userOneSk)
+                // Create a transaction for initiating a farm
+                await chai.expect(farmFactoryInstance.methods.createFarmMToken(
+                    "testFarm",
+                    "usdt",
+                    false,
+                    false,
+                    false,
+                    12000,
+                    0,
+                    mockMetadata.farmMToken,
+                    mTokenUsdtAddress,
+                    0,
+                    "fa2"
+                ).send()).to.be.rejected;
+            }catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%trackFarm                - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try{
+                // Create a transaction for initiating a farm
+                await signerFactory(tezos, userOneSk);
+                await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+                
+                // Assertions
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                assert.equal(farmFactoryStorage.trackedFarms.includes(farmAddress), false);
+            }catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('%untrackFarm              - non-admin (eve) should not be able to call this entrypoint', async () => {
+            try{
+
+                // Assertions
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                assert.equal(farmFactoryStorage.trackedFarms.includes(farmAddress), false);
+
+                // set signer as admin to first track treasury
+                await signerFactory(tezos, adminSk);
+                const trackFarmOperation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
+                await trackFarmOperation.confirmation();
+
+                // set signer back to admin to test untracking of treasury
+                await signerFactory(tezos, userOneSk);
+                let untrackFarmOperation = farmFactoryInstance.methods.untrackFarm(farmAddress)
+                await chai.expect(untrackFarmOperation.send()).to.be.rejected;
+
+                // assertions - check that trackedFarms still includes treasury (not untracked)
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                assert.equal(farmFactoryStorage.trackedFarms.includes(farmAddress), true);
+
+                // reset test - set signer back to admin and untrack treasury
+                await signerFactory(tezos, adminSk);
+                untrackFarmOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
+                await untrackFarmOperation.confirmation();
+
+            }catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%setLambda                - non-admin (eve) should not be able to call this entrypoint", async() => {
+            try{
+
+                // random lambda for testing
+                const randomLambdaName  = "randomLambdaName";
+                const randomLambdaBytes = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
+
+                const setLambdaOperation = farmFactoryInstance.methods.setLambda(randomLambdaName, randomLambdaBytes); 
+                await chai.expect(setLambdaOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("%setProductLambda         - non-admin (eve) should not be able to call this entrypoint", async() => {
+            try{
+
+                // random lambda for testing
+                const randomLambdaName  = "randomLambdaName";
+                const randomLambdaBytes = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
+
+                const setLambdaOperation = farmFactoryInstance.methods.setProductLambda(randomLambdaName, randomLambdaBytes); 
+                await chai.expect(setLambdaOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+    })
 });
