@@ -320,7 +320,7 @@ describe("Test: Farm Contract", async () => {
 
         describe('%deposit', function() {
 
-            beforeEach("Set signer to admin (eve)", async () => {
+            beforeEach("Set signer to user (eve)", async () => {
                 farmStorage = await farmInstance.storage();
                 farmFactoryStorage = await farmFactoryInstance.storage();
                 mvkTokenStorage = await mvkTokenInstance.storage();
@@ -368,28 +368,6 @@ describe("Test: Farm Contract", async () => {
                     console.dir(e, {depth: 5});
                 } 
             });
-
-            it('user (eve) should not be able to able to deposit more LP Tokens than it has', async () => {
-                try{
-                    // Initial values
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
-                    const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
-                    const lpBalance         = lpLedgerStart===undefined ? 0 : lpLedgerStart.balance.toNumber();
-                    const amountToDeposit   = lpBalance + 1;
-
-                    // Approval operation
-                    if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-                        const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                    }
-
-                    // Operation
-                    await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
-                } catch(e){
-                    console.dir(e, {depth: 5})
-                } 
-            })
 
             it('multiple users (eve/alice) should be able to deposit in a farm', async () => {
                 try{
@@ -455,11 +433,33 @@ describe("Test: Farm Contract", async () => {
                     console.dir(e, {depth: 5});
                 }
             });
+
+            it('user (eve) should not be able to able to deposit more LP Tokens than it has', async () => {
+                try{
+                    // Initial values
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
+                    const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
+                    const lpBalance         = lpLedgerStart===undefined ? 0 : lpLedgerStart.balance.toNumber();
+                    const amountToDeposit   = lpBalance + 1;
+
+                    // Approval operation
+                    if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
+                        const approvals         = lpAllowances===undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
+                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
+                        await approveOperation.confirmation();
+                    }
+
+                    // Operation
+                    await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
+                } catch(e){
+                    console.dir(e, {depth: 5})
+                } 
+            })
         })
 
         describe('%withdraw', function() {
 
-            beforeEach("Set signer to admin (eve)", async () => {
+            beforeEach("Set signer to user (eve)", async () => {
                 farmStorage = await farmInstance.storage();
                 farmFactoryStorage = await farmFactoryInstance.storage();
                 mvkTokenStorage = await mvkTokenInstance.storage();
@@ -505,58 +505,6 @@ describe("Test: Farm Contract", async () => {
 
                     // Operation
                     await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                } 
-            });
-
-            it('user (eve) should not be able to withdraw more LP Tokens than it deposited', async () => {
-                try{
-                    // Initial values
-                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
-                    const lpBalance         = lpLedgerStart.balance.toNumber();
-
-                    const depositRecord     = await farmStorage.depositorLedger.get(userOne);
-                    const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
-                    
-                    const excessAmount      = 100;
-                    const amountToWithdraw  = depositBalance + excessAmount;
-
-                    // Operation
-                    const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
-                    await withdrawOperation.confirmation();
-
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    
-                    const depositRecordEnd  = await farmStorage.depositorLedger.get(userOne);
-                    const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
-                    
-                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(userOne);
-                    const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
-
-                    // Assertions
-                    assert.equal(depositBalanceEnd, depositBalance - depositBalance);
-                    assert.equal(lpBalanceEnd, lpBalance + amountToWithdraw - excessAmount);
-
-                    // reset - deposit some lpToken into farm again for subsequent tests
-
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    
-                    const lpLedger          = await lpTokenStorage.ledger.get(userOne);
-                    const amountToDeposit   = 10;
-
-                    // Approval operation
-                    let approveOperation            = await lpTokenInstance.methods.approve(farmAddress,0).send();
-                    await approveOperation.confirmation()
-                    approveOperation                = await lpTokenInstance.methods.approve(farmAddress,amountToDeposit).send();
-                    await approveOperation.confirmation();
-
-                    // Operation
-                    const depositOperation          = await farmInstance.methods.deposit(amountToDeposit).send();
-                    await depositOperation.confirmation();
-
                 } catch(e){
                     console.dir(e, {depth: 5});
                 } 
@@ -616,13 +564,65 @@ describe("Test: Farm Contract", async () => {
                     console.dir(e, {depth: 5});
                 } 
             });
+
+            it('user (eve) should not be able to withdraw more LP Tokens than it deposited', async () => {
+                try{
+                    // Initial values
+                    const lpLedgerStart     = await lpTokenStorage.ledger.get(userOne);
+                    const lpBalance         = lpLedgerStart.balance.toNumber();
+
+                    const depositRecord     = await farmStorage.depositorLedger.get(userOne);
+                    const depositBalance    = depositRecord===undefined ? 0 : depositRecord.balance.toNumber();
+                    
+                    const excessAmount      = 100;
+                    const amountToWithdraw  = depositBalance + excessAmount;
+
+                    // Operation
+                    const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
+                    await withdrawOperation.confirmation();
+
+                    lpTokenStorage          = await lpTokenInstance.storage();
+                    farmStorage             = await farmInstance.storage();
+                    
+                    const depositRecordEnd  = await farmStorage.depositorLedger.get(userOne);
+                    const depositBalanceEnd = depositRecordEnd===undefined ? 0 : depositRecordEnd.balance.toNumber();
+                    
+                    const lpLedgerEnd       = await lpTokenStorage.ledger.get(userOne);
+                    const lpBalanceEnd      = lpLedgerEnd.balance.toNumber();
+
+                    // Assertions
+                    assert.equal(depositBalanceEnd, depositBalance - depositBalance);
+                    assert.equal(lpBalanceEnd, lpBalance + amountToWithdraw - excessAmount);
+
+                    // reset - deposit some lpToken into farm again for subsequent tests
+
+                    lpTokenStorage          = await lpTokenInstance.storage();
+                    farmStorage             = await farmInstance.storage();
+                    
+                    const lpLedger          = await lpTokenStorage.ledger.get(userOne);
+                    const amountToDeposit   = 10;
+
+                    // Approval operation
+                    let approveOperation            = await lpTokenInstance.methods.approve(farmAddress,0).send();
+                    await approveOperation.confirmation()
+                    approveOperation                = await lpTokenInstance.methods.approve(farmAddress,amountToDeposit).send();
+                    await approveOperation.confirmation();
+
+                    // Operation
+                    const depositOperation          = await farmInstance.methods.deposit(amountToDeposit).send();
+                    await depositOperation.confirmation();
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                } 
+            });
         });
 
 
 
         describe('%claim', function() {
 
-            beforeEach("Set signer to admin (eve)", async () => {
+            beforeEach("Set signer to user (eve)", async () => {
                 farmStorage = await farmInstance.storage();
                 farmFactoryStorage = await farmFactoryInstance.storage();
                 mvkTokenStorage = await mvkTokenInstance.storage();
@@ -770,7 +770,6 @@ describe("Test: Farm Contract", async () => {
                     farmStorage                    = await farmInstance.storage();
 
                     // Updated values
-                    await signerFactory(tezos, adminSk);
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
                     const mvkTotalSupplyFirstUpdate     = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupplyFirstUpdate    = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber();
@@ -1053,7 +1052,7 @@ describe("Test: Farm Contract", async () => {
                 await resetAdminOperation.confirmation();
 
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});;
             }
         });
 
@@ -1082,7 +1081,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(currentGovernance, contractDeployments.governance.address);
 
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});;
             }
         });
 
@@ -1204,7 +1203,7 @@ describe("Test: Farm Contract", async () => {
                 assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -1227,7 +1226,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -1250,7 +1249,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -1273,7 +1272,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -1282,29 +1281,27 @@ describe("Test: Farm Contract", async () => {
 
                 // Initial values
                 const tokenAmount = 10;
-                userOne              = mallory.pkh;
-                userOneSk            = mallory.sk;
 
                 // Mistaken Operation - userOne (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await signerFactory(tezos, userOneSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, userThreeSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userThree, farmAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber()
+                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userThree)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userThree, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber();
+                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userThree)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -1313,29 +1310,27 @@ describe("Test: Farm Contract", async () => {
 
                 // Initial values
                 const tokenAmount = 10;
-                userOne              = mallory.pkh;
-                userOneSk            = mallory.sk;
 
                 // Mistaken Operation - userOne (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await signerFactory(tezos, userOneSk);
-                transferOperation = await fa12Transfer(lpTokenInstance, userOne, farmAddress, tokenAmount);
+                await signerFactory(tezos, userThreeSk);
+                transferOperation = await fa12Transfer(lpTokenInstance, userThree, farmAddress, tokenAmount);
                 await transferOperation.confirmation();
                 
                 lpTokenStorage              = await lpTokenInstance.storage();
-                const initialUserBalance    = (await lpTokenStorage.ledger.get(userOne)).balance.toNumber()
+                const initialUserBalance    = (await lpTokenStorage.ledger.get(userThree)).balance.toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa12Token(farmInstance, userOne, lpTokenAddress, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa12Token(farmInstance, userThree, lpTokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
                 
                 lpTokenStorage              = await lpTokenInstance.storage();
-                const updatedUserBalance    = (await lpTokenStorage.ledger.get(userOne)).balance.toNumber()
+                const updatedUserBalance    = (await lpTokenStorage.ledger.get(userThree)).balance.toNumber()
 
                 // no change in balance
                 assert.equal(updatedUserBalance, initialUserBalance);
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })     
 
@@ -1435,7 +1430,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(newAdmin, currentAdmin);
 
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});;
             }
         });
 
@@ -1457,7 +1452,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(updatedGovernance, currentGovernance);
 
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});;
             }
         });
 
@@ -1530,7 +1525,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -1552,7 +1547,7 @@ describe("Test: Farm Contract", async () => {
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -1560,19 +1555,18 @@ describe("Test: Farm Contract", async () => {
             try {
 
                 // Initial values
-                userOne = mallory.pkh;
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userThree, farmAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userThree, mavrykFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 

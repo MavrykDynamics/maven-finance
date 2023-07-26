@@ -1,5 +1,5 @@
-import { MVK, Utils } from "./helpers/Utils";
 import { farmStorageType } from "../storage/storageTypes/farmStorageType";
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const assert = require("chai").assert;
@@ -49,10 +49,10 @@ describe("FarmFactory", async () => {
     let mavrykFa2TokenInstance;
     let mavrykFa2TokenStorage;
 
-    let farmAddress: string;
     let farmInstance;
     let farmStorage;
 
+    let farmAddress
     let farmFactoryAddress
     let mvkTokenAddress
     let lpTokenAddress 
@@ -486,6 +486,7 @@ describe("FarmFactory", async () => {
                 assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
                 assert.equal(farmStorage.open, true);
                 assert.equal(farmStorage.init, true);
+
             }catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -881,6 +882,5 @@ describe("FarmFactory", async () => {
                 console.dir(e, {depth: 5})
             }
         })
-
     })
 });
