@@ -19,7 +19,10 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 import { 
     signerFactory, 
-    updateOperators
+    updateOperators,
+    fa2Transfer,
+    mistakenTransferFa2Token,
+    mistakenTransferFa12Token
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -30,6 +33,14 @@ describe("Mistaken transfers tests", async () => {
     
     var utils: Utils;
     let tezos 
+
+    let admin 
+    let adminSk 
+
+    let mavrykFa12TokenAddress
+    let mavrykFa2TokenAddress
+    let mvkTokenAddress
+    let tokenId = 0
 
     let doormanInstance;
     let delegationInstance;
@@ -76,12 +87,19 @@ describe("Mistaken transfers tests", async () => {
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos
+
+        admin   = bob.pkh;
+        adminSk = bob.sk;
         
+        mavrykFa12TokenAddress          = contractDeployments.mavrykFa12Token.address;
+        mavrykFa2TokenAddress           = contractDeployments.mavrykFa2Token.address;
+        mvkTokenAddress                 = contractDeployments.mvkTOken.address;
+
         doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
-        mavrykFa12TokenInstance         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-        mavrykFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress);
+        mavrykFa12TokenInstance         = await utils.tezos.contract.at(mavrykFa12TokenAddress);
+        mavrykFa2TokenInstance          = await utils.tezos.contract.at(mavrykFa2TokenAddress);
         treasuryInstance                = await utils.tezos.contract.at(contractDeployments.treasury.address);
         treasuryFactoryInstance         = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
         farmInstance                    = await utils.tezos.contract.at(contractDeployments.farm.address);
@@ -117,37 +135,16 @@ describe("Mistaken transfers tests", async () => {
         aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
         governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
 
-        console.log('-- -- -- -- -- Doorman Tests -- -- -- --')
-        console.log('Doorman Contract deployed at:', doormanInstance.address);
-        console.log('Delegation Contract deployed at:', delegationInstance.address);
-        console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
-        console.log('Farm Contract deployed at:', farmInstance.address);
-        console.log('LP Token Contract deployed at:', lpTokenInstance.address);
-        console.log('Break Glass Contract deployed at:', breakGlassInstance.address);
-        console.log('Farm Factory Contract deployed at:', farmFactoryInstance.address);
-        console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-        console.log('Governance Contract deployed at:', governanceInstance.address);
-        console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
-        console.log('Governance Proxy Contract deployed at:', governanceProxyInstance.address);
-        console.log('Vesting Contract deployed at:', vestingInstance.address);
-        console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
-        console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
-        console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
-        console.log('Mavryk FA12 Contract deployed at:', mavrykFa12TokenInstance.address);
-        console.log('Mavryk FA2 Contract deployed at:', mavrykFa2TokenInstance.address);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Alice address: ' + alice.pkh);
     });
 
     beforeEach('storage', async () => {
-        await signerFactory(tezos, bob.sk)
+        await signerFactory(tezos, adminSk)
     })
 
     describe("DOORMAN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the doorman by mistake", async() => {
@@ -171,18 +168,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midContractBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await doormanInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(doormanInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -212,21 +199,9 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
-                await chai.expect(doormanInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress": contractDeployments.mvkToken.address,
-                                    "tokenId" : 0
-                                }
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send()).to.be.rejected;
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = mistakenTransferFa2Token(doormanInstance, bob.pkh, mvkTokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -244,19 +219,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(doormanInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa2Token(doormanInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -267,7 +233,7 @@ describe("Mistaken transfers tests", async () => {
     describe("FARM", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to a farm by mistake", async() => {
@@ -282,18 +248,13 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.farm.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,             // contract instance
+                    bob.pkh,                            // from_
+                    contractDeployments.farm.address,   // to_
+                    tokenId,                            // token id
+                    tokenAmount                         // token amount
+                );
                 await transferOperation.confirmation();
 
                 // Mid values
@@ -302,21 +263,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await farmInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                    "tokenId" : 0
-                                }
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -346,18 +294,9 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await lpTokenInstance.methods.transfer(bob.pkh, contractDeployments.farm.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
-                await chai.expect(farmInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address,
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send()).to.be.rejected;
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = mistakenTransferFa12Token(farmInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -375,19 +314,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farm.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(farmInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(farmInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -398,7 +328,7 @@ describe("Mistaken transfers tests", async () => {
     describe("DELEGATION", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the delegation by mistake", async() => {
@@ -422,18 +352,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await delegationInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(delegationInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -464,19 +384,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.delegation.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(delegationInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = await mistakenTransferFa12Token(delegationInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -487,7 +398,7 @@ describe("Mistaken transfers tests", async () => {
     describe("BREAK GLASS", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the breakGlass by mistake", async() => {
@@ -511,18 +422,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await breakGlassInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(breakGlassInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -553,19 +454,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.breakGlass.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(breakGlassInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(breakGlassInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -576,7 +468,7 @@ describe("Mistaken transfers tests", async () => {
     describe("EMERGENCY GOVERNANCE", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the emergencyGovernance by mistake", async() => {
@@ -600,18 +492,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await emergencyGovernanceInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(emergencyGovernanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -642,19 +524,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.emergencyGovernance.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(emergencyGovernanceInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(emergencyGovernanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -665,7 +538,7 @@ describe("Mistaken transfers tests", async () => {
     describe("FARM FACTORY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the farmFactory by mistake", async() => {
@@ -689,18 +562,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await farmFactoryInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(farmFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -731,19 +594,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farmFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(farmFactoryInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(farmFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -754,7 +608,7 @@ describe("Mistaken transfers tests", async () => {
     describe("GOVERNANCE", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governance by mistake", async() => {
@@ -778,18 +632,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await governanceInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -820,19 +664,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governance.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(governanceInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(governanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -843,7 +678,7 @@ describe("Mistaken transfers tests", async () => {
     describe("GOVERNANCE FINANCIAL", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governanceFinancial by mistake", async() => {
@@ -867,18 +702,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await governanceFinancialInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceFinancialInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -909,19 +734,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceFinancial.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(governanceFinancialInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(governanceFinancialInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -932,7 +748,7 @@ describe("Mistaken transfers tests", async () => {
     describe("GOVERNANCE PROXY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governanceProxy by mistake", async() => {
@@ -956,18 +772,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await governanceProxyInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceProxyInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -998,19 +804,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceProxy.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(governanceProxyInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(governanceProxyInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1021,7 +818,7 @@ describe("Mistaken transfers tests", async () => {
     describe("MVK TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the mvkToken by mistake", async() => {
@@ -1045,18 +842,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await mvkTokenInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(mvkTokenInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1087,19 +874,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.mvkToken.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(mvkTokenInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(mvkTokenInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1110,7 +888,7 @@ describe("Mistaken transfers tests", async () => {
     describe("TREASURY FACTORY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the treasuryFactory by mistake", async() => {
@@ -1134,18 +912,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await treasuryFactoryInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(treasuryFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1176,19 +944,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasuryFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(treasuryFactoryInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(treasuryFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1199,7 +958,7 @@ describe("Mistaken transfers tests", async () => {
     describe("VESTING", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the vesting by mistake", async() => {
@@ -1223,18 +982,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await vestingInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa12" : contractDeployments.mavrykFa12Token.address
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(vestingInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1265,19 +1014,10 @@ describe("Mistaken transfers tests", async () => {
                 const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vesting.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(vestingInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa12" : contractDeployments.mavrykFa12Token.address
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa12Token(vestingInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1288,7 +1028,7 @@ describe("Mistaken transfers tests", async () => {
     describe("AGGREGATOR", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to an aggregator by mistake", async() => {
@@ -1303,18 +1043,13 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.aggregator.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                   // contract instance
+                    bob.pkh,                                  // from_
+                    contractDeployments.aggregator.address,   // to_
+                    tokenId,                                  // token id
+                    tokenAmount                               // token amount
+                );
                 await transferOperation.confirmation();
 
                 // Mid values
@@ -1323,21 +1058,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await aggregatorInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                    "tokenId" : 0
-                                }
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(aggregatorInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1365,36 +1087,19 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.aggregator.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                 // contract instance
+                    bob.pkh,                                // from_
+                    contractDeployments.aggregator.address, // to_
+                    tokenId,                                // token id
+                    tokenAmount                             // token amount
+                );
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(aggregatorInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa2Token(aggregatorInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1405,7 +1110,7 @@ describe("Mistaken transfers tests", async () => {
     describe("AGGREGATOR FACTORY", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the aggregator factory by mistake", async() => {
@@ -1420,18 +1125,13 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.aggregatorFactory.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                         // contract instance
+                    bob.pkh,                                        // from_
+                    contractDeployments.aggregatorFactory.address,  // to_
+                    tokenId,                                        // token id
+                    tokenAmount                                     // token amount
+                );
                 await transferOperation.confirmation();
 
                 // Mid values
@@ -1440,21 +1140,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await aggregatorFactoryInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                    "tokenId" : 0
-                                }
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1482,47 +1169,31 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.aggregatorFactory.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                             // contract instance
+                    bob.pkh,                                            // from_
+                    contractDeployments.aggregatorFactory.address,    // to_
+                    tokenId,                                            // token id
+                    tokenAmount                                         // token amount
+                );
                 await transferOperation.confirmation();
-                
-                // Treasury Transfer Operation
+
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(aggregatorFactoryInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa2Token(aggregatorFactoryInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
         })
+
     })
 
     describe("GOVERNANCE SATELLITE", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to the governance satellite by mistake", async() => {
@@ -1537,18 +1208,13 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.governanceSatellite.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                             // contract instance
+                    bob.pkh,                                            // from_
+                    contractDeployments.governanceSatellite.address,    // to_
+                    tokenId,                                            // token id
+                    tokenAmount                                         // token amount
+                );
                 await transferOperation.confirmation();
 
                 // Mid values
@@ -1557,21 +1223,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await governanceSatelliteInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                    "tokenId" : 0
-                                }
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa2Token(governanceSatelliteInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1599,36 +1252,19 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.governanceSatellite.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                             // contract instance
+                    bob.pkh,                                            // from_
+                    contractDeployments.governanceSatellite.address,    // to_
+                    tokenId,                                            // token id
+                    tokenAmount                                         // token amount
+                );
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(governanceSatelliteInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa2Token(governanceSatelliteInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1639,7 +1275,7 @@ describe("Mistaken transfers tests", async () => {
     describe("MAVRYK FA12 TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to a mavryk fa12 token by mistake", async() => {
@@ -1654,18 +1290,13 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.mavrykFa12Token.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                         // contract instance
+                    bob.pkh,                                        // from_
+                    contractDeployments.mavrykFa12Token.address,    // to_
+                    tokenId,                                        // token id
+                    tokenAmount                                     // token amount
+                );
                 await transferOperation.confirmation();
 
                 // Mid values
@@ -1674,21 +1305,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await mavrykFa12TokenInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                    "tokenId" : 0
-                                }
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa2Token(mavrykFa12TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1716,36 +1334,19 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.mavrykFa12Token.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                         // contract instance
+                    bob.pkh,                                        // from_
+                    contractDeployments.mavrykFa12Token.address,    // to_
+                    tokenId,                                        // token id
+                    tokenAmount                                     // token amount
+                );
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(mavrykFa12TokenInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa2Token(mavrykFa12TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -1756,7 +1357,7 @@ describe("Mistaken transfers tests", async () => {
     describe("MAVRYK FA2 TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
-            await signerFactory(tezos, bob.sk)
+            await signerFactory(tezos, adminSk)
         })
 
         it("Governance Satellite should be able to transfer Tokens sent to a mavryk fa12 token by mistake", async() => {
@@ -1771,18 +1372,13 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.mavrykFa2Token.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                         // contract instance
+                    bob.pkh,                                        // from_
+                    contractDeployments.mavrykFa2Token.address,     // to_
+                    tokenId,                                        // token id
+                    tokenAmount                                     // token amount
+                );
                 await transferOperation.confirmation();
 
                 // Mid values
@@ -1791,21 +1387,8 @@ describe("Mistaken transfers tests", async () => {
                 userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
-                // Treasury Transfer Operation
-                const mistakenTransferOperation     = await mavrykFa2TokenInstance.methods.mistakenTransfer(
-                    [
-                        {
-                            "to_"    : bob.pkh,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                    "tokenId" : 0
-                                }
-                            },
-                            "amount" : tokenAmount
-                        }
-                    ]
-                    ).send();
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa2Token(mavrykFa2TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1833,40 +1416,24 @@ describe("Mistaken transfers tests", async () => {
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa2TokenInstance.methods.transfer([
-                    {
-                        from_: bob.pkh,
-                        txs: [
-                            {
-                                to_: contractDeployments.mavrykFa2Token.address,
-                                token_id: 0,
-                                amount: tokenAmount
-                            }
-                        ]
-                    }
-                ]).send();
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                         // contract instance
+                    bob.pkh,                                        // from_
+                    contractDeployments.mavrykFa2Token.address,     // to_
+                    tokenId,                                        // token id
+                    tokenAmount                                     // token amount
+                );
                 await transferOperation.confirmation();
                 
-                // Treasury Transfer Operation
+                // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                await chai.expect(mavrykFa2TokenInstance.methods.mistakenTransfer(
-                [
-                    {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress": contractDeployments.mavrykFa2Token.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : tokenAmount
-                    }
-                ]
-                ).send()).to.be.rejected;
+                const mistakenTransferOperation = mistakenTransferFa2Token(mavrykFa2TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
         })
     });
+
 });
