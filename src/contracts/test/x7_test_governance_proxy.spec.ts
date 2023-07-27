@@ -289,7 +289,7 @@ describe('Governance proxy lambdas tests', async () => {
             it('%setAdmin', async () => {
                 try{
                     // Initial values
-                    const newAdmin      = alice.pkh;
+                    let newAdmin      = alice.pkh;
                     const initMvkAdmin  = mvkTokenStorage.admin;
     
                     // Operation
@@ -314,6 +314,21 @@ describe('Governance proxy lambdas tests', async () => {
                     assert.notStrictEqual(initMvkAdmin, newAdmin);
                     assert.strictEqual(finalMvkAdmin, newAdmin);
                     assert.notStrictEqual(initMvkAdmin, finalMvkAdmin);
+
+                    // Reset Operation
+                    newAdmin = bob.pkh;
+                    const lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
+                        contractDeployments.governanceProxy.address,
+                        
+                        'setAdmin',
+                        [
+                            contractDeployments.mvkToken.address,
+                            newAdmin
+                        ]
+                    );
+                    const operation     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await operation.confirmation();
     
                 } catch(e){
                     console.dir(e, {depth: 5});
