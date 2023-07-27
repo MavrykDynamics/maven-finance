@@ -598,7 +598,6 @@ describe("Farm mToken", async () => {
 
     })
 
-
     describe("Initialized farm", function() {
 
         describe('%initFarm', function() {
@@ -786,7 +785,6 @@ describe("Farm mToken", async () => {
 
             it('multiple users (eve/alice) should be able to deposit LP Tokens into a farm', async () => {
                 try{
-
                     // Initial values
                     await signerFactory(tezos, userOneSk);
                     mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
@@ -876,13 +874,10 @@ describe("Farm mToken", async () => {
 
                     // Operation
                     await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
-
                 } catch(e){
                     console.dir(e, {depth: 5})
                 } 
             })
-
-
         })
 
         describe('%withdraw', function() {
