@@ -185,6 +185,7 @@
     "lambdaUnregisterAsSatellite",
     "lambdaUpdateSatelliteRecord",
     "lambdaDistributeReward",
+    "lambdaTakeSatellitesSnapshot",
 
     "lambdaOnStakeChange",
     "lambdaUpdateSatelliteStatus"
