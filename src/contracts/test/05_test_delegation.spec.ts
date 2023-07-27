@@ -17,8 +17,17 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, oscar, ivan, trudy } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
 import { mockSatelliteData } from "./helpers/mockSampleData"
+
+import {
+    fa2Transfer,
+    getStorageMapValue,
+    mistakenTransferFa2Token,
+    signerFactory,
+    updateOperators,
+    updateGeneralContracts,
+    updateWhitelistContracts,
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Notes
@@ -160,7 +169,7 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount = 0;
                 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 delegationStorage                = await delegationInstance.storage();
                 doormanStorage                   = await doormanInstance.storage();
@@ -176,7 +185,7 @@ describe("Test: Delegation Contract", async () => {
                     stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // user stake MVK tokens
@@ -238,7 +247,7 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount = 0;
                 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 delegationStorage                = await delegationInstance.storage();
                 doormanStorage                   = await doormanInstance.storage();
@@ -254,7 +263,7 @@ describe("Test: Delegation Contract", async () => {
                     stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // user stake MVK tokens
@@ -329,7 +338,7 @@ describe("Test: Delegation Contract", async () => {
                     stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // user stake MVK tokens
@@ -365,7 +374,7 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount = 0;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // update storage
                 delegationStorage       = await delegationInstance.storage();
@@ -394,7 +403,7 @@ describe("Test: Delegation Contract", async () => {
                         stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
 
                         // update operators operation for user
-                        updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                        updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
 
                         // user stake MVK tokens
@@ -433,7 +442,7 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // pause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 delegationStorage   = await delegationInstance.storage();
                 isPausedStart       = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
 
@@ -446,10 +455,10 @@ describe("Test: Delegation Contract", async () => {
                 userSk       = trudy.sk;
                 stakeAmount  = MVK(1);
                 
-                await helperFunctions.signerFactory(tezos, userSk)
+                await signerFactory(tezos, userSk)
 
                 // update operators operation for user
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // user stake MVK tokens
@@ -472,7 +481,7 @@ describe("Test: Delegation Contract", async () => {
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
                 // unpause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", false).send();
                 await togglePauseOperation.confirmation();
 
@@ -489,7 +498,7 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // remove doorman contract reference from governance contract generalContracts map
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send()
                 await updateOperation.confirmation();
 
@@ -499,7 +508,7 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount  = 0;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk)
+                await signerFactory(tezos, userSk)
 
                 // update storage
                 delegationStorage           = await delegationInstance.storage();
@@ -515,7 +524,7 @@ describe("Test: Delegation Contract", async () => {
                     stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // user stake MVK tokens
@@ -537,7 +546,7 @@ describe("Test: Delegation Contract", async () => {
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
                 // add doorman contract reference to governance contract generalContracts map
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
                 await updateOperation.confirmation();
                 
@@ -562,18 +571,18 @@ describe("Test: Delegation Contract", async () => {
                 const newMinimumStakedMvkRequirement     = MVK(100);
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkRequirement, "configMinimumStakedMvkBalance").send();
                 await updateConfigOperation.confirmation();
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk)
+                await signerFactory(tezos, userSk)
                 
                 // min amount required to stake on doorman contract
                 stakeAmount = MVK(1); 
 
                 // update operators operation for user
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // user stake 100 MVK tokens
@@ -593,7 +602,7 @@ describe("Test: Delegation Contract", async () => {
                 await chai.expect(registerAsSatelliteOperation.send()).to.be.rejected;
 
                 // Reset
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 updateConfigOperation = await delegationInstance.methods.updateConfig(initialMinimumStakedMvkRequirement, "configMinimumStakedMvkBalance").send();
                 await updateConfigOperation.confirmation();
 
@@ -614,7 +623,7 @@ describe("Test: Delegation Contract", async () => {
                 satelliteSk = eve.sk;
 
                 // set signer to satellite
-                await helperFunctions.signerFactory(tezos, satelliteSk);
+                await signerFactory(tezos, satelliteSk);
 
                 // Unregisters as a satellite
                 unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite(satellite).send();
@@ -639,7 +648,7 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount  = 0;
                 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // update storage
                 delegationStorage                   = await delegationInstance.storage();
@@ -655,7 +664,7 @@ describe("Test: Delegation Contract", async () => {
                     stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // user stake MVK tokens
@@ -711,7 +720,7 @@ describe("Test: Delegation Contract", async () => {
                 userSk  = trudy.sk;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 
                 // fail to unregister as a satellite
                 unregisterAsSatelliteOperation = delegationInstance.methods.unregisterAsSatellite(user);
@@ -726,7 +735,7 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // pause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 delegationStorage   = await delegationInstance.storage();
                 isPausedStart       = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
 
@@ -738,18 +747,18 @@ describe("Test: Delegation Contract", async () => {
                 user         = eve.pkh;
                 userSk       = eve.sk;
                 
-                await helperFunctions.signerFactory(tezos, userSk)
+                await signerFactory(tezos, userSk)
 
                 // Final values
                 delegationStorage   = await delegationInstance.storage();
                 isPausedEnd         = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
 
-                await helperFunctions.signerFactory(tezos, alice.sk)
+                await signerFactory(tezos, alice.sk)
                 unregisterAsSatelliteOperation = delegationInstance.methods.unregisterAsSatellite(user);
                 await chai.expect(unregisterAsSatelliteOperation.send()).to.be.rejected;
 
                 // unpause operation
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", false).send();
                 await togglePauseOperation.confirmation();
 
@@ -774,7 +783,7 @@ describe("Test: Delegation Contract", async () => {
                 satelliteSk = eve.sk;
 
                 // set signer to satellite
-                await helperFunctions.signerFactory(tezos, satelliteSk);
+                await signerFactory(tezos, satelliteSk);
                 
                 // init values
                 delegationStorage               = await delegationInstance.storage();
@@ -846,7 +855,7 @@ describe("Test: Delegation Contract", async () => {
                 userSk  = trudy.sk;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // non-user fails to update satellite record
                 updateSatelliteRecordOperation = await delegationInstance.methods.updateSatelliteRecord(
@@ -869,7 +878,7 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // pause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 delegationStorage   = await delegationInstance.storage();
                 isPausedStart       = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
 
@@ -882,7 +891,7 @@ describe("Test: Delegation Contract", async () => {
                 userSk  = eve.sk;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // Final values
                 delegationStorage   = await delegationInstance.storage();
@@ -900,7 +909,7 @@ describe("Test: Delegation Contract", async () => {
                 ).to.be.rejected;
 
                 // unpause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", false).send();
                 await togglePauseOperation.confirmation();
 
@@ -929,7 +938,7 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount = MVK(1);
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // Initial Values
                 delegationStorage           = await delegationInstance.storage();
@@ -945,7 +954,7 @@ describe("Test: Delegation Contract", async () => {
                 if(initialDelegateRecord == null){
 
                     // update operators operation for user
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // stake operation
@@ -985,7 +994,7 @@ describe("Test: Delegation Contract", async () => {
                 satellite   = alice.pkh;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // user redelegates to another satellite (from eve to alice)
                 delegationStorage               = await delegationInstance.storage();
@@ -1050,7 +1059,7 @@ describe("Test: Delegation Contract", async () => {
                 satellite   = eve.pkh;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
                 await chai.expect(delegateOperation.send()).to.be.rejected;
@@ -1074,7 +1083,7 @@ describe("Test: Delegation Contract", async () => {
                 initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
 
                 // update operators operation for user
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
@@ -1103,7 +1112,7 @@ describe("Test: Delegation Contract", async () => {
                 userSk      = eve.sk;
 
                 // init values
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // delegate operation
                 delegateOperation = delegationInstance.methods.delegateToSatellite(user, user);
@@ -1124,7 +1133,7 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // pause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 delegationStorage   = await delegationInstance.storage();
                 isPausedStart       = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
 
@@ -1139,10 +1148,10 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount = MVK(1);
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // update operators operation for user
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
                 stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
@@ -1157,7 +1166,7 @@ describe("Test: Delegation Contract", async () => {
                 await chai.expect(delegateOperation.send()).to.be.rejected;
 
                 // unpause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false).send();
                 await togglePauseOperation.confirmation();
 
@@ -1174,7 +1183,7 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // remove doorman contract reference from governance contract generalContracts map
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send()
                 await updateOperation.confirmation();
 
@@ -1184,14 +1193,14 @@ describe("Test: Delegation Contract", async () => {
                 satellite    = eve.pkh;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk)
+                await signerFactory(tezos, userSk)
 
                 // Initial values
                 delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
                 await chai.expect(delegateOperation.send()).to.be.rejected;
 
                 // Reset operation
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
                 await updateOperation.confirmation();
 
@@ -1212,7 +1221,7 @@ describe("Test: Delegation Contract", async () => {
                 userSk      = alice.sk;
                 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // initial storage
                 delegationStorage           = await delegationInstance.storage();
@@ -1240,7 +1249,7 @@ describe("Test: Delegation Contract", async () => {
 
 
                 // pause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 delegationStorage   = await delegationInstance.storage();
                 isPausedStart       = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
 
@@ -1253,7 +1262,7 @@ describe("Test: Delegation Contract", async () => {
                 userSk      = trudy.sk;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 undelegateOperation = delegationInstance.methods.undelegateFromSatellite(user);
                 await chai.expect(undelegateOperation.send()).to.be.rejected;
@@ -1263,7 +1272,7 @@ describe("Test: Delegation Contract", async () => {
                 isPausedEnd         = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
                 
                 // unpause entrypoint
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", false).send();
                 await togglePauseOperation.confirmation();
 
@@ -1285,10 +1294,10 @@ describe("Test: Delegation Contract", async () => {
                 stakeAmount = MVK(1);
                 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // update operators operation for user
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
                 stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
@@ -1307,7 +1316,7 @@ describe("Test: Delegation Contract", async () => {
             try{
 
                 // remove doorman contract reference from governance contract generalContracts map
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'remove').send()
                 await updateOperation.confirmation();
 
@@ -1317,12 +1326,12 @@ describe("Test: Delegation Contract", async () => {
                 satellite    = eve.pkh;
 
                 // Initial values
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
                 await chai.expect(delegateOperation.send()).to.be.rejected;
 
                 // Reset operation
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress, 'update').send()
                 await updateOperation.confirmation();
 
@@ -1339,7 +1348,7 @@ describe("Test: Delegation Contract", async () => {
                 userSk      = trudy.sk;
 
                 // set signer to user
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // initial storage
                 delegationStorage           = await delegationInstance.storage();
@@ -1402,7 +1411,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.notEqual(initialSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
                 // Re-register operation
-                await helperFunctions.signerFactory(tezos, satelliteSk);
+                await signerFactory(tezos, satelliteSk);
                 
                 // unregisters as satellite
                 unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite(satellite).send();
@@ -1434,7 +1443,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
                 // undelegate operation
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 undelegateOperation   = await delegationInstance.methods.undelegateFromSatellite(user).send();
                 await undelegateOperation.confirmation();
 
@@ -1484,7 +1493,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.notEqual(initialSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
                 // Re-register operation
-                await helperFunctions.signerFactory(tezos, satelliteSk);
+                await signerFactory(tezos, satelliteSk);
 
                 // unregister as a satellite
                 unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite(satellite).send();
@@ -1516,7 +1525,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.equal(midSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
 
                 // user stake operation and trigger %onStakeChange
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
 
@@ -1545,7 +1554,7 @@ describe("Test: Delegation Contract", async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
             delegationStorage        = await delegationInstance.storage();
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
         });
 
         it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
@@ -1569,7 +1578,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.strictEqual(currentAdmin, bob.pkh);
 
                 // reset admin
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 resetAdminOperation = await delegationInstance.methods.setAdmin(bob.pkh).send();
                 await resetAdminOperation.confirmation();
 
@@ -1670,13 +1679,13 @@ describe("Test: Delegation Contract", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue           = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                initialContractMapValue           = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(delegationInstance, contractMapKey, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(delegationInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 delegationStorage = await delegationInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
                 assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
@@ -1693,13 +1702,13 @@ describe("Test: Delegation Contract", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(delegationInstance, contractMapKey, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(delegationInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 delegationStorage = await delegationInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
@@ -1716,13 +1725,13 @@ describe("Test: Delegation Contract", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(delegationInstance, contractMapKey, eve.pkh, 'update');
+                updateGeneralContractsOperation = await updateGeneralContracts(delegationInstance, contractMapKey, eve.pkh, 'update');
                 await updateGeneralContractsOperation.confirmation()
 
                 delegationStorage = await delegationInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
@@ -1739,13 +1748,13 @@ describe("Test: Delegation Contract", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(delegationInstance, contractMapKey, eve.pkh, 'remove');
+                updateGeneralContractsOperation = await updateGeneralContracts(delegationInstance, contractMapKey, eve.pkh, 'remove');
                 await updateGeneralContractsOperation.confirmation()
 
                 delegationStorage = await delegationInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
@@ -1764,15 +1773,15 @@ describe("Test: Delegation Contract", async () => {
                 userSk            = mallory.sk;
 
                 // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await helperFunctions.signerFactory(tezos, userSk);
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, delegationAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, userSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, delegationAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
                 const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(delegationInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                await signerFactory(tezos, bob.sk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(delegationInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
@@ -1907,7 +1916,7 @@ describe("Test: Delegation Contract", async () => {
 
         beforeEach("Set signer to non-admin (mallory)", async () => {
             delegationStorage = await delegationInstance.storage();
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
         });
 
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
@@ -2012,13 +2021,13 @@ describe("Test: Delegation Contract", async () => {
                 contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 delegationStorage       = await delegationInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
@@ -2034,13 +2043,13 @@ describe("Test: Delegation Contract", async () => {
                 contractMapKey  = "mallory";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 updateGeneralContractsOperation = await delegationInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, 'update')
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 delegationStorage       = await delegationInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(delegationStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(delegationStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
@@ -2056,11 +2065,11 @@ describe("Test: Delegation Contract", async () => {
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MavrykFa2Tokens to Delegation Contract
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, delegationAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, delegationAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(delegationInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(delegationInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

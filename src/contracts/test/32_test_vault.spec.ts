@@ -20,12 +20,11 @@ import contractDeployments from './contractDeployments.json'
 
 import { alice, baker, bob, eve, mallory, oscar } from "../scripts/sandbox/accounts";
 import { depositorsType, vaultStorageType } from "../storage/storageTypes/vaultStorageType"
+import { mockSatelliteData } from "./helpers/mockSampleData";
 import { 
     signerFactory, 
     updateOperators,
 } from './helpers/helperFunctions'
-import { mockSatelliteData } from "./helpers/mockSampleData";
-
 
 // ------------------------------------------------------------------------------
 // Contract Tests
