@@ -64,6 +64,7 @@ type delegationAction is
     |   UnregisterAsSatellite             of (address)
     |   UpdateSatelliteRecord             of updateSatelliteRecordType
     |   DistributeReward                  of distributeRewardStakedMvkType
+    |   TakeSatellitesSnapshot            of takeSatellitesSnapshotType
 
         // General Entrypoints
     |   OnStakeChange                     of onStakeChangeType
@@ -143,6 +144,7 @@ block{
         |   UnregisterAsSatellite(parameters)             -> unregisterAsSatellite(parameters, s)
         |   UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
         |   DistributeReward(parameters)                  -> distributeReward(parameters, s)
+        |   TakeSatellitesSnapshot(parameters)            -> takeSatellitesSnapshot(parameters, s)
 
             // General Entrypoints
         |   OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
