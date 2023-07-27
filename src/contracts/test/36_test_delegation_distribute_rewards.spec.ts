@@ -147,7 +147,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
 
     describe("%distributeRewards", async () => {
 
-        beforeEach("Set signer to admin (bob)", async () => {
+        beforeEach("set signer to admin (bob)", async () => {
             delegationStorage  = await delegationInstance.storage();
             await signerFactory(tezos, adminSk)
         });
@@ -216,7 +216,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             await signerFactory(tezos, adminSk)
         });
         
-        it('Reward distribution tests #1', async () => {
+        it('scenario #1:\n- rewards are distributed to satellite (eve)\n- satellite (eve), delegates (david/ivan) are compounding', async () => {
             try{
                 
                 // Initial Values
@@ -232,37 +232,25 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
                 // Claim operations
-                var claimOperation = await doormanInstance.methods.compound([satelliteOne]).send();
+                var claimOperation = await doormanInstance.methods.compound([satelliteOne, delegateOne, delegateTwo]).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
                 var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
                 satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
                 console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
-
-                await signerFactory(tezos, david.sk);
-                claimOperation = await doormanInstance.methods.compound([david.pkh]).send();
-                await claimOperation.confirmation()
-                delegationStorage = await delegationInstance.storage();
-                doormanStorage  = await doormanInstance.storage();
-                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(david.pkh)
-                var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(david.pkh)
+                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(delegateOne)
+                var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateOne)
                 console.log("POST-CLAIM DAVID: ", delegateRecord.unpaid.toNumber(), " | ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
-
-                await signerFactory(tezos, ivan.sk);
-                claimOperation = await doormanInstance.methods.compound([ivan.pkh]).send();
-                await claimOperation.confirmation()
-                delegationStorage = await delegationInstance.storage();
-                doormanStorage  = await doormanInstance.storage();
-                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(ivan.pkh)
-                delegateStake  = await doormanStorage.userStakeBalanceLedger.get(ivan.pkh)
+                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
+                delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateTwo)
                 console.log("POST-CLAIM IVAN: ", delegateRecord.unpaid.toNumber(), " | ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('Reward distribution tests #2', async () => {
+        it('scenario #2:\n- rewards are distributed to satellites (eve/alice)\n- satellite (eve) unregisters\n', async () => {
             try{
                 
                 console.log("configuration:\n- 2 satellites (DelegateTwo|DelegateOne)\n- 2 delegates on DelegateTwo (David|Ivan)\n- Operations: \n   DistributeReward(100MVK)\n   Unregister(DelegateTwo)\n   Undelegate(David)\n   Claim(DelegateTwo)\n   Delegate(David->DelegateOne)\n   Claim(David)\n   Claim(Ivan)");
