@@ -43,6 +43,12 @@ spec:
               cpu: '{{ $value.hasura.resources.limits.cpu }}'
           {{- end }}
           env:
+            - name: HASURA_GRAPHQL_PG_CONNECTIONS
+              value: '{{ $value.hasura.pgConnections }}'
+            - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL
+              value: '15000'
+            - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_BATCH_SIZE
+              value: '1000'
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
               value: 'true'
             - name: HASURA_GRAPHQL_DEV_MODE
