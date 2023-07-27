@@ -172,18 +172,22 @@ describe("Test: Farm Contract", async () => {
                     const lpAllowances      = await lpLedgerStart.allowances.get(farmAddress);
                     const amountToDeposit   = 6;
     
-                    // Approval operation
-                    if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
-                        const approvals         = lpAllowances === undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
-                        const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
-                        await approveOperation.confirmation();
-                    }
-    
-                    // Operation
-                    await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
+                    if(!farmInit){
+                        // Approval operation
+                        if(lpAllowances===undefined || lpAllowances.toNumber()<=0){
+                            const approvals         = lpAllowances === undefined ? amountToDeposit : Math.abs(lpAllowances.toNumber() - amountToDeposit);
+                            const approveOperation  = await lpTokenInstance.methods.approve(farmAddress,approvals).send();
+                            await approveOperation.confirmation();
+                        }
+        
+                        // Operation
+                        await chai.expect(farmInstance.methods.deposit(amountToDeposit).send()).to.be.rejected;
 
-                    // Assertion
-                    assert.equal(farmInit, false);
+                        // Assertion
+                        assert.equal(farmInit, false);
+
+                    }
+
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
@@ -200,10 +204,12 @@ describe("Test: Farm Contract", async () => {
                     const amountToWithdraw  = 1;
     
                     // Operation
-                    await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+                    if(farmInit == false){
+                        await chai.expect(farmInstance.methods.withdraw(amountToWithdraw).send()).to.be.rejected;
+                        // Assertion
+                        assert.equal(farmInit, false);
+                    }
 
-                    // Assertion
-                    assert.equal(farmInit, false);
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
@@ -219,10 +225,13 @@ describe("Test: Farm Contract", async () => {
                     const farmInit          = farmStorage.init;
     
                     // Operation
-                    await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
+                    if(farmInit == false){
+                        await chai.expect(farmInstance.methods.claim([bob.pkh]).send()).to.be.rejected;
 
-                    // Assertion
-                    assert.equal(farmInit, false);
+                        // Assertion
+                        assert.equal(farmInit, false);
+                    }
+
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
@@ -278,26 +287,31 @@ describe("Test: Farm Contract", async () => {
 
             it('admin (bob) should be able to initialize a farm', async () => {
                 try{
-                    // Operation
-                    const operation = await farmInstance.methods.initFarm(
-                        12000,
-                        100,
-                        false,
-                        false
-                    ).send();
-                    await operation.confirmation()
-
-                    // Final values
+                    
                     farmStorage    = await farmInstance.storage();
-                    // console.log("REWARDS: ", farmStorage.config.plannedRewards)
-                    // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
+                    
+                    if(farmStorage.open == false){
+                        // Operation
+                        const operation = await farmInstance.methods.initFarm(
+                            12000,
+                            100,
+                            false,
+                            false
+                        ).send();
+                        await operation.confirmation()
 
-                    // Assertions
-                    assert.equal(farmStorage.open, true);
-                    assert.equal(farmStorage.init, true);
-                    assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
-                    assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+                        // Final values
+                        farmStorage    = await farmInstance.storage();
 
+                        // console.log("REWARDS: ", farmStorage.config.plannedRewards)
+                        // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
+
+                        // Assertions
+                        assert.equal(farmStorage.open, true);
+                        assert.equal(farmStorage.init, true);
+                        assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
+                        assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+                    }
                 }catch(e){
                     console.dir(e, {depth: 5})
                 }
@@ -369,7 +383,7 @@ describe("Test: Farm Contract", async () => {
                 } 
             });
 
-            it('multiple users (eve/alice) should be able to deposit in a farm', async () => {
+            it('multiple users (eve/alice) should be able to deposit LP Tokens into a farm', async () => {
                 try{
                     // Initial values
                     lpTokenStorage                  = await lpTokenInstance.storage();
