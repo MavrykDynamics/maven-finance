@@ -2853,118 +2853,125 @@ describe("Governance tests", async () => {
                 }
             })
 
-            // it('satellite should not be able increase its total voting power during the current round', async () => {
-            //     try{
-            //         // Initial Values
-            //         governanceStorage                   = await governanceInstance.storage();
-            //         const proposalId                    = governanceStorage.nextProposalId; 
-            //         var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
-            //         var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
+            it('satellite should not be able increase its total voting power during the current round', async () => {
+                try{
+                    // Initial Values
+                    governanceStorage                   = await governanceInstance.storage();
+                    const proposalId                    = governanceStorage.nextProposalId; 
+                    var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
+                    var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
 
-            //         // Operation
-            //         while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
-            //             var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
-            //             await startNextRoundOperation.confirmation();
-            //             governanceStorage           = await governanceInstance.storage();
-            //             currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
-            //             currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
-            //         }
-            //         const firstProposalName          = "New Proposal #1";
-            //         const firstProposalDesc          = "Details about new proposal #1";
-            //         const firstProposalIpfs          = "ipfs://QM123456789";
-            //         const firstProposalSourceCode    = "Proposal Source Code";
+                    // Operation
+                    while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
+                        var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+                        await startNextRoundOperation.confirmation();
+                        governanceStorage           = await governanceInstance.storage();
+                        currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+                        currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
+                    }
+                    const firstProposalName          = "Test Voting Power change";
+                    const firstProposalDesc          = "Details about new proposal #1";
+                    const firstProposalIpfs          = "ipfs://QM123456789";
+                    const firstProposalSourceCode    = "Proposal Source Code";
 
-            //         // Pre increase values
-            //         governanceStorage                   = await governanceInstance.storage();
-            //         doormanStorage                      = await doormanInstance.storage();
-            //         delegationStorage                   = await delegationInstance.storage();
-            //         var currentCycle                    = governanceStorage.cycleId;
+                    // Pre increase values
+                    governanceStorage                   = await governanceInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    delegationStorage                   = await delegationInstance.storage();
+                    var currentCycle                    = governanceStorage.cycleId;
 
-            //         // Eve stake 1 MVK to create a snapshot
-            //         var stakeOperation = await doormanInstance.methods.stake(MVK(1)).send();
-            //         await stakeOperation.confirmation();
+                    // compound satellite one to create snapshot
+                    await signerFactory(tezos, satelliteOneSk);
+                    var compoundOperation = await doormanInstance.methods.compound([satelliteOne]).send();
+                    await compoundOperation.confirmation();
 
-            //         const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
-            //         const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
-            //         const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(eve.pkh);
+                    const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
+                    const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
+                    const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
 
-            //         // console.log('preIncreaseSnapshot');
-            //         // console.log(preIncreaseSnapshot);
+                    console.log('preIncreaseSnapshot');
+                    console.log(preIncreaseSnapshot);
 
-            //         // User increases its stake
-            //         var stakeOperation    = await doormanInstance.methods.stake(MVK(20)).send()
-            //         await stakeOperation.confirmation();
+                    // satellite increases her stake
+                    var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
+                    await stakeOperation.confirmation();
 
-            //         // User delegates to satellite
-            //         await signerFactory(tezos, oscar.sk)
-            //         const updateOperators = await mvkTokenInstance.methods.update_operators([
-            //         {
-            //             add_operator: {
-            //                 owner: oscar.pkh,
-            //                 operator: contractDeployments.doorman.address,
-            //                 token_id: 0,
-            //             },
-            //         },
-            //         ])
-            //         .send()
-            //         await updateOperators.confirmation();
-            //         stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
-            //         await stakeOperation.confirmation();
-            //         const delegateOperation = await delegationInstance.methods.delegateToSatellite(oscar.pkh, eve.pkh).send()
-            //         await delegateOperation.confirmation()
+                    console.log(`after stake`);
 
-            //         // Post staking values
-            //         governanceStorage                   = await governanceInstance.storage();
-            //         doormanStorage                      = await doormanInstance.storage();
-            //         var currentCycle                    = governanceStorage.cycleId;
+                    // User (mallory) delegates to satellite
+                    await signerFactory(tezos, mallory.sk)
+                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
+                    await updateOperatorsOperation.confirmation();
 
-            //         // add proposal data
-            //         const proposalData      = [
-            //             {
-            //                 addOrSetProposalData: {
-            //                     title: "Data#1",
-            //                     encodedCode: mockPackedLambdaData.updateCouncilConfig,
-			// 					codeDescription: ""
-            //                 },
-            //             }
-            //         ]
+                    console.log(`after update operators`);
 
-            //         // Operation
-            //         await signerFactory(tezos, eve.sk)
-            //         var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mutez: true});
-            //         await proposeOperation.confirmation();
+                    // stakeOperation = await doormanInstance.methods.stake(MVK(2)).send();
+                    // await stakeOperation.confirmation();
 
-            //         const lockProposalOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-            //         await lockProposalOperation.confirmation();
+                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
+                    await delegateOperation.confirmation()
 
-            //         const voteOperation                 = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-            //         await voteOperation.confirmation();
+                    console.log(`after delegate to satellite`);
 
-            //         // Final values
-            //         governanceStorage                   = await governanceInstance.storage();
-            //         const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
-            //         const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
-            //         const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
-            //         const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
+                    // Post staking values
+                    governanceStorage                   = await governanceInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    currentCycle                        = governanceStorage.cycleId;
+
+                    // add proposal data
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "Data#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+								codeDescription: ""
+                            },
+                        }
+                    ]
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk)
+                    var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+
+                    console.log(`after propose`);
+
+                    const lockProposalOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                    await lockProposalOperation.confirmation();
+
+                    console.log(`after lock proposal`);
+
+                    const voteOperation                 = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    console.log(`after proposal round vote`);
+
+                    // Final values
+                    governanceStorage                   = await governanceInstance.storage();
+                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+                    const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
+                    const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
+                    const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
                     
-            //         // console.log("BALANCE:", preIncreaseSatellite)
-            //         // console.log("BALANCE2:", postIncreaseSatellite)
+                    // console.log("BALANCE:", preIncreaseSatellite)
+                    // console.log("BALANCE2:", postIncreaseSatellite)
 
-            //         console.log('postIncreaseSnapshot');
-            //         console.log(postIncreaseSnapshot);
+                    console.log('postIncreaseSnapshot');
+                    console.log(postIncreaseSnapshot);
 
-            //         // Assertions
-            //         assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
-            //         assert.notEqual(postIncreaseSatellite.stakedMvkBalance.toNumber(), preIncreaseSatellite.stakedMvkBalance.toNumber());
-            //         assert.notEqual(postIncreaseSatellite.totalDelegatedAmount.toNumber(), preIncreaseSatellite.totalDelegatedAmount.toNumber());
-            //         assert.equal(postIncreaseSnapshot.totalStakedMvkBalance.toNumber(), preIncreaseSnapshot.totalStakedMvkBalance.toNumber())
-            //         assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
-            //         assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
-            //         assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
-            //     } catch(e){
-            //         console.dir(e, {depth: 5})
-            //     }
-            // })
+                    // Assertions
+                    assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
+                    assert.notEqual(postIncreaseSatellite.stakedMvkBalance.toNumber(), preIncreaseSatellite.stakedMvkBalance.toNumber());
+                    assert.notEqual(postIncreaseSatellite.totalDelegatedAmount.toNumber(), preIncreaseSatellite.totalDelegatedAmount.toNumber());
+                    assert.equal(postIncreaseSnapshot.totalStakedMvkBalance.toNumber(), preIncreaseSnapshot.totalStakedMvkBalance.toNumber())
+                    assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
+                    assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
+                    assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
+
+                } catch(e){
+                    console.dir(e, {depth: 5})
+                }
+            })
 
             it('satellite (eve) should not be able to call %proposalRoundVote if the proposal was dropped', async () => {
                 try{
