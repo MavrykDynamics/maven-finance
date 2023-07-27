@@ -2,6 +2,7 @@ import assert from "assert";
 import BigNumber from 'bignumber.js';
 
 import { MVK, TEZ, Utils } from "./helpers/Utils";
+import { before } from "mocha";
 
 const chai = require("chai");
 import { MichelsonMap } from "@taquito/taquito";
@@ -20,14 +21,13 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, david, oscar, susie, trudy, isaac, ivan } from "../scripts/sandbox/accounts";
+import { mockSatelliteData } from "./helpers/mockSampleData";
 import { 
     getStorageMapValue,
     signerFactory,
     updateGeneralContracts,
     updateWhitelistContracts
 } from './helpers/helperFunctions'
-import { mockSatelliteData } from "./helpers/mockSampleData";
-import { before } from "mocha";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
