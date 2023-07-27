@@ -990,9 +990,31 @@ block {
         totalVotingPower            = totalVotingPower;
         accumulatedRewardsPerShare  = accumulatedRewardsPerShare;
         ready                       = ready;
+        nextSnapshotId              = (None : option(nat));
     ];
 
     s.snapshotLedger[(s.cycleId,satelliteAddress)]  := satelliteSnapshotRecord;
+
+    // link the previous snapshot to the current one if it exists
+    case s.satelliteLastSnapshotLedger[satelliteAddress] of [
+            Some(_cycleId) -> block {
+                // get previous satellite snapshot record 
+                var previousSatelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := case s.snapshotLedger[(_cycleId, satelliteAddress)] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_SNAPSHOT_NOT_FOUND)
+                ];
+
+                // link previous snapshot to current snapshot
+                previousSatelliteSnapshotRecord.nextSnapshotId := Some(s.cycleId);
+
+                // save previous snapshot
+                s.snapshotLedger[(_cycleId, satelliteAddress)] := previousSatelliteSnapshotRecord;
+            }
+        |   None           -> skip
+    ];
+
+    // update satellite last snapshot to current id
+    s.satelliteLastSnapshotLedger[satelliteAddress] := s.cycleId;
 
 } with s
 

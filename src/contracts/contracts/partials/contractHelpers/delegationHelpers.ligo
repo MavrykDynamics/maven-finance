@@ -267,22 +267,40 @@ block {
 
 
 
-// helper function to get satellite snapshot
-function getSatelliteSnapshot(const currentCycle : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
+// helper function to get satellite last snapshot
+function getSatelliteLastSnapshot(const satelliteAddress : address; const s : delegationStorageType) : nat is 
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
-    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
-            Some (_snapshotOpt) -> _snapshotOpt
+    const lastSnapshotOptView : option (option(nat)) = Tezos.call_view ("getSatelliteLastSnapshotOpt", satelliteAddress, s.governanceAddress);
+    const satelliteLastSnapshotOpt: option(nat) = case lastSnapshotOptView of [
+            Some (_cycleId) -> _cycleId
+        |   None             -> failwith (error_GET_SATELLITE_LAST_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    const satelliteLastSnapshot : nat = case satelliteLastSnapshotOpt of [
+            Some (_cycleId)    -> _cycleId
+        |   None               -> failwith(error_SATELLITE_LAST_SNAPSHOT_NOT_FOUND)
+    ];
+
+} with satelliteLastSnapshot
+
+
+
+// helper function to get satellite snapshot
+function getSatelliteSnapshot(const governanceCycleId : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
+block {
+
+    var snapshotOptView : option (option(governanceSatelliteSnapshotRecordType))    := Tezos.call_view ("getSnapshotOpt", (governanceCycleId, satelliteAddress), s.governanceAddress);
+    var satelliteSnapshot: governanceSatelliteSnapshotRecordType                    := case snapshotOptView of [
+            Some (_snapshotOpt) -> case _snapshotOpt of [
+                    Some (_snapshot)    -> _snapshot
+                |   None                -> failwith (error_SNAPSHOT_NOT_FOUND)
+            ]
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
-    const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case satelliteSnapshotOpt of [
-            Some (_snapshot)    -> _snapshot
-        |   None                -> failwith(error_SNAPSHOT_NOT_FOUND)
-    ];
-
 } with satelliteSnapshot
+
 
 
 
@@ -731,12 +749,17 @@ block{
 
                     // user can start to earn rewards, and will accrue rewards from the start of the next governance cycle after he delegated
 
-                    // get satellite snapshot of next governance cycle after reference 
-                    const governanceCycleIdAfterReference : nat = referenceGovernanceCycleId + 1n;
-                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getSatelliteSnapshot(governanceCycleIdAfterReference, satelliteReferenceAddress, s);
+                    // get satellite snapshot of when the satellite delegated
+                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType     = getSatelliteSnapshot(referenceGovernanceCycleId, satelliteReferenceAddress, s);
+
+                    // get the satellite snapshot that followed
+                    const satelliteSnapshotNext : governanceSatelliteSnapshotRecordType = case satelliteSnapshot.nextSnapshotId of [
+                            Some (_snapshotCycleId) -> getSatelliteSnapshot(_snapshotCycleId, satelliteReferenceAddress, s)
+                        |   None                    -> failwith(error_SATELLITE_DID_NOT_CREATE_SNAPSHOT_FOR_THIS_CYCLE)
+                    ];
                     
                     // get satellite's accumulated rewards per share at this instance, which will be equivalent to user's participation rewards per share
-                    const initialParticipationRewardsPerShare : nat = satelliteSnapshot.accumulatedRewardsPerShare;
+                    const initialParticipationRewardsPerShare : nat = satelliteSnapshotNext.accumulatedRewardsPerShare;
 
                     // Calculate satellite unclaimed rewards
                     const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - initialParticipationRewardsPerShare);

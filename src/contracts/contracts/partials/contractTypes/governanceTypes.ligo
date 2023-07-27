@@ -117,9 +117,11 @@ type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     totalVotingPower            : nat;      // log calculated total voting power
     accumulatedRewardsPerShare  : nat;      // log satellite's accumulated rewards per share
     ready                       : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
+    nextSnapshotId              : option(nat);
 ]
 type snapshotLedgerType is big_map ((nat * address), governanceSatelliteSnapshotRecordType); // (cycleId * satelliteAddress -> snapshot)
 
+type satelliteLastSnapshotLedgerType is big_map(address, nat); // satelliteAddress -> governance cycle id
 
 type stakedMvkSnapshotLedgerType is big_map(nat, nat); // cycleId -> staked MVK total supply
 
@@ -310,8 +312,9 @@ type governanceStorageType is [@layout:comb] record [
     proposalVoters                    : votersType;
     proposalRewards                   : big_map((actionIdType*address), unit);  // proposalId*Satellite address
 
-    snapshotLedger                    : snapshotLedgerType;             // satellite snapshot ledger
-    stakedMvkSnapshotLedger           : stakedMvkSnapshotLedgerType;    // staked MVK snapshot ledger
+    snapshotLedger                    : snapshotLedgerType;              // satellite snapshot ledger
+    satelliteLastSnapshotLedger       : satelliteLastSnapshotLedgerType; // satellite last snapshot ledger
+    stakedMvkSnapshotLedger           : stakedMvkSnapshotLedgerType;     // staked MVK snapshot ledger
     
     currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically
 

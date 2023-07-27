@@ -305,7 +305,29 @@ export const mockMetadata = {
           authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
         }),
         'ascii',
-      ).toString('hex')
+      ).toString('hex'),
+
+    "farmMToken": Buffer.from(
+      JSON.stringify({
+        name: 'MAVRYK mUSDT Farm',
+        description: 'MAVRYK Farm Contract',
+        version: 'v1.0.0',
+        liquidityPairToken: {
+          tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+          origin: ['Plenty'],
+          token0: {
+            symbol: ['PLENTY'],
+            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+          },
+          token1: {
+            symbol: ['USDtz'],
+            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+          }
+        },
+        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+      }),
+      'ascii',
+    ).toString('hex')
 
 }
 

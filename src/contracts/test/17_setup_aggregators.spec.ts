@@ -1,6 +1,7 @@
-import { Utils } from "./helpers/Utils";
-import { BigNumber } from "bignumber.js";
 import { MichelsonMap } from "@taquito/taquito";
+import { BigNumber } from "bignumber.js";
+
+import { Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -56,6 +57,7 @@ describe("Setup: Mock Aggregators", async () => {
     let governanceSatelliteInstance
 
     // contract storages
+    let aggregatorFactoryStorage
     let governanceSatelliteStorage
 
 
@@ -74,6 +76,7 @@ describe("Setup: Mock Aggregators", async () => {
         aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress);
         governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress);
             
+        aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
         governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
 
         await signerFactory(tezos, bob.sk);
@@ -83,6 +86,30 @@ describe("Setup: Mock Aggregators", async () => {
     });
 
     describe("Setup mock satellites for subsequent tests", async () => {
+
+        before('empty the tracked aggregators that we don\'t need for the subsequent tests', async () => {
+            try{
+                const trackedAggregators    = aggregatorFactoryStorage.trackedAggregators;
+                for(const index in trackedAggregators){
+                    const aggregatorAddress         = trackedAggregators[index];
+                    const aggregatorInstance        = await utils.tezos.contract.at(aggregatorAddress);
+                    const aggregatorStorage: any    = await aggregatorInstance.storage();
+                    switch(aggregatorStorage.name){
+                        case 'USD/BTC':
+                        case 'USD/XTZ':
+                        case 'USD/DOGE':
+                        case 'USD/MVK':
+                            break;
+                        default:
+                            const untrackAggregatorOperation    = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorAddress).send();
+                            await untrackAggregatorOperation.confirmation();
+                            break;
+                    }
+                }
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })  
 
         it('setup USD/BTC aggregator', async () => {
             try{
