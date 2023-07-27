@@ -47,6 +47,7 @@ describe("Mistaken transfers tests", async () => {
     let mvkTokenInstance;
     let mavrykFa12TokenInstance;
     let mavrykFa2TokenInstance;
+    let mTokenInstance;
     let treasuryInstance;
     let treasuryFactoryInstance;
     let farmInstance;
@@ -54,6 +55,7 @@ describe("Mistaken transfers tests", async () => {
     let breakGlassInstance;
     let emergencyGovernanceInstance;
     let farmFactoryInstance;
+    let vaultFactoryInstance;
     let governanceInstance;
     let governanceFinancialInstance;
     let governanceProxyInstance;
@@ -67,6 +69,7 @@ describe("Mistaken transfers tests", async () => {
     let mvkTokenStorage;
     let mavrykFa12TokenStorage;
     let mavrykFa2TokenStorage;
+    let mTokenStorage;
     let treasuryStorage;
     let treasuryFactoryStorage;
     let farmStorage;
@@ -74,6 +77,7 @@ describe("Mistaken transfers tests", async () => {
     let breakGlassStorage;
     let emergencyGovernanceStorage;
     let farmFactoryStorage;
+    let vaultFactoryStorage;
     let governanceStorage;
     let governanceFinancialStorage;
     let governanceProxyStorage;
@@ -93,7 +97,7 @@ describe("Mistaken transfers tests", async () => {
         
         mavrykFa12TokenAddress          = contractDeployments.mavrykFa12Token.address;
         mavrykFa2TokenAddress           = contractDeployments.mavrykFa2Token.address;
-        mvkTokenAddress                 = contractDeployments.mvkTOken.address;
+        mvkTokenAddress                 = contractDeployments.mvkToken.address;
 
         doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -221,7 +225,7 @@ describe("Mistaken transfers tests", async () => {
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa2Token(doormanInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(doormanInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -955,6 +959,77 @@ describe("Mistaken transfers tests", async () => {
         })
     })
 
+    describe("VAULT FACTORY", async () => {
+
+        beforeEach('Set sender to admin', async () => {
+            await signerFactory(tezos, adminSk)
+        })
+
+        it("Governance Satellite should be able to transfer Tokens sent to the vaultFactory by mistake", async() => {
+            try{
+
+                // Initial values
+                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
+                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
+                const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
+                const tokenAmount           = 200;
+
+                // Mistake Operation
+                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vaultFactory.address, tokenAmount).send();
+                await transferOperation.confirmation();
+
+                // Mid values
+                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
+                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
+                
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa12Token(vaultFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                await mistakenTransferOperation.confirmation();
+
+                // Final values
+                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
+                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
+                const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
+
+                // Assertions
+                assert.equal(midAccountBalance, initAccountBalance + tokenAmount)
+                assert.equal(endAccountBalance, initAccountBalance)
+                assert.equal(endUserBalance, initUserBalance)
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("Non Governance Satellite should not be able to call this entrypoint", async() => {
+            try{
+                
+                // Initial values
+                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                const tokenAmount           = 200;
+
+                // Mistake Operation
+                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vaultFactory.address, tokenAmount).send();
+                await transferOperation.confirmation();
+                
+                // Mistaken Transfer Operation
+                await signerFactory(tezos, alice.sk)
+                const mistakenTransferOperation = mistakenTransferFa12Token(vaultFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+    })
+
+
     describe("VESTING", async () => {
 
         beforeEach('Set sender to admin', async () => {
@@ -1059,7 +1134,7 @@ describe("Mistaken transfers tests", async () => {
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(aggregatorInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
@@ -1435,5 +1510,86 @@ describe("Mistaken transfers tests", async () => {
             }
         })
     });
+
+    describe("MTOKEN", async () => {
+
+        beforeEach('Set sender to admin', async () => {
+            await signerFactory(tezos, adminSk)
+        })
+
+        it("Governance Satellite should be able to transfer Tokens sent to mToken contract by mistake", async() => {
+            try{
+
+                // Initial values
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
+                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
+                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
+                const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
+                const tokenAmount           = 200;
+
+                // Mistake Operation
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                   // contract instance
+                    bob.pkh,                                  // from_
+                    contractDeployments.mTokenUsdt.address,   // to_
+                    tokenId,                                  // token id
+                    tokenAmount                               // token amount
+                );
+                await transferOperation.confirmation();
+
+                // Mid values
+                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
+                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
+                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+                
+                // Mistaken Transfer Operation
+                const mistakenTransferOperation = await mistakenTransferFa2Token(mTokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await mistakenTransferOperation.confirmation();
+
+                // Final values
+                mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
+                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
+                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+                const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
+
+                // Assertions
+                assert.equal(midAccountBalance, initAccountBalance + tokenAmount)
+                assert.equal(endAccountBalance, initAccountBalance)
+                assert.equal(endUserBalance, initUserBalance)
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("Non Governance Satellite should not be able to call this entrypoint", async() => {
+            try{
+                
+                // Initial values
+                mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
+                const tokenAmount           = 200;
+
+                // Mistake Operation
+                const transferOperation    = await fa2Transfer(
+                    mavrykFa2TokenInstance,                 // contract instance
+                    bob.pkh,                                // from_
+                    contractDeployments.mTokenUsdt.address, // to_
+                    tokenId,                                // token id
+                    tokenAmount                             // token amount
+                );
+                await transferOperation.confirmation();
+                
+                // Mistaken Transfer Operation
+                await signerFactory(tezos, alice.sk)
+                const mistakenTransferOperation = mistakenTransferFa2Token(mTokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
 
 });
