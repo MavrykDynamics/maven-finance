@@ -87,7 +87,7 @@ describe("Setup: Mock Aggregators", async () => {
 
     describe("Setup mock satellites for subsequent tests", async () => {
 
-        before('empty the tracked aggregators', async () => {
+        before('empty the tracked aggregators that we don\'t need for the subsequent tests', async () => {
             try{
                 const trackedAggregators    = aggregatorFactoryStorage.trackedAggregators;
                 for(const index in trackedAggregators){
