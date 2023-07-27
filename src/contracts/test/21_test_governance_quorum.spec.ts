@@ -18,13 +18,12 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, trudy, oscar, susie, david, ivan, isaac, baker } from "../scripts/sandbox/accounts";
+import { mockSatelliteData, mockPackedLambdaData } from "./helpers/mockSampleData";
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { 
     signerFactory, 
     updateOperators
 } from './helpers/helperFunctions'
-import { mockSatelliteData, mockPackedLambdaData } from "./helpers/mockSampleData";
-
 
 // ------------------------------------------------------------------------------
 // Contract Tests
