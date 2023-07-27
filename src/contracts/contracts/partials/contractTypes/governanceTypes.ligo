@@ -245,7 +245,7 @@ type updateSatelliteSingleSnapshotType is [@layout:comb] record [
     delegationRatio             : nat;
     accumulatedRewardsPerShare  : nat;
 ]
-type updateSatellitesSnapshotType is list(updateSatelliteSingleSnapshotType)
+type updateSatellitesSnapshotType is set(updateSatelliteSingleSnapshotType)
 
 type distributeProposalRewardsType is [@layout:comb] record [
     satelliteAddress        : address;

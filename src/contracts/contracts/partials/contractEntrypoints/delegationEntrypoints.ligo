@@ -302,6 +302,23 @@ block {
     
 } with response
 
+
+
+(* takeSatellitesSnapshot entrypoint *)
+function takeSatellitesSnapshot(const takeSatellitesSnapshotParams : takeSatellitesSnapshotType; var s : delegationStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTakeSatellitesSnapshot", s.lambdaLedger);
+
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaTakeSatelliteSnapshot(takeSatellitesSnapshotParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+    
+} with response
+
 // ------------------------------------------------------------------------------
 // Satellite Entrypoints End
 // ------------------------------------------------------------------------------

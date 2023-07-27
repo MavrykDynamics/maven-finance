@@ -103,6 +103,9 @@ block {
     if s.breakGlassConfig.distributeRewardIsPaused then skip
     else s.breakGlassConfig.distributeRewardIsPaused := True;
 
+    if s.breakGlassConfig.takeSatellitesSnapshotPaused then skip
+    else s.breakGlassConfig.takeSatellitesSnapshotPaused := True;
+
 } with s
 
 
@@ -128,6 +131,9 @@ block {
     else skip;
 
     if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.takeSatellitesSnapshotPaused then s.breakGlassConfig.takeSatellitesSnapshotPaused := False
     else skip;
 
 } with s
@@ -613,13 +619,13 @@ block {
 
 
 // helper function to update satellite snapshot
-function updateSatellitesSnapshotOperation(const satelliteAddresses : list(address); const ready : bool; const s : delegationStorageType) : operation is 
+function updateSatellitesSnapshotOperation(const satelliteAddresses : set(address); const ready : bool; const s : delegationStorageType) : operation is 
 block {
 
     // Prepare the satellites to update
-    var satellitesSnapshots : updateSatellitesSnapshotType   := list[];
+    var satellitesSnapshots : updateSatellitesSnapshotType   := set[];
 
-    for satelliteAddress in list satelliteAddresses block {
+    for satelliteAddress in set satelliteAddresses block {
 
         // Get the satellite record
         const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
@@ -636,7 +642,7 @@ block {
         ];
 
         // Add the snapshot to the list
-        satellitesSnapshots := satelliteSnapshot # satellitesSnapshots;
+        satellitesSnapshots := Set.add(satelliteSnapshot, satellitesSnapshots);
 
     };
 
@@ -652,30 +658,30 @@ block {
 
 
 // helper function to refresh a satellite governance snapshot
-function updateGovernanceSnapshot (const satelliteAddresses : list(address); const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
+function updateGovernanceSnapshot (const satelliteAddresses : set(address); const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
 block {
 
     // Get the current round 
     const currentCycle : nat                = getCurrentCycleCounter(s);
 
     // Init parameters
-    var satellitesToUpdate : list(address)  := list[];
+    var satellitesToUpdate : set(address)  := set[];
 
     // Create snapshot for each satellite provided
-    for satelliteAddress in list satelliteAddresses block {
+    for satelliteAddress in set satelliteAddresses block {
  
         // Check if satellite snapshot exists in the current governance cycle
         const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
 
         // Create satellite snapshot if it does not exist in the current governance cycle
         if createSatelliteSnapshotCheck and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
-            satellitesToUpdate  := satelliteAddress # satellitesToUpdate;
+            satellitesToUpdate  := Set.add(satelliteAddress, satellitesToUpdate);
         } else skip;
 
     };
 
     // Update the satellites snapshot
-    if List.size(satellitesToUpdate) > 0n then {
+    if Set.size(satellitesToUpdate) > 0n then {
         const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(satellitesToUpdate, ready, s);
         operations := updateSatellitesSnapshotOperation # operations;
     }
