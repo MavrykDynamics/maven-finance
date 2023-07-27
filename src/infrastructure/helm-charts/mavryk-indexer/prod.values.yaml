@@ -64,6 +64,7 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      pgConnections: 30
       image:
         registry: docker.io
         repository: hasura/graphql-engine
@@ -177,6 +178,7 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      pgConnections: 30
       image:
         registry: docker.io
         repository: hasura/graphql-engine
@@ -290,6 +292,7 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      pgConnections: 30
       image:
         registry: docker.io
         repository: hasura/graphql-engine
@@ -376,6 +379,7 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      pgConnections: 30
       image:
         registry: docker.io
         repository: hasura/graphql-engine
