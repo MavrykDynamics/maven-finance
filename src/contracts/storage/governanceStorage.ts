@@ -54,11 +54,12 @@ export const governanceStorage: governanceStorageType = {
     whitelistContracts      : MichelsonMap.fromLiteral({}),
     generalContracts        : MichelsonMap.fromLiteral({}),
 
-    proposalLedger          : MichelsonMap.fromLiteral({}),
-    proposalVoters          : MichelsonMap.fromLiteral({}),
-    proposalRewards         : MichelsonMap.fromLiteral({}),
-    stakedMvkSnapshotLedger : MichelsonMap.fromLiteral({}),
-    snapshotLedger          : MichelsonMap.fromLiteral({}),
+    proposalLedger                      : MichelsonMap.fromLiteral({}),
+    proposalVoters                      : MichelsonMap.fromLiteral({}),
+    proposalRewards                     : MichelsonMap.fromLiteral({}),
+    stakedMvkSnapshotLedger             : MichelsonMap.fromLiteral({}),
+    snapshotLedger                      : MichelsonMap.fromLiteral({}),
+    satelliteLastSnapshotLedger         : MichelsonMap.fromLiteral({}),
 
     nextProposalId          : new BigNumber(1),
     cycleId                 : new BigNumber(0),
