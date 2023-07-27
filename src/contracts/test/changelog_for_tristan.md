@@ -2,6 +2,7 @@
 - remove minProposalRoundVotesRequired in Governance Config as it is no longer used
 - remove ConfigMinProposalRoundVotesReq in governanceUpdateConfigActionType 
 - rename ConfigProposalDatTitleMaxLength to ConfigDataTitleMaxLength
+- added nextProposalId in governanceSatelliteSnapshot
 
 2. Aggregator Contract
 - spelling error: rename "HeartBeatSeconds" to HeartbeatSeconds": Heartbeat is one word
