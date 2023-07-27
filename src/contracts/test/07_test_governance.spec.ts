@@ -3008,6 +3008,11 @@ describe("Governance tests", async () => {
                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
                     const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
+                    const userRewards                   = await delegationStorage.satelliteRewardsLedger.get(mallory.pkh);
+
+                    // update the snapshot of the previous satellite
+                    const takeSatellitesSnapshotOperation   = await delegationInstance.methods.takeSatellitesSnapshot([userRewards.satelliteReferenceAddress]).send();
+                    await takeSatellitesSnapshotOperation.confirmation();
 
                     // satellite increases her stake
                     var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
