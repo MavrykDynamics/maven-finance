@@ -168,7 +168,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         governanceProxy)
             echo "Running tests for governanceProxy"
-            COMMANDS+=("yarn ts-mocha --paths test/22_test_governance_proxy.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/x7_test_governance_proxy.spec.ts --bail --timeout 9000000")
             ;;
         superAdmin)
             echo "Running tests for superAdmin"
@@ -180,7 +180,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         mistakenTransfers)
             echo "Running tests for mistakenTransfers"
-            COMMANDS+=("yarn ts-mocha --paths test/16_test_mistaken_transfers.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/x1_test_mistaken_transfers.spec.ts --bail --timeout 9000000")
             ;;
         governanceQuorum)
             echo "Running tests for governanceQuorum"
