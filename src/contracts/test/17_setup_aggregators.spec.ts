@@ -18,8 +18,11 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, susie, oscar, ivan, trudy, isaac, david } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
 import { aggregatorMockData } from "./helpers/mockSampleData"
+import { 
+    signerFactory
+} from './helpers/helperFunctions'
+
 
 // ------------------------------------------------------------------------------
 // Contract Notes
@@ -72,6 +75,8 @@ describe("Setup: Mock Aggregators", async () => {
         governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress);
             
         governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+
+        await signerFactory(tezos, bob.sk);
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
