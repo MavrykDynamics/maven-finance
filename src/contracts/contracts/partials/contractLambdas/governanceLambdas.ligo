@@ -401,7 +401,7 @@ block {
                 verifySenderIsWhitelistedOrAdmin(s);
                 
                 // Update the storage with the new snapshots
-                for satelliteSnapshot in list updateSatellitesSnapshotParams block{
+                for satelliteSnapshot in set updateSatellitesSnapshotParams block{
                     s := updateSatellitesSnapshotRecord(satelliteSnapshot, s);
                 }
 

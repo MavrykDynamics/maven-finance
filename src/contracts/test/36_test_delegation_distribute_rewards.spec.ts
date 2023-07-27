@@ -216,7 +216,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             await signerFactory(tezos, adminSk)
         });
         
-        it('scenario #1:\n- rewards are distributed to satellite (eve)\n- satellite (eve), delegates (david/ivan) are compounding', async () => {
+        it('scenario #1:\n- rewards are distributed to satellite (eve)\n- satellite (eve) and delegates (david/ivan) are compounding', async () => {
             try{
                 
                 // Initial Values
@@ -250,10 +250,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             }
         });
 
-        it('scenario #2:\n- rewards are distributed to satellites (eve/alice)\n- satellite (eve) unregisters\n', async () => {
+        it('scenario #2:\n- rewards are distributed to satellites (eve/alice)\n- satellite (eve) unregisters\n- delegate (david) undelegates from satellite (eve)\n- ex-satellite and satellite (eve/alice) compound\n- user (david) delegates to satellite (alice)\n- user (eve) registers as satellite', async () => {
             try{
-                
-                console.log("configuration:\n- 2 satellites (DelegateTwo|DelegateOne)\n- 2 delegates on DelegateTwo (David|Ivan)\n- Operations: \n   DistributeReward(100MVK)\n   Unregister(DelegateTwo)\n   Undelegate(David)\n   Claim(DelegateTwo)\n   Delegate(David->DelegateOne)\n   Claim(David)\n   Claim(Ivan)");
 
                 // Initial Values
                 delegationStorage           = await delegationInstance.storage();
@@ -276,8 +274,6 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 const distributeOperation       = await delegationInstance.methods.distributeReward([satelliteOne, satelliteTwo],reward).send();
                 await distributeOperation.confirmation();
 
-                // var claimOperation = await doormanInstance.methods.compound([satelliteOne]).send();
-                // await claimOperation.confirmation()
                 delegationStorage               = await delegationInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
                 mvkTokenStorage                 = await mvkTokenInstance.storage();
@@ -364,8 +360,12 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 assert.equal(initDelegateOneSMVK.balance.toNumber(), delegateStake.balance.toNumber())
                 console.log("POST-DELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
+                // Init variables for claim
+                const initDelegateTwoSMVK     = await doormanStorage.userStakeBalanceLedger.get(delegateTwo) 
+                const initDelegateTwoRewards  = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
+
                 // Claims operations
-                claimOperation = await doormanInstance.methods.compound([delegateOne]).send();
+                claimOperation = await doormanInstance.methods.compound([delegateOne, delegateTwo]).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -374,17 +374,9 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 paidRewards   = delegateRewards.paid.toNumber() - initDelegateOneRewards.paid.toNumber()
                 
                 // Assertions
-                assert.equal(delegateRewards.unpaid.toNumber(), 0)
+                assert.equal(delegateRewards.unpaid.toNumber(), delegateRewards.unpaid.toNumber())
                 assert.equal(initDelegateOneSMVK.balance.toNumber() + paidRewards, delegateStake.balance.toNumber())
                 console.log("POST-CLAIM DAVID: ", delegateRewards.unpaid.toNumber(), " | ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
-
-                await signerFactory(tezos, delegateTwoSk);
-                const initDelegateTwoSMVK     = await doormanStorage.userStakeBalanceLedger.get(delegateTwo) 
-                const initDelegateTwoRewards  = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
-                claimOperation = await doormanInstance.methods.compound([delegateTwo]).send();
-                await claimOperation.confirmation()
-                delegationStorage = await delegationInstance.storage();
-                doormanStorage  = await doormanInstance.storage();
                 paidRewards   = Math.trunc(initDelegateTwoRewards.unpaid.toNumber() + initDelegateTwoSMVK.balance.toNumber() * accumulatedRewardPerShare)
                 delegateRewards = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
                 delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateTwo)
@@ -412,7 +404,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             }
         });
 
-        it('End of governance cycle should trigger this entrypoint: Voters should earn the cycle reward while proposer should not earn the success reward if the proposal is not executed', async () => {
+        it('satellites (eve/alice) who voted during the governance cycle should earn the cycle reward while proposer (eve) should not earn the success reward if the proposal is not executed', async () => {
             try{
                 // Initial Values
                 delegationStorage           = await delegationInstance.storage();
@@ -476,7 +468,6 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
                 await updateGovernanceConfig.confirmation();
-
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotePct").send();
@@ -546,8 +537,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 console.log("POST-OPERATION SATELLITE TWO: ", secondSatelliteRecordNoClaim.unpaid.toNumber(), " | ", secondSatelliteStakeNoClaim.balance.toNumber())
 
                 // Claim operations
-                await signerFactory(tezos, adminSk)
-                var claimOperation              = await doormanInstance.methods.compound([satelliteOne, satelliteTwo]).send();
+                var claimOperation                  = await doormanInstance.methods.compound([satelliteOne, satelliteTwo]).send();
                 await claimOperation.confirmation();
 
                 // Final values
@@ -573,7 +563,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
         });
 
 
-        it('End of governance cycle should trigger this entrypoint: Voters should earn the cycle reward while proposer should earn the success reward if the proposal is executed', async () => {
+        it('satellites (eve/alice) who voted during the governance cycle should earn the cycle reward while proposer (eve) should earn the success reward if the proposal is executed', async () => {
             try{
                 // Initial Values
                 delegationStorage           = await delegationInstance.storage();
@@ -722,7 +712,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             }
         });
 
-        it('Non-whitelist contract should not be able to call this entrypoint', async () => {
+        it('non-whitelist contract (david) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
                 delegationStorage = await delegationInstance.storage();
@@ -735,7 +725,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             }
         });
 
-        it('Whitelist should not be able to call this entrypoint if the doorman contract is not referenced in the storage', async () => {
+        it('whitelist (bob) should not be able to call this entrypoint if the doorman contract is not referenced in the storage', async () => {
             try{
                 // Initial Values
                 delegationStorage = await delegationInstance.storage();
@@ -756,7 +746,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             }
         })
 
-        it('Whitelist should not be able to call this entrypoint if the satellite treasury contract is not referenced in the storage', async () => {
+        it('whitelist (bob) should not be able to call this entrypoint if the satellite treasury contract is not referenced in the storage', async () => {
             try{
                 // Initial Values
                 delegationStorage = await delegationInstance.storage();
@@ -777,7 +767,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             }
         })
 
-        it('Whitelist should not be able to call this entrypoint if one of the provided satellites does not exist', async () => {
+        it('whitelist (bob) should not be able to call this entrypoint if one of the provided satellites (david) does not exist', async () => {
             try{
                 // Initial Values
                 delegationStorage = await delegationInstance.storage();
