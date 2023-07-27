@@ -1,4 +1,5 @@
 import assert from "assert";
+
 import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
@@ -20,7 +21,6 @@ import { bob, alice, eve, mallory, trudy, ivan, isaac, susie, david, oscar, bake
 import { 
     signerFactory, 
     getStorageMapValue,
-    fa12Transfer,
     fa2Transfer,
     mistakenTransferFa2Token,
     updateWhitelistContracts,

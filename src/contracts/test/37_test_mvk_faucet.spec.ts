@@ -30,6 +30,12 @@ describe("MVK Faucet tests", async () => {
     var utils: Utils
     var tezos;
 
+    let user
+    let userSk
+
+    let admin
+    let adminSk
+
     let mvkFaucetInstance
     let mvkTokenInstance
 
@@ -41,6 +47,12 @@ describe("MVK Faucet tests", async () => {
         utils = new Utils();
         await utils.init(bob.sk);
         tezos = utils.tezos
+
+        admin   = bob.pkh;
+        adminSk = bob.sk;
+
+        user    = eve.pkh;
+        userSk  = eve.sk;
         
         mvkFaucetInstance                       = await utils.tezos.contract.at(contractDeployments.mvkFaucet.address);
         mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
@@ -48,7 +60,7 @@ describe("MVK Faucet tests", async () => {
         mvkFaucetStorage                        = await mvkFaucetInstance.storage();
         mvkTokenStorage                         = await mvkTokenInstance.storage();
 
-        console.log('-- -- -- -- -- Vault Tests -- -- -- --')
+        console.log('-- -- -- -- -- Faucet Tests -- -- -- --')
         console.log('MVK Faucet Contract deployed at:',         mvkFaucetInstance.address);
         console.log('MVK Token Contract deployed at:',          mvkTokenInstance.address);
 
@@ -58,14 +70,14 @@ describe("MVK Faucet tests", async () => {
 
     describe('%requestMvk', function () {
 
-        before('%requestMvk', async () => {
+        before('admin (bob) sends MVK token to the faucet', async () => {
             try{
                 // Admin sends MVK token to the faucet
-                await helperFunctions.signerFactory(tezos, bob.sk)
-                const adminEntireMVKBalance = await mvkTokenStorage.ledger.get(bob.pkh)
+                await helperFunctions.signerFactory(tezos, adminSk)
+                const adminEntireMVKBalance = await mvkTokenStorage.ledger.get(admin)
                 const operation             = await mvkTokenInstance.methods.transfer([
                     {
-                        from_: bob.pkh,
+                        from_: admin,
                         txs: [
                         {
                             to_: mvkFaucetInstance.address,
@@ -83,16 +95,16 @@ describe("MVK Faucet tests", async () => {
             }
         })
 
-        it('User should be able to request 1000MVK from the faucet', async () => {
+        it('user (eve) should be able to request 1000MVK from the faucet', async () => {
 
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, eve.sk)
+                await helperFunctions.signerFactory(tezos, userSk)
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 mvkFaucetStorage            = await mvkFaucetInstance.storage();
                 const faucetStartBalance    = await mvkTokenStorage.ledger.get(mvkFaucetInstance.address);
-                const userStartBalance      = await mvkTokenStorage.ledger.get(eve.pkh);
-                const userRequestStartTrace = await mvkFaucetStorage.requesters.get(eve.pkh);
+                const userStartBalance      = await mvkTokenStorage.ledger.get(user);
+                const userRequestStartTrace = await mvkFaucetStorage.requesters.get(user);
 
                 // Operation
                 const operation             = await mvkFaucetInstance.methods.requestMvk().send();
@@ -102,8 +114,8 @@ describe("MVK Faucet tests", async () => {
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 mvkFaucetStorage            = await mvkFaucetInstance.storage();
                 const faucetEndBalance      = await mvkTokenStorage.ledger.get(mvkFaucetInstance.address);
-                const userEndBalance        = await mvkTokenStorage.ledger.get(eve.pkh);
-                const userRequestEndTrace   = await mvkFaucetStorage.requesters.get(eve.pkh);
+                const userEndBalance        = await mvkTokenStorage.ledger.get(user);
+                const userRequestEndTrace   = await mvkFaucetStorage.requesters.get(user);
 
                 // Assertions
                 assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - MVK(1000));
@@ -116,13 +128,13 @@ describe("MVK Faucet tests", async () => {
             } 
         });
 
-        it('User should not be able to request MVK twice', async () => {
+        it('user (eve) should not be able to request MVK twice', async () => {
 
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, eve.sk)
+                await helperFunctions.signerFactory(tezos, userSk)
                 mvkFaucetStorage            = await mvkFaucetInstance.storage();
-                const userRequestTrace      = await mvkFaucetStorage.requesters.get(eve.pkh);
+                const userRequestTrace      = await mvkFaucetStorage.requesters.get(user);
 
                 // Operation
                 await chai.expect(mvkFaucetInstance.methods.requestMvk().send()).to.be.rejected;
