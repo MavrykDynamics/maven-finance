@@ -601,6 +601,8 @@ block {
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
+    // If a snapshot already exists, set the boolean to False as we do not need to create another satellite snapshot
+    // If no snapshot exists, then set the boolean to True, for the creation of a new satellite snapshot
     const satelliteSnapshotExists : bool = case satelliteSnapshotOpt of [
             Some (_snapshot)    -> False
         |   None                -> True
@@ -752,28 +754,35 @@ block{
                     // get satellite snapshot of when the satellite delegated
                     const satelliteSnapshot : governanceSatelliteSnapshotRecordType     = getSatelliteSnapshot(referenceGovernanceCycleId, satelliteReferenceAddress, s);
 
-                    // get the satellite snapshot that followed
-                    const satelliteSnapshotNext : governanceSatelliteSnapshotRecordType = case satelliteSnapshot.nextSnapshotId of [
-                            Some (_snapshotCycleId) -> getSatelliteSnapshot(_snapshotCycleId, satelliteReferenceAddress, s)
-                        |   None                    -> failwith(error_SATELLITE_DID_NOT_CREATE_SNAPSHOT_FOR_THIS_CYCLE)
+                    // update rewards if next snapshot cycle id is found
+                    // - N.B. if none is found, that means there is no updated snapshot of the satellite, and hence no changes in its satelliteAccumulatedRewardsPerShare,
+                    //          and hence no changes in rewards to be accrued to users 
+                    //   
+                    case satelliteSnapshot.nextSnapshotCycleId of [
+                            Some (_snapshotCycleId) -> {
+
+                                const satelliteSnapshotNext : governanceSatelliteSnapshotRecordType = getSatelliteSnapshot(_snapshotCycleId, satelliteReferenceAddress, s);
+
+                                 // get satellite's accumulated rewards per share at this instance, which will be equivalent to user's participation rewards per share
+                                const initialParticipationRewardsPerShare : nat = satelliteSnapshotNext.accumulatedRewardsPerShare;
+
+                                 // Calculate satellite unclaimed rewards
+                                const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - initialParticipationRewardsPerShare);
+                                const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+
+                                // Update user's satellite rewards record 
+                                userRewardsRecord.participationRewardsPerShare    := satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                                userRewardsRecord.unpaid                          := userRewardsRecord.unpaid + satelliteRewards;
+                                userRewardsRecord.tracked                         := True;                // set tracked to True since referenceGovernanceCycleId has been used
+                                s.satelliteRewardsLedger[userAddress]             := userRewardsRecord;
+                                 
+                            }
+                        |   None                    -> skip
                     ];
-                    
-                    // get satellite's accumulated rewards per share at this instance, which will be equivalent to user's participation rewards per share
-                    const initialParticipationRewardsPerShare : nat = satelliteSnapshotNext.accumulatedRewardsPerShare;
-
-                    // Calculate satellite unclaimed rewards
-                    const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - initialParticipationRewardsPerShare);
-                    const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
-
-                    // Update user's satellite rewards record 
-                    userRewardsRecord.participationRewardsPerShare    := satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                    userRewardsRecord.unpaid                          := userRewardsRecord.unpaid + satelliteRewards;
-                    userRewardsRecord.tracked                         := True;                // set tracked to True since referenceGovernanceCycleId has been used
-                    s.satelliteRewardsLedger[userAddress]             := userRewardsRecord;
 
                 };
 
-            }
+        }
 
         } else skip;
 

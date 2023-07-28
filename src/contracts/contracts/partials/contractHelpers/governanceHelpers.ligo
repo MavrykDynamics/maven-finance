@@ -990,7 +990,7 @@ block {
         totalVotingPower            = totalVotingPower;
         accumulatedRewardsPerShare  = accumulatedRewardsPerShare;
         ready                       = ready;
-        nextSnapshotId              = (None : option(nat));
+        nextSnapshotCycleId         = (None : option(nat));
     ];
 
     s.snapshotLedger[(s.cycleId,satelliteAddress)]  := satelliteSnapshotRecord;
@@ -1005,7 +1005,7 @@ block {
                 ];
 
                 // link previous snapshot to current snapshot
-                previousSatelliteSnapshotRecord.nextSnapshotId := Some(s.cycleId);
+                previousSatelliteSnapshotRecord.nextSnapshotCycleId := Some(s.cycleId);
 
                 // save previous snapshot
                 s.snapshotLedger[(_cycleId, satelliteAddress)] := previousSatelliteSnapshotRecord;
