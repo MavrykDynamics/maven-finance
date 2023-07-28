@@ -25,6 +25,8 @@ import {
     signerFactory,
     updateGeneralContracts,
     updateWhitelistContracts,
+    fa2MultiTransfer,
+    randomNumberFromInterval
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
