@@ -74,6 +74,11 @@ describe("Governance tests", async () => {
     let delegateFour
     let delegateFourSk
 
+    let firstReferenceProposalId
+    let secondReferenceProposalId
+    let thirdReferenceProposalId
+    let fourthReferenceProposalId
+
     let doormanAddress
     let governanceAddress
     let governanceProxyAddress
@@ -772,13 +777,15 @@ describe("Governance tests", async () => {
                 try{
 
                     // Initial Values
-                    governanceStorage                   = await governanceInstance.storage();
+                    governanceStorage           = await governanceInstance.storage();
 
                     const nextProposalId        = governanceStorage.nextProposalId;
                     const proposalName          = "New Proposal #2";
                     const proposalDesc          = "Details about new proposal #2";
                     const proposalIpfs          = "ipfs://QM123456789";
                     const proposalSourceCode    = "Proposal Source Code";
+
+                    firstReferenceProposalId    = nextProposalId;
 
                     // add proposal data
                     const proposalData      = [
@@ -852,6 +859,8 @@ describe("Governance tests", async () => {
                     const proposalDesc          = "Details about new proposal #3";
                     const proposalIpfs          = "ipfs://QM123456789";
                     const proposalSourceCode    = "Proposal Source Code";
+
+                    secondReferenceProposalId   = nextProposalId;
 
                     const proposalData      = [
                         {
@@ -1071,7 +1080,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
                     const proposalDebug         = await governanceStorage.proposalLedger.get(proposalId);
 
                     // Operation
@@ -1103,7 +1112,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -1136,7 +1145,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
@@ -1167,7 +1176,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
                     const initProposal          = await governanceStorage.proposalLedger.get(proposalId);
                     const initDataStorage       = initProposal.proposalData.get("1");
 
@@ -1196,7 +1205,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -1260,7 +1269,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Transaction data
                     const transaction           = {
@@ -1305,7 +1314,7 @@ describe("Governance tests", async () => {
 
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Transaction data
                     const transaction           = {
@@ -1350,7 +1359,7 @@ describe("Governance tests", async () => {
 
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     const addDataOperation      = await governanceInstance.methods.updateProposalData(proposalId, null, [
@@ -1377,7 +1386,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Transaction data
                     const firstTransaction      = {
@@ -1450,7 +1459,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     await signerFactory(tezos, userSk);
@@ -1495,7 +1504,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     await signerFactory(tezos, alice.sk);
@@ -1524,7 +1533,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1545,7 +1554,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     await signerFactory(tezos, userSk);
@@ -1582,7 +1591,7 @@ describe("Governance tests", async () => {
                     
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     await chai.expect(governanceInstance.methods.lockProposal(proposalId).send()).to.be.rejected;
@@ -1596,7 +1605,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     await signerFactory(tezos, alice.sk);
@@ -1618,8 +1627,8 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const cycleId          = governanceStorage.cycleId.toNumber();
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const cycleId               = governanceStorage.cycleId.toNumber();
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     const voteOperation = await governanceInstance.methods.proposalRoundVote(proposalId).send();
@@ -1647,7 +1656,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage      = await governanceInstance.storage()
                     const cycleId          = governanceStorage.cycleId.toNumber();
-                    const proposalId       = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId       = secondReferenceProposalId;
 
                     // Operation
                     await signerFactory(tezos, userSk)
@@ -1667,13 +1676,121 @@ describe("Governance tests", async () => {
                 }
             })
 
+            it('satellite should not be able increase its total voting power during the current round', async () => {
+                try{
+                    // Initial Values
+                    governanceStorage                   = await governanceInstance.storage();
+                    const proposalId                    = governanceStorage.nextProposalId; 
+                    var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
+                    var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
+
+                    // Operation
+                    while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
+                        var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+                        await startNextRoundOperation.confirmation();
+                        governanceStorage           = await governanceInstance.storage();
+                        currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+                        currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
+                    }
+                    const firstProposalName          = "Test Voting Power change";
+                    const firstProposalDesc          = "Details about new proposal #1";
+                    const firstProposalIpfs          = "ipfs://QM123456789";
+                    const firstProposalSourceCode    = "Proposal Source Code";
+
+                    // Pre increase values
+                    governanceStorage                   = await governanceInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    delegationStorage                   = await delegationInstance.storage();
+                    var currentCycle                    = governanceStorage.cycleId;
+
+                    // compound satellite one to create snapshot
+                    await signerFactory(tezos, satelliteOneSk);
+                    var compoundOperation = await doormanInstance.methods.compound([satelliteOne]).send();
+                    await compoundOperation.confirmation();
+
+                    const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
+                    const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
+                    const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
+
+                    // satellite increases her stake (which should not increase her total voting power)
+                    var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
+                    await stakeOperation.confirmation();
+
+                    // User (mallory) delegates to satellite
+                    await signerFactory(tezos, mallory.sk)
+                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
+                    await delegateOperation.confirmation()
+
+                    // Post staking values
+                    governanceStorage                   = await governanceInstance.storage();
+                    doormanStorage                      = await doormanInstance.storage();
+                    currentCycle                        = governanceStorage.cycleId;
+
+                    // add proposal data
+                    const proposalData      = [
+                        {
+                            addOrSetProposalData: {
+                                title: "Data#1",
+                                encodedCode: mockPackedLambdaData.updateCouncilConfig,
+								codeDescription: ""
+                            },
+                        }
+                    ]
+
+                    // Operation
+                    await signerFactory(tezos, satelliteOneSk)
+                    var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mutez: true});
+                    await proposeOperation.confirmation();
+
+                    const lockProposalOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                    await lockProposalOperation.confirmation();
+
+                    const voteOperation                 = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                    await voteOperation.confirmation();
+
+                    // Final values
+                    governanceStorage                   = await governanceInstance.storage();
+                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+                    const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
+                    const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
+                    const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
+                    
+                    // console.log("BALANCE:", preIncreaseSatellite)
+                    // console.log("BALANCE2:", postIncreaseSatellite)
+
+                    // Assertions
+                    assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
+                    assert.notEqual(postIncreaseSatellite.stakedMvkBalance.toNumber(), preIncreaseSatellite.stakedMvkBalance.toNumber());
+                    assert.notEqual(postIncreaseSatellite.totalDelegatedAmount.toNumber(), preIncreaseSatellite.totalDelegatedAmount.toNumber());
+                    assert.equal(postIncreaseSnapshot.totalStakedMvkBalance.toNumber(), preIncreaseSnapshot.totalStakedMvkBalance.toNumber())
+                    assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
+                    assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
+                    assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
+
+                    // Reset delegate 
+                    // User (mallory) redelegates to satellite two (alice)
+                    await signerFactory(tezos, mallory.sk)
+                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
+                    await delegateOperation.confirmation()
+
+                } catch(e){
+                    console.dir(e, {depth: 5})
+                }
+            })
+
             it('new satellite (baker) should not be able to vote if it was not in the previous snapshot', async () => {
                 try{
                     
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
                     const cycleId               = governanceStorage.cycleId.toNumber();
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     const newSatellite      = baker.pkh;
                     const newSatelliteSk    = baker.sk;
@@ -1764,7 +1881,7 @@ describe("Governance tests", async () => {
 
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
+                    const proposalId            = firstReferenceProposalId;
 
                     // Operation
                     await chai.expect(governanceInstance.methods.proposalRoundVote(proposalId).send()).to.be.rejected;
@@ -1793,8 +1910,8 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const cycleId          = governanceStorage.cycleId.toNumber();
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
+                    const cycleId               = governanceStorage.cycleId.toNumber();
+                    const proposalId            = firstReferenceProposalId;
                     const roundVoter            = await governanceStorage.roundVotes.get({
                         0: cycleId,
                         1: eve.pkh,
@@ -1842,6 +1959,8 @@ describe("Governance tests", async () => {
                     console.dir(e, {depth: 5})
                 }
             })
+
+            
         })
 
         describe("%dropProposal", async () => {
@@ -1854,7 +1973,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     const dropOperation = await governanceInstance.methods.dropProposal(proposalId).send();
@@ -1871,11 +1990,11 @@ describe("Governance tests", async () => {
                 }
             })
 
-            it('non-satellite (mallory) should not be able to drop a proposal if he not a satellite', async () => {
+            it('non-satellite (mallory) should not be able to drop a proposal if she is not a satellite', async () => {
                 try{
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
+                    const proposalId            = firstReferenceProposalId;
 
                     // Operation
                     await signerFactory(tezos, userSk)
@@ -1891,7 +2010,7 @@ describe("Governance tests", async () => {
 
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
+                    const proposalId            = firstReferenceProposalId;
 
                     // Operation
                     await signerFactory(tezos, satelliteTwoSk)
@@ -1914,7 +2033,7 @@ describe("Governance tests", async () => {
                     
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = secondReferenceProposalId;
 
                     // Operation
                     await chai.expect(governanceInstance.methods.dropProposal(proposalId).send()).to.be.rejected;
@@ -1930,6 +2049,7 @@ describe("Governance tests", async () => {
                     console.dir(e, {depth: 5})
                 }
             })
+
         })
 
         describe("%votingRoundVote", async () => {
@@ -1978,7 +2098,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
                     const cycleId               = governanceStorage.cycleId.toNumber();
-                    const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+                    const proposalId            = firstReferenceProposalId;
 
                     const newSatellite      = baker.pkh;
                     const newSatelliteSk    = baker.sk;
@@ -2156,7 +2276,7 @@ describe("Governance tests", async () => {
                     
                     // Initial Values
                     governanceStorage   = await governanceInstance.storage()
-                    const proposalId    = governanceStorage.nextProposalId.toNumber() - 2;
+                    const proposalId    = firstReferenceProposalId;
                     const proposal      = await governanceStorage.proposalLedger.get(proposalId);
 
                     // Operation
@@ -2209,7 +2329,7 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     delegationStorage                   = await delegationInstance.storage();
                     const satelliteRewardsBegin         = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                    const proposalId                    = governanceStorage.nextProposalId.toNumber() - 3;
+                    const proposalId                    = firstReferenceProposalId;
                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
                     const claimTraceBegin               = await governanceStorage.proposalRewards.get({
                         0: proposalId,
@@ -2254,7 +2374,7 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     delegationStorage                   = await delegationInstance.storage();
                     const satelliteRewardsBegin         = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                    const proposalId                    = governanceStorage.nextProposalId.toNumber() - 3;
+                    const proposalId                    = firstReferenceProposalId;
                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
                     const claimTraceBegin               = await governanceStorage.proposalRewards.get({
                         0: proposalId,
@@ -2295,7 +2415,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage         = await governanceInstance.storage();
                     delegationStorage         = await delegationInstance.storage();
-                    const proposalId          = governanceStorage.nextProposalId.toNumber() - 3;
+                    const proposalId          = firstReferenceProposalId;
                     const proposal            = await governanceStorage.proposalLedger.get(proposalId);
                     const claimTraceBegin     = await governanceStorage.proposalRewards.get({
                         0: proposalId,
@@ -2889,29 +3009,17 @@ describe("Governance tests", async () => {
                     const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
 
-                    console.log('preIncreaseSnapshot');
-                    console.log(preIncreaseSnapshot);
-
                     // satellite increases her stake
                     var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
                     await stakeOperation.confirmation();
-
-                    console.log(`after stake`);
 
                     // User (mallory) delegates to satellite
                     await signerFactory(tezos, mallory.sk)
                     const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    console.log(`after update operators`);
-
-                    // stakeOperation = await doormanInstance.methods.stake(MVK(2)).send();
-                    // await stakeOperation.confirmation();
-
                     const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
                     await delegateOperation.confirmation()
-
-                    console.log(`after delegate to satellite`);
 
                     // Post staking values
                     governanceStorage                   = await governanceInstance.storage();
@@ -2934,17 +3042,11 @@ describe("Governance tests", async () => {
                     var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mutez: true});
                     await proposeOperation.confirmation();
 
-                    console.log(`after propose`);
-
                     const lockProposalOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
                     await lockProposalOperation.confirmation();
 
-                    console.log(`after lock proposal`);
-
                     const voteOperation                 = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
-
-                    console.log(`after proposal round vote`);
 
                     // Final values
                     governanceStorage                   = await governanceInstance.storage();
@@ -2956,9 +3058,6 @@ describe("Governance tests", async () => {
                     // console.log("BALANCE:", preIncreaseSatellite)
                     // console.log("BALANCE2:", postIncreaseSatellite)
 
-                    console.log('postIncreaseSnapshot');
-                    console.log(postIncreaseSnapshot);
-
                     // Assertions
                     assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
                     assert.notEqual(postIncreaseSatellite.stakedMvkBalance.toNumber(), preIncreaseSatellite.stakedMvkBalance.toNumber());
@@ -2967,6 +3066,15 @@ describe("Governance tests", async () => {
                     assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
                     assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
                     assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
+
+                    // Reset delegate 
+                    // User (mallory) redelegates to satellite two (alice)
+                    await signerFactory(tezos, mallory.sk)
+                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
+                    await updateOperatorsOperation.confirmation();
+
+                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
+                    await delegateOperation.confirmation()
 
                 } catch(e){
                     console.dir(e, {depth: 5})
