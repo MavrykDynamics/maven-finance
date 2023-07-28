@@ -66,9 +66,9 @@ export const governanceStorage: governanceStorageType = {
 
     currentCycleInfo        : {
         round                     : { proposal: null },
-        blocksPerProposalRound    :  new BigNumber(0),
-        blocksPerVotingRound      :  new BigNumber(0),
-        blocksPerTimelockRound    :  new BigNumber(0),
+        blocksPerProposalRound    : new BigNumber(0),
+        blocksPerVotingRound      : new BigNumber(0),
+        blocksPerTimelockRound    : new BigNumber(0),
         roundStartLevel           : new BigNumber(0),
         roundEndLevel             : new BigNumber(0),
         cycleEndLevel             : new BigNumber(0),
