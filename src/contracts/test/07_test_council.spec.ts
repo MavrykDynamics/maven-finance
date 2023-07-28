@@ -22,6 +22,7 @@ import {
     signerFactory,
     updateGeneralContracts,
     updateWhitelistContracts,
+    randomNumberFromInterval
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
