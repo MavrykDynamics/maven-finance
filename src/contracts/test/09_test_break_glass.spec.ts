@@ -26,7 +26,8 @@ import {
     updateOperators,
     mistakenTransferFa2Token,
     updateWhitelistContracts,
-    updateGeneralContracts
+    updateGeneralContracts,
+    randomNumberFromInterval
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
