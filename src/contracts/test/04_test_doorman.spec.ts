@@ -27,6 +27,7 @@ import {
     updateOperators,
     updateGeneralContracts,
     updateWhitelistContracts,
+    calculateMavrykLoyaltyIndex
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
