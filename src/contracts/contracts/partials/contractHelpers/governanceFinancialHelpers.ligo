@@ -571,13 +571,13 @@ block {
 
 
 // helper function to update satellite snapshot
-function updateSatellitesSnapshotOperation(const satelliteAddresses : list(address); const ready : bool; const s : governanceFinancialStorageType) : operation is 
+function updateSatellitesSnapshotOperation(const satelliteAddresses : set(address); const ready : bool; const s : governanceFinancialStorageType) : operation is 
 block {
 
     // Prepare the satellites to update
-    var satellitesSnapshots : updateSatellitesSnapshotType   := list[];
+    var satellitesSnapshots : updateSatellitesSnapshotType   := set[];
 
-    for satelliteAddress in list satelliteAddresses block {
+    for satelliteAddress in set satelliteAddresses block {
 
         // Get the satellite record and delgation ratio
         const satelliteRecord   : satelliteRecordType   = getSatelliteRecord(satelliteAddress, s);
@@ -595,7 +595,7 @@ block {
         ];
 
         // Add the snapshot to the list
-        satellitesSnapshots := satelliteSnapshot # satellitesSnapshots;
+        satellitesSnapshots := Set.add(satelliteSnapshot, satellitesSnapshots);
 
     };
 
@@ -672,7 +672,7 @@ block{
         if currentCycle = requestGovernanceCycleId then block {
             
             // update satellite snapshot operation
-            const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(list[satelliteAddress], True, s);
+            const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(set[satelliteAddress], True, s);
             operations := updateSatellitesSnapshotOperation # operations;
 
             // Calculate and set the total voting power of the satellite

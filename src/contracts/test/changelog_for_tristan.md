@@ -3,6 +3,7 @@
 - remove ConfigMinProposalRoundVotesReq in governanceUpdateConfigActionType 
 - rename ConfigProposalDatTitleMaxLength to ConfigDataTitleMaxLength
 - added nextProposalId in governanceSatelliteSnapshot
+- added satelliteLastSnapshotLedger bigmap
 
 2. Aggregator Contract
 - spelling error: rename "HeartBeatSeconds" to HeartbeatSeconds": Heartbeat is one word
@@ -37,3 +38,6 @@ Changes for Receiver Address in Requesting Tokens and Mint from Council to Gover
 - remove dropEmergencyGovernance entrypoint
 - remove dropped boolean in emergencyGovernanceRecord
 - voteExpiryDays changed to durationInMinutes
+
+9. Delegation Contract
+- takeSatellitesSnapshotPaused 

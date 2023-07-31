@@ -1,5 +1,6 @@
 import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -97,6 +98,11 @@ describe("Test: Delegation Contract", async () => {
     let isPausedStart 
     let isPausedEnd
 
+    let governanceCycleId
+    let updatedGovernanceCycleId
+    let satelliteSnapshot
+    let updatedSatelliteSnapshot
+
     // operations
     let transferOperation
     let updateOperatorsOperation
@@ -108,7 +114,10 @@ describe("Test: Delegation Contract", async () => {
     let unregisterAsSatelliteOperation
     let delegateOperation
     let undelegateOperation
-    let redelegateOperation 
+    let redelegateOperation
+    let takeSatellitesSnapshotOperation
+    let startNextRoundOperation
+    let updateConfigOperation
 
     // housekeeping operations
     let setAdminOperation
@@ -572,7 +581,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // Operation
                 await signerFactory(tezos, adminSk)
-                var updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkRequirement, "configMinimumStakedMvkBalance").send();
+                updateConfigOperation       = await delegationInstance.methods.updateConfig(newMinimumStakedMvkRequirement, "configMinimumStakedMvkBalance").send();
                 await updateConfigOperation.confirmation();
 
                 // set signer to user
@@ -1549,6 +1558,128 @@ describe("Test: Delegation Contract", async () => {
 
     })
 
+    describe("%takeSatellitesSnapshot", async () => {
+
+        it('user (trudy) should be able to call the entrypoint but not update the snapshot for a satellite that already has one', async () => {
+            try{
+
+                // init values
+                user        = trudy.pkh;
+                userSk      = trudy.sk;
+                satellite   = eve.pkh;
+
+                // set signer to user
+                await signerFactory(tezos, userSk);
+
+                // Initial Values
+                governanceStorage           = await governanceInstance.storage();
+                governanceCycleId           = governanceStorage.cycleId;
+                satelliteSnapshot           = await governanceStorage.snapshotLedger.get({
+                    0: governanceCycleId,
+                    1: satellite
+                })
+
+                // takeSatellitesSnapshot operation
+                takeSatellitesSnapshotOperation = await delegationInstance.methods.takeSatellitesSnapshot([satellite]).send();
+                await takeSatellitesSnapshotOperation.confirmation();
+
+                // Final Values
+                governanceStorage           = await governanceInstance.storage();
+                governanceCycleId           = governanceStorage.cycleId;
+                updatedSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({
+                    0: governanceCycleId,
+                    1: satellite
+                })
+
+                // Assertions
+                assert.deepEqual(updatedSatelliteSnapshot, satelliteSnapshot);
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('user (trudy) should be able to trigger a satellite snapshot update for a satellite that requires it', async () => {
+            try{
+
+                // init values
+                user        = trudy.pkh;
+                userSk      = trudy.sk;
+                satellite   = eve.pkh;
+
+                // Initial Values
+                governanceStorage               = await governanceInstance.storage();
+                governanceCycleId               = governanceStorage.cycleId;
+                satelliteSnapshot               = await governanceStorage.snapshotLedger.get({
+                    0: governanceCycleId,
+                    1: satellite
+                })
+
+                // set signer to admin
+                await signerFactory(tezos, adminSk);
+
+                // prepare a short governance cycle
+                const blocksPerProposalRoundBackup  = governanceStorage.config.blocksPerProposalRound;
+                const blocksPerVotingRoundBackup    = governanceStorage.config.blocksPerVotingRound;
+                const blocksPerTimelockRoundBackup  = governanceStorage.config.blocksPerTimelockRound;
+
+                updateConfigOperation           = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+                await updateConfigOperation.confirmation();
+                updateConfigOperation           = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+                await updateConfigOperation.confirmation();
+                updateConfigOperation           = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+                await updateConfigOperation.confirmation();
+                startNextRoundOperation         = await governanceInstance.methods.startNextRound(false).send();
+                await startNextRoundOperation.confirmation();
+
+                // Mid Values
+                governanceStorage               = await governanceInstance.storage();
+                updatedGovernanceCycleId        = governanceStorage.cycleId;
+                updatedSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({
+                    0: updatedGovernanceCycleId,
+                    1: satellite
+                })
+
+                // Assertions
+                assert.notStrictEqual(satelliteSnapshot, undefined)
+                assert.strictEqual(updatedSatelliteSnapshot, undefined)
+                assert.deepEqual(updatedGovernanceCycleId, governanceCycleId.plus(1))
+
+                // set signer to user
+                await signerFactory(tezos, userSk);
+
+                // takeSatellitesSnapshot operation
+                takeSatellitesSnapshotOperation = await delegationInstance.methods.takeSatellitesSnapshot([satellite]).send();
+                await takeSatellitesSnapshotOperation.confirmation();
+
+                // Final Values
+                governanceStorage               = await governanceInstance.storage();
+                updatedSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({
+                    0: updatedGovernanceCycleId,
+                    1: satellite
+                });
+
+                // Assertions
+                assert.notStrictEqual(updatedSatelliteSnapshot, undefined);
+
+                // set signer to admin
+                await signerFactory(tezos, adminSk);
+
+                // Reset governance cycle
+                updateConfigOperation           = await governanceInstance.methods.updateConfig(blocksPerProposalRoundBackup, "configBlocksPerProposalRound").send();
+                await updateConfigOperation.confirmation();
+                updateConfigOperation           = await governanceInstance.methods.updateConfig(blocksPerVotingRoundBackup, "configBlocksPerVotingRound").send();
+                await updateConfigOperation.confirmation();
+                updateConfigOperation           = await governanceInstance.methods.updateConfig(blocksPerTimelockRoundBackup, "configBlocksPerTimelockRound").send();
+                await updateConfigOperation.confirmation();
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+    });
+
 
     describe("Housekeeping Entrypoints", async () => {
 
@@ -1646,7 +1777,7 @@ describe("Test: Delegation Contract", async () => {
                 const newMinimumStakedMvkBalance     = MVK(50);
 
                 // Operation
-                const updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkBalance, "configMinimumStakedMvkBalance").send();
+                updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkBalance, "configMinimumStakedMvkBalance").send();
                 await updateConfigOperation.confirmation();
 
                 // Final values
@@ -1867,6 +1998,9 @@ describe("Test: Delegation Contract", async () => {
                 pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("distributeReward", true).send();
                 await pauseOperation.confirmation();
 
+                pauseOperation = await delegationInstance.methods.togglePauseEntrypoint("takeSatellitesSnapshot", true).send();
+                await pauseOperation.confirmation();
+
                 // update storage
                 delegationStorage              = await delegationInstance.storage();
 
@@ -1893,6 +2027,9 @@ describe("Test: Delegation Contract", async () => {
                 await unpauseOperation.confirmation();
 
                 unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("distributeReward", false).send();
+                await unpauseOperation.confirmation();
+
+                unpauseOperation = await delegationInstance.methods.togglePauseEntrypoint("takeSatellitesSnapshot", false).send();
                 await unpauseOperation.confirmation();
 
                 // update storage
@@ -1998,7 +2135,7 @@ describe("Test: Delegation Contract", async () => {
                 const newMinimumStakedMvkBalance    = MVK(11.11);
 
                 // Operation
-                const updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkBalance, "configMinimumStakedMvkBalance");
+                updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkBalance, "configMinimumStakedMvkBalance");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
@@ -2122,6 +2259,9 @@ describe("Test: Delegation Contract", async () => {
                 pauseOperation = delegationInstance.methods.togglePauseEntrypoint("distributeReward", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
+                pauseOperation = delegationInstance.methods.togglePauseEntrypoint("takeSatellitesSnapshot", true); 
+                await chai.expect(pauseOperation.send()).to.be.rejected;
+
                 // unpause operations
 
                 unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false); 
@@ -2140,6 +2280,9 @@ describe("Test: Delegation Contract", async () => {
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
                 unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("distributeReward", false); 
+                await chai.expect(unpauseOperation.send()).to.be.rejected;
+
+                unpauseOperation = delegationInstance.methods.togglePauseEntrypoint("takeSatellitesSnapshot", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
             } catch(e) {
