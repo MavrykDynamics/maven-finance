@@ -1718,10 +1718,10 @@ describe("Governance tests", async () => {
 
                     // User (mallory) delegates to satellite
                     await signerFactory(tezos, mallory.sk)
-                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
+                    var updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
+                    var delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
                     await delegateOperation.confirmation()
 
                     // Post staking values
@@ -1773,10 +1773,10 @@ describe("Governance tests", async () => {
                     // Reset delegate 
                     // User (mallory) redelegates to satellite two (alice)
                     await signerFactory(tezos, mallory.sk)
-                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
+                    delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
                     await delegateOperation.confirmation()
 
                 } catch(e){
@@ -3024,10 +3024,10 @@ describe("Governance tests", async () => {
 
                     // User (mallory) delegates to satellite
                     await signerFactory(tezos, mallory.sk)
-                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
+                    var updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
+                    var delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
                     await delegateOperation.confirmation()
 
                     // Post staking values
@@ -3079,10 +3079,10 @@ describe("Governance tests", async () => {
                     // Reset delegate 
                     // User (mallory) redelegates to satellite two (alice)
                     await signerFactory(tezos, mallory.sk)
-                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
+                    delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
                     await delegateOperation.confirmation()
 
                 } catch(e){

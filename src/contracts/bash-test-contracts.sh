@@ -102,6 +102,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
         governanceSatellite)
             echo "Running tests for governanceSatellite"
             COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/17_setup_aggregators.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/19_test_governance_satellite.spec.ts --bail --timeout 9000000")
             ;;
         governanceQuorum)
@@ -179,10 +180,6 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
         superAdmin)
             echo "Running tests for superAdmin"
             COMMANDS+=("yarn ts-mocha --paths test/14_test_super_admin.spec.ts --bail --timeout 9000000")
-            ;;
-        votingPowerRatio)
-            echo "Running tests for votingPowerRatio"
-            COMMANDS+=("yarn ts-mocha --paths test/15_test_voting_power_ratio.spec.ts --bail --timeout 9000000")
             ;;
         mistakenTransfers)
             echo "Running tests for mistakenTransfers"
@@ -284,7 +281,6 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/21_test_governance_financial.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/13_test_governance_proxy.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/14_test_super_admin.spec.ts --bail --timeout 9000000")
-            COMMANDS+=("yarn ts-mocha --paths test/15_test_voting_power_ratio.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/30_test_mistaken_transfers.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/20_test_governance_quorum.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/18_test_aggregator.spec.ts --bail --timeout 9000000")
