@@ -20,7 +20,6 @@ async def on_emergency_governance_trigger_emergency_control(
         emergency_storage           = trigger_emergency_control.storage.emergencyGovernanceLedger[trigger_emergency_control.storage.currentEmergencyGovernanceId]
         proposer_address            = emergency_storage.proposerAddress
         executed                    = emergency_storage.executed
-        dropped                     = emergency_storage.dropped
         title                       = emergency_storage.title
         description                 = emergency_storage.description
         total_smvk_votes            = emergency_storage.totalStakedMvkVotes
@@ -52,7 +51,6 @@ async def on_emergency_governance_trigger_emergency_control(
             emergency_governance            = emergency,
             proposer                        = proposer,
             executed                        = executed,
-            dropped                         = dropped,
             title                           = title,
             description                     = description,
             total_smvk_votes                = total_smvk_votes,

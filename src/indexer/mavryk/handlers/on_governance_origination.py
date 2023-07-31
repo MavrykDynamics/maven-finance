@@ -19,7 +19,6 @@ async def on_governance_origination(
         success_reward                          = float(governance_origination.storage.config.successReward)
         cycle_voters_reward                     = float(governance_origination.storage.config.cycleVotersReward)
         proposal_round_vote_percentage          = int(governance_origination.storage.config.minProposalRoundVotePercentage)
-        proposal_round_vote_required            = int(governance_origination.storage.config.minProposalRoundVotesRequired)
         min_quorum_percentage                   = int(governance_origination.storage.config.minQuorumPercentage)
         min_yay_vote_percentage                 = int(governance_origination.storage.config.minYayVotePercentage)
         proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMutez)
@@ -73,7 +72,6 @@ async def on_governance_origination(
             success_reward                          = success_reward,
             cycle_voters_reward                     = cycle_voters_reward,
             proposal_round_vote_percentage          = proposal_round_vote_percentage,
-            proposal_round_vote_required            = proposal_round_vote_required,
             min_quorum_percentage                   = min_quorum_percentage,
             min_yay_vote_percentage                 = min_yay_vote_percentage,
             proposal_submission_fee_mutez           = proposal_submission_fee,

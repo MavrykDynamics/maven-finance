@@ -13,8 +13,9 @@ class Treasury(MavrykContract, Model):
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused            = fields.BooleanField(default=False)
-    stake_mvk_paused                        = fields.BooleanField(default=False)
-    unstake_mvk_paused                      = fields.BooleanField(default=False)
+    update_token_operators_paused           = fields.BooleanField(default=False)
+    stake_tokens_paused                     = fields.BooleanField(default=False)
+    unstake_tokens_paused                   = fields.BooleanField(default=False)
 
     class Meta:
         table = 'treasury'

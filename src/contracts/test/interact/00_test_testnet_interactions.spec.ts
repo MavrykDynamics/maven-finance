@@ -3553,11 +3553,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin votes for emergency governance', async () => {
             try{
                 // Operation
-                var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
-                await operation.confirmation();
-
-                // Operation
-                operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                const operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

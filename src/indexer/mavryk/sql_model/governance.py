@@ -11,7 +11,6 @@ class Governance(MavrykContract, Model):
     success_reward                          = fields.FloatField(default=0)
     cycle_voters_reward                     = fields.FloatField(default=0)
     proposal_round_vote_percentage          = fields.SmallIntField(default=0)
-    proposal_round_vote_required            = fields.BigIntField(default=0)
     min_quorum_percentage                   = fields.SmallIntField(default=0)
     min_yay_vote_percentage                 = fields.SmallIntField(default=0)
     proposal_submission_fee_mutez           = fields.BigIntField(default=0)
@@ -156,6 +155,8 @@ class GovernanceSatelliteSnapshot(Model):
     total_delegated_amount                  = fields.FloatField(default=0.0)
     total_voting_power                      = fields.FloatField(default=0.0)
     cycle                                   = fields.BigIntField(default=0, index=True)
+    next_snapshot_cycle_id                  = fields.BigIntField(null=True)
+    latest                                  = fields.BooleanField(default=True, index=True)
 
     class Meta:
         table = 'governance_satellite_snapshot'

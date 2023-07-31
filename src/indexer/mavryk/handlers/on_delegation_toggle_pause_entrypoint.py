@@ -20,15 +20,16 @@ async def on_delegation_toggle_pause_entrypoint(
         unregister_as_satellite_paused      = toggle_pause_entrypoint.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
         update_satellite_record_paused      = toggle_pause_entrypoint.storage.breakGlassConfig.updateSatelliteRecordIsPaused
         distribute_reward_paused            = toggle_pause_entrypoint.storage.breakGlassConfig.distributeRewardIsPaused
-    
+        take_satellites_snapshot_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.takeSatellitesSnapshotPaused
         # Update contract
         await models.Delegation.filter(network=ctx.datasource.network, address=delegation_address).update(
-            delegate_to_satellite_paused         = delegate_to_satellite_paused,
-            undelegate_from_satellite_paused     = undelegate_from_satellite_paused,
-            register_as_satellite_paused         = register_as_satellite_paused,
-            unregister_as_satellite_paused       = unregister_as_satellite_paused,
-            update_satellite_record_paused       = update_satellite_record_paused,
-            distribute_reward_paused             = distribute_reward_paused
+            delegate_to_satellite_paused        = delegate_to_satellite_paused,
+            undelegate_from_satellite_paused    = undelegate_from_satellite_paused,
+            register_as_satellite_paused        = register_as_satellite_paused,
+            unregister_as_satellite_paused      = unregister_as_satellite_paused,
+            update_satellite_record_paused      = update_satellite_record_paused,
+            distribute_reward_paused            = distribute_reward_paused,
+            take_satellites_snapshot_paused     = take_satellites_snapshot_paused
         )
 
     except BaseException as e:

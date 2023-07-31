@@ -49,26 +49,6 @@ class LendingControllerLambda(ContractLambda, Model):
     class Meta:
         table = 'lending_controller_lambda'
 
-class LendingControllerGeneralContract(LinkedContract, Model):
-    contract                                = fields.ForeignKeyField('models.LendingController', related_name='general_contracts')
-    contract_name                           = fields.CharField(max_length=36, default="")
-
-    class Meta:
-        table = 'lending_controller_general_contract'
-
-class LendingControllerWhitelistContract(LinkedContract, Model):
-    contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_contracts')
-
-    class Meta:
-        table = 'lending_controller_whitelist_contract'
-
-class LendingControllerWhitelistTokenContract(LinkedContract, Model):
-    contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_whitelist_token_contracts', index=True)
-
-    class Meta:
-        table = 'lending_controller_whitelist_token_contract'
-
 class LendingControllerVault(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     internal_id                             = fields.BigIntField(default=0, index=True)

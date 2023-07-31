@@ -62,7 +62,6 @@ class AggregatorStorage(BaseModel):
     whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     oracleLedger: Dict[str, OracleLedger]
-    oracleLedgerSize: str
     lastCompletedData: LastCompletedData
     oracleRewardStakedMvk: Dict[str, str]
     oracleRewardXtz: Dict[str, str]
