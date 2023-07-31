@@ -25,7 +25,6 @@ async def on_governance_update_config(
             success_reward                      = update_config.storage.config.successReward,
             cycle_voters_reward                 = update_config.storage.config.cycleVotersReward,
             proposal_round_vote_percentage      = update_config.storage.config.minProposalRoundVotePercentage,
-            proposal_round_vote_required        = update_config.storage.config.minProposalRoundVotesRequired,
             min_quorum_percentage               = update_config.storage.config.minQuorumPercentage,
             min_yay_vote_percentage             = update_config.storage.config.minYayVotePercentage,
             proposal_submission_fee_mutez       = update_config.storage.config.proposalSubmissionFeeMutez,

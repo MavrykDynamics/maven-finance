@@ -14,8 +14,9 @@ class BreakGlassConfig(BaseModel):
 
     transferIsPaused: bool
     mintMvkAndTransferIsPaused: bool
-    stakeMvkIsPaused: bool
-    unstakeMvkIsPaused: bool
+    updateTokenOperatorsIsPaused: bool
+    stakeTokensIsPaused: bool
+    unstakeTokensIsPaused: bool
 
 
 class TreasuryStorage(BaseModel):

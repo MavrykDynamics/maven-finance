@@ -196,8 +196,9 @@ async def persist_financial_request(ctx, action):
         ).exists()
         if not request_exists:
             request_record_storage          = request_ledger[request_id]
-            treasuryAddress                 = request_record_storage.treasuryAddress
-            requesterAddress                = request_record_storage.requesterAddress
+            treasury_address                = request_record_storage.treasuryAddress
+            requester_address               = request_record_storage.requesterAddress
+            receiver_address                = request_record_storage.receiverAddress
             request_type                    = request_record_storage.requestType
             status                          = request_record_storage.status
             statusType                      = models.GovernanceActionStatus.ACTIVE
@@ -225,13 +226,13 @@ async def persist_financial_request(ctx, action):
             # Check if treasury exists
             treasury                        = await models.Treasury.get_or_none(
                 network         = ctx.datasource.network,
-                address         = treasuryAddress
+                address         = treasury_address
             )
             if not treasury:
                 # Create a temp treasury
                 governance  = await governanceFinancial.governance
                 treasury    = models.Treasury(
-                    address     = treasuryAddress,
+                    address     = treasury_address,
                     network     = ctx.datasource.network,
                     governance  = governance
                 )
@@ -261,12 +262,14 @@ async def persist_financial_request(ctx, action):
             token.token_standard    = standard
             await token.save()
 
-            requester               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=requesterAddress)
+            requester               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=requester_address)
+            receiver                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
             requestRecord           = models.GovernanceFinancialRequest(
                 internal_id                     = int(request_id),
                 governance_financial            = governanceFinancial,
                 treasury                        = treasury,
                 requester                       = requester,
+                receiver                        = receiver,
                 request_type                    = request_type,
                 status                          = statusType,
                 key_hash                        = key_hash,

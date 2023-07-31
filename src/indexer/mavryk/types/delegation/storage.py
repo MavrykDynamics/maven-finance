@@ -28,6 +28,7 @@ class BreakGlassConfig(BaseModel):
     delegateToSatelliteIsPaused: bool
     distributeRewardIsPaused: bool
     registerAsSatelliteIsPaused: bool
+    takeSatellitesSnapshotPaused: bool
     undelegateFromSatelliteIsPaused: bool
     unregisterAsSatelliteIsPaused: bool
     updateSatelliteRecordIsPaused: bool

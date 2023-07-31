@@ -25,6 +25,7 @@ class FinancialRequestLedger(BaseModel):
     status: bool
     executed: bool
     treasuryAddress: str
+    receiverAddress: str
     tokenContractAddress: str
     tokenAmount: str
     tokenName: str
