@@ -1718,10 +1718,10 @@ describe("Governance tests", async () => {
 
                     // User (mallory) delegates to satellite
                     await signerFactory(tezos, mallory.sk)
-                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
+                    var updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
+                    var delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
                     await delegateOperation.confirmation()
 
                     // Post staking values
@@ -1773,10 +1773,10 @@ describe("Governance tests", async () => {
                     // Reset delegate 
                     // User (mallory) redelegates to satellite two (alice)
                     await signerFactory(tezos, mallory.sk)
-                    const updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    const delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
+                    delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
                     await delegateOperation.confirmation()
 
                 } catch(e){
@@ -3008,11 +3008,6 @@ describe("Governance tests", async () => {
                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
                     const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
-                    const userRewards                   = await delegationStorage.satelliteRewardsLedger.get(mallory.pkh);
-
-                    // update the snapshot of the previous satellite
-                    const takeSatellitesSnapshotOperation   = await delegationInstance.methods.takeSatellitesSnapshot([userRewards.satelliteReferenceAddress]).send();
-                    await takeSatellitesSnapshotOperation.confirmation();
 
                     // satellite increases her stake
                     var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
