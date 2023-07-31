@@ -20,6 +20,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, oscar } from '../scripts/sandbox/accounts'
 import {
+    almostEqual,
     fa2Transfer,
     getStorageMapValue,
     mistakenTransferFa2Token,
@@ -27,7 +28,12 @@ import {
     updateOperators,
     updateGeneralContracts,
     updateWhitelistContracts,
-    calculateMavrykLoyaltyIndex
+    calculateMavrykLoyaltyIndex,
+    calculateExitFeePercent,
+    fixedPointAccuracy,
+    calcIncrementAccumulatedFeesPerShare,
+    calcUpdatedAccumulatedFeesPerShare,
+    calculateExitFeeRewards
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
