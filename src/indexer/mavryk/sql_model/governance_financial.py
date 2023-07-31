@@ -47,6 +47,7 @@ class GovernanceFinancialRequest(Model):
     governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests')
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_requests', index=True)
     requester                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_requester', index=True)
+    receiver                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_receiver', index=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests', index=True)
     request_type                            = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE, index=True)

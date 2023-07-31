@@ -21,6 +21,7 @@ class Delegation(MavrykContract, Model):
     unregister_as_satellite_paused          = fields.BooleanField(default=False)
     update_satellite_record_paused          = fields.BooleanField(default=False)
     distribute_reward_paused                = fields.BooleanField(default=False)
+    take_satellites_snapshot_paused         = fields.BooleanField(default=False)
 
     class Meta:
         table = 'delegation'

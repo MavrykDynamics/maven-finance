@@ -15,7 +15,6 @@ class Config(BaseModel):
     successReward: str
     cycleVotersReward: str
     minProposalRoundVotePercentage: str
-    minProposalRoundVotesRequired: str
     minQuorumPercentage: str
     minYayVotePercentage: str
     proposalSubmissionFeeMutez: str
@@ -181,6 +180,7 @@ class Value(BaseModel):
     totalVotingPower: str
     accumulatedRewardsPerShare: str
     ready: bool
+    nextSnapshotCycleId: Optional[str]
 
 
 class SnapshotLedgerItem(BaseModel):
@@ -287,6 +287,7 @@ class GovernanceStorage(BaseModel):
     proposalVoters: List[ProposalVoter]
     proposalRewards: List[ProposalReward]
     snapshotLedger: List[SnapshotLedgerItem]
+    satelliteLastSnapshotLedger: Dict[str, str]
     stakedMvkSnapshotLedger: Dict[str, str]
     currentCycleInfo: CurrentCycleInfo
     cycleProposals: Dict[str, str]

@@ -190,12 +190,8 @@ class LendingControllerStorage(BaseModel):
     breakGlassConfig: BreakGlassConfig
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, Dict[str, Any]]
-    generalContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, Dict[str, Any]]
     vaults: List[Vault]
     ownerLedger: Dict[str, List[str]]
     collateralTokenLedger: Dict[str, CollateralTokenLedger]
     loanTokenLedger: Dict[str, LoanTokenLedger]
     lambdaLedger: Dict[str, str]
-    tempMap: Dict[str, str]

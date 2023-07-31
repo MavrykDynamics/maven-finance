@@ -17,10 +17,11 @@ async def on_treasury_toggle_pause_entrypoint(
     
         # Update record
         treasury            = await models.Treasury.filter(network=ctx.datasource.network, address=treasury_address).update(
-            transfer_paused                = toggle_pause_entrypoint.storage.breakGlassConfig.transferIsPaused,
-            mint_mvk_and_transfer_paused   = toggle_pause_entrypoint.storage.breakGlassConfig.mintMvkAndTransferIsPaused,
-            stake_mvk_paused               = toggle_pause_entrypoint.storage.breakGlassConfig.stakeMvkIsPaused,
-            unstake_mvk_paused             = toggle_pause_entrypoint.storage.breakGlassConfig.unstakeMvkIsPaused
+            transfer_paused                 = toggle_pause_entrypoint.storage.breakGlassConfig.transferIsPaused,
+            mint_mvk_and_transfer_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.mintMvkAndTransferIsPaused,
+            update_token_operators_paused   = toggle_pause_entrypoint.storage.breakGlassConfig.updateTokenOperatorsIsPaused,
+            stake_tokens_paused             = toggle_pause_entrypoint.storage.breakGlassConfig.stakeTokensIsPaused,
+            unstake_tokens_paused           = toggle_pause_entrypoint.storage.breakGlassConfig.unstakeTokensIsPaused
         )
         await treasury.save()
     except BaseException as e:
