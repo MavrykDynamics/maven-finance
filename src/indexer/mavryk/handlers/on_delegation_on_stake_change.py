@@ -14,14 +14,17 @@ async def on_delegation_on_stake_change(
     try:
         # Get operation info
         delegation_address      = on_stake_change.data.target_address
-        user_addresses          = on_stake_change.parameter.__root__
+        user_records            = on_stake_change.parameter.__root__
         satellite_ledger        = on_stake_change.storage.satelliteLedger
         delegation              = await models.Delegation.get(
             network = ctx.datasource.network,
             address = delegation_address
         )
 
-        for user_address in user_addresses:
+        for user_record in user_records:
+            # Parse parameter
+            user_address    = user_record.address
+
             # Get and update records
             if user_address in on_stake_change.storage.satelliteRewardsLedger:
                 rewards_record          = on_stake_change.storage.satelliteRewardsLedger[user_address]
