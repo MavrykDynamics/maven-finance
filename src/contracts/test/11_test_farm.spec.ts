@@ -708,7 +708,7 @@ describe("Test: Farm Contract", async () => {
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
-                    await wait(10 * blockTime * 1000);
+                    await wait(15 * blockTime * 1000);
                     const withdrawOperation     = await farmInstance.methods.withdraw(userDepositBalance).send();
                     await withdrawOperation.confirmation();
 
