@@ -23,10 +23,12 @@ import {
     getStorageMapValue,
     mistakenTransferFa2Token,
     signerFactory,
+    updateOperators,
     updateGeneralContracts,
     updateWhitelistContracts,
     fa2MultiTransfer,
-    randomNumberFromInterval
+    randomNumberFromInterval,
+    removeOperators
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
