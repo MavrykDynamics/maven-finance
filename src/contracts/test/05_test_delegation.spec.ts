@@ -1560,7 +1560,7 @@ describe("Test: Delegation Contract", async () => {
 
     describe("%takeSatellitesSnapshot", async () => {
 
-        it('user (trudy) should not be able to take a snapshot for a satellite that already has one', async () => {
+        it('user (trudy) should be able to call the entrypoint but not update the snapshot for a satellite that already has one', async () => {
             try{
 
                 // init values
@@ -1599,7 +1599,7 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        it('user (trudy) should be able to trigger a satellite snapshot update for satellites that require it', async () => {
+        it('user (trudy) should be able to trigger a satellite snapshot update for a satellite that requires it', async () => {
             try{
 
                 // init values
