@@ -4,7 +4,7 @@ from mavryk.types.governance.big_map.snapshot_ledger_key import SnapshotLedgerKe
 from mavryk.types.governance.big_map.snapshot_ledger_value import SnapshotLedgerValue
 from mavryk import models as models
 from dipdup.context import HandlerContext
-from dipdup.models import BigMapDiff
+from dipdup.models import BigMapDiff, Q
 import mavryk.models as models
 
 async def on_governance_snapshot_ledger_update(
@@ -27,6 +27,9 @@ async def on_governance_snapshot_ledger_update(
             total_delegated_amount          = float(value.totalDelegatedAmount)
             total_voting_power              = float(value.totalVotingPower)
             accumulated_rewards_per_share   = float(value.accumulatedRewardsPerShare)
+            next_snapshot_cycle_id          = value.nextSnapshotCycleId
+            if next_snapshot_cycle_id:
+                next_snapshot_cycle_id  = int(next_snapshot_cycle_id)
     
             # Get governance record
             governance                  = await models.Governance.get(network = ctx.datasource.network)
@@ -41,7 +44,16 @@ async def on_governance_snapshot_ledger_update(
             snapshot_record.total_delegated_amount          = total_delegated_amount
             snapshot_record.total_voting_power              = total_voting_power
             snapshot_record.accumulated_rewards_per_share   = accumulated_rewards_per_share
+            snapshot_record.next_snapshot_cycle_id          = next_snapshot_cycle_id
             await snapshot_record.save()
+
+            # Reset the latest for the previous records
+            await models.GovernanceSatelliteSnapshot.filter(
+                Q(user = user),
+                ~Q(cycle = governance_cycle)
+            ).update(
+                latest  = False
+            )
 
     except BaseException as e:
          await save_error_report(e)
