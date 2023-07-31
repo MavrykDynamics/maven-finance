@@ -13,13 +13,13 @@ class Config(BaseModel):
         extra = Extra.forbid
 
     decimals: str
+    durationInMinutes: str
     minStakedMvkRequiredToTrigger: str
     minStakedMvkRequiredToVote: str
     proposalDescMaxLength: str
     proposalTitleMaxLength: str
     requiredFeeMutez: str
     stakedMvkPercentageRequired: str
-    voteExpiryDays: str
 
 
 class EmergencyGovernanceLedger(BaseModel):
@@ -28,7 +28,6 @@ class EmergencyGovernanceLedger(BaseModel):
 
     proposerAddress: str
     executed: bool
-    dropped: bool
     title: str
     description: str
     totalStakedMvkVotes: str

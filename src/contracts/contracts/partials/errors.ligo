@@ -358,7 +358,7 @@
 [@inline] const error_EMERGENCY_GOVERNANCE_NOT_FOUND                                                                    = 254n;
 [@inline] const error_EMERGENCY_GOVERNANCE_DROPPED                                                                      = 255n;
 [@inline] const error_EMERGENCY_GOVERNANCE_EXECUTED                                                                     = 256n;
-[@inline] const error_EMERGENCY_GOVERNANCE_EXPIRED                                                                     = 257n;
+[@inline] const error_EMERGENCY_GOVERNANCE_EXPIRED                                                                      = 257n;
 [@inline] const error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED                                                       = 258n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
