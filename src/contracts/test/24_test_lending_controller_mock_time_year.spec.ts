@@ -1010,10 +1010,6 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // check Eve's mUsdt Token Token balance
             const updatedEveMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(eve.pkh);            
-            console.log(`eveInitialMUsdtTokenTokenBalance: ${eveInitialMUsdtTokenTokenBalance}`);
-            console.log(`liquidityAmount: ${liquidityAmount}`);
-            console.log(`updatedEveMUsdtTokenLedger: ${updatedEveMUsdtTokenLedger}`);
-            console.log(`eveInitialMUsdtTokenTokenBalance + liquidityAmount: ${eveInitialMUsdtTokenTokenBalance + liquidityAmount}`);
             assert.equal(updatedEveMUsdtTokenLedger, eveInitialMUsdtTokenTokenBalance + liquidityAmount);        
 
         });
