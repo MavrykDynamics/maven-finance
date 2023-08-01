@@ -459,14 +459,14 @@ block {
     const website       : string  = updateSatelliteRecordParams.website;
     const satelliteFee  : nat     = updateSatelliteRecordParams.satelliteFee;
 
-    const oraclePublicKey : key  = case updateSatelliteRecordParams.oraclePublicKey of [
-            Some(_key) -> _key
-        |   None       -> ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key)
+    case updateSatelliteRecordParams.oraclePublicKey of [
+            Some(_key) -> satelliteRecord.oraclePublicKey := _key
+        |   None       -> skip
     ];
 
-    const oraclePeerId : string  = case updateSatelliteRecordParams.oraclePeerId of [
-            Some(_peerId) -> _peerId
-        |   None          -> "peerId"
+    case updateSatelliteRecordParams.oraclePeerId of [
+            Some(_peerId) -> satelliteRecord.oraclePeerId := _peerId
+        |   None          -> skip
     ];
 
     // Validate inputs (max length not exceeded)
@@ -484,9 +484,6 @@ block {
     satelliteRecord.image               := image;
     satelliteRecord.website             := website;
     satelliteRecord.satelliteFee        := satelliteFee;        
-
-    satelliteRecord.oraclePublicKey     := oraclePublicKey;        
-    satelliteRecord.oraclePeerId        := oraclePeerId;        
 
 } with satelliteRecord
 
