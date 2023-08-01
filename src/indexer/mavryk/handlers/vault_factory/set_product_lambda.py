@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_lambda
-from mavryk.types.vault_factory.storage import VaultFactoryStorage
-from mavryk.types.vault_factory.parameter.set_product_lambda import SetProductLambdaParameter
+from mavryk.types.vault_factory.tezos_storage import VaultFactoryStorage
+from mavryk.types.vault_factory.tezos_parameters.set_product_lambda import SetProductLambdaParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def set_product_lambda(
     ctx: HandlerContext,
-    set_product_lambda: Transaction[SetProductLambdaParameter, VaultFactoryStorage],
+    set_product_lambda: TzktTransaction[SetProductLambdaParameter, VaultFactoryStorage],
 ) -> None:
 
     try:

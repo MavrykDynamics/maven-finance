@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.mvk_token.parameter.trigger_inflation import TriggerInflationParameter
-from dipdup.models import Transaction
-from mavryk.types.mvk_token.storage import MvkTokenStorage
+from mavryk.types.mvk_token.tezos_parameters.trigger_inflation import TriggerInflationParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.mvk_token.tezos_storage import MvkTokenStorage
 import mavryk.models as models
 from dateutil import parser
 
 async def trigger_inflation(
     ctx: HandlerContext,
-    trigger_inflation: Transaction[TriggerInflationParameter, MvkTokenStorage],
+    trigger_inflation: TzktTransaction[TriggerInflationParameter, MvkTokenStorage],
 ) -> None:
 
     try:    

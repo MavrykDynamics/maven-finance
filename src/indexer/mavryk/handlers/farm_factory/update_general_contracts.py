@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
-from mavryk.types.farm_factory.storage import FarmFactoryStorage
+from mavryk.types.farm_factory.tezos_storage import FarmFactoryStorage
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.farm_factory.parameter.update_general_contracts import UpdateGeneralContractsParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.farm_factory.tezos_parameters.update_general_contracts import UpdateGeneralContractsParameter
 import mavryk.models as models
 
 async def update_general_contracts(
     ctx: HandlerContext,
-    update_general_contracts: Transaction[UpdateGeneralContractsParameter, FarmFactoryStorage],
+    update_general_contracts: TzktTransaction[UpdateGeneralContractsParameter, FarmFactoryStorage],
 ) -> None:
 
     try:

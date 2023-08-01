@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.contracts import get_contract_metadata
-from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
+from mavryk.types.governance.tezos_storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
 from dipdup.context import HandlerContext
-from dipdup.models import Origination
+from dipdup.models.tezos_tzkt import TzktOrigination
 import mavryk.models as models
 import os
 
 async def origination(
     ctx: HandlerContext,
-    governance_origination: Origination[GovernanceStorage],
+    governance_origination: TzktOrigination[GovernanceStorage],
 ) -> None:
 
     try:

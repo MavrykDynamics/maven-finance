@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.council.parameter.update_council_member_info import UpdateCouncilMemberInfoParameter
+from mavryk.types.council.tezos_parameters.update_council_member_info import UpdateCouncilMemberInfoParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.council.storage import CouncilStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.council.tezos_storage import CouncilStorage
 import mavryk.models as models
 
 async def update_council_member_info(
     ctx: HandlerContext,
-    update_council_member_info: Transaction[UpdateCouncilMemberInfoParameter, CouncilStorage],
+    update_council_member_info: TzktTransaction[UpdateCouncilMemberInfoParameter, CouncilStorage],
 ) -> None:
 
     try:

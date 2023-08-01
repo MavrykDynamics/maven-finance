@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from mavryk.types.aggregator_factory.parameter.track_aggregator import TrackAggregatorParameter
-from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.aggregator_factory.tezos_parameters.track_aggregator import TrackAggregatorParameter
+from mavryk.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def track_aggregator(
     ctx: HandlerContext,
-    track_aggregator: Transaction[TrackAggregatorParameter, AggregatorFactoryStorage],
+    track_aggregator: TzktTransaction[TrackAggregatorParameter, AggregatorFactoryStorage],
 ) -> None:
 
     try:

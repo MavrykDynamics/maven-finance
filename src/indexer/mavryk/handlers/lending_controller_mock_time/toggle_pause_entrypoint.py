@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
-from mavryk.types.lending_controller_mock_time.parameter.toggle_pause_entrypoint import TogglePauseEntrypointParameter
-from dipdup.models import Transaction
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
+from mavryk.types.lending_controller_mock_time.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, LendingControllerMockTimeStorage],
+    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:

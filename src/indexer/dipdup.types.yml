@@ -16,7 +16,7 @@ jobs:
 
 templates:
   m_token_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -59,13 +59,13 @@ templates:
 
 indexes:
   treasury_token_transfer_receiver:
-    kind: token_transfer
+    kind: tezos.tzkt.token_transfers
     datasource: tzkt_ghostnet
     handlers:
     - callback: treasury.token_transfer_receiver
       to: doorman
   farm:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -128,7 +128,7 @@ indexes:
       - destination: farm
         entrypoint: setLambda
   m_farm:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -193,7 +193,7 @@ indexes:
       - destination: farm_m_token
         entrypoint: setLambda
   aggregator:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -268,7 +268,7 @@ indexes:
       - destination: aggregator
         entrypoint: setLambda
   treasury:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -323,7 +323,7 @@ indexes:
       - destination: treasury
         entrypoint: setLambda
   vault:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -342,7 +342,7 @@ indexes:
       - destination: vault
         entrypoint: updateVaultName
   governance_satellite_snapshot:
-    kind: big_map
+    kind: tezos.tzkt.big_maps
     datasource: tzkt_ghostnet
     skip_history: never
     handlers:
@@ -350,7 +350,7 @@ indexes:
       contract: governance
       path: snapshotLedger
   liquidity_baking:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_mainnet
     types:
     - origination
@@ -358,7 +358,7 @@ indexes:
     contracts:
     - liquidity_baking
     handlers:
-    - callback: liquidity_baking._add_liquidity
+    - callback: liquidity_baking.add_liquidity
       pattern:
       - destination: liquidity_baking
         entrypoint: addLiquidity
@@ -366,7 +366,7 @@ indexes:
         entrypoint: transfer
       - destination: sirius
         entrypoint: mintOrBurn
-    - callback: liquidity_baking._remove_liquidity
+    - callback: liquidity_baking.remove_liquidity
       pattern:
       - destination: liquidity_baking
         entrypoint: removeLiquidity
@@ -376,7 +376,7 @@ indexes:
         entrypoint: transfer
       - source: liquidity_baking
         type: transaction
-    - callback: liquidity_baking._token_to_xtz
+    - callback: liquidity_baking.token_to_xtz
       pattern:
       - destination: liquidity_baking
         entrypoint: tokenToXtz
@@ -386,18 +386,18 @@ indexes:
         type: transaction
       - source: liquidity_baking
         type: transaction
-    - callback: liquidity_baking._xtz_to_token
+    - callback: liquidity_baking.xtz_to_token
       pattern:
       - destination: liquidity_baking
         entrypoint: xtzToToken
       - destination: tzbtc
         entrypoint: transfer
-    - callback: liquidity_baking._default
+    - callback: liquidity_baking.default
       pattern:
       - destination: liquidity_baking
         entrypoint: default
   sirius:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_mainnet
     types:
     - origination
@@ -410,7 +410,7 @@ indexes:
       - destination: sirius
         entrypoint: transfer
   initializer:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination

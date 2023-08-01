@@ -1,18 +1,18 @@
 from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.contracts import get_contract_metadata, get_token_standard, get_contract_token_metadata
 from dipdup.context import HandlerContext
-from dipdup.models import Origination
-from dipdup.models import Transaction
-from mavryk.types.farm_factory.parameter.create_farm_m_token import CreateFarmMTokenParameter
-from mavryk.types.farm_factory.storage import FarmFactoryStorage
-from mavryk.types.m_farm.storage import MFarmStorage
+from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.farm_factory.tezos_parameters.create_farm_m_token import CreateFarmMTokenParameter
+from mavryk.types.farm_factory.tezos_storage import FarmFactoryStorage
+from mavryk.types.m_farm.tezos_storage import MFarmStorage
 import mavryk.models as models
 import json
 
 async def create_farm_m_token(
     ctx: HandlerContext,
-    create_farm_m_token: Transaction[CreateFarmMTokenParameter, FarmFactoryStorage],
-    m_farm_origination: Origination[MFarmStorage],
+    create_farm_m_token: TzktTransaction[CreateFarmMTokenParameter, FarmFactoryStorage],
+    m_farm_origination: TzktOrigination[MFarmStorage],
 ) -> None:
 
     try:
@@ -54,6 +54,7 @@ async def create_farm_m_token(
             farm_contract   =  f'{farm_address}contract'
             if not farm_contract in ctx.config.contracts: 
                 await ctx.add_contract(
+                    kind="tezos",
                     name=farm_contract,
                     address=farm_address,
                     typename="m_farm"

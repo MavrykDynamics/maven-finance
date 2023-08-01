@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.aggregator.storage import AggregatorStorage
-from mavryk.types.aggregator.parameter.set_name import SetNameParameter
-from dipdup.models import Transaction
+from mavryk.types.aggregator.tezos_storage import AggregatorStorage
+from mavryk.types.aggregator.tezos_parameters.set_name import SetNameParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def set_name(
     ctx: HandlerContext,
-    set_name: Transaction[SetNameParameter, AggregatorStorage],
+    set_name: TzktTransaction[SetNameParameter, AggregatorStorage],
 ) -> None:
 
     try:    

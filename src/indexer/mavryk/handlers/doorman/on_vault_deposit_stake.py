@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.doorman.parameter.deposit_stake import OnVaultDepositStakeParameter
-from mavryk.types.doorman.storage import DoormanStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.doorman.tezos_parameters.deposit_stake import OnVaultDepositStakeParameter
+from mavryk.types.doorman.tezos_storage import DoormanStorage
 import mavryk.models as models
 
 async def deposit_stake(
     ctx: HandlerContext,
-    deposit_stake: Transaction[OnVaultDepositStakeParameter, DoormanStorage],
+    deposit_stake: TzktTransaction[OnVaultDepositStakeParameter, DoormanStorage],
 ) -> None:
 
     try:

@@ -1,20 +1,20 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from mavryk.types.liquidity_baking.parameter.remove_liquidity import RemoveLiquidityParameter
-from mavryk.types.liquidity_baking.storage import LiquidityBakingStorage
-from mavryk.types.sirius.storage import SiriusStorage
-from mavryk.types.tzbtc.storage import TzbtcStorage
+from mavryk.types.liquidity_baking.tezos_parameters.remove_liquidity import RemoveLiquidityParameter
+from mavryk.types.liquidity_baking.tezos_storage import LiquidityBakingStorage
+from mavryk.types.sirius.tezos_storage import SiriusStorage
+from mavryk.types.tzbtc.tezos_storage import TzbtcStorage
 from dipdup.models import OperationData
-from mavryk.types.tzbtc.parameter.transfer import TransferParameter
-from mavryk.types.sirius.parameter.mint_or_burn import MintOrBurnParameter
-from dipdup.models import Transaction
+from mavryk.types.tzbtc.tezos_parameters.transfer import TransferParameter
+from mavryk.types.sirius.tezos_parameters.mint_or_burn import MintOrBurnParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def remove_liquidity(
     ctx: HandlerContext,
-    remove_liquidity: Transaction[RemoveLiquidityParameter, LiquidityBakingStorage],
-    mint_or_burn: Transaction[MintOrBurnParameter, SiriusStorage],
-    transfer: Transaction[TransferParameter, TzbtcStorage],
+    remove_liquidity: TzktTransaction[RemoveLiquidityParameter, LiquidityBakingStorage],
+    mint_or_burn: TzktTransaction[MintOrBurnParameter, SiriusStorage],
+    transfer: TzktTransaction[TransferParameter, TzbtcStorage],
     transaction_3: OperationData,
 ) -> None:
 

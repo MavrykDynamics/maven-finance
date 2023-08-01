@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
-from dipdup.models import Transaction
-from mavryk.types.governance.storage import GovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance.tezos_storage import GovernanceStorage
 from dipdup.context import HandlerContext
-from mavryk.types.governance.parameter.drop_proposal import DropProposalParameter
+from mavryk.types.governance.tezos_parameters.drop_proposal import DropProposalParameter
 import mavryk.models as models
 
 async def drop_proposal(
     ctx: HandlerContext,
-    drop_proposal: Transaction[DropProposalParameter, GovernanceStorage],
+    drop_proposal: TzktTransaction[DropProposalParameter, GovernanceStorage],
 ) -> None:
 
     try:

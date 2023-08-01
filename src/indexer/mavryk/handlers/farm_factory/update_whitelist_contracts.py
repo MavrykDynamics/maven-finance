@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
-from mavryk.types.farm_factory.storage import FarmFactoryStorage
+from mavryk.types.farm_factory.tezos_storage import FarmFactoryStorage
 from dipdup.context import HandlerContext
-from mavryk.types.farm_factory.parameter.update_whitelist_contracts import UpdateWhitelistContractsParameter
-from dipdup.models import Transaction
+from mavryk.types.farm_factory.tezos_parameters.update_whitelist_contracts import UpdateWhitelistContractsParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def update_whitelist_contracts(
     ctx: HandlerContext,
-    update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, FarmFactoryStorage],
+    update_whitelist_contracts: TzktTransaction[UpdateWhitelistContractsParameter, FarmFactoryStorage],
 ) -> None:
 
     try:

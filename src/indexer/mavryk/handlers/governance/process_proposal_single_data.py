@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.governance.parameter.process_proposal_single_data import ProcessProposalSingleDataParameter
+from mavryk.types.governance.tezos_parameters.process_proposal_single_data import ProcessProposalSingleDataParameter
 from dipdup.context import HandlerContext
-from mavryk.types.governance.storage import GovernanceStorage
-from dipdup.models import Transaction
+from mavryk.types.governance.tezos_storage import GovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 from dateutil import parser
 
 async def process_proposal_single_data(
     ctx: HandlerContext,
-    process_proposal_single_data: Transaction[ProcessProposalSingleDataParameter, GovernanceStorage],
+    process_proposal_single_data: TzktTransaction[ProcessProposalSingleDataParameter, GovernanceStorage],
 ) -> None:
 
     try:

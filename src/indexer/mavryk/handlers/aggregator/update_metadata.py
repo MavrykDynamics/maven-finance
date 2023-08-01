@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.contracts import get_contract_metadata
-from mavryk.types.aggregator.storage import AggregatorStorage
-from mavryk.types.aggregator.parameter.update_metadata import UpdateMetadataParameter
+from mavryk.types.aggregator.tezos_storage import AggregatorStorage
+from mavryk.types.aggregator.tezos_parameters.update_metadata import UpdateMetadataParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def update_metadata(
     ctx: HandlerContext,
-    update_metadata: Transaction[UpdateMetadataParameter, AggregatorStorage],
+    update_metadata: TzktTransaction[UpdateMetadataParameter, AggregatorStorage],
 ) -> None:
 
     try:    

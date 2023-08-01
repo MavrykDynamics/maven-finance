@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from mavryk.types.vesting.storage import VestingStorage
-from mavryk.types.vesting.parameter.remove_vestee import RemoveVesteeParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.vesting.tezos_storage import VestingStorage
+from mavryk.types.vesting.tezos_parameters.remove_vestee import RemoveVesteeParameter
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def remove_vestee(
     ctx: HandlerContext,
-    remove_vestee: Transaction[RemoveVesteeParameter, VestingStorage],
+    remove_vestee: TzktTransaction[RemoveVesteeParameter, VestingStorage],
 ) -> None:
 
     try:

@@ -21,8 +21,8 @@ advanced:
 
 datasources:
   tzkt_ghostnet:
-    kind: tzkt
+    kind: tezos.tzkt
     url: ${TZKT_GHOSTNET_URL:-changeme}
   tzkt_mainnet:
-    kind: tzkt
+    kind: tezos.tzkt
     url: ${TZKT_MAINNET_URL:-changeme}

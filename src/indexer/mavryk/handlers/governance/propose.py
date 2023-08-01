@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
-from mavryk.types.governance.storage import GovernanceStorage
-from dipdup.models import Transaction
-from mavryk.types.governance.parameter.propose import ProposeParameter
+from mavryk.types.governance.tezos_storage import GovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance.tezos_parameters.propose import ProposeParameter
 from dipdup.context import HandlerContext
 from dateutil import parser 
 import mavryk.models as models
 
 async def propose(
     ctx: HandlerContext,
-    propose: Transaction[ProposeParameter, GovernanceStorage],
+    propose: TzktTransaction[ProposeParameter, GovernanceStorage],
 ) -> None:
 
     try:

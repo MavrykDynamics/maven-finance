@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
-from mavryk.types.lending_controller.parameter.set_collateral_token import SetCollateralTokenParameter, ActionItem as createCollateralToken
-from dipdup.models import Transaction
-from mavryk.types.lending_controller.storage import LendingControllerStorage
+from mavryk.types.lending_controller.tezos_parameters.set_collateral_token import SetCollateralTokenParameter, ActionItem as createCollateralToken
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def set_collateral_token(
     ctx: HandlerContext,
-    set_collateral_token: Transaction[SetCollateralTokenParameter, LendingControllerStorage],
+    set_collateral_token: TzktTransaction[SetCollateralTokenParameter, LendingControllerStorage],
 ) -> None:
 
     try:

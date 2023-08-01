@@ -2,13 +2,13 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.utils.persisters import persist_financial_request
-from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
-from dipdup.models import Transaction
-from mavryk.types.governance_financial.parameter.set_contract_baker import SetContractBakerParameter
+from mavryk.types.governance_financial.tezos_storage import GovernanceFinancialStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance_financial.tezos_parameters.set_contract_baker import SetContractBakerParameter
 
 async def set_contract_baker(
     ctx: HandlerContext,
-    set_contract_baker: Transaction[SetContractBakerParameter, GovernanceFinancialStorage],
+    set_contract_baker: TzktTransaction[SetContractBakerParameter, GovernanceFinancialStorage],
 ) -> None:
 
     try:    

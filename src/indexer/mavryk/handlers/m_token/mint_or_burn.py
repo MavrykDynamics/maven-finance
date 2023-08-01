@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.m_token.parameter.mint_or_burn import MintOrBurnParameter
-from mavryk.types.m_token.storage import MTokenStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.m_token.tezos_parameters.mint_or_burn import MintOrBurnParameter
+from mavryk.types.m_token.tezos_storage import MTokenStorage
 import mavryk.models as models
 
 
 async def mint_or_burn(
     ctx: HandlerContext,
-    mint_or_burn: Transaction[MintOrBurnParameter, MTokenStorage],
+    mint_or_burn: TzktTransaction[MintOrBurnParameter, MTokenStorage],
 ) -> None:
 
     try:    

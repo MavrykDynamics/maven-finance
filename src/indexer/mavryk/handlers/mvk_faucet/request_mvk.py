@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.mvk_faucet.parameter.request_mvk import RequestMvkParameter
-from mavryk.types.mvk_faucet.storage import MvkFaucetStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.mvk_faucet.tezos_parameters.request_mvk import RequestMvkParameter
+from mavryk.types.mvk_faucet.tezos_storage import MvkFaucetStorage
 import mavryk.models as models
 
 async def request_mvk(
     ctx: HandlerContext,
-    request_mvk: Transaction[RequestMvkParameter, MvkFaucetStorage],
+    request_mvk: TzktTransaction[RequestMvkParameter, MvkFaucetStorage],
 ) -> None:
 
     try:

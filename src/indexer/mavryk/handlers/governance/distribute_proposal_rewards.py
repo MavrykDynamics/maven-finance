@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.governance.parameter.distribute_proposal_rewards import DistributeProposalRewardsParameter
-from mavryk.types.governance.storage import GovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance.tezos_parameters.distribute_proposal_rewards import DistributeProposalRewardsParameter
+from mavryk.types.governance.tezos_storage import GovernanceStorage
 import mavryk.models as models
 
 async def distribute_proposal_rewards(
     ctx: HandlerContext,
-    distribute_proposal_rewards: Transaction[DistributeProposalRewardsParameter, GovernanceStorage],
+    distribute_proposal_rewards: TzktTransaction[DistributeProposalRewardsParameter, GovernanceStorage],
 ) -> None:
 
     try:

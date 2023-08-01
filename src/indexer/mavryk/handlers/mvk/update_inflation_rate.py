@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.mvk_token.storage import MvkTokenStorage
-from mavryk.types.mvk_token.parameter.update_inflation_rate import UpdateInflationRateParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.mvk_token.tezos_storage import MvkTokenStorage
+from mavryk.types.mvk_token.tezos_parameters.update_inflation_rate import UpdateInflationRateParameter
 import mavryk.models as models
 
 async def update_inflation_rate(
     ctx: HandlerContext,
-    update_inflation_rate: Transaction[UpdateInflationRateParameter, MvkTokenStorage],
+    update_inflation_rate: TzktTransaction[UpdateInflationRateParameter, MvkTokenStorage],
 ) -> None:
 
     try:    

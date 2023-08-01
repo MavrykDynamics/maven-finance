@@ -2,14 +2,14 @@ from mavryk.utils.contracts import get_contract_token_metadata, get_token_standa
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.mvk_token.storage import MvkTokenStorage
-from dipdup.models import Origination
+from mavryk.types.mvk_token.tezos_storage import MvkTokenStorage
+from dipdup.models.tezos_tzkt import TzktOrigination
 from dateutil import parser 
 import mavryk.models as models
 
 async def origination(
     ctx: HandlerContext,
-    mvk_origination: Origination[MvkTokenStorage],
+    mvk_origination: TzktOrigination[MvkTokenStorage],
 ) -> None:
 
     try:    

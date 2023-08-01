@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.m_farm.parameter.pause_all import PauseAllParameter
-from mavryk.types.m_farm.storage import MFarmStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.m_farm.tezos_parameters.pause_all import PauseAllParameter
+from mavryk.types.m_farm.tezos_storage import MFarmStorage
 import mavryk.models as models
 
 async def pause_all(
     ctx: HandlerContext,
-    pause_all: Transaction[PauseAllParameter, MFarmStorage],
+    pause_all: TzktTransaction[PauseAllParameter, MFarmStorage],
 ) -> None:
 
     try:

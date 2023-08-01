@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_financial_request
-from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
+from mavryk.types.governance_financial.tezos_storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
-from mavryk.types.governance_financial.parameter.request_mint import RequestMintParameter
-from dipdup.models import Transaction
+from mavryk.types.governance_financial.tezos_parameters.request_mint import RequestMintParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 
 async def request_mint(
     ctx: HandlerContext,
-    request_mint: Transaction[RequestMintParameter, GovernanceFinancialStorage],
+    request_mint: TzktTransaction[RequestMintParameter, GovernanceFinancialStorage],
 ) -> None:
 
     try:    

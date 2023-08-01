@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.doorman.parameter.compound import CompoundParameter
+from mavryk.types.doorman.tezos_parameters.compound import CompoundParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.doorman.storage import DoormanStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.doorman.tezos_storage import DoormanStorage
 import mavryk.models as models
 
 async def compound(
     ctx: HandlerContext,
-    compound: Transaction[CompoundParameter, DoormanStorage],
+    compound: TzktTransaction[CompoundParameter, DoormanStorage],
 ) -> None:
 
     try:

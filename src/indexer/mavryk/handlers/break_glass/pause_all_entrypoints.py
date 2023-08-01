@@ -2,13 +2,13 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.utils.persisters import persist_break_glass_action
-from mavryk.types.break_glass.storage import BreakGlassStorage
-from mavryk.types.break_glass.parameter.pause_all_entrypoints import PauseAllEntrypointsParameter
-from dipdup.models import Transaction
+from mavryk.types.break_glass.tezos_storage import BreakGlassStorage
+from mavryk.types.break_glass.tezos_parameters.pause_all_entrypoints import PauseAllEntrypointsParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 
 async def pause_all_entrypoints(
     ctx: HandlerContext,
-    pause_all_entrypoints: Transaction[PauseAllEntrypointsParameter, BreakGlassStorage],
+    pause_all_entrypoints: TzktTransaction[PauseAllEntrypointsParameter, BreakGlassStorage],
 ) -> None:
 
     try:

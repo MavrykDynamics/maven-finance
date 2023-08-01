@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.treasury_factory.parameter.track_treasury import TrackTreasuryParameter
-from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
+from mavryk.types.treasury_factory.tezos_parameters.track_treasury import TrackTreasuryParameter
+from mavryk.types.treasury_factory.tezos_storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def track_treasury(
     ctx: HandlerContext,
-    track_treasury: Transaction[TrackTreasuryParameter, TreasuryFactoryStorage],
+    track_treasury: TzktTransaction[TrackTreasuryParameter, TreasuryFactoryStorage],
 ) -> None:
 
     try:

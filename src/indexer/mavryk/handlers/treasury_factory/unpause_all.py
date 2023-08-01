@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
+from mavryk.types.treasury_factory.tezos_storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.treasury_factory.parameter.unpause_all import UnpauseAllParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.treasury_factory.tezos_parameters.unpause_all import UnpauseAllParameter
 import mavryk.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: Transaction[UnpauseAllParameter, TreasuryFactoryStorage],
+    unpause_all: TzktTransaction[UnpauseAllParameter, TreasuryFactoryStorage],
 ) -> None:
 
     try:

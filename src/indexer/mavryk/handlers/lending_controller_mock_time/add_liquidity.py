@@ -1,15 +1,15 @@
 from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
-from dipdup.models import Transaction
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.lending_controller_mock_time.parameter.add_liquidity import AddLiquidityParameter
+from mavryk.types.lending_controller_mock_time.tezos_parameters.add_liquidity import AddLiquidityParameter
 import mavryk.models as models
 
 async def add_liquidity(
     ctx: HandlerContext,
-    add_liquidity: Transaction[AddLiquidityParameter, LendingControllerMockTimeStorage],
+    add_liquidity: TzktTransaction[AddLiquidityParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:    

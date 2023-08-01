@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
-from dipdup.models import Transaction
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.lending_controller_mock_time.parameter.close_vault import CloseVaultParameter
+from mavryk.types.lending_controller_mock_time.tezos_parameters.close_vault import CloseVaultParameter
 import mavryk.models as models
 
 async def close_vault(
     ctx: HandlerContext,
-    close_vault: Transaction[CloseVaultParameter, LendingControllerMockTimeStorage],
+    close_vault: TzktTransaction[CloseVaultParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:

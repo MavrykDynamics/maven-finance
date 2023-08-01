@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.council.parameter.sign_action import SignActionParameter
-from mavryk.types.council.storage import CouncilStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.council.tezos_parameters.sign_action import SignActionParameter
+from mavryk.types.council.tezos_storage import CouncilStorage
 from dateutil import parser
 import mavryk.models as models
 
 async def sign_action(
     ctx: HandlerContext,
-    sign_action: Transaction[SignActionParameter, CouncilStorage],
+    sign_action: TzktTransaction[SignActionParameter, CouncilStorage],
 ) -> None:
 
     try:

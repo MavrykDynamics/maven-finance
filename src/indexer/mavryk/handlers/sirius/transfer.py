@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.sirius.storage import SiriusStorage
+from mavryk.types.sirius.tezos_storage import SiriusStorage
 from dipdup.context import HandlerContext
-from mavryk.types.sirius.parameter.transfer import TransferParameter
-from dipdup.models import Transaction
+from mavryk.types.sirius.tezos_parameters.transfer import TransferParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def transfer(
     ctx: HandlerContext,
-    transfer: Transaction[TransferParameter, SiriusStorage],
+    transfer: TzktTransaction[TransferParameter, SiriusStorage],
 ) -> None:
 
     try:

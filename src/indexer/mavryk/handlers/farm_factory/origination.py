@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Origination
+from dipdup.models.tezos_tzkt import TzktOrigination
 from dipdup.context import HandlerContext
 from mavryk.utils.contracts import get_contract_metadata
-from mavryk.types.farm_factory.storage import FarmFactoryStorage
+from mavryk.types.farm_factory.tezos_storage import FarmFactoryStorage
 import mavryk.models as models
 
 async def origination(
     ctx: HandlerContext,
-    farm_factory_origination: Origination[FarmFactoryStorage],
+    farm_factory_origination: TzktOrigination[FarmFactoryStorage],
 ) -> None:
 
     try:

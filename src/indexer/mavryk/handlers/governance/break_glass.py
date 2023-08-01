@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.governance.storage import GovernanceStorage
-from dipdup.models import Transaction
-from mavryk.types.governance.parameter.break_glass import BreakGlassParameter
+from mavryk.types.governance.tezos_storage import GovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance.tezos_parameters.break_glass import BreakGlassParameter
 import mavryk.models as models
 
 async def break_glass(
     ctx: HandlerContext,
-    break_glass: Transaction[BreakGlassParameter, GovernanceStorage],
+    break_glass: TzktTransaction[BreakGlassParameter, GovernanceStorage],
 ) -> None:
 
     try:    

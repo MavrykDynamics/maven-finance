@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.vault.parameter.update_depositor import UpdateDepositorParameter, AllowanceItem as Any, AllowanceItem1 as Whitelist
+from mavryk.types.vault.tezos_parameters.update_depositor import UpdateDepositorParameter, AllowanceItem as Any, AllowanceItem1 as Whitelist
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.vault.storage import VaultStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.vault.tezos_storage import VaultStorage
 import mavryk.models as models
 
 async def update_depositor(
     ctx: HandlerContext,
-    update_depositor: Transaction[UpdateDepositorParameter, VaultStorage],
+    update_depositor: TzktTransaction[UpdateDepositorParameter, VaultStorage],
 ) -> None:
 
     try:
