@@ -147,7 +147,6 @@ describe('Lending Controller Supporting Contracts', async () => {
             
             mockUsdMockFa12TokenAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMockFa12TokenAggregatorAddress', mockUsdMockFa12TokenAggregator.contract.address)
-            // console.log('Mock USD/MockFA12Token Aggregator Contract deployed at:', mockUsdMockFa12TokenAggregator.contract.address)
 
 
 
@@ -162,7 +161,6 @@ describe('Lending Controller Supporting Contracts', async () => {
             
             mockUsdMockFa2TokenAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMockFa2TokenAggregatorAddress', mockUsdMockFa2TokenAggregator.contract.address)
-            // console.log('Mock USD/MockFA2Token Aggregator Contract deployed at:', mockUsdMockFa2TokenAggregator.contract.address)
 
 
             // Mock USD/Xtz Aggregator
@@ -176,7 +174,6 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             mockUsdXtzAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
-            // console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
 
 
             //----------------------------
@@ -195,7 +192,6 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             mockUsdMvkAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMvkAggregatorAddress', mockUsdMvkAggregator.contract.address)
-            // console.log('Mock USD/MVK Aggregator Contract deployed at:', mockUsdMvkAggregator.contract.address)
 
             //----------------------------
             // Set Lambdas
