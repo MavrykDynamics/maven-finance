@@ -24,6 +24,7 @@ import { mockSatelliteData } from "./helpers/mockSampleData";
 import { 
     signerFactory, 
     updateOperators,
+    updateGeneralContracts
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
