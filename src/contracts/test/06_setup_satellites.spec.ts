@@ -60,8 +60,8 @@ describe("Setup: Mock Satellites", async () => {
     let tokenId = 0
 
     let stakeAmount
-    let highStakeBonusAmount = MVK(1000)
-    let lowStakeBonusAmount  = MVK(600)
+    let highStakeBonusAmount = MVK(900)
+    let lowStakeBonusAmount  = MVK(500)
 
     // contract instances
     let doormanInstance
@@ -145,7 +145,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + highStakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + highStakeBonusAmount;
+                    stakeAmount = Math.abs(initialUserStakedBalance - (initialMinimumStakedMvkRequirement + highStakeBonusAmount));
 
                     // update operators operation for user
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -221,7 +221,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + highStakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + highStakeBonusAmount;
+                    stakeAmount = Math.abs(initialUserStakedBalance - (initialMinimumStakedMvkRequirement + highStakeBonusAmount));
 
                     // update operators operation for user
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -297,7 +297,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + lowStakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + lowStakeBonusAmount;
+                    stakeAmount = Math.abs(initialUserStakedBalance - (initialMinimumStakedMvkRequirement + lowStakeBonusAmount));
 
                     // update operators operation for user
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -373,7 +373,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + lowStakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + lowStakeBonusAmount;
+                    stakeAmount = Math.abs(initialUserStakedBalance - (initialMinimumStakedMvkRequirement + lowStakeBonusAmount));
 
                     // update operators operation for user
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -448,7 +448,7 @@ describe("Setup: Mock Satellites", async () => {
                 // check that user has sufficient staked balance
                 if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + lowStakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + lowStakeBonusAmount;
+                    stakeAmount = Math.abs(initialUserStakedBalance - (initialMinimumStakedMvkRequirement + lowStakeBonusAmount));
 
                     // update operators operation for user
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
