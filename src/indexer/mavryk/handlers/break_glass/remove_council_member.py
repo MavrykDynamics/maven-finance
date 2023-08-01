@@ -1,4 +1,3 @@
-
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
