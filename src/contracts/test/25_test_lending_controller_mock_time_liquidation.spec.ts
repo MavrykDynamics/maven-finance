@@ -153,6 +153,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let epoch 
     let lastEpoch 
     let round
+    let lastRound
     let currentMockLevel      
     let newMockLevel
     let mockLevelChange
@@ -548,8 +549,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         if(mockUsdMockFa12TokenLastData != defaultMockFa12TokenMedianPrice){
 
             epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch;
+            round = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round;
             epoch = epoch.toNumber() + 1;
-            round = 0;
+            round = round.toNumber() + 1;
 
             // default observation data for mock FA-12 token
             defaultObservations = lendingHelper.defaultPriceObservations[usdtTokenIndex].observations;
@@ -563,8 +565,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         if(mockUsdMockFa2TokenLastData != defaultMockFa2TokenMedianPrice){
 
             epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch;
+            round = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.round;
             epoch = epoch.toNumber() + 1;
-            round = 0;
+            round = round.toNumber() + 1;
 
             // default observation data for mock FA-2 token
             defaultObservations = lendingHelper.defaultPriceObservations[eurlTokenIndex].observations;
@@ -578,8 +581,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         if(mockUsdTezLastData != defaultTezMedianPrice){
 
             epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
+            round = await mockUsdXtzAggregatorStorage.lastCompletedData.round;
             epoch = epoch.toNumber() + 1;
-            round = 0;
+            round = round.toNumber() + 1;
 
             // default observation data for xtz
             defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
@@ -593,8 +597,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         if(mockUsdMvkLastData != defaultMvkMedianPrice){
 
             epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch;
+            round = await mockUsdMvkAggregatorStorage.lastCompletedData.round;
             epoch = epoch.toNumber() + 1;
-            round = 0;
+            round = round.toNumber() + 1;
 
             // default observation data for mvk
             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
@@ -2337,8 +2342,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
 
             lastEpoch   = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch
+            lastRound   = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round
             epoch       = lastEpoch.toNumber() + 1;
-            round       = 1;
+            round       = lastRound.toNumber() + 1;
 
             lendingControllerStorage     = await lendingControllerInstance.storage();
             vaultRecord                  = await lendingControllerStorage.vaults.get(vaultHandle);
@@ -2999,8 +3005,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     
             mockUsdMockFa12TokenAggregatorStorage     = await mockUsdMockFa12TokenAggregatorInstance.storage();
             lastEpoch                                 = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch
+            lastRound                                 = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round
             epoch                                     = lastEpoch.toNumber() + 1;
-            round                                     = 1;
+            round                                     = lastRound.toNumber() + 1;
     
             lendingControllerStorage                  = await lendingControllerInstance.storage();
             vaultRecord                               = await lendingControllerStorage.vaults.get(vaultHandle);
@@ -3030,8 +3037,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             mockUsdXtzAggregatorStorage   = await mockUsdXtzAggregatorInstance.storage();
             lastEpoch                     = mockUsdXtzAggregatorStorage.lastCompletedData.epoch
+            lastRound                     = mockUsdXtzAggregatorStorage.lastCompletedData.round
             epoch                         = lastEpoch.toNumber() + 1;
-            round                         = 1;
+            round                         = lastRound.toNumber() + 1;
     
             lendingControllerStorage     = await lendingControllerInstance.storage();
             vaultRecord                  = await lendingControllerStorage.vaults.get(vaultHandle);
