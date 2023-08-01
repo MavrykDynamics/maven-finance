@@ -1,4 +1,4 @@
-spec_version: 1.2
+spec_version: 2.0
 
 package: mavryk
 
@@ -17,6 +17,7 @@ hasura:
   allow_aggregations: false
   admin_secret: hasura12345
   select_limit: 1000
+  rest: false
 
 prometheus:
   host: 0.0.0.0
@@ -25,9 +26,9 @@ prometheus:
 
 advanced:
   metadata_interface: true
-  early_realtime: true
+  early_realtime: false
   crash_reporting: false
-  merge_subscriptions: true
+  merge_subscriptions: false
   scheduler:
     apscheduler.job_defaults.coalesce: true
     apscheduler.job_defaults.max_instances: 1
