@@ -13,7 +13,7 @@ services:
   #     - TZKT_URL=${TZKT_URL:-changeme}
 
   db:
-    image: timescale/timescaledb:latest-pg13
+    image: timescale/timescaledb:latest-pg14
     ports:
       - 127.0.0.1:5432:5432
     restart: always
@@ -33,7 +33,7 @@ services:
       replicas: 1
 
   hasura:
-    image: hasura/graphql-engine:v2.23.0
+    image: hasura/graphql-engine:v2.30.1
     ports:
       - 127.0.0.1:42000:8080
     depends_on:
