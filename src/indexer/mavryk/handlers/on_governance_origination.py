@@ -178,7 +178,7 @@ async def on_governance_origination(
 
         # Start Liquidity Baking indexer
         liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
-        if liquidity_baking_enable_indexer.upper() == "TRUE":
+        if str(liquidity_baking_enable_indexer).upper() == "TRUE":
             await ctx.add_index(
                 name="liquidity_baking",
                 template="liquidity_baking_template",
