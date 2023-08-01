@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.lending_controller.parameter.repay import RepayParameter
-from dipdup.models import Transaction
-from mavryk.types.lending_controller.storage import LendingControllerStorage
+from mavryk.types.lending_controller.tezos_parameters.repay import RepayParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage
 from dateutil import parser
 import mavryk.models as models
 
 async def repay(
     ctx: HandlerContext,
-    repay: Transaction[RepayParameter, LendingControllerStorage],
+    repay: TzktTransaction[RepayParameter, LendingControllerStorage],
 ) -> None:
 
     try:

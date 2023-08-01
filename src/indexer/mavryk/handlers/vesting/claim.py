@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.vesting.storage import VestingStorage
-from dipdup.models import Transaction
-from mavryk.types.vesting.parameter.claim import ClaimParameter
+from mavryk.types.vesting.tezos_storage import VestingStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.vesting.tezos_parameters.claim import ClaimParameter
 from dipdup.context import HandlerContext
 from dateutil import parser 
 import mavryk.models as models
 
 async def claim(
     ctx: HandlerContext,
-    claim: Transaction[ClaimParameter, VestingStorage],
+    claim: TzktTransaction[ClaimParameter, VestingStorage],
 ) -> None:
 
     try:

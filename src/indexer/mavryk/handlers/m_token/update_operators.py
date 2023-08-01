@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.m_token.parameter.update_operators import UpdateOperatorsParameter
-from mavryk.types.m_token.storage import MTokenStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.m_token.tezos_parameters.update_operators import UpdateOperatorsParameter
+from mavryk.types.m_token.tezos_storage import MTokenStorage
 import mavryk.models as models
 
 
 async def update_operators(
     ctx: HandlerContext,
-    update_operators: Transaction[UpdateOperatorsParameter, MTokenStorage],
+    update_operators: TzktTransaction[UpdateOperatorsParameter, MTokenStorage],
 ) -> None:
 
     try:

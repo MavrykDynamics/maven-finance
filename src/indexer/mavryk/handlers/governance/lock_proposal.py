@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.governance.parameter.lock_proposal import LockProposalParameter
-from dipdup.models import Transaction
-from mavryk.types.governance.storage import GovernanceStorage
+from mavryk.types.governance.tezos_parameters.lock_proposal import LockProposalParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance.tezos_storage import GovernanceStorage
 import mavryk.models as models
 
 async def lock_proposal(
     ctx: HandlerContext,
-    lock_proposal: Transaction[LockProposalParameter, GovernanceStorage],
+    lock_proposal: TzktTransaction[LockProposalParameter, GovernanceStorage],
 ) -> None:
 
     try:

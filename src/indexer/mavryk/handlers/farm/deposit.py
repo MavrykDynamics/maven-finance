@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.farm.parameter.deposit import DepositParameter
+from mavryk.types.farm.tezos_parameters.deposit import DepositParameter
 from dipdup.context import HandlerContext
-from mavryk.types.farm.storage import FarmStorage
-from dipdup.models import Transaction
+from mavryk.types.farm.tezos_storage import FarmStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def deposit(
     ctx: HandlerContext,
-    deposit: Transaction[DepositParameter, FarmStorage],
+    deposit: TzktTransaction[DepositParameter, FarmStorage],
 ) -> None:
 
     try:

@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from mavryk.types.vesting.storage import VestingStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.vesting.tezos_storage import VestingStorage
 from dipdup.context import HandlerContext
-from mavryk.types.vesting.parameter.toggle_vestee_lock import ToggleVesteeLockParameter
+from mavryk.types.vesting.tezos_parameters.toggle_vestee_lock import ToggleVesteeLockParameter
 import mavryk.models as models
 
 async def toggle_vestee_lock(
     ctx: HandlerContext,
-    toggle_vestee_lock: Transaction[ToggleVesteeLockParameter, VestingStorage],
+    toggle_vestee_lock: TzktTransaction[ToggleVesteeLockParameter, VestingStorage],
 ) -> None:
 
     try:

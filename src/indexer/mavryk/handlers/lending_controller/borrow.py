@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller.parameter.borrow import BorrowParameter
+from mavryk.types.lending_controller.tezos_parameters.borrow import BorrowParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.lending_controller.storage import LendingControllerStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage
 import mavryk.models as models
 from dateutil import parser
 
 async def borrow(
     ctx: HandlerContext,
-    borrow: Transaction[BorrowParameter, LendingControllerStorage],
+    borrow: TzktTransaction[BorrowParameter, LendingControllerStorage],
 ) -> None:
 
     try:

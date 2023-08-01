@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.farm_factory.parameter.set_product_lambda import SetProductLambdaParameter, FarmTypeItem as Farm, FarmTypeItem1 as MFarm
-from mavryk.types.farm_factory.storage import FarmFactoryStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.farm_factory.tezos_parameters.set_product_lambda import SetProductLambdaParameter, FarmTypeItem as Farm, FarmTypeItem1 as MFarm
+from mavryk.types.farm_factory.tezos_storage import FarmFactoryStorage
 import mavryk.models as models
 
 async def set_product_lambda(
     ctx: HandlerContext,
-    set_product_lambda: Transaction[SetProductLambdaParameter, FarmFactoryStorage],
+    set_product_lambda: TzktTransaction[SetProductLambdaParameter, FarmFactoryStorage],
 ) -> None:
 
     try:

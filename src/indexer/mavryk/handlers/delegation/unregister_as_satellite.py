@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from mavryk.types.delegation.parameter.unregister_as_satellite import UnregisterAsSatelliteParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.delegation.tezos_parameters.unregister_as_satellite import UnregisterAsSatelliteParameter
 from dipdup.context import HandlerContext
-from mavryk.types.delegation.storage import DelegationStorage
+from mavryk.types.delegation.tezos_storage import DelegationStorage
 import mavryk.models as models
 
 async def unregister_as_satellite(
     ctx: HandlerContext,
-    unregister_as_satellite: Transaction[UnregisterAsSatelliteParameter, DelegationStorage],
+    unregister_as_satellite: TzktTransaction[UnregisterAsSatelliteParameter, DelegationStorage],
 ) -> None:
 
     try:

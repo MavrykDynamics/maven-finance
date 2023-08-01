@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_admin
-from mavryk.types.doorman.storage import DoormanStorage
+from mavryk.types.doorman.tezos_storage import DoormanStorage
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.doorman.parameter.set_admin import SetAdminParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.doorman.tezos_parameters.set_admin import SetAdminParameter
 import mavryk.models as models
 
 async def set_admin(
     ctx: HandlerContext,
-    set_admin: Transaction[SetAdminParameter, DoormanStorage],
+    set_admin: TzktTransaction[SetAdminParameter, DoormanStorage],
 ) -> None:
 
     try:

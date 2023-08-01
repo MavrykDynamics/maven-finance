@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from mavryk.types.vesting.parameter.add_vestee import AddVesteeParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.vesting.tezos_parameters.add_vestee import AddVesteeParameter
 from dipdup.context import HandlerContext
-from mavryk.types.vesting.storage import VestingStorage
+from mavryk.types.vesting.tezos_storage import VestingStorage
 from dateutil import parser 
 import mavryk.models as models
 
 async def add_vestee(
     ctx: HandlerContext,
-    add_vestee: Transaction[AddVesteeParameter, VestingStorage],
+    add_vestee: TzktTransaction[AddVesteeParameter, VestingStorage],
 ) -> None:
 
     try:

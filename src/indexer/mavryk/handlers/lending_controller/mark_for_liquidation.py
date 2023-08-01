@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller.storage import LendingControllerStorage
-from mavryk.types.lending_controller.parameter.mark_for_liquidation import MarkForLiquidationParameter
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage
+from mavryk.types.lending_controller.tezos_parameters.mark_for_liquidation import MarkForLiquidationParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 from dateutil import parser
 
 async def mark_for_liquidation(
     ctx: HandlerContext,
-    mark_for_liquidation: Transaction[MarkForLiquidationParameter, LendingControllerStorage],
+    mark_for_liquidation: TzktTransaction[MarkForLiquidationParameter, LendingControllerStorage],
 ) -> None:
 
     try:

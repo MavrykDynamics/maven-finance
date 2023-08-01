@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from mavryk.types.governance_satellite.parameter.vote_for_action import VoteForActionParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance_satellite.tezos_parameters.vote_for_action import VoteForActionParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
 from dipdup.context import HandlerContext
-from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
+from mavryk.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
 import mavryk.models as models
 from dateutil import parser
 
 async def vote_for_action(
     ctx: HandlerContext,
-    vote_for_action: Transaction[VoteForActionParameter, GovernanceSatelliteStorage],
+    vote_for_action: TzktTransaction[VoteForActionParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

@@ -1,19 +1,19 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from dipdup.models import Origination
+from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos_tzkt import TzktOrigination
 from dipdup.context import HandlerContext
 from mavryk.utils.contracts import get_contract_metadata
-from mavryk.types.aggregator_factory.parameter.create_aggregator import CreateAggregatorParameter
-from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
-from mavryk.types.aggregator.storage import AggregatorStorage
+from mavryk.types.aggregator_factory.tezos_parameters.create_aggregator import CreateAggregatorParameter
+from mavryk.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
+from mavryk.types.aggregator.tezos_storage import AggregatorStorage
 from dateutil import parser
 import mavryk.models as models
 
 async def create_aggregator(
     ctx: HandlerContext,
-    create_aggregator: Transaction[CreateAggregatorParameter, AggregatorFactoryStorage],
-    aggregator_origination: Origination[AggregatorStorage],
+    create_aggregator: TzktTransaction[CreateAggregatorParameter, AggregatorFactoryStorage],
+    aggregator_origination: TzktOrigination[AggregatorStorage],
 ) -> None:
 
     try:
@@ -50,6 +50,7 @@ async def create_aggregator(
             aggregator_contract   =  f'{aggregator_address}contract'
             if not aggregator_contract in ctx.config.contracts: 
                 await ctx.add_contract(
+                    kind="tezos",
                     name=aggregator_contract,
                     address=aggregator_address,
                     typename="aggregator"

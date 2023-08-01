@@ -17,7 +17,7 @@ jobs:
 templates:
   # Treasury token balance template
   treasury_token_transfer_receiver_template:
-    kind: token_transfer
+    kind: tezos.tzkt.token_transfers
     datasource: tzkt_ghostnet
     handlers:
     - callback: treasury.token_transfer_receiver
@@ -26,7 +26,7 @@ templates:
 
   # Farm template
   farm_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - transaction
@@ -92,7 +92,7 @@ templates:
 
   # MFarm template
   m_farm_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - transaction
@@ -158,7 +158,7 @@ templates:
 
   # Treasury template
   treasury_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - transaction
@@ -216,7 +216,7 @@ templates:
 
   # Aggregator template
   aggregator_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - transaction
@@ -294,7 +294,7 @@ templates:
 
   # Vault template
   vault_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - transaction
@@ -315,7 +315,7 @@ templates:
         entrypoint: updateVaultName
   # MToken template
   m_token_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -358,7 +358,7 @@ templates:
   # Governance satellite snapshot template
   # Index the snapshot ledger bigmap of the governance contract
   governance_satellite_snapshot_template:
-    kind: big_map
+    kind: tezos.tzkt.big_maps
     datasource: tzkt_ghostnet
     skip_history: never
     handlers:
@@ -368,7 +368,7 @@ templates:
   # Main Template - Mavryk Finance
   # Ran after the governance origination and index the entire dApp
   mavryk_finance_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination
@@ -1519,7 +1519,7 @@ templates:
   # Side Template - Liquidity Baking
   # Ran after the liquidity baking origination and index the entire dApp
   liquidity_baking_template:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_mainnet
     types:
     - origination
@@ -1530,7 +1530,7 @@ templates:
     - <tzbtc_contract>
     handlers:
     # Liquidity baking handlers
-    - callback: liquidity_baking._add_liquidity
+    - callback: liquidity_baking.add_liquidity
       pattern:
       - destination: <liquidity_baking_contract>
         entrypoint: addLiquidity
@@ -1538,7 +1538,7 @@ templates:
         entrypoint: transfer
       - destination: <sirius_contract>
         entrypoint: mintOrBurn
-    - callback: liquidity_baking._remove_liquidity
+    - callback: liquidity_baking.remove_liquidity
       pattern:
       - destination: <liquidity_baking_contract>
         entrypoint: removeLiquidity
@@ -1548,7 +1548,7 @@ templates:
         entrypoint: transfer
       - source: <liquidity_baking_contract>
         type: transaction
-    - callback: liquidity_baking._token_to_xtz
+    - callback: liquidity_baking.token_to_xtz
       pattern:
       - destination: <liquidity_baking_contract>
         entrypoint: tokenToXtz
@@ -1558,13 +1558,13 @@ templates:
         type: transaction
       - source: <liquidity_baking_contract>
         type: transaction
-    - callback: liquidity_baking._xtz_to_token
+    - callback: liquidity_baking.xtz_to_token
       pattern:
       - destination: <liquidity_baking_contract>
         entrypoint: xtzToToken
       - destination: <tzbtc_contract>
         entrypoint: transfer
-    - callback: liquidity_baking._default
+    - callback: liquidity_baking.default
       pattern:
       - destination: <liquidity_baking_contract>
         entrypoint: default
@@ -1576,7 +1576,7 @@ templates:
 
 indexes:
   mavryk_finance_ghostnet_init:
-    kind: operation
+    kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
     - origination

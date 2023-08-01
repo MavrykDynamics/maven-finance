@@ -25,10 +25,9 @@ prometheus:
   update_interval: 5
 
 advanced:
-  metadata_interface: true
   early_realtime: false
   crash_reporting: false
-  merge_subscriptions: false
+  merge_subscriptions: true
   scheduler:
     apscheduler.job_defaults.coalesce: true
     apscheduler.job_defaults.max_instances: 1
@@ -41,16 +40,16 @@ advanced:
 
 datasources:
   metadata_mainnet:
-    kind: metadata
+    kind: tzip_metadata
     url: https://metadata.dipdup.net
     network: mainnet
   metadata_ghostnet:
-    kind: metadata
+    kind: tzip_metadata
     url: https://metadata.dipdup.net
     network: ghostnet
   tzkt_ghostnet:
-    kind: tzkt
+    kind: tezos.tzkt
     url: https://api.ghostnet.tzkt.io
   tzkt_mainnet:
-    kind: tzkt
+    kind: tezos.tzkt
     url: https://api.tzkt.io

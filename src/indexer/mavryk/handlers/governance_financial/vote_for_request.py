@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
-from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance_financial.tezos_storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
-from mavryk.types.governance_financial.parameter.vote_for_request import VoteForRequestParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
+from mavryk.types.governance_financial.tezos_parameters.vote_for_request import VoteForRequestParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
 import mavryk.models as models
 from dateutil import parser
 
 async def vote_for_request(
     ctx: HandlerContext,
-    vote_for_request: Transaction[VoteForRequestParameter, GovernanceFinancialStorage],
+    vote_for_request: TzktTransaction[VoteForRequestParameter, GovernanceFinancialStorage],
 ) -> None:
 
     try:

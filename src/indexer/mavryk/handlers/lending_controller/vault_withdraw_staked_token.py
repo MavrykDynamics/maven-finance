@@ -1,15 +1,15 @@
 from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.lending_controller.parameter.vault_withdraw_staked_token import VaultWithdrawStakedTokenParameter
-from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem1 as Fa2
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.lending_controller.tezos_parameters.vault_withdraw_staked_token import VaultWithdrawStakedTokenParameter
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem1 as Fa2
 import mavryk.models as models
 from dateutil import parser
 
 async def vault_withdraw_staked_token(
     ctx: HandlerContext,
-    vault_withdraw_staked_token: Transaction[VaultWithdrawStakedTokenParameter, LendingControllerStorage],
+    vault_withdraw_staked_token: TzktTransaction[VaultWithdrawStakedTokenParameter, LendingControllerStorage],
 ) -> None:
 
     try:

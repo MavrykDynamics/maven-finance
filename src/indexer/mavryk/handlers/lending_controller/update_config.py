@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.lending_controller.parameter.update_config import UpdateConfigParameter
-from dipdup.models import Transaction
-from mavryk.types.lending_controller.storage import LendingControllerStorage
+from mavryk.types.lending_controller.tezos_parameters.update_config import UpdateConfigParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage
 import mavryk.models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: Transaction[UpdateConfigParameter, LendingControllerStorage],
+    update_config: TzktTransaction[UpdateConfigParameter, LendingControllerStorage],
 ) -> None:
 
     try:

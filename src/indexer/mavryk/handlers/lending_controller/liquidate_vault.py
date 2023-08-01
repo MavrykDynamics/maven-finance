@@ -1,16 +1,16 @@
 from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller.parameter.liquidate_vault import LiquidateVaultParameter
-from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem1 as Fa2
+from mavryk.types.lending_controller.tezos_parameters.liquidate_vault import LiquidateVaultParameter
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem1 as Fa2
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 from dateutil import parser
 
 async def liquidate_vault(
     ctx: HandlerContext,
-    liquidate_vault: Transaction[LiquidateVaultParameter, LendingControllerStorage],
+    liquidate_vault: TzktTransaction[LiquidateVaultParameter, LendingControllerStorage],
 ) -> None:
 
     try:

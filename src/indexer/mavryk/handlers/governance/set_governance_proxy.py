@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.governance.parameter.set_governance_proxy import SetGovernanceProxyParameter
+from mavryk.types.governance.tezos_parameters.set_governance_proxy import SetGovernanceProxyParameter
 from dipdup.context import HandlerContext
-from mavryk.types.governance.storage import GovernanceStorage
-from dipdup.models import Transaction
+from mavryk.types.governance.tezos_storage import GovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def set_governance_proxy(
     ctx: HandlerContext,
-    set_governance_proxy: Transaction[SetGovernanceProxyParameter, GovernanceStorage],
+    set_governance_proxy: TzktTransaction[SetGovernanceProxyParameter, GovernanceStorage],
 ) -> None:
 
     try:

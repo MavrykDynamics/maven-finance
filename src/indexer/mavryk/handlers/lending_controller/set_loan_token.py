@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
-from mavryk.types.lending_controller.parameter.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
-from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from mavryk.types.lending_controller.tezos_parameters.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
 import mavryk.models as models
 
 async def set_loan_token(
     ctx: HandlerContext,
-    set_loan_token: Transaction[SetLoanTokenParameter, LendingControllerStorage],
+    set_loan_token: TzktTransaction[SetLoanTokenParameter, LendingControllerStorage],
 ) -> None:
 
     try:

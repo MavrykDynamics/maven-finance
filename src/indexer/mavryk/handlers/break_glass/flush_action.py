@@ -2,13 +2,13 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.utils.persisters import persist_break_glass_action
-from mavryk.types.break_glass.storage import BreakGlassStorage
-from dipdup.models import Transaction
-from mavryk.types.break_glass.parameter.flush_action import FlushActionParameter
+from mavryk.types.break_glass.tezos_storage import BreakGlassStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.break_glass.tezos_parameters.flush_action import FlushActionParameter
 
 async def flush_action(
     ctx: HandlerContext,
-    flush_action: Transaction[FlushActionParameter, BreakGlassStorage],
+    flush_action: TzktTransaction[FlushActionParameter, BreakGlassStorage],
 ) -> None:
 
     try:

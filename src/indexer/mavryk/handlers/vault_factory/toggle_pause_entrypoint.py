@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.vault_factory.parameter.toggle_pause_entrypoint import TogglePauseEntrypointParameter
-from mavryk.types.vault_factory.storage import VaultFactoryStorage
+from mavryk.types.vault_factory.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
+from mavryk.types.vault_factory.tezos_storage import VaultFactoryStorage
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, VaultFactoryStorage],
+    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, VaultFactoryStorage],
 ) -> None:
 
     try:

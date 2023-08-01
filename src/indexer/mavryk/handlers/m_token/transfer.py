@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.m_token.parameter.transfer import TransferParameter
-from mavryk.types.m_token.storage import MTokenStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.m_token.tezos_parameters.transfer import TransferParameter
+from mavryk.types.m_token.tezos_storage import MTokenStorage
 import mavryk.models as models
 
 
 async def transfer(
     ctx: HandlerContext,
-    transfer: Transaction[TransferParameter, MTokenStorage],
+    transfer: TzktTransaction[TransferParameter, MTokenStorage],
 ) -> None:
 
     try:

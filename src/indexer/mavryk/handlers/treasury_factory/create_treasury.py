@@ -1,18 +1,18 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.contracts import get_contract_metadata
-from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
+from mavryk.types.treasury_factory.tezos_storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
-from mavryk.types.treasury_factory.parameter.create_treasury import CreateTreasuryParameter
-from mavryk.types.treasury.storage import TreasuryStorage
-from dipdup.models import Origination
-from dipdup.models import Transaction
+from mavryk.types.treasury_factory.tezos_parameters.create_treasury import CreateTreasuryParameter
+from mavryk.types.treasury.tezos_storage import TreasuryStorage
+from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def create_treasury(
     ctx: HandlerContext,
-    create_treasury: Transaction[CreateTreasuryParameter, TreasuryFactoryStorage],
-    treasury_origination: Origination[TreasuryStorage],
+    create_treasury: TzktTransaction[CreateTreasuryParameter, TreasuryFactoryStorage],
+    treasury_origination: TzktOrigination[TreasuryStorage],
 ) -> None:
 
     try:
@@ -41,6 +41,7 @@ async def create_treasury(
             treasury_contract                       =  f'{treasury_address}contract'
             if not treasury_contract in ctx.config.contracts: 
                 await ctx.add_contract(
+                    kind="tezos",
                     name=treasury_contract,
                     address=treasury_address,
                     typename="treasury"

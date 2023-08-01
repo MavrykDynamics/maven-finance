@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.farm.parameter.init_farm import InitFarmParameter
+from mavryk.types.farm.tezos_parameters.init_farm import InitFarmParameter
 from dipdup.context import HandlerContext
-from mavryk.types.farm.storage import FarmStorage
-from dipdup.models import Transaction
+from mavryk.types.farm.tezos_storage import FarmStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def init_farm(
     ctx: HandlerContext,
-    init_farm: Transaction[InitFarmParameter, FarmStorage],
+    init_farm: TzktTransaction[InitFarmParameter, FarmStorage],
 ) -> None:
 
     try:

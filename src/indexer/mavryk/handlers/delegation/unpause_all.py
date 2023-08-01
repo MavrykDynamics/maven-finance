@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.delegation.parameter.unpause_all import UnpauseAllParameter
-from mavryk.types.delegation.storage import DelegationStorage
+from mavryk.types.delegation.tezos_parameters.unpause_all import UnpauseAllParameter
+from mavryk.types.delegation.tezos_storage import DelegationStorage
 import mavryk.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: Transaction[UnpauseAllParameter, DelegationStorage],
+    unpause_all: TzktTransaction[UnpauseAllParameter, DelegationStorage],
 ) -> None:
 
     try:

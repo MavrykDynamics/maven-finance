@@ -1,22 +1,22 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.contracts import get_contract_token_metadata, get_token_standard
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
-from dipdup.models import Transaction
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.lending_controller_mock_time.parameter.set_collateral_token import SetCollateralTokenParameter, ActionItem as createCollateralToken
+from mavryk.types.lending_controller_mock_time.tezos_parameters.set_collateral_token import SetCollateralTokenParameter, ActionItem as createCollateralToken
 import mavryk.models as models
 
 async def set_collateral_token(
     ctx: HandlerContext,
-    set_collateral_token: Transaction[SetCollateralTokenParameter, LendingControllerMockTimeStorage],
+    set_collateral_token: TzktTransaction[SetCollateralTokenParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:
         # Get operation info
         action_class                    = type(set_collateral_token.parameter.action)
         if action_class == createCollateralToken:
-            collateral_token_name       = set_collateral_token.parameter.action.createCollateralToken.tokenName
+            collateral_token_name       = set_collateral_token.parameterparameter.action.createCollateralToken.tokenName
         else:
             collateral_token_name       = set_collateral_token.parameter.action.updateCollateralToken.tokenName
     

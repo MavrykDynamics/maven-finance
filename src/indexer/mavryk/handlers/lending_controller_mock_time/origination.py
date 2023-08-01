@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.contracts import get_contract_metadata
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 from dipdup.context import HandlerContext
-from dipdup.models import Origination
+from dipdup.models.tezos_tzkt import TzktOrigination
 import mavryk.models as models
 
 async def origination(
     ctx: HandlerContext,
-    lending_controller_mock_time_origination: Origination[LendingControllerMockTimeStorage],
+    lending_controller_mock_time_origination: TzktOrigination[LendingControllerMockTimeStorage],
 ) -> None:
 
     try:    

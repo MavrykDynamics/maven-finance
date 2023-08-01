@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.aggregator.parameter.withdraw_reward_xtz import WithdrawRewardXtzParameter
-from mavryk.types.aggregator.storage import AggregatorStorage
-from dipdup.models import Transaction
+from mavryk.types.aggregator.tezos_parameters.withdraw_reward_xtz import WithdrawRewardXtzParameter
+from mavryk.types.aggregator.tezos_storage import AggregatorStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def withdraw_reward_xtz(
     ctx: HandlerContext,
-    withdraw_reward_xtz: Transaction[WithdrawRewardXtzParameter, AggregatorStorage],
+    withdraw_reward_xtz: TzktTransaction[WithdrawRewardXtzParameter, AggregatorStorage],
 ) -> None:
 
     try:

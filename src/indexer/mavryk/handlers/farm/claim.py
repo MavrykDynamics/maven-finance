@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.farm.storage import FarmStorage
-from mavryk.types.farm.parameter.claim import ClaimParameter
-from dipdup.models import Transaction
+from mavryk.types.farm.tezos_storage import FarmStorage
+from mavryk.types.farm.tezos_parameters.claim import ClaimParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def claim(
     ctx: HandlerContext,
-    claim: Transaction[ClaimParameter, FarmStorage],
+    claim: TzktTransaction[ClaimParameter, FarmStorage],
 ) -> None:
 
     try:

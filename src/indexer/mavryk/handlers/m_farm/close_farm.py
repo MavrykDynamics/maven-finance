@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.m_farm.parameter.close_farm import CloseFarmParameter
-from mavryk.types.m_farm.storage import MFarmStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.m_farm.tezos_parameters.close_farm import CloseFarmParameter
+from mavryk.types.m_farm.tezos_storage import MFarmStorage
 import mavryk.models as models
 
 async def close_farm(
     ctx: HandlerContext,
-    close_farm: Transaction[CloseFarmParameter, MFarmStorage],
+    close_farm: TzktTransaction[CloseFarmParameter, MFarmStorage],
 ) -> None:
 
     try:

@@ -1,16 +1,16 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from urllib import request
-from mavryk.types.governance.storage import GovernanceStorage
-from mavryk.types.governance.parameter.execute_proposal import ExecuteProposalParameter
+from mavryk.types.governance.tezos_storage import GovernanceStorage
+from mavryk.types.governance.tezos_parameters.execute_proposal import ExecuteProposalParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 from dateutil import parser
 
 async def execute_proposal(
     ctx: HandlerContext,
-    execute_proposal: Transaction[ExecuteProposalParameter, GovernanceStorage],
+    execute_proposal: TzktTransaction[ExecuteProposalParameter, GovernanceStorage],
 ) -> None:
 
     try:

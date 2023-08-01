@@ -2,20 +2,20 @@ import mavryk.models as models
 from mavryk.utils.contracts import get_token_standard, get_contract_metadata
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Origination
-from dipdup.models import Transaction
-from mavryk.types.lending_controller.parameter.register_vault_creation import RegisterVaultCreationParameter
-from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
-from mavryk.types.vault.storage import VaultStorage, Depositor as Any, Depositor1 as Whitelist
-from mavryk.types.vault_factory.parameter.create_vault import CreateVaultParameter
-from mavryk.types.vault_factory.storage import VaultFactoryStorage
+from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.lending_controller.tezos_parameters.register_vault_creation import RegisterVaultCreationParameter
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from mavryk.types.vault.tezos_storage import VaultStorage, Depositor as Any, Depositor1 as Whitelist
+from mavryk.types.vault_factory.tezos_parameters.create_vault import CreateVaultParameter
+from mavryk.types.vault_factory.tezos_storage import VaultFactoryStorage
 from dateutil import parser
 
 async def create_vault(
     ctx: HandlerContext,
-    create_vault: Transaction[CreateVaultParameter, VaultFactoryStorage],
-    vault_origination: Origination[VaultStorage],
-    register_vault_creation: Transaction[RegisterVaultCreationParameter, LendingControllerStorage],
+    create_vault: TzktTransaction[CreateVaultParameter, VaultFactoryStorage],
+    vault_origination: TzktOrigination[VaultStorage],
+    register_vault_creation: TzktTransaction[RegisterVaultCreationParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -47,6 +47,7 @@ async def create_vault(
         vault_contract  =  f'{vault_address}contract'
         if not vault_contract in ctx.config.contracts: 
             await ctx.add_contract(
+                kind="tezos",
                 name=vault_contract,
                 address=vault_address,
                 typename="vault"

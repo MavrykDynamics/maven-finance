@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.governance.storage import GovernanceStorage
-from dipdup.models import Transaction
-from mavryk.types.governance.parameter.process_proposal_payment import ProcessProposalPaymentParameter
+from mavryk.types.governance.tezos_storage import GovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance.tezos_parameters.process_proposal_payment import ProcessProposalPaymentParameter
 import mavryk.models as models
 
 async def process_proposal_payment(
     ctx: HandlerContext,
-    process_proposal_payment: Transaction[ProcessProposalPaymentParameter, GovernanceStorage],
+    process_proposal_payment: TzktTransaction[ProcessProposalPaymentParameter, GovernanceStorage],
 ) -> None:
 
     try:
