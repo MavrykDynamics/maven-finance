@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_admin
-from mavryk.types.governance_satellite.parameter.set_admin import SetAdminParameter
-from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
-from dipdup.models import Transaction
+from mavryk.types.governance_satellite.tezos_parameters.set_admin import SetAdminParameter
+from mavryk.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def set_admin(
     ctx: HandlerContext,
-    set_admin: Transaction[SetAdminParameter, GovernanceSatelliteStorage],
+    set_admin: TzktTransaction[SetAdminParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

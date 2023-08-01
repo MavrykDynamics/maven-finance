@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_governance_satellite_action
-from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
-from mavryk.types.governance_satellite.parameter.fix_mistaken_transfer import FixMistakenTransferParameter
-from dipdup.models import Transaction
+from mavryk.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
+from mavryk.types.governance_satellite.tezos_parameters.fix_mistaken_transfer import FixMistakenTransferParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 
 async def fix_mistaken_transfer(
     ctx: HandlerContext,
-    fix_mistaken_transfer: Transaction[FixMistakenTransferParameter, GovernanceSatelliteStorage],
+    fix_mistaken_transfer: TzktTransaction[FixMistakenTransferParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

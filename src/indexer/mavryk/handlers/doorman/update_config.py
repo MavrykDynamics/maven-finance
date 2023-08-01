@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.doorman.storage import DoormanStorage
-from mavryk.types.doorman.parameter.update_config import UpdateConfigParameter
+from mavryk.types.doorman.tezos_storage import DoormanStorage
+from mavryk.types.doorman.tezos_parameters.update_config import UpdateConfigParameter
 import mavryk.models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: Transaction[UpdateConfigParameter, DoormanStorage],
+    update_config: TzktTransaction[UpdateConfigParameter, DoormanStorage],
 ) -> None:
 
     try:    

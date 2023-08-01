@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from mavryk.types.aggregator.storage import AggregatorStorage
-from mavryk.types.aggregator.parameter.update_data import UpdateDataParameter
-from dipdup.models import Transaction
+from mavryk.types.aggregator.tezos_storage import AggregatorStorage
+from mavryk.types.aggregator.tezos_parameters.update_data import UpdateDataParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 from dateutil import parser
 
 async def update_data(
     ctx: HandlerContext,
-    update_data: Transaction[UpdateDataParameter, AggregatorStorage],
+    update_data: TzktTransaction[UpdateDataParameter, AggregatorStorage],
 ) -> None:
 
     try:

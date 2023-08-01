@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.aggregator.parameter.add_oracle import AddOracleParameter
-from mavryk.types.aggregator.storage import AggregatorStorage
-from dipdup.models import Transaction
+from mavryk.types.aggregator.tezos_parameters.add_oracle import AddOracleParameter
+from mavryk.types.aggregator.tezos_storage import AggregatorStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def add_oracle(
     ctx: HandlerContext,
-    add_oracle: Transaction[AddOracleParameter, AggregatorStorage],
+    add_oracle: TzktTransaction[AddOracleParameter, AggregatorStorage],
 ) -> None:
 
     try:

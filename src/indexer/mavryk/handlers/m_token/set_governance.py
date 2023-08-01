@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from mavryk.utils.persisters import persist_governance
-from mavryk.types.m_token.parameter.set_governance import SetGovernanceParameter
-from mavryk.types.m_token.storage import MTokenStorage
+from mavryk.types.m_token.tezos_parameters.set_governance import SetGovernanceParameter
+from mavryk.types.m_token.tezos_storage import MTokenStorage
 import mavryk.models as models
 
 
 async def set_governance(
     ctx: HandlerContext,
-    set_governance: Transaction[SetGovernanceParameter, MTokenStorage],
+    set_governance: TzktTransaction[SetGovernanceParameter, MTokenStorage],
 ) -> None:
 
     try:

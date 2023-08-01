@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.farm_factory.parameter.track_farm import TrackFarmParameter
-from mavryk.types.farm_factory.storage import FarmFactoryStorage
-from dipdup.models import Transaction, Contract
+from mavryk.types.farm_factory.tezos_parameters.track_farm import TrackFarmParameter
+from mavryk.types.farm_factory.tezos_storage import FarmFactoryStorage
+from dipdup.models.tezos_tzkt import TzktTransaction, Contract
 import mavryk.models as models
 
 async def track_farm(
     ctx: HandlerContext,
-    track_farm: Transaction[TrackFarmParameter, FarmFactoryStorage],
+    track_farm: TzktTransaction[TrackFarmParameter, FarmFactoryStorage],
 ) -> None:
 
     try:

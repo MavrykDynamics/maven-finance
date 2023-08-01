@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.break_glass.parameter.sign_action import SignActionParameter
-from mavryk.types.break_glass.storage import BreakGlassStorage
-from dipdup.models import Transaction
+from mavryk.types.break_glass.tezos_parameters.sign_action import SignActionParameter
+from mavryk.types.break_glass.tezos_storage import BreakGlassStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dateutil import parser
 import mavryk.models as models
 
 async def sign_action(
     ctx: HandlerContext,
-    sign_action: Transaction[SignActionParameter, BreakGlassStorage],
+    sign_action: TzktTransaction[SignActionParameter, BreakGlassStorage],
 ) -> None:
 
     try:

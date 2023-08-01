@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from mavryk.utils.persisters import persist_council_action
-from mavryk.types.council.parameter.council_action_add_vestee import CouncilActionAddVesteeParameter
-from dipdup.models import Transaction
+from mavryk.types.council.tezos_parameters.council_action_add_vestee import CouncilActionAddVesteeParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.council.storage import CouncilStorage
+from mavryk.types.council.tezos_storage import CouncilStorage
 
 async def council_action_add_vestee(
     ctx: HandlerContext,
-    council_action_add_vestee: Transaction[CouncilActionAddVesteeParameter, CouncilStorage],
+    council_action_add_vestee: TzktTransaction[CouncilActionAddVesteeParameter, CouncilStorage],
 ) -> None:
 
     try:

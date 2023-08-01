@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.doorman.parameter.withdraw_stake import OnVaultWithdrawStakeParameter
-from mavryk.types.doorman.storage import DoormanStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.doorman.tezos_parameters.withdraw_stake import OnVaultWithdrawStakeParameter
+from mavryk.types.doorman.tezos_storage import DoormanStorage
 import mavryk.models as models
 
 async def withdraw_stake(
     ctx: HandlerContext,
-    withdraw_stake: Transaction[OnVaultWithdrawStakeParameter, DoormanStorage],
+    withdraw_stake: TzktTransaction[OnVaultWithdrawStakeParameter, DoormanStorage],
 ) -> None:
 
     try:

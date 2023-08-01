@@ -1,17 +1,17 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.mvk_token.parameter.transfer import TransferParameter
-from mavryk.types.doorman.storage import DoormanStorage
-from dipdup.models import Transaction
+from mavryk.types.mvk_token.tezos_parameters.transfer import TransferParameter
+from mavryk.types.doorman.tezos_storage import DoormanStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.doorman.parameter.unstake import UnstakeParameter
-from mavryk.types.mvk_token.storage import MvkTokenStorage
+from mavryk.types.doorman.tezos_parameters.unstake import UnstakeParameter
+from mavryk.types.mvk_token.tezos_storage import MvkTokenStorage
 import mavryk.models as models
 
 async def unstake(
     ctx: HandlerContext,
-    unstake: Transaction[UnstakeParameter, DoormanStorage],
-    transfer: Transaction[TransferParameter, MvkTokenStorage],
+    unstake: TzktTransaction[UnstakeParameter, DoormanStorage],
+    transfer: TzktTransaction[TransferParameter, MvkTokenStorage],
 ) -> None:
 
     try:

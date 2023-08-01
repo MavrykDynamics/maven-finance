@@ -1,12 +1,12 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Origination
-from mavryk.types.mvk_faucet.storage import MvkFaucetStorage
+from dipdup.models.tezos_tzkt import TzktOrigination
+from mavryk.types.mvk_faucet.tezos_storage import MvkFaucetStorage
 import mavryk.models as models
 
 async def origination(
     ctx: HandlerContext,
-    mvk_faucet_origination: Origination[MvkFaucetStorage],
+    mvk_faucet_origination: TzktOrigination[MvkFaucetStorage],
 ) -> None:
 
     try:    

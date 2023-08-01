@@ -1,14 +1,14 @@
 from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.treasury.parameter.default import DefaultParameter
-from mavryk.types.treasury.storage import TreasuryStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.treasury.tezos_parameters.default import DefaultParameter
+from mavryk.types.treasury.tezos_storage import TreasuryStorage
 from mavryk import models as models
 
 async def default(
     ctx: HandlerContext,
-    default: Transaction[DefaultParameter, TreasuryStorage],
+    default: TzktTransaction[DefaultParameter, TreasuryStorage],
 ) -> None:
     try:    
         # Get operation info

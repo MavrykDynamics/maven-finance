@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_governance_satellite_action
-from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
-from mavryk.types.governance_satellite.parameter.remove_oracle_in_aggregator import RemoveOracleInAggregatorParameter
-from dipdup.models import Transaction
+from mavryk.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
+from mavryk.types.governance_satellite.tezos_parameters.remove_oracle_in_aggregator import RemoveOracleInAggregatorParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 
 async def remove_oracle_in_aggregator(
     ctx: HandlerContext,
-    remove_oracle_in_aggregator: Transaction[RemoveOracleInAggregatorParameter, GovernanceSatelliteStorage],
+    remove_oracle_in_aggregator: TzktTransaction[RemoveOracleInAggregatorParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

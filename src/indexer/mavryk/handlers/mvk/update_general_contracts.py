@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from mavryk.utils.persisters import persist_linked_contract
-from mavryk.types.mvk_token.storage import MvkTokenStorage
-from mavryk.types.mvk_token.parameter.update_general_contracts import UpdateGeneralContractsParameter
+from mavryk.types.mvk_token.tezos_storage import MvkTokenStorage
+from mavryk.types.mvk_token.tezos_parameters.update_general_contracts import UpdateGeneralContractsParameter
 import mavryk.models as models
 
 async def update_general_contracts(
     ctx: HandlerContext,
-    update_general_contracts: Transaction[UpdateGeneralContractsParameter, MvkTokenStorage],
+    update_general_contracts: TzktTransaction[UpdateGeneralContractsParameter, MvkTokenStorage],
 ) -> None:
 
     try:

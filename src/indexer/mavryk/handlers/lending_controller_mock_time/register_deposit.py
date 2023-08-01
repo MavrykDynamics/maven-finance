@@ -1,16 +1,16 @@
 from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem1 as Fa2
-from mavryk.types.lending_controller_mock_time.parameter.register_deposit import RegisterDepositParameter
-from dipdup.models import Transaction
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenTypeItem1 as Fa2
+from mavryk.types.lending_controller_mock_time.tezos_parameters.register_deposit import RegisterDepositParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
 from dateutil import parser
 
 async def register_deposit(
     ctx: HandlerContext,
-    register_deposit: Transaction[RegisterDepositParameter, LendingControllerMockTimeStorage],
+    register_deposit: TzktTransaction[RegisterDepositParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:

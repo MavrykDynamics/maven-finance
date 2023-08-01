@@ -1,14 +1,14 @@
 from mavryk.utils.contracts import get_contract_metadata
 from mavryk.utils.error_reporting import save_error_report
 
-from dipdup.models import Origination
-from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
+from dipdup.models.tezos_tzkt import TzktOrigination
+from mavryk.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def origination(
     ctx: HandlerContext,
-    aggregator_factory_origination: Origination[AggregatorFactoryStorage],
+    aggregator_factory_origination: TzktOrigination[AggregatorFactoryStorage],
 ) -> None:
 
     try:

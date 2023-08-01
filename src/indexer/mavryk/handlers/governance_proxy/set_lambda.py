@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from mavryk.utils.persisters import persist_lambda
-from mavryk.types.governance_proxy.storage import GovernanceProxyStorage
-from mavryk.types.governance_proxy.parameter.set_lambda import SetLambdaParameter
+from mavryk.types.governance_proxy.tezos_storage import GovernanceProxyStorage
+from mavryk.types.governance_proxy.tezos_parameters.set_lambda import SetLambdaParameter
 import mavryk.models as models
 
 async def set_lambda(
     ctx: HandlerContext,
-    set_lambda: Transaction[SetLambdaParameter, GovernanceProxyStorage],
+    set_lambda: TzktTransaction[SetLambdaParameter, GovernanceProxyStorage],
 ) -> None:
 
     try:

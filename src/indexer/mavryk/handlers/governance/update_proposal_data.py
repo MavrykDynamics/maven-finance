@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.contracts import get_token_standard, get_contract_token_metadata
-from mavryk.types.governance.storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
-from dipdup.models import Transaction
+from mavryk.types.governance.tezos_storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.governance.parameter.update_proposal_data import UpdateProposalDataParameter
+from mavryk.types.governance.tezos_parameters.update_proposal_data import UpdateProposalDataParameter
 import mavryk.models as models
 
 async def update_proposal_data(
     ctx: HandlerContext,
-    update_proposal_data: Transaction[UpdateProposalDataParameter, GovernanceStorage],
+    update_proposal_data: TzktTransaction[UpdateProposalDataParameter, GovernanceStorage],
 ) -> None:
 
     try:

@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_governance_satellite_action
-from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
-from dipdup.models import Transaction
-from mavryk.types.governance_satellite.parameter.ban_satellite import BanSatelliteParameter
+from mavryk.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance_satellite.tezos_parameters.ban_satellite import BanSatelliteParameter
 from dipdup.context import HandlerContext
 
 async def ban_satellite(
     ctx: HandlerContext,
-    ban_satellite: Transaction[BanSatelliteParameter, GovernanceSatelliteStorage],
+    ban_satellite: TzktTransaction[BanSatelliteParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

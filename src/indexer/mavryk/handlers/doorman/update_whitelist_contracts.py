@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from mavryk.utils.persisters import persist_linked_contract
-from mavryk.types.doorman.parameter.update_whitelist_contracts import UpdateWhitelistContractsParameter
+from mavryk.types.doorman.tezos_parameters.update_whitelist_contracts import UpdateWhitelistContractsParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.doorman.storage import DoormanStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.doorman.tezos_storage import DoormanStorage
 import mavryk.models as models
 
 async def update_whitelist_contracts(
     ctx: HandlerContext,
-    update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, DoormanStorage],
+    update_whitelist_contracts: TzktTransaction[UpdateWhitelistContractsParameter, DoormanStorage],
 ) -> None:
 
     try:

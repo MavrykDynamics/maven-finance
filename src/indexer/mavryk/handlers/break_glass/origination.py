@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from unicodedata import name
-from dipdup.models import Origination
+from dipdup.models.tezos_tzkt import TzktOrigination
 from dipdup.context import HandlerContext
 from mavryk.utils.contracts import get_contract_metadata
-from mavryk.types.break_glass.storage import BreakGlassStorage
+from mavryk.types.break_glass.tezos_storage import BreakGlassStorage
 import mavryk.models as models
 
 async def origination(
     ctx: HandlerContext,
-    break_glass_origination: Origination[BreakGlassStorage],
+    break_glass_origination: TzktOrigination[BreakGlassStorage],
 ) -> None:
 
     try:

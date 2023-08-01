@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
-from dipdup.models import Transaction
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from mavryk.types.lending_controller_mock_time.parameter.mark_for_liquidation import MarkForLiquidationParameter
+from mavryk.types.lending_controller_mock_time.tezos_parameters.mark_for_liquidation import MarkForLiquidationParameter
 import mavryk.models as models
 from dateutil import parser
 
 async def mark_for_liquidation(
     ctx: HandlerContext,
-    mark_for_liquidation: Transaction[MarkForLiquidationParameter, LendingControllerMockTimeStorage],
+    mark_for_liquidation: TzktTransaction[MarkForLiquidationParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:

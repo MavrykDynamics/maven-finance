@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.delegation.storage import DelegationStorage
-from mavryk.types.delegation.parameter.distribute_reward import DistributeRewardParameter
+from mavryk.types.delegation.tezos_storage import DelegationStorage
+from mavryk.types.delegation.tezos_parameters.distribute_reward import DistributeRewardParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
 
 async def distribute_reward(
     ctx: HandlerContext,
-    distribute_reward: Transaction[DistributeRewardParameter, DelegationStorage],
+    distribute_reward: TzktTransaction[DistributeRewardParameter, DelegationStorage],
 ) -> None:
 
     try:

@@ -1,16 +1,16 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from mavryk.utils.contracts import get_token_standard
-from mavryk.types.lending_controller.parameter.register_withdrawal import RegisterWithdrawalParameter
-from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem1 as Fa2
+from mavryk.types.lending_controller.tezos_parameters.register_withdrawal import RegisterWithdrawalParameter
+from mavryk.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem1 as Fa2
 import mavryk.models as models
 from dateutil import parser
 
 async def register_withdrawal(
     ctx: HandlerContext,
-    register_withdrawal: Transaction[RegisterWithdrawalParameter, LendingControllerStorage],
+    register_withdrawal: TzktTransaction[RegisterWithdrawalParameter, LendingControllerStorage],
 ) -> None:
 
     try:

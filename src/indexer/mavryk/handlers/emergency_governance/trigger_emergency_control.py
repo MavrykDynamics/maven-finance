@@ -1,15 +1,15 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.emergency_governance.parameter.trigger_emergency_control import TriggerEmergencyControlParameter
-from mavryk.types.emergency_governance.storage import EmergencyGovernanceStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.emergency_governance.tezos_parameters.trigger_emergency_control import TriggerEmergencyControlParameter
+from mavryk.types.emergency_governance.tezos_storage import EmergencyGovernanceStorage
 from dateutil import parser 
 import mavryk.models as models
 
 async def trigger_emergency_control(
     ctx: HandlerContext,
-    trigger_emergency_control: Transaction[TriggerEmergencyControlParameter, EmergencyGovernanceStorage],
+    trigger_emergency_control: TzktTransaction[TriggerEmergencyControlParameter, EmergencyGovernanceStorage],
 ) -> None:
 
     try:

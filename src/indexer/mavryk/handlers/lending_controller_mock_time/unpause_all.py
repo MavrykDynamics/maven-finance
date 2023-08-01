@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.lending_controller_mock_time.parameter.unpause_all import UnpauseAllParameter
-from mavryk.types.lending_controller_mock_time.storage import LendingControllerMockTimeStorage
-from dipdup.models import Transaction
+from mavryk.types.lending_controller_mock_time.tezos_parameters.unpause_all import UnpauseAllParameter
+from mavryk.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: Transaction[UnpauseAllParameter, LendingControllerMockTimeStorage],
+    unpause_all: TzktTransaction[UnpauseAllParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:

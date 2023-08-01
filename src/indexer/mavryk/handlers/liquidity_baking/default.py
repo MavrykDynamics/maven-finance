@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.liquidity_baking.parameter.default import DefaultParameter
-from mavryk.types.liquidity_baking.storage import LiquidityBakingStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.liquidity_baking.tezos_parameters.default import DefaultParameter
+from mavryk.types.liquidity_baking.tezos_storage import LiquidityBakingStorage
 import mavryk.models as models
 
 async def default(
     ctx: HandlerContext,
-    default: Transaction[DefaultParameter, LiquidityBakingStorage],
+    default: TzktTransaction[DefaultParameter, LiquidityBakingStorage],
 ) -> None:
 
     try:

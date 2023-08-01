@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.farm.storage import FarmStorage
-from mavryk.types.farm.parameter.withdraw import WithdrawParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.farm.tezos_storage import FarmStorage
+from mavryk.types.farm.tezos_parameters.withdraw import WithdrawParameter
 import mavryk.models as models
 
 async def withdraw(
     ctx: HandlerContext,
-    withdraw: Transaction[WithdrawParameter, FarmStorage],
+    withdraw: TzktTransaction[WithdrawParameter, FarmStorage],
 ) -> None:
 
     try:

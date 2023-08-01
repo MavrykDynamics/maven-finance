@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
-from dipdup.models import Transaction, Q
-from mavryk.types.governance.parameter.start_next_round import StartNextRoundParameter
+from mavryk.types.governance.tezos_storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
+from dipdup.models.tezos_tzkt import TzktTransaction, Q
+from mavryk.types.governance.tezos_parameters.start_next_round import StartNextRoundParameter
 import mavryk.models as models
 
 async def start_next_round(
     ctx: HandlerContext,
-    start_next_round: Transaction[StartNextRoundParameter, GovernanceStorage],
+    start_next_round: TzktTransaction[StartNextRoundParameter, GovernanceStorage],
 ) -> None:
 
     try:

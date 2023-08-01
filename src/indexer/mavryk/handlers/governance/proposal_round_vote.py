@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.governance.storage import GovernanceStorage
-from mavryk.types.governance.parameter.proposal_round_vote import ProposalRoundVoteParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.governance.tezos_storage import GovernanceStorage
+from mavryk.types.governance.tezos_parameters.proposal_round_vote import ProposalRoundVoteParameter
 import mavryk.models as models
 
 async def proposal_round_vote(
     ctx: HandlerContext,
-    proposal_round_vote: Transaction[ProposalRoundVoteParameter, GovernanceStorage],
+    proposal_round_vote: TzktTransaction[ProposalRoundVoteParameter, GovernanceStorage],
 ) -> None:
 
     try:

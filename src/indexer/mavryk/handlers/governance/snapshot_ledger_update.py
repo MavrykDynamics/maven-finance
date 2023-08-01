@@ -1,15 +1,16 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.governance.big_map.snapshot_ledger_key import SnapshotLedgerKey
-from mavryk.types.governance.big_map.snapshot_ledger_value import SnapshotLedgerValue
+from mavryk.types.governance.tezos_big_maps.snapshot_ledger_key import SnapshotLedgerKey
+from mavryk.types.governance.tezos_big_maps.snapshot_ledger_value import SnapshotLedgerValue
 from mavryk import models as models
 from dipdup.context import HandlerContext
-from dipdup.models import BigMapDiff, Q
+from dipdup.models import Q
+from dipdup.models.tezos_tzkt import TzktBigMapDiff
 import mavryk.models as models
 
 async def snapshot_ledger_update(
     ctx: HandlerContext,
-    snapshot_ledger: BigMapDiff[SnapshotLedgerKey, SnapshotLedgerValue],
+    snapshot_ledger: TzktBigMapDiff[SnapshotLedgerKey, SnapshotLedgerValue],
 ) -> None:
 
     try:

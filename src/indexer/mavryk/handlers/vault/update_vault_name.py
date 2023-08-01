@@ -1,13 +1,13 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.vault.parameter.update_vault_name import UpdateVaultNameParameter
-from mavryk.types.vault.storage import VaultStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.vault.tezos_parameters.update_vault_name import UpdateVaultNameParameter
+from mavryk.types.vault.tezos_storage import VaultStorage
 import mavryk.models as models
 
 async def update_vault_name(
     ctx: HandlerContext,
-    update_vault_name: Transaction[UpdateVaultNameParameter, VaultStorage],
+    update_vault_name: TzktTransaction[UpdateVaultNameParameter, VaultStorage],
 ) -> None:
 
     try:

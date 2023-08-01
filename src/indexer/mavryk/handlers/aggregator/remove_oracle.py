@@ -1,14 +1,14 @@
 from mavryk.utils.error_reporting import save_error_report
 
-from mavryk.types.aggregator.parameter.remove_oracle import RemoveOracleParameter
-from mavryk.types.aggregator.storage import AggregatorStorage
-from dipdup.models import Transaction
+from mavryk.types.aggregator.tezos_parameters.remove_oracle import RemoveOracleParameter
+from mavryk.types.aggregator.tezos_storage import AggregatorStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
 async def remove_oracle(
     ctx: HandlerContext,
-    remove_oracle: Transaction[RemoveOracleParameter, AggregatorStorage],
+    remove_oracle: TzktTransaction[RemoveOracleParameter, AggregatorStorage],
 ) -> None:
 
     try:
