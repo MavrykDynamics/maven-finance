@@ -94,6 +94,14 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/18_test_governance_financial.spec.ts --bail --timeout 9000000")
             COMMANDS+=("yarn ts-mocha --paths test/19_test_governance_satellite.spec.ts --bail --timeout 9000000")
             ;;
+        dev2)
+            echo "Running tests for governanceFinancial"
+            COMMANDS+=("yarn ts-mocha --paths test/13_test_treasury.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/17_setup_aggregators.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/18_test_governance_financial.spec.ts --bail --timeout 9000000")
+            COMMANDS+=("yarn ts-mocha --paths test/19_test_governance_satellite.spec.ts --bail --timeout 9000000")
+            ;;
         governanceFinancial)
             echo "Running tests for governanceFinancial"
             COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000")
